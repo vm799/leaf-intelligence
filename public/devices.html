@@ -3,16 +3,2427 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Summary Enhancement</title>
+    <title>Device Intelligence Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#059669',
+                        secondary: '#10b981',
+                        accent: '#34d399'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .tab-button {
+            transition: all 0.3s ease;
+        }
+        .tab-button.active {
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(5, 150, 105, 0.3);
+        }
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 50%, #d1fae5 100%);
+        }
+        .loading-spinner {
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #059669;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .expandable-section {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+        .expandable-section.expanded {
+            max-height: 1000px;
+        }
+        .detail-modal {
+            backdrop-filter: blur(10px);
+            background: rgba(0, 0, 0, 0.5);
+        }
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .cfr-part-card {
+            border-left: 4px solid #059669;
+            background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%);
+        }
+        .pathway-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        .pathway-badge.pma {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        .pathway-badge.five10k {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        .pathway-badge.denovo {
+            background: #e0e7ff;
+            color: #5b21b6;
+        }
+        .chart-container {
+            min-height: 300px;
+            position: relative;
+        }
+        .chart-bar {
+            transition: all 0.3s ease;
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+            border-radius: 4px 4px 0 0;
+        }
+        .chart-bar:hover {
+            background: linear-gradient(135deg, #047857 0%, #059669 100%);
+            transform: scale(1.05);
+        }
+        .error-state {
+            background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+            border: 1px solid #fca5a5;
+        }
+        .success-state {
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            border: 1px solid #86efac;
+        }
+    </style>
 </head>
-<body class="bg-gray-50 p-8">
-    <!-- AI Summary Section HTML Structure -->
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <header class="gradient-bg relative shadow-lg">
+        <div class="absolute inset-0 bg-white/60 backdrop-blur-md border-b border-white/20"></div>
+        <div class="container mx-auto relative z-10">
+            <nav class="flex justify-between items-center px-4 py-4">
+                <div class="flex items-center space-x-3">
+                    <div class="relative">
+                        <div class="absolute inset-0 bg-gradient-to-r from-primary to-secondary rounded-lg blur opacity-75"></div>
+                        <div class="relative bg-gradient-to-r from-primary to-secondary text-white p-2 rounded-lg">
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                            Device Intelligence
+                        </h1>
+                        <p class="text-sm text-gray-600">Advanced FDA Medical Device Analytics</p>
+                    </div>
+                </div>
+                <a href="/drug-intelligence" class="group relative">
+                    <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-blue-500/10 to-purple-500/10 rounded-lg blur opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div class="relative bg-white/20 backdrop-blur-sm border border-white/20 text-gray-600 hover:text-gray-700 transition-all duration-300 flex items-center text-sm font-medium px-3 py-2 rounded-lg hover:bg-white/30 hover:border-blue-200/30 hover:shadow-md">
+                        <svg class="h-4 w-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 8.172V5L8 4z"/>
+                        </svg>
+                        <span>Switch to Drugs</span>
+                    </div>
+                </a>
+            </nav>
+        </div>
+    </header>
 
+    <!-- Main Content -->
+    <div class="container mx-auto px-4 py-8">
+        <!-- Search Section -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-8 card-hover">
+            <h2 class="text-xl font-semibold mb-4 text-gray-800">Device Intelligence Search</h2>
+            <div class="flex flex-col md:flex-row gap-4">
+                <div class="flex-grow">
+                    <label for="searchInput" class="block text-sm font-medium mb-2 text-gray-700">Search Term</label>
+                    <input type="text" id="searchInput" 
+                           placeholder="Enter device name, product code, K-number, or company name" 
+                           class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                </div>
+                <div class="flex items-end">
+                    <button id="searchButton" 
+                            class="px-6 py-3 bg-gradient-to-r from-primary to-secondary text-white rounded-lg hover:from-primary/90 hover:to-secondary/90 transition-all duration-300 flex items-center space-x-2 shadow-lg hover:shadow-xl">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
+                        <span>Search</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loadingState" class="hidden bg-white rounded-xl shadow-lg p-8 mb-8">
+            <div class="flex justify-center items-center space-x-3">
+                <div class="loading-spinner"></div>
+                <span class="text-gray-600">Analyzing device data...</span>
+            </div>
+        </div>
+
+        <!-- Error State -->
+        <div id="errorState" class="hidden error-state rounded-xl p-6 mb-8">
+            <div class="flex items-center space-x-3">
+                <svg class="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <div>
+                    <h3 class="text-red-800 font-medium">Search Error</h3>
+                    <p id="errorMessage" class="text-red-600 text-sm mt-1"></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div id="resultsSection" class="hidden">
+            <!-- Tab Navigation -->
+            <div class="bg-white rounded-xl shadow-lg mb-6">
+                <div class="flex flex-wrap border-b border-gray-200">
+                    <button class="tab-button active px-6 py-3 text-sm font-medium rounded-tl-xl" data-tab="overview">
+                        Overview
+                    </button>
+                    <button class="tab-button px-6 py-3 text-sm font-medium" data-tab="pathways">
+                        Regulatory Pathways
+                    </button>
+                    <button class="tab-button px-6 py-3 text-sm font-medium" data-tab="cfr-parts">
+                        CFR Parts
+                    </button>
+                    <button class="tab-button px-6 py-3 text-sm font-medium" data-tab="approvals">
+                        Approval Activity
+                    </button>
+                    <button class="tab-button px-6 py-3 text-sm font-medium" data-tab="competitive">
+                        Competitive Analysis
+                    </button>
+                    <button class="tab-button px-6 py-3 text-sm font-medium" data-tab="database">
+                        Database Results
+                    </button>
+                </div>
+
+                <!-- Overview Tab -->
+                <div id="overview" class="tab-content active p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+                        <div class="bg-gradient-to-br from-primary/5 to-secondary/5 p-6 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-2">Dominant Pathway</h3>
+                            <p id="dominantPathway" class="text-2xl font-bold text-primary">-</p>
+                            <p id="dominantPathwayCount" class="text-sm text-gray-600 mt-1">-</p>
+                        </div>
+                        <div class="bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-2">Device Class</h3>
+                            <p id="deviceClass" class="text-2xl font-bold text-blue-600">-</p>
+                            <p id="deviceClassDesc" class="text-sm text-gray-600 mt-1">-</p>
+                        </div>
+                        <div class="bg-gradient-to-br from-purple-50 to-pink-50 p-6 rounded-xl">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-2">Recent Activity</h3>
+                            <p id="recentActivity" class="text-2xl font-bold text-purple-600">-</p>
+                            <p id="recentActivityDesc" class="text-sm text-gray-600 mt-1">-</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="bg-gray-50 rounded-xl p-6">
+                            <h3 class="text-lg font-semibold mb-4 text-gray-800">Key Requirements</h3>
+                            <div id="keyRequirements" class="space-y-3">
+                                <!-- Requirements will be populated here -->
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 rounded-xl p-6">
+                            <h3 class="text-lg font-semibold mb-4 text-gray-800">Recommendations</h3>
+                            <div id="recommendations" class="space-y-3">
+                                <!-- Recommendations will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Regulatory Pathways Tab -->
+                <div id="pathways" class="tab-content p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                        <div class="bg-blue-50 rounded-xl p-6">
+                            <div class="flex items-center justify-between mb-3">
+                                <h3 class="text-lg font-semibold text-blue-800">510(k)</h3>
+                                <span class="pathway-badge five10k" id="510kCount">0</span>
+                            </div>
+                            <p id="510kPercentage" class="text-2xl font-bold text-blue-600 mb-2">0%</p>
+                            <p class="text-sm text-blue-700">Substantial Equivalence</p>
+                            <div class="mt-3">
+                                <button class="text-sm text-blue-600 hover:text-blue-800 font-medium" onclick="showPathwayDetails('510k')">
+                                    View Details →
+                                </button>
+                            </div>
+                        </div>
+                        <div class="bg-yellow-50 rounded-xl p-6">
+                            <div class="flex items-center justify-between mb-3">
+                                <h3 class="text-lg font-semibold text-yellow-800">PMA</h3>
+                                <span class="pathway-badge pma" id="pmaCount">0</span>
+                            </div>
+                            <p id="pmaPercentage" class="text-2xl font-bold text-yellow-600 mb-2">0%</p>
+                            <p class="text-sm text-yellow-700">Premarket Approval</p>
+                            <div class="mt-3">
+                                <button class="text-sm text-yellow-600 hover:text-yellow-800 font-medium" onclick="showPathwayDetails('pma')">
+                                    View Details →
+                                </button>
+                            </div>
+                        </div>
+                        <div class="bg-purple-50 rounded-xl p-6">
+                            <div class="flex items-center justify-between mb-3">
+                                <h3 class="text-lg font-semibold text-purple-800">De Novo</h3>
+                                <span class="pathway-badge denovo" id="deNovoCount">0</span>
+                            </div>
+                            <p id="deNovoPercentage" class="text-2xl font-bold text-purple-600 mb-2">0%</p>
+                            <p class="text-sm text-purple-700">Novel Device Pathway</p>
+                            <div class="mt-3">
+                                <button class="text-sm text-purple-600 hover:text-purple-800 font-medium" onclick="showPathwayDetails('denovo')">
+                                    View Details →
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-50 rounded-xl p-6">
+                        <h3 class="text-lg font-semibold mb-4 text-gray-800">Approval Timeline Trends</h3>
+                        <div id="timelineChart" class="chart-container">
+                            <div class="flex items-center justify-center h-full text-gray-500">
+                                <span>Timeline chart will appear here</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CFR Parts Tab -->
+                <div id="cfr-parts" class="tab-content p-6">
+                    <div class="mb-6">
+                        <h3 class="text-lg font-semibold mb-4 text-gray-800">Applicable CFR Parts</h3>
+                        <div id="cfrPartsList" class="space-y-4">
+                            <!-- CFR parts will be populated here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Approval Activity Tab -->
+                <div id="approvals" class="tab-content p-6">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                        <div class="bg-gray-50 rounded-xl p-6">
+                            <h3 class="text-lg font-semibold mb-4 text-gray-800">Historical Approval Trends</h3>
+                            <div id="approvalTrendsChart" class="chart-container">
+                                <div class="flex items-center justify-center h-full text-gray-500">
+                                    <span>Approval trends chart will appear here</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 rounded-xl p-6">
+                            <h3 class="text-lg font-semibold mb-4 text-gray-800">Recent Approval Activity</h3>
+                            <div id="recentApprovals" class="space-y-3 max-h-80 overflow-y-auto">
+                                <!-- Recent approvals will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Competitive Analysis Tab -->
+                <div id="competitive" class="tab-content p-6">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="bg-gray-50 rounded-xl p-6">
+                            <h3 class="text-lg font-semibold mb-4 text-gray-800">Product Code Analysis</h3>
+                            <div id="productCodeAnalysis" class="space-y-3">
+                                <!-- Product code analysis will be populated here -->
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 rounded-xl p-6">
+                            <h3 class="text-lg font-semibold mb-4 text-gray-800">Competitive Landscape</h3>
+                            <div id="competitiveLandscape" class="space-y-3">
+                                <!-- Competitive landscape will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Database Results Tab -->
+                <div id="database" class="tab-content p-6">
+                    <div class="space-y-6">
+                        <div class="bg-gray-50 rounded-xl p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-lg font-semibold text-gray-800">510(k) Database Results</h3>
+                                <span id="510kResultsCount" class="text-sm text-gray-600">0 results</span>
+                            </div>
+                            <div id="510kResults" class="space-y-3 max-h-80 overflow-y-auto">
+                                <!-- 510(k) results will be populated here -->
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 rounded-xl p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-lg font-semibold text-gray-800">PMA Database Results</h3>
+                                <span id="pmaResultsCount" class="text-sm text-gray-600">0 results</span>
+                            </div>
+                            <div id="pmaResults" class="space-y-3 max-h-80 overflow-y-auto">
+                                <!-- PMA results will be populated here -->
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 rounded-xl p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-lg font-semibold text-gray-800">De Novo Database Results</h3>
+                                <span id="deNovoResultsCount" class="text-sm text-gray-600">0 results</span>
+                            </div>
+                            <div id="deNovoResults" class="space-y-3 max-h-80 overflow-y-auto">
+                                <!-- De Novo results will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detail Modal -->
+    <div id="detailModal" class="fixed inset-0 z-50 hidden detail-modal">
+        <div class="flex items-center justify-center min-h-screen px-4">
+            <div class="modal-content w-full max-w-4xl p-6">
+                <div class="flex justify-between items-start mb-4">
+                    <h2 id="modalTitle" class="text-xl font-bold text-gray-800"></h2>
+                    <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+                <div id="modalContent" class="max-h-96 overflow-y-auto">
+                    <!-- Modal content will be populated here -->
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script>
-        // Enhanced AI Summary Integration
+        // Global variables
+        let currentSearchData = null;
+        let currentSearchTerm = '';
 
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeEventListeners();
+        });
+
+        function initializeEventListeners() {
+            // Search functionality
+            document.getElementById('searchButton').addEventListener('click', performSearch);
+            document.getElementById('searchInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    performSearch();
+                }
+            });
+
+            // Tab navigation
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.addEventListener('click', function() {
+                    const tabName = this.getAttribute('data-tab');
+                    switchTab(tabName);
+                });
+            });
+        }
+
+        function switchTab(tabName) {
+            // Update tab buttons
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.classList.remove('active');
+            });
+            document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(tabName).classList.add('active');
+
+            // Load tab-specific data if needed
+            if (currentSearchData) {
+                loadTabData(tabName);
+            }
+        }
+
+        async function performSearch() {
+            const searchTerm = document.getElementById('searchInput').value.trim();
+            if (!searchTerm) return;
+
+            currentSearchTerm = searchTerm;
+            showLoading();
+
+            try {
+                const response = await fetch(`/api/device-intelligence?q=${encodeURIComponent(searchTerm)}`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                currentSearchData = data;
+                
+                hideLoading();
+                displayResults(data);
+                
+            } catch (error) {
+                console.error('Search error:', error);
+                hideLoading();
+                showError(error.message);
+            }
+        }
+
+        function showLoading() {
+            document.getElementById('loadingState').classList.remove('hidden');
+            document.getElementById('errorState').classList.add('hidden');
+            document.getElementById('resultsSection').classList.add('hidden');
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingState').classList.add('hidden');
+        }
+
+        function showError(message) {
+            document.getElementById('errorMessage').textContent = message;
+            document.getElementById('errorState').classList.remove('hidden');
+            document.getElementById('resultsSection').classList.add('hidden');
+        }
+
+        function displayResults(data) {
+            document.getElementById('resultsSection').classList.remove('hidden');
+            
+            // Populate overview tab
+            populateOverviewTab(data);
+            
+            // Load current active tab data
+            const activeTab = document.querySelector('.tab-button.active').getAttribute('data-tab');
+            loadTabData(activeTab);
+        }
+
+        function populateOverviewTab(data) {
+            // Dominant pathway
+            const pathwayInsights = data.pathwayInsights || {};
+            const pathwayBreakdown = pathwayInsights.pathwayBreakdown || {};
+            
+            let dominantPathway = 'Unknown';
+            let dominantCount = 0;
+            
+            if (pathwayBreakdown['510k']?.count > dominantCount) {
+                dominantPathway = '510(k)';
+                dominantCount = pathwayBreakdown['510k'].count;
+            }
+            if (pathwayBreakdown.pma?.count > dominantCount) {
+                dominantPathway = 'PMA';
+                dominantCount = pathwayBreakdown.pma.count;
+            }
+            if (pathwayBreakdown.deNovo?.count > dominantCount) {
+                dominantPathway = 'De Novo';
+                dominantCount = pathwayBreakdown.deNovo.count;
+            }
+            
+            document.getElementById('dominantPathway').textContent = dominantPathway;
+            document.getElementById('dominantPathwayCount').textContent = `${dominantCount} devices`;
+
+            // Device class
+            const profile = data.profile || {};
+            document.getElementById('deviceClass').textContent = profile.deviceClass || 'Unknown';
+            document.getElementById('deviceClassDesc').textContent = getDeviceClassDescription(profile.deviceClass);
+
+            // Recent activity
+            const totalDevices = (pathwayBreakdown['510k']?.count || 0) + 
+                               (pathwayBreakdown.pma?.count || 0) + 
+                               (pathwayBreakdown.deNovo?.count || 0);
+            document.getElementById('recentActivity').textContent = totalDevices.toString();
+            document.getElementById('recentActivityDesc').textContent = 'Total approved devices';
+
+           // Key requirements
+            populateKeyRequirements(data);
+            
+            // Recommendations
+            populateRecommendations(data);
+        }
+
+        function populateKeyRequirements(data) {
+            const requirementsContainer = document.getElementById('keyRequirements');
+            const profile = data.profile || {};
+            const requirements = [];
+
+            // Add requirements based on device class
+            if (profile.deviceClass === 'III' || profile.deviceClass === '3') {
+                requirements.push({
+                    type: 'critical',
+                    text: 'PMA required with extensive clinical data',
+                    icon: '⚠️'
+                });
+            } else if (profile.deviceClass === 'II' || profile.deviceClass === '2') {
+                requirements.push({
+                    type: 'important',
+                    text: '510(k) clearance typically required',
+                    icon: '📋'
+                });
+            }
+
+            // Add CFR requirements
+            if (data.cfrPartsAnalysis && data.cfrPartsAnalysis.length > 0) {
+                const primaryCFR = data.cfrPartsAnalysis[0];
+                requirements.push({
+                    type: 'regulatory',
+                    text: `Must comply with 21 CFR Part ${primaryCFR.part}`,
+                    icon: '📜'
+                });
+            }
+
+            // Add quality system requirements
+            if (profile.gmpRequired !== false) {
+                requirements.push({
+                    type: 'quality',
+                    text: 'Quality System Regulation (QSR) compliance required',
+                    icon: '✅'
+                });
+            }
+
+            requirementsContainer.innerHTML = requirements.map(req => `
+                <div class="flex items-start space-x-3 p-3 bg-white rounded-lg border border-gray-200">
+                    <span class="text-lg">${req.icon}</span>
+                    <div>
+                        <span class="text-sm font-medium text-gray-800">${req.text}</span>
+                        <div class="text-xs text-gray-500 mt-1 capitalize">${req.type}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function populateRecommendations(data) {
+            const recommendationsContainer = document.getElementById('recommendations');
+            const pathwayInsights = data.pathwayInsights || {};
+            const recommendations = pathwayInsights.recommendations || [];
+
+            if (recommendations.length === 0) {
+                recommendationsContainer.innerHTML = `
+                    <div class="text-center text-gray-500 py-4">
+                        No specific recommendations available
+                    </div>
+                `;
+                return;
+            }
+
+            recommendationsContainer.innerHTML = recommendations.map(rec => `
+                <div class="flex items-start space-x-3 p-3 bg-white rounded-lg border border-gray-200">
+                    <div class="w-2 h-2 bg-primary rounded-full mt-2"></div>
+                    <span class="text-sm text-gray-700">${rec}</span>
+                </div>
+            `).join('');
+        }
+
+        function loadTabData(tabName) {
+            if (!currentSearchData) return;
+
+            switch (tabName) {
+                case 'pathways':
+                    loadPathwaysTab(currentSearchData);
+                    break;
+                case 'cfr-parts':
+                    loadCFRPartsTab(currentSearchData);
+                    break;
+                case 'approvals':
+                    loadApprovalsTab(currentSearchData);
+                    break;
+                case 'competitive':
+                    loadCompetitiveTab(currentSearchData);
+                    break;
+                case 'database':
+                    loadDatabaseTab(currentSearchData);
+                    break;
+            }
+        }
+
+        function loadPathwaysTab(data) {
+            const pathwayInsights = data.pathwayInsights || {};
+            const pathwayBreakdown = pathwayInsights.pathwayBreakdown || {};
+            
+            // Calculate total for percentages
+            const total = (pathwayBreakdown['510k']?.count || 0) + 
+                         (pathwayBreakdown.pma?.count || 0) + 
+                         (pathwayBreakdown.deNovo?.count || 0);
+
+            // Update 510(k) section
+            const fiveOneOkCount = pathwayBreakdown['510k']?.count || 0;
+            const fiveOneOkPercentage = total > 0 ? Math.round((fiveOneOkCount / total) * 100) : 0;
+            document.getElementById('510kCount').textContent = fiveOneOkCount;
+            document.getElementById('510kPercentage').textContent = `${fiveOneOkPercentage}%`;
+
+            // Update PMA section
+            const pmaCount = pathwayBreakdown.pma?.count || 0;
+            const pmaPercentage = total > 0 ? Math.round((pmaCount / total) * 100) : 0;
+            document.getElementById('pmaCount').textContent = pmaCount;
+            document.getElementById('pmaPercentage').textContent = `${pmaPercentage}%`;
+
+            // Update De Novo section
+            const deNovoCount = pathwayBreakdown.deNovo?.count || 0;
+            const deNovoPercentage = total > 0 ? Math.round((deNovoCount / total) * 100) : 0;
+            document.getElementById('deNovoCount').textContent = deNovoCount;
+            document.getElementById('deNovoPercentage').textContent = `${deNovoPercentage}%`;
+
+            // Load timeline chart
+            loadTimelineChart(data);
+        }
+
+        function loadCFRPartsTab(data) {
+            const cfrPartsContainer = document.getElementById('cfrPartsList');
+            const cfrParts = data.cfrPartsAnalysis || [];
+
+            if (cfrParts.length === 0) {
+                cfrPartsContainer.innerHTML = `
+                    <div class="text-center text-gray-500 py-8">
+                        <svg class="w-12 h-12 mx-auto mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                        <p class="text-lg font-medium">No CFR parts identified</p>
+                        <p class="text-sm">This may indicate an unregulated device or insufficient data</p>
+                    </div>
+                `;
+                return;
+            }
+
+            cfrPartsContainer.innerHTML = cfrParts.map(part => `
+                <div class="cfr-part-card p-6 rounded-xl">
+                    <div class="flex items-start justify-between mb-3">
+                        <div>
+                            <h4 class="text-lg font-semibold text-gray-800">21 CFR Part ${part.part}</h4>
+                            <p class="text-sm text-gray-600 mt-1">${part.description}</p>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-sm font-medium text-primary">${part.count || 0} devices</span>
+                        </div>
+                    </div>
+                    
+                    ${part.regulations && part.regulations.length > 0 ? `
+                        <div class="mt-4">
+                            <h5 class="text-sm font-medium text-gray-700 mb-2">Specific Regulations:</h5>
+                            <div class="flex flex-wrap gap-2">
+                                ${part.regulations.slice(0, 5).map(reg => `
+                                    <span class="bg-primary/10 text-primary px-2 py-1 rounded text-xs font-medium">
+                                        ${reg}
+                                    </span>
+                                `).join('')}
+                                ${part.regulations.length > 5 ? `
+                                    <span class="text-xs text-gray-500 px-2 py-1">
+                                        +${part.regulations.length - 5} more
+                                    </span>
+                                ` : ''}
+                            </div>
+                        </div>
+                    ` : ''}
+                    
+                    ${part.deviceClasses && part.deviceClasses.length > 0 ? `
+                        <div class="mt-3">
+                            <h5 class="text-sm font-medium text-gray-700 mb-2">Device Classes:</h5>
+                            <div class="flex flex-wrap gap-2">
+                                ${part.deviceClasses.map(cls => `
+                                    <span class="bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs">
+                                        Class ${cls}
+                                    </span>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+                    
+                    <div class="mt-4 pt-3 border-t border-gray-200">
+                        <button class="text-sm text-primary hover:text-primary/80 font-medium" 
+                                onclick="showCFRDetails('${part.part}')">
+                            View Detailed Requirements →
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function loadApprovalsTab(data) {
+            loadApprovalTrendsChart(data);
+            loadRecentApprovals(data);
+        }
+
+        function loadApprovalTrendsChart(data) {
+            const chartContainer = document.getElementById('approvalTrendsChart');
+            const timelineAnalysis = data.timelineAnalysis || {};
+            const yearlyApprovals = timelineAnalysis.yearlyApprovals || {};
+
+            if (Object.keys(yearlyApprovals).length === 0) {
+                chartContainer.innerHTML = `
+                    <div class="flex items-center justify-center h-full text-gray-500">
+                        <div class="text-center">
+                            <svg class="w-12 h-12 mx-auto mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v4m-6 0a2 2 0 002 2h2a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2 2v4"/>
+                            </svg>
+                            <p>No approval trend data available</p>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            // Create simple bar chart
+            const years = Object.keys(yearlyApprovals).sort();
+            const maxApprovals = Math.max(...years.map(year => yearlyApprovals[year].total));
+
+            chartContainer.innerHTML = `
+                <div class="flex items-end justify-between h-64 px-4">
+                    ${years.map(year => {
+                        const count = yearlyApprovals[year].total;
+                        const height = maxApprovals > 0 ? (count / maxApprovals) * 200 : 0;
+                        return `
+                            <div class="flex flex-col items-center">
+                                <div class="chart-bar" style="height: ${height}px; width: 30px; margin-bottom: 8px;" 
+                                     title="${count} approvals in ${year}"></div>
+                                <span class="text-xs text-gray-600">${year}</span>
+                                <span class="text-xs text-gray-500">${count}</span>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+        }
+
+        function loadRecentApprovals(data) {
+            const container = document.getElementById('recentApprovals');
+            const fdaData = data.data?.fda || {};
+            const recentApprovals = [];
+
+            // Collect recent approvals from all sources
+            if (fdaData.fiveOneOk?.results) {
+                fdaData.fiveOneOk.results.forEach(device => {
+                    if (device.decision_date) {
+                        recentApprovals.push({
+                            ...device,
+                            pathway: device.decision_description?.toLowerCase().includes('de novo') ? 'De Novo' : '510(k)',
+                            date: device.decision_date,
+                            name: device.device_name,
+                            applicant: device.applicant
+                        });
+                    }
+                });
+            }
+
+            if (fdaData.pma?.results) {
+                fdaData.pma.results.forEach(device => {
+                    if (device.decision_date) {
+                        recentApprovals.push({
+                            ...device,
+                            pathway: 'PMA',
+                            date: device.decision_date,
+                            name: device.trade_name || device.generic_name,
+                            applicant: device.applicant
+                        });
+                    }
+                });
+            }
+
+            // Sort by date (most recent first)
+            recentApprovals.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            if (recentApprovals.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center text-gray-500 py-8">
+                        <svg class="w-12 h-12 mx-auto mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <p>No recent approval activity found</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = recentApprovals.slice(0, 10).map(approval => `
+                <div class="bg-white rounded-lg p-4 border border-gray-200 card-hover cursor-pointer" 
+                     onclick="showApprovalDetails('${approval.k_number || approval.pma_number || ''}')">
+                    <div class="flex items-start justify-between">
+                        <div class="flex-1">
+                            <h4 class="font-semibold text-gray-800 mb-1">${approval.name || 'Unknown Device'}</h4>
+                            <p class="text-sm text-gray-600 mb-2">${approval.applicant || 'Unknown Applicant'}</p>
+                            <div class="flex items-center space-x-2">
+                                <span class="pathway-badge ${approval.pathway.toLowerCase().replace(/\s+/g, '').replace('(', '').replace(')', '')}">${approval.pathway}</span>
+                                <span class="text-xs text-gray-500">${formatDate(approval.date)}</span>
+                            </div>
+                        </div>
+                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                        </svg>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function loadCompetitiveTab(data) {
+            loadProductCodeAnalysis(data);
+            loadCompetitiveLandscape(data);
+        }
+
+        function loadProductCodeAnalysis(data) {
+            const container = document.getElementById('productCodeAnalysis');
+            const productCodes = data.productCodeInsights || [];
+
+            if (productCodes.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center text-gray-500 py-8">
+                        <svg class="w-12 h-12 mx-auto mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v4m-6 0a2 2 0 002 2h2a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2 2v4"/>
+                        </svg>
+                        <p>No product code analysis available</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = productCodes.slice(0, 10).map(pc => `
+                <div class="bg-white rounded-lg p-4 border border-gray-200 card-hover cursor-pointer" 
+                     onclick="showProductCodeDetails('${pc.code}')">
+                    <div class="flex items-start justify-between">
+                        <div class="flex-1">
+                            <div class="flex items-center space-x-2 mb-2">
+                                <h4 class="font-semibold text-gray-800">${pc.code}</h4>
+                                <span class="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded">${pc.count} devices</span>
+                            </div>
+                            <p class="text-sm text-gray-600 mb-2">${pc.deviceName || 'Unknown Device'}</p>
+                            <div class="flex items-center space-x-2">
+                                ${pc.deviceClass ? `<span class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">Class ${pc.deviceClass}</span>` : ''}
+                                <span class="text-xs text-gray-500">${pc.regulationNumber || 'No regulation'}</span>
+                            </div>
+                        </div>
+                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                        </svg>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function loadCompetitiveLandscape(data) {
+            const container = document.getElementById('competitiveLandscape');
+            const fdaData = data.data?.fda || {};
+            const companies = new Map();
+
+            // Collect company data
+            [fdaData.fiveOneOk?.results || [], fdaData.pma?.results || []].forEach(results => {
+                results.forEach(device => {
+                    const company = device.applicant;
+                    if (company) {
+                        if (!companies.has(company)) {
+                            companies.set(company, {
+                                name: company,
+                                devices: 0,
+                                pathways: { '510k': 0, 'pma': 0, 'deNovo': 0 }
+                            });
+                        }
+                        const companyData = companies.get(company);
+                        companyData.devices++;
+                        
+                        if (device.k_number) {
+                            if (device.decision_description?.toLowerCase().includes('de novo')) {
+                                companyData.pathways.deNovo++;
+                            } else {
+                                companyData.pathways['510k']++;
+                            }
+                        } else if (device.pma_number) {
+                            companyData.pathways.pma++;
+                        }
+                    }
+                });
+            });
+
+            const topCompanies = Array.from(companies.values())
+                .sort((a, b) => b.devices - a.devices)
+                .slice(0, 10);
+
+            if (topCompanies.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center text-gray-500 py-8">
+                        <svg class="w-12 h-12 mx-auto mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                        </svg>
+                        <p>No competitive landscape data available</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = topCompanies.map(company => `
+                <div class="bg-white rounded-lg p-4 border border-gray-200 card-hover cursor-pointer" 
+                     onclick="showCompanyDetails('${company.name}')">
+                    <div class="flex items-start justify-between">
+                        <div class="flex-1">
+                            <h4 class="font-semibold text-gray-800 mb-1">${company.name}</h4>
+                            <p class="text-sm text-gray-600 mb-2">${company.devices} approved devices</p>
+                            <div class="flex items-center space-x-2">
+                                ${company.pathways['510k'] > 0 ? `<span class="pathway-badge five10k">${company.pathways['510k']} 510(k)</span>` : ''}
+                                ${company.pathways.pma > 0 ? `<span class="pathway-badge pma">${company.pathways.pma} PMA</span>` : ''}
+                                ${company.pathways.deNovo > 0 ? `<span class="pathway-badge denovo">${company.pathways.deNovo} De Novo</span>` : ''}
+                            </div>
+                        </div>
+                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                        </svg>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function loadDatabaseTab(data) {
+            const fdaData = data.data?.fda || {};
+            
+            // Load 510(k) results
+            load510kResults(fdaData.fiveOneOk?.results || []);
+            
+            // Load PMA results
+            loadPMAResults(fdaData.pma?.results || []);
+            
+            // Load De Novo results (filtered from 510k)
+            loadDeNovoResults(fdaData.fiveOneOk?.results || []);
+        }
+
+        function load510kResults(results) {
+            const container = document.getElementById('510kResults');
+            const countElement = document.getElementById('510kResultsCount');
+            
+            // Filter out De Novo devices
+            const regular510k = results.filter(device => 
+                !device.decision_description?.toLowerCase().includes('de novo')
+            );
+            
+            countElement.textContent = `${regular510k.length} results`;
+
+            if (regular510k.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center text-gray-500 py-8">
+                        <p>No 510(k) results found</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = regular510k.slice(0, 20).map(device => `
+                <div class="bg-white rounded-lg p-4 border border-gray-200 card-hover cursor-pointer" 
+                     onclick="showDeviceDetails('510k', '${device.k_number}')">
+                    <div class="flex items-start justify-between">
+                        <div class="flex-1">
+                            <h4 class="font-semibold text-gray-800 mb-1">${device.device_name || 'Unknown Device'}</h4>
+                            <p class="text-sm text-gray-600 mb-2">${device.applicant || 'Unknown Applicant'}</p>
+                            <div class="flex items-center space-x-2">
+                                <span class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">${device.k_number}</span>
+                                <span class="text-xs text-gray-500">${formatDate(device.decision_date)}</span>
+                                ${device.product_code ? `<span class="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded">${device.product_code}</span>` : ''}
+                            </div>
+                        </div>
+                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                        </svg>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function loadPMAResults(results) {
+            const container = document.getElementById('pmaResults');
+            const countElement = document.getElementById('pmaResultsCount');
+            
+            countElement.textContent = `${results.length} results`;
+
+            if (results.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center text-gray-500 py-8">
+                        <p>No PMA results found</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = results.slice(0, 20).map(device => `
+                <div class="bg-white rounded-lg p-4 border border-gray-200 card-hover cursor-pointer" 
+                     onclick="showDeviceDetails('pma', '${device.pma_number}')">
+                    <div class="flex items-start justify-between">
+                        <div class="flex-1">
+                            <h4 class="font-semibold text-gray-800 mb-1">${device.trade_name || device.generic_name || 'Unknown Device'}</h4>
+                            <p class="text-sm text-gray-600 mb-2">${device.applicant || 'Unknown Applicant'}</p>
+                            <div class="flex items-center space-x-2">
+                                <span class="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded">${device.pma_number}</span>
+                                <span class="text-xs text-gray-500">${formatDate(device.decision_date)}</span>
+                                ${device.product_code ? `<span class="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded">${device.product_code}</span>` : ''}
+                            </div>
+                        </div>
+                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                        </svg>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function loadDeNovoResults(results) {
+            const container = document.getElementById('deNovoResults');
+            const countElement = document.getElementById('deNovoResultsCount');
+            
+            // Filter for De Novo devices
+            const deNovoDevices = results.filter(device => 
+                device.decision_description?.toLowerCase().includes('de novo')
+            );
+            
+            countElement.textContent = `${deNovoDevices.length} results`;
+
+            if (deNovoDevices.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center text-gray-500 py-8">
+                        <p>No De Novo results found</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = deNovoDevices.slice(0, 20).map(device => `
+                <div class="bg-white rounded-lg p-4 border border-gray-200 card-hover cursor-pointer" 
+                     onclick="showDeviceDetails('denovo', '${device.k_number}')">
+                    <div class="flex items-start justify-between">
+                        <div class="flex-1">
+                            <h4 class="font-semibold text-gray-800 mb-1">${device.device_name || 'Unknown Device'}</h4>
+                            <p class="text-sm text-gray-600 mb-2">${device.applicant || 'Unknown Applicant'}</p>
+                            <div class="flex items-center space-x-2">
+                                <span class="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded">${device.k_number}</span>
+                                <span class="text-xs bg-purple-50 text-purple-600 px-2 py-1 rounded">De Novo</span>
+                                <span class="text-xs text-gray-500">${formatDate(device.decision_date)}</span>
+                                ${device.product_code ? `<span class="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded">${device.product_code}</span>` : ''}
+                            </div>
+                        </div>
+                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                        </svg>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function loadTimelineChart(data) {
+            const chartContainer = document.getElementById('timelineChart');
+            const pathwayInsights = data.pathwayInsights || {};
+            const pathwayTrends = pathwayInsights.pathwayTrends || {};
+            const yearlyBreakdown = pathwayTrends.yearlyBreakdown || {};
+
+            if (Object.keys(yearlyBreakdown).length === 0) {
+                chartContainer.innerHTML = `
+                    <div class="flex items-center justify-center h-full text-gray-500">
+                        <div class="text-center">
+                            <svg class="w-12 h-12 mx-auto mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v4m-6 0a2 2 0 002 2h2a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2 2v4"/>
+                            </svg>
+                            <p>No pathway timeline data available</p>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            // Create pathway timeline chart
+            const years = Object.keys(yearlyBreakdown).sort();
+            const pathwayTypes = ['510k', 'pma', 'deNovo'];
+            const colors = {
+                '510k': '#3b82f6',
+                'pma': '#f59e0b',
+                'deNovo': '#8b5cf6'
+            };
+
+            let maxTotal = 0;
+            years.forEach(year => {
+                const yearData = yearlyBreakdown[year];
+                const total = pathwayTypes.reduce((sum, type) => sum + (yearData[type] || 0), 0);
+                maxTotal = Math.max(maxTotal, total);
+            });
+
+            chartContainer.innerHTML = `
+                <div class="p-4">
+                    <div class="flex items-center justify-center mb-4 space-x-4">
+                        ${pathwayTypes.map(type => `
+                            <div class="flex items-center space-x-2">
+                                <div class="w-3 h-3 rounded-full" style="background-color: ${colors[type]}"></div>
+                                <span class="text-sm text-gray-600">${type === '510k' ? '510(k)' : type === 'deNovo' ? 'De Novo' : 'PMA'}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="flex items-end justify-between h-48">
+                        ${years.map(year => {
+                            const yearData = yearlyBreakdown[year];
+                            const total = pathwayTypes.reduce((sum, type) => sum + (yearData[type] || 0), 0);
+                            
+                            return `
+                                <div class="flex flex-col items-center">
+                                    <div class="flex flex-col items-center space-y-1 mb-2">
+                                        ${pathwayTypes.map(type => {
+                                            const count = yearData[type] || 0;
+                                            const height = maxTotal > 0 ? (count / maxTotal) * 150 : 0;
+                                            return count > 0 ? `
+                                                <div class="chart-bar" 
+                                                     style="height: ${height}px; width: 20px; background-color: ${colors[type]};" 
+                                                     title="${count} ${type} approvals in ${year}"></div>
+                                            ` : '';
+                                        }).join('')}
+                                    </div>
+                                    <span class="text-xs text-gray-600">${year}</span>
+                                    <span class="text-xs text-gray-500">${total}</span>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        // Modal and detail functions
+        function showPathwayDetails(pathway) {
+            if (!currentSearchData) return;
+
+            const pathwayInsights = currentSearchData.pathwayInsights || {};
+            const pathwayBreakdown = pathwayInsights.pathwayBreakdown || {};
+            const pathwayData = pathwayBreakdown[pathway] || {};
+            const devices = pathwayData.devices || [];
+
+            const modalTitle = document.getElementById('modalTitle');
+            const modalContent = document.getElementById('modalContent');
+
+            modalTitle.textContent = `${pathway.toUpperCase()} Pathway Details`;
+
+            if (devices.length === 0) {
+                modalContent.innerHTML = `
+                    <div class="text-center text-gray-500 py-8">
+                        <p>No ${pathway} devices found</p>
+                    </div>
+                `;
+            } else {
+                modalContent.innerHTML = `
+                    <div class="space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <h4 class="font-semibold text-gray-800">Total Devices</h4>
+                                <p class="text-2xl font-bold text-primary">${devices.length}</p>
+                            </div>
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <h4 class="font-semibold text-gray-800">Avg. Approval Time</h4>
+                                <p class="text-2xl font-bold text-primary">${pathwayData.avgTimeToApproval || 'N/A'}</p>
+                            </div>
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <h4 class="font-semibold text-gray-800">Success Rate</h4>
+                                <p class="text-2xl font-bold text-primary">~95%</p>
+                            </div>
+                        </div>
+                        
+                        <h4 class="font-semibold text-gray-800 mb-3">Recent ${pathway.toUpperCase()} Devices</h4>
+                        <div class="space-y-3 max-h-96 overflow-y-auto">
+                            ${devices.slice(0, 20).map(device => `
+                                <div class="bg-gray-50 p-3 rounded-lg">
+                                    <div class="flex items-start justify-between">
+                                        <div class="flex-1">
+                                            <h5 class="font-medium text-gray-800">${device.deviceName || 'Unknown Device'}</h5>
+                                            <p class="text-sm text-gray-600">${device.applicant || 'Unknown Applicant'}</p>
+                                            <div class="flex items-center space-x-2 mt-2">
+                                                <span class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">
+                                                    ${device.kNumber || device.pmaNumber || 'Unknown'}
+                                                </span>
+                                                <span class="text-xs text-gray-500">${formatDate(device.decisionDate)}</span>
+                                                ${device.productCode ? `<span class="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded">${device.productCode}</span>` : ''}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+
+            document.getElementById('detailModal').classList.remove('hidden');
+        }
+
+        function showCFRDetails(part) {
+            if (!currentSearchData) return;
+
+            const modalTitle = document.getElementById('modalTitle');
+            const modalContent = document.getElementById('modalContent');
+
+            modalTitle.textContent = `21 CFR Part ${part} Details`;
+
+            // Show loading state
+            modalContent.innerHTML = `
+                <div class="flex justify-center items-center py-8">
+                    <div class="loading-spinner"></div>
+                    <span class="ml-3 text-gray-600">Loading CFR details...</span>
+                </div>
+            `;
+
+            document.getElementById('detailModal').classList.remove('hidden');
+
+            // Fetch detailed CFR information
+            fetch(`/api/cfr-parts?q=${encodeURIComponent(currentSearchTerm)}`)
+                .then(response => response.json())
+                .then(data => {
+                    const cfrPart = data.applicableParts?.find(p => p.part === part);
+                    
+                    if (cfrPart) {
+                        modalContent.innerHTML = `
+                            <div class="space-y-6">
+                                <div class="bg-primary/5 p-4 rounded-lg">
+                                    <h4 class="font-semibold text-gray-800 mb-2">21 CFR Part ${part}</h4>
+                                    <p class="text-gray-700">${cfrPart.description}</p>
+                                </div>
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="bg-gray-50 p-4 rounded-lg">
+                                        <h5 class="font-medium text-gray-800 mb-2">Relevance Score</h5>
+                                        <p class="text-lg font-bold text-primary">${cfrPart.relevanceScore || 'N/A'}/10</p>
+                                    </div>
+                                    <div class="bg-gray-50 p-4 rounded-lg">
+                                        <h5 class="font-medium text-gray-800 mb-2">Match Type</h5>
+                                        <p class="text-lg font-bold text-primary capitalize">${cfrPart.matchType || 'N/A'}</p>
+                                    </div>
+                                </div>
+                                
+                                ${cfrPart.regulationNumber ? `
+                                    <div class="bg-gray-50 p-4 rounded-lg">
+                                        <h5 class="font-medium text-gray-800 mb-2">Specific Regulation</h5>
+                                        <p class="text-gray-700">${cfrPart.regulationNumber}</p>
+                                    </div>
+                                ` : ''}
+                                
+                                ${cfrPart.specialty ? `
+                                    <div class="bg-gray-50 p-4 rounded-lg">
+                                        <h5 class="font-medium text-gray-800 mb-2">Medical Specialty</h5>
+                                        <p class="text-gray-700">${cfrPart.specialty}</p>
+                                    </div>
+                                ` : ''}
+                                
+                                <div class="bg-blue-50 p-4 rounded-lg">
+                                    <h5 class="font-medium text-blue-800 mb-2">Key Requirements</h5>
+                                    <ul class="text-sm text-blue-700 space-y-1">
+                                        <li>• Device must comply with general controls</li>
+                                        <li>• May require special controls depending on device class</li>
+                                        <li>• Quality System Regulation (QSR) compliance required</li>
+                                        <li>• Labeling requirements must be met</li>
+                                    </ul>
+                                </div>
+                                
+                                <div class="bg-green-50 p-4 rounded-lg">
+                                    <h5 class="font-medium text-green-800 mb-2">Recommendations</h5>
+                                    <ul class="text-sm text-green-700 space-y-1">
+                                        <li>• Review complete CFR part for detailed requirements</li>
+                                        <li>• Consult with regulatory experts for device-specific guidance</li>
+                                        <li>• Consider pre-submission meeting with FDA if needed</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        modalContent.innerHTML = `
+                            <div class="text-center text-gray-500 py-8">
+                                <p>No detailed information available for CFR Part ${part}</p>
+                            </div>
+                        `;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching CFR details:', error);
+                    modalContent.innerHTML = `
+                        <div class="text-center text-red-500 py-8">
+                            <p>Error loading CFR details. Please try again.</p>
+                        </div>
+                    `;
+                });
+        }
+
+        // Replace createTimelineChart with a simpler approval volume chart
+function createApprovalVolumeChart(pathwayInsights) {
+    const ctx = document.getElementById('timelineChart');
+    if (!ctx) return;
+
+    // Destroy existing chart if it exists
+    if (this.charts.timeline) {
+        this.charts.timeline.destroy();
+    }
+
+    const pathways = pathwayInsights.pathwayBreakdown;
+    const data = [
+        pathways['510k'].count || 0,
+        pathways.pma.count || 0,
+        pathways.deNovo.count || 0
+    ];
+
+    this.charts.timeline = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['510(k) Clearances', 'PMA Approvals', 'De Novo Classifications'],
+            datasets: [{
+                label: 'Approved Devices',
+                data: data,
+                backgroundColor: [
+                    'rgba(59, 130, 246, 0.8)',
+                    'rgba(16, 185, 129, 0.8)',
+                    'rgba(139, 92, 246, 0.8)'
+                ],
+                borderColor: [
+                    '#3B82F6',
+                    '#10B981',
+                    '#8B5CF6'
+                ],
+                borderWidth: 2,
+                borderRadius: 8,
+                borderSkipped: false
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    titleColor: '#ffffff',
+                    bodyColor: '#ffffff',
+                    borderColor: '#374151',
+                    borderWidth: 1,
+                    cornerRadius: 8,
+                    callbacks: {
+                        label: function(context) {
+                            const total = data.reduce((a, b) => a + b, 0);
+                            const percentage = total > 0 ? ((context.parsed.y / total) * 100).toFixed(1) : 0;
+                            return `${context.parsed.y} devices (${percentage}%)`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    grid: {
+                        color: 'rgba(156, 163, 175, 0.1)'
+                    },
+                    ticks: {
+                        color: '#6B7280',
+                        maxRotation: 45
+                    }
+                },
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(156, 163, 175, 0.1)'
+                    },
+                    ticks: {
+                        precision: 0,
+                        color: '#6B7280'
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Replace createHistoricalTrendsChart with approval time comparison
+function createApprovalTimeChart(pathwayInsights) {
+    const ctx = document.getElementById('historicalTrendsChart');
+    if (!ctx) return;
+
+    // Destroy existing chart if it exists
+    if (this.charts.historicalTrends) {
+        this.charts.historicalTrends.destroy();
+    }
+
+    const pathways = pathwayInsights.pathwayBreakdown;
+    const timeData = [
+        pathways['510k'].avgTimeToApproval || 0,
+        pathways.pma.avgTimeToApproval || 0,
+        pathways.deNovo.avgTimeToApproval || 0
+    ];
+
+    // If no time data, show device counts instead
+    const hasTimeData = timeData.some(time => time > 0);
+    const chartData = hasTimeData ? timeData : [
+        pathways['510k'].count || 0,
+        pathways.pma.count || 0,
+        pathways.deNovo.count || 0
+    ];
+    const chartLabel = hasTimeData ? 'Average Approval Time (Days)' : 'Number of Approved Devices';
+
+    this.charts.historicalTrends = new Chart(ctx, {
+        type: 'horizontalBar',
+        data: {
+            labels: ['510(k) Clearance', 'PMA Approval', 'De Novo Classification'],
+            datasets: [{
+                label: chartLabel,
+                data: chartData,
+                backgroundColor: [
+                    'rgba(59, 130, 246, 0.8)',
+                    'rgba(16, 185, 129, 0.8)',
+                    'rgba(139, 92, 246, 0.8)'
+                ],
+                borderColor: [
+                    '#3B82F6',
+                    '#10B981',
+                    '#8B5CF6'
+                ],
+                borderWidth: 2,
+                borderRadius: 6,
+                borderSkipped: false
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            indexAxis: 'y',
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    titleColor: '#ffffff',
+                    bodyColor: '#ffffff',
+                    borderColor: '#374151',
+                    borderWidth: 1,
+                    cornerRadius: 8,
+                    callbacks: {
+                        label: function(context) {
+                            const suffix = hasTimeData ? ' days' : ' devices';
+                            return `${context.dataset.label}: ${context.parsed.x}${suffix}`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(156, 163, 175, 0.1)'
+                    },
+                    ticks: {
+                        precision: 0,
+                        color: '#6B7280'
+                    }
+                },
+                y: {
+                    grid: {
+                        color: 'rgba(156, 163, 175, 0.1)'
+                    },
+                    ticks: {
+                        color: '#6B7280'
+                    }
+                }
+            }
+        }
+    });
+}
+
+        function showDeviceDetails(pathway, deviceId) {
+            if (!currentSearchData) return;
+
+            const fdaData = currentSearchData.data?.fda || {};
+            let device = null;
+
+            // Find the device
+            if (pathway === '510k' || pathway === 'denovo') {
+                device = fdaData.fiveOneOk?.results?.find(d => d.k_number === deviceId);
+            } else if (pathway === 'pma') {
+                device = fdaData.pma?.results?.find(d => d.pma_number === deviceId);
+            }
+
+            if (!device) {
+                console.error('Device not found:', deviceId);
+                return;
+            }
+
+            const modalTitle = document.getElementById('modalTitle');
+            const modalContent = document.getElementById('modalContent');
+
+            modalTitle.textContent = `${device.device_name || device.trade_name || 'Device'} Details`;
+
+            modalContent.innerHTML = `
+                <div class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h5 class="font-medium text-gray-800 mb-2">Device Name</h5>
+                            <p class="text-gray-700">${device.device_name || device.trade_name || 'Unknown'}</p>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h5 class="font-medium text-gray-800 mb-2">Applicant</h5>
+                            <p class="text-gray-700">${device.applicant || 'Unknown'}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h5 class="font-medium text-gray-800 mb-2">Number</h5>
+                            <p class="text-gray-700">${device.k_number || device.pma_number || 'Unknown'}</p>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h5 class="font-medium text-gray-800 mb-2">Product Code</h5>
+                            <p class="text-gray-700">${device.product_code || 'Unknown'}</p>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h5 class="font-medium text-gray-800 mb-2">Decision Date</h5>
+                            <p class="text-gray-700">${formatDate(device.decision_date)}</p>
+                        </div>
+                    </div>
+                    
+                    ${device.device_class ? `
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h5 class="font-medium text-gray-800 mb-2">Device Class</h5>
+                            <p class="text-gray-700">Class ${device.device_class}</p>
+                        </div>
+                    ` : ''}
+                    
+                    ${device.regulation_number ? `
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h5 class="font-medium text-gray-800 mb-2">Regulation Number</h5>
+                            <p class="text-gray-700">${device.regulation_number}</p>
+                        </div>
+                    ` : ''}
+                    
+                    ${device.decision_description ? `
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h5 class="font-medium text-gray-800 mb-2">Decision</h5>
+                            <p class="text-gray-700">${device.decision_description}</p>
+                        </div>
+                    ` : ''}
+                    
+                    ${device.statement || device.summary ? `
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h5 class="font-medium text-gray-800 mb-2">Summary</h5>
+                            <p class="text-gray-700 text-sm">${device.statement || device.summary}</p>
+                        </div>
+                    ` : ''}
+                    
+                    <div class="bg-blue-50 p-4 rounded-lg">
+                        <h5 class="font-medium text-blue-800 mb-2">Actions</h5>
+                        <div class="flex flex-wrap gap-2">
+                            ${device.k_number ? `
+                                <a href="https://www.accessdata.fda.gov/scripts/cdrh/cfdocs/cfpmn/pmn.cfm?ID=${device.k_number}" 
+                                   target="_blank" rel="noopener noreferrer"
+                                   class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 transition-colors">
+                                    View on FDA Website
+                                </a>
+                            ` : ''}
+                            ${device.pma_number ? `
+                                <a href="https://www.accessdata.fda.gov/scripts/cdrh/cfdocs/cfpma/pma.cfm?id=${device.pma_number}" 
+                                   target="_blank" rel="noopener noreferrer"
+                                   class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 transition-colors">
+                                    View on FDA Website
+                                </a>
+                            ` : ''}
+                            ${device.product_code ? `
+                                <button onclick="searchProductCode('${device.product_code}')" 
+                                        class="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700 transition-colors">
+                                    Search Product Code
+                                </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('detailModal').classList.remove('hidden');
+        }
+
+        function showApprovalDetails(deviceId) {
+            if (!deviceId) return;
+            
+            // Find the device in the current search data
+            const fdaData = currentSearchData.data?.fda || {};
+            let device = null;
+
+            // Check 510(k) results
+            if (fdaData.fiveOneOk?.results) {
+                device = fdaData.fiveOneOk.results.find(d => d.k_number === deviceId);
+            }
+
+            // Check PMA results if not found
+            if (!device && fdaData.pma?.results) {
+                device = fdaData.pma.results.find(d => d.pma_number === deviceId);
+            }
+
+            if (device) {
+                const pathway = device.k_number ? 
+                    (device.decision_description?.toLowerCase().includes('de novo') ? 'denovo' : '510k') : 
+                    'pma';
+                showDeviceDetails(pathway, deviceId);
+            }
+        }
+
+        function showProductCodeDetails(productCode) {
+            if (!productCode) return;
+
+            const modalTitle = document.getElementById('modalTitle');
+            const modalContent = document.getElementById('modalContent');
+
+            modalTitle.textContent = `Product Code ${productCode} Details`;
+
+            // Show loading state
+            modalContent.innerHTML = `
+                <div class="flex justify-center items-center py-8">
+                    <div class="loading-spinner"></div>
+                    <span class="ml-3 text-gray-600">Loading product code details...</span>
+                </div>
+            `;
+
+            document.getElementById('detailModal').classList.remove('hidden');
+
+            // Fetch product code details
+            fetch(`/api/product-code/${productCode}/classifications`)
+                .then(response => response.json())
+                .then(data => {
+                    const classification = data.classification || {};
+                    
+                    modalContent.innerHTML = `
+                        <div class="space-y-6">
+                            <div class="bg-primary/5 p-4 rounded-lg">
+                                <h4 class="font-semibold text-gray-800 mb-2">Product Code: ${productCode}</h4>
+                                <p class="text-gray-700">${classification.deviceName || 'Unknown Device'}</p>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="bg-gray-50 p-4 rounded-lg">
+                                    <h5 class="font-medium text-gray-800 mb-2">Device Class</h5>
+                                    <p class="text-lg font-bold text-primary">Class ${classification.deviceClass || 'Unknown'}</p>
+                                </div>
+                                <div class="bg-gray-50 p-4 rounded-lg">
+                                    <h5 class="font-medium text-gray-800 mb-2">Regulation Number</h5>
+                                    <p class="text-lg font-bold text-primary">${classification.regulationNumber || 'Unknown'}</p>
+                                </div>
+                            </div>
+                            
+                            ${classification.medicalSpecialty ? `
+                                <div class="bg-gray-50 p-4 rounded-lg">
+                                    <h5 class="font-medium text-gray-800 mb-2">Medical Specialty</h5>
+                                    <p class="text-gray-700">${classification.medicalSpecialty}</p>
+                                </div>
+                            ` : ''}
+                            
+                            ${classification.panelCode ? `
+                                <div class="bg-gray-50 p-4 rounded-lg">
+                                    <h5 class="font-medium text-gray-800 mb-2">Panel Code</h5>
+                                    <p class="text-gray-700">${classification.panelCode}</p>
+                                </div>
+                            ` : ''}
+                            
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <h5 class="font-medium text-gray-800 mb-2">GMP Status</h5>
+                                <p class="text-gray-700">${classification.gmpExempt ? 'Exempt' : 'Required'}</p>
+                            </div>
+                            
+                            ${classification.exemptions && classification.exemptions.length > 0 ? `
+                                <div class="bg-green-50 p-4 rounded-lg">
+                                    <h5 class="font-medium text-green-800 mb-2">Exemptions</h5>
+                                    <ul class="text-sm text-green-700 space-y-1">
+                                        ${classification.exemptions.map(ex => `<li>• ${ex}</li>`).join('')}
+                                    </ul>
+                                </div>
+                            ` : ''}
+                            
+                            ${classification.specialControls && classification.specialControls.length > 0 ? `
+                                <div class="bg-blue-50 p-4 rounded-lg">
+                                    <h5 class="font-medium text-blue-800 mb-2">Special Controls</h5>
+                                    <ul class="text-sm text-blue-700 space-y-1">
+                                        ${classification.specialControls.map(sc => `<li>• ${sc}</li>`).join('')}
+                                    </ul>
+                                </div>
+                            ` : ''}
+                            
+                            <div class="bg-blue-50 p-4 rounded-lg">
+                                <h5 class="font-medium text-blue-800 mb-2">Actions</h5>
+                                <div class="flex flex-wrap gap-2">
+                                    <button onclick="searchProductCode('${productCode}')" 
+                                            class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 transition-colors">
+                                        Search Similar Devices
+                                    </button>
+                                    <a href="https://www.accessdata.fda.gov/scripts/cdrh/cfdocs/cfpcd/classification.cfm?ID=${productCode}" 
+                                       target="_blank" rel="noopener noreferrer"
+                                       class="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700 transition-colors">
+                                        View FDA Classification
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                })
+                .catch(error => {
+                    console.error('Error fetching product code details:', error);
+                    modalContent.innerHTML = `
+                        <div class="text-center text-red-500 py-8">
+                            <p>Error loading product code details. Please try again.</p>
+                        </div>
+                    `;
+                });
+        }
+
+        function showCompanyDetails(companyName) {
+            if (!companyName) return;
+
+            const modalTitle = document.getElementById('modalTitle');
+            const modalContent = document.getElementById('modalContent');
+
+            modalTitle.textContent = `${companyName} Details`;
+
+            // Show loading state
+            modalContent.innerHTML = `
+                <div class="flex justify-center items-center py-8">
+                    <div class="loading-spinner"></div>
+                    <span class="ml-3 text-gray-600">Loading company details...</span>
+                </div>
+            `;
+
+            document.getElementById('detailModal').classList.remove('hidden');
+
+            // Fetch company intelligence
+            fetch(`/api/company-intelligence?q=${encodeURIComponent(companyName)}`)
+                .then(response => response.json())
+                .then(data => {
+                    const insights = data.insights || {};
+                    
+                    modalContent.innerHTML = `
+                        <div class="space-y-6">
+                            <div class="bg-primary/5 p-4 rounded-lg">
+                                <h4 class="font-semibold text-gray-800 mb-2">${companyName}</h4>
+                                <p class="text-gray-700">Company Intelligence Summary</p>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div class="bg-gray-50 p-4 rounded-lg">
+                                    <h5 class="font-medium text-gray-800 mb-2">Total Devices</h5>
+                                    <p class="text-2xl font-bold text-primary">${insights.totalDevices || 0}</p>
+                                </div>
+                                <div class="bg-gray-50 p-4 rounded-lg">
+                                    <h5 class="font-medium text-gray-800 mb-2">Active Product Codes</h5>
+                                    <p class="text-2xl font-bold text-primary">${insights.activeProductCodes || 0}</p>
+                                </div>
+                                <div class="bg-gray-50 p-4 rounded-lg">
+                                    <h5 class="font-medium text-gray-800 mb-2">Recent Activity</h5>
+                                    <p class="text-2xl font-bold text-primary">${insights.recentActivity || 0}</p>
+                                </div>
+                            </div>
+                            
+                            ${insights.pathwayBreakdown ? `
+                                <div class="bg-gray-50 p-4 rounded-lg">
+                                    <h5 class="font-medium text-gray-800 mb-3">Pathway Distribution</h5>
+                                    <div class="grid grid-cols-3 gap-4">
+                                        <div class="text-center">
+                                            <p class="text-lg font-bold text-blue-600">${insights.pathwayBreakdown['510k'] || 0}</p>
+                                            <p class="text-sm text-gray-600">510(k)</p>
+                                        </div>
+                                        <div class="text-center">
+                                            <p class="text-lg font-bold text-yellow-600">${insights.pathwayBreakdown.pma || 0}</p>
+                                            <p class="text-sm text-gray-600">PMA</p>
+                                        </div>
+                                        <div class="text-center">
+                                            <p class="text-lg font-bold text-purple-600">${insights.pathwayBreakdown.deNovo || 0}</p>
+                                            <p class="text-sm text-gray-600">De Novo</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            ` : ''}
+                            
+                            <div class="bg-blue-50 p-4 rounded-lg">
+                                <h5 class="font-medium text-blue-800 mb-2">Actions</h5>
+                                <div class="flex flex-wrap gap-2">
+                                    <button onclick="searchCompany('${companyName}')" 
+                                            class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 transition-colors">
+                                        Search All Devices
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                })
+                .catch(error => {
+                    console.error('Error fetching company details:', error);
+                    modalContent.innerHTML = `
+                        <div class="text-center text-red-500 py-8">
+                            <p>Error loading company details. Please try again.</p>
+                        </div>
+                    `;
+                });
+        }
+
+        function closeModal() {
+            document.getElementById('detailModal').classList.add('hidden');
+        }
+
+        // Search functions
+        function searchProductCode(productCode) {
+            document.getElementById('searchInput').value = productCode;
+            closeModal();
+            performSearch();
+        }
+
+        function searchCompany(companyName) {
+            document.getElementById('searchInput').value = companyName;
+            closeModal();
+            performSearch();
+        }
+
+        // Utility functions
+        function formatDate(dateString) {
+            if (!dateString) return 'Unknown';
+            
+            try {
+                const date = new Date(dateString);
+                return date.toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric'
+                });
+            } catch (error) {
+                return 'Invalid Date';
+            }
+        }
+
+        function getDeviceClassDescription(deviceClass) {
+            const descriptions = {
+                'I': 'Low Risk - General Controls',
+                '1': 'Low Risk - General Controls',
+                'II': 'Medium Risk - General & Special Controls',
+                '2': 'Medium Risk - General & Special Controls',
+                'III': 'High Risk - PMA Required',
+                '3': 'High Risk - PMA Required'
+            };
+            return descriptions[deviceClass] || 'Unknown Risk Level';
+        }
+
+        function getPathwayColor(pathway) {
+            const colors = {
+                '510k': 'blue',
+                'pma': 'yellow',
+                'denovo': 'purple'
+            };
+            return colors[pathway.toLowerCase()] || 'gray';
+        }
+
+        function truncateText(text, maxLength = 100) {
+            if (!text || text.length <= maxLength) return text;
+            return text.substring(0, maxLength) + '...';
+        }
+
+        // Click outside modal to close
+        document.addEventListener('click', function(event) {
+            const modal = document.getElementById('detailModal');
+            const modalContent = modal.querySelector('.modal-content');
+            
+            if (event.target === modal && !modalContent.contains(event.target)) {
+                closeModal();
+            }
+        });
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeModal();
+            }
+        });
+
+        // Enhanced error handling
+        window.addEventListener('unhandledrejection', function(event) {
+            console.error('Unhandled promise rejection:', event.reason);
+            showError('An unexpected error occurred. Please try again.');
+        });
+
+        // Auto-refresh functionality (optional)
+        function enableAutoRefresh(interval = 300000) { // 5 minutes
+            setInterval(() => {
+                if (currentSearchTerm && document.visibilityState === 'visible') {
+                    console.log('Auto-refreshing search results...');
+                    performSearch();
+                }
+            }, interval);
+        }
+
+        // Initialize auto-refresh (commented out by default)
+        // enableAutoRefresh();
+
+        // Export functions for testing
+        window.DeviceIntelligence = {
+            performSearch,
+            switchTab,
+            showPathwayDetails,
+            showCFRDetails,
+            showDeviceDetails,
+            showApprovalDetails,
+            showProductCodeDetails,
+            showCompanyDetails,
+            closeModal,
+            searchProductCode,
+            searchCompany,
+            formatDate,
+            getDeviceClassDescription
+        };
+
+        // Additional utility functions for enhanced functionality
+        function exportResults(format = 'json') {
+            if (!currentSearchData) {
+                alert('No data to export. Please perform a search first.');
+                return;
+            }
+
+            const exportData = {
+                searchTerm: currentSearchTerm,
+                timestamp: new Date().toISOString(),
+                summary: {
+                    totalDevices: (currentSearchData.pathwayInsights?.pathwayBreakdown?.['510k']?.count || 0) +
+                                 (currentSearchData.pathwayInsights?.pathwayBreakdown?.pma?.count || 0) +
+                                 (currentSearchData.pathwayInsights?.pathwayBreakdown?.deNovo?.count || 0),
+                    dominantPathway: currentSearchData.profile?.recommendedPathway || 'Unknown',
+                    deviceClass: currentSearchData.profile?.deviceClass || 'Unknown'
+                },
+                data: currentSearchData
+            };
+
+            if (format === 'json') {
+                const blob = new Blob([JSON.stringify(exportData, null, 2)], {
+                    type: 'application/json'
+                });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `device-intelligence-${currentSearchTerm}-${new Date().toISOString().split('T')[0]}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            } else if (format === 'csv') {
+                // Convert to CSV format
+                const csvData = convertToCSV(exportData);
+                const blob = new Blob([csvData], { type: 'text/csv' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `device-intelligence-${currentSearchTerm}-${new Date().toISOString().split('T')[0]}.csv`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }
+        }
+
+        function convertToCSV(data) {
+            const headers = ['Device Name', 'Applicant', 'Pathway', 'Product Code', 'Decision Date', 'Device Class'];
+            const rows = [];
+
+            // Add 510(k) devices
+            const fiveOneOkResults = data.data?.data?.fda?.fiveOneOk?.results || [];
+            fiveOneOkResults.forEach(device => {
+                const isDeNovo = device.decision_description?.toLowerCase().includes('de novo');
+                rows.push([
+                    device.device_name || '',
+                    device.applicant || '',
+                    isDeNovo ? 'De Novo' : '510(k)',
+                    device.product_code || '',
+                    device.decision_date || '',
+                    device.device_class || ''
+                ]);
+            });
+
+            // Add PMA devices
+            const pmaResults = data.data?.data?.fda?.pma?.results || [];
+            pmaResults.forEach(device => {
+                rows.push([
+                    device.trade_name || device.generic_name || '',
+                    device.applicant || '',
+                    'PMA',
+                    device.product_code || '',
+                    device.decision_date || '',
+                    device.device_class || ''
+                ]);
+            });
+
+            // Convert to CSV string
+            const csvContent = [headers.join(','), ...rows.map(row => row.map(cell => `"${cell}"`).join(','))].join('\n');
+            return csvContent;
+        }
+
+        function printResults() {
+            if (!currentSearchData) {
+                alert('No data to print. Please perform a search first.');
+                return;
+            }
+
+            const printWindow = window.open('', '_blank');
+            const printContent = generatePrintContent();
+            
+            printWindow.document.write(printContent);
+            printWindow.document.close();
+            printWindow.print();
+        }
+
+        function generatePrintContent() {
+            const pathwayInsights = currentSearchData.pathwayInsights || {};
+            const pathwayBreakdown = pathwayInsights.pathwayBreakdown || {};
+            
+            return `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Device Intelligence Report - ${currentSearchTerm}</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; margin: 20px; }
+                        h1 { color: #059669; border-bottom: 2px solid #059669; padding-bottom: 10px; }
+                        h2 { color: #374151; margin-top: 30px; }
+                        .summary { background: #f9fafb; padding: 15px; border-radius: 8px; margin: 20px 0; }
+                        .pathway-stats { display: flex; gap: 20px; margin: 20px 0; }
+                        .pathway-stat { text-align: center; padding: 10px; background: #f3f4f6; border-radius: 6px; }
+                        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+                        th, td { border: 1px solid #d1d5db; padding: 8px; text-align: left; }
+                        th { background: #f9fafb; font-weight: bold; }
+                        .print-date { text-align: right; color: #6b7280; font-size: 0.9em; }
+                    </style>
+                </head>
+                <body>
+                    <div class="print-date">Generated: ${new Date().toLocaleDateString()}</div>
+                    <h1>Device Intelligence Report</h1>
+                    <h2>Search Term: ${currentSearchTerm}</h2>
+                    
+                    <div class="summary">
+                        <h3>Summary</h3>
+                        <p><strong>Total Devices:</strong> ${(pathwayBreakdown['510k']?.count || 0) + (pathwayBreakdown.pma?.count || 0) + (pathwayBreakdown.deNovo?.count || 0)}</p>
+                        <p><strong>Dominant Pathway:</strong> ${currentSearchData.profile?.recommendedPathway || 'Unknown'}</p>
+                        <p><strong>Device Class:</strong> ${currentSearchData.profile?.deviceClass || 'Unknown'}</p>
+                    </div>
+                    
+                    <div class="pathway-stats">
+                        <div class="pathway-stat">
+                            <h4>510(k)</h4>
+                            <p>${pathwayBreakdown['510k']?.count || 0}</p>
+                        </div>
+                        <div class="pathway-stat">
+                            <h4>PMA</h4>
+                            <p>${pathwayBreakdown.pma?.count || 0}</p>
+                        </div>
+                        <div class="pathway-stat">
+                            <h4>De Novo</h4>
+                            <p>${pathwayBreakdown.deNovo?.count || 0}</p>
+                        </div>
+                    </div>
+                    
+                    <h2>Recent Devices</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Device Name</th>
+                                <th>Applicant</th>
+                                <th>Pathway</th>
+                                <th>Decision Date</th>
+                                <th>Product Code</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${generateRecentDevicesTable()}
+                        </tbody>
+                    </table>
+                </body>
+                </html>
+            `;
+        }
+
+        function generateRecentDevicesTable() {
+            const fdaData = currentSearchData.data?.fda || {};
+            const devices = [];
+
+            // Collect devices from all sources
+            if (fdaData.fiveOneOk?.results) {
+                fdaData.fiveOneOk.results.forEach(device => {
+                    devices.push({
+                        name: device.device_name || 'Unknown',
+                        applicant: device.applicant || 'Unknown',
+                        pathway: device.decision_description?.toLowerCase().includes('de novo') ? 'De Novo' : '510(k)',
+                        date: device.decision_date || 'Unknown',
+                        productCode: device.product_code || 'Unknown'
+                    });
+                });
+            }
+
+            if (fdaData.pma?.results) {
+                fdaData.pma.results.forEach(device => {
+                    devices.push({
+                        name: device.trade_name || device.generic_name || 'Unknown',
+                        applicant: device.applicant || 'Unknown',
+                        pathway: 'PMA',
+                        date: device.decision_date || 'Unknown',
+                        productCode: device.product_code || 'Unknown'
+                    });
+                });
+            }
+
+            // Sort by date and take first 20
+            devices.sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            return devices.slice(0, 20).map(device => `
+                <tr>
+                    <td>${device.name}</td>
+                    <td>${device.applicant}</td>
+                    <td>${device.pathway}</td>
+                    <td>${formatDate(device.date)}</td>
+                    <td>${device.productCode}</td>
+                </tr>
+            `).join('');
+        }
+
+        // Add export and print buttons to the interface
+        function addExportButtons() {
+            const searchButton = document.getElementById('searchButton');
+            const exportDiv = document.createElement('div');
+            exportDiv.className = 'flex items-center space-x-2 ml-4';
+            exportDiv.innerHTML = `
+                <button onclick="exportResults('json')" 
+                        class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors text-sm">
+                    Export JSON
+                </button>
+                <button onclick="exportResults('csv')" 
+                        class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors text-sm">
+                    Export CSV
+                </button>
+                <button onclick="printResults()" 
+                        class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors text-sm">
+                    Print
+                </button>
+            `;
+            
+            searchButton.parentElement.appendChild(exportDiv);
+        }
+
+        // Initialize export buttons when DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add export buttons after a short delay to ensure DOM is fully loaded
+            setTimeout(addExportButtons, 100);
+        });
+
+        // Add these functions to the global scope
+        window.exportResults = exportResults;
+        window.printResults = printResults;
+
+        // Enhanced search suggestions
+        function showSearchSuggestions() {
+            const suggestions = [
+                'pacemaker',
+                'insulin pump',
+                'hip implant',
+                'surgical robot',
+                'defibrillator',
+                'catheter',
+                'stent',
+                'diagnostic scanner',
+                'ventilator',
+                'blood glucose monitor',
+                'K123456',
+                'P123456',
+                'ABC',
+                'Medtronic',
+                'Johnson & Johnson',
+                'Boston Scientific'
+            ];
+
+            const searchInput = document.getElementById('searchInput');
+            const suggestionDiv = document.createElement('div');
+            suggestionDiv.className = 'absolute z-10 w-full bg-white border border-gray-300 rounded-b-lg shadow-lg max-h-40 overflow-y-auto';
+            suggestionDiv.style.top = '100%';
+            suggestionDiv.style.left = '0';
+
+            searchInput.parentElement.style.position = 'relative';
+
+            searchInput.addEventListener('input', function() {
+                const value = this.value.toLowerCase();
+                const filteredSuggestions = suggestions.filter(s => 
+                    s.toLowerCase().includes(value) && value.length > 0
+                );
+
+                if (filteredSuggestions.length > 0 && value.length > 0) {
+                    suggestionDiv.innerHTML = filteredSuggestions.slice(0, 5).map(suggestion => `
+                        <div class="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm" 
+                             onclick="selectSuggestion('${suggestion}')">
+                            ${suggestion}
+                        </div>
+                    `).join('');
+                    
+                    if (!suggestionDiv.parentElement) {
+                        searchInput.parentElement.appendChild(suggestionDiv);
+                    }
+                } else {
+                    if (suggestionDiv.parentElement) {
+                        suggestionDiv.parentElement.removeChild(suggestionDiv);
+                    }
+                }
+            });
+
+            searchInput.addEventListener('blur', function() {
+                setTimeout(() => {
+                    if (suggestionDiv.parentElement) {
+                        suggestionDiv.parentElement.removeChild(suggestionDiv);
+                    }
+                }, 200);
+            });
+        }
+
+        function selectSuggestion(suggestion) {
+            document.getElementById('searchInput').value = suggestion;
+            performSearch();
+        }
+
+        // Add search suggestions to global scope
+        window.selectSuggestion = selectSuggestion;
+
+        // Initialize search suggestions
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(showSearchSuggestions, 200);
+        });
+
+        // Performance monitoring
+        function trackPerformance() {
+            const performanceData = {
+                searchTerm: currentSearchTerm,
+                timestamp: new Date().toISOString(),
+                loadTime: performance.now(),
+                userAgent: navigator.userAgent,
+                screenResolution: `${screen.width}x${screen.height}`
+            };
+
+            // Log performance data (in production, this might be sent to analytics)
+            console.log('Performance tracking:', performanceData);
+        }
+
+        // Add performance tracking to search function
+        const originalPerformSearch = performSearch;
+        performSearch = function() {
+            const startTime = performance.now();
+            
+            return originalPerformSearch().then(() => {
+                const endTime = performance.now();
+                console.log(`Search completed in ${endTime - startTime} milliseconds`);
+                trackPerformance();
+            });
+        };
+
+        // Accessibility improvements
+        function initializeAccessibility() {
+            // Add ARIA labels
+            document.querySelectorAll('button').forEach(button => {
+                if (!button.getAttribute('aria-label')) {
+                    button.setAttribute('aria-label', button.textContent.trim());
+                }
+            });
+
+            // Add keyboard navigation for tabs
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        this.click();
+                    }
+                });
+            });
+
+            // Add focus management for modal
+            const modal = document.getElementById('detailModal');
+            modal.addEventListener('keydown', function(e) {
+                if (e.key === 'Tab') {
+                    trapFocus(e, modal);
+                }
+            });
+        }
+
+        function trapFocus(e, container) {
+            const focusableElements = container.querySelectorAll(
+                'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+            );
+            const firstElement = focusableElements[0];
+            const lastElement = focusableElements[focusableElements.length - 1];
+
+            if (e.shiftKey) {
+                if (document.activeElement === firstElement) {
+                    lastElement.focus();
+                    e.preventDefault();
+                }
+            } else {
+                if (document.activeElement === lastElement) {
+                    firstElement.focus();
+                    e.preventDefault();
+                }
+            }
+        }
+
+        // Initialize accessibility features
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(initializeAccessibility, 300);
+        });
+
+        // Add loading states to all async operations
+        function withLoadingState(asyncFunction, loadingElementId) {
+            return async function(...args) {
+                const loadingElement = document.getElementById(loadingElementId);
+                if (loadingElement) {
+                    loadingElement.classList.remove('hidden');
+                }
+
+                try {
+                    const result = await asyncFunction.apply(this, args);
+                    return result;
+                } finally {
+                    if (loadingElement) {
+                        loadingElement.classList.add('hidden');
+                    }
+                }
+            };
+        }
+
+        // Add tooltips for better UX
+        function initializeTooltips() {
+            const tooltipElements = document.querySelectorAll('[data-tooltip]');
+            
+            tooltipElements.forEach(element => {
+                const tooltip = document.createElement('div');
+                tooltip.className = 'absolute z-50 px-2 py-1 text-sm text-white bg-gray-800 rounded shadow-lg opacity-0 pointer-events-none transition-opacity duration-200';
+                tooltip.textContent = element.getAttribute('data-tooltip');
+                
+                element.appendChild(tooltip);
+                
+                element.addEventListener('mouseenter', () => {
+                    tooltip.classList.remove('opacity-0');
+                });
+                
+                element.addEventListener('mouseleave', () => {
+                    tooltip.classList.add('opacity-0');
+                });
+            });
+        }
+
+        // Initialize tooltips
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(initializeTooltips, 400);
+        });
+
+        // Final initialization
+        console.log('Device Intelligence Dashboard initialized successfully');
     </script>
 </body>
 </html>

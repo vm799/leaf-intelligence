@@ -211,6 +211,61 @@
                         <p class="text-xs text-purple-600">"Medtronic", "Abbott", "Boston Scientific", "Johnson & Johnson"</p>
                     </div>
                 </div>
+
+                <!-- Enhanced search guidance cards - replace the existing guidance section -->
+<div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-4 border border-blue-200">
+        <div class="flex items-center mb-3">
+            <div class="bg-blue-500 rounded-lg p-2 mr-3">
+                <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+            </div>
+            <h3 class="font-semibold text-blue-800 text-sm">AI Analysis</h3>
+        </div>
+        <p class="text-xs text-blue-700 mb-2">Comprehensive device intelligence with regulatory insights</p>
+        <p class="text-xs text-blue-600">Examples: "pacemaker", "surgical robot", "glucose monitor"</p>
+    </div>
+    
+    <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl p-4 border border-purple-200">
+        <div class="flex items-center mb-3">
+            <div class="bg-purple-500 rounded-lg p-2 mr-3">
+                <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M17.707 9.293a1 1 0 010 1.414l-7 7a1 1 0 01-1.414 0l-7-7A.997.997 0 012 10V5a3 3 0 013-3h5c.256 0 .512.098.707.293l7 7zM5 6a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/>
+                </svg>
+            </div>
+            <h3 class="font-semibold text-purple-800 text-sm">Product Code Search</h3>
+        </div>
+        <p class="text-xs text-purple-700 mb-2">Find device classification and CFR regulations by product code</p>
+        <p class="text-xs text-purple-600">Examples: "DQO", "LZO", "MHX", "DTK"</p>
+    </div>
+    
+    <div class="bg-gradient-to-br from-orange-50 to-orange-100 rounded-2xl p-4 border border-orange-200">
+        <div class="flex items-center mb-3">
+            <div class="bg-orange-500 rounded-lg p-2 mr-3">
+                <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" clip-rule="evenodd"/>
+                </svg>
+            </div>
+            <h3 class="font-semibold text-orange-800 text-sm">Pathway Analysis</h3>
+        </div>
+        <p class="text-xs text-orange-700 mb-2">Analyze approved devices and regulatory pathways</p>
+        <p class="text-xs text-orange-600">Examples: "pacemakers", "insulin pumps", "surgical robots"</p>
+    </div>
+    
+    <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-2xl p-4 border border-green-200">
+        <div class="flex items-center mb-3">
+            <div class="bg-green-500 rounded-lg p-2 mr-3">
+                <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                </svg>
+            </div>
+            <h3 class="font-semibold text-green-800 text-sm">CFR Explorer</h3>
+        </div>
+        <p class="text-xs text-green-700 mb-2">Navigate CFR parts with intelligent recommendations</p>
+        <p class="text-xs text-green-600">Examples: "part 870", "cardiovascular", "dental"</p>
+    </div>
+</div>
             </div>
 
             <div class="flex flex-col lg:flex-row gap-4 mb-6">
@@ -247,14 +302,70 @@
                 </div>
             </div>
 
+
+            <div class="flex flex-col lg:flex-row gap-4 mb-6">
+    <div class="flex-1">
+        <div class="relative">
+            <input 
+                type="text" 
+                id="search-input" 
+                placeholder="Enter device name, product code, or search term..."
+                class="w-full px-6 py-4 border-2 border-gray-200 rounded-2xl search-input-focus focus:outline-none text-lg transition-all duration-200"
+            >
+            <div id="search-suggestions" class="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-2xl mt-1 shadow-xl z-10 hidden"></div>
+        </div>
+    </div>
+    
+    <div class="flex gap-2 flex-wrap">
+        <button 
+            id="device-search-btn" 
+            class="bg-fda-blue text-white px-4 py-4 rounded-2xl hover:bg-blue-700 transition-all font-semibold flex items-center shadow-lg hover:shadow-xl"
+        >
+            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            AI Analysis
+        </button>
+        <button 
+            id="product-code-search-btn" 
+            class="bg-purple-600 text-white px-4 py-4 rounded-2xl hover:bg-purple-700 transition-all font-semibold flex items-center shadow-lg hover:shadow-xl"
+        >
+            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M17.707 9.293a1 1 0 010 1.414l-7 7a1 1 0 01-1.414 0l-7-7A.997.997 0 012 10V5a3 3 0 013-3h5c.256 0 .512.098.707.293l7 7zM5 6a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/>
+            </svg>
+            Product Code
+        </button>
+        <button 
+            id="pathway-search-btn" 
+            class="bg-orange-600 text-white px-4 py-4 rounded-2xl hover:bg-orange-700 transition-all font-semibold flex items-center shadow-lg hover:shadow-xl"
+        >
+            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" clip-rule="evenodd"/>
+            </svg>
+            Pathways
+        </button>
+        <button 
+            id="part-search-btn" 
+            class="bg-green-600 text-white px-4 py-4 rounded-2xl hover:bg-green-700 transition-all font-semibold flex items-center shadow-lg hover:shadow-xl"
+        >
+            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+            </svg>
+            CFR Explorer
+        </button>
+    </div>
+</div>
             <!-- Quick CFR Access -->
-            <div class="bg-gray-50 rounded-2xl p-6">
+            <!-- <div class="bg-gray-50 rounded-2xl p-6">
                 <h4 class="font-semibold text-gray-800 mb-4 flex items-center">
                     <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/>
                     </svg>
                     Quick CFR Part Access
                 </h4>
+
+
+
                 <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-2">
                     <button class="part-btn bg-white hover:bg-blue-50 border-2 border-gray-200 hover:border-blue-300 rounded-xl px-3 py-3 text-sm transition-all card-hover" data-part="862">
                         <div class="font-semibold">862</div>
@@ -321,7 +432,142 @@
                         <div class="text-xs text-gray-600">Radiology</div>
                     </button>
                 </div>
-            </div>
+            </div> -->
+        
+        <!-- Enhanced Quick Access Section with Product Code examples -->
+<div class="bg-gray-50 rounded-2xl p-6">
+    <h4 class="font-semibold text-gray-800 mb-4 flex items-center">
+        <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/>
+        </svg>
+        Quick Access
+    </h4>
+    
+    <!-- CFR Parts Grid (existing) -->
+    <div class="mb-6">
+        <h5 class="text-sm font-medium text-gray-700 mb-3">CFR Parts</h5>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-2">
+            <button class="part-btn bg-white hover:bg-blue-50 border-2 border-gray-200 hover:border-blue-300 rounded-xl px-3 py-3 text-sm transition-all card-hover" data-part="862">
+                <div class="font-semibold">862</div>
+                <div class="text-xs text-gray-600">Chemistry</div>
+            </button>
+            <button class="part-btn bg-white hover:bg-blue-50 border-2 border-gray-200 hover:border-blue-300 rounded-xl px-3 py-3 text-sm transition-all card-hover" data-part="864">
+                <div class="font-semibold">864</div>
+                <div class="text-xs text-gray-600">Hematology</div>
+            </button>
+            <button class="part-btn bg-white hover:bg-blue-50 border-2 border-gray-200 hover:border-blue-300 rounded-xl px-3 py-3 text-sm transition-all card-hover" data-part="866">
+                <div class="font-semibold">866</div>
+                <div class="text-xs text-gray-600">Immunology</div>
+            </button>
+            <button class="part-btn bg-white hover:bg-blue-50 border-2 border-gray-200 hover:border-blue-300 rounded-xl px-3 py-3 text-sm transition-all card-hover" data-part="868">
+                <div class="font-semibold">868</div>
+                <div class="text-xs text-gray-600">Anesthesia</div>
+            </button>
+            <button class="part-btn bg-white hover:bg-blue-50 border-2 border-gray-200 hover:border-blue-300 rounded-xl px-3 py-3 text-sm transition-all card-hover" data-part="870">
+                <div class="font-semibold">870</div>
+                <div class="text-xs text-gray-600">Cardiovascular</div>
+            </button>
+            <button class="part-btn bg-white hover:bg-blue-50 border-2 border-gray-200 hover:border-blue-300 rounded-xl px-3 py-3 text-sm transition-all card-hover" data-part="872">
+                <div class="font-semibold">872</div>
+                <div class="text-xs text-gray-600">Dental</div>
+            </button>
+            <button class="part-btn bg-white hover:bg-blue-50 border-2 border-gray-200 hover:border-blue-300 rounded-xl px-3 py-3 text-sm transition-all card-hover" data-part="874">
+                <div class="font-semibold">874</div>
+                <div class="text-xs text-gray-600">ENT</div>
+            </button>
+            <button class="part-btn bg-white hover:bg-blue-50 border-2 border-gray-200 hover:border-blue-300 rounded-xl px-3 py-3 text-sm transition-all card-hover" data-part="876">
+                <div class="font-semibold">876</div>
+                <div class="text-xs text-gray-600">Gastro-Uro</div>
+            </button>
+            <button class="part-btn bg-white hover:bg-blue-50 border-2 border-gray-200 hover:border-blue-300 rounded-xl px-3 py-3 text-sm transition-all card-hover" data-part="878">
+                <div class="font-semibold">878</div>
+                <div class="text-xs text-gray-600">Surgery</div>
+            </button>
+            <button class="part-btn bg-white hover:bg-blue-50 border-2 border-gray-200 hover:border-blue-300 rounded-xl px-3 py-3 text-sm transition-all card-hover" data-part="880">
+                <div class="font-semibold">880</div>
+                <div class="text-xs text-gray-600">Hospital</div>
+            </button>
+            <button class="part-btn bg-white hover:bg-blue-50 border-2 border-gray-200 hover:border-blue-300 rounded-xl px-3 py-3 text-sm transition-all card-hover" data-part="882">
+                <div class="font-semibold">882</div>
+                <div class="text-xs text-gray-600">Neurological</div>
+            </button>
+            <button class="part-btn bg-white hover:bg-blue-50 border-2 border-gray-200 hover:border-blue-300 rounded-xl px-3 py-3 text-sm transition-all card-hover" data-part="884">
+                <div class="font-semibold">884</div>
+                <div class="text-xs text-gray-600">OB/GYN</div>
+            </button>
+            <button class="part-btn bg-white hover:bg-blue-50 border-2 border-gray-200 hover:border-blue-300 rounded-xl px-3 py-3 text-sm transition-all card-hover" data-part="886">
+                <div class="font-semibold">886</div>
+                <div class="text-xs text-gray-600">Ophthalmic</div>
+            </button>
+            <button class="part-btn bg-white hover:bg-blue-50 border-2 border-gray-200 hover:border-blue-300 rounded-xl px-3 py-3 text-sm transition-all card-hover" data-part="888">
+                <div class="font-semibold">888</div>
+                <div class="text-xs text-gray-600">Orthopedic</div>
+            </button>
+            <button class="part-btn bg-white hover:bg-blue-50 border-2 border-gray-200 hover:border-blue-300 rounded-xl px-3 py-3 text-sm transition-all card-hover" data-part="890">
+                <div class="font-semibold">890</div>
+                <div class="text-xs text-gray-600">Physical Med</div>
+            </button>
+            <button class="part-btn bg-white hover:bg-blue-50 border-2 border-gray-200 hover:border-blue-300 rounded-xl px-3 py-3 text-sm transition-all card-hover" data-part="892">
+                <div class="font-semibold">892</div>
+                <div class="text-xs text-gray-600">Radiology</div>
+            </button>
+        </div>
+    </div>
+    
+    <!-- Popular Product Codes -->
+    <div class="mb-6">
+        <h5 class="text-sm font-medium text-gray-700 mb-3">Popular Product Codes</h5>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2">
+            <button class="product-code-btn bg-white hover:bg-purple-50 border-2 border-gray-200 hover:border-purple-300 rounded-xl px-3 py-3 text-sm transition-all card-hover" data-code="DQO">
+                <div class="font-semibold">DQO</div>
+                <div class="text-xs text-gray-600">Pacemaker</div>
+            </button>
+            <button class="product-code-btn bg-white hover:bg-purple-50 border-2 border-gray-200 hover:border-purple-300 rounded-xl px-3 py-3 text-sm transition-all card-hover" data-code="LZO">
+                <div class="font-semibold">LZO</div>
+                <div class="text-xs text-gray-600">Stent</div>
+            </button>
+            <button class="product-code-btn bg-white hover:bg-purple-50 border-2 border-gray-200 hover:border-purple-300 rounded-xl px-3 py-3 text-sm transition-all card-hover" data-code="MHX">
+                <div class="font-semibold">MHX</div>
+                <div class="text-xs text-gray-600">Defibrillator</div>
+            </button>
+            <button class="product-code-btn bg-white hover:bg-purple-50 border-2 border-gray-200 hover:border-purple-300 rounded-xl px-3 py-3 text-sm transition-all card-hover" data-code="NBW">
+                <div class="font-semibold">NBW</div>
+                <div class="text-xs text-gray-600">Glucose Monitor</div>
+            </button>
+            <button class="product-code-btn bg-white hover:bg-purple-50 border-2 border-gray-200 hover:border-purple-300 rounded-xl px-3 py-3 text-sm transition-all card-hover" data-code="EHA">
+                <div class="font-semibold">EHA</div>
+                <div class="text-xs text-gray-600">Dental Implant</div>
+            </button>
+            <button class="product-code-btn bg-white hover:bg-purple-50 border-2 border-gray-200 hover:border-purple-300 rounded-xl px-3 py-3 text-sm transition-all card-hover" data-code="BSZ">
+                <div class="font-semibold">BSZ</div>
+                <div class="text-xs text-gray-600">Ventilator</div>
+            </button>
+        </div>
+    </div>
+    
+    <!-- Popular Device Searches -->
+    <div>
+        <h5 class="text-sm font-medium text-gray-700 mb-3">Popular Device Searches</h5>
+        <div class="flex flex-wrap gap-2">
+            <button class="device-search-btn bg-white hover:bg-orange-50 border-2 border-gray-200 hover:border-orange-300 rounded-xl px-3 py-2 text-sm transition-all card-hover" data-search="pacemaker">
+                Pacemaker Pathways
+            </button>
+            <button class="device-search-btn bg-white hover:bg-orange-50 border-2 border-gray-200 hover:border-orange-300 rounded-xl px-3 py-2 text-sm transition-all card-hover" data-search="insulin pump">
+                Insulin Pump Pathways
+            </button>
+            <button class="device-search-btn bg-white hover:bg-orange-50 border-2 border-gray-200 hover:border-orange-300 rounded-xl px-3 py-2 text-sm transition-all card-hover" data-search="surgical robot">
+                Surgical Robot Pathways
+            </button>
+            <button class="device-search-btn bg-white hover:bg-orange-50 border-2 border-gray-200 hover:border-orange-300 rounded-xl px-3 py-2 text-sm transition-all card-hover" data-search="ct scanner">
+                CT Scanner Pathways
+            </button>
+            <button class="device-search-btn bg-white hover:bg-orange-50 border-2 border-gray-200 hover:border-orange-300 rounded-xl px-3 py-2 text-sm transition-all card-hover" data-search="hearing aid">
+                Hearing Aid Pathways
+            </button>
+        </div>
+    </div>
+</div>
+
         </div>
 
         <!-- Loading State -->
@@ -707,10 +953,141 @@
                 this.loadSettings();
                 this.setupSearchSuggestions();
                 this.setupSearchModeToggle();
+                this.updateSearchPlaceholder();
             }
 
+            
+
+// Auto-detect search type based on input
+detectSearchType(input) {
+    // Product code pattern (3 letter codes)
+    if (/^[a-z]{2,3}$/i.test(input)) {
+        return 'productCode';
+    }
+    
+    // CFR part pattern
+    if (input.includes('part') || input.includes('cfr') || 
+        ['cardiovascular', 'dental', 'ent', 'neuro', 'ortho', 'radio'].some(term => input.includes(term))) {
+        return 'part';
+    }
+    
+    // Pathway analysis indicators
+    if (input.includes('pathway') || input.includes('approval') || input.includes('clearance') || 
+        input.includes('pma') || input.includes('510k') || input.includes('denovo')) {
+        return 'pathway';
+    }
+    
+    // Default to device search
+    return 'device';
+}
+
+// Enhanced suggestion display with type indicators
+showSuggestions(suggestions, type) {
+    const container = document.getElementById('search-suggestions');
+    if (suggestions.length === 0) {
+        this.hideSuggestions();
+        return;
+    }
+
+    const typeColors = {
+        device: 'blue',
+        productCode: 'purple',
+        pathway: 'orange',
+        part: 'green'
+    };
+
+    const typeLabels = {
+        device: 'Device',
+        productCode: 'Product Code',
+        pathway: 'Pathway',
+        part: 'CFR Part'
+    };
+
+    const color = typeColors[type] || 'blue';
+    const label = typeLabels[type] || 'Device';
+
+    container.innerHTML = suggestions.map(suggestion => `
+        <div class="px-4 py-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0 flex items-center justify-between" 
+             data-suggestion="${suggestion}" data-type="${type}">
+            <span>${suggestion}</span>
+            <span class="bg-${color}-100 text-${color}-800 text-xs px-2 py-1 rounded-full">${label}</span>
+        </div>
+    `).join('');
+    
+    // Add click event to suggestions
+    container.querySelectorAll('[data-suggestion]').forEach(item => {
+        item.addEventListener('click', () => {
+            this.selectSuggestion(item.dataset.suggestion, item.dataset.type);
+        });
+    });
+    
+    container.classList.remove('hidden');
+}
+
+// Enhanced suggestion selection with automatic search type
+selectSuggestion(suggestion, type) {
+    document.getElementById('search-input').value = suggestion;
+    this.hideSuggestions();
+    
+    // Auto-trigger appropriate search based on type
+    switch(type) {
+        case 'productCode':
+            this.performProductCodeSearch();
+            break;
+        case 'pathway':
+            this.performPathwaySearch();
+            break;
+        case 'part':
+            this.performPartSearch();
+            break;
+        default:
+            this.performDeviceSearch();
+    }
+}
+
+// Enhanced search input placeholder updates
+updateSearchPlaceholder() {
+    const searchInput = document.getElementById('search-input');
+    const placeholders = [
+        'Enter device name, product code, or search term...',
+        'Try: "pacemaker", "DQO", "part 870", or "insulin pump pathway"',
+        'Search devices, product codes, pathways, or CFR parts...'
+    ];
+    
+    let currentIndex = 0;
+    setInterval(() => {
+        currentIndex = (currentIndex + 1) % placeholders.length;
+        searchInput.placeholder = placeholders[currentIndex];
+    }, 3000);
+}
+
+// Call this in your init function
+
+
             setupEventListeners() {
+
+                document.querySelectorAll('.product-code-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+        const code = e.target.closest('.product-code-btn').dataset.code;
+        document.getElementById('search-input').value = code;
+        this.performProductCodeSearch();
+    });
+});
+
+document.querySelectorAll('.device-search-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+        const search = e.target.closest('.device-search-btn').dataset.search;
+        document.getElementById('search-input').value = search;
+        this.performPathwaySearch();
+    });
+});
                 // Search functionality
+                // Add product code search button
+    document.getElementById('product-code-search-btn').addEventListener('click', () => this.performProductCodeSearch());
+    
+    // Add device pathway search button
+    document.getElementById('pathway-search-btn').addEventListener('click', () => this.performPathwaySearch());
+
                 document.getElementById('smart-search-btn').addEventListener('click', () => this.performSmartSearch());
                 document.getElementById('part-search-btn').addEventListener('click', () => this.performPartSearch());
                 document.getElementById('search-input').addEventListener('keypress', (e) => {
@@ -809,38 +1186,82 @@
                 inactiveLabel.classList.remove('text-blue-800');
                 inactiveLabel.classList.add('text-gray-700');
             }
+setupSearchSuggestions() {
+    const searchInput = document.getElementById('search-input');
+    const enhancedSearchSuggestions = {
+    device: [
+        'pacemaker', 'defibrillator', 'stent', 'insulin pump', 'MRI scanner',
+        'surgical robot', 'hearing aid', 'contact lens', 'dental implant',
+        'wheelchair', 'ventilator', 'ultrasound', 'X-ray machine', 'CT scanner',
+        'dialysis machine', 'blood glucose monitor', 'knee implant', 'heart valve'
+    ],
+    productCode: [
+        'DQO', 'LZO', 'MHX', 'DTK', 'DRF', 'DXH', 'BOZ', 'BSZ', 'CAF', 'CBK',
+        'DHJ', 'DTF', 'DWK', 'ELN', 'FMZ', 'GEX', 'HRS', 'JDI', 'KGN', 'LRH'
+    ],
+    pathway: [
+        'pacemakers pathway', 'insulin pumps approval', 'surgical robots clearance',
+        'heart valves pma', 'stents 510k', 'defibrillators denovo', 'mri machines',
+        'ct scanners approval', 'dialysis machines clearance', 'ventilators pathway'
+    ],
+    part: [
+        'part 870', 'part 872', 'cardiovascular', 'ENT', 'dental', 'anesthesia',
+        'neurological', 'orthopedic', 'radiology', 'ophthalmic', 'gastroenterology'
+    ]
+};
 
-            setupSearchSuggestions() {
-                const searchInput = document.getElementById('search-input');
-                const deviceSuggestions = [
-                    'K123456', 'K990123', 'P123456', 'pacemaker', 'defibrillator', 'stent', 
-                    'insulin pump', 'MRI scanner', 'surgical robot', 'hearing aid', 
-                    'contact lens', 'dental implant', 'wheelchair', 'ventilator', 
-                    'ultrasound', 'X-ray machine', 'glucose monitor'
-                ];
+    searchInput.addEventListener('input', (e) => {
+        const value = e.target.value.toLowerCase();
+        if (value.length < 2) {
+            this.hideSuggestions();
+            return;
+        }
+
+        // Auto-detect search type
+        const searchType = this.detectSearchType(value);
+        const suggestions = enhancedSearchSuggestions[searchType] || enhancedSearchSuggestions.device;
+        const matches = suggestions.filter(s => s.toLowerCase().includes(value));
+        
+        this.showSuggestions(matches.slice(0, 5), searchType);
+    });
+
+    searchInput.addEventListener('blur', () => {
+        setTimeout(() => this.hideSuggestions(), 150);
+    });
+}
+            // setupSearchSuggestions() {
+            //     const searchInput = document.getElementById('search-input');
+            //     const deviceSuggestions = [
+            //         'K123456', 'K990123', 'P123456', 'pacemaker', 'defibrillator', 'stent', 
+            //         'insulin pump', 'MRI scanner', 'surgical robot', 'hearing aid', 
+            //         'contact lens', 'dental implant', 'wheelchair', 'ventilator', 
+            //         'ultrasound', 'X-ray machine', 'glucose monitor'
+            //     ];
                 
-                const companySuggestions = [
-                    'Medtronic', 'Abbott', 'Boston Scientific', 'Johnson & Johnson',
-                    'Pfizer', 'GE Healthcare', 'Siemens Healthineers', 'Philips Healthcare',
-                    'Stryker', 'Zimmer Biomet', 'Edwards Lifesciences', 'Intuitive Surgical'
-                ];
+            //     const companySuggestions = [
+            //         'Medtronic', 'Abbott', 'Boston Scientific', 'Johnson & Johnson',
+            //         'Pfizer', 'GE Healthcare', 'Siemens Healthineers', 'Philips Healthcare',
+            //         'Stryker', 'Zimmer Biomet'
+            //         , 'Edwards Lifesciences', 'Intuitive Surgical'
+            //     ];
 
-                searchInput.addEventListener('input', (e) => {
-                    const value = e.target.value.toLowerCase();
-                    if (value.length < 2) {
-                        this.hideSuggestions();
-                        return;
-                    }
 
-                    const suggestions = this.searchMode === 'company' ? companySuggestions : deviceSuggestions;
-                    const matches = suggestions.filter(s => s.toLowerCase().includes(value));
-                    this.showSuggestions(matches.slice(0, 5));
-                });
+            //     searchInput.addEventListener('input', (e) => {
+            //         const value = e.target.value.toLowerCase();
+            //         if (value.length < 2) {
+            //             this.hideSuggestions();
+            //             return;
+            //         }
 
-                searchInput.addEventListener('blur', () => {
-                    setTimeout(() => this.hideSuggestions(), 150);
-                });
-            }
+            //         const suggestions = this.searchMode === 'company' ? companySuggestions : deviceSuggestions;
+            //         const matches = suggestions.filter(s => s.toLowerCase().includes(value));
+            //         this.showSuggestions(matches.slice(0, 5));
+            //     });
+
+            //     searchInput.addEventListener('blur', () => {
+            //         setTimeout(() => this.hideSuggestions(), 150);
+            //     });
+            // }
 
             showSuggestions(suggestions) {
                 const container = document.getElementById('search-suggestions');
@@ -860,6 +1281,700 @@
                 container.classList.remove('hidden');
             }
 
+
+
+            // Product code search
+async performProductCodeSearch() {
+    const searchTerm = document.getElementById('search-input').value.trim();
+    if (!searchTerm) {
+        this.showError('Please enter a product code (e.g., DQO, LZO, MHX)');
+        return;
+    }
+
+    // Detect if input looks like a product code (3-letter code)
+    const productCodePattern = /^[A-Z]{3}$/i;
+    if (!productCodePattern.test(searchTerm)) {
+        this.showError('Product codes are typically 3-letter codes (e.g., DQO, LZO, MHX)');
+        return;
+    }
+
+    this.searchType = 'product-code';
+    this.showLoading('product-code');
+    this.hideError();
+
+    try {
+        const response = await fetch(`${this.baseUrl}/product-code/${searchTerm.toUpperCase()}`);
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.error || 'Product code search failed');
+        }
+
+        this.currentData = data;
+        this.displayProductCodeResults(data);
+    } catch (error) {
+        this.showError(`Product code search failed: ${error.message}`);
+    } finally {
+        this.hideLoading();
+    }
+}
+
+
+// Update product code tabs
+updateProductCodeTabs(data) {
+    // Update overview stats
+    document.getElementById('total-records').textContent = data.summary.totalApprovedDevices.toLocaleString();
+    document.getElementById('active-clearances').textContent = data.summary.totalApprovedDevices.toLocaleString();
+    document.getElementById('safety-events').textContent = '0'; // Product code search doesn't focus on safety events
+
+    // Update FDA data tab with product code specific data
+    this.updateProductCodeFDATab(data);
+    
+    // Update regulatory tab with CFR information
+    this.updateProductCodeRegulatoryTab(data);
+    
+    // Update compliance tab
+    this.updateProductCodeComplianceTab(data);
+}
+
+// Update pathway analysis tabs
+updatePathwayTabs(data) {
+    // Update overview stats
+    document.getElementById('total-records').textContent = data.summary.totalDevices.toLocaleString();
+    document.getElementById('active-clearances').textContent = data.summary.totalDevices.toLocaleString();
+    document.getElementById('safety-events').textContent = '0';
+
+    // Update FDA data tab with pathway data
+    this.updatePathwayFDATab(data);
+    
+    // Update regulatory tab - not applicable for pathway search
+    document.getElementById('regulatory-container').innerHTML = '<p class="text-gray-500">Regulatory analysis not available for pathway search</p>';
+    
+    // Update compliance tab
+    this.updatePathwayComplianceTab(data);
+}
+
+// Update FDA data tab for product code
+updateProductCodeFDATab(data) {
+    const container = document.getElementById('fda-data-container');
+    container.innerHTML = '';
+
+    const endpoints = [
+        { 
+            key: 'classification', 
+            name: 'Device Classification', 
+            color: 'purple', 
+            icon: 'tag',
+            data: data.classification ? [data.classification] : []
+        },
+        { 
+            key: 'pathwayAnalysis', 
+            name: 'Regulatory Pathways', 
+            color: 'blue', 
+            icon: 'check',
+            data: data.pathwayAnalysis
+        }
+    ];
+
+    // Add classification section
+    const classificationSection = document.createElement('div');
+    classificationSection.className = 'border border-gray-200 rounded-2xl overflow-hidden mb-6';
+    classificationSection.innerHTML = `
+        <div class="bg-purple-50 border-b border-gray-200 p-4">
+            <div class="flex items-center">
+                <div class="bg-purple-500 rounded-xl p-2 mr-3">
+                    <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M17.707 9.293a1 1 0 010 1.414l-7 7a1 1 0 01-1.414 0l-7-7A.997.997 0 012 10V5a3 3 0 013-3h5c.256 0 .512.098.707.293l7 7zM5 6a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/>
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-800">Product Code ${data.productCode}</h3>
+                    <p class="text-sm text-gray-600">${data.classification.deviceName}</p>
+                </div>
+            </div>
+        </div>
+        <div class="p-4 bg-white">
+            <div class="grid md:grid-cols-2 gap-4">
+                <div>
+                    <h4 class="font-semibold text-gray-800 mb-2">Classification Details</h4>
+                    <div class="space-y-2 text-sm">
+                        <div><span class="font-medium">Device Class:</span> ${data.classification.deviceClass}</div>
+                        <div><span class="font-medium">Regulation:</span> ${data.classification.regulationNumber}</div>
+                        <div><span class="font-medium">Medical Specialty:</span> ${data.classification.medicalSpecialty}</div>
+                        <div><span class="font-medium">Review Panel:</span> ${data.classification.panelCode}</div>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-gray-800 mb-2">Regulatory Requirements</h4>
+                    <div class="space-y-1 text-sm">
+                        ${data.classification.exemptions?.map(ex => `
+                            <div class="flex items-center">
+                                <div class="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                                <span>${ex}</span>
+                            </div>
+                        `).join('') || '<span class="text-gray-500">No exemptions</span>'}
+                        ${data.classification.specialControls?.map(sc => `
+                            <div class="flex items-center">
+                                <div class="w-2 h-2 bg-blue-500 rounded-full mr-2"></div>
+                                <span>${sc}</span>
+                            </div>
+                        `).join('') || ''}
+                    </div>
+                </div>
+            </div>
+            ${data.classification.summary ? `
+                <div class="mt-4 p-3 bg-gray-50 rounded-xl">
+                    <h4 class="font-semibold text-gray-800 mb-2">Device Summary</h4>
+                    <p class="text-sm text-gray-600">${data.classification.summary}</p>
+                </div>
+            ` : ''}
+        </div>
+    `;
+    container.appendChild(classificationSection);
+
+    // Add pathway analysis section
+    if (data.pathwayAnalysis && data.pathwayAnalysis.totalApprovedDevices > 0) {
+        const pathwaySection = document.createElement('div');
+        pathwaySection.className = 'border border-gray-200 rounded-2xl overflow-hidden';
+        pathwaySection.innerHTML = `
+            <div class="bg-blue-50 border-b border-gray-200 p-4 cursor-pointer hover:bg-blue-100 transition-colors" onclick="dashboard.toggleSection(this)">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center">
+                        <div class="bg-blue-500 rounded-xl p-2 mr-3">
+                            <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-800">Approved Devices (${data.pathwayAnalysis.totalApprovedDevices})</h3>
+                    </div>
+                    <svg class="w-5 h-5 text-gray-500 transform transition-transform section-arrow" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                    </svg>
+                </div>
+            </div>
+            <div class="hidden p-4 bg-white section-content">
+                ${this.createPathwayAnalysisContent(data.pathwayAnalysis)}
+            </div>
+        `;
+        container.appendChild(pathwaySection);
+    }
+}
+
+// Create pathway analysis content
+createPathwayAnalysisContent(pathwayAnalysis) {
+    const pathways = ['510k', 'pma', 'deNovo'];
+    
+    return `
+        <div class="grid md:grid-cols-3 gap-4 mb-6">
+            ${pathways.map(pathway => `
+                <div class="bg-gray-50 rounded-2xl p-4 text-center">
+                    <h4 class="font-semibold text-gray-800 mb-2">${pathway === '510k' ? '510(k)' : pathway === 'pma' ? 'PMA' : 'De Novo'}</h4>
+                    <p class="text-2xl font-bold text-blue-600">${pathwayAnalysis.pathways[pathway]?.count || 0}</p>
+                    <p class="text-sm text-gray-600">devices</p>
+                </div>
+            `).join('')}
+        </div>
+        
+        <div class="space-y-4">
+            <h4 class="font-semibold text-gray-800">Recent Approvals</h4>
+            ${pathwayAnalysis.recentApprovals?.slice(0, 5).map(device => `
+                <div class="border border-gray-200 rounded-xl p-3 hover:shadow-md transition-shadow">
+                    <div class="flex justify-between items-start">
+                        <div class="flex-1">
+                            <h5 class="font-medium text-gray-800">${device.deviceName || device.kNumber || device.pmaNumber}</h5>
+                            <p class="text-sm text-gray-600">${device.applicant}</p>
+                        </div>
+                        <div class="text-right">
+                            <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">${device.pathway}</span>
+                            <p class="text-xs text-gray-500 mt-1">${new Date(device.decisionDate).toLocaleDateString()}</p>
+                        </div>
+                    </div>
+                </div>
+            `).join('') || '<p class="text-gray-500">No recent approvals found</p>'}
+        </div>
+    `;
+}
+
+// Update FDA data tab for pathway search
+updatePathwayFDATab(data) {
+    const container = document.getElementById('fda-data-container');
+    container.innerHTML = '';
+
+    const pathways = [
+        { 
+            key: '510k', 
+            name: '510(k) Clearances', 
+            color: 'blue', 
+            icon: 'check',
+            data: data.approvedDevices.fiveOneOk
+        },
+        { 
+            key: 'pma', 
+            name: 'PMA Approvals', 
+            color: 'green', 
+            icon: 'shield',
+            data: data.approvedDevices.pma
+        },
+        { 
+            key: 'deNovo', 
+            name: 'De Novo Clearances', 
+            color: 'purple', 
+            icon: 'star',
+            data: data.approvedDevices.deNovo
+        }
+    ];
+
+    pathways.forEach(pathway => {
+        if (pathway.data && pathway.data.length > 0) {
+            const section = this.createPathwayFDASection(pathway);
+            container.appendChild(section);
+        }
+    });
+}
+
+// Create pathway FDA section
+createPathwayFDASection(pathway) {
+    const section = document.createElement('div');
+    section.className = 'border border-gray-200 rounded-2xl overflow-hidden mb-6';
+
+    section.innerHTML = `
+        <div class="bg-${pathway.color}-50 border-b border-gray-200 p-4 cursor-pointer hover:bg-${pathway.color}-100 transition-colors" onclick="dashboard.toggleSection(this)">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center">
+                    <div class="bg-${pathway.color}-500 rounded-xl p-2 mr-3">
+                        ${this.getIcon(pathway.icon)}
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-800">${pathway.name}</h3>
+                </div>
+                <div class="flex items-center">
+                    <span class="text-sm text-${pathway.color}-600 mr-4">${pathway.data.length} devices</span>
+                    <svg class="w-5 h-5 text-gray-500 transform transition-transform section-arrow" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+        <div class="hidden p-4 bg-white section-content">
+            ${this.createPathwayDeviceList(pathway.data, pathway.key)}
+        </div>
+    `;
+
+    return section;
+}
+
+// Create pathway device list
+createPathwayDeviceList(devices, pathwayType) {
+    return `
+        <div class="space-y-3">
+            ${devices.slice(0, 10).map(device => `
+                <div class="border border-gray-200 rounded-xl p-3 hover:shadow-md transition-shadow">
+                    <div class="flex justify-between items-start">
+                        <div class="flex-1">
+                            <h5 class="font-medium text-gray-800">${this.getDeviceName(device, pathwayType)}</h5>
+                            <p class="text-sm text-gray-600">${device.applicant || 'Unknown applicant'}</p>
+                            <p class="text-xs text-gray-500 mt-1">${this.getDeviceId(device, pathwayType)}</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-xs text-gray-500">${new Date(device.decision_date).toLocaleDateString()}</p>
+                            <span class="inline-block mt-1 px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
+                                ${device.decision_description || 'Approved'}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            `).join('')}
+            ${devices.length > 10 ? `
+                <button class="w-full py-2 text-blue-600 hover:text-blue-800 text-sm font-medium border border-blue-200 rounded-xl hover:bg-blue-50 transition-colors">
+                    View all ${devices.length} devices
+                </button>
+            ` : ''}
+        </div>
+    `;
+}
+
+// Helper functions for device information
+getDeviceName(device, pathwayType) {
+    switch(pathwayType) {
+        case '510k':
+            return device.device_name || device.k_number || 'Unknown Device';
+        case 'pma':
+            return device.trade_name || device.generic_name || device.pma_number || 'Unknown Device';
+        case 'deNovo':
+            return device.device_name || device.k_number || 'Unknown Device';
+        default:
+            return 'Unknown Device';
+    }
+}
+
+getDeviceId(device, pathwayType) {
+    switch(pathwayType) {
+        case '510k':
+            return device.k_number || 'No K number';
+        case 'pma':
+            return device.pma_number || 'No PMA number';
+        case 'deNovo':
+            return device.k_number || 'No K number';
+        default:
+            return 'No ID';
+    }
+}
+
+// Update regulatory tab for product code
+updateProductCodeRegulatoryTab(data) {
+    const container = document.getElementById('regulatory-container');
+    
+    if (!data.cfrRegulations || data.cfrRegulations.error) {
+        container.innerHTML = `
+            <div class="bg-yellow-50 border border-yellow-200 rounded-2xl p-4">
+                <h3 class="font-semibold text-yellow-800 mb-2">CFR Regulation Information</h3>
+                <p class="text-yellow-700">Unable to retrieve detailed CFR information for this product code.</p>
+                <p class="text-sm text-yellow-600 mt-1">Regulation: ${data.classification.regulationNumber}</p>
+            </div>
+        `;
+        return;
+    }
+
+    container.innerHTML = `
+        <div class="bg-white rounded-2xl p-6 border border-gray-200">
+            <div class="flex items-center justify-between mb-6">
+                <div>
+                    <h3 class="text-2xl font-bold text-gray-800">21 CFR ${data.classification.regulationNumber}</h3>
+                    <p class="text-gray-600 mt-1">${data.cfrRegulations.title}</p>
+                </div>
+                <a href="${data.cfrRegulations.url}" target="_blank" 
+                   class="bg-blue-600 text-white px-4 py-2 rounded-xl hover:bg-blue-700 transition-colors flex items-center">
+                    <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z"/>
+                        <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z"/>
+                    </svg>
+                    View on eCFR
+                </a>
+            </div>
+            
+            <div class="grid md:grid-cols-2 gap-6">
+                <div>
+                    <h4 class="font-semibold text-gray-800 mb-3">Device Identification</h4>
+                    <div class="bg-gray-50 rounded-xl p-4">
+                        <p class="text-sm text-gray-700">${data.cfrRegulations.identification || 'Not available'}</p>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-gray-800 mb-3">Classification</h4>
+                    <div class="bg-gray-50 rounded-xl p-4">
+                        <p class="text-sm text-gray-700">${data.cfrRegulations.classification || 'Not available'}</p>
+                    </div>
+                </div>
+            </div>
+            
+            ${data.cfrRegulations.requirements && data.cfrRegulations.requirements.length > 0 ? `
+                <div class="mt-6">
+                    <h4 class="font-semibold text-gray-800 mb-3">Key Requirements</h4>
+                    <div class="space-y-2">
+                        ${data.cfrRegulations.requirements.slice(0, 5).map(req => `
+                            <div class="flex items-start">
+                                <div class="w-2 h-2 bg-blue-500 rounded-full mr-3 mt-2"></div>
+                                <span class="text-sm text-gray-700">${req}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            ` : ''}
+        </div>
+    `;
+}
+
+// Update compliance tabs
+updateProductCodeComplianceTab(data) {
+    const checklistContainer = document.getElementById('compliance-checklist');
+    const docsContainer = document.getElementById('required-docs');
+
+    const complianceItems = [
+        { text: 'Product code classification confirmed', completed: true },
+        { text: 'CFR regulation identified', completed: !!data.cfrRegulations && !data.cfrRegulations.error },
+        { text: 'Device class determined', completed: !!data.classification.deviceClass },
+        { text: 'Regulatory pathway identified', completed: !!data.summary.primaryPathway },
+        { text: 'Exemption status reviewed', completed: data.classification.exemptions?.length > 0 }
+    ];
+
+    checklistContainer.innerHTML = complianceItems.map(item => `
+        <div class="flex items-center p-3 bg-white rounded border">
+            <div class="w-5 h-5 ${item.completed ? 'bg-green-500' : 'bg-gray-300'} rounded mr-3 flex items-center justify-center">
+                ${item.completed ? '<svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>' : ''}
+            </div>
+            <span class="text-gray-700 ${item.completed ? 'line-through' : ''}">${item.text}</span>
+        </div>
+    `).join('');
+
+    const requiredDocs = [
+        { name: 'Device Description', description: `Detailed description of ${data.classification.deviceName}`, required: true },
+        { name: 'Predicate Device Analysis', description: 'Comparison with similar approved devices', required: data.summary.primaryPathway === '510(k)' },
+        { name: 'Clinical Data', description: 'Clinical studies and safety data', required: data.classification.deviceClass === 'III' },
+        { name: 'Labeling', description: 'Proposed device labeling and instructions', required: true }
+    ];
+
+    docsContainer.innerHTML = requiredDocs.map(doc => `
+        <div class="flex items-center p-3 bg-white rounded border">
+            <div class="w-5 h-5 ${doc.required ? 'bg-red-500' : 'bg-gray-300'} rounded mr-3"></div>
+            <div class="flex-1">
+                <span class="text-gray-700">${doc.name}</span>
+                <p class="text-xs text-gray-500 mt-1">${doc.description}</p>
+            </div>
+        </div>
+    `).join('');
+}
+
+updatePathwayComplianceTab(data) {
+    const checklistContainer = document.getElementById('compliance-checklist');
+    const docsContainer = document.getElementById('required-docs');
+
+    const complianceItems = [
+        { text: 'Pathway analysis completed', completed: true },
+        { text: 'Predicate devices identified', completed: data.summary.pathwayBreakdown['510k'].count > 0 },
+        { text: 'PMA precedents reviewed', completed: data.summary.pathwayBreakdown.pma.count > 0 },
+        { text: 'De Novo options assessed', completed: data.summary.pathwayBreakdown.deNovo.count > 0 },
+        { text: 'Market trends analyzed', completed: true }
+    ];
+
+    checklistContainer.innerHTML = complianceItems.map(item => `
+        <div class="flex items-center p-3 bg-white rounded border">
+            <div class="w-5 h-5 ${item.completed ? 'bg-green-500' : 'bg-gray-300'} rounded mr-3 flex items-center justify-center">
+                ${item.completed ? '<svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>' : ''}
+            </div>
+            <span class="text-gray-700 ${item.completed ? 'line-through' : ''}">${item.text}</span>
+        </div>
+    `).join('');
+
+    const requiredDocs = [
+        { name: 'Pathway Strategy Document', description: `Strategy for ${data.summary.dominantPathway} pathway`, required: true },
+        { name: 'Predicate Device Database', description: 'List of relevant predicate devices', required: data.summary.pathwayBreakdown['510k'].count > 0 },
+        { name: 'Competitive Analysis', description: 'Analysis of competing approved devices', required: true },
+        { name: 'Regulatory Timeline', description: 'Timeline and milestones for approval', required: true }
+    ];
+
+    docsContainer.innerHTML = requiredDocs.map(doc => `
+        <div class="flex items-center p-3 bg-white rounded border">
+            <div class="w-5 h-5 ${doc.required ? 'bg-red-500' : 'bg-gray-300'} rounded mr-3"></div>
+            <div class="flex-1">
+                <span class="text-gray-700">${doc.name}</span>
+                <p class="text-xs text-gray-500 mt-1">${doc.description}</p>
+            </div>
+        </div>
+    `).join('');
+}
+// Device pathway search
+async performPathwaySearch() {
+    const searchTerm = document.getElementById('search-input').value.trim();
+    if (!searchTerm) {
+        this.showError('Please enter a device name (e.g., pacemaker, insulin pump)');
+        return;
+    }
+
+    this.searchType = 'pathway';
+    this.showLoading('pathway');
+    this.hideError();
+
+    try {
+        const response = await fetch(`${this.baseUrl}/device-pathways?q=${encodeURIComponent(searchTerm)}`);
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.error || 'Device pathway search failed');
+        }
+
+        this.currentData = data;
+        this.displayPathwayResults(data);
+    } catch (error) {
+        this.showError(`Device pathway search failed: ${error.message}`);
+    } finally {
+        this.hideLoading();
+    }
+}
+
+// Display product code results
+displayProductCodeResults(data) {
+    this.hideError();
+    document.getElementById('results-container').classList.remove('hidden');
+    
+    // Hide AI insights, show product code specific layout
+    document.getElementById('ai-insights').classList.add('hidden');
+    document.getElementById('device-profile').classList.remove('hidden');
+    
+    // Update device profile for product code
+    this.updateProductCodeProfile(data);
+    
+    // Update tabs with product code specific data
+    this.updateProductCodeTabs(data);
+    this.showAllTabs();
+    
+    // Switch to overview tab
+    this.switchTab('overview');
+}
+
+// Display pathway results
+displayPathwayResults(data) {
+    this.hideError();
+    document.getElementById('results-container').classList.remove('hidden');
+    
+    // Show AI insights for pathway analysis
+    document.getElementById('ai-insights').classList.remove('hidden');
+    document.getElementById('device-profile').classList.remove('hidden');
+    
+    // Update with pathway specific data
+    this.updatePathwayProfile(data);
+    this.updatePathwayInsights(data);
+    this.updatePathwayTabs(data);
+    this.showAllTabs();
+    
+    this.switchTab('overview');
+}
+
+// Update product code profile
+updateProductCodeProfile(data) {
+    const summary = data.summary;
+    
+    // Update header
+    document.getElementById('device-title').textContent = `Product Code ${data.productCode} - ${summary.deviceName}`;
+    document.getElementById('device-timestamp').textContent = `Generated: ${new Date(data.timestamp).toLocaleString()}`;
+
+    // Update metrics cards
+    document.getElementById('complexity-level').textContent = summary.regulatoryComplexity;
+    document.getElementById('device-class').textContent = `Class ${summary.deviceClass}`;
+    document.getElementById('market-status').textContent = summary.primaryPathway;
+    document.getElementById('safety-level').textContent = summary.totalApprovedDevices;
+
+    document.getElementById('complexity-desc').textContent = `${summary.specialControls.length} special controls`;
+    document.getElementById('class-desc').textContent = data.classification.medicalSpecialty || 'Medical device';
+    document.getElementById('market-desc').textContent = summary.recentActivity;
+    document.getElementById('safety-desc').textContent = `${summary.exemptions.length} exemptions`;
+
+    // Update applicable parts - show CFR regulation
+    if (data.cfrRegulations && !data.cfrRegulations.error) {
+        const partNumber = data.classification.regulationNumber?.split('.')[0];
+        document.getElementById('applicable-parts').innerHTML = `
+            <div class="bg-white border-2 border-blue-300 rounded-2xl p-4 card-hover">
+                <div class="flex justify-between items-start mb-3">
+                    <h4 class="font-semibold text-gray-800">21 CFR ${data.classification.regulationNumber}</h4>
+                    <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">Primary</span>
+                </div>
+                <p class="text-sm text-gray-600 mb-3">${data.cfrRegulations.identification || 'Device regulation'}</p>
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center">
+                        <div class="w-2 h-2 bg-blue-500 rounded-full mr-2"></div>
+                        <span class="text-xs text-gray-500">Class ${summary.deviceClass}</span>
+                    </div>
+                    <a href="${data.cfrRegulations.url}" target="_blank" 
+                       class="text-blue-600 hover:text-blue-800 text-xs font-medium">
+                        View CFR →
+                    </a>
+                </div>
+            </div>
+        `;
+    }
+    
+    // Update recommendations
+    const recommendations = [
+        `Primary pathway: ${summary.primaryPathway}`,
+        `Device Class ${summary.deviceClass} - ${summary.regulatoryComplexity.toLowerCase()} complexity`,
+        ...summary.exemptions.map(ex => `Exemption: ${ex}`),
+        ...summary.specialControls.map(sc => `Requirement: ${sc}`)
+    ];
+    
+    this.displayRecommendations(recommendations);
+}
+
+// Update pathway profile
+updatePathwayProfile(data) {
+    const summary = data.summary;
+    
+    // Update header
+    document.getElementById('device-title').textContent = `${data.searchTerm} - Pathway Analysis`;
+    document.getElementById('device-timestamp').textContent = `Generated: ${new Date(data.timestamp).toLocaleString()}`;
+
+    // Update metrics cards
+    document.getElementById('complexity-level').textContent = summary.totalDevices;
+    document.getElementById('device-class').textContent = summary.dominantPathway;
+    document.getElementById('market-status').textContent = 'Multiple Pathways';
+    document.getElementById('safety-level').textContent = 'Analyzed';
+
+    document.getElementById('complexity-desc').textContent = 'Total approved devices';
+    document.getElementById('class-desc').textContent = 'Most common pathway';
+    document.getElementById('market-desc').textContent = 'FDA approved devices';
+    document.getElementById('safety-desc').textContent = 'Pathway analysis complete';
+
+    // Show pathway distribution
+    document.getElementById('applicable-parts').innerHTML = `
+        <div class="grid md:grid-cols-3 gap-4">
+            <div class="bg-white border-2 border-blue-300 rounded-2xl p-4">
+                <h4 class="font-semibold text-blue-800 mb-2">510(k) Clearances</h4>
+                <p class="text-2xl font-bold text-blue-600">${summary.pathwayBreakdown['510k'].count}</p>
+                <p class="text-sm text-blue-600">${summary.pathwayBreakdown['510k'].percentage}% of total</p>
+            </div>
+            <div class="bg-white border-2 border-green-300 rounded-2xl p-4">
+                <h4 class="font-semibold text-green-800 mb-2">PMA Approvals</h4>
+                <p class="text-2xl font-bold text-green-600">${summary.pathwayBreakdown.pma.count}</p>
+                <p class="text-sm text-green-600">${summary.pathwayBreakdown.pma.percentage}% of total</p>
+            </div>
+            <div class="bg-white border-2 border-purple-300 rounded-2xl p-4">
+                <h4 class="font-semibold text-purple-800 mb-2">De Novo Clearances</h4>
+                <p class="text-2xl font-bold text-purple-600">${summary.pathwayBreakdown.deNovo.count}</p>
+                <p class="text-sm text-purple-600">${summary.pathwayBreakdown.deNovo.percentage}% of total</p>
+            </div>
+        </div>
+    `;
+
+    // Generate pathway recommendations
+    const recommendations = [
+        `${summary.dominantPathway} is the most common pathway (${summary.pathwayBreakdown[summary.dominantPathway.toLowerCase()]?.percentage}%)`,
+        `Total of ${summary.totalDevices} approved devices found`,
+        summary.pathwayBreakdown['510k'].count > 0 ? '510(k) pathway available with predicate devices' : '',
+        summary.pathwayBreakdown.pma.count > 0 ? 'PMA pathway required for some variants' : '',
+        summary.pathwayBreakdown.deNovo.count > 0 ? 'De Novo pathway established for novel devices' : ''
+    ].filter(Boolean);
+    
+    this.displayRecommendations(recommendations);
+}
+
+// Update pathway insights
+updatePathwayInsights(data) {
+    setTimeout(() => {
+        document.getElementById('ai-regulatory-summary').innerHTML = `
+            <p class="mb-2">Analysis of <strong>${data.searchTerm}</strong> devices shows <strong>${data.summary.totalDevices}</strong> FDA-approved devices across multiple pathways.</p>
+            <p>Dominant pathway: <strong>${data.summary.dominantPathway}</strong> (${data.summary.pathwayBreakdown[data.summary.dominantPathway.toLowerCase()]?.percentage}% of approvals)</p>
+        `;
+
+        document.getElementById('ai-risk-assessment').innerHTML = `
+            <div class="flex items-center mb-2">
+                <div class="w-3 h-3 rounded-full mr-2 bg-green-500"></div>
+                <span class="font-medium">Established Market</span>
+            </div>
+            <p>Multiple regulatory pathways available with ${data.summary.totalDevices} precedent devices.</p>
+            <p class="mt-2 text-sm">Pathway diversity indicates mature market with various risk profiles.</p>
+        `;
+
+        document.getElementById('ai-recommendations').innerHTML = `
+            <ul class="space-y-2">
+                <li class="flex items-start">
+                    <svg class="w-4 h-4 text-purple-600 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                    </svg>
+                    <span class="text-sm">Consider ${data.summary.dominantPathway} pathway as primary strategy</span>
+                </li>
+                <li class="flex items-start">
+                    <svg class="w-4 h-4 text-purple-600 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                    </svg>
+                    <span class="text-sm">Review predicate devices in ${data.summary.dominantPathway} database</span>
+                </li>
+                <li class="flex items-start">
+                    <svg class="w-4 h-4 text-purple-600 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                    </svg>
+                    <span class="text-sm">Analyze recent approvals for regulatory trends</span>
+                </li>
+            </ul>
+        `;
+    }, 1000);
+}
             hideSuggestions() {
                 document.getElementById('search-suggestions').classList.add('hidden');
             }
@@ -962,33 +2077,86 @@
                     this.hideLoading();
                 }
             }
+showLoading(type = 'device') {
+    const loadingState = document.getElementById('loading-state');
+    const statusElement = document.getElementById('loading-status');
+    const progressBar = document.getElementById('progress-bar');
+                    const loadingMessages = {
+    'device': {
+        initial: 'Initializing AI device analysis...',
+        progress: 'Querying FDA databases and applying intelligence...',
+        final: 'Processing comprehensive device profile...'
+    },
+    'product-code': {
+        initial: 'Looking up product code classification...',
+        progress: 'Retrieving CFR regulations and pathway data...',
+        final: 'Analyzing regulatory requirements...'
+    },
+    'pathway': {
+        initial: 'Searching approved devices...',
+        progress: 'Analyzing regulatory pathways (510k, PMA, De Novo)...',
+        final: 'Generating pathway distribution analysis...'
+    },
+    'part': {
+        initial: 'Loading CFR regulations...',
+        progress: 'Parsing regulatory text and sections...',
+        final: 'Processing compliance requirements...'
+    }
+};
 
-            showLoading(type = 'device') {
-                const loadingState = document.getElementById('loading-state');
-                const statusElement = document.getElementById('loading-status');
-                const progressBar = document.getElementById('progress-bar');
+
+    loadingState.classList.remove('hidden');
+    document.getElementById('results-container').classList.add('hidden');
+    
+    const messages = loadingMessages[type] || loadingMessages['device'];
+    
+    // Simulate progress with type-specific messages
+    let progress = 0;
+    const interval = setInterval(() => {
+        progress += Math.random() * 15;
+        if (progress > 90) progress = 90;
+        progressBar.style.width = `${progress}%`;
+        
+        if (progress < 30) {
+            statusElement.textContent = messages.initial;
+        } else if (progress < 60) {
+            statusElement.textContent = messages.progress;
+        } else {
+            statusElement.textContent = messages.final;
+        }
+    }, 200);
+
+    this.loadingInterval = interval;
+}
+
+            // showLoading(type = 'device') {
+            //     const loadingState = document.getElementById('loading-state');
+            //     const statusElement = document.getElementById('loading-status');
+            //     const progressBar = document.getElementById('progress-bar');
                 
-                loadingState.classList.remove('hidden');
-                document.getElementById('results-container').classList.add('hidden');
+            //     loadingState.classList.remove('hidden');
+            //     document.getElementById('results-container').classList.add('hidden');
                 
-                let progress = 0;
-                const interval = setInterval(() => {
-                    progress += Math.random() * 15;
-                    if (progress > 90) progress = 90;
-                    progressBar.style.width = `${progress}%`;
+
+
+            //     let progress = 0;
+            //     const interval = setInterval(() => {
+            //         progress += Math.random() * 15;
+            //         if (progress > 90) progress = 90;
+            //         progressBar.style.width = `${progress}%`;
                     
-                    if (progress < 30) {
-                        statusElement.textContent = type === 'company' ? 'Analyzing company portfolio...' : 
-                                                   type === 'device' ? 'Analyzing device data...' : 'Loading CFR regulations...';
-                    } else if (progress < 60) {
-                        statusElement.textContent = 'Querying FDA databases...';
-                    } else {
-                        statusElement.textContent = 'Processing results with AI...';
-                    }
-                }, 200);
+            //         if (progress < 30) {
+            //             statusElement.textContent = type === 'company' ? 'Analyzing company portfolio...' : 
+            //                                        type === 'device' ? 'Analyzing device data...' : 'Loading CFR regulations...';
+            //         } else if (progress < 60) {
+            //             statusElement.textContent = 'Querying FDA databases...';
+            //         } else {
+            //             statusElement.textContent = 'Processing results with AI...';
+            //         }
+            //     }, 200);
 
-                this.loadingInterval = interval;
-            }
+            //     this.loadingInterval = interval;
+            // }
 
             hideLoading() {
                 if (this.loadingInterval) {
