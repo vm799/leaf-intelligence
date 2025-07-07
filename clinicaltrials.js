@@ -2596,7 +2596,7 @@ const transporter = nodemailer.createTransport({
 You're registered for "Cracking the FDA Code" webinar!
 
 Event Details:
-- Date: Wednesday, July 24th, 2025
+- Date: Wednesday, July 23rd, 2025
 - Time: 2:00 PM EST / 11:00 AM PST
 - Duration: 45 minutes + Q&A
 - Platform: Google Meet
