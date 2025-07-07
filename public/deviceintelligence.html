@@ -735,7 +735,7 @@
 </div>
 
 <!-- Quick Statistics Cards -->
-<div class="grid md:grid-cols-4 gap-4 mt-6">
+<div class="hidden grid md:grid-cols-4 gap-4 mt-6">
     <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-4 border border-blue-200">
         <div class="flex items-center justify-between">
             <div>
@@ -797,51 +797,7 @@
     </div>
 </div>
 
-<!-- Predicate Device Information Panel -->
-<div class="bg-gradient-to-br from-amber-50 to-yellow-50 rounded-2xl p-6 border border-amber-200 mt-6">
-    <div class="flex items-start">
-        <div class="bg-amber-500 rounded-xl p-3 mr-4">
-            <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
-            </svg>
-        </div>
-        <div class="flex-1">
-            <h4 class="text-lg font-semibold text-amber-800 mb-2">Understanding Predicate Devices</h4>
-            <div class="text-sm text-amber-700 space-y-2">
-                <p><strong>Predicate devices</strong> are previously cleared 510(k) devices that serve as a comparison for substantial equivalence determinations.</p>
-                <div class="grid md:grid-cols-2 gap-4 mt-4">
-                    <div class="bg-white rounded-lg p-3 border border-amber-200">
-                        <h5 class="font-medium text-amber-800 mb-2 flex items-center">
-                            <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                            </svg>
-                            Top Predicate Criteria
-                        </h5>
-                        <ul class="text-xs text-amber-700 space-y-1">
-                            <li>• Recent approval (within 10 years)</li>
-                            <li>• Same product code</li>
-                            <li>• Clean safety record</li>
-                            <li>• Similar intended use</li>
-                        </ul>
-                    </div>
-                    <div class="bg-white rounded-lg p-3 border border-amber-200">
-                        <h5 class="font-medium text-amber-800 mb-2 flex items-center">
-                            <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
-                            </svg>
-                            Safety Indicators
-                        </h5>
-                        <ul class="text-xs text-amber-700 space-y-1">
-                            <li>• <span class="text-green-600">✓</span> No recalls = Strong predicate</li>
-                            <li>• <span class="text-red-600">⚠</span> Class I recall = Use with caution</li>
-                            <li>• <span class="text-red-600">✗</span> Class II/III recall = Avoid</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+
 
             <!-- Enhanced Data Insights Tabs -->
             <div class="bg-white rounded-3xl card-shadow overflow-hidden mb-8">
@@ -1345,26 +1301,40 @@
                 document.getElementById('error-display').classList.add('hidden');
             }
 
-            displayEnhancedResults(data) {
-                this.hideError();
-                document.getElementById('results-container').classList.remove('hidden');
+displayEnhancedResults(data) {
+    this.hideError();
+    document.getElementById('results-container').classList.remove('hidden');
 
-                // Update Smart Pathway Insights Panel
-                this.updatePathwayInsightsPanel(data.pathwayInsights);
-                
-                // Update profile overview
-                this.updateEnhancedProfile(data);
-                
-                // Create enhanced charts
-                this.createEnhancedCharts(data);
-                
-                // Update all tabs with enhanced data
-                this.updateEnhancedTabs(data);
-                
-                // Show first tab
-                this.switchTab('overview');
-            }
+    // Show pathway insights panel for device analysis
+    document.getElementById('pathway-insights-panel').classList.remove('hidden');
+    
+    // Show similar devices table for device analysis
+    const similarDevicesSection = document.getElementById('similar-devices-table')?.closest('.bg-white.rounded-2xl');
+    if (similarDevicesSection) {
+        similarDevicesSection.style.display = 'block';
+    }
+    
+    // Show all tabs for device analysis
+    document.querySelector('[data-tab="timeline"]').style.display = 'block';
+    document.querySelector('[data-tab="competitive"]').style.display = 'block';
+    document.querySelector('[data-tab="overview"]').style.display = 'block';
+    document.querySelector('[data-tab="regulatory"]').style.display = 'block';
 
+    // Update Smart Pathway Insights Panel
+    this.updatePathwayInsightsPanel(data.pathwayInsights);
+    
+    // Update profile overview
+    this.updateEnhancedProfile(data);
+    
+    // Create enhanced charts
+    this.createEnhancedCharts(data);
+    
+    // Update all tabs with enhanced data
+    this.updateEnhancedTabs(data);
+    
+    // Show first tab
+    this.switchTab('overview');
+}
             // updatePathwayInsightsPanel(pathwayInsights) {
             //     // Update pathway distribution cards
             //     this.updatePathwayCard('510k', pathwayInsights.pathwayBreakdown['510k']);
@@ -4490,23 +4460,28 @@ updateTimelineTab(timelineAnalysis) {
                 `;
             }
 
-            displayProductCodeResults(data) {
-                this.hideError();
-                document.getElementById('results-container').classList.remove('hidden');
-                
-                // Hide pathway insights panel for product code analysis
-                document.getElementById('pathway-insights-panel').classList.add('hidden');
-                
-                // Update profile for product code
-                this.updateProductCodeProfile(data);
-                
-                // Update tabs with product code specific data
-                this.updateProductCodeTabs(data);
-                
-                // Switch to regulatory tab for product code analysis
-                this.switchTab('regulatory');
-            }
-
+displayProductCodeResults(data) {
+    this.hideError();
+    document.getElementById('results-container').classList.remove('hidden');
+    
+    // Hide pathway insights panel for product code analysis
+    document.getElementById('pathway-insights-panel').classList.add('hidden');
+    
+    // Hide similar devices table for product code analysis
+    const similarDevicesSection = document.getElementById('similar-devices-table')?.closest('.bg-white.rounded-2xl');
+    if (similarDevicesSection) {
+        similarDevicesSection.style.display = 'none';
+    }
+    
+    // Update profile for product code
+    this.updateProductCodeProfile(data);
+    
+    // Update tabs with product code specific data
+    this.updateProductCodeTabs(data);
+    
+    // Switch to FDA data tab for product code analysis since regulatory is now hidden
+    this.switchTab('fda-data');
+}
             updateProductCodeProfile(data) {
                 const summary = data.summary;
                 
@@ -4549,19 +4524,21 @@ updateTimelineTab(timelineAnalysis) {
                 this.displayRecommendations(recommendations);
             }
 
-            updateProductCodeTabs(data) {
-                // Update regulatory tab with detailed product code information
-                this.updateProductCodeRegulatoryTab(data);
-                
-                // Update FDA data tab
-                this.updateFDADataTab(data.fdaData);
-                
-                // Hide timeline and competitive tabs for product code analysis
-                document.querySelector('[data-tab="timeline"]').style.display = 'none';
-                document.querySelector('[data-tab="competitive"]').style.display = 'none';
-            }
+updateProductCodeTabs(data) {
+    // Update regulatory tab with detailed product code information
+    this.updateProductCodeRegulatoryTab(data);
+    
+    // Update FDA data tab
+    this.updateFDADataTab(data.fdaData);
+    
+    // Hide timeline, competitive, overview, and regulatory tabs for product code analysis
+    document.querySelector('[data-tab="timeline"]').style.display = 'none';
+    document.querySelector('[data-tab="competitive"]').style.display = 'none';
+    document.querySelector('[data-tab="overview"]').style.display = 'none';
+    document.querySelector('[data-tab="regulatory"]').style.display = 'none';
+}
 
-            updateProductCodeRegulatoryTab(data) {
+updateProductCodeRegulatoryTab(data) {
                 const classification = data.classification;
                 
                 document.getElementById('recommended-pathway').innerHTML = `

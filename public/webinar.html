@@ -354,7 +354,7 @@
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                         </svg>
-                        <span class="font-semibold">Wednesday, July 24th</span>
+                        <span class="font-semibold">Wednesday, July 23rd</span>
                     </div>
                     <div class="flex items-center text-gray-700">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -382,7 +382,7 @@
                 
                 <!-- Social Proof -->
                 <div class="flex flex-wrap justify-center items-center space-x-8 text-gray-500 text-sm animate-fade-in-up">
-                    <div class="flex items-center mb-4">
+                    <!-- <div class="flex items-center mb-4">
                         <span class="font-medium">Join 2,500+ Pharma Leaders</span>
                     </div>
                     <div class="flex items-center mb-4">
@@ -390,7 +390,7 @@
                             <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                         </svg>
                         <span>4.9/5 Average Rating</span>
-                    </div>
+                    </div> -->
                     <div class="flex items-center mb-4">
                         <span class="inline-block w-2 h-2 bg-green-500 rounded-full mr-2"></span>
                         <span>Live Q&A Included</span>
@@ -610,15 +610,15 @@
                 </div>
                 
                 <!-- Combined Expertise Summary -->
-                <div class="glass-card rounded-xl p-8 sm:p-12">
+                <!-- <div class="glass-card rounded-xl p-8 sm:p-12">
                     <div class="text-center mb-8">
-                        <!-- <h3 class="text-2xl font-bold mb-4">Combined Expertise</h3> -->
+                       
                         <p class="text-gray-600 max-w-3xl mx-auto">
                             Our expert panel brings together cutting-edge AI technology, deep pharmaceutical market knowledge, and specialized regulatory expertise to deliver actionable insights for your organization.
                         </p>
                     </div>
                     
-                    <!-- Expertise Stats -->
+             
                     <div class="grid grid-cols-1 sm:grid-cols-4 gap-6 text-center">
                         <div>
                             <div class="text-3xl font-bold text-primary-600">50+</div>
@@ -637,7 +637,7 @@
                             <div class="text-sm text-gray-600">Successful FDA Submissions</div>
                         </div>
                     </div>
-                </div>
+                </div> -->
             </div>
         </div>
     </section>
@@ -971,7 +971,7 @@
     </footer>
 
     <!-- JavaScript -->
-    <script>
+<script>
         document.addEventListener('DOMContentLoaded', function() {
             // UTM Parameter Tracking
             function getParameterByName(name, url = window.location.href) {
@@ -1001,9 +1001,10 @@
                             field.value = sessionStorage.getItem(param);
                         }
                     }
-                })
+                });
             }
- setUtmFields();
+            
+            setUtmFields();
 
             // Countdown Timer
             function updateCountdown() {
@@ -1030,7 +1031,7 @@
             updateCountdown();
             setInterval(updateCountdown, 1000);
 
-            // Form Handling
+            // Form Handling - UPDATED TO USE BACKEND API
             const form = document.getElementById('webinar-form');
             const registrationForm = document.getElementById('registration-form');
             const thankYouState = document.getElementById('thank-you-state');
@@ -1053,25 +1054,74 @@
                 btnArrow.classList.add('hidden');
                 btnSpinner.classList.remove('hidden');
 
-                // Simulate form submission (replace with actual API call)
-                setTimeout(() => {
-                    // Hide form and show thank you state
-                    registrationForm.classList.add('hidden');
-                    thankYouState.classList.remove('hidden');
+                // Collect form data
+                const formData = {
+                    fullName: document.getElementById('fullName').value.trim(),
+                    email: document.getElementById('email').value.trim(),
+                    company: document.getElementById('company').value.trim(),
+                    jobTitle: document.getElementById('jobTitle').value.trim(),
+                    utm_source: document.getElementById('utm_source').value,
+                    utm_medium: document.getElementById('utm_medium').value,
+                    utm_campaign: document.getElementById('utm_campaign').value,
+                    utm_content: document.getElementById('utm_content').value,
+                    utm_term: document.getElementById('utm_term').value
+                };
 
-                    // Track conversion
-                    trackWebinarRegistration();
-
-                    // Reset form state
+                // Submit to backend API
+                fetch('/api/webinar/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Reset button state
                     submitBtn.disabled = false;
                     btnText.textContent = 'Secure My Free Seat';
                     btnArrow.classList.remove('hidden');
                     btnSpinner.classList.add('hidden');
 
-                    // Scroll to thank you message
-                    thankYouState.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    if (data.success) {
+                        // Hide form and show thank you state
+                        registrationForm.classList.add('hidden');
+                        thankYouState.classList.remove('hidden');
 
-                }, 2000);
+                        // Track conversion
+                        trackWebinarRegistration();
+
+                        // Reset form
+                        form.reset();
+
+                        // Scroll to thank you message
+                        thankYouState.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+                        // Optional: Store registration data for analytics
+                        if (data.data) {
+                            sessionStorage.setItem('webinarRegistration', JSON.stringify(data.data));
+                        }
+
+                        // Show success notification
+                        showSuccessMessage('Registration successful! Check your email for confirmation.');
+
+                    } else {
+                        // Show error message
+                        showErrorMessage(data.message || 'Registration failed. Please try again.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Registration error:', error);
+                    
+                    // Reset button state
+                    submitBtn.disabled = false;
+                    btnText.textContent = 'Secure My Free Seat';
+                    btnArrow.classList.remove('hidden');
+                    btnSpinner.classList.add('hidden');
+
+                    // Show error message
+                    showErrorMessage('Network error. Please check your connection and try again.');
+                });
             });
 
             function validateForm() {
@@ -1130,6 +1180,69 @@
                 if (errorMessage) {
                     errorMessage.remove();
                 }
+            }
+
+            // NEW: Error message notification function
+            function showErrorMessage(message) {
+                // Remove any existing error messages
+                const existingError = document.querySelector('.error-notification');
+                if (existingError) {
+                    existingError.remove();
+                }
+
+                // Create error notification
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'error-notification fixed top-4 right-4 bg-red-500 text-white px-6 py-4 rounded-lg shadow-lg z-50 max-w-md';
+                errorDiv.innerHTML = `
+                    <div class="flex items-start">
+                        <svg class="w-5 h-5 mr-3 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                        </svg>
+                        <div>
+                            <p class="font-semibold">Registration Error</p>
+                            <p class="text-sm opacity-90">${message}</p>
+                        </div>
+                        <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-white hover:text-gray-200">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                            </svg>
+                        </button>
+                    </div>
+                `;
+
+                document.body.appendChild(errorDiv);
+
+                // Auto-remove after 8 seconds
+                setTimeout(() => {
+                    if (errorDiv.parentNode) {
+                        errorDiv.remove();
+                    }
+                }, 8000);
+            }
+
+            // NEW: Success message notification function
+            function showSuccessMessage(message) {
+                const successDiv = document.createElement('div');
+                successDiv.className = 'success-notification fixed top-4 right-4 bg-green-500 text-white px-6 py-4 rounded-lg shadow-lg z-50 max-w-md';
+                successDiv.innerHTML = `
+                    <div class="flex items-start">
+                        <svg class="w-5 h-5 mr-3 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                        </svg>
+                        <div>
+                            <p class="font-semibold">Success!</p>
+                            <p class="text-sm opacity-90">${message}</p>
+                        </div>
+                    </div>
+                `;
+
+                document.body.appendChild(successDiv);
+
+                setTimeout(() => {
+                    if (successDiv.parentNode) {
+                        successDiv.remove();
+                    }
+                }, 5000);
             }
 
             function trackWebinarRegistration() {
@@ -1262,47 +1375,53 @@ Best regards`);
             const registerSection = document.getElementById('register');
             const nameInput = document.getElementById('fullName');
             
-            const focusObserver = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting && entry.intersectionRatio > 0.5) {
-                        setTimeout(() => {
-                            nameInput.focus();
-                        }, 500);
-                    }
-                });
-            }, { threshold: 0.5 });
+            if (registerSection && nameInput) {
+                const focusObserver = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting && entry.intersectionRatio > 0.5) {
+                            setTimeout(() => {
+                                nameInput.focus();
+                            }, 500);
+                        }
+                    });
+                }, { threshold: 0.5 });
 
-            focusObserver.observe(registerSection);
+                focusObserver.observe(registerSection);
+            }
 
             // Add real-time email validation
             const emailInput = document.getElementById('email');
-            emailInput.addEventListener('input', function() {
-                const email = this.value;
-                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                
-                if (email && !emailRegex.test(email)) {
-                    this.classList.add('border-yellow-400');
-                    this.classList.remove('border-gray-300', 'border-green-400');
-                } else if (email && emailRegex.test(email)) {
-                    this.classList.add('border-green-400');
-                    this.classList.remove('border-gray-300', 'border-yellow-400');
-                } else {
-                    this.classList.add('border-gray-300');
-                    this.classList.remove('border-yellow-400', 'border-green-400');
-                }
-            });
+            if (emailInput) {
+                emailInput.addEventListener('input', function() {
+                    const email = this.value;
+                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    
+                    if (email && !emailRegex.test(email)) {
+                        this.classList.add('border-yellow-400');
+                        this.classList.remove('border-gray-300', 'border-green-400');
+                    } else if (email && emailRegex.test(email)) {
+                        this.classList.add('border-green-400');
+                        this.classList.remove('border-gray-300', 'border-yellow-400');
+                    } else {
+                        this.classList.add('border-gray-300');
+                        this.classList.remove('border-yellow-400', 'border-green-400');
+                    }
+                });
+            }
 
-            // Add character counter for name field (optional enhancement)
+            // Add character counter for name field
             // const nameInput = document.getElementById('fullName');
-            nameInput.addEventListener('input', function() {
-                if (this.value.length >= 2) {
-                    this.classList.add('border-green-400');
-                    this.classList.remove('border-gray-300');
-                } else {
-                    this.classList.add('border-gray-300');
-                    this.classList.remove('border-green-400');
-                }
-            });
+            if (nameInput) {
+                nameInput.addEventListener('input', function() {
+                    if (this.value.length >= 2) {
+                        this.classList.add('border-green-400');
+                        this.classList.remove('border-gray-300');
+                    } else {
+                        this.classList.add('border-gray-300');
+                        this.classList.remove('border-green-400');
+                    }
+                });
+            }
 
             // Add progressive form enhancement
             let formCompletion = 0;
@@ -1312,7 +1431,7 @@ Best regards`);
                 let completed = 0;
                 requiredFields.forEach(fieldId => {
                     const field = document.getElementById(fieldId);
-                    if (field.value.trim()) {
+                    if (field && field.value.trim()) {
                         completed++;
                     }
                 });
@@ -1323,21 +1442,25 @@ Best regards`);
                 const submitButton = document.getElementById('submit-btn');
                 const buttonText = document.getElementById('btn-text');
                 
-                if (formCompletion === 100) {
-                    submitButton.classList.remove('bg-primary-600');
-                    submitButton.classList.add('bg-green-600', 'hover:bg-green-700');
-                    buttonText.textContent = 'Complete Registration';
-                } else {
-                    submitButton.classList.add('bg-primary-600');
-                    submitButton.classList.remove('bg-green-600', 'hover:bg-green-700');
-                    buttonText.textContent = 'Secure My Free Seat';
+                if (submitButton && buttonText) {
+                    if (formCompletion === 100) {
+                        submitButton.classList.remove('bg-primary-600');
+                        submitButton.classList.add('bg-green-600', 'hover:bg-green-700');
+                        buttonText.textContent = 'Complete Registration';
+                    } else {
+                        submitButton.classList.add('bg-primary-600');
+                        submitButton.classList.remove('bg-green-600', 'hover:bg-green-700');
+                        buttonText.textContent = 'Secure My Free Seat';
+                    }
                 }
             }
 
             requiredFields.forEach(fieldId => {
                 const field = document.getElementById(fieldId);
-                field.addEventListener('input', updateFormProgress);
-                field.addEventListener('blur', updateFormProgress);
+                if (field) {
+                    field.addEventListener('input', updateFormProgress);
+                    field.addEventListener('blur', updateFormProgress);
+                }
             });
 
             // Add exit-intent popup (simplified version)
@@ -1346,39 +1469,49 @@ Best regards`);
                 if (!exitIntentShown && e.clientY <= 0) {
                     exitIntentShown = true;
                     // Scroll to registration form
-                    document.getElementById('register').scrollIntoView({ 
-                        behavior: 'smooth', 
-                        block: 'center' 
-                    });
-                    
-                    // Highlight the form briefly
-                    const form = document.getElementById('registration-form');
-                    form.style.transform = 'scale(1.02)';
-                    form.style.boxShadow = '0 0 30px rgba(59, 130, 246, 0.3)';
-                    
-                    setTimeout(() => {
-                        form.style.transform = 'scale(1)';
-                        form.style.boxShadow = '';
-                    }, 2000);
+                    const registerSection = document.getElementById('register');
+                    if (registerSection) {
+                        registerSection.scrollIntoView({ 
+                            behavior: 'smooth', 
+                            block: 'center' 
+                        });
+                        
+                        // Highlight the form briefly
+                        const form = document.getElementById('registration-form');
+                        if (form) {
+                            form.style.transform = 'scale(1.02)';
+                            form.style.boxShadow = '0 0 30px rgba(59, 130, 246, 0.3)';
+                            
+                            setTimeout(() => {
+                                form.style.transform = 'scale(1)';
+                                form.style.boxShadow = '';
+                            }, 2000);
+                        }
+                    }
                 }
             });
 
             // Add social proof counter animation
-            const socialProofNumbers = document.querySelectorAll('.text-2xl.font-bold');
+            const socialProofNumbers = document.querySelectorAll('.text-2xl.font-bold, .text-3xl.font-bold');
             socialProofNumbers.forEach(number => {
-                const finalValue = parseInt(number.textContent);
-                let currentValue = 0;
-                const increment = finalValue / 50;
+                const text = number.textContent;
+                const finalValue = parseInt(text.replace(/[^\d]/g, ''));
                 
-                const timer = setInterval(() => {
-                    currentValue += increment;
-                    if (currentValue >= finalValue) {
-                        number.textContent = finalValue + (number.textContent.includes('+') ? '+' : '');
-                        clearInterval(timer);
-                    } else {
-                        number.textContent = Math.floor(currentValue);
-                    }
-                }, 30);
+                if (finalValue && finalValue > 0) {
+                    let currentValue = 0;
+                    const increment = finalValue / 50;
+                    const hasPlus = text.includes('+');
+                    
+                    const timer = setInterval(() => {
+                        currentValue += increment;
+                        if (currentValue >= finalValue) {
+                            number.textContent = finalValue + (hasPlus ? '+' : '');
+                            clearInterval(timer);
+                        } else {
+                            number.textContent = Math.floor(currentValue) + (hasPlus ? '+' : '');
+                        }
+                    }, 30);
+                }
             });
         });
 

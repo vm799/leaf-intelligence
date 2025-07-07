@@ -301,25 +301,39 @@ async function smartSearchAdverseEvents(searchTerm, analysis) {
 }
 
 async function smartSearchRegistrations(searchTerm, analysis) {
-  const strategies = analysis.searchStrategies.filter(s => s.endpoint === 'registrationlisting');
-  
-  for (const strategy of strategies) {
-    try {
-      const result = await fdaRequestWithPagination('/registrationlisting.json', { 
-        search: `${strategy.field}:"${strategy.value}"` 
-      }, 1000);
-      
-      if (result.results && result.results.length > 0) {
-        return result;
+  try {
+    // Simplified search queries that are more likely to work
+    const searchQueries = [
+      `establishment_name:"${searchTerm}"`,
+      `proprietary_name:"${searchTerm}"`,
+      `registration_number:"${searchTerm}"`,
+      // Fallback to broader search
+      searchTerm
+    ];
+    
+    for (const query of searchQueries) {
+      try {
+        const result = await fdaRequestWithPagination('/registrationlisting.json', { 
+          search: query 
+        }, 500); // Reduced limit for registrations
+        
+        if (result.results && result.results.length > 0) {
+          console.log(`Registration search successful with query: ${query}`);
+          return result;
+        }
+      } catch (error) {
+        console.log(`Registration query failed: ${query} - ${error.message}`);
       }
-    } catch (error) {
-      console.log(`Registration strategy failed for ${strategy.field}: ${error.message}`);
     }
+    
+    // If all specific queries fail, return empty result instead of error
+    console.log('All registration searches failed, returning empty result');
+    return { results: [], meta: { totalFetched: 0 } };
+    
+  } catch (error) {
+    console.error(`Registration search error: ${error.message}`);
+    return { results: [], error: error.message, meta: { totalFetched: 0 } };
   }
-  
-  return await fdaRequestWithPagination('/registrationlisting.json', { 
-    search: `establishment_name:"${searchTerm}" OR products.product_code:"${searchTerm}"` 
-  }, 1000);
 }
 
 // Main data gathering function
@@ -1720,62 +1734,224 @@ async function searchDeNovoDevices(searchTerm) {
 
 // Enhanced PMA search with comprehensive strategies
 async function smartSearchPMAEnhanced(searchTerm, analysis) {
-  const strategies = [
-    // Direct product searches
-    { field: 'trade_name', value: searchTerm, exact: true },
-    { field: 'generic_name', value: searchTerm, exact: true },
-    { field: 'pma_number', value: searchTerm.toUpperCase(), exact: true },
-    { field: 'product_code', value: searchTerm.toUpperCase(), exact: true },
+  console.log(`Enhanced PMA search for: ${searchTerm}`);
+  
+  // Check if this is a product code search
+  const isProductCode = /^[A-Z]{2,3}$/i.test(searchTerm.trim());
+  
+  if (isProductCode) {
+    console.log(`Searching PMA for product code: ${searchTerm}`);
     
-    // Company searches
-    { field: 'applicant', value: searchTerm, exact: false },
+    // Product code specific searches for PMA
+    const productCodeStrategies = [
+      `product_code:"${searchTerm.toUpperCase()}"`,
+      `openfda.product_code:"${searchTerm.toUpperCase()}"`,
+      searchTerm.toUpperCase()
+    ];
     
-    // Broad device category searches
-    { field: 'trade_name', value: searchTerm, exact: false },
-    { field: 'generic_name', value: searchTerm, exact: false },
+    for (const query of productCodeStrategies) {
+      try {
+        console.log(`Trying PMA product code query: ${query}`);
+        
+        const result = await fdaRequestWithPagination('/pma.json', { 
+          search: query 
+        }, 200); // Smaller limit for product code searches
+        
+        if (result.results && result.results.length > 0) {
+          console.log(`PMA product code search found ${result.results.length} results`);
+          return {
+            ...result,
+            meta: {
+              ...result.meta,
+              searchQuery: query,
+              searchType: 'product_code'
+            }
+          };
+        }
+      } catch (error) {
+        console.log(`PMA product code query failed: ${query} - ${error.message}`);
+      }
+    }
     
-    // Advisory committee searches (often contains device type info)
-    { field: 'advisory_committee_description', value: searchTerm, exact: false }
+    // No results found for product code - this is NORMAL
+    console.log(`No PMA devices found for product code ${searchTerm} (this is normal - most product codes don't have PMA devices)`);
+    return { 
+      results: [], 
+      meta: { 
+        totalFetched: 0, 
+        searchType: 'product_code',
+        note: 'No PMA devices found for this product code',
+        explanation: 'Most product codes only have 510(k) or De Novo devices. PMA is typically only required for high-risk Class III devices.'
+      } 
+    };
+  }
+  
+  // For non-product code searches, use the existing comprehensive strategy
+  const cleanSearchTerm = searchTerm.trim();
+  
+  const searchStrategies = [
+    // Direct field searches
+    { query: `trade_name:"${cleanSearchTerm}"`, priority: 'high' },
+    { query: `generic_name:"${cleanSearchTerm}"`, priority: 'high' },
+    { query: `applicant:"${cleanSearchTerm}"`, priority: 'high' },
+    { query: `pma_number:"${cleanSearchTerm.toUpperCase()}"`, priority: 'high' },
+    
+    // Partial matches
+    { query: `trade_name:${cleanSearchTerm}`, priority: 'medium' },
+    { query: `generic_name:${cleanSearchTerm}`, priority: 'medium' },
+    { query: `applicant:${cleanSearchTerm}`, priority: 'medium' },
+    
+    // Advisory committee searches
+    { query: `advisory_committee_description:"${cleanSearchTerm}"`, priority: 'medium' },
+    
+    // Multi-word handling
+    ...(cleanSearchTerm.includes(' ') ? [
+      {
+        query: cleanSearchTerm.split(' ')
+          .filter(word => word.length > 2)
+          .map(word => `trade_name:${word} OR generic_name:${word}`)
+          .join(' AND '),
+        priority: 'medium'
+      }
+    ] : []),
+    
+    // Broad fallback
+    { query: cleanSearchTerm, priority: 'low' }
   ];
   
-  let bestResult = { results: [] };
+  let bestResult = { results: [], meta: { totalFetched: 0 } };
   
-  for (const strategy of strategies) {
+  for (const strategy of searchStrategies.slice(0, 6)) {
     try {
-      let searchQuery;
-      
-      if (strategy.exact) {
-        searchQuery = `${strategy.field}:"${strategy.value}"`;
-      } else {
-        // Multi-word handling for better matching
-        const words = strategy.value.split(' ').filter(word => word.length > 2);
-        if (words.length === 1) {
-          searchQuery = `${strategy.field}:${strategy.value}`;
-        } else {
-          const exactMatch = `${strategy.field}:"${strategy.value}"`;
-          const partialMatches = words.map(word => `${strategy.field}:${word}`).join(' AND ');
-          searchQuery = `(${exactMatch}) OR (${partialMatches})`;
-        }
-      }
+      console.log(`Trying PMA device search: ${strategy.query}`);
       
       const result = await fdaRequestWithPagination('/pma.json', { 
-        search: searchQuery 
-      }, 1000);
+        search: strategy.query 
+      }, 500);
       
-      if (result.results && result.results.length > bestResult.results.length) {
-        bestResult = result;
-        console.log(`PMA enhanced search improved results: ${strategy.field} strategy found ${result.results.length} results`);
+      if (result.results && result.results.length > 0) {
+        console.log(`PMA device search found ${result.results.length} results`);
+        
+        if (result.results.length > bestResult.results.length) {
+          bestResult = {
+            ...result,
+            meta: {
+              ...result.meta,
+              searchQuery: strategy.query,
+              searchType: 'device_search'
+            }
+          };
+        }
+        
+        if (strategy.priority === 'high') break;
       }
       
-      // If we find substantial results, we can continue to try other strategies for completeness
-      // but keep track of the best one
-      
     } catch (error) {
-      console.log(`PMA enhanced strategy failed for ${strategy.field}: ${error.message}`);
+      console.log(`PMA device search failed: ${strategy.query} - ${error.message}`);
+      
+      if (bestResult.results.length === 0) {
+        bestResult.error = error.message;
+      }
     }
+    
+    // Small delay between requests
+    await new Promise(resolve => setTimeout(resolve, 100));
   }
   
   return bestResult;
+}
+
+// Helper function to filter PMA results by relevance
+function filterPMAResultsByRelevance(results, searchTerm, isProductCode) {
+  if (!results || results.length === 0) return results;
+  
+  const searchLower = searchTerm.toLowerCase();
+  
+  // Score each result based on relevance
+  const scoredResults = results.map(device => {
+    let score = 0;
+    
+    // Exact matches get highest score
+    if (isProductCode) {
+      if (device.product_code === searchTerm.toUpperCase()) score += 100;
+    } else {
+      const tradeName = (device.trade_name || '').toLowerCase();
+      const genericName = (device.generic_name || '').toLowerCase();
+      const applicant = (device.applicant || '').toLowerCase();
+      
+      if (tradeName === searchLower) score += 100;
+      if (genericName === searchLower) score += 100;
+      if (applicant === searchLower) score += 80;
+      
+      // Partial matches
+      if (tradeName.includes(searchLower)) score += 50;
+      if (genericName.includes(searchLower)) score += 50;
+      if (applicant.includes(searchLower)) score += 30;
+    }
+    
+    // Prefer approved devices
+    const decision = (device.decision_description || '').toLowerCase();
+    if (decision.includes('approved')) score += 20;
+    if (decision.includes('approval')) score += 15;
+    
+    // Prefer more recent devices
+    if (device.decision_date) {
+      const year = new Date(device.decision_date).getFullYear();
+      const currentYear = new Date().getFullYear();
+      const yearsOld = currentYear - year;
+      if (yearsOld <= 5) score += 10;
+      else if (yearsOld <= 10) score += 5;
+    }
+    
+    return { ...device, relevanceScore: score };
+  });
+  
+  // Sort by relevance score and return
+  return scoredResults
+    .sort((a, b) => b.relevanceScore - a.relevanceScore)
+    .slice(0, 100); // Limit to top 100 most relevant results
+}
+
+// Enhanced error handling wrapper
+async function smartSearchPMAWithFallback(searchTerm, analysis) {
+  try {
+    return await smartSearchPMAEnhanced(searchTerm, analysis);
+  } catch (error) {
+    console.error(`All PMA search strategies failed: ${error.message}`);
+    
+    // Final fallback - very simple search
+    try {
+      console.log('Attempting final PMA fallback search...');
+      const fallbackResult = await fdaRequestWithPagination('/pma.json', { 
+        search: searchTerm.replace(/[^a-zA-Z0-9\s]/g, '') // Remove special characters
+      }, 100);
+      
+      if (fallbackResult.results && fallbackResult.results.length > 0) {
+        console.log(`PMA fallback search found ${fallbackResult.results.length} results`);
+        return {
+          ...fallbackResult,
+          meta: {
+            ...fallbackResult.meta,
+            searchType: 'fallback',
+            note: 'Results from simplified fallback search'
+          }
+        };
+      }
+    } catch (fallbackError) {
+      console.error(`PMA fallback search also failed: ${fallbackError.message}`);
+    }
+    
+    // Return empty result with error info
+    return { 
+      results: [], 
+      error: error.message,
+      meta: { 
+        totalFetched: 0,
+        searchType: 'failed',
+        attempts: 'all_strategies_failed'
+      }
+    };
+  }
 }
 
 // Search enforcement actions

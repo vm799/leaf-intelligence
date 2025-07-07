@@ -2399,6 +2399,260 @@ const emailhost = process.env.smtphost
 });
 
 
+
+
+
+
+
+// Google Meet Link (replace with your actual link)
+const GOOGLE_MEET_LINK = process.env.GOOGLE_MEET_LINK 
+
+// In-memory storage (replace with database in production)
+const registrations = [];
+
+// Helper function to generate calendar links
+function generateCalendarLinks() {
+  const startDate = '20250723T190000Z'; // July 24, 2025 2:00 PM EST in UTC
+  const endDate = '20250724T194500Z';   // 45 minutes later
+  const title = encodeURIComponent('Cracking the FDA Code Webinar');
+  const description = encodeURIComponent(`Join us for this exclusive webinar on regulatory intelligence. Meeting Link: ${GOOGLE_MEET_LINK}`);
+  
+  const googleCalendar = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${startDate}/${endDate}&details=${description}&location=${encodeURIComponent(GOOGLE_MEET_LINK)}`;
+  
+  const outlookCalendar = `https://outlook.live.com/calendar/0/deeplink/compose?subject=${title}&startdt=${startDate}&enddt=${endDate}&body=${description}&location=${encodeURIComponent(GOOGLE_MEET_LINK)}`;
+  
+  return { googleCalendar, outlookCalendar };
+}
+
+// Email templates
+const getConfirmationEmailHTML = (userData, calendarLinks) => {
+  return `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Webinar Confirmation</title>
+    <style>
+        body { font-family: 'Arial', sans-serif; margin: 0; padding: 0; background-color: #f8f9fa; }
+        .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; }
+        .header { background: linear-gradient(135deg, #3b82f6, #a855f7); padding: 40px 20px; text-align: center; }
+        .header h1 { color: white; margin: 0; font-size: 28px; font-weight: bold; }
+        .content { padding: 40px 30px; }
+        .event-details { background: #f8f9fa; padding: 25px; border-radius: 12px; margin: 30px 0; border-left: 4px solid #3b82f6; }
+        .button { display: inline-block; padding: 12px 24px; background: #3b82f6; color: white; text-decoration: none; border-radius: 8px; margin: 5px; font-weight: bold; }
+        .button:hover { background: #2563eb; }
+        .calendar-buttons { text-align: center; margin: 30px 0; }
+        .footer { background: #f8f9fa; padding: 20px; text-align: center; color: #666; font-size: 14px; }
+        .checkmark { width: 60px; height: 60px; background: #22c55e; border-radius: 50%; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; }
+        .meet-link { background: #e8f5e8; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: center; }
+        .meet-link a { color: #059669; font-weight: bold; text-decoration: none; font-size: 18px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="checkmark">
+                <svg width="30" height="30" fill="white" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                </svg>
+            </div>
+            <h1>You're Registered!</h1>
+            <p style="color: rgba(255,255,255,0.9); margin: 10px 0 0 0; font-size: 18px;">Cracking the FDA Code Webinar</p>
+        </div>
+        
+        <div class="content">
+            <p>Hi ${userData.fullName},</p>
+            
+            <p>🎉 <strong>Congratulations!</strong> Your seat is reserved for our exclusive webinar on regulatory intelligence.</p>
+            
+            <div class="event-details">
+                <h3 style="margin-top: 0; color: #1f2937;">📅 Event Details</h3>
+                <p><strong>Event:</strong> Cracking the FDA Code: How Regulatory Intelligence Helps Pharma Leaders Move Faster in 2025</p>
+                <p><strong>Date:</strong> Wednesday, July 24th, 2025</p>
+                <p><strong>Time:</strong> 2:00 PM EST / 11:00 AM PST</p>
+                <p><strong>Duration:</strong> 45 minutes + Live Q&A</p>
+                <p><strong>Platform:</strong> Google Meet</p>
+            </div>
+            
+            <div class="meet-link">
+                <h4 style="margin-top: 0; color: #059669;">🔗 Join the Webinar</h4>
+                <a href="${GOOGLE_MEET_LINK}" target="_blank">${GOOGLE_MEET_LINK}</a>
+                <p style="margin: 10px 0 0 0; font-size: 14px; color: #666;">Save this link - you'll need it to join the webinar!</p>
+            </div>
+            
+            <div class="calendar-buttons">
+                <h4>Add to Your Calendar:</h4>
+                <a href="${calendarLinks.googleCalendar}" class="button" target="_blank">📅 Google Calendar</a>
+                <a href="${calendarLinks.outlookCalendar}" class="button" target="_blank">📅 Outlook</a>
+            </div>
+            
+            <h3>What to Expect:</h3>
+            <ul>
+                <li>✅ Reduce submission risks by up to 40%</li>
+                <li>✅ Predict trial costs with AI analytics</li>
+                <li>✅ Stay ahead of regulatory changes</li>
+                <li>✅ Track competitor activities in real-time</li>
+                <li>✅ Live Q&A with our expert panel</li>
+            </ul>
+            
+            <h3>Your Expert Panel:</h3>
+            <p><strong>Rohan Mehi</strong> - Co-Founder, SyneticX</p>
+            <p><strong>Alexander MacGregor</strong> - Co-Founder, SyneticX</p>
+            <p><strong>Mark Paxton</strong> - Regulatory Expert, Founder of White Oak AI Law</p>
+            
+            <p style="margin-top: 30px;">If you have any questions before the webinar, feel free to reply to this email.</p>
+            
+            <p>Looking forward to seeing you there!</p>
+            
+            <p>Best regards,<br>
+            <strong>The SyneticX Team</strong></p>
+        </div>
+        
+        <div class="footer">
+            <p>© 2025 SyneticX. All rights reserved.</p>
+            <p>Questions? Reply to this email or contact us at support@syneticx.com</p>
+        </div>
+    </div>
+</body>
+</html>
+  `;
+};
+
+// Webinar registration endpoint
+app.post('/api/webinar/register', async (req, res) => {
+  try {
+    const { fullName, email, company, jobTitle, utm_source, utm_medium, utm_campaign, utm_content, utm_term } = req.body;
+
+const transporter = nodemailer.createTransport({
+//   service: 'gmail',
+//   auth: {
+//     user: process.env.smtphost,
+//     pass: process.env.smtppassword
+//   }
+// });
+        host:  'smtp.gmail.com',
+        port:  587,
+        secure: false,
+          auth: {
+    user: process.env.smtphost,
+    pass: process.env.smtppassword
+  }
+      });
+
+    // Basic validation
+    if (!fullName || !email) {
+      return res.status(400).json({
+        success: false,
+        message: 'Name and email are required'
+      });
+    }
+
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide a valid email address'
+      });
+    }
+
+    // Check if already registered
+    const existingRegistration = registrations.find(reg => reg.email === email);
+    if (existingRegistration) {
+      return res.status(409).json({
+        success: false,
+        message: 'This email is already registered for the webinar'
+      });
+    }
+
+    // Create registration record
+    const registration = {
+      id: Date.now().toString(),
+      fullName,
+      email,
+      company: company || '',
+      jobTitle: jobTitle || '',
+      registrationDate: new Date().toISOString(),
+      utm_source: utm_source || '',
+      utm_medium: utm_medium || '',
+      utm_campaign: utm_campaign || '',
+      utm_content: utm_content || '',
+      utm_term: utm_term || '',
+      emailSent: false
+    };
+
+    // Generate calendar links
+    const calendarLinks = generateCalendarLinks();
+
+    // Send confirmation email
+    const mailOptions = {
+      from: `"SyneticX Webinar" <${process.env.SMTP_FROM || process.env.SMTP_USER}>`,
+      to: email,
+      subject: '🎉 You\'re In! FDA Code Webinar Details Inside',
+      html: getConfirmationEmailHTML(registration, calendarLinks),
+      text: `Hi ${fullName},
+
+You're registered for "Cracking the FDA Code" webinar!
+
+Event Details:
+- Date: Wednesday, July 24th, 2025
+- Time: 2:00 PM EST / 11:00 AM PST
+- Duration: 45 minutes + Q&A
+- Platform: Google Meet
+
+Meeting Link: ${GOOGLE_MEET_LINK}
+
+Add to Calendar:
+- Google: ${calendarLinks.googleCalendar}
+- Outlook: ${calendarLinks.outlookCalendar}
+
+Looking forward to seeing you there!
+
+Best regards,
+The SyneticX Team`
+    };
+
+    // Send email
+    await transporter.sendMail(mailOptions);
+    
+    // Mark email as sent and save registration
+    registration.emailSent = true;
+    registrations.push(registration);
+
+    console.log(`New registration: ${fullName} (${email})`);
+
+    // Return success response
+    res.json({
+      success: true,
+      message: 'Registration successful! Check your email for confirmation.',
+      data: {
+        registrationId: registration.id,
+        calendarLinks,
+        meetingLink: GOOGLE_MEET_LINK
+      }
+    });
+
+  } catch (error) {
+    console.error('Registration error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Registration failed. Please try again.'
+    });
+  }
+});
+
+// Get registration stats (optional admin endpoint)
+app.get('/api/webinar/stats', (req, res) => {
+  res.json({
+    totalRegistrations: registrations.length,
+    emailsSent: registrations.filter(r => r.emailSent).length,
+    recentRegistrations: registrations.slice(-10)
+  });
+});
+
+
+
 // Book a demo route
 app.post('/api/demo', async (req, res) => {
   try {
