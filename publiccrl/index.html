@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>FDA Letter Uploader</title>
+  <style>
+    body { font-family: sans-serif; max-width: 600px; margin: 50px auto; text-align: center; }
+    #drop { border: 2px dashed #aaa; padding: 40px; cursor: pointer; background: #f0f0f0; }
+    #drop.hover { background: #e0f7ff; }
+    #log { margin-top: 20px; white-space: pre-wrap; text-align: left; border: 1px solid #ddd; padding: 10px; max-height: 300px; overflow-y: auto; background: #fff; font-family: monospace; }
+  </style>
+</head>
+<body>
+  <h1>FDA PDF Uploader</h1>
+  <div id="drop">📄 Drag & drop PDFs here or click</div>
+  <input type="file" id="fileInput" accept="application/pdf" multiple style="display:none;" />
+  <div id="log">Waiting for upload...</div>
+
+  <script>
+    const drop = document.getElementById('drop');
+    const input = document.getElementById('fileInput');
+    const log = document.getElementById('log');
+
+    drop.onclick = () => input.click();
+    drop.ondragover = e => { e.preventDefault(); drop.classList.add('hover'); };
+    drop.ondragleave = () => drop.classList.remove('hover');
+    drop.ondrop = e => {
+      e.preventDefault();
+      drop.classList.remove('hover');
+      input.files = e.dataTransfer.files;
+      upload();
+    };
+    input.onchange = upload;
+
+    async function upload() {
+      const files = input.files;
+      if (!files.length) return;
+
+      const formData = new FormData();
+      for (const file of files) {
+        formData.append('files', file);
+      }
+
+      log.textContent = '⏳ Uploading...';
+
+      const res = await fetch('/upload', { method: 'POST', body: formData });
+      if (!res.ok) return log.textContent = '❌ Upload failed.';
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      log.textContent = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        log.textContent += decoder.decode(value);
+        log.scrollTop = log.scrollHeight;
+      }
+    }
+  </script>
+</body>
+</html>

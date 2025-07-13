@@ -35,7 +35,7 @@ const pubmedRoutes = require('./pubmed-routes.js');
 const biomarkerRoutes = require('./bioserver.js');
 const dotenv = require('dotenv')
 const { UserSession } = require('./db');
-
+const mongoose = require('mongoose');
 const { router: drugWatchRouter, initializeDrugWatchService } = require('./watch.js');
 const fdaRoutes = require('./devices'); // Adjust path as needed
 
@@ -2519,6 +2519,8 @@ const getConfirmationEmailHTML = (userData, calendarLinks) => {
   `;
 };
 
+
+
 // Webinar registration endpoint
 app.post('/api/webinar/register', async (req, res) => {
   try {
@@ -4368,6 +4370,539 @@ app.post('/api/db', (req, res) => {
 //     });
 //   }
 // });
+// ===== FDA COMPLETE RESPONSE LETTERS BACKEND IMPLEMENTATION =====
+// Add this to your clinicaltrials.js server file
+
+
+
+// FDA Complete Response Letter Schema (already provided by user)
+const LetterSchema = new mongoose.Schema({
+  ndaNumber: String,
+  applicationName: String,
+  company: {
+    name: String,
+    contact: String,
+    address: String
+  },
+  letterType: String,
+  date: String,
+  clinicalFindings: [String],
+  studiesReferenced: [String],
+  fdaOffice: String,
+  fdaContact: String,
+  signature: String,
+  summary: String,
+  rawText: String,
+  aiSummary: String,
+  aiAnalysis: String,
+  aiIndex: [String]
+});
+
+const Letter = mongoose.model('Letter', LetterSchema);
+
+// ===== API ROUTES =====
+
+/**
+ * Search FDA Complete Response Letters
+ * POST /api/fda/response-letters/search
+ */
+app.post('/api/fda/response-letters/search', async (req, res) => {
+  try {
+    const { query, page = 1, limit = 12 } = req.body;
+    
+    console.log(`🔍 Searching FDA Response Letters for: "${query}"`);
+    
+    if (!query || query.trim().length === 0) {
+      return res.status(400).json({
+        success: false,
+        error: 'Search query is required'
+      });
+    }
+
+    const searchTerms = query.trim();
+    const pageNum = Math.max(1, parseInt(page));
+    const limitNum = Math.max(1, Math.min(50, parseInt(limit))); // Max 50 per page
+    const skip = (pageNum - 1) * limitNum;
+
+    // Build search criteria using MongoDB text search and regex patterns
+    const searchCriteria = {
+      $or: [
+        // Text search on key fields
+        { applicationName: { $regex: searchTerms, $options: 'i' } },
+        { ndaNumber: { $regex: searchTerms, $options: 'i' } },
+        { 'company.name': { $regex: searchTerms, $options: 'i' } },
+        { letterType: { $regex: searchTerms, $options: 'i' } },
+        { fdaOffice: { $regex: searchTerms, $options: 'i' } },
+        { summary: { $regex: searchTerms, $options: 'i' } },
+        { aiSummary: { $regex: searchTerms, $options: 'i' } },
+        { aiAnalysis: { $regex: searchTerms, $options: 'i' } },
+        
+        // Search in arrays
+        { clinicalFindings: { $elemMatch: { $regex: searchTerms, $options: 'i' } } },
+        { studiesReferenced: { $elemMatch: { $regex: searchTerms, $options: 'i' } } },
+        { aiIndex: { $elemMatch: { $regex: searchTerms, $options: 'i' } } }
+      ]
+    };
+
+    // Execute search with pagination
+    const [letters, totalCount] = await Promise.all([
+      Letter.find(searchCriteria)
+        .sort({ date: -1 }) // Sort by most recent first
+        .skip(skip)
+        .limit(limitNum)
+        .lean(), // Use lean() for better performance
+      Letter.countDocuments(searchCriteria)
+    ]);
+
+    // Calculate pagination info
+    const totalPages = Math.ceil(totalCount / limitNum);
+    const hasNextPage = pageNum < totalPages;
+    const hasPrevPage = pageNum > 1;
+
+    const pagination = {
+      currentPage: pageNum,
+      totalPages,
+      totalCount,
+      pageSize: limitNum,
+      hasNextPage,
+      hasPrevPage
+    };
+
+    console.log(`📄 Found ${totalCount} FDA Response Letters (Page ${pageNum}/${totalPages})`);
+
+    res.json({
+      success: true,
+      letters,
+      pagination,
+      query: searchTerms
+    });
+
+  } catch (error) {
+    console.error('Error searching FDA Response Letters:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to search FDA Response Letters',
+      details: error.message
+    });
+  }
+});
+
+/**
+ * Get specific FDA Complete Response Letter by ID
+ * GET /api/fda/response-letters/:id
+ */
+app.get('/api/fda/response-letters/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid letter ID'
+      });
+    }
+
+    const letter = await Letter.findById(id);
+    
+    if (!letter) {
+      return res.status(404).json({
+        success: false,
+        error: 'Letter not found'
+      });
+    }
+
+    console.log(`📄 Retrieved FDA Response Letter: ${letter.ndaNumber || id}`);
+
+    res.json({
+      success: true,
+      letter
+    });
+
+  } catch (error) {
+    console.error('Error retrieving FDA Response Letter:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to retrieve FDA Response Letter',
+      details: error.message
+    });
+  }
+});
+
+/**
+ * Search FDA Complete Response Letters by NDA Number
+ * GET /api/fda/response-letters/nda/:ndaNumber
+ */
+app.get('/api/fda/response-letters/nda/:ndaNumber', async (req, res) => {
+  try {
+    const { ndaNumber } = req.params;
+    
+    const letters = await Letter.find({ 
+      ndaNumber: { $regex: ndaNumber, $options: 'i' } 
+    }).sort({ date: -1 });
+
+    console.log(`📄 Found ${letters.length} FDA Response Letters for NDA: ${ndaNumber}`);
+
+    res.json({
+      success: true,
+      letters,
+      ndaNumber,
+      count: letters.length
+    });
+
+  } catch (error) {
+    console.error('Error searching FDA Response Letters by NDA:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to search FDA Response Letters by NDA',
+      details: error.message
+    });
+  }
+});
+
+/**
+ * Search FDA Complete Response Letters by Company
+ * GET /api/fda/response-letters/company/:companyName
+ */
+app.get('/api/fda/response-letters/company/:companyName', async (req, res) => {
+  try {
+    const { companyName } = req.params;
+    const { page = 1, limit = 20 } = req.query;
+    
+    const pageNum = Math.max(1, parseInt(page));
+    const limitNum = Math.max(1, Math.min(50, parseInt(limit)));
+    const skip = (pageNum - 1) * limitNum;
+
+    const searchCriteria = {
+      'company.name': { $regex: companyName, $options: 'i' }
+    };
+
+    const [letters, totalCount] = await Promise.all([
+      Letter.find(searchCriteria)
+        .sort({ date: -1 })
+        .skip(skip)
+        .limit(limitNum),
+      Letter.countDocuments(searchCriteria)
+    ]);
+
+    const pagination = {
+      currentPage: pageNum,
+      totalPages: Math.ceil(totalCount / limitNum),
+      totalCount,
+      pageSize: limitNum,
+      hasNextPage: pageNum < Math.ceil(totalCount / limitNum),
+      hasPrevPage: pageNum > 1
+    };
+
+    console.log(`📄 Found ${totalCount} FDA Response Letters for company: ${companyName}`);
+
+    res.json({
+      success: true,
+      letters,
+      pagination,
+      companyName
+    });
+
+  } catch (error) {
+    console.error('Error searching FDA Response Letters by company:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to search FDA Response Letters by company',
+      details: error.message
+    });
+  }
+});
+
+/**
+ * Get FDA Complete Response Letters statistics
+ * GET /api/fda/response-letters/stats
+ */
+app.get('/api/fda/response-letters/stats', async (req, res) => {
+  try {
+    console.log('📊 Generating FDA Response Letters statistics...');
+
+    const [
+      totalLetters,
+      lettersByType,
+      lettersByOffice,
+      recentLetters,
+      topCompanies
+    ] = await Promise.all([
+      // Total count
+      Letter.countDocuments(),
+      
+      // Group by letter type
+      Letter.aggregate([
+        { $group: { _id: '$letterType', count: { $sum: 1 } } },
+        { $sort: { count: -1 } }
+      ]),
+      
+      // Group by FDA office
+      Letter.aggregate([
+        { $group: { _id: '$fdaOffice', count: { $sum: 1 } } },
+        { $sort: { count: -1 } }
+      ]),
+      
+      // Recent letters (last 30 days)
+      Letter.countDocuments({
+        date: { 
+          $gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString() 
+        }
+      }),
+      
+      // Top companies by letter count
+      Letter.aggregate([
+        { $group: { _id: '$company.name', count: { $sum: 1 } } },
+        { $sort: { count: -1 } },
+        { $limit: 10 }
+      ])
+    ]);
+
+    const stats = {
+      totalLetters,
+      lettersByType: lettersByType.map(item => ({
+        type: item._id || 'Unknown',
+        count: item.count
+      })),
+      lettersByOffice: lettersByOffice.map(item => ({
+        office: item._id || 'Unknown',
+        count: item.count
+      })),
+      recentLetters,
+      topCompanies: topCompanies.map(item => ({
+        company: item._id || 'Unknown',
+        count: item.count
+      }))
+    };
+
+    console.log(`📊 Generated stats for ${totalLetters} FDA Response Letters`);
+
+    res.json({
+      success: true,
+      stats
+    });
+
+  } catch (error) {
+    console.error('Error generating FDA Response Letters statistics:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to generate statistics',
+      details: error.message
+    });
+  }
+});
+
+/**
+ * Advanced search with filters
+ * POST /api/fda/response-letters/search/advanced
+ */
+app.post('/api/fda/response-letters/search/advanced', async (req, res) => {
+  try {
+    const {
+      query,
+      letterType,
+      fdaOffice,
+      companyName,
+      dateFrom,
+      dateTo,
+      hasClinicalFindings,
+      hasStudiesReferenced,
+      page = 1,
+      limit = 12,
+      sortBy = 'date',
+      sortOrder = 'desc'
+    } = req.body;
+
+    console.log(`🔍 Advanced search FDA Response Letters with filters`);
+
+    const pageNum = Math.max(1, parseInt(page));
+    const limitNum = Math.max(1, Math.min(50, parseInt(limit)));
+    const skip = (pageNum - 1) * limitNum;
+
+    // Build search criteria
+    const searchCriteria = {};
+
+    // Text search
+    if (query && query.trim()) {
+      searchCriteria.$or = [
+        { applicationName: { $regex: query, $options: 'i' } },
+        { ndaNumber: { $regex: query, $options: 'i' } },
+        { 'company.name': { $regex: query, $options: 'i' } },
+        { summary: { $regex: query, $options: 'i' } },
+        { aiSummary: { $regex: query, $options: 'i' } }
+      ];
+    }
+
+    // Filter by letter type
+    if (letterType) {
+      searchCriteria.letterType = { $regex: letterType, $options: 'i' };
+    }
+
+    // Filter by FDA office
+    if (fdaOffice) {
+      searchCriteria.fdaOffice = { $regex: fdaOffice, $options: 'i' };
+    }
+
+    // Filter by company
+    if (companyName) {
+      searchCriteria['company.name'] = { $regex: companyName, $options: 'i' };
+    }
+
+    // Date range filter
+    if (dateFrom || dateTo) {
+      searchCriteria.date = {};
+      if (dateFrom) searchCriteria.date.$gte = dateFrom;
+      if (dateTo) searchCriteria.date.$lte = dateTo;
+    }
+
+    // Filter by presence of clinical findings
+    if (hasClinicalFindings !== undefined) {
+      if (hasClinicalFindings) {
+        searchCriteria.clinicalFindings = { $exists: true, $ne: [] };
+      } else {
+        searchCriteria.$or = [
+          { clinicalFindings: { $exists: false } },
+          { clinicalFindings: { $size: 0 } }
+        ];
+      }
+    }
+
+    // Filter by presence of referenced studies
+    if (hasStudiesReferenced !== undefined) {
+      if (hasStudiesReferenced) {
+        searchCriteria.studiesReferenced = { $exists: true, $ne: [] };
+      } else {
+        searchCriteria.$or = [
+          { studiesReferenced: { $exists: false } },
+          { studiesReferenced: { $size: 0 } }
+        ];
+      }
+    }
+
+    // Build sort criteria
+    const sortCriteria = {};
+    sortCriteria[sortBy] = sortOrder === 'desc' ? -1 : 1;
+
+    // Execute search
+    const [letters, totalCount] = await Promise.all([
+      Letter.find(searchCriteria)
+        .sort(sortCriteria)
+        .skip(skip)
+        .limit(limitNum)
+        .lean(),
+      Letter.countDocuments(searchCriteria)
+    ]);
+
+    const pagination = {
+      currentPage: pageNum,
+      totalPages: Math.ceil(totalCount / limitNum),
+      totalCount,
+      pageSize: limitNum,
+      hasNextPage: pageNum < Math.ceil(totalCount / limitNum),
+      hasPrevPage: pageNum > 1
+    };
+
+    console.log(`📄 Advanced search found ${totalCount} FDA Response Letters`);
+
+    res.json({
+      success: true,
+      letters,
+      pagination,
+      filters: {
+        query,
+        letterType,
+        fdaOffice,
+        companyName,
+        dateFrom,
+        dateTo,
+        hasClinicalFindings,
+        hasStudiesReferenced
+      }
+    });
+
+  } catch (error) {
+    console.error('Error in advanced search FDA Response Letters:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to perform advanced search',
+      details: error.message
+    });
+  }
+});
+
+// ===== HELPER FUNCTIONS =====
+
+/**
+ * Function to integrate FDA Response Letters search with existing search context
+ * Call this from your existing search functions to automatically populate the Response Letters tab
+ */
+async function searchFDAResponseLettersForContext(drugName, companyName = '') {
+  try {
+    if (!drugName && !companyName) return { letters: [], count: 0 };
+
+    const searchQuery = [drugName, companyName].filter(Boolean).join(' ');
+    
+    const letters = await Letter.find({
+      $or: [
+        { applicationName: { $regex: searchQuery, $options: 'i' } },
+        { 'company.name': { $regex: searchQuery, $options: 'i' } },
+        { aiIndex: { $elemMatch: { $regex: searchQuery, $options: 'i' } } }
+      ]
+    })
+    .sort({ date: -1 })
+    .limit(20)
+    .lean();
+
+    return {
+      letters,
+      count: letters.length,
+      searchQuery
+    };
+
+  } catch (error) {
+    console.error('Error searching FDA Response Letters for context:', error);
+    return { letters: [], count: 0 };
+  }
+}
+
+// ===== INTEGRATION WITH EXISTING SEARCH =====
+
+/**
+ * Modify your existing drug search endpoint to include FDA Response Letters
+ * Add this to your existing search function or create a new comprehensive search endpoint
+ */
+app.post('/api/comprehensive-search', async (req, res) => {
+  try {
+    const { drugName, companyName } = req.body;
+    
+    console.log(`🔍 Comprehensive search for: ${drugName} ${companyName}`);
+
+    // Your existing search logic here...
+    // const clinicalTrialsData = await searchClinicalTrials(drugName);
+    // const fdaData = await searchFDAData(drugName);
+    
+    // Add FDA Response Letters search
+    const responseLettersData = await searchFDAResponseLettersForContext(drugName, companyName);
+
+    res.json({
+      success: true,
+      data: {
+        // clinicalTrials: clinicalTrialsData,
+        // fda: fdaData,
+        responseLetters: responseLettersData
+      }
+    });
+
+  } catch (error) {
+    console.error('Error in comprehensive search:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Comprehensive search failed',
+      details: error.message
+    });
+  }
+});
+
+console.log('✅ FDA Complete Response Letters routes initialized');
 
 
 
@@ -4857,6 +5392,126 @@ app.use('/api/ema', emaRoutes);
 //     });
 //   }
 // });
+// Grok API route - corrected version
+app.post('/api/ai/grok-analysis', async (req, res) => {
+  try {
+    const { prompt, analysisType } = req.body;
+    
+    console.log('🤖 Grok AI analysis request received for:', analysisType);
+    
+    // Validate API key
+    if (!process.env.grok) {
+      return res.status(500).json({
+        error: 'Grok API key is not configured',
+        message: 'Please set the GROK_API_KEY environment variable'
+      });
+    }
+    
+    // Call Grok API with correct configuration
+    const grokResponse = await fetch('https://api.x.ai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${process.env.grok}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        messages: [
+          {
+            role: "system",
+            content: `You are a regulatory affairs expert specializing in Phase III clinical trial analysis. 
+                     Provide structured, actionable insights focusing on:
+                     1. Drug formulation consistency across trials
+                     2. US vs EU regulatory pathway differences  
+                     3. Treatment effect patterns and statistical significance
+                     4. Enrollment strategy effectiveness
+                     5. Primary endpoint appropriateness for Target Product Profile development
+                     
+                     Return responses as structured JSON that can be easily parsed and integrated into clinical trial analysis tools.`
+          },
+          {
+            role: "user", 
+            content: prompt
+          }
+        ],
+        model: "grok-2", // Use available Grok model
+        stream: false,
+        temperature: 0.1
+      })
+    });
+
+    // Check if response is ok
+    if (!grokResponse.ok) {
+      const errorText = await grokResponse.text();
+      console.error('Grok API Error Details:', errorText);
+      
+      throw new Error(`Grok API error: ${grokResponse.status} - ${grokResponse.statusText}`);
+    }
+
+    const grokResult = await grokResponse.json();
+    
+    // Validate response structure
+    if (!grokResult.choices || !grokResult.choices[0]) {
+      throw new Error('Invalid response structure from Grok API');
+    }
+    
+    // Parse Grok response
+    let analysisData;
+    try {
+      analysisData = JSON.parse(grokResult.choices[0].message.content);
+    } catch (parseError) {
+      // If JSON parsing fails, create structured response from text
+      const textResponse = grokResult.choices[0].message.content;
+      analysisData = {
+        enrichedTrials: [],
+        drugFormulations: [],
+        regulatoryInsights: textResponse,
+        summary: "AI analysis completed with text response"
+      };
+    }
+
+    // Enhance the response with additional analysis
+    const enhancedResponse = {
+      ...analysisData,
+      timestamp: new Date().toISOString(),
+      analysisType: analysisType,
+      confidence: 'high',
+      recommendations: extractRecommendations(analysisData)
+    };
+
+    console.log('✅ Grok analysis completed successfully');
+    res.json(enhancedResponse);
+
+  } catch (error) {
+    console.error('❌ Grok AI analysis error:', error);
+    res.status(500).json({
+      error: 'AI analysis failed',
+      message: error.message,
+      fallbackData: {
+        enrichedTrials: [],
+        drugFormulations: [],
+        regulatoryInsights: 'AI analysis temporarily unavailable',
+        summary: 'Error occurred during analysis'
+      }
+    });
+  }
+});
+
+// Helper function to extract recommendations
+function extractRecommendations(analysisData) {
+  // Add logic to extract recommendations from analysis data
+  const recommendations = [];
+  
+  if (analysisData.regulatoryInsights) {
+    recommendations.push({
+      category: 'regulatory',
+      priority: 'high',
+      insight: 'Review regulatory pathway alignment'
+    });
+  }
+  
+  return recommendations;
+}
+
 
 
 // API endpoint for analyzing chemistry reviews
@@ -14080,6 +14735,1375 @@ app.get('/api/drugs/compare/:drugName', async (req, res) => {
     }
   });
 
+
+// REPLACE the existing timeline functions in your clinicaltrials.js with these FIXED versions
+
+// Enhanced drug timeline endpoint - REPLACE existing
+// REPLACE the existing timeline route with this PROGRESSIVE LOADING version
+
+// Enhanced drug timeline endpoint with progressive loading
+app.get('/api/fda/drug/:drugName/timeline', validateDrugNamenew, async (req, res) => {
+  console.log("Fetching comprehensive FDA drug timeline with progressive loading");
+  const { drugName } = req.params;
+
+  try {
+    // Check if FDA API is available first
+    try {
+      console.log("Checking FDA API availability...");
+      const checkUrl = "https://api.fda.gov/drug/label.json?limit=1";
+      await axios.get(checkUrl, { timeout: 10000 });
+      console.log("FDA API is available.");
+    } catch (apiCheckError) {
+      console.error("FDA API appears to be unavailable:", apiCheckError.message);
+      return res.status(503).json({
+        error: 'FDA API unavailable',
+        message: 'The FDA API is currently unavailable. Please try again later.'
+      });
+    }
+
+    // Set up Server-Sent Events for progressive loading
+    res.writeHead(200, {
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      'Connection': 'keep-alive',
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Headers': 'Cache-Control'
+    });
+
+    // Send initial status
+    res.write(`data: ${JSON.stringify({
+      type: 'status',
+      message: 'Starting timeline analysis...',
+      step: 1,
+      totalSteps: 4
+    })}\n\n`);
+
+    // Step 1: Get main drug data quickly
+    res.write(`data: ${JSON.stringify({
+      type: 'status',
+      message: 'Extracting main drug applications...',
+      step: 1,
+      totalSteps: 4
+    })}\n\n`);
+
+    const mainDrugData = await getMainDrugDataForTimeline(drugName);
+    
+    res.write(`data: ${JSON.stringify({
+      type: 'status',
+      message: `Found ${mainDrugData.applications.length} applications, extracting compounds...`,
+      step: 2,
+      totalSteps: 4
+    })}\n\n`);
+
+    // Step 2: Get compounds quickly
+    const compounds = await extractAllCompoundsForTimelineFixed(drugName, mainDrugData);
+    
+    res.write(`data: ${JSON.stringify({
+      type: 'status',
+      message: `Found ${compounds.length} compounds, building timelines...`,
+      step: 3,
+      totalSteps: 4
+    })}\n\n`);
+
+    // Send initial structure
+    res.write(`data: ${JSON.stringify({
+      type: 'initial',
+      searchTerm: drugName,
+      totalCompounds: compounds.length,
+      compounds: compounds
+    })}\n\n`);
+
+    // Step 3: Build timelines progressively - send each as it completes
+    const completedTimelines = {};
+    let completedCount = 0;
+
+    // Process compounds in parallel but send results as they complete
+    const timelinePromises = compounds.map(async (compound, index) => {
+      try {
+        console.log(`Building timeline for compound: ${compound.name}`);
+        
+        // Send loading status for this compound
+        res.write(`data: ${JSON.stringify({
+          type: 'compound_loading',
+          compoundName: compound.name,
+          message: `Building timeline for ${compound.name}...`
+        })}\n\n`);
+
+        const timeline = await buildCompoundTimelineDataFixed(compound, mainDrugData);
+        
+        completedCount++;
+        completedTimelines[compound.name] = {
+          compound: compound,
+          timeline: timeline,
+          totalEvents: timeline.length
+        };
+
+        // Send completed compound timeline immediately
+        res.write(`data: ${JSON.stringify({
+          type: 'compound_complete',
+          compoundName: compound.name,
+          timeline: {
+            compound: compound,
+            timeline: timeline,
+            totalEvents: timeline.length
+          },
+          progress: {
+            completed: completedCount,
+            total: compounds.length,
+            percentage: Math.round((completedCount / compounds.length) * 100)
+          }
+        })}\n\n`);
+
+        console.log(`Completed timeline for ${compound.name}: ${timeline.length} events`);
+        
+      } catch (error) {
+        console.error(`Error building timeline for ${compound.name}:`, error);
+        
+        // Send error for this compound but continue with others
+        res.write(`data: ${JSON.stringify({
+          type: 'compound_error',
+          compoundName: compound.name,
+          error: `Failed to build timeline: ${error.message}`
+        })}\n\n`);
+      }
+    });
+
+    // Wait for all timelines to complete
+    await Promise.all(timelinePromises);
+
+    // Step 4: Send final summary
+    res.write(`data: ${JSON.stringify({
+      type: 'status',
+      message: 'Generating summary...',
+      step: 4,
+      totalSteps: 4
+    })}\n\n`);
+
+    const summary = generateTimelineSummaryDataFixed(completedTimelines);
+
+    // Send final complete data
+    res.write(`data: ${JSON.stringify({
+      type: 'complete',
+      summary: summary,
+      timestamp: new Date().toISOString(),
+      totalCompounds: compounds.length,
+      completedCompounds: Object.keys(completedTimelines).length
+    })}\n\n`);
+
+    // Close the connection
+    res.end();
+
+  } catch (error) {
+    console.error('Error fetching FDA timeline:', error);
+    
+    // Send error and close
+    res.write(`data: ${JSON.stringify({
+      type: 'error',
+      error: 'Error fetching FDA timeline',
+      message: error.message
+    })}\n\n`);
+    
+    res.end();
+  }
+});
+
+// Add a fallback JSON endpoint for clients that don't support SSE
+app.get('/api/fda/drug/:drugName/timeline-simple', validateDrugNamenew, async (req, res) => {
+  console.log("Fetching FDA drug timeline (simple mode)");
+  const { drugName } = req.params;
+
+  try {
+    // Check if FDA API is available first
+    const checkUrl = "https://api.fda.gov/drug/label.json?limit=1";
+    await axios.get(checkUrl, { timeout: 10000 });
+
+    // Get main drug data
+    const mainDrugData = await getMainDrugDataForTimeline(drugName);
+    const compounds = await extractAllCompoundsForTimelineFixed(drugName, mainDrugData);
+
+    // Build timelines for first 2 compounds only (for speed)
+    const timelines = {};
+    const maxCompounds = Math.min(compounds.length, 2);
+    
+    for (let i = 0; i < maxCompounds; i++) {
+      const compound = compounds[i];
+      console.log(`Building timeline for compound: ${compound.name}`);
+      const timeline = await buildCompoundTimelineDataFixed(compound, mainDrugData);
+      timelines[compound.name] = {
+        compound: compound,
+        timeline: timeline,
+        totalEvents: timeline.length
+      };
+    }
+
+    const summary = generateTimelineSummaryDataFixed(timelines);
+
+    res.json({
+      searchTerm: drugName,
+      totalCompounds: compounds.length,
+      compounds: compounds,
+      timelines: timelines,
+      summary: summary,
+      timestamp: new Date().toISOString(),
+      note: maxCompounds < compounds.length ? `Showing first ${maxCompounds} compounds for faster loading` : null
+    });
+
+  } catch (error) {
+    console.error('Error fetching FDA timeline:', error);
+    res.status(500).json({ 
+      error: 'Error fetching FDA timeline',
+      message: error.message 
+    });
+  }
+});
+
+// FIXED: Get main drug data with better extraction
+// COMPLETELY REWRITTEN - Using the ACTUAL FDA data structure you showed
+
+// FIXED: Get main drug data using REAL FDA fields
+async function getMainDrugDataForTimeline(drugName) {
+  console.log(`Getting main drug data for: ${drugName} using REAL FDA structure`);
+  const mainData = {
+    applications: [],
+    approvals: [],
+    applicationNumbers: new Set(),
+    allCompounds: new Set()
+  };
+
+  try {
+    // Search drugsFda endpoint for main data
+    const searchStrategies = [
+      `search=openfda.brand_name:"${drugName}"`,
+      `search=openfda.generic_name:"${drugName}"`,
+      `search=openfda.substance_name:"${drugName}"`,
+      `search=sponsor_name:"${drugName}"`,
+      // Broader searches
+      `search=openfda.brand_name:*${drugName}*`,
+      `search=openfda.generic_name:*${drugName}*`
+    ];
+
+    for (const searchQuery of searchStrategies) {
+      try {
+        const url = `https://api.fda.gov/drug/drugsfda.json?${searchQuery}&limit=100`;
+        console.log(`Trying: ${searchQuery}`);
+        
+        const response = await axios.get(url, { timeout: 15000 });
+        
+        if (response.data?.results?.length > 0) {
+          console.log(`✅ Found ${response.data.results.length} results from drugsFda`);
+          
+          response.data.results.forEach(result => {
+            const appNumber = result.application_number;
+            if (appNumber) {
+              mainData.applicationNumbers.add(appNumber);
+              
+              // Extract compound names from openfda
+              if (result.openfda) {
+                if (result.openfda.brand_name) result.openfda.brand_name.forEach(name => mainData.allCompounds.add(name));
+                if (result.openfda.generic_name) result.openfda.generic_name.forEach(name => mainData.allCompounds.add(name));
+                if (result.openfda.substance_name) result.openfda.substance_name.forEach(name => mainData.allCompounds.add(name));
+              }
+              
+              // Extract compound names from products
+              if (result.products && Array.isArray(result.products)) {
+                result.products.forEach(product => {
+                  if (product.brand_name) mainData.allCompounds.add(product.brand_name);
+                  if (product.active_ingredients) {
+                    product.active_ingredients.forEach(ingredient => {
+                      if (ingredient.name) mainData.allCompounds.add(ingredient.name);
+                    });
+                  }
+                });
+              }
+              
+              // Extract SUBMISSIONS (not approvals - there are no approval_date fields!)
+              if (result.submissions && Array.isArray(result.submissions)) {
+                result.submissions.forEach(submission => {
+                  // Use submission_status_date as the key date
+                  if (submission.submission_status_date) {
+                    const submissionEvent = {
+                      applicationNumber: appNumber,
+                      submissionDate: submission.submission_status_date,
+                      submissionType: submission.submission_type,
+                      submissionNumber: submission.submission_number,
+                      submissionStatus: submission.submission_status,
+                      sponsor: result.sponsor_name,
+                      submissionClassCode: submission.submission_class_code,
+                      submissionClassDescription: submission.submission_class_code_description
+                    };
+                    
+                    // Treat approved original submissions as "approvals"
+                    if (submission.submission_type === 'ORIG' && submission.submission_status === 'AP') {
+                      mainData.approvals.push({
+                        ...submissionEvent,
+                        approvalDate: submission.submission_status_date,
+                        brandName: result.products?.[0]?.brand_name,
+                        genericName: result.products?.[0]?.active_ingredients?.[0]?.name,
+                        dosageForm: result.products?.[0]?.dosage_form,
+                        route: result.products?.[0]?.route,
+                        marketingStatus: result.products?.[0]?.marketing_status
+                      });
+                    }
+                    
+                    mainData.applications.push(submissionEvent);
+                  }
+                });
+              }
+            }
+          });
+          
+          // If we found results, we can break (unless we want to combine multiple searches)
+          if (response.data.results.length > 0) break;
+        }
+      } catch (error) {
+        console.warn(`❌ Error with search "${searchQuery}":`, error.message);
+      }
+    }
+
+    mainData.applicationNumbers = Array.from(mainData.applicationNumbers);
+    mainData.allCompounds = Array.from(mainData.allCompounds);
+    
+    console.log(`📊 Main data extracted:`);
+    console.log(`   - ${mainData.applications.length} submissions`);
+    console.log(`   - ${mainData.approvals.length} approvals (ORIG submissions with AP status)`);
+    console.log(`   - ${mainData.allCompounds.length} compounds found`);
+    console.log(`   - Compounds: ${mainData.allCompounds.join(', ')}`);
+    
+  } catch (error) {
+    console.warn('❌ Error getting main drug data:', error.message);
+  }
+
+  return mainData;
+}
+
+// FIXED: Enhanced compound extraction with better search
+async function extractAllCompoundsForTimelineFixed(drugName, mainDrugData) {
+  console.log(`Extracting RELEVANT compounds for: ${drugName}`);
+  const compounds = new Map();
+  
+  // Start with compounds from main drug data (most relevant)
+  mainDrugData.allCompounds.forEach(compoundName => {
+    if (compoundName && compoundName.trim()) {
+      addCompoundFixed(compounds, compoundName, compoundName, null, null, null, null, 'main search');
+    }
+  });
+
+  // Generate focused search terms (not hundreds of variations)
+  const focusedSearchTerms = generateFocusedSearchTerms(drugName);
+  console.log(`Using focused search terms: ${focusedSearchTerms.join(', ')}`);
+
+  // Search endpoints with focused terms only
+  for (const searchTerm of focusedSearchTerms.slice(0, 5)) { // Limit to 5 search terms max
+    await searchEndpointForCompounds(compounds, 'label', searchTerm);
+    await searchEndpointForCompounds(compounds, 'ndc', searchTerm);
+  }
+
+  // CRITICAL: Filter compounds to only the most relevant ones
+  const filteredCompounds = filterRelevantCompounds(compounds, drugName);
+  
+  console.log(`Filtered to ${filteredCompounds.length} relevant compounds:`, filteredCompounds.map(c => c.name));
+  
+  return filteredCompounds;
+}
+
+
+
+
+// Generate related search terms for better compound discovery
+function generateRelatedSearchTerms(drugName) {
+  const baseName = drugName.toLowerCase();
+  const terms = [baseName];
+  
+  // Add common variations for ketamine
+  if (baseName.includes('ketamine')) {
+    terms.push(
+      'esketamine',
+      's-ketamine',
+      'ketalar',
+      'spravato',
+      'ketamine hydrochloride',
+      'ketamine hcl',
+      's-ketamine hydrochloride'
+    );
+  }
+  
+  // Add generic variations
+  terms.push(
+    `${baseName} hydrochloride`,
+    `${baseName} hcl`,
+    `${baseName}*`,
+    `*${baseName}*`
+  );
+  
+  return [...new Set(terms)]; // Remove duplicates
+}
+
+// REPLACE the generateFocusedSearchTerms function with this UNIVERSAL version
+
+// Generate focused search terms that work for ANY drug
+function generateFocusedSearchTerms(drugName) {
+  const baseName = drugName.toLowerCase().trim();
+  const terms = new Set([baseName]); // Use Set to avoid duplicates
+  
+  // 1. Add common pharmaceutical variations for ANY drug
+  terms.add(`${baseName} hydrochloride`);
+  terms.add(`${baseName} hcl`);
+  terms.add(`${baseName} sodium`);
+  terms.add(`${baseName} sulfate`);
+  terms.add(`${baseName} phosphate`);
+  
+  // 2. Handle multi-word drug names intelligently
+  const words = baseName.split(/\s+/);
+  if (words.length > 1) {
+    // Add each significant word (skip common words)
+    const skipWords = ['and', 'or', 'with', 'plus', 'the', 'a', 'an'];
+    words.forEach(word => {
+      if (word.length > 3 && !skipWords.includes(word)) {
+        terms.add(word);
+        terms.add(`${word} hydrochloride`);
+        terms.add(`${word} hcl`);
+      }
+    });
+    
+    // Add first word + common suffixes
+    const firstWord = words[0];
+    if (firstWord.length > 3) {
+      terms.add(`${firstWord} sodium`);
+      terms.add(`${firstWord} sulfate`);
+    }
+  }
+  
+  // 3. Handle common drug name patterns
+  // If it ends with common suffixes, also search without them
+  const suffixesToTry = ['hydrochloride', 'hcl', 'sodium', 'sulfate', 'phosphate', 'tartrate', 'citrate', 'acetate'];
+  suffixesToTry.forEach(suffix => {
+    if (baseName.endsWith(suffix)) {
+      const baseDrug = baseName.replace(new RegExp(`\\s*${suffix}$`, 'i'), '').trim();
+      if (baseDrug.length > 2) {
+        terms.add(baseDrug);
+        // Add other salt forms of the same base drug
+        suffixesToTry.forEach(otherSuffix => {
+          if (otherSuffix !== suffix) {
+            terms.add(`${baseDrug} ${otherSuffix}`);
+          }
+        });
+      }
+    }
+  });
+  
+  // 4. Handle abbreviations and expansions
+  const abbreviationMap = {
+    'hcl': 'hydrochloride',
+    'hydrochloride': 'hcl',
+    'na': 'sodium',
+    'sodium': 'na',
+    'k': 'potassium',
+    'potassium': 'k',
+    'ca': 'calcium',
+    'calcium': 'ca',
+    'mg': 'magnesium',
+    'magnesium': 'mg'
+  };
+  
+  Object.entries(abbreviationMap).forEach(([abbrev, full]) => {
+    if (baseName.includes(abbrev)) {
+      const expanded = baseName.replace(new RegExp(`\\b${abbrev}\\b`, 'gi'), full);
+      terms.add(expanded);
+    }
+  });
+  
+  // 5. Add wildcard variations for partial matching
+  if (baseName.length > 4) {
+    terms.add(`${baseName}*`);
+    terms.add(`*${baseName}*`);
+  }
+  
+  // 6. Handle special cases dynamically
+  // Look for brand name patterns (often capitalized or unique)
+  if (/^[A-Z][a-z]+$/.test(drugName)) {
+    // Likely a brand name, add generic-sounding variations
+    terms.add(`${baseName} tablets`);
+    terms.add(`${baseName} injection`);
+    terms.add(`${baseName} capsules`);
+  }
+  
+  // 7. Remove very short or very long terms
+  const filteredTerms = Array.from(terms).filter(term => 
+    term.length >= 3 && 
+    term.length <= 50 && 
+    term.trim() !== '' &&
+    !term.includes('undefined') &&
+    !term.includes('null')
+  );
+  
+  // 8. Sort by relevance (exact match first, then shorter terms)
+  const sortedTerms = filteredTerms.sort((a, b) => {
+    if (a === baseName) return -1;
+    if (b === baseName) return 1;
+    return a.length - b.length;
+  });
+  
+  // 9. Limit to reasonable number of search terms
+  const finalTerms = sortedTerms.slice(0, 8); // Max 8 search terms
+  
+  console.log(`Generated search terms for "${drugName}":`, finalTerms);
+  return finalTerms;
+}
+
+// ALSO UPDATE: Enhanced compound filtering that works for any drug
+function filterRelevantCompounds(compounds, drugName) {
+  const compoundsList = Array.from(compounds.values());
+  const drugNameLower = drugName.toLowerCase().trim();
+  const drugWords = drugNameLower.split(/\s+/);
+  
+  // Score compounds by relevance for ANY drug
+  const scoredCompounds = compoundsList.map(compound => {
+    let score = 0;
+    const nameL = compound.name.toLowerCase().trim();
+    const nameWords = nameL.split(/\s+/);
+    
+    // EXACT MATCHES (highest priority)
+    if (nameL === drugNameLower) score += 100;
+    
+    // PARTIAL MATCHES
+    if (nameL.includes(drugNameLower)) score += 50;
+    if (drugNameLower.includes(nameL)) score += 40;
+    
+    // WORD-BASED MATCHING (works for any drug)
+    drugWords.forEach(drugWord => {
+      if (drugWord.length > 2) {
+        if (nameWords.includes(drugWord)) score += 30;
+        if (nameL.includes(drugWord)) score += 20;
+      }
+    });
+    
+    // PHARMACEUTICAL INDICATORS (real drugs)
+    if (compound.applicationNumbers.length > 0) score += 25;
+    if (compound.manufacturers.length > 0) score += 15;
+    if (compound.brandNames.length > 0) score += 10;
+    
+    // DOSAGE FORM INDICATORS (real drugs)
+    const dosageForms = ['tablet', 'capsule', 'injection', 'solution', 'cream', 'ointment', 'drops'];
+    if (dosageForms.some(form => nameL.includes(form))) score += 15;
+    
+    // CONCENTRATION/STRENGTH INDICATORS (real drugs)
+    if (/\d+\s*(mg|mcg|g|ml|%)/i.test(compound.name)) score += 10;
+    
+    // NEGATIVE SCORING (reduce irrelevant compounds)
+    
+    // Very long compound names (often combinations)
+    if (compound.name.length > 60) score -= 20;
+    if (compound.name.length > 100) score -= 40;
+    
+    // Multiple comma-separated ingredients (combinations)
+    const commaCount = (compound.name.match(/,/g) || []).length;
+    if (commaCount > 2) score -= 15;
+    if (commaCount > 5) score -= 30;
+    
+    // Homeopathic/herbal indicators
+    const homeopathicKeywords = [
+      'sus scrofa', 'bos taurus', 'whole', 'leaf', 'root', 'seed', 'flower', 'bark', 
+      'pollen', 'extract', 'tincture', 'potency', '30x', '100x', 'mother tincture'
+    ];
+    homeopathicKeywords.forEach(keyword => {
+      if (nameL.includes(keyword)) score -= 25;
+    });
+    
+    // Obviously unrelated compounds
+    const unrelatedKeywords = [
+      'immune system booster', 'weight loss', 'diet', 'supplement', 'vitamin',
+      'mineral', 'herbal', 'natural', 'organic'
+    ];
+    unrelatedKeywords.forEach(keyword => {
+      if (nameL.includes(keyword)) score -= 30;
+    });
+    
+    return { compound, score };
+  });
+  
+  // Sort by score and take only the most relevant ones
+  const sortedCompounds = scoredCompounds
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 12) // Increased to 12 for better coverage
+    .filter(item => item.score > 5) // Only compounds with reasonable scores
+    .map(item => item.compound);
+  
+  console.log(`Compound scoring results for "${drugName}":`);
+  scoredCompounds.slice(0, 20).forEach((item, index) => {
+    const status = item.score > 5 ? '✅' : '❌';
+    console.log(`  ${status} ${item.compound.name} (score: ${item.score})`);
+  });
+  
+  return sortedCompounds;
+}
+
+// ENHANCED: Better compound extraction that works for any drug name pattern
+function extractCompoundsFromResultDataFixed(result, compounds, source) {
+  // Extract from OpenFDA fields
+  if (result.openfda) {
+    const openfda = result.openfda;
+    
+    // Brand names
+    if (openfda.brand_name) {
+      openfda.brand_name.forEach(brand => {
+        if (brand && brand.length > 1) {
+          addCompoundFixed(compounds, brand, brand, null, null, 
+            openfda.manufacturer_name?.[0], 
+            openfda.application_number?.[0],
+            null, source
+          );
+        }
+      });
+    }
+    
+    // Generic names
+    if (openfda.generic_name) {
+      openfda.generic_name.forEach(generic => {
+        if (generic && generic.length > 1) {
+          addCompoundFixed(compounds, generic, null, generic, null,
+            openfda.manufacturer_name?.[0],
+            openfda.application_number?.[0],
+            null, source
+          );
+        }
+      });
+    }
+    
+    // Substance names
+    if (openfda.substance_name) {
+      openfda.substance_name.forEach(substance => {
+        if (substance && substance.length > 1) {
+          addCompoundFixed(compounds, substance, null, null, substance,
+            openfda.manufacturer_name?.[0],
+            openfda.application_number?.[0],
+            null, source
+          );
+        }
+      });
+    }
+  }
+
+  // Extract from direct fields
+  if (result.brand_name && result.brand_name.length > 1) {
+    addCompoundFixed(compounds, result.brand_name, result.brand_name, result.generic_name, result.substance_name,
+      result.labeler_name || result.manufacturer_name,
+      result.application_number,
+      result.sponsor_name, source
+    );
+  }
+
+  if (result.generic_name && result.generic_name.length > 1 && result.generic_name !== result.brand_name) {
+    addCompoundFixed(compounds, result.generic_name, result.brand_name, result.generic_name, result.substance_name,
+      result.labeler_name || result.manufacturer_name,
+      result.application_number,
+      result.sponsor_name, source
+    );
+  }
+
+  // Extract from products array (drugsFda endpoint)
+  if (result.products && Array.isArray(result.products)) {
+    result.products.forEach(product => {
+      if (product.brand_name && product.brand_name.length > 1) {
+        addCompoundFixed(compounds, product.brand_name, product.brand_name, product.generic_name, null,
+          result.sponsor_name,
+          result.application_number,
+          result.sponsor_name, source
+        );
+      }
+      
+      // Also extract active ingredients
+      if (product.active_ingredients && Array.isArray(product.active_ingredients)) {
+        product.active_ingredients.forEach(ingredient => {
+          if (ingredient.name && ingredient.name.length > 2) {
+            addCompoundFixed(compounds, ingredient.name, product.brand_name, ingredient.name, ingredient.name,
+              result.sponsor_name,
+              result.application_number,
+              result.sponsor_name, source
+            );
+          }
+        });
+      }
+    });
+  }
+}
+
+// UPDATED: Add compound function with source tracking
+function addCompoundFixed(compounds, name, brand, generic, substance, manufacturer, applicationNumber, sponsor, source) {
+  if (!name || name.toLowerCase() === 'unknown' || name.length < 2) return;
+  
+  const key = name.toLowerCase().trim();
+  if (!compounds.has(key)) {
+    compounds.set(key, {
+      name: name,
+      brandNames: [],
+      genericNames: [],
+      substanceNames: [],
+      manufacturers: [],
+      applicationNumbers: [],
+      sponsors: [],
+      sources: []
+    });
+  }
+  
+  const compound = compounds.get(key);
+  if (brand && !compound.brandNames.includes(brand)) compound.brandNames.push(brand);
+  if (generic && !compound.genericNames.includes(generic)) compound.genericNames.push(generic);
+  if (substance && !compound.substanceNames.includes(substance)) compound.substanceNames.push(substance);
+  if (manufacturer && !compound.manufacturers.includes(manufacturer)) compound.manufacturers.push(manufacturer);
+  if (applicationNumber && !compound.applicationNumbers.includes(applicationNumber)) compound.applicationNumbers.push(applicationNumber);
+  if (sponsor && !compound.sponsors.includes(sponsor)) compound.sponsors.push(sponsor);
+  if (source && !compound.sources.includes(source)) compound.sources.push(source);
+}
+
+
+
+// OPTIMIZED: Faster compound search with timeouts
+async function searchEndpointForCompounds(compounds, endpointName, searchTerm) {
+  try {
+    let searchQuery;
+    let baseUrl;
+    
+    switch (endpointName) {
+      case 'label':
+        baseUrl = "https://api.fda.gov/drug/label.json";
+        searchQuery = `search=openfda.brand_name:"${searchTerm}"+OR+openfda.generic_name:"${searchTerm}"`;
+        break;
+      case 'ndc':
+        baseUrl = "https://api.fda.gov/drug/ndc.json";
+        searchQuery = `search=brand_name:"${searchTerm}"+OR+generic_name:"${searchTerm}"`;
+        break;
+      default:
+        return;
+    }
+
+    const url = `${baseUrl}?${searchQuery}&limit=20`; // Reduced limit
+    const response = await axios.get(url, { timeout: 5000 }); // Reduced timeout
+    
+    if (response.data?.results?.length > 0) {
+      console.log(`Found ${response.data.results.length} results from ${endpointName} for "${searchTerm}"`);
+      
+      // Only process first 10 results to avoid overload
+      response.data.results.slice(0, 10).forEach(result => {
+        extractCompoundsFromResultDataFixed(result, compounds, endpointName);
+      });
+    }
+  } catch (error) {
+    // Don't log every timeout/404 as an error since we're doing focused searches
+    if (!error.message.includes('404') && !error.message.includes('timeout')) {
+      console.warn(`Error searching ${endpointName} for "${searchTerm}":`, error.message);
+    }
+  }
+}
+
+// FIXED: Enhanced date parsing function
+function parseAndValidateDate(dateString) {
+  if (!dateString) return null;
+  
+  try {
+    // Handle different date formats
+    let parsedDate;
+    
+    if (typeof dateString === 'string') {
+      // Handle YYYYMMDD format (common in FDA data)
+      if (/^\d{8}$/.test(dateString)) {
+        const year = dateString.substring(0, 4);
+        const month = dateString.substring(4, 6);
+        const day = dateString.substring(6, 8);
+        parsedDate = new Date(`${year}-${month}-${day}`);
+      } 
+      // Handle YYYY-MM-DD format
+      else if (/^\d{4}-\d{2}-\d{2}/.test(dateString)) {
+        parsedDate = new Date(dateString);
+      }
+      // Handle other formats
+      else {
+        parsedDate = new Date(dateString);
+      }
+    } else {
+      parsedDate = new Date(dateString);
+    }
+    
+    // Validate the date
+    if (isNaN(parsedDate.getTime())) {
+      console.warn(`Invalid date: ${dateString}`);
+      return null;
+    }
+    
+    // Check if date is reasonable (after 1950, before 2030)
+    const year = parsedDate.getFullYear();
+    if (year < 1950 || year > 2030) {
+      console.warn(`Date out of reasonable range: ${dateString} -> ${year}`);
+      return null;
+    }
+    
+    return parsedDate.toISOString().split('T')[0]; // Return YYYY-MM-DD format
+    
+  } catch (error) {
+    console.warn(`Error parsing date "${dateString}":`, error.message);
+    return null;
+  }
+}
+
+
+// FIXED: Build timeline with better date handling and more comprehensive data
+// QUICK FIX - Replace the buildCompoundTimelineDataFixed function with this corrected version
+
+// FIXED: Build timeline using the REAL data structure (CORRECTED VARIABLE NAMES)
+async function buildCompoundTimelineDataFixed(compound, mainDrugData) {
+  console.log(`🔨 Building timeline for: ${compound.name}`);
+  const timeline = [];
+  
+  // 1. Add APPROVALS (ORIG submissions with AP status)
+  mainDrugData.approvals.forEach(approval => {
+    const isMatch = approval.brandName === compound.name || 
+                   approval.genericName === compound.name ||
+                   compound.applicationNumbers.includes(approval.applicationNumber);
+    
+    if (isMatch && approval.approvalDate) {
+      const parsedDate = parseAndValidateDateFixed(approval.approvalDate);
+      if (parsedDate) {
+        timeline.push({
+          date: parsedDate,
+          type: 'approval',
+          category: 'Drug Approval',
+          title: `${approval.brandName || compound.name} FDA Approval`,
+          description: `Original application approved for ${approval.brandName || compound.name}`,
+          details: {
+            applicationNumber: approval.applicationNumber,
+            sponsor: approval.sponsor,
+            dosageForm: approval.dosageForm,
+            route: approval.route,
+            marketingStatus: approval.marketingStatus,
+            submissionNumber: approval.submissionNumber,
+            originalDate: approval.approvalDate
+          },
+          source: 'drugsFda',
+          importance: 'critical'
+        });
+      }
+    }
+  });
+
+  // 2. Add SUBMISSIONS (all submissions including supplements) - FIXED VARIABLE NAME
+  mainDrugData.applications.forEach(submission => {
+    const isMatch = compound.applicationNumbers.includes(submission.applicationNumber);
+    
+    if (isMatch && submission.submissionDate && submission.submissionType !== 'ORIG') {
+      // Skip ORIG since we already added as approval
+      const parsedDate = parseAndValidateDateFixed(submission.submissionDate);
+      if (parsedDate) {
+        timeline.push({
+          date: parsedDate,
+          type: 'submission',
+          category: 'Regulatory Submission',
+          title: `${submission.submissionType} Submission`,
+          description: `${submission.submissionClassDescription || submission.submissionType} submission`,
+          details: {
+            submissionType: submission.submissionType,
+            submissionNumber: submission.submissionNumber,
+            applicationNumber: submission.applicationNumber,
+            sponsor: submission.sponsor,
+            submissionStatus: submission.submissionStatus,
+            submissionClassCode: submission.submissionClassCode,
+            submissionClassDescription: submission.submissionClassDescription,
+            originalDate: submission.submissionDate
+          },
+          source: 'drugsFda',
+          importance: submission.submissionStatus === 'AP' ? 'high' : 'medium'
+        });
+      }
+    }
+  });
+
+  // 3. Get enforcement data using REAL structure
+  await getEnforcementDataForTimelineFixed(compound, timeline);
+  
+  // 4. Get adverse events (grouped by year)
+  await getAdverseEventsDataForTimelineFixed(compound, timeline);
+
+  // Remove duplicates and sort
+  const uniqueTimeline = removeDuplicateEvents(timeline);
+  uniqueTimeline.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+  console.log(`✅ Timeline for ${compound.name}: ${uniqueTimeline.length} events`);
+  return uniqueTimeline;
+}
+
+
+// FIXED: Enhanced date parsing for FDA format (YYYYMMDD)
+function parseAndValidateDateFixed(dateString) {
+  if (!dateString) return null;
+  
+  try {
+    let parsedDate;
+    
+    if (typeof dateString === 'string') {
+      // Handle YYYYMMDD format (most common in FDA data)
+      if (/^\d{8}$/.test(dateString)) {
+        const year = dateString.substring(0, 4);
+        const month = dateString.substring(4, 6);
+        const day = dateString.substring(6, 8);
+        parsedDate = new Date(year, parseInt(month) - 1, parseInt(day));
+        console.log(`📅 Parsed FDA date ${dateString} -> ${parsedDate.toISOString().split('T')[0]}`);
+      } 
+      // Handle YYYY-MM-DD format
+      else if (/^\d{4}-\d{2}-\d{2}/.test(dateString)) {
+        parsedDate = new Date(dateString);
+      }
+      // Handle other formats
+      else {
+        parsedDate = new Date(dateString);
+      }
+    } else {
+      parsedDate = new Date(dateString);
+    }
+    
+    // Validate the date
+    if (isNaN(parsedDate.getTime())) {
+      console.warn(`❌ Invalid date: ${dateString}`);
+      return null;
+    }
+    
+    // Check if date is reasonable (after 1970, before 2030)
+    const year = parsedDate.getFullYear();
+    if (year < 1970 || year > 2030) {
+      console.warn(`❌ Date out of range: ${dateString} -> ${year}`);
+      return null;
+    }
+    
+    return parsedDate.toISOString().split('T')[0]; // Return YYYY-MM-DD format
+    
+  } catch (error) {
+    console.warn(`❌ Error parsing date "${dateString}":`, error.message);
+    return null;
+  }
+}
+async function getEnforcementDataForTimelineFixed(compound, timeline) {
+  try {
+    // Only search for the main compound name, not all variations
+    const searchTerms = [compound.name].slice(0, 1); // Just one search
+
+    for (const term of searchTerms) {
+      try {
+        const searchQuery = `search=product_description:"${term}"`;
+        const url = `https://api.fda.gov/drug/enforcement.json?${searchQuery}&limit=10`; // Reduced limit
+        
+        const response = await axios.get(url, { timeout: 5000 }); // Much shorter timeout
+        
+        if (response.data?.results?.length > 0) {
+          console.log(`📋 Found ${response.data.results.length} enforcement records for ${term}`);
+          
+          response.data.results.slice(0, 5).forEach(item => { // Only process first 5
+            const recallDate = item.recall_initiation_date || item.report_date;
+            
+            if (recallDate) {
+              const parsedDate = parseAndValidateDateFixed(recallDate);
+              if (parsedDate) {
+                timeline.push({
+                  date: parsedDate,
+                  type: 'recall',
+                  category: 'Recall/Enforcement',
+                  title: `Product Recall - ${item.classification || 'Classification Unknown'}`,
+                  description: `${item.reason_for_recall || 'Recall reason not specified'}`,
+                  details: {
+                    recallNumber: item.recall_number,
+                    reasonForRecall: item.reason_for_recall,
+                    productDescription: item.product_description,
+                    recallingFirm: item.recalling_firm,
+                    classification: item.classification,
+                    status: item.status,
+                    originalRecallDate: recallDate
+                  },
+                  source: 'enforcement',
+                  importance: getRecallImportanceFixed(item.classification)
+                });
+              }
+            }
+          });
+          break; // Stop after first successful search
+        }
+      } catch (error) {
+        // Don't log timeout errors since we're using aggressive timeouts
+        if (!error.message.includes('timeout') && !error.message.includes('404')) {
+          console.warn(`❌ Error getting enforcement for ${term}:`, error.message);
+        }
+      }
+    }
+  } catch (error) {
+    // Silent fail for enforcement to prevent blocking
+  }
+}
+
+
+
+// Helper function for recall importance
+function getRecallImportanceFixed(classification) {
+  if (!classification) return 'medium';
+  
+  const classStr = classification.toLowerCase();
+  if (classStr.includes('class i')) return 'critical';
+  if (classStr.includes('class ii')) return 'high';
+  if (classStr.includes('class iii')) return 'medium';
+  return 'medium';
+}
+
+// FIXED: Adverse events with proper grouping
+async function getAdverseEventsDataForTimelineFixed(compound, timeline) {
+  try {
+    // Only search main compound name
+    const term = compound.name;
+    
+    try {
+      const searchQuery = `search=patient.drug.medicinalproduct:"${term}"`;
+      const url = `https://api.fda.gov/drug/event.json?${searchQuery}&limit=50`; // Reduced limit
+      
+      const response = await axios.get(url, { timeout: 8000 }); // Shorter timeout
+      
+      if (response.data?.results?.length > 0) {
+        console.log(`⚠️ Found ${response.data.results.length} adverse events for ${term}`);
+        
+        // Quick grouping by year
+        const eventsByYear = {};
+        
+        response.data.results.slice(0, 30).forEach(event => { // Only process first 30
+          if (event.receiptdate) {
+            const parsedDate = parseAndValidateDateFixed(event.receiptdate);
+            if (parsedDate) {
+              const year = new Date(parsedDate).getFullYear();
+              
+              if (!eventsByYear[year]) {
+                eventsByYear[year] = { totalCount: 0, seriousCount: 0, deathCount: 0 };
+              }
+              
+              eventsByYear[year].totalCount++;
+              if (event.serious) eventsByYear[year].seriousCount++;
+              if (event.seriousnessdeaths) eventsByYear[year].deathCount++;
+            }
+          }
+        });
+
+        // Only add the most significant years
+        Object.entries(eventsByYear).forEach(([year, data]) => {
+          if (data.seriousCount > 0 && parseInt(year) >= 2015) { // Only recent significant events
+            timeline.push({
+              date: `${year}-06-30`,
+              type: 'adverse_event',
+              category: 'Adverse Events',
+              title: `${data.totalCount} Adverse Event Reports (${year})`,
+              description: `${data.seriousCount} serious events${data.deathCount > 0 ? `, ${data.deathCount} deaths` : ''} reported`,
+              details: {
+                year: year,
+                totalReports: data.totalCount,
+                seriousReports: data.seriousCount,
+                deathReports: data.deathCount
+              },
+              source: 'event',
+              importance: data.deathCount > 0 ? 'critical' : (data.seriousCount > 5 ? 'high' : 'medium')
+            });
+          }
+        });
+      }
+    } catch (error) {
+      // Silent fail for adverse events to prevent blocking
+      if (!error.message.includes('timeout') && !error.message.includes('aborted')) {
+        console.warn(`❌ Error getting adverse events for ${term}:`, error.message);
+      }
+    }
+  } catch (error) {
+    // Silent fail
+  }
+}
+// FIXED: Enhanced label changes with better filtering
+async function getLabelChangesDataForTimelineFixed(compound, timeline) {
+  try {
+    // Search by application number first (most accurate)
+    for (const appNumber of compound.applicationNumbers.slice(0, 2)) {
+      try {
+        const searchQuery = `search=openfda.application_number:"${appNumber}"`;
+        const url = `https://api.fda.gov/drug/label.json?${searchQuery}&limit=20`;
+        
+        const response = await axios.get(url, { timeout: 10000 });
+        
+        if (response.data?.results?.length > 0) {
+          console.log(`Found ${response.data.results.length} labels for app ${appNumber}`);
+          
+          // Only process recent or significant label changes
+          const significantLabels = response.data.results.filter(label => {
+            const hasSignificantContent = label.boxed_warning || 
+                                        label.warnings || 
+                                        label.contraindications ||
+                                        (label.effective_time && 
+                                         new Date(parseAndValidateDate(label.effective_time) || 0) > new Date('2015-01-01'));
+            return hasSignificantContent;
+          });
+
+          significantLabels.slice(0, 3).forEach(label => {
+            if (label.effective_time) {
+              const parsedDate = parseAndValidateDate(label.effective_time);
+              if (parsedDate) {
+                const hasBoxedWarning = !!label.boxed_warning;
+                const hasWarnings = !!label.warnings;
+                
+                timeline.push({
+                  date: parsedDate,
+                  type: 'label_change',
+                  category: 'Label Update',
+                  title: hasBoxedWarning ? 'Critical Label Update - Boxed Warning' : 'Significant Label Update',
+                  description: `Important safety labeling ${hasBoxedWarning ? 'with boxed warning' : 'revision'}`,
+                  details: {
+                    hasBoxedWarning: hasBoxedWarning,
+                    hasWarnings: hasWarnings,
+                    hasContraindications: !!label.contraindications,
+                    manufacturer: label.openfda?.manufacturer_name?.[0],
+                    applicationNumber: appNumber,
+                    originalEffectiveTime: label.effective_time
+                  },
+                  source: 'label',
+                  importance: hasBoxedWarning ? 'critical' : 'medium'
+                });
+              }
+            }
+          });
+          break; // Stop after first successful search
+        }
+      } catch (error) {
+        if (!error.message.includes('404')) {
+          console.warn(`Error getting labels for app ${appNumber}:`, error.message);
+        }
+      }
+    }
+  } catch (error) {
+    console.warn('Error in label changes extraction:', error.message);
+  }
+}
+
+// Get enforcement data using smart search
+async function getEnforcementDataForTimeline(compound, applicationNumbers, timeline) {
+  try {
+    // Search by product description (most likely to work)
+    const searchTerms = [compound.name, ...compound.brandNames, ...compound.genericNames].filter(term => term);
+    
+    for (const term of searchTerms.slice(0, 2)) { // Limit to avoid too many requests
+      try {
+        const searchQuery = `search=product_description:"${term}"`;
+        const url = `https://api.fda.gov/drug/enforcement.json?${searchQuery}&limit=20`;
+        const response = await axios.get(url, { timeout: 10000 });
+        
+        if (response.data?.results?.length > 0) {
+          response.data.results.forEach(item => {
+            if (item.recall_initiation_date) {
+              timeline.push({
+                date: item.recall_initiation_date,
+                type: 'recall',
+                category: 'Recall/Enforcement',
+                title: `Product Recall Initiated`,
+                description: `Recall of ${compound.name} - ${item.reason_for_recall}`,
+                details: {
+                  recallNumber: item.recall_number,
+                  reasonForRecall: item.reason_for_recall,
+                  productDescription: item.product_description,
+                  recallingFirm: item.recalling_firm,
+                  classification: item.classification,
+                  status: item.status
+                },
+                source: 'enforcement',
+                importance: 'high'
+              });
+            }
+          });
+          break; // Stop after first successful search
+        }
+      } catch (error) {
+        // Enforcement endpoint often returns 404, which is normal
+        console.log(`No enforcement data found for ${term}`);
+      }
+    }
+  } catch (error) {
+    console.warn('Error getting enforcement data:', error.message);
+  }
+}
+
+// Get adverse events data (grouped to reduce clutter)
+async function getAdverseEventsDataForTimeline(compound, timeline) {
+  try {
+    const searchTerms = [compound.name].slice(0, 1); // Just use main name
+    
+    for (const term of searchTerms) {
+      try {
+        const searchQuery = `search=patient.drug.medicinalproduct:"${term}"`;
+        const url = `https://api.fda.gov/drug/event.json?${searchQuery}&limit=100`;
+        const response = await axios.get(url, { timeout: 10000 });
+        
+        if (response.data?.results?.length > 0) {
+          // Group events by year to reduce clutter
+          const eventsByYear = {};
+          response.data.results.forEach(item => {
+            if (item.receiptdate) {
+              const year = item.receiptdate.substring(0, 4);
+              if (!eventsByYear[year]) {
+                eventsByYear[year] = { events: [], seriousCount: 0, totalCount: 0 };
+              }
+              eventsByYear[year].events.push(item);
+              eventsByYear[year].totalCount++;
+              if (item.serious) eventsByYear[year].seriousCount++;
+            }
+          });
+
+          // Only add significant years (years with serious events or high counts)
+          Object.entries(eventsByYear).forEach(([year, yearData]) => {
+            if (yearData.seriousCount > 0 || yearData.totalCount > 10) {
+              const reactions = yearData.events
+                .flatMap(event => event.patient?.reaction || [])
+                .map(reaction => reaction.reactionmeddrapt)
+                .filter(Boolean)
+                .slice(0, 5); // Top 5 reactions
+
+              timeline.push({
+                date: `${year}-01-01`,
+                type: 'adverse_event',
+                category: 'Adverse Events',
+                title: `${yearData.totalCount} Adverse Event Report(s) in ${year}`,
+                description: `${yearData.seriousCount} serious events reported for ${compound.name}`,
+                details: {
+                  year: year,
+                  totalReports: yearData.totalCount,
+                  seriousReports: yearData.seriousCount,
+                  topReactions: reactions
+                },
+                source: 'event',
+                importance: yearData.seriousCount > 5 ? 'high' : 'medium'
+              });
+            }
+          });
+          break; // Stop after first successful search
+        }
+      } catch (error) {
+        console.log(`No adverse events found for ${term}`);
+      }
+    }
+  } catch (error) {
+    console.warn('Error getting adverse events data:', error.message);
+  }
+}
+
+// Get label changes data (only significant ones)
+async function getLabelChangesDataForTimeline(compound, applicationNumbers, timeline) {
+  try {
+    // Search by application number first (most accurate)
+    for (const appNumber of applicationNumbers.slice(0, 2)) {
+      try {
+        const searchQuery = `search=openfda.application_number:"${appNumber}"`;
+        const url = `https://api.fda.gov/drug/label.json?${searchQuery}&limit=10`;
+        const response = await axios.get(url, { timeout: 10000 });
+        
+        if (response.data?.results?.length > 0) {
+          // Only add recent label changes or those with significant content
+          response.data.results.slice(0, 3).forEach((item, index) => {
+            if (item.effective_time && index < 3) { // Limit to 3 most recent
+              const hasSignificantContent = item.boxed_warning || item.warnings || 
+                                          (item.effective_time && new Date(item.effective_time) > new Date('2020-01-01'));
+              
+              if (hasSignificantContent) {
+                timeline.push({
+                  date: item.effective_time,
+                  type: 'label_change',
+                  category: 'Label Update',
+                  title: 'Significant Label Update',
+                  description: `Important label revision for ${compound.name}`,
+                  details: {
+                    hasBoxedWarning: !!item.boxed_warning,
+                    hasWarnings: !!item.warnings,
+                    manufacturer: item.openfda?.manufacturer_name?.[0],
+                    applicationNumber: appNumber
+                  },
+                  source: 'label',
+                  importance: item.boxed_warning ? 'high' : 'medium'
+                });
+              }
+            }
+          });
+          break; // Stop after first successful search
+        }
+      } catch (error) {
+        console.log(`No label data found for application ${appNumber}`);
+      }
+    }
+  } catch (error) {
+    console.warn('Error getting label changes data:', error.message);
+  }
+}
+
+// Remove duplicate events
+function removeDuplicateEvents(timeline) {
+  const seen = new Set();
+  return timeline.filter(event => {
+    const key = `${event.date}-${event.type}-${event.title}`;
+    if (seen.has(key)) {
+      return false;
+    }
+    seen.add(key);
+    return true;
+  });
+}
+
+// FIXED: Helper function to generate timeline summary
+function generateTimelineSummaryDataFixed(timelines) {
+  const summary = {
+    totalEvents: 0,
+    totalApprovals: 0,
+    totalRecalls: 0,
+    totalLabelChanges: 0,
+    totalAdverseEvents: 0,
+    totalSubmissions: 0,
+    oldestEvent: null,
+    newestEvent: null,
+    compoundsSummary: {}
+  };
+
+  let allDates = [];
+
+  Object.entries(timelines).forEach(([compoundName, data]) => {
+    const timeline = data.timeline;
+    summary.totalEvents += timeline.length;
+    
+    const compoundSummary = {
+      totalEvents: timeline.length,
+      approvals: timeline.filter(e => e.type === 'approval').length,
+      submissions: timeline.filter(e => e.type === 'submission').length,
+      recalls: timeline.filter(e => e.type === 'recall').length,
+      labelChanges: timeline.filter(e => e.type === 'label_change').length,
+      adverseEvents: timeline.filter(e => e.type === 'adverse_event').length,
+      firstEvent: timeline[0]?.date || null,
+      lastEvent: timeline[timeline.length - 1]?.date || null
+    };
+
+    summary.totalApprovals += compoundSummary.approvals;
+    summary.totalSubmissions += compoundSummary.submissions;
+    summary.totalRecalls += compoundSummary.recalls;
+    summary.totalLabelChanges += compoundSummary.labelChanges;
+    summary.totalAdverseEvents += compoundSummary.adverseEvents;
+    
+    summary.compoundsSummary[compoundName] = compoundSummary;
+    
+    // Collect all dates
+    timeline.forEach(event => {
+      if (event.date && event.date !== 'Invalid Date') {
+        allDates.push(event.date);
+      }
+    });
+  });
+
+  // Find oldest and newest events
+  if (allDates.length > 0) {
+    allDates.sort();
+    summary.oldestEvent = allDates[0];
+    summary.newestEvent = allDates[allDates.length - 1];
+  }
+
+  return summary;
+}
+
+  
 // Catch-all route to serve the SPA
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));

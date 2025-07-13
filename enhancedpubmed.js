@@ -3,6 +3,63 @@ const fetch = require('node-fetch');
 const xml2js = require('xml2js');
 const axios = require('axios');
 
+
+
+/**
+ * Rate limiter to prevent API overload
+ */
+class PubMedRateLimiter {
+  constructor() {
+    this.queue = [];
+    this.processing = false;
+    this.lastRequestTime = 0;
+    this.minDelay = 1000; // 1 second between requests
+  }
+
+  async executeRequest(requestFunction) {
+    return new Promise((resolve, reject) => {
+      this.queue.push({ requestFunction, resolve, reject });
+      this.processQueue();
+    });
+  }
+
+  async processQueue() {
+    if (this.processing || this.queue.length === 0) {
+      return;
+    }
+
+    this.processing = true;
+
+    while (this.queue.length > 0) {
+      const { requestFunction, resolve, reject } = this.queue.shift();
+      
+      try {
+        // Ensure minimum delay between requests
+        const now = Date.now();
+        const timeSinceLastRequest = now - this.lastRequestTime;
+        
+        if (timeSinceLastRequest < this.minDelay) {
+          const delay = this.minDelay - timeSinceLastRequest;
+          console.log(`Rate limiting: waiting ${delay}ms before next request`);
+          await new Promise(r => setTimeout(r, delay));
+        }
+
+        this.lastRequestTime = Date.now();
+        const result = await requestFunction();
+        resolve(result);
+        
+      } catch (error) {
+        reject(error);
+      }
+    }
+
+    this.processing = false;
+  }
+}
+
+// Create global rate limiter instance
+const rateLimiter = new PubMedRateLimiter();
+
 /**
  * Main handler for PubMed search requests
  * @param {Object} req - Express request object
@@ -1642,4 +1699,1247 @@ module.exports = {
   handlePubMedSearch,
   generateAISummary,
 handleCustomPubMedSearch
+};
+
+// Enhanced PubMed Drug Analysis Backend - Advanced Functions
+// Add these functions to your existing enhancedpubmed.js file
+
+
+/**
+ * Search for pivotal trials for a specific drug
+ * @param {string} drugName - The drug name to search
+ * @param {string} apiKey - NCBI API key
+ * @returns {Object} - Search results for pivotal trials
+ */
+async function searchPivotalTrials(drugName, apiKey = '') {
+  const baseUrl = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils';
+  const parser = new xml2js.Parser({ explicitArray: false });
+  
+  const searchQueries = [
+    `"${drugName}" AND "pivotal trial"`,
+    `"${drugName}" AND "pivotal study"`,
+    `"${drugName}" AND "phase III" AND "pivotal"`,
+    `"${drugName}" AND "registration trial"`,
+    `"${drugName}" AND "regulatory trial"`,
+    `"${drugName}" AND "FDA approval" AND "phase III"`,
+    `"${drugName}" AND "EMA approval" AND "phase III"`
+  ];
+  
+  console.log(`🔍 Searching for pivotal trials for: ${drugName}`);
+  
+  try {
+    const results = await Promise.all(
+      searchQueries.map(query => performAdvancedPubMedSearch(baseUrl, query, apiKey, parser, 'pivotal'))
+    );
+    
+    // Combine and deduplicate results
+    const allArticles = new Map();
+    results.forEach(result => {
+      result.articles.forEach(article => {
+        if (!allArticles.has(article.pmid)) {
+          allArticles.set(article.pmid, {
+            ...article,
+            searchContext: 'pivotal_trial',
+            relevanceScore: calculatePivotalRelevance(article)
+          });
+        }
+      });
+    });
+    
+    const sortedArticles = Array.from(allArticles.values())
+      .sort((a, b) => b.relevanceScore - a.relevanceScore);
+    
+    return {
+      articles: sortedArticles,
+      totalResults: sortedArticles.length,
+      searchType: 'pivotal_trials',
+      queries: searchQueries
+    };
+    
+  } catch (error) {
+    console.error('Error searching pivotal trials:', error);
+    return { articles: [], totalResults: 0, error: error.message };
+  }
+}
+
+/**
+ * Search for FDA approval pathways and designations
+ * @param {string} drugName - The drug name to search
+ * @param {string} apiKey - NCBI API key
+ * @returns {Object} - Search results for approval pathways
+ */
+async function searchApprovalPathways(drugName, apiKey = '') {
+  const baseUrl = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils';
+  const parser = new xml2js.Parser({ explicitArray: false });
+  
+  const searchQueries = [
+    `"${drugName}" AND "FDA approval"`,
+    `"${drugName}" AND "accelerated approval"`,
+    `"${drugName}" AND "breakthrough therapy"`,
+    `"${drugName}" AND "fast track"`,
+    `"${drugName}" AND "orphan drug"`,
+    `"${drugName}" AND "priority review"`,
+    `"${drugName}" AND "EMA approval"`,
+    `"${drugName}" AND "regulatory pathway"`,
+    `"${drugName}" AND "conditional approval"`,
+    `"${drugName}" AND "REMS" AND "FDA"`
+  ];
+  
+  console.log(`🛣️ Searching for approval pathways for: ${drugName}`);
+  
+  try {
+    const results = await Promise.all(
+      searchQueries.map(query => performAdvancedPubMedSearch(baseUrl, query, apiKey, parser, 'approval'))
+    );
+    
+    const allArticles = new Map();
+    results.forEach(result => {
+      result.articles.forEach(article => {
+        if (!allArticles.has(article.pmid)) {
+          allArticles.set(article.pmid, {
+            ...article,
+            searchContext: 'approval_pathway',
+            relevanceScore: calculateApprovalRelevance(article)
+          });
+        }
+      });
+    });
+    
+    const sortedArticles = Array.from(allArticles.values())
+      .sort((a, b) => b.relevanceScore - a.relevanceScore);
+    
+    return {
+      articles: sortedArticles,
+      totalResults: sortedArticles.length,
+      searchType: 'approval_pathways',
+      queries: searchQueries
+    };
+    
+  } catch (error) {
+    console.error('Error searching approval pathways:', error);
+    return { articles: [], totalResults: 0, error: error.message };
+  }
+}
+
+/**
+ * Search for real-world evidence studies
+ * @param {string} drugName - The drug name to search
+ * @param {string} apiKey - NCBI API key
+ * @returns {Object} - Search results for real-world evidence
+ */
+async function searchRealWorldEvidence(drugName, apiKey = '') {
+  const baseUrl = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils';
+  const parser = new xml2js.Parser({ explicitArray: false });
+  
+  const searchQueries = [
+    `"${drugName}" AND "real-world evidence"`,
+    `"${drugName}" AND "real world data"`,
+    `"${drugName}" AND "RWE"`,
+    `"${drugName}" AND "registry study"`,
+    `"${drugName}" AND "claims data"`,
+    `"${drugName}" AND "EHR" AND "electronic health"`,
+    `"${drugName}" AND "observational study"`,
+    `"${drugName}" AND "post-market surveillance"`,
+    `"${drugName}" AND "effectiveness study"`,
+    `"${drugName}" AND "real-world effectiveness"`
+  ];
+  
+  console.log(`🌍 Searching for real-world evidence for: ${drugName}`);
+  
+  try {
+    const results = await Promise.all(
+      searchQueries.map(query => performAdvancedPubMedSearch(baseUrl, query, apiKey, parser, 'rwe'))
+    );
+    
+    const allArticles = new Map();
+    results.forEach(result => {
+      result.articles.forEach(article => {
+        if (!allArticles.has(article.pmid)) {
+          allArticles.set(article.pmid, {
+            ...article,
+            searchContext: 'real_world_evidence',
+            relevanceScore: calculateRWERelevance(article)
+          });
+        }
+      });
+    });
+    
+    const sortedArticles = Array.from(allArticles.values())
+      .sort((a, b) => b.relevanceScore - a.relevanceScore);
+    
+    return {
+      articles: sortedArticles,
+      totalResults: sortedArticles.length,
+      searchType: 'real_world_evidence',
+      queries: searchQueries
+    };
+    
+  } catch (error) {
+    console.error('Error searching real-world evidence:', error);
+    return { articles: [], totalResults: 0, error: error.message };
+  }
+}
+
+/**
+ * Search for failed trial recovery strategies
+ * @param {string} drugName - The drug name to search
+ * @param {string} apiKey - NCBI API key
+ * @returns {Object} - Search results for failed trial recovery
+ */
+async function searchFailedTrialRecovery(drugName, apiKey = '') {
+  const baseUrl = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils';
+  const parser = new xml2js.Parser({ explicitArray: false });
+  
+  const searchQueries = [
+    `"${drugName}" AND "post hoc analysis"`,
+    `"${drugName}" AND "failed trial"`,
+    `"${drugName}" AND "secondary endpoint"`,
+    `"${drugName}" AND "subgroup analysis"`,
+    `"${drugName}" AND "negative trial"`,
+    `"${drugName}" AND "rescue analysis"`,
+    `"${drugName}" AND "alternative endpoint"`,
+    `"${drugName}" AND "biomarker enrichment"`,
+    `"${drugName}" AND "patient selection"`,
+    `"${drugName}" AND "trial redesign"`
+  ];
+  
+  console.log(`🔄 Searching for failed trial recovery for: ${drugName}`);
+  
+  try {
+    const results = await Promise.all(
+      searchQueries.map(query => performAdvancedPubMedSearch(baseUrl, query, apiKey, parser, 'recovery'))
+    );
+    
+    const allArticles = new Map();
+    results.forEach(result => {
+      result.articles.forEach(article => {
+        if (!allArticles.has(article.pmid)) {
+          allArticles.set(article.pmid, {
+            ...article,
+            searchContext: 'failed_trial_recovery',
+            relevanceScore: calculateRecoveryRelevance(article)
+          });
+        }
+      });
+    });
+    
+    const sortedArticles = Array.from(allArticles.values())
+      .sort((a, b) => b.relevanceScore - a.relevanceScore);
+    
+    return {
+      articles: sortedArticles,
+      totalResults: sortedArticles.length,
+      searchType: 'failed_trial_recovery',
+      queries: searchQueries
+    };
+    
+  } catch (error) {
+    console.error('Error searching failed trial recovery:', error);
+    return { articles: [], totalResults: 0, error: error.message };
+  }
+}
+
+/**
+ * Search for drug repurposing attempts
+ * @param {string} drugName - The drug name to search
+ * @param {string} apiKey - NCBI API key
+ * @returns {Object} - Search results for drug repurposing
+ */
+async function searchDrugRepurposing(drugName, apiKey = '') {
+  const baseUrl = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils';
+  const parser = new xml2js.Parser({ explicitArray: false });
+  
+  const searchQueries = [
+    `"${drugName}" AND "new indication"`,
+    `"${drugName}" AND "repurposing"`,
+    `"${drugName}" AND "repositioning"`,
+    `"${drugName}" AND "off-label"`,
+    `"${drugName}" AND "alternative indication"`,
+    `"${drugName}" AND "expanded indication"`,
+    `"${drugName}" AND "label expansion"`,
+    `"${drugName}" AND "investigational use"`,
+    `"${drugName}" AND "compassionate use"`,
+    `"${drugName}" AND "orphan indication"`
+  ];
+  
+  console.log(`🧭 Searching for drug repurposing for: ${drugName}`);
+  
+  try {
+    const results = await Promise.all(
+      searchQueries.map(query => performAdvancedPubMedSearch(baseUrl, query, apiKey, parser, 'repurposing'))
+    );
+    
+    const allArticles = new Map();
+    results.forEach(result => {
+      result.articles.forEach(article => {
+        if (!allArticles.has(article.pmid)) {
+          allArticles.set(article.pmid, {
+            ...article,
+            searchContext: 'drug_repurposing',
+            relevanceScore: calculateRepurposingRelevance(article)
+          });
+        }
+      });
+    });
+    
+    const sortedArticles = Array.from(allArticles.values())
+      .sort((a, b) => b.relevanceScore - a.relevanceScore);
+    
+    return {
+      articles: sortedArticles,
+      totalResults: sortedArticles.length,
+      searchType: 'drug_repurposing',
+      queries: searchQueries
+    };
+    
+  } catch (error) {
+    console.error('Error searching drug repurposing:', error);
+    return { articles: [], totalResults: 0, error: error.message };
+  }
+}
+
+/**
+ * Rate-limited PubMed search function using your existing working approach
+ * @param {string} baseUrl - PubMed API base URL
+ * @param {string} query - Search query
+ * @param {string} apiKey - NCBI API key
+ * @param {Object} parser - XML parser
+ * @param {string} searchType - Type of search for debugging
+ * @returns {Object} - Search results
+ */
+async function performAdvancedPubMedSearch(baseUrl, query, apiKey, parser, searchType) {
+  const retmax = 10; // Reduced from 20 to minimize load
+  const retstart = 0;
+  
+  // Use rate limiter to execute the request
+  return await rateLimiter.executeRequest(async () => {
+    console.log(`[${searchType}] Executing rate-limited search: ${query.substring(0, 50)}...`);
+    
+    try {
+      // Step 1: Search for IDs with timeout and retry logic
+      const searchUrl = `${baseUrl}/esearch.fcgi?db=pubmed&term=${encodeURIComponent(query)}&retmax=${retmax}&retstart=${retstart}&usehistory=y${apiKey ? `&api_key=${apiKey}` : ''}`;
+      
+      let searchResponse;
+      let retries = 0;
+      const maxRetries = 3;
+      
+      while (retries < maxRetries) {
+        try {
+          searchResponse = await fetch(searchUrl, {
+            timeout: 15000, // Reduced timeout
+            headers: {
+              'User-Agent': 'DrugAnalysis-Tool/1.0'
+            }
+          });
+          
+          if (searchResponse.ok) {
+            break; // Success, exit retry loop
+          } else if (searchResponse.status === 429) {
+            // Rate limited - wait longer before retry
+            const waitTime = Math.pow(2, retries) * 2000; // Exponential backoff: 2s, 4s, 8s
+            console.log(`[${searchType}] Rate limited, waiting ${waitTime}ms before retry ${retries + 1}/${maxRetries}`);
+            await new Promise(resolve => setTimeout(resolve, waitTime));
+            retries++;
+          } else {
+            throw new Error(`Search failed with status: ${searchResponse.status}`);
+          }
+        } catch (error) {
+          retries++;
+          if (retries >= maxRetries) {
+            throw error;
+          }
+          console.log(`[${searchType}] Search attempt ${retries} failed, retrying...`);
+          await new Promise(resolve => setTimeout(resolve, 1000 * retries));
+        }
+      }
+      
+      if (!searchResponse || !searchResponse.ok) {
+        throw new Error(`Search failed after ${maxRetries} retries`);
+      }
+      
+      const searchData = await searchResponse.text();
+      const searchResult = await parser.parseStringPromise(searchData);
+      
+      // Extract IDs
+      let idList = [];
+      if (searchResult.eSearchResult && searchResult.eSearchResult.IdList && searchResult.eSearchResult.IdList.Id) {
+        idList = Array.isArray(searchResult.eSearchResult.IdList.Id) 
+          ? searchResult.eSearchResult.IdList.Id 
+          : [searchResult.eSearchResult.IdList.Id];
+      }
+      
+      if (idList.length === 0) {
+        console.log(`[${searchType}] No results found for query: ${query.substring(0, 50)}...`);
+        return { articles: [], totalResults: 0, query, searchType };
+      }
+      
+      console.log(`[${searchType}] Found ${idList.length} articles, fetching details...`);
+      
+      // Step 2: Fetch article details with rate limiting
+      await new Promise(resolve => setTimeout(resolve, 500)); // Brief pause between search and fetch
+      
+      const fetchUrl = `${baseUrl}/efetch.fcgi?db=pubmed&id=${idList.join(',')}&retmode=xml${apiKey ? `&api_key=${apiKey}` : ''}`;
+      
+      let fetchResponse;
+      retries = 0;
+      
+      while (retries < maxRetries) {
+        try {
+          fetchResponse = await fetch(fetchUrl, {
+            timeout: 20000, // Longer timeout for fetch
+            headers: {
+              'User-Agent': 'DrugAnalysis-Tool/1.0'
+            }
+          });
+          
+          if (fetchResponse.ok) {
+            break;
+          } else if (fetchResponse.status === 429) {
+            const waitTime = Math.pow(2, retries) * 3000; // Longer wait for fetch
+            console.log(`[${searchType}] Fetch rate limited, waiting ${waitTime}ms before retry ${retries + 1}/${maxRetries}`);
+            await new Promise(resolve => setTimeout(resolve, waitTime));
+            retries++;
+          } else {
+            throw new Error(`Fetch failed with status: ${fetchResponse.status}`);
+          }
+        } catch (error) {
+          retries++;
+          if (retries >= maxRetries) {
+            throw error;
+          }
+          console.log(`[${searchType}] Fetch attempt ${retries} failed, retrying...`);
+          await new Promise(resolve => setTimeout(resolve, 1500 * retries));
+        }
+      }
+      
+      if (!fetchResponse || !fetchResponse.ok) {
+        throw new Error(`Fetch failed after ${maxRetries} retries`);
+      }
+      
+      const fetchData = await fetchResponse.text();
+      const fetchResult = await parser.parseStringPromise(fetchData);
+      
+      // Parse articles using your existing function
+      const articles = [];
+      if (fetchResult.PubmedArticleSet && fetchResult.PubmedArticleSet.PubmedArticle) {
+        const articleList = Array.isArray(fetchResult.PubmedArticleSet.PubmedArticle) 
+          ? fetchResult.PubmedArticleSet.PubmedArticle 
+          : [fetchResult.PubmedArticleSet.PubmedArticle];
+        
+        articleList.forEach(article => {
+          const parsedArticle = parseAdvancedArticle(article);
+          if (parsedArticle) {
+            articles.push(parsedArticle);
+          }
+        });
+      }
+      
+      console.log(`[${searchType}] Successfully parsed ${articles.length} articles`);
+      
+      return {
+        articles,
+        totalResults: articles.length,
+        query,
+        searchType
+      };
+      
+    } catch (error) {
+      console.error(`[${searchType}] Search error:`, error.message);
+      return { 
+        articles: [], 
+        totalResults: 0, 
+        error: error.message, 
+        query,
+        searchType 
+      };
+    }
+  });
+}
+/**
+ * Parse advanced article with enhanced fields
+ * @param {Object} article - Raw article data from PubMed
+ * @returns {Object} - Parsed article object
+ */
+function parseAdvancedArticle(article) {
+  try {
+    const medlineCitation = article.MedlineCitation;
+    const pubmedData = article.PubmedData;
+    
+    if (!medlineCitation || !medlineCitation.Article) {
+      return null;
+    }
+    
+    const articleData = medlineCitation.Article;
+    
+    // Extract PMID
+    const pmid = medlineCitation.PMID._ || medlineCitation.PMID;
+    
+    // Extract title
+    const title = articleData.ArticleTitle || 'No title available';
+    
+    // Extract authors
+    const authors = [];
+    if (articleData.AuthorList && articleData.AuthorList.Author) {
+      const authorList = Array.isArray(articleData.AuthorList.Author) 
+        ? articleData.AuthorList.Author 
+        : [articleData.AuthorList.Author];
+      
+      authorList.forEach(author => {
+        if (author.LastName && author.ForeName) {
+          authors.push(`${author.LastName}, ${author.ForeName}`);
+        } else if (author.CollectiveName) {
+          authors.push(author.CollectiveName);
+        }
+      });
+    }
+    
+    // Extract journal and date
+    const journal = articleData.Journal ? articleData.Journal.Title || 'Unknown journal' : 'Unknown journal';
+    const pubDate = extractPublicationDate(articleData);
+    
+    // Extract abstract
+    let abstract = 'No abstract available';
+    if (articleData.Abstract && articleData.Abstract.AbstractText) {
+      const abstractText = Array.isArray(articleData.Abstract.AbstractText) 
+        ? articleData.Abstract.AbstractText.map(text => text._ || text).join(' ') 
+        : (articleData.Abstract.AbstractText._ || articleData.Abstract.AbstractText);
+      abstract = abstractText;
+    }
+    
+    // Extract keywords and MeSH terms
+    const keywords = [];
+    const meshTerms = [];
+    
+    if (medlineCitation.KeywordList && medlineCitation.KeywordList.Keyword) {
+      const keywordList = Array.isArray(medlineCitation.KeywordList.Keyword) 
+        ? medlineCitation.KeywordList.Keyword 
+        : [medlineCitation.KeywordList.Keyword];
+      keywordList.forEach(keyword => {
+        keywords.push(keyword._ || keyword);
+      });
+    }
+    
+    if (medlineCitation.MeshHeadingList && medlineCitation.MeshHeadingList.MeshHeading) {
+      const meshList = Array.isArray(medlineCitation.MeshHeadingList.MeshHeading) 
+        ? medlineCitation.MeshHeadingList.MeshHeading 
+        : [medlineCitation.MeshHeadingList.MeshHeading];
+      meshList.forEach(mesh => {
+        if (mesh.DescriptorName) {
+          meshTerms.push(mesh.DescriptorName._ || mesh.DescriptorName);
+        }
+      });
+    }
+    
+    // Extract DOI and full text URL
+    let doi = '';
+    let fullTextUrl = '';
+    
+    if (articleData.ELocationID) {
+      const elocations = Array.isArray(articleData.ELocationID) 
+        ? articleData.ELocationID 
+        : [articleData.ELocationID];
+      
+      const doiLocation = elocations.find(loc => loc.$ && loc.$.EIdType === 'doi');
+      if (doiLocation) {
+        doi = doiLocation._ || doiLocation;
+      }
+    }
+    
+    if (pubmedData && pubmedData.ArticleIdList && pubmedData.ArticleIdList.ArticleId) {
+      const articleIds = Array.isArray(pubmedData.ArticleIdList.ArticleId) 
+        ? pubmedData.ArticleIdList.ArticleId 
+        : [pubmedData.ArticleIdList.ArticleId];
+      
+      const pmcId = articleIds.find(id => id.$ && id.$.IdType === 'pmc');
+      if (pmcId) {
+        fullTextUrl = `https://www.ncbi.nlm.nih.gov/pmc/articles/${pmcId._}/`;
+      }
+    }
+    
+    // Extract publication types
+    const publicationTypes = [];
+    if (articleData.PublicationTypeList && articleData.PublicationTypeList.PublicationType) {
+      const typeList = Array.isArray(articleData.PublicationTypeList.PublicationType) 
+        ? articleData.PublicationTypeList.PublicationType 
+        : [articleData.PublicationTypeList.PublicationType];
+      typeList.forEach(type => {
+        publicationTypes.push(type._ || type);
+      });
+    }
+    
+    return {
+      pmid,
+      title,
+      authors,
+      journal,
+      pubDate,
+      abstract,
+      keywords,
+      meshTerms,
+      publicationTypes,
+      doi,
+      fullTextUrl,
+      pubmedUrl: `https://pubmed.ncbi.nlm.nih.gov/${pmid}/`
+    };
+    
+  } catch (error) {
+    console.error('Error parsing article:', error);
+    return null;
+  }
+}
+
+/**
+ * Extract publication date from article data
+ * @param {Object} articleData - Article data object
+ * @returns {string} - Formatted publication date
+ */
+function extractPublicationDate(articleData) {
+  try {
+    if (articleData.Journal && articleData.Journal.JournalIssue && articleData.Journal.JournalIssue.PubDate) {
+      const pubDate = articleData.Journal.JournalIssue.PubDate;
+      
+      if (pubDate.Year) {
+        const year = pubDate.Year;
+        const month = pubDate.Month || '';
+        const day = pubDate.Day || '';
+        
+        return `${year}${month ? ' ' + month : ''}${day ? ' ' + day : ''}`;
+      }
+    }
+    
+    return 'Unknown date';
+  } catch (error) {
+    return 'Unknown date';
+  }
+}
+
+/**
+ * Calculate relevance score for pivotal trial articles
+ * @param {Object} article - Article object
+ * @returns {number} - Relevance score
+ */
+function calculatePivotalRelevance(article) {
+  let score = 0;
+  
+  const titleLower = article.title.toLowerCase();
+  const abstractLower = article.abstract.toLowerCase();
+  const combined = titleLower + ' ' + abstractLower;
+  
+  // High value terms
+  if (combined.includes('pivotal')) score += 10;
+  if (combined.includes('phase iii')) score += 8;
+  if (combined.includes('registration')) score += 7;
+  if (combined.includes('fda approval')) score += 9;
+  if (combined.includes('regulatory')) score += 6;
+  
+  // Publication types
+  if (article.publicationTypes.some(type => type.toLowerCase().includes('clinical trial'))) score += 5;
+  if (article.publicationTypes.some(type => type.toLowerCase().includes('randomized'))) score += 3;
+  
+  // High-impact journals
+  const highImpactJournals = ['new england journal of medicine', 'lancet', 'jama', 'nature', 'science'];
+  if (highImpactJournals.some(journal => article.journal.toLowerCase().includes(journal))) score += 5;
+  
+  return score;
+}
+
+/**
+ * Calculate relevance score for approval pathway articles
+ * @param {Object} article - Article object
+ * @returns {number} - Relevance score
+ */
+function calculateApprovalRelevance(article) {
+  let score = 0;
+  
+  const combined = (article.title + ' ' + article.abstract).toLowerCase();
+  
+  // FDA-specific terms
+  if (combined.includes('fda approval')) score += 10;
+  if (combined.includes('accelerated approval')) score += 9;
+  if (combined.includes('breakthrough therapy')) score += 8;
+  if (combined.includes('fast track')) score += 7;
+  if (combined.includes('orphan drug')) score += 6;
+  if (combined.includes('priority review')) score += 5;
+  
+  // Regulatory terms
+  if (combined.includes('regulatory pathway')) score += 8;
+  if (combined.includes('submission')) score += 4;
+  if (combined.includes('nda') || combined.includes('bla')) score += 6;
+  
+  return score;
+}
+
+/**
+ * Calculate relevance score for real-world evidence articles
+ * @param {Object} article - Article object
+ * @returns {number} - Relevance score
+ */
+function calculateRWERelevance(article) {
+  let score = 0;
+  
+  const combined = (article.title + ' ' + article.abstract).toLowerCase();
+  
+  // RWE-specific terms
+  if (combined.includes('real-world evidence')) score += 10;
+  if (combined.includes('real world data')) score += 9;
+  if (combined.includes('rwe')) score += 8;
+  if (combined.includes('registry')) score += 7;
+  if (combined.includes('observational')) score += 6;
+  if (combined.includes('claims data')) score += 8;
+  if (combined.includes('electronic health')) score += 7;
+  
+  return score;
+}
+
+/**
+ * Calculate relevance score for failed trial recovery articles
+ * @param {Object} article - Article object
+ * @returns {number} - Relevance score
+ */
+function calculateRecoveryRelevance(article) {
+  let score = 0;
+  
+  const combined = (article.title + ' ' + article.abstract).toLowerCase();
+  
+  // Recovery-specific terms
+  if (combined.includes('post hoc')) score += 10;
+  if (combined.includes('failed trial')) score += 9;
+  if (combined.includes('secondary endpoint')) score += 8;
+  if (combined.includes('subgroup analysis')) score += 7;
+  if (combined.includes('biomarker enrichment')) score += 6;
+  if (combined.includes('rescue')) score += 5;
+  
+  return score;
+}
+
+/**
+ * Calculate relevance score for drug repurposing articles
+ * @param {Object} article - Article object
+ * @returns {number} - Relevance score
+ */
+function calculateRepurposingRelevance(article) {
+  let score = 0;
+  
+  const combined = (article.title + ' ' + article.abstract).toLowerCase();
+  
+  // Repurposing-specific terms
+  if (combined.includes('repurposing')) score += 10;
+  if (combined.includes('repositioning')) score += 9;
+  if (combined.includes('new indication')) score += 8;
+  if (combined.includes('off-label')) score += 7;
+  if (combined.includes('expanded indication')) score += 6;
+  if (combined.includes('orphan indication')) score += 5;
+  
+  return score;
+}
+
+
+async function executeComprehensiveAnalysisSequentially(drugName, apiKey) {
+  console.log(`🔄 Starting sequential comprehensive analysis for: ${drugName}`);
+  
+  const results = {
+    pivotalTrials: { articles: [], totalResults: 0, searchType: 'pivotal_trials' },
+    approvalPathways: { articles: [], totalResults: 0, searchType: 'approval_pathways' },
+    realWorldEvidence: { articles: [], totalResults: 0, searchType: 'real_world_evidence' },
+    failedTrialRecovery: { articles: [], totalResults: 0, searchType: 'failed_trial_recovery' },
+    drugRepurposing: { articles: [], totalResults: 0, searchType: 'drug_repurposing' }
+  };
+  
+  const errors = [];
+  
+  try {
+    // Execute searches sequentially to avoid rate limiting
+    console.log(`🎯 Step 1/5: Searching pivotal trials...`);
+    results.pivotalTrials = await searchPivotalTrialsSequential(drugName, apiKey);
+    
+    console.log(`✅ Step 2/5: Searching approval pathways...`);
+    results.approvalPathways = await searchApprovalPathwaysSequential(drugName, apiKey);
+    
+    console.log(`📊 Step 3/5: Searching real-world evidence...`);
+    results.realWorldEvidence = await searchRealWorldEvidenceSequential(drugName, apiKey);
+    
+    console.log(`💡 Step 4/5: Searching failed trial recovery...`);
+    results.failedTrialRecovery = await searchFailedTrialRecoverySequential(drugName, apiKey);
+    
+    console.log(`🔄 Step 5/5: Searching drug repurposing...`);
+    results.drugRepurposing = await searchDrugRepurposingSequential(drugName, apiKey);
+    
+  } catch (error) {
+    console.error('Error in sequential analysis:', error);
+    errors.push(error.message);
+  }
+  
+  // Collect errors from individual searches
+  Object.values(results).forEach(result => {
+    if (result.error) {
+      errors.push(`${result.searchType}: ${result.error}`);
+    }
+  });
+  
+  console.log(`✅ Sequential analysis complete. Errors: ${errors.length}`);
+  
+  return { results, errors };
+}
+
+/**
+ * Enhanced search for pivotal trials with drug-specific context
+ */
+async function searchPivotalTrialsSequential(drugName, apiKey) {
+  const baseUrl = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils';
+  const parser = new xml2js.Parser({ explicitArray: false });
+  
+  // Much more targeted queries focusing on actual registration trials
+  const searchQueries = [
+    `"${drugName}"[Title/Abstract] AND ("pivotal trial" OR "registration trial" OR "regulatory trial") AND ("FDA approval" OR "EMA approval" OR "marketing authorization")`,
+    `"${drugName}"[Title/Abstract] AND "phase III"[Title/Abstract] AND ("efficacy" OR "safety") AND ("approval" OR "submission" OR "regulatory")`,
+    `"${drugName}"[Title/Abstract] AND ("NDA" OR "BLA" OR "MAA") AND ("clinical trial" OR "study")`,
+    `"${drugName}"[Title/Abstract] AND ("pivotal study" OR "confirmatory trial") AND ("primary endpoint" OR "efficacy endpoint")`,
+    `"${drugName}"[MeSH Terms] AND "Clinical Trials, Phase III"[MeSH Terms] AND ("Drug Approval"[MeSH Terms] OR "Marketing Authorization"[Title/Abstract])`
+  ];
+  
+  const allArticles = new Map();
+  
+  for (const query of searchQueries) {
+    try {
+      console.log(`🎯 Pivotal search: ${query.substring(0, 60)}...`);
+      const result = await performAdvancedPubMedSearch(baseUrl, query, apiKey, parser, 'pivotal');
+      
+      result.articles.forEach(article => {
+        if (!allArticles.has(article.pmid)) {
+          // Enhanced relevance scoring for pivotal trials
+          const relevanceScore = calculateEnhancedPivotalRelevance(article, drugName);
+          if (relevanceScore > 5) { // Only include high-relevance articles
+            allArticles.set(article.pmid, {
+              ...article,
+              searchContext: 'pivotal_trial',
+              relevanceScore: relevanceScore,
+              drugFocus: calculateDrugFocus(article, drugName)
+            });
+          }
+        }
+      });
+    } catch (error) {
+      console.error(`Error in pivotal query "${query.substring(0, 40)}...":`, error.message);
+    }
+  }
+  
+  const sortedArticles = Array.from(allArticles.values())
+    .sort((a, b) => (b.relevanceScore || 0) - (a.relevanceScore || 0))
+    .slice(0, 15); // Limit to top 15 most relevant
+  
+  return {
+    articles: sortedArticles,
+    totalResults: sortedArticles.length,
+    searchType: 'pivotal_trials',
+    queries: searchQueries
+  };
+}
+
+/**
+ * Enhanced search for approval pathways with regulatory focus
+ */
+async function searchApprovalPathwaysSequential(drugName, apiKey) {
+  const baseUrl = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils';
+  const parser = new xml2js.Parser({ explicitArray: false });
+  
+  const searchQueries = [
+    `"${drugName}"[Title/Abstract] AND ("FDA approval" OR "FDA clearance" OR "marketing authorization") AND ("breakthrough therapy" OR "fast track" OR "accelerated approval" OR "orphan drug")`,
+    `"${drugName}"[Title/Abstract] AND ("regulatory pathway" OR "approval pathway" OR "regulatory strategy") AND ("FDA" OR "EMA" OR "Health Canada" OR "PMDA")`,
+    `"${drugName}"[Title/Abstract] AND ("PDUFA" OR "regulatory submission" OR "NDA" OR "BLA" OR "MAA") AND ("designation" OR "status")`,
+    `"${drugName}"[Title/Abstract] AND ("priority review" OR "REMS" OR "Risk Evaluation and Mitigation") AND ("approval" OR "regulatory")`,
+    `"${drugName}"[MeSH Terms] AND ("Drug Approval"[MeSH Terms] OR "United States Food and Drug Administration"[MeSH Terms]) AND ("regulation" OR "policy")`
+  ];
+  
+  const allArticles = new Map();
+  
+  for (const query of searchQueries) {
+    try {
+      console.log(`✅ Approval search: ${query.substring(0, 60)}...`);
+      const result = await performAdvancedPubMedSearch(baseUrl, query, apiKey, parser, 'approval');
+      
+      result.articles.forEach(article => {
+        if (!allArticles.has(article.pmid)) {
+          const relevanceScore = calculateEnhancedApprovalRelevance(article, drugName);
+          if (relevanceScore > 5) {
+            allArticles.set(article.pmid, {
+              ...article,
+              searchContext: 'approval_pathway',
+              relevanceScore: relevanceScore,
+              drugFocus: calculateDrugFocus(article, drugName)
+            });
+          }
+        }
+      });
+    } catch (error) {
+      console.error(`Error in approval query "${query.substring(0, 40)}...":`, error.message);
+    }
+  }
+  
+  const sortedArticles = Array.from(allArticles.values())
+    .sort((a, b) => (b.relevanceScore || 0) - (a.relevanceScore || 0))
+    .slice(0, 15);
+  
+  return {
+    articles: sortedArticles,
+    totalResults: sortedArticles.length,
+    searchType: 'approval_pathways',
+    queries: searchQueries
+  };
+}
+
+/**
+ * Enhanced search for real-world evidence with RWE focus
+ */
+async function searchRealWorldEvidenceSequential(drugName, apiKey) {
+  const baseUrl = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils';
+  const parser = new xml2js.Parser({ explicitArray: false });
+  
+  const searchQueries = [
+    `"${drugName}"[Title/Abstract] AND ("real-world evidence" OR "real world data" OR "RWE") AND ("regulatory" OR "FDA" OR "EMA" OR "submission")`,
+    `"${drugName}"[Title/Abstract] AND ("registry study" OR "claims database" OR "electronic health records" OR "EHR") AND ("effectiveness" OR "safety")`,
+    `"${drugName}"[Title/Abstract] AND ("observational study" OR "retrospective analysis") AND ("post-market" OR "post-marketing" OR "surveillance")`,
+    `"${drugName}"[Title/Abstract] AND ("PASS" OR "post-authorization safety study") AND ("real-world" OR "observational")`,
+    `"${drugName}"[MeSH Terms] AND ("Epidemiologic Studies"[MeSH Terms] OR "Product Surveillance, Postmarketing"[MeSH Terms]) AND ("effectiveness" OR "safety")`
+  ];
+  
+  const allArticles = new Map();
+  
+  for (const query of searchQueries) {
+    try {
+      console.log(`📊 RWE search: ${query.substring(0, 60)}...`);
+      const result = await performAdvancedPubMedSearch(baseUrl, query, apiKey, parser, 'rwe');
+      
+      result.articles.forEach(article => {
+        if (!allArticles.has(article.pmid)) {
+          const relevanceScore = calculateEnhancedRWERelevance(article, drugName);
+          if (relevanceScore > 5) {
+            allArticles.set(article.pmid, {
+              ...article,
+              searchContext: 'real_world_evidence',
+              relevanceScore: relevanceScore,
+              drugFocus: calculateDrugFocus(article, drugName)
+            });
+          }
+        }
+      });
+    } catch (error) {
+      console.error(`Error in RWE query "${query.substring(0, 40)}...":`, error.message);
+    }
+  }
+  
+  const sortedArticles = Array.from(allArticles.values())
+    .sort((a, b) => (b.relevanceScore || 0) - (a.relevanceScore || 0))
+    .slice(0, 15);
+  
+  return {
+    articles: sortedArticles,
+    totalResults: sortedArticles.length,
+    searchType: 'real_world_evidence',
+    queries: searchQueries
+  };
+}
+
+/**
+ * Enhanced search for failed trial recovery with specific failure context
+ */
+async function searchFailedTrialRecoverySequential(drugName, apiKey) {
+  const baseUrl = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils';
+  const parser = new xml2js.Parser({ explicitArray: false });
+  
+  const searchQueries = [
+    `"${drugName}"[Title/Abstract] AND ("failed trial" OR "negative trial" OR "missed endpoint") AND ("post hoc" OR "secondary analysis" OR "subgroup")`,
+    `"${drugName}"[Title/Abstract] AND ("post hoc analysis" OR "retrospective analysis") AND ("primary endpoint" OR "efficacy" OR "failed")`,
+    `"${drugName}"[Title/Abstract] AND ("biomarker enrichment" OR "patient selection" OR "responder analysis") AND ("trial" OR "study")`,
+    `"${drugName}"[Title/Abstract] AND ("rescue study" OR "salvage analysis" OR "alternative endpoint") AND ("clinical trial" OR "development")`,
+    `"${drugName}"[Title/Abstract] AND ("futility" OR "interim analysis" OR "dose modification") AND ("clinical development" OR "trial design")`
+  ];
+  
+  const allArticles = new Map();
+  
+  for (const query of searchQueries) {
+    try {
+      console.log(`💡 Recovery search: ${query.substring(0, 60)}...`);
+      const result = await performAdvancedPubMedSearch(baseUrl, query, apiKey, parser, 'recovery');
+      
+      result.articles.forEach(article => {
+        if (!allArticles.has(article.pmid)) {
+          const relevanceScore = calculateEnhancedRecoveryRelevance(article, drugName);
+          if (relevanceScore > 5) {
+            allArticles.set(article.pmid, {
+              ...article,
+              searchContext: 'failed_trial_recovery',
+              relevanceScore: relevanceScore,
+              drugFocus: calculateDrugFocus(article, drugName)
+            });
+          }
+        }
+      });
+    } catch (error) {
+      console.error(`Error in recovery query "${query.substring(0, 40)}...":`, error.message);
+    }
+  }
+  
+  const sortedArticles = Array.from(allArticles.values())
+    .sort((a, b) => (b.relevanceScore || 0) - (a.relevanceScore || 0))
+    .slice(0, 15);
+  
+  return {
+    articles: sortedArticles,
+    totalResults: sortedArticles.length,
+    searchType: 'failed_trial_recovery',
+    queries: searchQueries
+  };
+}
+
+/**
+ * Enhanced search for drug repurposing with specific indication focus
+ */
+async function searchDrugRepurposingSequential(drugName, apiKey) {
+  const baseUrl = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils';
+  const parser = new xml2js.Parser({ explicitArray: false });
+  
+  const searchQueries = [
+    `"${drugName}"[Title/Abstract] AND ("new indication" OR "expanded indication" OR "label expansion") AND ("clinical trial" OR "study")`,
+    `"${drugName}"[Title/Abstract] AND ("repurposing" OR "repositioning" OR "repurposed") AND ("indication" OR "therapeutic")`,
+    `"${drugName}"[Title/Abstract] AND ("off-label" OR "off label") AND ("use" OR "prescribing" OR "indication")`,
+    `"${drugName}"[Title/Abstract] AND ("investigational" OR "exploratory") AND ("indication" OR "therapeutic use" OR "treatment")`,
+    `"${drugName}"[Title/Abstract] AND ("compassionate use" OR "expanded access") AND ("indication" OR "treatment")`
+  ];
+  
+  const allArticles = new Map();
+  
+  for (const query of searchQueries) {
+    try {
+      console.log(`🔄 Repurposing search: ${query.substring(0, 60)}...`);
+      const result = await performAdvancedPubMedSearch(baseUrl, query, apiKey, parser, 'repurposing');
+      
+      result.articles.forEach(article => {
+        if (!allArticles.has(article.pmid)) {
+          const relevanceScore = calculateEnhancedRepurposingRelevance(article, drugName);
+          if (relevanceScore > 5) {
+            allArticles.set(article.pmid, {
+              ...article,
+              searchContext: 'drug_repurposing',
+              relevanceScore: relevanceScore,
+              drugFocus: calculateDrugFocus(article, drugName)
+            });
+          }
+        }
+      });
+    } catch (error) {
+      console.error(`Error in repurposing query "${query.substring(0, 40)}...":`, error.message);
+    }
+  }
+  
+  const sortedArticles = Array.from(allArticles.values())
+    .sort((a, b) => (b.relevanceScore || 0) - (a.relevanceScore || 0))
+    .slice(0, 15);
+  
+  return {
+    articles: sortedArticles,
+    totalResults: sortedArticles.length,
+    searchType: 'drug_repurposing',
+    queries: searchQueries
+  };
+}
+
+/**
+ * Calculate how much the article focuses on the specific drug
+ */
+function calculateDrugFocus(article, drugName) {
+  const combined = (article.title + ' ' + article.abstract).toLowerCase();
+  const drugLower = drugName.toLowerCase();
+  
+  let focus = 0;
+  
+  // High weight if drug is in title
+  if (article.title.toLowerCase().includes(drugLower)) {
+    focus += 10;
+  }
+  
+  // Count mentions in abstract
+  const mentions = (combined.match(new RegExp(drugLower, 'g')) || []).length;
+  focus += mentions * 2;
+  
+  // Check if it's the primary drug being studied
+  const firstSentence = article.abstract.substring(0, 200).toLowerCase();
+  if (firstSentence.includes(drugLower)) {
+    focus += 5;
+  }
+  
+  return focus;
+}
+
+/**
+ * Enhanced relevance scoring for pivotal trials
+ */
+function calculateEnhancedPivotalRelevance(article, drugName) {
+  let score = 0;
+  
+  const titleLower = article.title.toLowerCase();
+  const abstractLower = article.abstract.toLowerCase();
+  const combined = titleLower + ' ' + abstractLower;
+  const drugLower = drugName.toLowerCase();
+  
+  // Drug focus scoring
+  const drugFocus = calculateDrugFocus(article, drugName);
+  if (drugFocus < 3) return 0; // Skip articles that barely mention the drug
+  
+  score += Math.min(drugFocus, 15); // Cap at 15 points
+  
+  // Pivotal trial indicators
+  if (combined.includes('pivotal')) score += 15;
+  if (combined.includes('registration trial')) score += 12;
+  if (combined.includes('regulatory trial')) score += 10;
+  if (combined.includes('phase iii') || combined.includes('phase 3')) score += 8;
+  if (combined.includes('fda approval') || combined.includes('ema approval')) score += 10;
+  if (combined.includes('nda') || combined.includes('bla') || combined.includes('maa')) score += 8;
+  
+  // Publication types
+  if (article.publicationTypes.some(type => type.toLowerCase().includes('clinical trial'))) score += 6;
+  if (article.publicationTypes.some(type => type.toLowerCase().includes('randomized'))) score += 4;
+  
+  // High-impact journals
+  const highImpactJournals = ['new england journal of medicine', 'lancet', 'jama', 'nature medicine', 'bmj'];
+  if (highImpactJournals.some(journal => article.journal.toLowerCase().includes(journal))) score += 8;
+  
+  // Regulatory journals
+  const regulatoryJournals = ['drug development research', 'regulatory affairs', 'therapeutic innovation'];
+  if (regulatoryJournals.some(journal => article.journal.toLowerCase().includes(journal))) score += 6;
+  
+  return score;
+}
+
+/**
+ * Enhanced relevance scoring for approval pathways
+ */
+function calculateEnhancedApprovalRelevance(article, drugName) {
+  let score = 0;
+  
+  const combined = (article.title + ' ' + article.abstract).toLowerCase();
+  const drugFocus = calculateDrugFocus(article, drugName);
+  
+  if (drugFocus < 3) return 0;
+  score += Math.min(drugFocus, 15);
+  
+  // FDA/regulatory terms
+  if (combined.includes('fda approval')) score += 15;
+  if (combined.includes('breakthrough therapy')) score += 12;
+  if (combined.includes('accelerated approval')) score += 12;
+  if (combined.includes('fast track')) score += 10;
+  if (combined.includes('orphan drug')) score += 10;
+  if (combined.includes('priority review')) score += 8;
+  if (combined.includes('regulatory pathway')) score += 10;
+  if (combined.includes('pdufa')) score += 8;
+  if (combined.includes('rems')) score += 6;
+  
+  return score;
+}
+
+/**
+ * Enhanced relevance scoring for real-world evidence
+ */
+function calculateEnhancedRWERelevance(article, drugName) {
+  let score = 0;
+  
+  const combined = (article.title + ' ' + article.abstract).toLowerCase();
+  const drugFocus = calculateDrugFocus(article, drugName);
+  
+  if (drugFocus < 3) return 0;
+  score += Math.min(drugFocus, 15);
+  
+  // RWE-specific terms
+  if (combined.includes('real-world evidence') || combined.includes('real world evidence')) score += 15;
+  if (combined.includes('real world data') || combined.includes('real-world data')) score += 12;
+  if (combined.includes('rwe')) score += 10;
+  if (combined.includes('registry')) score += 8;
+  if (combined.includes('claims database') || combined.includes('claims data')) score += 10;
+  if (combined.includes('electronic health records') || combined.includes('ehr')) score += 8;
+  if (combined.includes('observational')) score += 6;
+  if (combined.includes('post-market') || combined.includes('post-marketing')) score += 8;
+  if (combined.includes('effectiveness')) score += 6;
+  if (combined.includes('pass') && combined.includes('study')) score += 8;
+  
+  return score;
+}
+
+/**
+ * Enhanced relevance scoring for failed trial recovery
+ */
+function calculateEnhancedRecoveryRelevance(article, drugName) {
+  let score = 0;
+  
+  const combined = (article.title + ' ' + article.abstract).toLowerCase();
+  const drugFocus = calculateDrugFocus(article, drugName);
+  
+  if (drugFocus < 3) return 0;
+  score += Math.min(drugFocus, 15);
+  
+  // Recovery-specific terms
+  if (combined.includes('failed trial') || combined.includes('negative trial')) score += 15;
+  if (combined.includes('post hoc')) score += 12;
+  if (combined.includes('missed endpoint') || combined.includes('failed endpoint')) score += 10;
+  if (combined.includes('subgroup analysis')) score += 8;
+  if (combined.includes('biomarker enrichment')) score += 10;
+  if (combined.includes('responder analysis')) score += 8;
+  if (combined.includes('rescue')) score += 8;
+  if (combined.includes('futility')) score += 6;
+  if (combined.includes('interim analysis')) score += 5;
+  
+  return score;
+}
+
+/**
+ * Enhanced relevance scoring for drug repurposing
+ */
+function calculateEnhancedRepurposingRelevance(article, drugName) {
+  let score = 0;
+  
+  const combined = (article.title + ' ' + article.abstract).toLowerCase();
+  const drugFocus = calculateDrugFocus(article, drugName);
+  
+  if (drugFocus < 3) return 0;
+  score += Math.min(drugFocus, 15);
+  
+  // Repurposing-specific terms
+  if (combined.includes('repurposing') || combined.includes('repositioning')) score += 15;
+  if (combined.includes('new indication')) score += 12;
+  if (combined.includes('expanded indication') || combined.includes('label expansion')) score += 10;
+  if (combined.includes('off-label') || combined.includes('off label')) score += 8;
+  if (combined.includes('investigational use')) score += 6;
+  if (combined.includes('compassionate use') || combined.includes('expanded access')) score += 8;
+  if (combined.includes('orphan indication')) score += 6;
+  
+  return score;
+}
+
+
+// Export the new functions
+module.exports = {
+  ...module.exports, // Preserve existing exports
+  performAdvancedPubMedSearch, // Replace the old function
+  executeComprehensiveAnalysisSequentially,
+  searchPivotalTrialsSequential,
+  searchApprovalPathwaysSequential,
+  searchRealWorldEvidenceSequential,
+  searchFailedTrialRecoverySequential,
+  searchDrugRepurposingSequential,
+  PubMedRateLimiter
+};
+
+// Export all new functions
+module.exports = {
+  ...module.exports, // Preserve existing exports
+  searchPivotalTrials,
+  searchApprovalPathways,
+  searchRealWorldEvidence,
+  searchFailedTrialRecovery,
+  searchDrugRepurposing,
+  performAdvancedPubMedSearch,
+  parseAdvancedArticle,
+  calculatePivotalRelevance,
+  calculateApprovalRelevance,
+  calculateRWERelevance,
+  calculateRecoveryRelevance,
+  calculateRepurposingRelevance
 };
