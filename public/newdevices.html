@@ -1045,7 +1045,77 @@ selectSuggestion(suggestion, type) {
     }
 }
 
-// Enhanced search input placeholder updates
+// 6. Add loading shimmer effect for recall cells (optional enhancement)
+addShimmerEffect(deviceId) {
+    const recallCell = document.querySelector(`[data-device-id="${deviceId}"] .recall-status`);
+    if (!recallCell) return;
+
+    recallCell.innerHTML = `
+        <div class="flex items-center">
+            <div class="w-2 h-2 bg-gray-200 rounded-full mr-2 animate-pulse"></div>
+            <div class="h-4 bg-gray-200 rounded animate-pulse" style="width: 80px;"></div>
+        </div>
+    `;
+}
+
+// 7. Enhanced error handling with retry capability
+async fetchDeviceRecallStatusWithRetry(deviceId, deviceName, maxRetries = 2) {
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
+        try {
+            const recalls = await this.fetchDeviceRecallStatus(deviceId, deviceName);
+            return recalls;
+        } catch (error) {
+            console.warn(`Attempt ${attempt + 1} failed for ${deviceId}:`, error);
+            
+            if (attempt === maxRetries - 1) {
+                throw error;
+            }
+            
+            // Wait before retrying
+            await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1)));
+        }
+    }
+}
+async performDeviceSearch() {
+    const searchTerm = document.getElementById('deviceSearchInput')?.value?.trim();
+    if (!searchTerm || searchTerm.length < 2) {
+        this.showNotification('Please enter at least 2 characters to search', 'warning');
+        return;
+    }
+    
+    this.showLoadingState(true);
+    this.resetDashboard();
+    
+    try {
+        const response = await fetch(`/api/fda/devices/${encodeURIComponent(searchTerm)}`);
+        if (!response.ok) {
+            throw new Error(`Search failed: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        data.searchTerm = searchTerm;
+        
+        this.currentData = data;
+        
+        // Update dashboard sections
+        this.updatePathwayInsights(data);
+        
+        // This now shows the table immediately with loading states
+        await this.updateSimilarDevicesTable(data);
+        
+        this.updateCompetitiveLandscape(data);
+        
+        const deviceCount = this.extractDevicesWithoutRecalls(data).length;
+        this.showNotification(`Found ${deviceCount} similar devices`, 'success');
+        
+    } catch (error) {
+        console.error('Device search error:', error);
+        this.showNotification(`Search failed: ${error.message}`, 'error');
+    } finally {
+        this.showLoadingState(false);
+    }
+}
+    // Enhanced search input placeholder updates
 updateSearchPlaceholder() {
     const searchInput = document.getElementById('search-input');
     const placeholders = [

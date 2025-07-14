@@ -3244,6 +3244,7 @@ function extractDeviceClasses(fdaData) {
   return Array.from(deviceClasses);
 }
 
+
 // 6. NEW FUNCTION: Generate comprehensive device requirements
 function generateDeviceRequirements(cfrPart, deviceClass, regulationNumber) {
   const requirements = {
@@ -3359,6 +3360,135 @@ function generateDeviceRequirements(cfrPart, deviceClass, regulationNumber) {
 
 //   return recommendations;
 // }
+
+
+// Add this new endpoint to your clinicaltrials.js file
+router.get('/device-recalls/:deviceId', async (req, res) => {
+    try {
+        const { deviceId } = req.params;
+        const { deviceName } = req.query;
+        
+        console.log(`Fetching recalls for device: ${deviceId}, name: ${deviceName}`);
+        
+        // Create multiple search queries to catch different recall formats
+        const searchQueries = [];
+        
+        // Add device ID variations
+        if (deviceId) {
+            searchQueries.push(deviceId);
+            searchQueries.push(deviceId.replace(/[^\w]/g, '')); // Remove special characters
+            searchQueries.push(deviceId.replace(/^[A-Z]+/, '')); // Remove prefix letters
+        }
+        
+        // Add device name if provided
+        if (deviceName) {
+            searchQueries.push(deviceName);
+            // Try shortened version of device name
+            const shortName = deviceName.split(' ').slice(0, 3).join(' ');
+            if (shortName !== deviceName) {
+                searchQueries.push(shortName);
+            }
+        }
+        
+        const recalls = [];
+        const foundRecalls = new Set(); // Track unique recalls
+        
+        // Search FDA recall database with each query
+        for (const query of searchQueries) {
+            if (!query || query.length < 2) continue;
+            
+            try {
+                const searchUrl = `https://api.fda.gov/device/recall.json`;
+                const searchParams = {
+                    search: `product_description:"${query}"`,
+                    limit: 100
+                };
+                
+                console.log(`Searching recalls with query: ${query}`);
+                
+                const response = await axios.get(searchUrl, {
+                    params: searchParams,
+                    timeout: 10000 // 10 second timeout
+                });
+                
+                if (response.data?.results) {
+                    response.data.results.forEach(recall => {
+                        // Use recall_number as unique identifier
+                        if (!foundRecalls.has(recall.recall_number)) {
+                            foundRecalls.add(recall.recall_number);
+                            recalls.push(recall);
+                        }
+                    });
+                }
+                
+            } catch (apiError) {
+                console.log(`No recalls found for query: ${query}`, apiError.message);
+                // Continue with next query even if this one fails
+            }
+        }
+        
+        // Also try a broader search if no results found
+        if (recalls.length === 0 && deviceName) {
+            try {
+                const broadQuery = deviceName.split(' ')[0]; // Use first word only
+                if (broadQuery.length >= 3) {
+                    const response = await axios.get(`https://api.fda.gov/device/recall.json`, {
+                        params: {
+                            search: `product_description:${broadQuery}*`,
+                            limit: 50
+                        },
+                        timeout: 10000
+                    });
+                    
+                    if (response.data?.results) {
+                        response.data.results.forEach(recall => {
+                            if (!foundRecalls.has(recall.recall_number)) {
+                                foundRecalls.add(recall.recall_number);
+                                recalls.push(recall);
+                            }
+                        });
+                    }
+                }
+            } catch (broadError) {
+                console.log(`Broad search also failed: ${broadError.message}`);
+            }
+        }
+        
+        // Format recalls for frontend
+        const formattedRecalls = recalls.map(recall => ({
+            recallNumber: recall.recall_number || 'Unknown',
+            status: recall.recall_status || recall.status || 'Unknown',
+            date: recall.event_date_initiated || recall.recall_initiation_date || 'Unknown',
+            classification: recall.classification || 'Unknown',
+            reason: recall.reason_for_recall || 'Not specified',
+            productDescription: recall.product_description || 'Unknown',
+            firmName: recall.recalling_firm || recall.firm_name || 'Unknown',
+            distributionPattern: recall.distribution_pattern || 'Not specified',
+            quantity: recall.product_quantity || 'Not specified'
+        }));
+        
+        console.log(`Found ${formattedRecalls.length} recalls for device ${deviceId}`);
+        
+        res.json({
+            deviceId,
+            deviceName: deviceName || 'Unknown',
+            recalls: formattedRecalls,
+            totalFound: formattedRecalls.length,
+            searchQueries: searchQueries,
+            timestamp: new Date().toISOString()
+        });
+        
+    } catch (error) {
+        console.error('Error fetching device recalls:', error);
+        res.status(500).json({ 
+            error: 'Failed to fetch device recalls',
+            deviceId: req.params.deviceId,
+            recalls: [],
+            message: error.message
+        });
+    }
+});
+
 
 // Search by company name endpoint
 router.get('/company-intelligence', async (req, res) => {

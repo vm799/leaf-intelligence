@@ -112,44 +112,54 @@
             0% { left: -100%; }
             100% { left: 100%; }
         }
+
+
+.recall-status {
+    min-width: 120px;
+}
+
+.recall-loading {
+    opacity: 0.6;
+}
+
+.device-row {
+    transition: all 0.2s ease;
+}
+
+.device-row:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.predicate-highlight {
+    position: relative;
+}
+
+.predicate-highlight::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: linear-gradient(to bottom, #f59e0b, #d97706);
+}
+
+@keyframes shimmer {
+    0% { background-position: -200px 0; }
+    100% { background-position: calc(200px + 100%) 0; }
+}
+
+.loading-shimmer {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200px 100%;
+    animation: shimmer 1.5s infinite;
+}
+
     </style>
 </head>
 <body class="bg-gradient-to-br from-gray-50 to-blue-50 min-h-screen">
-    <!-- Header -->
-    <!-- <header class="gradient-bg text-white shadow-xl sticky top-0 z-40">
-        <div class="container mx-auto px-6 py-4">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center">
-                    <div class="bg-white bg-opacity-20 rounded-xl p-3 mr-4 backdrop-blur-sm">
-                        <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
-                    </div>
-                    <div>
-                        <h1 class="text-2xl font-bold">FDA Device Intelligence Pro</h1>
-                        <p class="text-sm opacity-90 mt-1">Enhanced Pathway Analytics & Competitive Intelligence</p>
-                    </div>
-                </div>
-                <div class="hidden md:flex items-center space-x-4">
-                    <div class="glass-effect rounded-xl p-3 text-gray-800">
-                        <div class="flex items-center">
-                            <div class="w-2 h-2 rounded-full bg-green-500 mr-2"></div>
-                            <div>
-                                <p class="text-xs font-medium">API Status</p>
-                                <p class="text-xs opacity-70">Enhanced analytics enabled</p>
-                            </div>
-                        </div>
-                    </div>
-                    <button id="settings-btn" class="bg-white bg-opacity-20 hover:bg-opacity-30 rounded-xl p-2 transition-all duration-200">
-                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/>
-                        </svg>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </header> -->
-        
+
   <header class="bg-gradient-to-r from-emerald-50 via-blue-50 to-purple-50 relative shadow-lg">
         <!-- Glassmorphism overlay -->
         <div class="absolute inset-0 bg-white/60 backdrop-blur-md border-b border-white/20"></div>
@@ -295,10 +305,320 @@
             </nav>
         </div>
     </header>
+<div id="loginOverlay" class="hidden fixed inset-0 flex items-center justify-center z-50 backdrop">
+  <div class="w-full max-w-6xl flex rounded-xl overflow-hidden">
+      <!-- Left: Feature Highlights -->
+      <div class="hidden lg:block w-1/2 p-12 bg-white relative">
+          <h2 class="text-3xl font-bold mb-4 gradient-text">Welcome to Your Regulatory AI Dashboard</h2>
+          <p class="text-gray-600 mb-8">
+              Log in to access advanced tools for FDA compliance, clinical trial analysis, and product approval tracking.
+          </p>
+          
+          <!-- Feature Highlights -->
+          <div class="grid grid-cols-1 gap-6">
+             
+              
+            
+              <div class="p-4 bg-green-50 rounded-lg hover-shadow transition-all duration-300">
+                  <div class="flex items-start space-x-3">
+                      <div class="bg-green-100 rounded-full w-12  flex items-center justify-center mb-4">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                          </svg>
+                      </div>
+                      
+                          <h3 class="text-lg font-semibold mb-1">AI-Powered Insights</h3>                      </div>
+                  
+              </div>
+          </div>
+          
+          <!-- SyneticX Logo -->
+          <div class="absolute bottom-6 left-6 flex items-center space-x-2">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+              <span class="text-sm font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Powered by SyneticX</span>
+          </div>
+      </div>
+        <!-- Right: Login form -->
+        <div class="w-full lg:w-1/2 p-12 bg-white glass relative">
+            <button id="switchToSignup" class="absolute top-4 right-4 text-sm font-medium text-white bg-gradient-to-r from-blue-500 to-purple-500 py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 hover:translate-y-px flex items-center space-x-1">
+                <span>Create Account</span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </svg>
+            </button>
+            <h2 class="text-2xl font-semibold mb-8 text-gray-800 ">Login</h2>
+            <form id="loginForm" class="space-y-6">
+                <div class="relative">
+                    <label for="loginUsername" class="block text-sm font-medium text-gray-700">Username</label>
+                    <div class="mt-1 flex items-center border border-gray-200 rounded-lg shadow-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 ml-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                        <input type="text" id="loginUsername" name="username" required 
+                            class="flex-1 block w-full px-3 py-2.5 bg-transparent focus:outline-none focus:ring-0 rounded-lg">
+                    </div>
+                </div>
+                <div class="relative">
+                    <label for="loginPassword" class="block text-sm font-medium text-gray-700">Password</label>
+                    <div class="mt-1 flex items-center border border-gray-200 rounded-lg shadow-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 ml-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0-1.104-.896-2-2-2s-2 .896-2 2c0 .738.404 1.376 1 1.723V15h2v-2.277c.596-.347 1-.985 1-1.723zm9-6v14c0 1.104-.896 2-2 2H5c-1.104 0-2-.896-2-2V5c0-1.104.896-2 2-2h1V2h2v1h8V2h2v1h1c1.104 0 2 .896 2 2z" />
+                        </svg>
+                        <input type="password" id="loginPassword" name="password" required 
+                            class="flex-1 block w-full px-3 py-2.5 bg-transparent focus:outline-none focus:ring-0 rounded-lg">
+                    </div>
+                </div>
+                <div >
+                    <button type="submit" 
+                        class="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 hover-glow">
+                        <span id="loginButtonText">Sign In</span>
+                        <div id="loginSpinner" class="spinner ml-2"></div>
+                    </button>
+                </div>
+                <div id="loginError" class="text-red-600 text-center text-sm hidden"></div>
+            </form>
+            
+        </div>
+    </div>
+</div>
 
+<!-- Signup overlay -->
+<div id="signupOverlay" class="hidden fixed inset-0 flex items-center justify-center z-50 backdrop">
+  <div class="w-full max-w-6xl flex rounded-xl overflow-hidden">
+      <!-- Left: Promotional section with focused features -->
+      <div class="hidden lg:block w-1/2 p-8 bg-white relative">
+          <h2 class="text-3xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Streamline FDA Approvals</h2>
+          <p class="text-gray-600 mb-6">
+              Start your 30-day trial to access AI-powered tools for regulatory compliance and clinical trial management.
+          </p>
+          
+          <!-- Focused metric cards -->
+          <div class="space-y-4 mb-6">
+              <div class="p-4 bg-blue-50 rounded-lg hover:shadow-md transition-all duration-300">
+                  <div class="flex items-start space-x-3">
+                      <div class="bg-blue-100 rounded-full w-10 h-10 flex items-center justify-center">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                          </svg>
+                      </div>
+                      <div>
+                          <h3 class="text-lg font-medium mb-1">Search</h3>
+                          <p class="text-sm text-gray-600">Search across FDA databases, clinical trials, and PubMed articles.</p>
+                      </div>
+                  </div>
+              </div>
+              
+              <div class="p-4 bg-purple-50 rounded-lg hover:shadow-md transition-all duration-300">
+                  <div class="flex items-start space-x-3">
+                      <div class="bg-purple-100 rounded-full w-10 h-10 flex items-center justify-center">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                          </svg>
+                      </div>
+                      <div>
+                          <h3 class="text-lg font-medium mb-1">Analyze</h3>
+                          <p class="text-sm text-gray-600">Aggregate data from multiple FDA sources for faster insights.</p>
+                      </div>
+                  </div>
+              </div>
+              
+              <div class="p-4 bg-green-50 rounded-lg hover:shadow-md transition-all duration-300">
+                  <div class="flex items-start space-x-3">
+                      <div class="bg-green-100 rounded-full w-10 h-10 flex items-center justify-center">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                          </svg>
+                      </div>
+                      <div>
+                          <h3 class="text-lg font-medium mb-1">Visualize</h3>
+                          <p class="text-sm text-gray-600">View results in an easy-to-understand format with source links.</p>
+                      </div>
+                  </div>
+              </div>
+          </div>
+          
+          <!-- Data sources - more compact -->
+          <div class="p-4 bg-gray-50 rounded-lg">
+              
+                  
+          </div>
+          
+          <!-- SyneticX Logo -->
+          <div class="absolute bottom-6 left-6 flex items-center space-x-2">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+              <span class="text-sm font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Powered by SyneticX</span>
+          </div>
+      </div>
+      
+      <!-- Right: Signup form (kept mostly the same) -->
+      <div class="w-full lg:w-1/2 p-12 bg-white relative">
+          <button id="switchToLogin" class="absolute top-4 right-4 text-sm font-medium text-white bg-gradient-to-r from-blue-500 to-purple-500 py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 hover:translate-y-px flex items-center space-x-1">
+              <span>Sign In</span>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14" />
+              </svg>
+          </button>
+          <h2 class="text-2xl font-semibold mb-8 text-gray-800">Create Account</h2>
+          <form id="signupForm" class="space-y-6">
+              <div class="relative">
+                  <label for="signupUsername" class="block text-sm font-medium text-gray-700">Username</label>
+                  <div class="mt-1 flex items-center border border-gray-200 rounded-lg shadow-sm">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 ml-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                      </svg>
+                      <input type="text" id="signupUsername" name="username" required 
+                          class="flex-1 block w-full px-3 py-2.5 bg-transparent focus:outline-none focus:ring-0 rounded-lg">
+                  </div>
+              </div>
+              <div class="relative">
+                  <label for="signupEmail" class="block text-sm font-medium text-gray-700">Email</label>
+                  <div class="mt-1 flex items-center border border-gray-200 rounded-lg shadow-sm">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 ml-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                      </svg>
+                      <input type="email" id="signupEmail" name="email" required 
+                          class="flex-1 block w-full px-3 py-2.5 bg-transparent focus:outline-none focus:ring-0 rounded-lg">
+                  </div>
+              </div>
+              <div class="relative">
+                  <label for="signupPassword" class="block text-sm font-medium text-gray-700">Password</label>
+                  <div class="mt-1 flex items-center border border-gray-200 rounded-lg shadow-sm">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 ml-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                      </svg>
+                      <input type="password" id="signupPassword" name="password" required 
+                          class="flex-1 block w-full px-3 py-2.5 bg-transparent focus:outline-none focus:ring-0 rounded-lg">
+                  </div>
+              </div>
+              <div>
+                  <button type="submit" 
+                      class="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-300 hover:shadow-lg">
+                      <span id="signupButtonText">Start 30-Day Trial</span>
+                      <div id="signupSpinner" class="spinner ml-2 hidden">
+                          <div class="w-4 h-4 border-2 border-white rounded-full border-t-transparent animate-spin"></div>
+                      </div>
+                  </button>
+              </div>
+              <div id="signupError" class="text-red-600 text-center text-sm hidden"></div>
+          </form>
+          <!-- SyneticX Logo for mobile view -->
+          <div class="lg:hidden mt-8 flex items-center justify-center space-x-2">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+              <span class="text-sm font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Powered by SyneticX</span>
+          </div>
+      </div>
+  </div>
+</div>
+
+<style>
+/* Add any additional CSS here */
+.backdrop {
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+}
+
+.hover-shadow {
+  transition: all 0.3s ease;
+}
+
+.hover-shadow:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.gradient-text {
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  background-image: linear-gradient(to right, #2563eb, #7c3aed);
+}
+
+</style>
+
+    <!-- Notification element -->
+    <!-- <div id="notification" class="notification">
+        Welcome, <span id="notificationUsername"></span>!
+    </div> -->
+
+    <!-- Floating user icon -->
+    <div id="userProfileButton" class="hidden fixed bottom-6 right-6 flex items-center cursor-pointer bg-white rounded-full shadow-lg pl-3 pr-4 py-2 z-50 transition-all duration-300 hover-glow">
+        <div class="flex items-center justify-center w-10 h-10 bg-blue-600 rounded-full text-white mr-2">
+            <span id="userInitials" class="text-lg font-bold"></span>
+        </div>
+        <span id="welcomeText" class="font-medium text-gray-800">Welcome</span>
+    </div>
+
+    <!-- Profile popup -->
+    <div id="profilePopup" class="hidden fixed bottom-20 right-6 bg-white rounded-lg shadow-xl overflow-hidden w-80 z-50 transition-transform duration-300 origin-bottom-right scale-0 glass">
+        <div class="relative">
+            <button id="closePopup" class="absolute top-4 right-4 text-gray-500 hover:text-gray-700">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+            <div class="bg-gradient-to-r from-blue-600 to-teal-500 p-6 text-white">
+                <div class="flex items-center">
+                    <div class="flex items-center justify-center w-14 h-14 bg-white rounded-full text-blue-600 mr-4">
+                        <span id="popupUserInitials" class="text-xl font-bold"></span>
+                    </div>
+                    <div>
+                        <h3 id="popupUsername" class="text-lg font-semibold"></h3>
+                        <p id="popupEmail" class="text-xs opacity-90"></p>
+                    </div>
+                </div>
+            </div>
+            <div class="p-5">
+                <div class="mb-3 pb-3 border-b border-gray-100">
+                    <p class="text-xs text-gray-500 mb-1">Access Level</p>
+                    <p id="popupRole" class="font-medium text-gray-800"></p>
+                </div>
+                <div class="mb-3 pb-3 border-b border-gray-100">
+                    <p class="text-xs text-gray-500 mb-1">Usage</p>
+                    <div class="w-full bg-gray-100 rounded-full h-2">
+                        <div id="usageBar" class="bg-blue-600 h-2 rounded-full" style="width: 45%"></div>
+                    </div>
+                    <p class="text-xs mt-1"><span id="usagePercent">45</span>% of your quota used</p>
+                </div>
+                <div class="mb-3 pb-3 border-b border-gray-100">
+                    <p class="text-xs text-gray-500 mb-1">Billing Period</p>
+                    <p id="billingPeriod" class="font-medium text-gray-800"></p>
+                </div>
+                <div class="mb-3 pb-3 border-b border-gray-100">
+                    <p class="text-xs text-gray-500 mb-1">Subscription Status</p>
+                    <div id="subscriptionStatus" class="inline-block px-2 py-0.5 rounded text-xs font-medium"></div>
+                </div>
+                <div style="display: none;" class="flex items-center justify-between mb-4">
+                    <span class="text-xs font-medium text-gray-700">Dark Mode</span>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="darkModeToggle" class="sr-only peer">
+                        <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
+                    </label>
+                </div>
+                <button id="popupLogoutBtn" class="w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded text-sm transition-colors hover-glow">
+                    Logout
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- Main Content -->
     <div class="container mx-auto px-6 py-6">
+
+                            <div id="userInfo" class="hidden bg-green-50 border border-green-200 p-4 rounded mb-6">
+                        <div class="flex justify-between items-center">
+                            <p>Logged in as: <span id="username" class="font-semibold"></span></p>
+                            <button id="logoutBtn" class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600">
+                                Logout
+                            </button>
+                        </div>
+                    </div>
+
         <!-- Enhanced Search Interface -->
         <div class="bg-white rounded-3xl card-shadow card-hover p-8 mb-8 animate-fade-in">
             <div class="mb-6">
@@ -982,6 +1302,26 @@
     </div>
 
     <script>
+
+        let API_BASE_URL = null;
+
+// Fetch config on page load
+window.onload = async () => {
+  try {
+    const response = await fetch('/config');
+    const data = await response.json();
+    API_BASE_URL = data.apiUrl;
+    // document.getElementById('api-url').textContent = API_BASE_URL;
+    console.log(API_BASE_URL)
+  } catch (err) {
+    console.error('Error fetching config:', err);
+    API_BASE_URL = 'https://syneticx.com/api'; // Fallback
+    // document.getElementById('api-url').textContent = API_BASE_URL;
+  }
+};
+
+
+
         class EnhancedFDAIntelligenceDashboard {
             constructor() {
                 this.baseUrl = '/api/device';
@@ -989,6 +1329,8 @@
                 this.searchInProgress = false;
                 this.searchMode = 'device';
                 this.charts = {};
+                 this.currentDevicesData = []; // This stores the full device objects with recalls
+        this.deviceRecallsCache = new Map(); // Cache recalls by device ID
                 this.settings = {
                     resultsLimit: 1000,
                     enableAI: true,
@@ -997,12 +1339,20 @@
                 this.init();
             }
 
+
+
+
             init() {
                 this.setupEventListeners();
                 this.loadSettings();
                 this.setupSearchSuggestions();
                 this.setupSearchModeToggle();
                 this.updateSearchPlaceholder();
+
+                window.showRecallDetails = (deviceId) => {
+            console.log('Global showRecallDetails called for:', deviceId);
+            this.showRecallDetails(deviceId);
+        };
             }
 
             setupEventListeners() {
@@ -1261,54 +1611,284 @@
                 }
             }
 
-            showLoading(analysisType) {
-                const loadingState = document.getElementById('loading-state');
-                const loadingMessage = document.getElementById('loading-message');
-                const statusElement = document.getElementById('loading-status');
-                const progressBar = document.getElementById('progress-bar');
-                
-                loadingState.classList.remove('hidden');
-                document.getElementById('results-container').classList.add('hidden');
-                
-                loadingMessage.textContent = `Performing ${analysisType} with competitive intelligence and regulatory guidance...`;
+            // showLoading(analysisType) {
 
-                let progress = 0;
-                const interval = setInterval(() => {
-                    progress += Math.random() * 15;
-                    if (progress > 90) progress = 90;
-                    progressBar.style.width = `${progress}%`;
+            //     const loadingState = document.getElementById('loading-state');
+            //     const loadingMessage = document.getElementById('loading-message');
+            //     const statusElement = document.getElementById('loading-status');
+            //     const progressBar = document.getElementById('progress-bar');
+                
+            //     loadingState.classList.remove('hidden');
+            //     document.getElementById('results-container').classList.add('hidden');
+                
+            //     loadingMessage.textContent = `Performing ${analysisType} with competitive intelligence and regulatory guidance...`;
+
+            //     let progress = 0;
+            //     const interval = setInterval(() => {
+            //         progress += Math.random() * 15;
+            //         if (progress > 90) progress = 90;
+            //         progressBar.style.width = `${progress}%`;
                     
-                    if (progress < 20) {
-                        statusElement.textContent = 'Querying FDA databases...';
-                    } else if (progress < 40) {
-                        statusElement.textContent = 'Analyzing pathway distribution...';
-                    } else if (progress < 60) {
-                        statusElement.textContent = 'Generating competitive intelligence...';
-                    } else if (progress < 80) {
-                        statusElement.textContent = 'Processing regulatory guidance...';
-                    } else {
-                        statusElement.textContent = 'Finalizing comprehensive analysis...';
-                    }
-                }, 200);
+            //         if (progress < 20) {
+            //             statusElement.textContent = 'Querying FDA databases...';
+            //         } else if (progress < 40) {
+            //             statusElement.textContent = 'Analyzing pathway distribution...';
+            //         } else if (progress < 60) {
+            //             statusElement.textContent = 'Generating competitive intelligence...';
+            //         } else if (progress < 80) {
+            //             statusElement.textContent = 'Processing regulatory guidance...';
+            //         } else {
+            //             statusElement.textContent = 'Finalizing comprehensive analysis...';
+            //         }
+            //     }, 200);
 
-                this.loadingInterval = interval;
-            }
+            //     this.loadingInterval = interval;
+            // }
 
-            hideLoading() {
-                if (this.loadingInterval) {
-                    clearInterval(this.loadingInterval);
-                    this.loadingInterval = null;
-                }
+            // hideLoading() {
+            //     if (this.loadingInterval) {
+            //         clearInterval(this.loadingInterval);
+            //         this.loadingInterval = null;
+            //     }
                 
-                const progressBar = document.getElementById('progress-bar');
-                progressBar.style.width = '100%';
+            //     const progressBar = document.getElementById('progress-bar');
+            //     progressBar.style.width = '100%';
                 
-                setTimeout(() => {
-                    document.getElementById('loading-state').classList.add('hidden');
-                }, 300);
-            }
+            //     setTimeout(() => {
+            //         document.getElementById('loading-state').classList.add('hidden');
+            //     }, 300);
+            // }
 
-            showError(message) {
+
+            // =============================================================================
+// UPDATED LOADING FUNCTIONS WITH BUTTON STATE MANAGEMENT
+// =============================================================================
+
+// 1. Enhanced showLoading function with button management
+
+// =============================================================================
+// LOADING STATES FOR SPECIFIC BUTTONS ONLY
+// =============================================================================
+
+// 1. Updated showLoading function - only affects the two specific buttons
+showLoading(analysisType) {
+    const loadingState = document.getElementById('loading-state');
+    const loadingMessage = document.getElementById('loading-message');
+    const statusElement = document.getElementById('loading-status');
+    const progressBar = document.getElementById('progress-bar');
+    
+    loadingState.classList.remove('hidden');
+    document.getElementById('results-container').classList.add('hidden');
+    
+    loadingMessage.textContent = `Performing ${analysisType} with competitive intelligence and regulatory guidance...`;
+
+    // Only disable the two specific buttons
+    this.disableSpecificButtons();
+
+    let progress = 0;
+    const interval = setInterval(() => {
+        progress += Math.random() * 15;
+        if (progress > 90) progress = 90;
+        progressBar.style.width = `${progress}%`;
+        
+        if (progress < 20) {
+            statusElement.textContent = 'Querying FDA databases...';
+        } else if (progress < 40) {
+            statusElement.textContent = 'Analyzing pathway distribution...';
+        } else if (progress < 60) {
+            statusElement.textContent = 'Generating competitive intelligence...';
+        } else if (progress < 80) {
+            statusElement.textContent = 'Processing regulatory guidance...';
+        } else {
+            statusElement.textContent = 'Finalizing comprehensive analysis...';
+        }
+    }, 200);
+
+    this.loadingInterval = interval;
+}
+
+// 2. Updated hideLoading function - only re-enables the two specific buttons
+hideLoading() {
+    if (this.loadingInterval) {
+        clearInterval(this.loadingInterval);
+        this.loadingInterval = null;
+    }
+    
+    const progressBar = document.getElementById('progress-bar');
+    progressBar.style.width = '100%';
+    
+    setTimeout(() => {
+        document.getElementById('loading-state').classList.add('hidden');
+        document.getElementById('results-container').classList.remove('hidden');
+        
+        // Re-enable only the two specific buttons
+        this.enableSpecificButtons();
+    }, 300);
+}
+
+// 3. Function to disable only the two specific buttons
+disableSpecificButtons() {
+    const pathwayBtn = document.getElementById('pathway-analysis-btn');
+    const productCodeBtn = document.getElementById('productcode-analysis-btn');
+    
+    // Handle pathway analysis button
+    if (pathwayBtn) {
+        // Store original state
+        pathwayBtn.setAttribute('data-original-disabled', pathwayBtn.disabled);
+        pathwayBtn.setAttribute('data-original-html', pathwayBtn.innerHTML);
+        
+        // Disable and add loading state
+        pathwayBtn.disabled = true;
+        pathwayBtn.classList.add('opacity-50', 'cursor-not-allowed');
+        
+        pathwayBtn.innerHTML = `
+            <svg class="animate-spin h-4 w-4 mr-2 inline-block" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Loading...
+        `;
+    }
+    
+    // Handle product code analysis button
+    if (productCodeBtn) {
+        // Store original state
+        productCodeBtn.setAttribute('data-original-disabled', productCodeBtn.disabled);
+        productCodeBtn.setAttribute('data-original-html', productCodeBtn.innerHTML);
+        
+        // Disable and add loading state
+        productCodeBtn.disabled = true;
+        productCodeBtn.classList.add('opacity-50', 'cursor-not-allowed');
+        
+        productCodeBtn.innerHTML = `
+            <svg class="animate-spin h-4 w-4 mr-2 inline-block" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Loading...
+        `;
+    }
+}
+
+// 4. Function to enable only the two specific buttons
+enableSpecificButtons() {
+    const pathwayBtn = document.getElementById('pathway-analysis-btn');
+    const productCodeBtn = document.getElementById('productcode-analysis-btn');
+    
+    // Handle pathway analysis button
+    if (pathwayBtn) {
+        // Restore original disabled state
+        const originalDisabled = pathwayBtn.getAttribute('data-original-disabled');
+        pathwayBtn.disabled = originalDisabled === 'true';
+        
+        // Remove loading classes
+        pathwayBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        
+        // Restore original HTML
+        const originalHtml = pathwayBtn.getAttribute('data-original-html');
+        if (originalHtml) {
+            pathwayBtn.innerHTML = originalHtml;
+        }
+        
+        // Clean up data attributes
+        pathwayBtn.removeAttribute('data-original-disabled');
+        pathwayBtn.removeAttribute('data-original-html');
+    }
+    
+    // Handle product code analysis button
+    if (productCodeBtn) {
+        // Restore original disabled state
+        const originalDisabled = productCodeBtn.getAttribute('data-original-disabled');
+        productCodeBtn.disabled = originalDisabled === 'true';
+        
+        // Remove loading classes
+        productCodeBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        
+        // Restore original HTML
+        const originalHtml = productCodeBtn.getAttribute('data-original-html');
+        if (originalHtml) {
+            productCodeBtn.innerHTML = originalHtml;
+        }
+        
+        // Clean up data attributes
+        productCodeBtn.removeAttribute('data-original-disabled');
+        productCodeBtn.removeAttribute('data-original-html');
+    }
+}
+
+// 5. Helper function to manually set button loading state
+setButtonLoadingState(buttonId, isLoading, loadingText = 'Loading...') {
+    const button = document.getElementById(buttonId);
+    if (!button) return;
+    
+    if (isLoading) {
+        // Store original state if not already stored
+        if (!button.hasAttribute('data-original-disabled')) {
+            button.setAttribute('data-original-disabled', button.disabled);
+        }
+        if (!button.hasAttribute('data-original-html')) {
+            button.setAttribute('data-original-html', button.innerHTML);
+        }
+        
+        // Set loading state
+        button.disabled = true;
+        button.classList.add('opacity-50', 'cursor-not-allowed');
+        
+        button.innerHTML = `
+            <svg class="animate-spin h-4 w-4 mr-2 inline-block" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            ${loadingText}
+        `;
+    } else {
+        // Restore original state
+        const originalDisabled = button.getAttribute('data-original-disabled');
+        button.disabled = originalDisabled === 'true';
+        
+        // Remove loading classes
+        button.classList.remove('opacity-50', 'cursor-not-allowed');
+        
+        // Restore original HTML
+        const originalHtml = button.getAttribute('data-original-html');
+        if (originalHtml) {
+            button.innerHTML = originalHtml;
+        }
+        
+        // Clean up data attributes
+        button.removeAttribute('data-original-disabled');
+        button.removeAttribute('data-original-html');
+    }
+}
+
+// 6. Individual button control functions (if needed)
+setPathwayButtonLoading(isLoading) {
+    this.setButtonLoadingState('pathway-analysis-btn', isLoading, 'Analyzing...');
+}
+
+setProductCodeButtonLoading(isLoading) {
+    this.setButtonLoadingState('productcode-analysis-btn', isLoading, 'Analyzing...');
+}
+
+// 7. Emergency reset function for just these two buttons
+resetSpecificButtons() {
+    this.enableSpecificButtons();
+    console.log('Specific buttons reset');
+}
+
+// 8. Check if either of the specific buttons is loading
+areSpecificButtonsLoading() {
+    const pathwayBtn = document.getElementById('pathway-analysis-btn');
+    const productCodeBtn = document.getElementById('productcode-analysis-btn');
+    
+    const pathwayLoading = pathwayBtn && pathwayBtn.disabled && pathwayBtn.innerHTML.includes('animate-spin');
+    const productCodeLoading = productCodeBtn && productCodeBtn.disabled && productCodeBtn.innerHTML.includes('animate-spin');
+    
+    return pathwayLoading || productCodeLoading;
+}
+
+
+showError(message) {
                 const errorDisplay = document.getElementById('error-display');
                 const errorContent = document.getElementById('error-content');
                 
@@ -1399,14 +1979,17 @@ updatePathwayInsightsPanel(pathwayInsights) {
     setTimeout(() => this.animateProgressBars(pathwayInsights), 500);
 }
 
-// New function to create and update similar devices table
-updateSimilarDevicesTable(data) {
+
+
+// 1. Update the updateSimilarDevicesTable function to show table immediately with loading states
+async updateSimilarDevicesTable(data) {
     const container = document.getElementById('similar-devices-table');
     if (!container) return;
 
-    const devices = this.extractSimilarDevices(data);
+    // First, extract devices WITHOUT recalls to show table immediately
+    const devicesWithoutRecalls = this.extractDevicesWithoutRecalls(data);
     
-    if (!devices || devices.length === 0) {
+    if (!devicesWithoutRecalls || devicesWithoutRecalls.length === 0) {
         container.innerHTML = `
             <div class="bg-gray-50 border border-gray-200 rounded-2xl p-8 text-center">
                 <svg class="w-12 h-12 text-gray-400 mx-auto mb-4" fill="currentColor" viewBox="0 0 20 20">
@@ -1419,60 +2002,503 @@ updateSimilarDevicesTable(data) {
         return;
     }
 
-    // Sort devices: most recent first, then predicate devices
-    const sortedDevices = this.sortDevicesForDisplay(devices);
+    // Sort devices and identify predicates (without recalls for now)
+    const sortedDevices = this.sortDevicesForDisplay(devicesWithoutRecalls);
     const predicateDevices = this.identifyPredicateDevices(sortedDevices);
 
+    // Show table immediately with loading states for recalls
     container.innerHTML = `
         <div class="overflow-hidden">
             <div class="flex justify-between items-center mb-6">
                 <div>
                     <h4 class="text-lg font-semibold text-indigo-800">Similar Approved Devices</h4>
-                    <p class="text-sm text-indigo-600 mt-1">${devices.length} devices found • Top 3 recent predicates highlighted</p>
+                    <p class="text-sm text-indigo-600 mt-1">
+                        ${devicesWithoutRecalls.length} devices found • 
+                        <span id="recall-loading-status" class="text-indigo-500">
+                            <svg class="inline w-4 h-4 animate-spin mr-1" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Checking recall status...
+                        </span>
+                    </p>
                 </div>
                 <div class="flex space-x-2">
                     <button onclick="dashboard.exportDeviceTable()" class="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center">
                         <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                            <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 011 1v1a1 1 0 01-1 1H4a1 1 0 01-1-1v-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
                         </svg>
                         Export
-                    </button>
-                    <button onclick="dashboard.showAllDevices()" class="bg-blue-100 hover:bg-blue-200 text-blue-700 px-3 py-2 rounded-lg text-sm font-medium transition-colors">
-                        View All
                     </button>
                 </div>
             </div>
             
-            <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
+            <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden">
                 <div class="overflow-x-auto">
                     <table class="w-full">
                         <thead class="bg-gray-50 border-b border-gray-200">
                             <tr>
-                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Device Name</th>
-                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Sponsor/Company</th>
-                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Pathway</th>
-                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Year</th>
-                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Safety</th>
-                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Actions</th>
+                                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Device</th>
+                                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pathway</th>
+                                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Year</th>
+                                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Safety Status</th>
+                                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-200">
-                            ${sortedDevices.slice(0, 15).map((device, index) => this.createDeviceTableRow(device, predicateDevices.includes(device.id), index < 3 && predicateDevices.includes(device.id))).join('')}
+                        <tbody id="devices-table-body" class="divide-y divide-gray-200">
+                            ${sortedDevices.slice(0, 10).map((device, index) => {
+                                const isPredicate = predicateDevices.includes(device.id);
+                                const pathwayColors = {
+                                    '510(k)': 'bg-blue-100 text-blue-800',
+                                    'PMA': 'bg-green-100 text-green-800',
+                                    'De Novo': 'bg-purple-100 text-purple-800'
+                                };
+                                
+                                return `
+                                    <tr class="hover:bg-gray-50 ${isPredicate ? 'bg-amber-50 border-l-4 border-amber-400' : ''}" data-device-id="${device.id}">
+                                        <td class="px-6 py-4">
+                                            <div class="flex items-start">
+                                                <div class="flex-1">
+                                                    <div class="text-sm font-medium text-gray-900">
+                                                        ${device.deviceName}
+                                                        ${isPredicate ? '<span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">Top Predicate</span>' : ''}
+                                                    </div>
+                                                    <div class="text-sm text-gray-500">${device.sponsor}</div>
+                                                    <div class="text-xs text-gray-400 font-mono">${device.id}</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${pathwayColors[device.pathway] || 'bg-gray-100 text-gray-800'}">
+                                                ${device.pathway}
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 text-sm text-gray-900">${device.approvalYear}</td>
+                                        <td class="px-6 py-4 recall-status" data-device-id="${device.id}">
+                                            <div class="flex items-center">
+                                                <svg class="animate-spin h-4 w-4 text-gray-400 mr-2" fill="none" viewBox="0 0 24 24">
+                                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                </svg>
+                                                <span class="text-xs text-gray-500">Checking...</span>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            <div class="flex space-x-2">
+                                                <button onclick="window.open('${device.fdaUrl}', '_blank')" class="text-indigo-600 hover:text-indigo-900 text-sm font-medium">
+                                                    View FDA
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                `;
+                            }).join('')}
                         </tbody>
                     </table>
                 </div>
-                
-                ${devices.length > 15 ? `
-                    <div class="bg-gray-50 px-6 py-4 border-t border-gray-200">
-                        <button onclick="dashboard.loadMoreDevices()" class="w-full text-center text-blue-600 hover:text-blue-800 font-medium text-sm transition-colors">
-                            Load ${devices.length - 15} more devices
-                        </button>
-                    </div>
-                ` : ''}
             </div>
+            
+            ${devicesWithoutRecalls.length > 10 ? `
+                <div class="mt-4 text-center">
+                    <button onclick="dashboard.showAllDevices()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium">
+                        View All ${devicesWithoutRecalls.length} Devices
+                    </button>
+                </div>
+            ` : ''}
         </div>
     `;
+
+    // Now load recalls for each device individually
+    await this.loadRecallsForDisplayedDevices(devicesWithoutRecalls.slice(0, 10));
 }
+
+// 2. New function to extract devices without recalls first
+extractDevicesWithoutRecalls(data) {
+    const devices = [];
+    const processedIds = new Set();
+
+    // Process 510(k) devices
+    if (data.fdaData?.fiveOneOk?.results) {
+        data.fdaData.fiveOneOk.results.forEach(device => {
+            if (!device.k_number || processedIds.has(device.k_number)) return;
+            
+            const isDeNovo = device.decision_description?.toLowerCase().includes('de novo') || 
+                           device.clearance_type?.toLowerCase().includes('de novo');
+            
+            devices.push({
+                id: device.k_number,
+                deviceName: device.device_name || 'Unknown Device',
+                sponsor: device.applicant || 'Unknown Sponsor',
+                pathway: isDeNovo ? 'De Novo' : '510(k)',
+                pathwayColor: isDeNovo ? 'purple' : 'blue',
+                approvalYear: device.decision_date ? new Date(device.decision_date).getFullYear() : 'Unknown',
+                approvalDate: device.decision_date,
+                recalls: [], // Will be populated later
+                hasRecalls: false, // Will be updated later
+                productCode: device.product_code,
+                deviceClass: device.device_class,
+                decisionDescription: device.decision_description,
+                fdaUrl: this.generateFDAUrl('510k', device.k_number),
+                type: '510k',
+                isDeNovo: isDeNovo,
+                deNovoIndicators: this.extractDeNovoIndicators ? this.extractDeNovoIndicators(device) : []
+            });
+            
+            processedIds.add(device.k_number);
+        });
+    }
+
+    // Process PMA devices
+    if (data.fdaData?.pma?.results) {
+        data.fdaData.pma.results.forEach(device => {
+            if (!device.pma_number || processedIds.has(device.pma_number)) return;
+            
+            devices.push({
+                id: device.pma_number,
+                deviceName: device.trade_name || device.generic_name || 'Unknown Device',
+                sponsor: device.applicant || 'Unknown Sponsor',
+                pathway: 'PMA',
+                pathwayColor: 'green',
+                approvalYear: device.decision_date ? new Date(device.decision_date).getFullYear() : 'Unknown',
+                approvalDate: device.decision_date,
+                recalls: [], // Will be populated later
+                hasRecalls: false, // Will be updated later
+                productCode: device.product_code,
+                expedited: device.expedited_review_flag === 'Y',
+                decisionDescription: device.decision_description,
+                fdaUrl: this.generateFDAUrl('pma', device.pma_number),
+                type: 'pma'
+            });
+            
+            processedIds.add(device.pma_number);
+        });
+    }
+
+    return devices;
+}
+
+// 3. New function to load recalls for each displayed device
+async loadRecallsForDisplayedDevices(devices) {
+    let completedCount = 0;
+    const totalDevices = devices.length;
+    
+    // Update status
+    this.updateRecallLoadingStatus(0, totalDevices);
+
+    // Load recalls for each device in parallel (but limit concurrency)
+    const concurrencyLimit = 3; // Process 3 devices at a time
+    const deviceGroups = [];
+    
+    for (let i = 0; i < devices.length; i += concurrencyLimit) {
+        deviceGroups.push(devices.slice(i, i + concurrencyLimit));
+    }
+
+    for (const group of deviceGroups) {
+        await Promise.all(group.map(async (device) => {
+            try {
+                console.log(`Loading recalls for ${device.id}...`);
+                
+                // Fetch recalls for this device
+                const recalls = await this.fetchDeviceRecallStatus(device.id, device.deviceName);
+                
+                // Update device object
+                device.recalls = recalls;
+                device.hasRecalls = recalls.length > 0;
+                
+                // Cache the recalls
+                this.deviceRecallsCache.set(device.id, recalls);
+                
+                // Update the UI for this specific device
+                this.updateDeviceRecallUI(device);
+                
+                completedCount++;
+                this.updateRecallLoadingStatus(completedCount, totalDevices);
+                
+            } catch (error) {
+                console.error(`Error loading recalls for ${device.id}:`, error);
+                
+                // Update UI to show error state
+                this.updateDeviceRecallUI(device, true);
+                
+                completedCount++;
+                this.updateRecallLoadingStatus(completedCount, totalDevices);
+            }
+        }));
+    }
+
+    // Update the currentDevicesData with the loaded recalls
+    this.currentDevicesData = devices;
+    
+    // Final status update
+    this.updateRecallLoadingStatus(totalDevices, totalDevices, true);
+}
+
+// 4. Update individual device recall UI
+updateDeviceRecallUI(device, isError = false) {
+    const recallCell = document.querySelector(`[data-device-id="${device.id}"] .recall-status`);
+    if (!recallCell) return;
+
+    if (isError) {
+        recallCell.innerHTML = `
+            <div class="flex items-center">
+                <div class="w-2 h-2 bg-gray-400 rounded-full mr-2"></div>
+                <span class="text-sm text-gray-500">Unable to check</span>
+            </div>
+        `;
+        return;
+    }
+
+    if (device.hasRecalls) {
+        recallCell.innerHTML = `
+            <div class="flex items-center">
+                <div class="w-2 h-2 bg-red-400 rounded-full mr-2"></div>
+                <span class="text-sm text-red-700">${device.recalls.length} recall${device.recalls.length > 1 ? 's' : ''}</span>
+                <button onclick="window.showRecallDetails('${device.id}')" class="ml-2 text-xs text-red-600 hover:text-red-800 underline">
+                    View Details
+                </button>
+            </div>
+        `;
+    } else {
+        recallCell.innerHTML = `
+            <div class="flex items-center">
+                <div class="w-2 h-2 bg-green-400 rounded-full mr-2"></div>
+                <span class="text-sm text-green-700">Clean Record</span>
+            </div>
+        `;
+    }
+}
+
+// 3. Fix the showRecallDetails function
+showRecallDetails(deviceId) {
+        console.log(`Showing recall details for device: ${deviceId}`);
+        console.log('Available devices:', this.currentDevicesData);
+        console.log('Cached recalls:', this.deviceRecallsCache);
+        
+        // First try to find device in current data
+        let device = this.currentDevicesData?.find(d => d.id === deviceId);
+        
+        // If not found, try the cache
+        if (!device) {
+            const cachedRecalls = this.deviceRecallsCache.get(deviceId);
+            if (cachedRecalls && cachedRecalls.length > 0) {
+                device = {
+                    id: deviceId,
+                    deviceName: 'Unknown Device',
+                    recalls: cachedRecalls
+                };
+            }
+        }
+        
+        console.log('Found device:', device);
+        
+        if (!device) {
+            this.showNotification('Device not found', 'error');
+            return;
+        }
+        
+        if (!device.recalls || device.recalls.length === 0) {
+            this.showNotification('No recall details available for this device', 'warning');
+            return;
+        }
+        
+        console.log('Device recalls:', device.recalls);
+        
+        // Create and show the modal
+        this.createRecallDetailsModal(device);
+    }
+
+    // 4. Separate function to create the recall details modal
+    createRecallDetailsModal(device) {
+        // Remove any existing modal
+        const existingModal = document.querySelector('.recall-details-modal');
+        if (existingModal) {
+            existingModal.remove();
+        }
+        
+        const modal = document.createElement('div');
+        modal.className = 'recall-details-modal fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4';
+        
+        modal.innerHTML = `
+            <div class="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden shadow-2xl">
+                <div class="flex justify-between items-center p-6 border-b border-gray-200 bg-red-50">
+                    <div>
+                        <h3 class="text-lg font-semibold text-red-800">Recall Details</h3>
+                        <p class="text-sm text-red-600">${device.deviceName} (${device.id})</p>
+                        <p class="text-xs text-red-500 mt-1">${device.recalls.length} recall${device.recalls.length > 1 ? 's' : ''} found</p>
+                    </div>
+                    <button onclick="this.closest('.recall-details-modal').remove()" 
+                            class="text-gray-400 hover:text-gray-600 p-2 rounded-full hover:bg-gray-100 transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                
+                <div class="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+                    <div class="space-y-6">
+                        ${device.recalls.map((recall, index) => {
+                            const classColor = this.getRecallClassColor(recall.classification);
+                            const statusColor = this.getRecallStatusColor(recall.status);
+                            
+                            return `
+                                <div class="border-l-4 ${classColor.border} bg-${classColor.bg} rounded-lg p-6">
+                                    <div class="flex justify-between items-start mb-4">
+                                        <div>
+                                            <h4 class="font-semibold text-gray-800 text-lg">Recall #${index + 1}</h4>
+                                            <p class="text-sm text-gray-600 font-mono mt-1">${recall.recallNumber || 'Unknown Number'}</p>
+                                        </div>
+                                        <div class="flex flex-col items-end space-y-2">
+                                            <span class="px-3 py-1 ${classColor.badge} text-xs rounded-full font-medium">
+                                                Class ${recall.classification || 'Unknown'}
+                                            </span>
+                                            <span class="px-3 py-1 ${statusColor} text-xs rounded-full font-medium">
+                                                ${recall.status || 'Unknown Status'}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                        <div class="bg-white rounded-lg p-3">
+                                            <span class="font-medium text-gray-700 text-sm">Date Initiated:</span>
+                                            <p class="text-gray-900 mt-1">${this.formatDate(recall.date) || 'Unknown'}</p>
+                                        </div>
+                                        
+                                        <div class="bg-white rounded-lg p-3">
+                                            <span class="font-medium text-gray-700 text-sm">Firm:</span>
+                                            <p class="text-gray-900 mt-1">${recall.firmName || 'Unknown'}</p>
+                                        </div>
+                                        
+                                        ${recall.quantity && recall.quantity !== 'Not specified' ? `
+                                            <div class="bg-white rounded-lg p-3">
+                                                <span class="font-medium text-gray-700 text-sm">Quantity:</span>
+                                                <p class="text-gray-900 mt-1">${recall.quantity}</p>
+                                            </div>
+                                        ` : ''}
+                                        
+                                        ${recall.distributionPattern && recall.distributionPattern !== 'Not specified' ? `
+                                            <div class="bg-white rounded-lg p-3">
+                                                <span class="font-medium text-gray-700 text-sm">Distribution:</span>
+                                                <p class="text-gray-900 mt-1">${recall.distributionPattern}</p>
+                                            </div>
+                                        ` : ''}
+                                    </div>
+                                    
+                                    <div class="bg-white rounded-lg p-4 mb-4">
+                                        <span class="font-medium text-gray-700 text-sm">Reason for Recall:</span>
+                                        <p class="text-gray-900 mt-2 leading-relaxed">${recall.reason || 'Not specified'}</p>
+                                    </div>
+                                    
+                                    <div class="bg-white rounded-lg p-4">
+                                        <span class="font-medium text-gray-700 text-sm">Product Description:</span>
+                                        <p class="text-gray-900 mt-2 leading-relaxed">${recall.productDescription || 'Not specified'}</p>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                    
+                    <div class="mt-8 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                        <div class="flex items-start">
+                            <svg class="w-5 h-5 text-blue-500 mt-0.5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                            </svg>
+                            <div>
+                                <p class="text-sm text-blue-800 font-medium">Information Source</p>
+                                <p class="text-sm text-blue-700 mt-1">
+                                    This recall information is fetched in real-time from the FDA database. 
+                                    For the most current information, please visit the 
+                                    <a href="https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts" 
+                                       target="_blank" class="underline hover:text-blue-900">
+                                        FDA Recalls Database
+                                    </a>.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+        
+        // Add click outside to close
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.remove();
+            }
+        });
+        
+        // Add escape key to close
+        const handleEscape = (e) => {
+            if (e.key === 'Escape') {
+                modal.remove();
+                document.removeEventListener('keydown', handleEscape);
+            }
+        };
+        document.addEventListener('keydown', handleEscape);
+    }
+
+    // 5. Helper functions for styling
+    getRecallClassColor(classification) {
+        switch (classification) {
+            case 'I':
+            case '1':
+                return {
+                    border: 'border-red-500',
+                    bg: 'red-50',
+                    badge: 'bg-red-100 text-red-800'
+                };
+            case 'II':
+            case '2':
+                return {
+                    border: 'border-orange-500',
+                    bg: 'orange-50',
+                    badge: 'bg-orange-100 text-orange-800'
+                };
+            case 'III':
+            case '3':
+                return {
+                    border: 'border-yellow-500',
+                    bg: 'yellow-50',
+                    badge: 'bg-yellow-100 text-yellow-800'
+                };
+            default:
+                return {
+                    border: 'border-gray-500',
+                    bg: 'gray-50',
+                    badge: 'bg-gray-100 text-gray-800'
+                };
+        }
+    }
+
+    getRecallStatusColor(status) {
+        if (!status) return 'bg-gray-100 text-gray-800';
+        
+        const statusLower = status.toLowerCase();
+        if (statusLower.includes('ongoing') || statusLower.includes('open')) {
+            return 'bg-red-100 text-red-800';
+        } else if (statusLower.includes('completed') || statusLower.includes('closed')) {
+            return 'bg-green-100 text-green-800';
+        } else if (statusLower.includes('pending')) {
+            return 'bg-yellow-100 text-yellow-800';
+        }
+        return 'bg-gray-100 text-gray-800';
+    }
+
+    formatDate(dateString) {
+        if (!dateString || dateString === 'Unknown') return 'Unknown';
+        
+        try {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+        } catch (error) {
+            return dateString;
+        }
+    }
 detectDeNovoDevices(fiveOneOkResults) {
     const deNovoDevices = [];
     const regular510kDevices = [];
@@ -1660,129 +2686,136 @@ extractDeNovoIndicators(device) {
     
     return indicators;
 }
-
-// Extract and normalize device data from all FDA sources
-extractSimilarDevices(data) {
-    const devices = [];
-    const processedIds = new Set();
-
-    // Process 510(k) devices
-    // if (data.fdaData?.fiveOneOk?.results) {
-    //     data.fdaData.fiveOneOk.results.forEach(device => {
-    //         if (!device.k_number || processedIds.has(device.k_number)) return;
-            
-    //         const recalls = this.findDeviceRecalls(device.k_number, data.fdaData.recalls?.results || []);
-    //         const isDeNovo = device.decision_description?.toLowerCase().includes('de novo') || 
-    //                        device.clearance_type?.toLowerCase().includes('de novo');
-            
-    //         devices.push({
-    //             id: device.k_number,
-    //             deviceName: device.device_name || 'Unknown Device',
-    //             sponsor: device.applicant || 'Unknown Sponsor',
-    //             pathway: isDeNovo ? 'De Novo' : '510(k)',
-    //             pathwayColor: isDeNovo ? 'purple' : 'blue',
-    //             approvalYear: device.decision_date ? new Date(device.decision_date).getFullYear() : 'Unknown',
-    //             approvalDate: device.decision_date,
-    //             recalls: recalls,
-    //             hasRecalls: recalls.length > 0,
-    //             productCode: device.product_code,
-    //             deviceClass: device.device_class,
-    //             decisionDescription: device.decision_description,
-    //             fdaUrl: this.generateFDAUrl('510k', device.k_number),
-    //             type: '510k'
-    //         });
-            
-    //         processedIds.add(device.k_number);
-    //     });
-    // }
-if (data.fdaData?.fiveOneOk?.results) {
-    // Use the enhanced De Novo detection
-    const { deNovoDevices, regular510kDevices } = this.detectDeNovoDevices(data.fdaData.fiveOneOk.results);
-    
-    // Process regular 510(k) devices
-    regular510kDevices.forEach(device => {
-        if (!device.k_number || processedIds.has(device.k_number)) return;
+async fetchDeviceRecallStatus(deviceId, deviceName) {
+    try {
+        const response = await fetch(`/api/device/device-recalls/${encodeURIComponent(deviceId)}?deviceName=${encodeURIComponent(deviceName || '')}`);
+        if (!response.ok) {
+            console.warn(`Could not fetch recalls for device ${deviceId}`);
+            return [];
+        }
         
-        const recalls = this.findDeviceRecalls(device.k_number, data.fdaData.recalls?.results || []);
-        
-        devices.push({
-            id: device.k_number,
-            deviceName: device.device_name || 'Unknown Device',
-            sponsor: device.applicant || 'Unknown Sponsor',
-            pathway: '510(k)',
-            pathwayColor: 'blue',
-            approvalYear: device.decision_date ? new Date(device.decision_date).getFullYear() : 'Unknown',
-            approvalDate: device.decision_date,
-            recalls: recalls,
-            hasRecalls: recalls.length > 0,
-            productCode: device.product_code,
-            deviceClass: device.device_class,
-            decisionDescription: device.decision_description,
-            fdaUrl: this.generateFDAUrl('510k', device.k_number),
-            type: '510k'
-        });
-        
-        processedIds.add(device.k_number);
-    });
-    
-    // Process De Novo devices
-    deNovoDevices.forEach(device => {
-        if (!device.k_number || processedIds.has(device.k_number)) return;
-        
-        const recalls = this.findDeviceRecalls(device.k_number, data.fdaData.recalls?.results || []);
-        
-        devices.push({
-            id: device.k_number,
-            deviceName: device.device_name || 'Unknown Device',
-            sponsor: device.applicant || 'Unknown Sponsor',
-            pathway: 'De Novo',
-            pathwayColor: 'purple',
-            approvalYear: device.decision_date ? new Date(device.decision_date).getFullYear() : 'Unknown',
-            approvalDate: device.decision_date,
-            recalls: recalls,
-            hasRecalls: recalls.length > 0,
-            productCode: device.product_code,
-            deviceClass: device.device_class,
-            decisionDescription: device.decision_description,
-            fdaUrl: this.generateFDAUrl('510k', device.k_number),
-            type: '510k',
-            isDeNovo: true,
-            deNovoIndicators: this.extractDeNovoIndicators(device)
-        });
-        
-        processedIds.add(device.k_number);
-    });
-}
-    // Process PMA devices
-    if (data.fdaData?.pma?.results) {
-        data.fdaData.pma.results.forEach(device => {
-            if (!device.pma_number || processedIds.has(device.pma_number)) return;
-            
-            const recalls = this.findDeviceRecalls(device.pma_number, data.fdaData.recalls?.results || []);
-            
-            devices.push({
-                id: device.pma_number,
-                deviceName: device.trade_name || device.generic_name || 'Unknown Device',
-                sponsor: device.applicant || 'Unknown Sponsor',
-                pathway: 'PMA',
-                pathwayColor: 'green',
-                approvalYear: device.decision_date ? new Date(device.decision_date).getFullYear() : 'Unknown',
-                approvalDate: device.decision_date,
-                recalls: recalls,
-                hasRecalls: recalls.length > 0,
-                productCode: device.product_code,
-                expedited: device.expedited_review_flag === 'Y',
-                decisionDescription: device.decision_description,
-                fdaUrl: this.generateFDAUrl('pma', device.pma_number),
-                type: 'pma'
-            });
-            
-            processedIds.add(device.pma_number);
-        });
+        const data = await response.json();
+        return data.recalls || [];
+    } catch (error) {
+        console.error(`Error fetching recalls for ${deviceId}:`, error);
+        return [];
     }
-
-    return devices;
 }
+// 3. Add this helper method for loading indicators
+updateRecallLoadingStatus(completed, total, isFinished = false) {
+    const statusElement = document.getElementById('recall-loading-status');
+    if (!statusElement) return;
+
+    if (isFinished) {
+        statusElement.innerHTML = `
+            <svg class="inline w-4 h-4 text-green-500 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+            </svg>
+            <span class="text-green-600">Recall status verified</span>
+        `;
+    } else {
+        statusElement.innerHTML = `
+            <svg class="inline w-4 h-4 animate-spin mr-1" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <span class="text-indigo-500">Checking recalls (${completed}/${total})</span>
+        `;
+    }
+}
+// =============================================================================
+
+
+    // 2. Update the extractSimilarDevices function to store data properly
+    async extractSimilarDevices(data) {
+        const devices = [];
+        const processedIds = new Set();
+
+        // Process 510(k) devices with individual recall checks
+        if (data.fdaData?.fiveOneOk?.results) {
+            for (const device of data.fdaData.fiveOneOk.results) {
+                if (!device.k_number || processedIds.has(device.k_number)) continue;
+                
+                console.log(`Processing device: ${device.k_number} - ${device.device_name}`);
+                
+                // Fetch real-time recall data for this specific device
+                const recalls = await this.fetchDeviceRecallStatus(device.k_number, device.device_name);
+                
+                console.log(`Found ${recalls.length} recalls for ${device.k_number}:`, recalls);
+                
+                // Cache the recalls
+                this.deviceRecallsCache.set(device.k_number, recalls);
+                
+                const isDeNovo = device.decision_description?.toLowerCase().includes('de novo') || 
+                               device.clearance_type?.toLowerCase().includes('de novo');
+                
+                const deviceObj = {
+                    id: device.k_number,
+                    deviceName: device.device_name || 'Unknown Device',
+                    sponsor: device.applicant || 'Unknown Sponsor',
+                    pathway: isDeNovo ? 'De Novo' : '510(k)',
+                    pathwayColor: isDeNovo ? 'purple' : 'blue',
+                    approvalYear: device.decision_date ? new Date(device.decision_date).getFullYear() : 'Unknown',
+                    approvalDate: device.decision_date,
+                    recalls: recalls, // Store the full recall objects here
+                    hasRecalls: recalls.length > 0,
+                    productCode: device.product_code,
+                    deviceClass: device.device_class,
+                    decisionDescription: device.decision_description,
+                    fdaUrl: this.generateFDAUrl('510k', device.k_number),
+                    type: '510k',
+                    isDeNovo: isDeNovo,
+                    deNovoIndicators: this.extractDeNovoIndicators ? this.extractDeNovoIndicators(device) : []
+                };
+                
+                devices.push(deviceObj);
+                processedIds.add(device.k_number);
+            }
+        }
+
+        // Process PMA devices with individual recall checks
+        if (data.fdaData?.pma?.results) {
+            for (const device of data.fdaData.pma.results) {
+                if (!device.pma_number || processedIds.has(device.pma_number)) continue;
+                
+                console.log(`Processing PMA device: ${device.pma_number} - ${device.trade_name || device.generic_name}`);
+                
+                // Fetch real-time recall data for this specific device
+                const recalls = await this.fetchDeviceRecallStatus(device.pma_number, device.trade_name || device.generic_name);
+                
+                console.log(`Found ${recalls.length} recalls for ${device.pma_number}:`, recalls);
+                
+                // Cache the recalls
+                this.deviceRecallsCache.set(device.pma_number, recalls);
+                
+                const deviceObj = {
+                    id: device.pma_number,
+                    deviceName: device.trade_name || device.generic_name || 'Unknown Device',
+                    sponsor: device.applicant || 'Unknown Sponsor',
+                    pathway: 'PMA',
+                    pathwayColor: 'green',
+                    approvalYear: device.decision_date ? new Date(device.decision_date).getFullYear() : 'Unknown',
+                    approvalDate: device.decision_date,
+                    recalls: recalls, // Store the full recall objects here
+                    hasRecalls: recalls.length > 0,
+                    productCode: device.product_code,
+                    expedited: device.expedited_review_flag === 'Y',
+                    decisionDescription: device.decision_description,
+                    fdaUrl: this.generateFDAUrl('pma', device.pma_number),
+                    type: 'pma'
+                };
+                
+                devices.push(deviceObj);
+                processedIds.add(device.pma_number);
+            }
+        }
+
+        // Store the devices data in the class
+        this.currentDevicesData = devices;
+        console.log('Stored devices data:', this.currentDevicesData);
+        
+        return devices;
+    }
 
 // Find recalls associated with a specific device
 findDeviceRecalls(deviceId, recalls) {
@@ -4854,10 +5887,417 @@ updateProductCodeRegulatoryTab(data) {
             }
         }
 
-        // Initialize enhanced dashboard when page loads
-        document.addEventListener('DOMContentLoaded', function() {
-            window.dashboard = new EnhancedFDAIntelligenceDashboard();
-        });
+
+
+                class LoginSystem {
+            constructor() {
+                this.loginOverlay = document.getElementById('loginOverlay');
+                this.signupOverlay = document.getElementById('signupOverlay');
+                // this.existingPageContent = document.getElementById('existingPageContent');
+                this.userInfo = document.getElementById('userInfo');
+                this.usernameDisplay = document.getElementById('username');
+                // this.notificationUsername = document.getElementById('notificationUsername');
+                this.notification = document.getElementById('notification');
+                this.loginForm = document.getElementById('loginForm');
+                this.signupForm = document.getElementById('signupForm');
+                this.loginError = document.getElementById('loginError');
+                this.signupError = document.getElementById('signupError');
+                this.logoutBtn = document.getElementById('logoutBtn');
+                this.userProfileButton = document.getElementById('userProfileButton');
+                this.userInitials = document.getElementById('userInitials');
+                this.welcomeText = document.getElementById('welcomeText');
+                this.profilePopup = document.getElementById('profilePopup');
+                this.closePopup = document.getElementById('closePopup');
+                this.popupLogoutBtn = document.getElementById('popupLogoutBtn');
+                this.popupUsername = document.getElementById('popupUsername');
+                this.popupEmail = document.getElementById('popupEmail');
+                this.popupUserInitials = document.getElementById('popupUserInitials');
+                this.popupRole = document.getElementById('popupRole');
+                this.usageBar = document.getElementById('usageBar');
+                this.usagePercent = document.getElementById('usagePercent');
+                this.billingPeriod = document.getElementById('billingPeriod');
+                this.subscriptionStatus = document.getElementById('subscriptionStatus');
+                this.darkModeToggle = document.getElementById('darkModeToggle');
+                this.switchToSignup = document.getElementById('switchToSignup');
+                this.switchToLogin = document.getElementById('switchToLogin');
+                this.loginButtonText = document.getElementById('loginButtonText');
+                this.loginSpinner = document.getElementById('loginSpinner');
+                this.signupButtonText = document.getElementById('signupButtonText');
+                this.signupSpinner = document.getElementById('signupSpinner');
+                this.currentUserId = null;
+                this.init();
+                this.setupEventListeners();
+            }
+            init() {
+        const storedUser = localStorage.getItem('currentUser');
+        if (storedUser) {
+            try {
+                const user = JSON.parse(storedUser);
+                this.currentUserId = user._id; // Store the user ID
+                this.showMainContent(user);
+                // this.showNotification(user.username);
+            } catch (error) {
+                console.error('Failed to parse stored user:', error);
+                this.showLoginOverlay();
+            }
+        } else {
+            this.showLoginOverlay();
+        }
+    }
+
+    // Add a method to get the current user ID
+    getCurrentUserId() {
+        return this.currentUserId;
+    }
+
+            setupEventListeners() {
+                this.loginForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.handleLogin();
+                });
+
+                this.signupForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.handleSignup();
+                });
+
+                this.logoutBtn?.addEventListener('click', () => {
+                    this.handleLogout();
+                });
+
+                this.popupLogoutBtn.addEventListener('click', () => {
+                    this.handleLogout();
+                });
+
+                this.userProfileButton.addEventListener('click', () => {
+                    this.toggleProfilePopup();
+                });
+
+                this.closePopup.addEventListener('click', () => {
+                    this.hideProfilePopup();
+                });
+
+                this.switchToSignup.addEventListener('click', () => {
+                    this.hideLoginOverlay();
+                    this.showSignupOverlay();
+                });
+
+                this.switchToLogin.addEventListener('click', () => {
+                    this.hideSignupOverlay();
+                    this.showLoginOverlay();
+                });
+
+                document.addEventListener('click', (e) => {
+                    if (!this.profilePopup.contains(e.target) && 
+                        !this.userProfileButton.contains(e.target) && 
+                        this.isProfilePopupVisible()) {
+                        this.hideProfilePopup();
+                    }
+                });
+
+                this.darkModeToggle.addEventListener('change', () => {
+                    this.toggleDarkMode();
+                });
+            }
+
+            isProfilePopupVisible() {
+                return !this.profilePopup.classList.contains('scale-0');
+            }
+
+            showLoginOverlay() {
+                this.loginOverlay.classList.remove('hidden');
+                this.signupOverlay.classList.add('hidden');
+                // this.existingPageContent.classList.add('hidden');
+                document.body.style.overflow = 'hidden';
+            }
+
+            hideLoginOverlay() {
+                this.loginOverlay.classList.add('hidden');
+                document.body.style.overflow = '';
+            }
+
+            showSignupOverlay() {
+                this.signupOverlay.classList.remove('hidden');
+                this.loginOverlay.classList.add('hidden');
+                // this.existingPageContent.classList.add('hidden');
+                document.body.style.overflow = 'hidden';
+            }
+
+            hideSignupOverlay() {
+                this.signupOverlay.classList.add('hidden');
+                document.body.style.overflow = '';
+            }
+
+            showMainContent(user) {
+              if(user.username == "TEG6S"){
+                console.log("hi ro ")
+                // handleSearch(user.username)
+                // handleSearch();
+                   setTimeout(() => {
+      const searchButton = document.getElementById('searchButton');
+      if (searchButton) {
+        searchButton.click();
+        console.log("Search button clicked");
+      } else {
+        console.error("Search button not found");
+      }
+    }, 500); // 500ms delay to ensure DOM is ready
+  }
+                this.hideLoginOverlay();
+                this.hideSignupOverlay();
+                // this.existingPageContent.classList.remove('hidden');
+                this.userInfo?.classList.remove('hidden');
+                this.usernameDisplay.textContent = user.username;
+                this.userProfileButton.classList.remove('hidden');
+                const initials = user.username.charAt(0).toUpperCase();
+                this.userInitials.textContent = initials;
+                this.popupUserInitials.textContent = initials;
+                this.welcomeText.textContent = `Welcome, ${user.username}`;
+                this.updateProfilePopup(user);
+            }
+
+            updateProfilePopup(user) {
+                this.popupUsername.textContent = user.username;
+                this.popupEmail.textContent = user.email || 'No email provided';
+                this.popupRole.textContent = this.capitalizeFirstLetter(user.role);
+                this.usageBar.style.width = `${user.usage}%`;
+                this.usagePercent.textContent = user.usage;
+                this.billingPeriod.textContent = user.billingPeriod || 'No active billing period';
+                this.updateSubscriptionStatus(user.subscriptionStatus);
+                this.darkModeToggle.checked = user.darkModeEnabled || false;
+                if (user.darkModeEnabled) {
+                    this.applyDarkMode();
+                }
+            }
+
+            updateSubscriptionStatus(status) {
+                let text, bgColor;
+                switch (status) {
+                    case 'free-trial':
+                        text = 'Free Trial';
+                        bgColor = 'bg-green-100 text-green-800';
+                        break;
+                    case 'active':
+                        text = 'Active';
+                        bgColor = 'bg-blue-100 text-blue-800';
+                        break;
+                    case 'expired':
+                        text = 'Expired';
+                        bgColor = 'bg-red-100 text-red-800';
+                        break;
+                    default:
+                        text = 'Unknown';
+                        bgColor = 'bg-gray-100 text-gray-800';
+                }
+                this.subscriptionStatus.textContent = text;
+                this.subscriptionStatus.className = `inline-block px-2 py-0.5 rounded text-xs font-medium ${bgColor}`;
+            }
+
+            capitalizeFirstLetter(string) {
+                return string.charAt(0).toUpperCase() + string.slice(1);
+            }
+
+            // showNotification(username) {
+            //     // this.notificationUsername.textContent = username;
+            //     this.notification.classList.add('show');
+            //     setTimeout(() => {
+            //         this.notification.classList.remove('show');
+            //     }, 5000);
+            // }
+
+            async handleLogin() {
+                this.loginButtonText.textContent = 'Signing In...';
+                this.loginSpinner.style.display = 'block';
+                this.loginError.classList.add('hidden');
+
+                const username = document.getElementById('loginUsername').value;
+                const password = document.getElementById('loginPassword').value;
+console.log(username, password)
+                try {
+                    const response = await fetch(`${API_BASE_URL}/login`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ username, password })
+                    });
+                    const data = await response.json();
+                    if (response.ok) {
+                        localStorage.setItem('currentUser', JSON.stringify(data.user));
+                        this.currentUserId = data.user._id; // Store the user ID
+                        this.showMainContent(data.user);
+                        // this.showNotification(data.user.username);
+                    } else {
+                        this.loginError.textContent = data.message || 'Login failed. Please try again.';
+                        this.loginError.classList.remove('hidden');
+                    }
+                } catch (error) {
+                    console.error('Login error:', error);
+                    this.loginError.textContent = 'An error occurred. Please try again later.';
+                    this.loginError.classList.remove('hidden');
+                } finally {
+                    this.loginButtonText.textContent = 'Sign In';
+                    this.loginSpinner.style.display = 'none';
+                }
+            }
+
+            async handleSignup() {
+                this.signupButtonText.textContent = 'Creating Account...';
+                this.signupSpinner.style.display = 'block';
+                this.signupError.classList.add('hidden');
+
+                const username = document.getElementById('signupUsername').value;
+                const email = document.getElementById('signupEmail').value;
+                const password = document.getElementById('signupPassword').value;
+                console.log(username, password, email)
+                try {
+                    const response = await fetch(`${API_BASE_URL}/signup`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ username, email, password })
+                    });
+                    const data = await response.json();
+                    if (response.ok) {
+                      this.currentUserId = data.user._id; // Store the user ID
+                        localStorage.setItem('currentUser', JSON.stringify(data.user));
+                        this.showMainContent(data.user);
+                        // this.showNotification(data.user.username);
+                    } else {
+                        this.signupError.textContent = data.message || 'Signup failed. Please try again.';
+                        this.signupError.classList.remove('hidden');
+                    }
+                } catch (error) {
+                    console.error('Signup error:', error);
+                    this.signupError.textContent = 'An error occurred. Please try again later.';
+                    this.signupError.classList.remove('hidden');
+                } finally {
+                    this.signupButtonText.textContent = 'Start 30-Day Trial';
+                    this.signupSpinner.style.display = 'none';
+                }
+            }
+
+            handleLogout() {
+              this.currentUserId = null; // Clear the user ID
+                localStorage.removeItem('currentUser');
+                this.userInfo?.classList.add('hidden');
+                this.userProfileButton.classList.add('hidden');
+                this.hideProfilePopup();
+                this.showLoginOverlay();
+            }
+
+            toggleProfilePopup() {
+                if (this.isProfilePopupVisible()) {
+                    this.hideProfilePopup();
+                } else {
+                    this.showProfilePopup();
+                }
+            }
+
+            showProfilePopup() {
+                this.profilePopup.classList.remove('hidden', 'scale-0');
+                setTimeout(() => {
+                    this.profilePopup.classList.add('scale-100');
+                }, 10);
+            }
+
+            hideProfilePopup() {
+                this.profilePopup.classList.remove('scale-100');
+                this.profilePopup.classList.add('scale-0');
+                setTimeout(() => {
+                    this.profilePopup.classList.add('hidden');
+                }, 300);
+            }
+
+            toggleDarkMode() {
+                const isDarkMode = this.darkModeToggle.checked;
+                const storedUser = JSON.parse(localStorage.getItem('currentUser'));
+                if (storedUser) {
+                    storedUser.darkModeEnabled = isDarkMode;
+                    localStorage.setItem('currentUser', JSON.stringify(storedUser));
+                }
+                if (isDarkMode) {
+                    this.applyDarkMode();
+                } else {
+                    this.removeDarkMode();
+                }
+            }
+
+            applyDarkMode() {
+                document.body.classList.add('dark-theme');
+                document.querySelectorAll('.bg-white').forEach(el => el.classList.add('dark-theme'));
+                document.querySelectorAll('.text-gray-800').forEach(el => el.classList.add('text-gray-100'));
+                document.querySelectorAll('.text-gray-600').forEach(el => el.classList.add('text-gray-300'));
+            }
+
+            removeDarkMode() {
+                document.body.classList.remove('dark-theme');
+                document.querySelectorAll('.bg-white').forEach(el => el.classList.remove('dark-theme'));
+                document.querySelectorAll('.text-gray-800').forEach(el => el.classList.remove('text-gray-100'));
+                document.querySelectorAll('.text-gray-600').forEach(el => el.classList.remove('text-gray-300'));
+            }
+        }
+
+
+        function getCurrentUserId() {
+    return window.loginSystem ? window.loginSystem.getCurrentUserId() : null;
+}
+
+
+function getCurrentUserInfo() {
+  // Get the stored user data from localStorage
+  const storedUser = localStorage.getItem('currentUser');
+  
+  // Initialize default return object
+  const userInfo = {
+    username: null,
+    email: null,
+    isLoggedIn: false
+  };
+  
+  // Check if user data exists
+  if (storedUser) {
+    try {
+      // Parse the stored JSON data
+      const userData = JSON.parse(storedUser);
+      
+      // Update the return object with user data
+      userInfo.username = userData.username;
+      userInfo.email = userData.email || 'No email provided';
+      userInfo.isLoggedIn = true;
+      
+      console.log('Current user:', userInfo);
+      return userInfo;
+    } catch (error) {
+      console.error('Failed to parse stored user data:', error);
+      return userInfo;
+    }
+  } else {
+    console.log('No user currently logged in');
+    return userInfo;
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Initialize login system
+    window.loginSystem = new LoginSystem();
+    
+    // Initialize your dashboard
+    window.dashboard = new EnhancedFDAIntelligenceDashboard();
+    
+    // Check if user is logged in
+    const currentUser = localStorage.getItem('currentUser');
+    if (currentUser) {
+        const userData = JSON.parse(currentUser);
+        window.loginSystem.showMainContent(userData);
+    } else {
+        window.loginSystem.showLoginOverlay();
+    }
+});
+
+
+
     </script>
 </body>
 </html>
