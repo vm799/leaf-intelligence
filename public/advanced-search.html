@@ -1684,6 +1684,12 @@
     </div>
 
     <script>
+
+
+
+
+
+
         function setupTabs() {
     const tabButtons = document.querySelectorAll('.tab-btn');
     const tabContents = document.querySelectorAll('.tab-content');
@@ -1811,8 +1817,8 @@ setupTabs();
             // Search actions
             document.getElementById('searchButtonAdvanced').addEventListener('click', executeAdvancedSearch);
             document.getElementById('previewBtn').addEventListener('click', showConfigurationPreview);
-            document.getElementById('clearAllBtn').addEventListener('click', clearAllFields);
-            document.getElementById('newSearchBtn').addEventListener('click', clearAllFields);
+            document.getElementById('clearAllBtn').addEventListener('click', clearAdvancedFields);
+            document.getElementById('newSearchBtn').addEventListener('click', clearAdvancedFields);
 
             // Save search
             document.getElementById('saveSearchAdvanced').addEventListener('click', saveSearchConfiguration);
@@ -1827,7 +1833,7 @@ setupTabs();
             document.addEventListener('change', updateQueryPreview);
 
             // Keyboard shortcuts
-            document.addEventListener('keydown', handleKeyboardShortcuts);
+            document.addEventListener('keydown', handleAdvancedKeyboardShortcuts);
 
             // Close dropdowns when clicking outside
             document.addEventListener('click', function(e) {
@@ -2477,7 +2483,7 @@ setupTabs();
         // Enhanced UI Functions
         function showConfigurationPreview() {
             const searchConfig = buildCompleteSearchConfiguration();
-            showModal('Search Configuration Preview', `
+            showAdvancedModal('Search Configuration Preview', `
                 <div class="max-h-96 overflow-y-auto custom-scrollbar">
                     <pre class="bg-gray-100 p-6 rounded-xl text-sm font-mono">${JSON.stringify(searchConfig, null, 2)}</pre>
                 </div>
@@ -2487,10 +2493,10 @@ setupTabs();
             ]);
         }
 
-        function clearAllFields() {
+        function clearAdvancedFields() {
             // Show confirmation for extensive data loss
             if (hasUserData()) {
-                showModal('Clear All Fields', `
+                showAdvancedModal('Clear All Fields', `
                     <div class="text-center py-8">
                         <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -2655,7 +2661,7 @@ setupTabs();
             document.getElementById('exportDropdownAdvanced').classList.add('hidden');
         }
 
-        function handleKeyboardShortcuts(e) {
+        function handleAdvancedKeyboardShortcuts(e) {
             if (e.ctrlKey && e.key === 'Enter') {
                 e.preventDefault();
                 executeAdvancedSearch();
@@ -2668,7 +2674,7 @@ setupTabs();
             
             if (e.ctrlKey && e.key === 'k') {
                 e.preventDefault();
-                clearAllFields();
+                clearAdvancedFields();
             }
             
             if (e.key === 'Escape') {
@@ -2678,7 +2684,7 @@ setupTabs();
         }
 
         // Enhanced utility functions
-        function showModal(title, content, buttons = []) {
+        function showAdvancedModal(title, content, buttons = []) {
             const modal = document.createElement('div');
             modal.className = 'fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4';
             
@@ -2964,7 +2970,7 @@ setupTabs();
                 </div>
             `;
             
-            showModal('Comprehensive Search Results', resultsHTML, [
+            showAdvancedModal('Comprehensive Search Results', resultsHTML, [
                 { text: 'Export Results', action: () => showNotification('Export functionality would open detailed export options', 'info'), class: 'btn-secondary-pro' },
                 { text: 'Refine Search', action: 'close', class: 'btn-primary-pro' }
             ]);
