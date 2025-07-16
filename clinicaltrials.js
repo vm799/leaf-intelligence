@@ -371,6 +371,315 @@ const grokAPI = axios.create({
   }
 });
 
+
+
+
+// Add to clinicaltrials.js
+
+/**
+ * Advanced Clinical Trials Search
+ * POST /api/advanced/clinical-trials
+ */
+app.post('/api/advanced/clinical-trials', async (req, res) => {
+  try {
+    const {
+      queries,           // Array of {field, operator, value, connector}
+      filters,           // Status, phase, demographics filters
+      timeline,          // Years back
+      proximity,         // Proximity search settings
+      aiEnhancements     // AI-powered features
+    } = req.body;
+
+    console.log('🔬 Advanced Clinical Trials search initiated');
+
+    // Build advanced query string
+    const advancedQuery = buildAdvancedClinicalTrialsQuery(queries, filters);
+    
+    // Apply timeline filters
+    const dateFilter = buildTimelineFilter(timeline);
+    
+    // Execute search with enhanced parameters
+    const params = {
+      'filter.advanced': advancedQuery,
+      'filter.overallStatus': filters.overallStatus?.join(','),
+      'filter.studyType': filters.studyType,
+      'filter.phase': filters.phases?.join(','),
+      'query.locn': filters.location?.country,
+      'pageSize': 100,
+      'countTotal': true,
+      'format': 'json',
+      'fields': 'protocolSection,derivedSection,hasResults'
+    };
+
+    if (dateFilter) {
+      params['filter.studyFirstPostDate'] = dateFilter;
+    }
+
+    const response = await axios.get(`${CLINICAL_TRIALS_API_BASE}/studies`, {
+      params
+    });
+
+    // Apply AI enhancements if enabled
+    let enhancedData = response.data;
+    if (aiEnhancements.smartSuggestions) {
+      enhancedData = await applyAIEnhancements(enhancedData, queries);
+    }
+
+    res.json({
+      success: true,
+      data: enhancedData,
+      searchConfig: { queries, filters, timeline, proximity, aiEnhancements },
+      metadata: {
+        searchType: 'advanced_clinical_trials',
+        timestamp: new Date().toISOString()
+      }
+    });
+
+  } catch (error) {
+    handleApiError(error, res);
+  }
+});
+
+/**
+ * Advanced PubMed Search
+ * POST /api/advanced/pubmed
+ */
+app.post('/api/advanced/pubmed', async (req, res) => {
+  try {
+    const { queries, filters, timeline, proximity } = req.body;
+
+    console.log('📚 Advanced PubMed search initiated');
+
+    // Build PubMed query string with field-specific searches
+    const pubmedQuery = buildAdvancedPubMedQuery(queries, proximity);
+    
+    // Apply publication filters
+    const searchParams = {
+      term: pubmedQuery,
+      retmax: 100,
+      sort: filters.sortOrder || 'relevance',
+      field: 'title,abstract,author',
+      datetype: filters.dateType || 'pdat'
+    };
+
+    // Add date range if specified
+    if (timeline) {
+      const currentYear = new Date().getFullYear();
+      const startYear = currentYear - timeline;
+      searchParams.mindate = `${startYear}/01/01`;
+      searchParams.maxdate = `${currentYear}/12/31`;
+    }
+
+    // Add publication type filters
+    if (filters.publicationTypes?.length > 0) {
+      searchParams.term += ` AND (${filters.publicationTypes.map(type => `"${type}"[Publication Type]`).join(' OR ')})`;
+    }
+
+    const publications = await PubMed.searchPublications(searchParams.term, searchParams);
+
+    res.json({
+      success: true,
+      data: {
+        articles: publications,
+        totalResults: publications.length
+      },
+      searchConfig: { queries, filters, timeline, proximity },
+      metadata: {
+        searchType: 'advanced_pubmed',
+        timestamp: new Date().toISOString()
+      }
+    });
+
+  } catch (error) {
+    handleApiError(error, res);
+  }
+});
+
+/**
+ * Advanced FDA Search
+ * POST /api/advanced/fda
+ */
+app.post('/api/advanced/fda', async (req, res) => {
+  try {
+    const { queries, filters, timeline } = req.body;
+
+    console.log('💊 Advanced FDA search initiated');
+
+    // Build FDA-specific queries for each endpoint
+    const fdaResults = await Promise.all([
+      searchAdvancedFDADrugs(queries, filters),
+      searchAdvancedFDALabels(queries, filters),
+      searchAdvancedFDAEnforcement(queries, filters)
+    ]);
+
+    // Combine and deduplicate results
+    const combinedResults = combineAndDeduplicateFDAResults(fdaResults);
+
+    res.json({
+      success: true,
+      data: {
+        endpoints: {
+          drugsfda: fdaResults[0],
+          label: fdaResults[1],
+          enforcement: fdaResults[2]
+        },
+        combinedResults
+      },
+      searchConfig: { queries, filters, timeline },
+      metadata: {
+        searchType: 'advanced_fda',
+        timestamp: new Date().toISOString()
+      }
+    });
+
+  } catch (error) {
+    handleApiError(error, res);
+  }
+});
+
+// Helper functions for advanced query building
+function buildAdvancedClinicalTrialsQuery(queries, filters) {
+  return queries.map(query => {
+    const field = mapClinicalTrialsField(query.field);
+    const operator = mapOperator(query.operator);
+    return `${field}${operator}"${query.value}"`;
+  }).join(` ${queries[0]?.connector || 'AND'} `);
+}
+
+function buildAdvancedPubMedQuery(queries, proximity) {
+  let queryString = queries.map(query => {
+    const field = mapPubMedField(query.field);
+    return `("${query.value}"${field})`;
+  }).join(` ${queries[0]?.connector || 'AND'} `);
+
+  // Apply proximity search if configured
+  if (proximity?.type === 'words') {
+    queryString = applyProximitySearch(queryString, proximity.distance);
+  }
+
+  return queryString;
+}
+
+function mapClinicalTrialsField(field) {
+  const fieldMap = {
+    'drug': 'query.intr',
+    'condition': 'query.cond',
+    'intervention': 'query.intr',
+    'outcome': 'query.outc',
+    'sponsor': 'query.spons',
+    'title': 'query.titles'
+  };
+  return fieldMap[field] || 'query.term';
+}
+
+function mapPubMedField(field) {
+  const fieldMap = {
+    '[Title]': '[Title]',
+    '[Abstract]': '[Abstract]',
+    '[Author]': '[Author]',
+    '[MeSH Terms]': '[MeSH Terms]',
+    '[All Fields]': ''
+  };
+  return fieldMap[field] || '';
+}
+
+/**
+ * Master Advanced Search Endpoint
+ * POST /api/advanced/search
+ */
+app.post('/api/advanced/search', async (req, res) => {
+  try {
+    const {
+      main,              // Primary search queries
+      clinicalTrials,    // CT-specific config
+      pubmed,           // PubMed-specific config
+      fda,              // FDA-specific config
+      timeline,         // Timeline configuration
+      proximity,        // Proximity settings
+      aiEnhancements    // AI features
+    } = req.body;
+
+    console.log('🚀 Master advanced search initiated');
+
+    const searchPromises = [];
+    const enabledDatabases = [];
+
+    // Execute enabled database searches in parallel
+    if (clinicalTrials) {
+      enabledDatabases.push('clinicalTrials');
+      searchPromises.push(
+        axios.post('/api/advanced/clinical-trials', {
+          queries: [...main, ...clinicalTrials.queries],
+          filters: clinicalTrials.filters,
+          timeline,
+          proximity,
+          aiEnhancements
+        })
+      );
+    }
+
+    if (pubmed) {
+      enabledDatabases.push('pubmed');
+      searchPromises.push(
+        axios.post('/api/advanced/pubmed', {
+          queries: [...main, ...pubmed.queries],
+          filters: pubmed.filters,
+          timeline,
+          proximity
+        })
+      );
+    }
+
+    if (fda) {
+      enabledDatabases.push('fda');
+      searchPromises.push(
+        axios.post('/api/advanced/fda', {
+          queries: [...main, ...fda.queries],
+          filters: fda.filters,
+          timeline
+        })
+      );
+    }
+
+    // Wait for all searches to complete
+    const results = await Promise.allSettled(searchPromises);
+
+    // Format response
+    const response = {
+      success: true,
+      databases: {},
+      summary: {
+        enabledDatabases,
+        searchTimestamp: new Date().toISOString(),
+        totalResultsFound: 0
+      }
+    };
+
+    // Process results from each database
+    enabledDatabases.forEach((dbName, index) => {
+      const result = results[index];
+      if (result.status === 'fulfilled') {
+        response.databases[dbName] = result.value.data;
+        response.summary.totalResultsFound += (result.value.data.data?.totalCount || 0);
+      } else {
+        response.databases[dbName] = {
+          success: false,
+          error: result.reason.message
+        };
+      }
+    });
+
+    res.json(response);
+
+  } catch (error) {
+    console.error('Master advanced search error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Advanced search failed',
+      details: error.message
+    });
+  }
+});
 // Route for FDA 510(k) data
 app.get('/api/TEG/fda/510k', async (req, res) => {
   try {
