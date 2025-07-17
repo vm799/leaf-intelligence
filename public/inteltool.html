@@ -1340,7 +1340,7 @@ tailwind.config = {
 </section> -->
 
 <!-- Minimized Search Bar (initially hidden) -->
-        <div id="minimizedSearchBar" class="hidden flex flex-col md:flex-row gap-3  z-50 slide-down search-transition rounded-lg">
+        <div id="minimizedSearchBar" class="flex flex-col md:flex-row gap-3  z-50 slide-down search-transition rounded-lg">
         <div class="max-w-7xl mx-auto px-4 py-3">
             <div class="flex items-center justify-between gap-4">
                 <!-- Search Summary -->
@@ -1445,7 +1445,7 @@ tailwind.config = {
                 </svg>
             </div>
         </div>
-        <div class="hidden flex-grow">
+        <div class="flex-grow">
             <div class="relative">
                 <input type="text" id="conditionSearch" placeholder="Condition (Optional)" 
                        class="w-full p-3 pl-10 bg-gray-50 border-0 rounded-lg focus:ring-2 focus:ring-blue-500 shadow-sm transition-all duration-200">
@@ -1550,7 +1550,7 @@ tailwind.config = {
                     <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
                 </svg>
             </button>
-                            <button id="advancedSearchToggle" onclick="advancedsearchtoggle()" class="hidden 0 hover:from-blue-700 hover:to-indigo-700 text-gray-500 px-6 py-3 rounded-xl font-semibold  hover:shadow-xl transition-all duration-200 flex items-center gap-2 justify-start">
+                            <button id="advancedSearchToggle" onclick="advancedsearchtoggle()" class=" 0 hover:from-blue-700 hover:to-indigo-700 text-gray-500 px-6 py-3 rounded-xl font-semibold  hover:shadow-xl transition-all duration-200 flex items-center gap-2 justify-start">
     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4" />
     </svg>
@@ -3747,7 +3747,7 @@ tailwind.config = {
                 data-section="ema">
             🇪🇺 EMA Data
         </button>
-        <button onclick="showOnlySection('pubmedSection')" 
+        <button onclick="showOnlySection('tabpubmedSection')" 
                 class="nav-btn px-4 py-2 text-sm font-medium rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 transition-colors"
                 data-section="pubmed">
             📚 PubMed
@@ -4174,7 +4174,7 @@ tailwind.config = {
             <button onclick="showOnlySection('emaDataSection')" class="px-3 py-1 text-sm bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-colors">
                 View EMA Data
             </button>
-            <button onclick="showOnlySection('pubmedSection')" class="px-3 py-1 text-sm bg-orange-100 text-orange-700 rounded-lg hover:bg-orange-200 transition-colors">
+            <button onclick="showOnlySection('tabpubmedSection')" class="px-3 py-1 text-sm bg-orange-100 text-orange-700 rounded-lg hover:bg-orange-200 transition-colors">
                 View Publications
             </button>
         </div>
@@ -4220,7 +4220,7 @@ tailwind.config = {
 
         <!-- PubMed Section (Initially Hidden) -->
 <!-- Enhanced PubMed Section -->
- <section id="pubmedSection" class="hidden mt-8 bg-white rounded-lg shadow-md p-6">
+ <section id="tabpubmedSection" class="hidden mt-8 bg-white rounded-lg shadow-md p-6">
   <h2 class="text-2xl font-bold text-gray-800 mb-4">PubMed Search</h2>
 
  
@@ -8799,7 +8799,7 @@ appState.allTrialOutcomes = [];
             ema: document.getElementById('emaDataSection'),
             ctSummary : document.getElementById('clinical-trials-dashboard'),
             drugSearch: document.getElementById('drugSearch'),
-            pubmedSection: document.getElementById('pubmedSection'),
+            pubmedSection: document.getElementById('tabpubmedSection'),
             conditionSearch: document.getElementById('conditionSearch'),
             hasResultsOnly: document.getElementById('hasResultsOnly'),
             trdFocusOnly: document.getElementById('trdFocusOnly'),
@@ -8876,10 +8876,10 @@ window.appState = {
 
 
 // Make sure we have a main container for backwards compatibility
-if (!document.getElementById('pubmedSection')) {
+if (!document.getElementById('tabpubmedSection')) {
   // Create a hidden container to satisfy the original module requirements
   const mainContainer = document.createElement('div');
-  mainContainer.id = 'pubmedSection';
+  mainContainer.id = 'tabpubmedSection';
   mainContainer.style.display = 'none'; // Keep it hidden
   document.body.appendChild(mainContainer);
   
@@ -73379,7 +73379,7 @@ const GENERALPubMedModule = (function() {
   // Elements map for DOM references
   const elements = {
     // Main containers
-    pubmedSection: safeGetElement('pubmedSection'),
+    pubmedSection: safeGetElement('tabpubmedSection'),
     pubmedLoading: safeGetElement('pubmedLoading'),
     pubmedError: safeGetElement('pubmedError'),
     pubmedErrorMessage: safeGetElement('pubmedErrorMessage'),
@@ -75998,10 +75998,10 @@ async function performPubMedSearch(term, options = {}) {
   // Create required elements if they don't exist
   function ensureRequiredElements() {
     // Create main container if needed
-    if (!document.getElementById('pubmedSection')) {
+    if (!document.getElementById('tabpubmedSection')) {
       console.log("PubMed Module: Creating missing pubmedSection element");
       const section = document.createElement('div');
-      section.id = 'pubmedSection';
+      section.id = 'tabpubmedSection';
       section.className = 'hidden';
       
       // Try to find a suitable parent element
@@ -76019,22 +76019,22 @@ async function performPubMedSearch(term, options = {}) {
     
     // Create other essential elements
     const requiredElements = [
-      { id: 'pubmedLoading', parent: 'pubmedSection', className: 'flex justify-center items-center py-12 hidden' },
-      { id: 'pubmedError', parent: 'pubmedSection', className: 'bg-red-50 p-6 rounded-lg text-center hidden' },
-      { id: 'pubmedEmpty', parent: 'pubmedSection', className: 'bg-gray-50 p-8 rounded-lg text-center hidden' },
-      { id: 'pubmedArticles', parent: 'pubmedSection', className: 'hidden' },
+      { id: 'pubmedLoading', parent: 'tabpubmedSection', className: 'flex justify-center items-center py-12 hidden' },
+      { id: 'pubmedError', parent: 'tabpubmedSection', className: 'bg-red-50 p-6 rounded-lg text-center hidden' },
+      { id: 'pubmedEmpty', parent: 'tabpubmedSection', className: 'bg-gray-50 p-8 rounded-lg text-center hidden' },
+      { id: 'pubmedArticles', parent: 'tabpubmedSection', className: 'hidden' },
       { id: 'pubmedArticlesList', parent: 'pubmedArticles', className: 'space-y-4' },
-      { id: 'pubmedTreatments', parent: 'pubmedSection', className: 'mb-8 hidden' },
+      { id: 'pubmedTreatments', parent: 'tabpubmedSection', className: 'mb-8 hidden' },
       { id: 'pubmedTreatmentsContent', parent: 'pubmedTreatments', className: 'hidden' },
-      { id: 'pubmedDrugInfo', parent: 'pubmedSection', className: 'mb-8 hidden' },
+      { id: 'pubmedDrugInfo', parent: 'tabpubmedSection', className: 'mb-8 hidden' },
       { id: 'pubmedDrugInfoContent', parent: 'pubmedDrugInfo', className: 'hidden' },
-      { id: 'pubmedExpandedInfo', parent: 'pubmedSection', className: 'hidden' },
-      { id: 'pubmedSelectedArticles', parent: 'pubmedSection', className: 'mb-4 hidden' },
-      { id: 'pubmedAISummarySection', parent: 'pubmedSection', className: 'mb-8 hidden' },
+      { id: 'pubmedExpandedInfo', parent: 'tabpubmedSection', className: 'hidden' },
+      { id: 'pubmedSelectedArticles', parent: 'tabpubmedSection', className: 'mb-4 hidden' },
+      { id: 'pubmedAISummarySection', parent: 'tabpubmedSection', className: 'mb-8 hidden' },
       { id: 'pubmedAISummaryLoading', parent: 'pubmedAISummarySection', className: 'flex justify-center items-center py-6 hidden' },
       { id: 'pubmedAISummaryContent', parent: 'pubmedAISummarySection', className: 'bg-white p-6 rounded-lg shadow-sm border border-gray-200 hidden' },
-      { id: 'pubmedCollectionSummary', parent: 'pubmedSection', className: 'mb-8 hidden' },
-      { id: 'pubmedThematicAnalysis', parent: 'pubmedSection', className: 'mb-8 hidden' }
+      { id: 'pubmedCollectionSummary', parent: 'tabpubmedSection', className: 'mb-8 hidden' },
+      { id: 'pubmedThematicAnalysis', parent: 'tabpubmedSection', className: 'mb-8 hidden' }
     ];
     
     requiredElements.forEach(elem => {
@@ -76911,7 +76911,7 @@ const PubMedModule = (function() {
   // Elements map for DOM references
   const elements = {
     // Main containers
-    pubmedSection: safeGetElement('pubmedSection'),
+    pubmedSection: safeGetElement('tabpubmedSection'),
     pubmedLoading: safeGetElement('pubmedLoading'),
     pubmedError: safeGetElement('pubmedError'),
     pubmedErrorMessage: safeGetElement('pubmedErrorMessage'),
@@ -80409,10 +80409,10 @@ ${pmids.map(pmid => `https://pubmed.ncbi.nlm.nih.gov/${pmid}/`).join('\n')}
   // Create required elements if they don't exist
   function ensureRequiredElements() {
     // Create main container if needed
-    if (!document.getElementById('pubmedSection')) {
+    if (!document.getElementById('tabpubmedSection')) {
       console.log("PubMed Module: Creating missing pubmedSection element");
       const section = document.createElement('div');
-      section.id = 'pubmedSection';
+      section.id = 'tabpubmedSection';
       section.className = 'hidden';
       
       // Try to find a suitable parent element
@@ -80430,22 +80430,22 @@ ${pmids.map(pmid => `https://pubmed.ncbi.nlm.nih.gov/${pmid}/`).join('\n')}
     
     // Create other essential elements
     const requiredElements = [
-      { id: 'pubmedLoading', parent: 'pubmedSection', className: 'flex justify-center items-center py-12 hidden' },
-      { id: 'pubmedError', parent: 'pubmedSection', className: 'bg-red-50 p-6 rounded-lg text-center hidden' },
-      { id: 'pubmedEmpty', parent: 'pubmedSection', className: 'bg-gray-50 p-8 rounded-lg text-center hidden' },
-      { id: 'pubmedArticles', parent: 'pubmedSection', className: 'hidden' },
+      { id: 'pubmedLoading', parent: 'tabpubmedSection', className: 'flex justify-center items-center py-12 hidden' },
+      { id: 'pubmedError', parent: 'tabpubmedSection', className: 'bg-red-50 p-6 rounded-lg text-center hidden' },
+      { id: 'pubmedEmpty', parent: 'tabpubmedSection', className: 'bg-gray-50 p-8 rounded-lg text-center hidden' },
+      { id: 'pubmedArticles', parent: 'tabpubmedSection', className: 'hidden' },
       { id: 'pubmedArticlesList', parent: 'pubmedArticles', className: 'space-y-4' },
-      { id: 'pubmedTreatments', parent: 'pubmedSection', className: 'mb-8 hidden' },
+      { id: 'pubmedTreatments', parent: 'tabpubmedSection', className: 'mb-8 hidden' },
       { id: 'pubmedTreatmentsContent', parent: 'pubmedTreatments', className: 'hidden' },
-      { id: 'pubmedDrugInfo', parent: 'pubmedSection', className: 'mb-8 hidden' },
+      { id: 'pubmedDrugInfo', parent: 'tabpubmedSection', className: 'mb-8 hidden' },
       { id: 'pubmedDrugInfoContent', parent: 'pubmedDrugInfo', className: 'hidden' },
-      { id: 'pubmedExpandedInfo', parent: 'pubmedSection', className: 'hidden' },
-      { id: 'pubmedSelectedArticles', parent: 'pubmedSection', className: 'mb-4 hidden' },
-      { id: 'pubmedAISummarySection', parent: 'pubmedSection', className: 'mb-8 hidden' },
+      { id: 'pubmedExpandedInfo', parent: 'tabpubmedSection', className: 'hidden' },
+      { id: 'pubmedSelectedArticles', parent: 'tabpubmedSection', className: 'mb-4 hidden' },
+      { id: 'pubmedAISummarySection', parent: 'tabpubmedSection', className: 'mb-8 hidden' },
       { id: 'pubmedAISummaryLoading', parent: 'pubmedAISummarySection', className: 'flex justify-center items-center py-6 hidden' },
       { id: 'pubmedAISummaryContent', parent: 'pubmedAISummarySection', className: 'bg-white p-6 rounded-lg shadow-sm border border-gray-200 hidden' },
-      { id: 'pubmedCollectionSummary', parent: 'pubmedSection', className: 'mb-8 hidden' },
-      { id: 'pubmedThematicAnalysis', parent: 'pubmedSection', className: 'mb-8 hidden' }
+      { id: 'pubmedCollectionSummary', parent: 'tabpubmedSection', className: 'mb-8 hidden' },
+      { id: 'pubmedThematicAnalysis', parent: 'tabpubmedSection', className: 'mb-8 hidden' }
     ];
     
     requiredElements.forEach(elem => {
@@ -89773,14 +89773,14 @@ if (window.afterSearchComplete) {
 
 function showOnlySection(sectionName) {
     // Hide all sections first
-    const sections = ['summarySection', 'trials', 'fdaDataSection', 'responseLettersSection', 'emaDataSection', 'pubmedSection', 'warningLetters','OrangeBookSection','LabellingSection'  ];
+    const sections = ['summarySection', 'trials', 'fdaDataSection', 'responseLettersSection', 'emaDataSection', 'tabpubmedSection', 'warningLetters','OrangeBookSection','LabellingSection'  ];
     sections.forEach(section => {
         const elementMap = {
             'summarySection': document.getElementById('summarySection'),
             'trials': elements.studiesSection || elements.resultsOverview || document.getElementById('containerId2342USAETIMELINE'),
             'fdaDataSection': elements.fdaDataSection,
             'emaDataSection': elements.ema,
-            'pubmedSection': elements.pubmedSection,
+            'tabpubmedSection': elements.pubmedSection ,
             'warningLetters': document.getElementById('warningLetters'),
             'OrangeBookSection' : document.getElementById('OrangeBookSection'),
             'LabellingSection' : document.getElementById('LabellingSection'),
@@ -89809,7 +89809,7 @@ function showOnlySection(sectionName) {
         'trials': elements.studiesSection || elements.resultsOverview,
         'fdaDataSection': elements.fdaDataSection,
         'emaDataSection': elements.ema,
-        'pubmedSection': elements.pubmedSection,
+        'tabpubmedSection': elements.pubmedSection,
         'warningLetters': document.getElementById('warningLetters'),
         'OrangeBookSection' : document.getElementById('OrangeBookSection'),
         'LabellingSection' : document.getElementById('LabellingSection'),
@@ -91423,64 +91423,306 @@ function generateClinicalDevelopmentStatus(dataAnalysis) {
 
 
 // Generate risk assessment
-function generateRiskAssessment(dataAnalysis) {
-    const riskAssessment = assessRisks(dataAnalysis);
-    
-    return `
-        <div class="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
-            <h2 class="text-xl font-bold text-gray-900 mb-4">Risk Assessment</h2>
-            <div class="space-y-4">
-                ${riskAssessment.map(risk => `
-                    <div class="flex items-start p-4 border border-gray-200 rounded-lg">
-                        <div class="flex-shrink-0 w-3 h-3 mt-2 rounded-full ${risk.color}"></div>
-                        <div class="ml-4">
-                            <div class="font-medium text-gray-900">${risk.category}</div>
-                            <div class="text-sm text-gray-600">${risk.description}</div>
-                            <div class="text-sm text-gray-500 mt-1">Impact: ${risk.impact}</div>
-                        </div>
-                    </div>
-                `).join('')}
-            </div>
-        </div>
-    `;
-}
-
-// Generate actionable recommendations
-function generateActionableRecommendations(searchTerm, dataAnalysis) {
-    const recommendations = generateRecommendations(searchTerm, dataAnalysis);
-    
-    return `
-        <div class="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-6 shadow-sm">
-            <h2 class="text-xl font-bold text-gray-900 mb-4 flex items-center">
-                <svg class="w-6 h-6 mr-2 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                </svg>
-                Actionable Recommendations
-            </h2>
+function generateRiskAssessment(data) {
+    try {
+        console.log('generateRiskAssessment called with data:', data);
+        
+        // Safety check for input data
+        if (!data) {
+            console.warn('generateRiskAssessment: No data provided');
+            return {
+                overallRisk: 'unknown',
+                assessments: [],
+                summary: 'Unable to generate risk assessment due to missing data',
+                recommendations: []
+            };
+        }
+        
+        // Handle different possible data structures
+        let riskAssessment;
+        
+        // Case 1: data is already a risk assessment object
+        if (data.riskLevel || data.riskFactors || data.score !== undefined) {
+            riskAssessment = [data]; // Wrap single assessment in array
+        }
+        // Case 2: data has a riskAssessment property that's an array
+        else if (Array.isArray(data.riskAssessment)) {
+            riskAssessment = data.riskAssessment;
+        }
+        // Case 3: data has a riskAssessment property that's an object
+        else if (data.riskAssessment && typeof data.riskAssessment === 'object') {
+            riskAssessment = [data.riskAssessment]; // Wrap in array
+        }
+        // Case 4: data has assessments property
+        else if (Array.isArray(data.assessments)) {
+            riskAssessment = data.assessments;
+        }
+        // Case 5: data itself is an array
+        else if (Array.isArray(data)) {
+            riskAssessment = data;
+        }
+        // Case 6: No recognizable risk assessment data
+        else {
+            console.warn('generateRiskAssessment: No recognizable risk assessment data found');
+            console.log('Available properties:', Object.keys(data));
+            riskAssessment = [];
+        }
+        
+        console.log(`Processing ${riskAssessment.length} risk assessment(s)`);
+        
+        // Ensure we have an array to work with
+        if (!Array.isArray(riskAssessment)) {
+            console.warn('riskAssessment is not an array, got:', typeof riskAssessment);
+            riskAssessment = [];
+        }
+        
+        // Process each risk assessment safely
+        const processedAssessments = riskAssessment.map((assessment, index) => {
+            if (!assessment) {
+                console.warn(`Null assessment at index ${index}`);
+                return {
+                    riskLevel: 'unknown',
+                    riskFactors: [],
+                    recommendations: [],
+                    score: 0,
+                    source: 'empty'
+                };
+            }
             
-            <div class="space-y-4">
-                ${recommendations.map((rec, index) => `
-                    <div class="p-4 bg-white border border-green-200 rounded-lg">
-                        <div class="flex items-start">
-                            <span class="inline-block w-8 h-8 rounded-full bg-green-100 text-green-600 text-sm font-bold text-center leading-8 mr-3 flex-shrink-0">
-                                ${index + 1}
-                            </span>
-                            <div>
-                                <h3 class="font-medium text-gray-900 mb-1">${rec.title}</h3>
-                                <p class="text-sm text-gray-700 mb-2">${rec.description}</p>
-                                <div class="flex items-center space-x-4 text-xs text-gray-500">
-                                    <span>Priority: ${rec.priority}</span>
-                                    <span>Timeline: ${rec.timeline}</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `).join('')}
-            </div>
-        </div>
-    `;
+            return {
+                riskLevel: assessment.riskLevel || assessment.level || 'unknown',
+                riskFactors: assessment.riskFactors || assessment.factors || [],
+                recommendations: assessment.recommendations || assessment.suggestions || [],
+                score: assessment.score || assessment.riskScore || 0,
+                source: assessment.source || `assessment_${index + 1}`,
+                enforcementCount: assessment.enforcementCount || 0
+            };
+        });
+        
+        // Calculate overall risk
+        let overallRisk = 'low';
+        const totalScore = processedAssessments.reduce((sum, assessment) => sum + assessment.score, 0);
+        const avgScore = processedAssessments.length > 0 ? totalScore / processedAssessments.length : 0;
+        
+        if (avgScore === 0) {
+            overallRisk = 'unknown';
+        } else if (avgScore <= 2) {
+            overallRisk = 'low';
+        } else if (avgScore <= 5) {
+            overallRisk = 'medium';
+        } else {
+            overallRisk = 'high';
+        }
+        
+        // Generate summary
+        let summary;
+        if (processedAssessments.length === 0) {
+            summary = 'No risk assessment data available';
+        } else {
+            const highRiskCount = processedAssessments.filter(a => a.riskLevel === 'high').length;
+            const mediumRiskCount = processedAssessments.filter(a => a.riskLevel === 'medium').length;
+            
+            if (highRiskCount > 0) {
+                summary = `High risk detected: ${highRiskCount} high-risk factor(s) identified`;
+            } else if (mediumRiskCount > 0) {
+                summary = `Medium risk detected: ${mediumRiskCount} medium-risk factor(s) identified`;
+            } else {
+                summary = 'Overall risk assessment indicates low risk profile';
+            }
+        }
+        
+        return {
+            overallRisk,
+            assessments: processedAssessments,
+            summary,
+            recommendations: [...new Set(processedAssessments.flatMap(a => a.recommendations))],
+            riskFactors: [...new Set(processedAssessments.flatMap(a => a.riskFactors))],
+            totalScore,
+            averageScore: avgScore,
+            assessmentCount: processedAssessments.length
+        };
+        
+    } catch (error) {
+        console.error('Error in generateRiskAssessment:', error);
+        console.error('Input data was:', data);
+        
+        return {
+            overallRisk: 'error',
+            assessments: [],
+            summary: 'Error occurred during risk assessment generation',
+            recommendations: ['Unable to complete risk assessment - please check data sources'],
+            riskFactors: [],
+            error: error.message
+        };
+    }
+}
+// Generate actionable recommendations
+function generateActionableRecommendations(data) {
+    try {
+        console.log('generateActionableRecommendations called with data:', data);
+        
+        // Safety check for input data
+        if (!data) {
+            console.warn('generateActionableRecommendations: No data provided');
+            return {
+                actionableItems: [],
+                priorityLevel: 'unknown',
+                summary: 'Unable to generate recommendations due to missing data'
+            };
+        }
+        
+        // Handle different possible data structures for recommendations
+        let recommendations;
+        
+        // Case 1: data has recommendations property that's an array
+        if (Array.isArray(data.recommendations)) {
+            recommendations = data.recommendations;
+        }
+        // Case 2: data has recommendations property that's an object with recommendations array
+        else if (data.recommendations && Array.isArray(data.recommendations.recommendations)) {
+            recommendations = data.recommendations.recommendations;
+        }
+        // Case 3: data has actionItems property
+        else if (Array.isArray(data.actionItems)) {
+            recommendations = data.actionItems;
+        }
+        // Case 4: data has suggestions property
+        else if (Array.isArray(data.suggestions)) {
+            recommendations = data.suggestions;
+        }
+        // Case 5: data itself is an array
+        else if (Array.isArray(data)) {
+            recommendations = data;
+        }
+        // Case 6: data is an object with recommendation-like properties
+        else if (data.recommendations && typeof data.recommendations === 'object') {
+            // Extract recommendations from object properties
+            recommendations = Object.values(data.recommendations).filter(item => 
+                typeof item === 'string' || (item && item.text)
+            );
+        }
+        // Case 7: No recognizable recommendations data
+        else {
+            console.warn('generateActionableRecommendations: No recognizable recommendations data found');
+            console.log('Available properties:', Object.keys(data));
+            recommendations = [];
+        }
+        
+        console.log(`Processing ${recommendations.length} recommendation(s)`);
+        
+        // Ensure we have an array to work with
+        if (!Array.isArray(recommendations)) {
+            console.warn('recommendations is not an array, got:', typeof recommendations);
+            recommendations = [];
+        }
+        
+        // Process recommendations safely
+        const actionableItems = recommendations.map((rec, index) => {
+            if (!rec) {
+                console.warn(`Null recommendation at index ${index}`);
+                return {
+                    action: 'Review data source',
+                    priority: 'low',
+                    category: 'data-quality',
+                    description: 'Empty recommendation found'
+                };
+            }
+            
+            // Handle string recommendations
+            if (typeof rec === 'string') {
+                return {
+                    action: rec,
+                    priority: determinePriority(rec),
+                    category: categorizeRecommendation(rec),
+                    description: rec
+                };
+            }
+            
+            // Handle object recommendations
+            return {
+                action: rec.action || rec.recommendation || rec.text || rec.description || `Action item ${index + 1}`,
+                priority: rec.priority || determinePriority(rec.action || rec.text || ''),
+                category: rec.category || categorizeRecommendation(rec.action || rec.text || ''),
+                description: rec.description || rec.details || rec.action || rec.text || 'No description available',
+                timeline: rec.timeline || rec.timeframe || 'Not specified',
+                responsible: rec.responsible || rec.owner || 'Not assigned'
+            };
+        });
+        
+        // Determine overall priority
+        const priorities = actionableItems.map(item => item.priority);
+        let priorityLevel = 'low';
+        if (priorities.includes('high')) {
+            priorityLevel = 'high';
+        } else if (priorities.includes('medium')) {
+            priorityLevel = 'medium';
+        }
+        
+        // Generate summary
+        let summary;
+        if (actionableItems.length === 0) {
+            summary = 'No actionable recommendations available';
+        } else {
+            const highPriorityCount = actionableItems.filter(item => item.priority === 'high').length;
+            const mediumPriorityCount = actionableItems.filter(item => item.priority === 'medium').length;
+            
+            summary = `Generated ${actionableItems.length} actionable recommendation(s): ${highPriorityCount} high priority, ${mediumPriorityCount} medium priority`;
+        }
+        
+        const result = {
+            actionableItems,
+            priorityLevel,
+            summary,
+            totalItems: actionableItems.length,
+            highPriorityCount: actionableItems.filter(item => item.priority === 'high').length,
+            lastGenerated: new Date().toISOString()
+        };
+        
+        console.log('Actionable recommendations generation completed:', result);
+        return result;
+        
+    } catch (error) {
+        console.error('Error in generateActionableRecommendations:', error);
+        console.error('Input data was:', data);
+        
+        return {
+            actionableItems: [],
+            priorityLevel: 'error',
+            summary: 'Error occurred during actionable recommendations generation',
+            error: error.message
+        };
+    }
 }
 
+// Helper function to determine priority based on content
+function determinePriority(text) {
+    if (!text || typeof text !== 'string') return 'low';
+    
+    const lowerText = text.toLowerCase();
+    if (lowerText.includes('urgent') || lowerText.includes('immediate') || lowerText.includes('critical') || lowerText.includes('high risk')) {
+        return 'high';
+    } else if (lowerText.includes('important') || lowerText.includes('review') || lowerText.includes('monitor') || lowerText.includes('medium risk')) {
+        return 'medium';
+    }
+    return 'low';
+}
+
+// Helper function to categorize recommendations
+function categorizeRecommendation(text) {
+    if (!text || typeof text !== 'string') return 'general';
+    
+    const lowerText = text.toLowerCase();
+    if (lowerText.includes('compliance') || lowerText.includes('regulatory')) {
+        return 'compliance';
+    } else if (lowerText.includes('risk') || lowerText.includes('safety')) {
+        return 'risk-management';
+    } else if (lowerText.includes('approval') || lowerText.includes('submission')) {
+        return 'regulatory-process';
+    } else if (lowerText.includes('monitor') || lowerText.includes('track')) {
+        return 'monitoring';
+    }
+    return 'general';
+}
 // Generate data export options
 function generateDataExportOptions(searchTerm, dataAnalysis) {
     return `
@@ -92124,43 +92366,73 @@ function generatePubMedAnalysisCard(pubmedData) {
     `;
 }
 // Timeline and status assessment functions
-function extractTimelineEvents(dataAnalysis) {
-    const events = [];
+// function extractTimelineEvents(dataAnalysis) {
+//     const events = [];
     
-    // Add FDA events
-    if (dataAnalysis.sections.fda.breakdown.approvalStatus === 'Approved') {
-        events.push({
-            title: 'FDA Approval',
-            date: 'Date varies',
-            description: 'Drug received FDA approval',
-            color: 'bg-green-500'
-        });
+//     // Add FDA events
+//     if (dataAnalysis.sections.fda.breakdown.approvalStatus === 'Approved') {
+//         events.push({
+//             title: 'FDA Approval',
+//             date: 'Date varies',
+//             description: 'Drug received FDA approval',
+//             color: 'bg-green-500'
+//         });
+//     }
+    
+//     // Add EMA events
+//     if (dataAnalysis?.sections?.ema?.breakdown?.medicines > 0 || 
+//     dataAnalysis?.sections?.ema?.count > 0) {
+//         events.push({
+//             title: 'EMA Authorization',
+//             date: 'Date varies',
+//             description: 'European medicines authorization',
+//             color: 'bg-purple-500'
+//         });
+//     }
+    
+//     // Add clinical trial milestones
+//     if (dataAnalysis.sections.trials.breakdown.recentActivity > 0) {
+//         events.push({
+//             title: 'Recent Clinical Activity',
+//             date: 'Last 2 years',
+//             description: `${dataAnalysis.sections.trials.breakdown.recentActivity} trials with recent activity`,
+//             color: 'bg-blue-500'
+//         });
+//     }
+    
+//     return events.sort((a, b) => new Date(b.date) - new Date(a.date));
+// }
+function extractTimelineEvents(data) {
+    // Safety checks
+    if (!data) {
+        console.warn('extractTimelineEvents: No data provided');
+        return [];
     }
     
-    // Add EMA events
-    if (dataAnalysis?.sections?.ema?.breakdown?.medicines > 0 || 
-    dataAnalysis?.sections?.ema?.count > 0) {
-        events.push({
-            title: 'EMA Authorization',
-            date: 'Date varies',
-            description: 'European medicines authorization',
-            color: 'bg-purple-500'
-        });
+    // Check for approvalStatus with fallback
+    const approvalStatus = data.approvalStatus || data.approval_status || [];
+    
+    if (!Array.isArray(approvalStatus)) {
+        console.warn('extractTimelineEvents: approvalStatus is not an array, got:', typeof approvalStatus);
+        return [];
     }
     
-    // Add clinical trial milestones
-    if (dataAnalysis.sections.trials.breakdown.recentActivity > 0) {
-        events.push({
-            title: 'Recent Clinical Activity',
-            date: 'Last 2 years',
-            description: `${dataAnalysis.sections.trials.breakdown.recentActivity} trials with recent activity`,
-            color: 'bg-blue-500'
-        });
-    }
-    
-    return events.sort((a, b) => new Date(b.date) - new Date(a.date));
+    // Process the events safely
+    return approvalStatus.map((item, index) => {
+        if (!item) {
+            console.warn(`extractTimelineEvents: Empty item at index ${index}`);
+            return null;
+        }
+        
+        return {
+            date: item.date || item.approvalDate || 'Unknown',
+            status: item.status || item.approvalStatus || 'Unknown',
+            type: item.type || 'approval',
+            description: item.description || `Approval event ${index + 1}`,
+            source: item.source || 'FDA'
+        };
+    }).filter(Boolean); // Remove any null entries
 }
-
 // function assessDevelopmentStatus(dataAnalysis) {
 //     const trials = dataAnalysis.sections.trials.breakdown || {};
 //     const fda = dataAnalysis.sections.fda.breakdown || {};
@@ -92438,106 +92710,210 @@ function generatePhaseBreakdown(trialsBreakdown) {
     `;
 }
 
-function assessRisks(dataAnalysis) {
-    const risks = [];
-    
-    // Data quality risks
-    if (dataAnalysis.dataQuality === 'limited') {
-        risks.push({
-            category: 'Data Quality',
-            description: 'Limited data availability may affect analysis reliability',
-            impact: 'Medium',
-            color: 'bg-yellow-500'
+function assessRisks(data) {
+    try {
+        console.log('assessRisks called with data:', data);
+        
+        // Safety checks for data object
+        if (!data) {
+            console.warn('assessRisks: No data provided');
+            return {
+                riskLevel: 'unknown',
+                riskFactors: [],
+                recommendations: ['Unable to assess risk due to missing data'],
+                score: 0
+            };
+        }
+        
+        // Check for enforcements with multiple possible property names
+        const enforcements = data.enforcements || 
+                           data.enforcement || 
+                           data.enforcementActions || 
+                           data.enforcement_actions || 
+                           [];
+        
+        if (!Array.isArray(enforcements)) {
+            console.warn('assessRisks: enforcements is not an array, got:', typeof enforcements, enforcements);
+            return {
+                riskLevel: 'low',
+                riskFactors: [],
+                recommendations: ['No enforcement data available for analysis'],
+                score: 1
+            };
+        }
+        
+        console.log(`Processing ${enforcements.length} enforcement records`);
+        
+        // Initialize risk assessment
+        let riskScore = 0;
+        const riskFactors = [];
+        const recommendations = [];
+        
+        // Analyze enforcement actions safely
+        enforcements.forEach((enforcement, index) => {
+            if (!enforcement) {
+                console.warn(`Empty enforcement record at index ${index}`);
+                return;
+            }
+            
+            // Extract enforcement details safely
+            const action = enforcement.action || enforcement.actionType || enforcement.type || 'Unknown';
+            const severity = enforcement.severity || enforcement.level || 'medium';
+            const date = enforcement.date || enforcement.actionDate || 'Unknown';
+            
+            // Calculate risk based on enforcement type
+            if (action.toLowerCase().includes('warning')) {
+                riskScore += 2;
+                riskFactors.push(`Warning Letter issued (${date})`);
+            } else if (action.toLowerCase().includes('recall')) {
+                riskScore += 3;
+                riskFactors.push(`Product Recall (${date})`);
+            } else if (action.toLowerCase().includes('seizure')) {
+                riskScore += 4;
+                riskFactors.push(`Product Seizure (${date})`);
+            } else {
+                riskScore += 1;
+                riskFactors.push(`Enforcement Action: ${action} (${date})`);
+            }
         });
+        
+        // Determine risk level
+        let riskLevel;
+        if (riskScore === 0) {
+            riskLevel = 'low';
+            recommendations.push('No recent enforcement actions found');
+        } else if (riskScore <= 2) {
+            riskLevel = 'low';
+            recommendations.push('Monitor for any new enforcement activities');
+        } else if (riskScore <= 5) {
+            riskLevel = 'medium';
+            recommendations.push('Review compliance status and recent enforcement actions');
+        } else {
+            riskLevel = 'high';
+            recommendations.push('Immediate attention required - multiple enforcement actions detected');
+        }
+        
+        return {
+            riskLevel,
+            riskFactors,
+            recommendations,
+            score: riskScore,
+            enforcementCount: enforcements.length
+        };
+        
+    } catch (error) {
+        console.error('Error in assessRisks function:', error);
+        console.error('Input data was:', data);
+        
+        return {
+            riskLevel: 'error',
+            riskFactors: ['Error occurred during risk assessment'],
+            recommendations: ['Unable to complete risk assessment - please check data sources'],
+            score: 0,
+            error: error.message
+        };
     }
-    
-    // Regulatory risks
-    if (dataAnalysis.sections.fda.breakdown.enforcements > 0) {
-        risks.push({
-            category: 'Regulatory',
-            description: 'FDA enforcement actions identified',
-            impact: 'High',
-            color: 'bg-red-500'
-        });
-    }
-    
-    // Safety risks
-    if (dataAnalysis.sections.fda.breakdown.adverseEvents > 10) {
-        risks.push({
-            category: 'Safety',
-            description: 'High number of adverse events reported',
-            impact: 'High',
-            color: 'bg-red-500'
-        });
-    }
-    
-    // Development risks
-    if (dataAnalysis.sections.trials.breakdown.recentActivity === 0) {
-        risks.push({
-            category: 'Development',
-            description: 'No recent clinical trial activity',
-            impact: 'Medium',
-            color: 'bg-yellow-500'
-        });
-    }
-    
-    return risks;
 }
-
-function generateRecommendations(searchTerm, dataAnalysis) {
-    const recommendations = [];
-    
-    // Data collection recommendations
-    if (dataAnalysis.dataQuality === 'limited') {
-        recommendations.push({
-            title: 'Expand Data Collection',
-            description: 'Consider additional data sources to improve analysis completeness',
-            priority: 'High',
-            timeline: '1-2 weeks'
+function generateRecommendations(data) {
+    try {
+        console.log('generateRecommendations called with data:', data);
+        
+        // Safety check for input data
+        if (!data) {
+            console.warn('generateRecommendations: No data provided');
+            return {
+                recommendations: ['Unable to generate recommendations due to missing data'],
+                priority: 'low',
+                actionItems: []
+            };
+        }
+        
+        // Check for approvalStatus with multiple possible property names
+        const approvalStatus = data.approvalStatus || 
+                             data.approval_status || 
+                             data.approvals || 
+                             data.approvalData || 
+                             [];
+        
+        if (!Array.isArray(approvalStatus)) {
+            console.warn('generateRecommendations: approvalStatus is not an array, got:', typeof approvalStatus);
+            return {
+                recommendations: ['No approval status data available for analysis'],
+                priority: 'low',
+                actionItems: ['Review data sources for approval information']
+            };
+        }
+        
+        console.log(`Processing ${approvalStatus.length} approval records`);
+        
+        const recommendations = [];
+        const actionItems = [];
+        let priority = 'low';
+        
+        // Analyze approval status safely
+        approvalStatus.forEach((approval, index) => {
+            if (!approval) {
+                console.warn(`Empty approval record at index ${index}`);
+                return;
+            }
+            
+            const status = approval.status || approval.approvalStatus || approval.state || 'unknown';
+            const date = approval.date || approval.approvalDate || approval.actionDate || null;
+            const type = approval.type || approval.actionType || 'approval';
+            
+            // Generate recommendations based on approval status
+            if (status.toLowerCase().includes('pending')) {
+                recommendations.push('Monitor pending approval status for updates');
+                actionItems.push(`Track progress of pending ${type}`);
+                priority = 'medium';
+            } else if (status.toLowerCase().includes('approved')) {
+                recommendations.push('Review approved product for compliance requirements');
+                actionItems.push(`Verify ongoing compliance for approved ${type}`);
+            } else if (status.toLowerCase().includes('denied') || status.toLowerCase().includes('rejected')) {
+                recommendations.push('Analyze denial reasons and consider resubmission strategy');
+                actionItems.push(`Review rejection rationale for ${type}`);
+                priority = 'high';
+            } else {
+                recommendations.push(`Review ${type} status: ${status}`);
+                actionItems.push(`Follow up on ${type} with status: ${status}`);
+            }
         });
+        
+        // Add general recommendations if no specific ones found
+        if (recommendations.length === 0) {
+            recommendations.push('No specific approval-related recommendations available');
+            actionItems.push('Review overall regulatory strategy');
+        }
+        
+        // Add timeline-based recommendations
+        if (approvalStatus.length > 0) {
+            recommendations.push('Maintain regular monitoring of regulatory timeline');
+            actionItems.push('Schedule periodic regulatory status reviews');
+        }
+        
+        const result = {
+            recommendations: [...new Set(recommendations)], // Remove duplicates
+            priority,
+            actionItems: [...new Set(actionItems)], // Remove duplicates
+            approvalCount: approvalStatus.length,
+            lastUpdated: new Date().toISOString()
+        };
+        
+        console.log('Recommendations generation completed:', result);
+        return result;
+        
+    } catch (error) {
+        console.error('Error in generateRecommendations:', error);
+        console.error('Input data was:', data);
+        
+        return {
+            recommendations: ['Error occurred during recommendations generation'],
+            priority: 'unknown',
+            actionItems: ['Review data sources and try again'],
+            error: error.message
+        };
     }
-    
-    // Regulatory monitoring
-    if (dataAnalysis.sections.fda.breakdown.approvalStatus === 'Under Review') {
-        recommendations.push({
-            title: 'Monitor FDA Status',
-            description: 'Set up alerts for FDA approval updates and regulatory changes',
-            priority: 'High',
-            timeline: 'Ongoing'
-        });
-    }
-    
-    // Clinical trial monitoring
-    if (dataAnalysis.sections.trials.breakdown.recentActivity > 0) {
-        recommendations.push({
-            title: 'Track Clinical Progress',
-            description: 'Monitor ongoing clinical trials for interim results and milestones',
-            priority: 'Medium',
-            timeline: 'Monthly'
-        });
-    }
-    
-    // Literature monitoring
-    if (dataAnalysis.sections.pubmed.breakdown.recentPublications > 0) {
-        recommendations.push({
-            title: 'Literature Surveillance',
-            description: 'Set up automated alerts for new publications and research developments',
-            priority: 'Medium',
-            timeline: 'Weekly'
-        });
-    }
-    
-    // Competitive analysis
-    recommendations.push({
-        title: 'Competitive Intelligence',
-        description: 'Analyze competitor activities and market positioning',
-        priority: 'Medium',
-        timeline: '2-4 weeks'
-    });
-    
-    return recommendations;
 }
-
 // Export and sharing functions
 function exportSummaryPDF(searchTerm) {
     console.log(`Exporting PDF summary for ${searchTerm}`);

@@ -110,7 +110,7 @@ Use good Tailwind CSS formatting with proper indentation, bg colors, padding, et
         logDebug(`Making API call to ${model.url}...`);
         const response = await axios.post(model.url, requestBody, {
           headers: {
-            'Authorization': `Bearer ${GROK_API_KEY}`,
+            'Authorization': `Bearer ${process.env.grok}`,
             'Content-Type': 'application/json'
           },
           timeout: timeout
