@@ -3686,8 +3686,8 @@ const registrations = [];
 
 // Helper function to generate calendar links
 function generateCalendarLinks() {
-  const startDate = '20250723T190000Z'; // July 24, 2025 2:00 PM EST in UTC
-  const endDate = '20250724T194500Z';   // 45 minutes later
+  const startDate = '20250731T190000Z'; // July 31, 2025 2:00 PM EST in UTC
+  const endDate = '20250731T194500Z';   // 45 minutes later
   const title = encodeURIComponent('Cracking the FDA Code Webinar');
   const description = encodeURIComponent(`Join us for this exclusive webinar on regulatory intelligence. Meeting Link: ${GOOGLE_MEET_LINK}`);
   
@@ -3743,7 +3743,7 @@ const getConfirmationEmailHTML = (userData, calendarLinks) => {
             <div class="event-details">
                 <h3 style="margin-top: 0; color: #1f2937;">📅 Event Details</h3>
                 <p><strong>Event:</strong> Cracking the FDA Code: How Regulatory Intelligence Helps Pharma Leaders Move Faster in 2025</p>
-                <p><strong>Date:</strong> Wednesday, July 24th, 2025</p>
+                <p><strong>Date:</strong> Wednesday, July 31st, 2025</p>
                 <p><strong>Time:</strong> 2:00 PM EST / 11:00 AM PST</p>
                 <p><strong>Duration:</strong> 45 minutes + Live Q&A</p>
                 <p><strong>Platform:</strong> Google Meet</p>
