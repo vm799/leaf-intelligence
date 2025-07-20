@@ -1550,7 +1550,7 @@ tailwind.config = {
                     <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
                 </svg>
             </button>
-                            <button id="advancedSearchToggle" onclick="advancedsearchtoggle()" class=" 0 hover:from-blue-700 hover:to-indigo-700 text-gray-500 px-6 py-3 rounded-xl font-semibold  hover:shadow-xl transition-all duration-200 flex items-center gap-2 justify-start">
+                            <button id="advancedSearchToggle" onclick="advancedsearchtoggle()" class="hidden 0 hover:from-blue-700 hover:to-indigo-700 text-gray-500 px-6 py-3 rounded-xl font-semibold  hover:shadow-xl transition-all duration-200 flex items-center gap-2 justify-start">
     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4" />
     </svg>
@@ -2002,9 +2002,9 @@ tailwind.config = {
                                     <option value="drug">💊 Drug/Medication</option>
                                     <option value="condition">🩺 Medical Condition</option>
                                     <option value="intervention">⚕️ Intervention/Treatment</option>
-                                    <option value="outcome">📊 Clinical Outcome</option>
-                                    <option value="sponsor">🏢 Study Sponsor</option>
-                                    <option value="investigator">👨‍⚕️ Principal Investigator</option>
+     <option value="outcome" class="hidden">📊 Clinical Outcome</option>
+                            <option value="sponsor"class="hidden">🏢 Study Sponsor</option>
+                            <option value="investigator"class="hidden">👨‍⚕️ Principal Investigator</option>
                                 </select>
                             </div>
                             <div class="lg:col-span-2">
@@ -2129,7 +2129,7 @@ tailwind.config = {
         <button class="tab-btn btn-secondary-pro px-6 py-3 rounded-t-xl font-semibold" data-tab="pubmed">
             📚 PubMed
         </button>
-        <button class="tab-btn btn-secondary-pro px-6 py-3 rounded-t-xl font-semibold" data-tab="fda">
+        <button class="hidden tab-btn btn-secondary-pro px-6 py-3 rounded-t-xl font-semibold" data-tab="fda">
             💊 FDA Drugs
         </button>
         <button class="tab-btn btn-secondary-pro px-6 py-3 rounded-t-xl font-semibold" data-tab="proximity">
@@ -2314,7 +2314,7 @@ tailwind.config = {
                         </div>
 
                         <!-- Participants & Demographics -->
-                        <div class="lg:col-span-1">
+                        <div class="hidden lg:col-span-1">
                             <h5 class="text-lg font-bold text-gray-900 mb-6">Participants & Demographics</h5>
                             <div class="space-y-6">
                                 <div class="form-group">
@@ -7576,10 +7576,10 @@ setupTabs();
                         <select class="form-select w-full">
                             <option value="drug">💊 Drug/Medication</option>
                             <option value="condition">🩺 Medical Condition</option>
-                            <option value="intervention">⚕️ Intervention/Treatment</option>
-                            <option value="outcome">📊 Clinical Outcome</option>
-                            <option value="sponsor">🏢 Study Sponsor</option>
-                            <option value="investigator">👨‍⚕️ Principal Investigator</option>
+                            <option value="intervention" >⚕️ Intervention/Treatment</option>
+                            <option value="outcome" class="hidden">📊 Clinical Outcome</option>
+                            <option value="sponsor"class="hidden">🏢 Study Sponsor</option>
+                            <option value="investigator"class="hidden">👨‍⚕️ Principal Investigator</option>
                         </select>
                     </div>
                     <div class="lg:col-span-2">
@@ -7873,12 +7873,381 @@ setupTabs();
                 return;
             }
             
-            showSearchProgress();
-            document.getElementById('minimizedSearchBar').classList.remove('hidden');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+          //  showSearchProgress();
+
+         //   document.getElementById('minimizedSearchBar').classList.remove('hidden');
+         //   window.scrollTo({ top: 0, behavior: 'smooth' });
             
-            simulateAdvancedSearchExecution(searchConfig);
+        //    simulateAdvancedSearchExecution(searchConfig);
+        handleadvancedsearch(false)
+        console.log("search config : ", searchConfig)
         }
+
+
+
+function setupAutoMapping() {
+    console.log('🔧 Setting up auto-mapping for main search to clinical trials...');
+    
+    // Track existing queries to detect when NEW ones are added
+    window.mainQueryTracker = new Set();
+    
+    // Watch for NEW query cards being added to main search
+    const mainQueriesContainer = document.getElementById('mainQueries');
+    if (mainQueriesContainer) {
+        
+        // Use MutationObserver to detect when new query cards are added
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.type === 'childList') {
+                    mutation.addedNodes.forEach(function(node) {
+                        if (node.nodeType === Node.ELEMENT_NODE && 
+                            node.classList.contains('query-builder-card')) {
+                            // New query card added - set up tracking for it
+                            setupQueryCardTracking(node);
+                        }
+                    });
+                }
+            });
+        });
+        
+        observer.observe(mainQueriesContainer, {
+            childList: true,
+            subtree: true
+        });
+        
+        // Also set up tracking for existing query cards
+        const existingCards = mainQueriesContainer.querySelectorAll('.query-builder-card');
+        existingCards.forEach(card => setupQueryCardTracking(card));
+        
+        console.log('✅ Auto-mapping mutation observer attached to main queries');
+    }
+}
+
+function setupQueryCardTracking(queryCard) {
+    const fieldSelect = queryCard.querySelector('select');
+    const valueInput = queryCard.querySelector('input[type="text"]');
+    
+    if (!fieldSelect || !valueInput) return;
+    
+    // Create unique identifier for this card
+    const cardId = Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    queryCard.setAttribute('data-card-id', cardId);
+    
+    // Track when the field type changes
+    fieldSelect.addEventListener('change', function() {
+        handleQueryCardUpdate(queryCard);
+    });
+    
+    // Track when user finishes typing (not every keystroke!)
+    let typingTimer;
+    valueInput.addEventListener('input', function() {
+        clearTimeout(typingTimer);
+        // Wait 1 second after user stops typing
+        typingTimer = setTimeout(() => {
+            handleQueryCardUpdate(queryCard);
+        }, 1000);
+    });
+    
+    // Also trigger when user presses Enter or leaves the field
+    valueInput.addEventListener('blur', function() {
+        clearTimeout(typingTimer);
+        handleQueryCardUpdate(queryCard);
+    });
+    
+    valueInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            clearTimeout(typingTimer);
+            handleQueryCardUpdate(queryCard);
+        }
+    });
+}
+
+function handleQueryCardUpdate(queryCard) {
+    const fieldSelect = queryCard.querySelector('select');
+    const valueInput = queryCard.querySelector('input[type="text"]');
+    const cardId = queryCard.getAttribute('data-card-id');
+    
+    if (!fieldSelect || !valueInput || !cardId) return;
+    
+    const field = fieldSelect.value;
+    const value = valueInput.value.trim();
+    
+    // Create a unique key for this query
+    const queryKey = `${cardId}_${field}_${value}`;
+    
+    // Only process if this is a new/changed query AND has a value
+    if (value && !window.mainQueryTracker.has(queryKey)) {
+        
+        // Remove old entries for this card
+        const oldEntries = Array.from(window.mainQueryTracker)
+            .filter(key => key.startsWith(cardId + '_'));
+        oldEntries.forEach(oldKey => window.mainQueryTracker.delete(oldKey));
+        
+        // Add new entry
+        window.mainQueryTracker.add(queryKey);
+        
+        console.log(`🔄 New/updated query detected: ${field} = "${value}"`);
+        
+        // ===== EXISTING CLINICAL TRIALS AUTO-ADD =====
+        if (field === 'drug' || field === 'intervention') {
+            autoAddToClinicalTrials('query.intr', value, 'Intervention/Treatment');
+        } else if (field === 'condition' || field === 'disease') {
+            autoAddToClinicalTrials('query.cond', value, 'Condition/Disease');
+        }
+        
+        // ===== ADD PUBMED AUTO-ADD LOGIC HERE =====
+        if (field === 'drug' || field === 'intervention') {
+            autoAddToPubMed('[Substance Name]', value, 'Substance Name');
+        } else if (field === 'condition' || field === 'disease') {
+            autoAddToPubMed('[MeSH Terms]', value, 'MeSH Terms');
+        } else {
+            autoAddToPubMed('[Title/Abstract]', value, 'Title/Abstract');
+        }
+    }
+}
+// ENHANCED AUTO-MAPPING: Removes empty cards before adding new ones
+
+function autoAddToClinicalTrials(apiField, value, displayName) {
+    console.log(`🔄 Auto-adding to clinical trials: ${apiField} = "${value}"`);
+    
+    // Check if clinical trials section exists and is enabled
+    const ctToggle = document.getElementById('clinicalTrialsToggle');
+    if (!ctToggle) {
+        console.log('❌ Clinical trials toggle not found');
+        return;
+    }
+    
+    // Enable clinical trials if not already enabled
+    if (!ctToggle.checked) {
+        ctToggle.checked = true;
+        ctToggle.dispatchEvent(new Event('change'));
+        console.log('✅ Auto-enabled clinical trials section');
+    }
+    
+    // Find clinical trials queries container
+    const ctQueriesContainer = document.getElementById('clinicalTrialsQueries');
+    if (!ctQueriesContainer) {
+        console.log('❌ Clinical trials queries container not found');
+        return;
+    }
+    
+    // STEP 1: Remove any empty query cards first
+    removeEmptyQueryCards(ctQueriesContainer);
+    
+    // STEP 2: Check for duplicates (after removing empty ones)
+    const existingCards = ctQueriesContainer.querySelectorAll('.query-builder-card');
+    for (const card of existingCards) {
+        const fieldSelect = card.querySelector('select');
+        const valueInput = card.querySelector('input[type="text"]');
+        
+        if (fieldSelect && valueInput && 
+            fieldSelect.value === apiField && 
+            valueInput.value.trim().toLowerCase() === value.toLowerCase()) {
+            console.log(`⚠️ Query already exists in clinical trials: ${apiField} = "${value}"`);
+            return;
+        }
+    }
+    
+    // STEP 3: Add new query using your existing function
+    if (typeof addClinicalTrialsQuery === 'function') {
+        // Call your existing function
+        addClinicalTrialsQuery();
+        
+        // Set the values in the newly created card
+        setTimeout(() => {
+            const newCards = ctQueriesContainer.querySelectorAll('.query-builder-card');
+            const newestCard = newCards[newCards.length - 1]; // Get the last added card
+            
+            if (newestCard) {
+                const fieldSelect = newestCard.querySelector('select');
+                const valueInput = newestCard.querySelector('input[type="text"]');
+                
+                if (fieldSelect && valueInput) {
+                    fieldSelect.value = apiField;
+                    valueInput.value = value;
+                    
+                    // Trigger change events to update any dependent UI
+                    fieldSelect.dispatchEvent(new Event('change'));
+                    valueInput.dispatchEvent(new Event('input'));
+                    
+                    console.log(`✅ Auto-added clinical trials query: ${apiField} = "${value}"`);
+                }
+            }
+        }, 100); // Small delay to ensure the card is created
+        
+    } else {
+        console.log('❌ addClinicalTrialsQuery function not found');
+        
+        // Fallback: create card manually
+        const newCard = createClinicalTrialsQueryCard(apiField, value);
+        ctQueriesContainer.appendChild(newCard);
+        console.log(`✅ Auto-added clinical trials query (fallback): ${apiField} = "${value}"`);
+    }
+}
+
+function removeEmptyQueryCards(container) {
+    const cards = container.querySelectorAll('.query-builder-card');
+    let removedCount = 0;
+    
+    cards.forEach(card => {
+        if (isQueryCardEmpty(card)) {
+            console.log('🗑️ Removing empty query card');
+            card.remove();
+            removedCount++;
+        }
+    });
+    
+    if (removedCount > 0) {
+        console.log(`✅ Removed ${removedCount} empty query card(s)`);
+    }
+}
+function getTimelineConfiguration() {
+    const timelineSlider = document.getElementById('timelineSlider');
+    const customDateFrom = document.getElementById('customDateFrom');
+    const customDateTo = document.getElementById('customDateTo');
+    
+    let yearsBack = 5; // Default
+    let sinceDate = null;
+    let untilDate = null;
+    
+    // Get years back from slider if it exists
+    if (timelineSlider && timelineSlider.value) {
+        yearsBack = parseInt(timelineSlider.value, 10);
+    }
+    
+    // Get custom date range if specified
+    if (customDateFrom && customDateFrom.value) {
+        sinceDate = customDateFrom.value;
+    }
+    
+    if (customDateTo && customDateTo.value) {
+        untilDate = customDateTo.value;
+    }
+    
+    return {
+        yearsBack: yearsBack,
+        sinceDate: sinceDate,
+        untilDate: untilDate
+    };
+}
+
+// 2. Proximity Settings
+function getProximitySettings() {
+    const proximityEnabled = document.getElementById('proximityEnabled');
+    const proximityDistance = document.getElementById('proximityDistance');
+    const proximityType = document.getElementById('proximityType');
+    
+    if (!proximityEnabled || !proximityEnabled.checked) {
+        return {
+            enabled: false,
+            type: 'words',
+            distance: 5
+        };
+    }
+    
+    return {
+        enabled: true,
+        type: proximityType?.value || 'words',
+        distance: proximityDistance?.value ? parseInt(proximityDistance.value, 10) : 5
+    };
+}
+
+// 3. Quality Filters
+function getQualityFilters() {
+    const highImpactOnly = document.getElementById('highImpactOnly');
+    const level1Evidence = document.getElementById('level1Evidence');
+    const largeSampleSize = document.getElementById('largeSampleSize');
+    const recentDataPriority = document.getElementById('recentDataPriority');
+    
+    return {
+        highImpactOnly: highImpactOnly?.checked || false,
+        level1Evidence: level1Evidence?.checked || false,
+        largeSampleSize: largeSampleSize?.checked || false,
+        recentDataPriority: recentDataPriority?.checked || false
+    };
+}
+function isQueryCardEmpty(card) {
+    const valueInput = card.querySelector('input[type="text"]');
+    
+    if (!valueInput) {
+        return true; // No input field found, consider it empty
+    }
+    
+    const value = valueInput.value.trim();
+    
+    // Card is empty if:
+    // 1. Input has no value
+    // 2. Input only has whitespace
+    // 3. Input has placeholder-like text (optional)
+    const isEmpty = !value || 
+                   value === '' || 
+                   value.toLowerCase() === 'enter search term...' ||
+                   value.toLowerCase() === 'search term' ||
+                   value.toLowerCase() === 'enter term';
+    
+    return isEmpty;
+}
+// Backup function in case your addClinicalTrialsQuery doesn't exist
+function createClinicalTrialsQueryCard(apiField, value) {
+    const card = document.createElement('div');
+    card.className = 'query-builder-card bg-white border border-gray-200 rounded-lg p-4 shadow-sm';
+    
+    card.innerHTML = `
+        <div class="flex items-center space-x-4">
+            <div class="flex-1">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Field Type</label>
+                <select class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <option value="query.intr" ${apiField === 'query.intr' ? 'selected' : ''}>Intervention/Treatment</option>
+                    <option value="query.cond" ${apiField === 'query.cond' ? 'selected' : ''}>Condition/Disease</option>
+                    <option value="query.term" ${apiField === 'query.term' ? 'selected' : ''}>Other Terms</option>
+                    <option value="query.locn" ${apiField === 'query.locn' ? 'selected' : ''}>Location</option>
+                    <option value="query.titles" ${apiField === 'query.titles' ? 'selected' : ''}>Title/Acronym</option>
+                    <option value="query.outc" ${apiField === 'query.outc' ? 'selected' : ''}>Outcome Measure</option>
+                    <option value="query.spons" ${apiField === 'query.spons' ? 'selected' : ''}>Sponsor/Collaborator</option>
+                    <option value="query.lead" ${apiField === 'query.lead' ? 'selected' : ''}>Lead Sponsor</option>
+                    <option value="query.id" ${apiField === 'query.id' ? 'selected' : ''}>Study IDs</option>
+                    <option value="query.patient" ${apiField === 'query.patient' ? 'selected' : ''}>Patient Population</option>
+                </select>
+            </div>
+            
+            <div class="flex-2">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Search Value</label>
+                <input type="text" value="${value}" placeholder="Enter search term..." 
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            </div>
+            
+            <div class="flex-none">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Operator</label>
+                <select class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <option value="AND">AND</option>
+                    <option value="OR">OR</option>
+                    <option value="NOT">NOT</option>
+                </select>
+            </div>
+            
+            <div class="flex-none pt-6">
+                <button type="button" onclick="this.closest('.query-builder-card').remove()" 
+                        class="text-red-600 hover:text-red-800 p-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    `;
+    
+    return card;
+}
+
+// Initialize the tracker
+window.mainQueryTracker = new Set();
+
+// Initialize auto-mapping when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    setupAutoMapping();
+    console.log('✅ Fixed auto-mapping initialized - uses existing addClinicalTrialsQuery()');
+});
+
 
         function validateSearchConfiguration(config) {
             if (!config.main || config.main.length === 0) {
@@ -7984,20 +8353,526 @@ setupTabs();
                 progressElement.style.transform = 'translateY(0)';
             }, 400);
         }
+function buildCompleteSearchConfiguration() {
+    const config = {
+        // Main queries (for display/coordination purposes)
+        main: buildMainQuery(),
+        
+        // Clinical Trials API v2 compatible structure
+        clinicalTrials: buildClinicalTrialsAPIv2Config(),
+        
+        // Other database configs
+        pubmed: document.getElementById('pubmedToggle')?.checked ? buildPubMedQuery() : null,
+        fda: document.getElementById('fdaToggle')?.checked ? buildFDAQuery() : null,
+        
+        // Global settings
+        timeline: getTimelineConfiguration(),
+        proximity: getProximitySettings(),
+        quality: getQualityFilters()
+    };
+    
+    return config;
+}
 
-        function buildCompleteSearchConfiguration() {
-            return {
-                main: buildMainQuery(),
-                pubmed: document.getElementById('pubmedToggle').checked ? buildPubMedQuery() : null,
-                clinicalTrials: document.getElementById('clinicalTrialsToggle').checked ? buildClinicalTrialsQuery() : null,
-                fda: document.getElementById('fdaToggle').checked ? buildFDAQuery() : null,
-                timeline: parseInt(document.getElementById('timelineSlider').value),
-                proximity: getProximitySettings(),
-                aiEnhancements: getAISettings(),
-                qualityFilters: getQualityFilters(),
-                timestamp: new Date().toISOString()
-            };
+
+function getSelectedStatusFilters() {
+    // ISSUE: The checkboxes don't have name="overallStatus" - they just have values
+    // FIX: Use more specific selector within clinical trials section
+    const checkboxes = document.querySelectorAll('#clinicalTrialsSection input[type="checkbox"][value="RECRUITING"], #clinicalTrialsSection input[type="checkbox"][value="NOT_YET_RECRUITING"], #clinicalTrialsSection input[type="checkbox"][value="ACTIVE_NOT_RECRUITING"], #clinicalTrialsSection input[type="checkbox"][value="COMPLETED"], #clinicalTrialsSection input[type="checkbox"][value="ENROLLING_BY_INVITATION"], #clinicalTrialsSection input[type="checkbox"][value="SUSPENDED"], #clinicalTrialsSection input[type="checkbox"][value="TERMINATED"], #clinicalTrialsSection input[type="checkbox"][value="WITHDRAWN"], #clinicalTrialsSection input[type="checkbox"][value="AVAILABLE"], #clinicalTrialsSection input[type="checkbox"][value="NO_LONGER_AVAILABLE"]');
+    
+    const selected = Array.from(checkboxes)
+        .filter(cb => cb.checked)
+        .map(cb => cb.value);
+    
+    console.log('Selected status filters:', selected);
+    return selected;
+}
+
+function getSelectedPhaseFilters() {
+    const checkboxes = document.querySelectorAll('#clinicalTrialsSection input[type="checkbox"][value^="PHASE"]');
+    
+    const selected = Array.from(checkboxes)
+        .filter(cb => cb.checked)
+        .map(cb => mapPhaseToAPIValue(cb.value));
+    
+    console.log('Selected phase filters (mapped):', selected);
+    return selected;
+}
+function getEnrollmentFilters() {
+    // ISSUE: The IDs don't exist in the HTML structure shown
+    // FIX: Use the actual input selectors from the enrollment section
+    const enrollmentInputs = document.querySelectorAll('#clinicalTrialsSection input[type="number"]');
+    let minInput = null;
+    let maxInput = null;
+    
+    // Find min and max inputs by their placeholder text
+    enrollmentInputs.forEach(input => {
+        if (input.placeholder && input.placeholder.toLowerCase().includes('min')) {
+            minInput = input;
+        } else if (input.placeholder && input.placeholder.toLowerCase().includes('max')) {
+            maxInput = input;
         }
+    });
+    
+    const result = {
+        min: minInput?.value ? parseInt(minInput.value) : null,
+        max: maxInput?.value ? parseInt(maxInput.value) : null
+    };
+    
+    console.log('Enrollment filters:', result);
+    return result;
+}
+
+function getSelectedStudyType() {
+    // ISSUE: The selector is too generic
+    // FIX: Get the study type select from the clinical trials section specifically
+    const studyTypeSelect = document.querySelector('#clinicalTrialsSection select option[value="INTERVENTIONAL"]')?.parentElement || 
+                           document.querySelector('#clinicalTrialsSection select');
+    
+    const selected = studyTypeSelect?.value || null;
+    console.log('Selected study type:', selected);
+    return selected;
+}
+
+function getSelectedAllocation() {
+    // FIX: Get allocation method from the specific select
+    const allocationSelects = document.querySelectorAll('#clinicalTrialsSection select');
+    let allocationSelect = null;
+    
+    // Find the allocation select by checking its options
+    allocationSelects.forEach(select => {
+        const hasRandomizedOption = Array.from(select.options).some(option => 
+            option.value === 'RANDOMIZED' || option.value === 'NON_RANDOMIZED'
+        );
+        if (hasRandomizedOption) {
+            allocationSelect = select;
+        }
+    });
+    
+    const selected = allocationSelect?.value || null;
+    console.log('Selected allocation:', selected);
+    return selected;
+}
+
+function getSelectedGender() {
+    // FIX: Get gender from the demographics section
+    const genderSelects = document.querySelectorAll('#clinicalTrialsSection select');
+    let genderSelect = null;
+    
+    // Find the gender select by checking its options
+    genderSelects.forEach(select => {
+        const hasGenderOptions = Array.from(select.options).some(option => 
+            option.value === 'MALE' || option.value === 'FEMALE'
+        );
+        if (hasGenderOptions) {
+            genderSelect = select;
+        }
+    });
+    
+    const selected = genderSelect?.value || null;
+    console.log('Selected gender:', selected);
+    return selected;
+}
+
+function getAgeRange() {
+    // FIX: Get age range inputs
+    const ageInputs = document.querySelectorAll('#clinicalTrialsSection input[type="number"]');
+    let minAgeInput = null;
+    let maxAgeInput = null;
+    
+    // Find age inputs by their placeholder text
+    ageInputs.forEach(input => {
+        if (input.placeholder && input.placeholder.toLowerCase().includes('min age')) {
+            minAgeInput = input;
+        } else if (input.placeholder && input.placeholder.toLowerCase().includes('max age')) {
+            maxAgeInput = input;
+        }
+    });
+    
+    const result = {
+        min: minAgeInput?.value ? parseInt(minAgeInput.value) : null,
+        max: maxAgeInput?.value ? parseInt(maxAgeInput.value) : null
+    };
+    
+    console.log('Age range:', result);
+    return result;
+}
+
+
+
+function getGeographicFilters() {
+    const geoInput = document.getElementById('geoFilter');
+    return {
+        distance: geoInput?.value || null
+    };
+}
+
+function getResultsFilter() {
+    const hasResultsYes = document.getElementById('hasResultsYes');
+    const hasResultsNo = document.getElementById('hasResultsNo');
+    
+    if (hasResultsYes?.checked) return true;
+    if (hasResultsNo?.checked) return false;
+    return null;
+}
+
+// Initialize auto-mapping when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    setupAutoMapping();
+    console.log('✅ Advanced search auto-mapping initialized');
+});
+
+function buildClinicalTrialsAPIv2Config() {
+    const toggle = document.getElementById('clinicalTrialsToggle');
+    if (!toggle || !toggle.checked) {
+        console.log('Clinical trials toggle is off');
+        return { enabled: false };
+    }
+    
+    console.log('🔧 Building clinical trials API v2 config with CORRECT phase filtering...');
+    
+    // Base configuration
+    const config = {
+        enabled: true,
+        format: 'json',
+        markupFormat: 'markdown',
+        fields: 'protocolSection,derivedSection,hasResults',
+        countTotal: true,
+        pageSize: 100
+    };
+    
+    // Build query parameters from clinical trials query cards
+    const ctQueries = document.querySelectorAll('#clinicalTrialsQueries .query-builder-card');
+    ctQueries.forEach(card => {
+        const fieldSelect = card.querySelector('select');
+        const valueInput = card.querySelector('input[type="text"]');
+        
+        if (fieldSelect && valueInput && valueInput.value.trim()) {
+            const field = fieldSelect.value;
+            const value = valueInput.value.trim();
+            
+            console.log(`Adding query field: ${field} = ${value}`);
+            config[field] = value;
+        }
+    });
+    
+    // CORRECT: Build advanced query components for complex filters
+    const advancedQueryParts = [];
+    
+    // PHASE FILTERING - Use AREA syntax (this is the correct method!)
+    const phaseFilters = getSelectedPhaseFilters();
+    if (phaseFilters.length > 0) {
+        // Convert phase values to AREA syntax
+        const phaseQuery = phaseFilters.map(phase => `AREA[Phase]${phase}`).join(' OR ');
+        advancedQueryParts.push(`(${phaseQuery})`);
+        console.log('Added phase filters using AREA syntax:', phaseQuery);
+    }
+    
+    // STUDY TYPE FILTERING - Use AREA syntax if needed
+    const studyType = getSelectedStudyType();
+    if (studyType) {
+        advancedQueryParts.push(`AREA[StudyType]${studyType}`);
+        console.log('Added study type filter using AREA syntax:', studyType);
+    }
+    
+    // ENROLLMENT FILTERING - Use AREA syntax
+    const enrollment = getEnrollmentFilters();
+    if (enrollment.min !== null || enrollment.max !== null) {
+        if (enrollment.min !== null && enrollment.max !== null) {
+            advancedQueryParts.push(`AREA[EnrollmentCount]RANGE[${enrollment.min},${enrollment.max}]`);
+        } else if (enrollment.min !== null) {
+            advancedQueryParts.push(`AREA[EnrollmentCount]RANGE[${enrollment.min},MAX]`);
+        } else if (enrollment.max !== null) {
+            advancedQueryParts.push(`AREA[EnrollmentCount]RANGE[MIN,${enrollment.max}]`);
+        }
+        console.log('Added enrollment filters using AREA syntax:', enrollment);
+    }
+    
+    // COMBINE ADVANCED QUERY PARTS
+    if (advancedQueryParts.length > 0) {
+        config['filter.advanced'] = advancedQueryParts.join(' AND ');
+        console.log('Built advanced filter query:', config['filter.advanced']);
+    }
+    
+    // SIMPLE FILTERS (these work directly)
+    
+    // Status filters - Use filter.overallStatus (this works!)
+    const statusFilters = getSelectedStatusFilters();
+    if (statusFilters.length > 0) {
+        config['filter.overallStatus'] = statusFilters.join(',');
+        console.log('Added status filters:', statusFilters);
+    }
+    
+    // Allocation filter - might work with simple filter
+    const allocation = getSelectedAllocation();
+    if (allocation) {
+        // Try simple filter first, fallback to advanced if needed
+        config['filter.allocation'] = allocation;
+        console.log('Added allocation filter:', allocation);
+    }
+    
+    // Gender filter
+    const gender = getSelectedGender();
+    if (gender) {
+        config['filter.sex'] = gender;
+        console.log('Added gender filter:', gender);
+    }
+    
+    // Age range filters - might need AREA syntax
+    const ageRange = getAgeRange();
+    if (ageRange.min !== null || ageRange.max !== null) {
+        // Try adding to advanced query
+        let ageQuery = '';
+        if (ageRange.min !== null && ageRange.max !== null) {
+            ageQuery = `AREA[MinimumAge]${ageRange.min} AND AREA[MaximumAge]${ageRange.max}`;
+        } else if (ageRange.min !== null) {
+            ageQuery = `AREA[MinimumAge]${ageRange.min}`;
+        } else if (ageRange.max !== null) {
+            ageQuery = `AREA[MaximumAge]${ageRange.max}`;
+        }
+        
+        if (ageQuery) {
+            if (config['filter.advanced']) {
+                config['filter.advanced'] += ` AND (${ageQuery})`;
+            } else {
+                config['filter.advanced'] = ageQuery;
+            }
+            console.log('Added age filters to advanced query:', ageQuery);
+        }
+    }
+    
+    console.log('🔧 Final clinical trials config with CORRECT phase filtering:', config);
+    return config;
+}
+
+// HELPER: Map frontend phase values to API phase values
+function mapPhaseToAPIValue(phase) {
+    const phaseMapping = {
+        'PHASE1': 'PHASE1',
+        'PHASE2': 'PHASE2', 
+        'PHASE3': 'PHASE3',
+        'PHASE4': 'PHASE4',
+        'EARLY_PHASE1': 'EARLY_PHASE1',
+        'PHASE1_PHASE2': 'PHASE1_PHASE2',
+        'PHASE2_PHASE3': 'PHASE2_PHASE3'
+    };
+    
+    return phaseMapping[phase] || phase;
+}
+
+// function buildClinicalTrialsAPIv2Config() {
+//     const toggle = document.getElementById('clinicalTrialsToggle');
+//     if (!toggle || !toggle.checked) {
+//         console.log('Clinical trials toggle is off');
+//         return { enabled: false };
+//     }
+    
+//     console.log('🔧 Building clinical trials API v2 config...');
+    
+//     const config = {
+//         enabled: true,
+        
+//         // Direct API v2 query parameters
+//         query: {},
+//         filter: {},
+//         postFilter: {},
+        
+//         // Additional parameters
+//         format: 'json',
+//         markupFormat: 'markdown',
+//         fields: ['protocolSection', 'derivedSection', 'hasResults'],
+//         sort: [],
+//         countTotal: true,
+//         pageSize: 100,
+        
+//         // Aggregation and geo settings
+//         aggFilters: '',
+//         geoDecay: 'func:exp,scale:300mi,offset:0mi,decay:0.5'
+//     };
+    
+//     // Build query parameters from clinical trials query cards
+//     const ctQueries = document.querySelectorAll('#clinicalTrialsQueries .query-builder-card');
+//     ctQueries.forEach(card => {
+//         const fieldSelect = card.querySelector('select');
+//         const valueInput = card.querySelector('input[type="text"]');
+        
+//         if (fieldSelect && valueInput && valueInput.value.trim()) {
+//             const field = fieldSelect.value;
+//             const value = valueInput.value.trim();
+            
+//             console.log(`Adding query field: ${field} = ${value}`);
+            
+//             // Map to exact API v2 query parameters
+//             switch (field) {
+//                 case 'query.intr':
+//                     config.query['query.intr'] = value;
+//                     break;
+//                 case 'query.cond':
+//                     config.query['query.cond'] = value;
+//                     break;
+//                 case 'query.term':
+//                     config.query['query.term'] = value;
+//                     break;
+//                 case 'query.locn':
+//                     config.query['query.locn'] = value;
+//                     break;
+//                 case 'query.titles':
+//                     config.query['query.titles'] = value;
+//                     break;
+//                 case 'query.outc':
+//                     config.query['query.outc'] = value;
+//                     break;
+//                 case 'query.spons':
+//                     config.query['query.spons'] = value;
+//                     break;
+//                 case 'query.lead':
+//                     config.query['query.lead'] = value;
+//                     break;
+//                 case 'query.id':
+//                     config.query['query.id'] = value;
+//                     break;
+//                 case 'query.patient':
+//                     config.query['query.patient'] = value;
+//                     break;
+//                 default:
+//                     config.query['query.term'] = value;
+//                     break;
+//             }
+//         }
+//     });
+    
+//     // FIXED: Add filter parameters using correct ClinicalTrials.gov API v2 parameter names
+    
+//     // Status filters - CORRECT PARAMETER NAME
+//     const statusFilters = getSelectedStatusFilters();
+//     if (statusFilters.length > 0) {
+//         config['filter.overallStatus'] = statusFilters.join(',');
+//         console.log('Added status filters:', statusFilters);
+//     }
+    
+//     // Phase filters - CORRECT PARAMETER NAME
+//     const phaseFilters = getSelectedPhaseFilters();
+//     if (phaseFilters.length > 0) {
+//         config['filter.phases'] = phaseFilters.join(',');
+//         console.log('Added phase filters:', phaseFilters);
+//     }
+    
+//     // Study type filter - CORRECT PARAMETER NAME
+//     const studyType = getSelectedStudyType();
+//     if (studyType) {
+//         config['filter.studyType'] = studyType;
+//         console.log('Added study type filter:', studyType);
+//     }
+    
+//     // Allocation filter - CORRECT PARAMETER NAME
+//     const allocation = getSelectedAllocation();
+//     if (allocation) {
+//         config['filter.allocation'] = allocation;
+//         console.log('Added allocation filter:', allocation);
+//     }
+    
+//     // Enrollment filters - CORRECT PARAMETER NAME
+//     const enrollment = getEnrollmentFilters();
+//     if (enrollment.min !== null || enrollment.max !== null) {
+//         if (enrollment.min !== null && enrollment.max !== null) {
+//             config['filter.enrollment'] = `${enrollment.min}:${enrollment.max}`;
+//         } else if (enrollment.min !== null) {
+//             config['filter.enrollmentMin'] = enrollment.min;
+//         } else if (enrollment.max !== null) {
+//             config['filter.enrollmentMax'] = enrollment.max;
+//         }
+//         console.log('Added enrollment filters:', enrollment);
+//     }
+    
+//     // Gender filter - CORRECT PARAMETER NAME
+//     const gender = getSelectedGender();
+//     if (gender) {
+//         config['filter.sex'] = gender;
+//         console.log('Added gender filter:', gender);
+//     }
+    
+//     // Age range filters - CORRECT PARAMETER NAME
+//     const ageRange = getAgeRange();
+//     if (ageRange.min !== null || ageRange.max !== null) {
+//         if (ageRange.min !== null && ageRange.max !== null) {
+//             config['filter.age'] = `${ageRange.min}:${ageRange.max}`;
+//         } else if (ageRange.min !== null) {
+//             config['filter.ageMin'] = ageRange.min;
+//         } else if (ageRange.max !== null) {
+//             config['filter.ageMax'] = ageRange.max;
+//         }
+//         console.log('Added age range filters:', ageRange);
+//     }
+    
+//     console.log('🔧 Final clinical trials config:', config);
+//     return config;
+// }
+
+
+// 3. ADDITIONAL FIX: Add name attributes to the HTML checkboxes
+function fixClinicalTrialsHTML() {
+    console.log('🔧 Adding missing name attributes to clinical trials checkboxes...');
+    
+    // Add name attributes to status checkboxes
+    const statusCheckboxes = document.querySelectorAll('#clinicalTrialsSection input[type="checkbox"][value="RECRUITING"], #clinicalTrialsSection input[type="checkbox"][value="NOT_YET_RECRUITING"], #clinicalTrialsSection input[type="checkbox"][value="ACTIVE_NOT_RECRUITING"], #clinicalTrialsSection input[type="checkbox"][value="COMPLETED"], #clinicalTrialsSection input[type="checkbox"][value="ENROLLING_BY_INVITATION"], #clinicalTrialsSection input[type="checkbox"][value="SUSPENDED"], #clinicalTrialsSection input[type="checkbox"][value="TERMINATED"], #clinicalTrialsSection input[type="checkbox"][value="WITHDRAWN"], #clinicalTrialsSection input[type="checkbox"][value="AVAILABLE"], #clinicalTrialsSection input[type="checkbox"][value="NO_LONGER_AVAILABLE"]');
+    
+    statusCheckboxes.forEach(checkbox => {
+        checkbox.setAttribute('name', 'overallStatus');
+    });
+    
+    // Add name attributes to phase checkboxes
+    const phaseCheckboxes = document.querySelectorAll('#clinicalTrialsSection input[type="checkbox"][value^="PHASE"]');
+    phaseCheckboxes.forEach(checkbox => {
+        checkbox.setAttribute('name', 'phase');
+    });
+    
+    console.log('✅ Fixed clinical trials HTML structure');
+}
+
+function debugClinicalTrialsFilters() {
+    console.log('🔍 DEBUGGING CLINICAL TRIALS FILTERS');
+    console.log('=====================================');
+    
+    console.log('Status filters:', getSelectedStatusFilters());
+    console.log('Phase filters:', getSelectedPhaseFilters());
+    console.log('Enrollment filters:', getEnrollmentFilters());
+    console.log('Study type:', getSelectedStudyType());
+    console.log('Allocation:', getSelectedAllocation());
+    console.log('Gender:', getSelectedGender());
+    console.log('Age range:', getAgeRange());
+    
+    console.log('\nFull config:');
+    console.log(buildClinicalTrialsAPIv2Config());
+}
+
+// 5. INITIALIZATION: Call the fix when the page loads
+document.addEventListener('DOMContentLoaded', function() {
+    // Wait a bit for the DOM to be fully ready
+    setTimeout(() => {
+        fixClinicalTrialsHTML();
+        
+        // Add debug button for testing
+        const debugBtn = document.createElement('button');
+        debugBtn.textContent = 'Debug CT Filters';
+        debugBtn.className = 'btn btn-secondary';
+        debugBtn.onclick = debugClinicalTrialsFilters;
+        
+        const clinicalTrialsSection = document.getElementById('clinicalTrialsSection');
+        if (clinicalTrialsSection) {
+            clinicalTrialsSection.appendChild(debugBtn);
+        }
+        
+        console.log('✅ Clinical trials filtering fixes applied');
+    }, 1000);
+});
+
+// 6. EXPORT THE FUNCTIONS
+window.getSelectedStatusFilters = getSelectedStatusFilters;
+window.getSelectedPhaseFilters = getSelectedPhaseFilters;
+window.getEnrollmentFilters = getEnrollmentFilters;
+window.buildClinicalTrialsAPIv2Config = buildClinicalTrialsAPIv2Config;
+window.debugClinicalTrialsFilters = debugClinicalTrialsFilters;
+
 
         function buildMainQuery() {
             const queries = document.querySelectorAll('#mainQueries .query-builder-card');
@@ -8009,33 +8884,345 @@ setupTabs();
             })).filter(q => q.value.trim());
         }
 
-        function buildPubMedQuery() {
-            const queries = document.querySelectorAll('#pubmedQueries .query-builder-card');
-            const filters = {
-                publicationTypes: Array.from(document.querySelectorAll('#pubmedSection input[type="checkbox"]:checked')).map(cb => cb.value),
-                language: document.querySelector('#pubmedSection select[class*="form-select"]')?.value,
-                species: document.querySelector('#pubmedSection select[class*="form-select"]:nth-of-type(2)')?.value,
-                ageGroups: document.querySelector('#pubmedSection select[class*="form-select"]:nth-of-type(3)')?.value,
-                dateType: document.querySelector('#pubmedSection select[class*="form-select"]:nth-of-type(4)')?.value,
-                dateRange: {
-                    start: document.querySelector('#pubmedSection input[type="date"]')?.value,
-                    end: document.querySelector('#pubmedSection input[type="date"]:nth-of-type(2)')?.value
-                },
-                textAvailability: Array.from(document.querySelectorAll('#pubmedSection input[value*="text"], #pubmedSection input[value*="abstract"], #pubmedSection input[value*="pmc"]:checked')).map(cb => cb.value),
-                sortOrder: document.querySelector('#pubmedSection select:last-of-type')?.value
-            };
-            
-            return {
-                queries: Array.from(queries).map(query => ({
-                    field: query.querySelector('select').value,
-                    value: query.querySelector('input[type="text"]').value,
-                    connector: query.querySelector('select:last-of-type').value
-                })).filter(q => q.value.trim()),
-                filters: filters
-            };
-        }
+// ==========================================
+// PUBMED AUTO-MAPPING AND API INTEGRATION
+// ==========================================
 
-        function buildClinicalTrialsQuery() {
+// 1. AUTO-MAPPING: Add PubMed cards when main search terms are added
+
+// Auto-mapping integration with your existing PubMed functions
+function autoAddToPubMed(field, value, displayName) {
+    console.log(`🔄 Auto-adding to PubMed: ${field} = "${value}"`);
+    
+    // Check if PubMed section exists and is enabled
+    const pubmedToggle = document.getElementById('pubmedToggle');
+    if (!pubmedToggle) {
+        console.log('❌ PubMed toggle not found');
+        return;
+    }
+    
+    // Enable PubMed if not already enabled
+    if (!pubmedToggle.checked) {
+        pubmedToggle.checked = true;
+        pubmedToggle.dispatchEvent(new Event('change'));
+        console.log('✅ Auto-enabled PubMed section');
+    }
+    
+    // Find PubMed queries container
+    const pubmedContainer = document.getElementById('pubmedQueries');
+    if (!pubmedContainer) {
+        console.log('❌ PubMed queries container not found');
+        return;
+    }
+    
+    // Remove empty cards first
+    removeEmptyQueryCards(pubmedContainer);
+    
+    // Check for duplicates
+    const existingCards = pubmedContainer.querySelectorAll('.query-builder-card');
+    for (const card of existingCards) {
+        const fieldSelect = card.querySelector('select');
+        const valueInput = card.querySelector('input[type="text"]');
+        
+        if (fieldSelect && valueInput && 
+            fieldSelect.value === field && 
+            valueInput.value.trim().toLowerCase() === value.toLowerCase()) {
+            console.log(`⚠️ Query already exists in PubMed: ${field} = "${value}"`);
+            return;
+        }
+    }
+    
+    // Use your existing addPubmedQuery function (check both possible names)
+    if (typeof addPubmedQuery === 'function') {
+        console.log('✅ Using addPubmedQuery() function');
+        addPubmedQuery();
+        
+        // Set the values in the newly created card
+        setTimeout(() => {
+            const newCards = pubmedContainer.querySelectorAll('.query-builder-card');
+            const newestCard = newCards[newCards.length - 1];
+            
+            if (newestCard) {
+                const fieldSelect = newestCard.querySelector('select');
+                const valueInput = newestCard.querySelector('input[type="text"]');
+                
+                if (fieldSelect && valueInput) {
+                    fieldSelect.value = field;
+                    valueInput.value = value;
+                    
+                    fieldSelect.dispatchEvent(new Event('change'));
+                    valueInput.dispatchEvent(new Event('input'));
+                    
+                    console.log(`✅ Auto-added PubMed query: ${field} = "${value}"`);
+                }
+            }
+        }, 100);
+        
+    } else if (typeof addPubMedQuery === 'function') {
+        console.log('✅ Using addPubMedQuery() function');
+        addPubMedQuery();
+        
+        // Set the values in the newly created card
+        setTimeout(() => {
+            const newCards = pubmedContainer.querySelectorAll('.query-builder-card');
+            const newestCard = newCards[newCards.length - 1];
+            
+            if (newestCard) {
+                const fieldSelect = newestCard.querySelector('select');
+                const valueInput = newestCard.querySelector('input[type="text"]');
+                
+                if (fieldSelect && valueInput) {
+                    fieldSelect.value = field;
+                    valueInput.value = value;
+                    
+                    fieldSelect.dispatchEvent(new Event('change'));
+                    valueInput.dispatchEvent(new Event('input'));
+                    
+                    console.log(`✅ Auto-added PubMed query: ${field} = "${value}"`);
+                }
+            }
+        }, 100);
+        
+    } else {
+        console.log('❌ Neither addPubmedQuery nor addPubMedQuery function found');
+        console.log('Available functions:', Object.keys(window).filter(key => key.includes('Pubmed')));
+        
+        // Fallback: create card manually if neither function exists
+        const newCard = createPubMedQueryCard(field, value);
+        pubmedContainer.appendChild(newCard);
+        console.log(`✅ Auto-added PubMed query (fallback): ${field} = "${value}"`);
+    }
+}
+
+
+function createPubMedQueryCard(field, value) {
+    const card = document.createElement('div');
+    card.className = 'query-builder-card bg-white border border-gray-200 rounded-lg p-4 shadow-sm';
+    
+    card.innerHTML = `
+        <div class="flex items-center space-x-4">
+            <div class="flex-1">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Field Type</label>
+                <select class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <option value="[All Fields]" ${field === '[All Fields]' ? 'selected' : ''}>All Fields</option>
+                    <option value="[Title/Abstract]" ${field === '[Title/Abstract]' ? 'selected' : ''}>Title/Abstract</option>
+                    <option value="[Title]" ${field === '[Title]' ? 'selected' : ''}>Title</option>
+                    <option value="[Abstract]" ${field === '[Abstract]' ? 'selected' : ''}>Abstract</option>
+                    <option value="[Author]" ${field === '[Author]' ? 'selected' : ''}>Author</option>
+                    <option value="[MeSH Terms]" ${field === '[MeSH Terms]' ? 'selected' : ''}>MeSH Terms</option>
+                    <option value="[Substance Name]" ${field === '[Substance Name]' ? 'selected' : ''}>Substance Name</option>
+                    <option value="[Publication Type]" ${field === '[Publication Type]' ? 'selected' : ''}>Publication Type</option>
+                    <option value="[Journal]" ${field === '[Journal]' ? 'selected' : ''}>Journal</option>
+                    <option value="[Affiliation]" ${field === '[Affiliation]' ? 'selected' : ''}>Affiliation</option>
+                </select>
+            </div>
+            
+            <div class="flex-2">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Search Value</label>
+                <input type="text" value="${value}" placeholder="Enter search term..." 
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            </div>
+            
+            <div class="flex-none">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Operator</label>
+                <select class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <option value="AND">AND</option>
+                    <option value="OR">OR</option>
+                    <option value="NOT">NOT</option>
+                </select>
+            </div>
+            
+            <div class="flex-none pt-6">
+                <button type="button" onclick="this.closest('.query-builder-card').remove()" 
+                        class="text-red-600 hover:text-red-800 p-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    `;
+    
+    return card;
+}
+
+
+
+// 5. Enhanced Main Query Change Handler to include PubMed
+// function handleMainQueryChange(inputElement) {
+//     const queryCard = inputElement.closest('.query-builder-card');
+//     if (!queryCard) return;
+    
+//     const fieldSelect = queryCard.querySelector('select');
+//     const valueInput = inputElement;
+    
+//     if (!fieldSelect || !valueInput.value.trim()) return;
+    
+//     const field = fieldSelect.value;
+//     const value = valueInput.value.trim();
+    
+//     console.log(`🔄 Main query changed: ${field} = "${value}"`);
+    
+//     // Auto-add to clinical trials
+//     if (field === 'drug' || field === 'intervention') {
+//         autoAddClinicalTrials('query.intr', value, 'Intervention/Treatment');
+//     } else if (field === 'condition' || field === 'disease') {
+//         autoAddClinicalTrials('query.cond', value, 'Condition/Disease');
+//     }
+    
+//     // NEW: Auto-add to PubMed
+//     if (field === 'drug' || field === 'intervention') {
+//         autoAddToPubMed('[Substance Name]', value, 'Substance Name');
+//     } else if (field === 'condition' || field === 'disease') {
+//         autoAddToPubMed('[MeSH Terms]', value, 'MeSH Terms');
+//     } else {
+//         // For other terms, add as title/abstract search
+//         autoAddToPubMed('[Title/Abstract]', value, 'Title/Abstract');
+//     }
+// }
+     
+// Enhanced main query change handler for PubMed integration
+function handleMainQueryChange(inputElement) {
+    const queryCard = inputElement.closest('.query-builder-card');
+    if (!queryCard) return;
+    
+    const fieldSelect = queryCard.querySelector('select');
+    const valueInput = inputElement;
+    
+    if (!fieldSelect || !valueInput.value.trim()) return;
+    
+    const field = fieldSelect.value;
+    const value = valueInput.value.trim();
+    
+    console.log(`🔄 Main query changed: ${field} = "${value}"`);
+    
+    // Auto-add to clinical trials (existing)
+    if (field === 'drug' || field === 'intervention') {
+        autoAddClinicalTrials('query.intr', value, 'Intervention/Treatment');
+    } else if (field === 'condition' || field === 'disease') {
+        autoAddClinicalTrials('query.cond', value, 'Condition/Disease');
+    }
+    
+    // Auto-add to PubMed with appropriate field mapping
+    if (field === 'drug' || field === 'intervention') {
+        autoAddToPubMed('[Substance Name]', value, 'Substance Name');
+    } else if (field === 'condition' || field === 'disease') {
+        autoAddToPubMed('[MeSH Terms]', value, 'MeSH Terms');
+    } else {
+        autoAddToPubMed('[Title/Abstract]', value, 'Title/Abstract');
+    }
+}
+
+// 2. ENHANCED buildPubMedQuery for perfect API formatting
+function buildPubMedQuery() {
+    const toggle = document.getElementById('pubmedToggle');
+    if (!toggle || !toggle.checked) {
+        return { enabled: false };
+    }
+    
+    const config = {
+        enabled: true,
+        db: 'pubmed',
+        retmode: 'json',
+        rettype: 'abstract',
+        retmax: 100,
+        retstart: 0,
+        sort: 'relevance',
+        term: '',
+        filters: {}
+    };
+    
+    // Extract queries from PubMed query cards
+    const pubmedQueryCards = document.querySelectorAll('#pubmedQueries .query-builder-card');
+    const queryParts = [];
+    
+    pubmedQueryCards.forEach(card => {
+        const fieldSelect = card.querySelector('select');
+        const valueInput = card.querySelector('input[type="text"]');
+        const operatorSelect = card.querySelector('select:last-of-type');
+        
+        if (fieldSelect && valueInput && valueInput.value.trim()) {
+            const field = fieldSelect.value;
+            const value = valueInput.value.trim();
+            const operator = operatorSelect ? operatorSelect.value : 'AND';
+            
+            // Map field to PubMed format
+            const mappedField = mapPubMedField(field);
+            const formattedTerm = `("${value}")${mappedField}`;
+            
+            queryParts.push({
+                term: formattedTerm,
+                connector: operator
+            });
+        }
+    });
+    
+    // Build final term
+    if (queryParts.length > 0) {
+        config.term = queryParts.map((part, index) => {
+            if (index === 0) return part.term;
+            return `${part.connector} ${part.term}`;
+        }).join(' ');
+    }
+    
+    // Add filters
+    const timeRange = getTimelineConfiguration();
+    if (timeRange.yearsBack) {
+        const currentYear = new Date().getFullYear();
+        const startYear = currentYear - timeRange.yearsBack;
+        config.term += ` AND ("${startYear}"[Date - Publication] : "3000"[Date - Publication])`;
+    }
+    
+    return config;
+}
+
+function mapPubMedField(field) {
+    const fieldMap = {
+        'title': '[Title]',
+        'abstract': '[Abstract]',
+        'author': '[Author]',
+        'mesh': '[MeSH Terms]',
+        'substance': '[Substance Name]',
+        'journal': '[Journal]',
+        'all': ''
+    };
+    return fieldMap[field] || '';
+}
+// 4. Filter Helper Functions for PubMed
+function getSelectedPublicationTypes() {
+    const checkboxes = document.querySelectorAll('input[name="pubmedPublicationType"]:checked');
+    return Array.from(checkboxes).map(cb => cb.value);
+}
+
+function getSelectedLanguages() {
+    const checkboxes = document.querySelectorAll('input[name="pubmedLanguage"]:checked');
+    return Array.from(checkboxes).map(cb => cb.value);
+}
+
+function getSelectedStudyTypes() {
+    const checkboxes = document.querySelectorAll('input[name="pubmedStudyType"]:checked');
+    return Array.from(checkboxes).map(cb => cb.value);
+}
+
+function getSelectedSpecies() {
+    const checkboxes = document.querySelectorAll('input[name="pubmedSpecies"]:checked');
+    return Array.from(checkboxes).map(cb => cb.value);
+}
+
+function getSelectedAgeGroups() {
+    const checkboxes = document.querySelectorAll('input[name="pubmedAgeGroup"]:checked');
+    return Array.from(checkboxes).map(cb => cb.value);
+}
+
+function getSelectedSex() {
+    const sexSelect = document.getElementById('pubmedSex');
+    return sexSelect?.value || '';
+}
+
+   
+
+
+function buildClinicalTrialsQuery() {
             const queries = document.querySelectorAll('#clinicalTrialsQueries .query-builder-card');
             const filters = {
                 overallStatus: Array.from(document.querySelectorAll('#clinicalTrialsSection input[type="checkbox"]:checked')).map(cb => cb.value),
@@ -8730,7 +9917,12 @@ setupTabs();
         // API Base URL - Use our local backend
         // const API_BASE_URL = "https://sunday-fsfq.onrender.com/api";
         //  const API_BASE_URL = 'http://localhost:3000/api';
-
+window.advancedsearchtoggle = function() {
+        showSection(elements.mainSearch, false);
+    showSection(elements.advancedsearch, true);
+//     elements.mainSearch =  document.getElementById("mainSearch");
+// elements.advancedsearch =  document.getElementById("advancedSearch");
+}
 let API_BASE_URL = null;
 
 // Fetch config on page load
@@ -22643,7 +23835,7 @@ function generatePhase3AnalysisHTML(analysis) {
                     <button class="phase3-tab-btn py-2 px-1 border-b-2 border-transparent font-medium text-gray-500 hover:text-gray-700" data-tab="enrollment">
                         Enrollment Analysis
                     </button>
-                    <button class="hidden phase3-tab-btn py-2 px-1 border-b-2 border-transparent font-medium text-gray-500 hover:text-gray-700" data-tab="efficacy-outcomes">
+                    <button class="phase3-tab-btn py-2 px-1 border-b-2 border-transparent font-medium text-gray-500 hover:text-gray-700" data-tab="efficacy-outcomes">
                         Efficacy & Outcomes
                     </button>
                 </nav>
@@ -59041,12 +60233,7 @@ function handleEmailSummary() {
 
 // Backward Compatible handleSearch Function
 // This maintains your existing function calls while adding the enhanced functionality
-function advancedsearchtoggle(){
-        showSection(elements.mainSearch, false);
-    showSection(elements.advancedsearch, true);
-//     elements.mainSearch =  document.getElementById("mainSearch");
-// elements.advancedsearch =  document.getElementById("advancedSearch");
-}
+
 
 function backtosimple(){
         showSection(elements.mainSearch, true);
@@ -59510,8 +60697,527 @@ if (typeof displayStudies === 'function') {
 
 }
 
+
+async function handleadvancedsearch(isAISearch = false, aiQuery = '') {
+    // NEW: Clear previous app state and initialize
+    window.appState = {
+        trialsData: null,
+        fdaData: null,
+        emaData: null,
+        pubmedData: null,
+        currentDrug: null,
+        currentCondition: null,
+        lastSearchType: isAISearch ? 'ai' : 'manual'
+    };
+
+    // NEW: Reset all status indicators
+    ['trials', 'fda', 'ema', 'pubmed'].forEach(section => {
+        updateSectionStatus(section, 'idle', '-', 0);
+    });
+
+    // Clear previous search results and hide sections
+    // elements.drugSearch.value = '';
+    // elements.conditionSearch.value = '';
+
+    showSection(elements.ctSummary, false);
+    showSection(elements.ema, false);
+    showSection(elements.resultsOverview, false);
+    showSection(elements.pubmedSection, false);
+    showSection(elements.studiesSection, false);
+    showSection(elements.studyDetailSection, false);
+    showSection(elements.fdaDataSection, false);
+    showSection(elements.placeholderMessage, false);
+    showSection(elements.sectionNavigationBar, true);
+    showSection(elements.summarySection, true)
+    showSection(elements.advancedsearch, false)
+    
+    // Hide any other sections that might be visible
+    document.querySelectorAll('.results-section').forEach(section => {
+        section.style.display = 'none';
+    });
+    
+
+            const searchConfig = buildCompleteSearchConfiguration();
+        console.log('Advanced search config:', searchConfig);
+
+        if (!validateSearchConfiguration(searchConfig)) {
+            console.log('Search configuration validation failed');
+            return;
+        }
+
+
+    // displayLoading(true);
+    showLoading()
+
+
+    // Get search parameters - if AI search, extract from query
+    let drug, condition, hasResultsOnly, trdFocusOnly, yearsBack, phaseFilter;
+    
+    // Content display flags (defaults for regular search)
+    let showTrials = true;
+    let showFDA = true;
+    let showEMA = true;
+    let showPubMed = true;
+    
+
+        // Regular search - get values from form inputs
+        // drug = 'test drug';
+        // condition = ' fake condition';
+        // hasResultsOnly = false;
+        // trdFocusOnly = false;
+        // yearsBack = parseInt(1);
+        // phaseFilter = 'all'; // Default for manual search
+        
+
+
+        // ✅ EXTRACT DRUG AND CONDITION FROM MAIN QUERIES
+         drug = '';
+         condition = '';
+        
+        // Extract from main queries configuration
+        if (searchConfig.main && Array.isArray(searchConfig.main)) {
+            searchConfig.main.forEach(query => {
+                if (query.value && query.value.trim()) {
+                    if (query.field === 'drug' || query.field === 'intervention') {
+                        drug = query.value.trim();
+                        console.log(`🔍 Extracted drug from main query: "${drug}"`);
+                    } else if (query.field === 'condition' || query.field === 'disease') {
+                        condition = query.value.trim();
+                        console.log(`🔍 Extracted condition from main query: "${condition}"`);
+                    }
+                }
+            });
+        }
+
+        // ✅ FALLBACK: Extract from DOM if not found in config
+        if (!drug && !condition) {
+            console.log('🔍 Fallback: Extracting from DOM elements');
+            
+            const mainQueryCards = document.querySelectorAll('#mainQueries .query-builder-card');
+            mainQueryCards.forEach(card => {
+                const fieldSelect = card.querySelector('select');
+                const valueInput = card.querySelector('input[type="text"]');
+                
+                if (fieldSelect && valueInput && valueInput.value.trim()) {
+                    const field = fieldSelect.value;
+                    const value = valueInput.value.trim();
+                    
+                    if ((field === 'drug' || field === 'intervention') && !drug) {
+                        drug = value;
+                        console.log(`🔍 Extracted drug from DOM: "${drug}"`);
+                    } else if ((field === 'condition' || field === 'disease') && !condition) {
+                        condition = value;
+                        console.log(`🔍 Extracted condition from DOM: "${condition}"`);
+                    }
+                }
+            });
+        }
+
+        // Validate that we have something to search for
+        if (!drug && !condition) {
+            console.warn('No search terms found in main queries');
+            showNotification('Please enter a drug name or condition in the main search fields', 'warning');
+            return;
+        }
+
+        // Get other search parameters
+        // timelineSlider = document.getElementById('timelineSlider');
+        // yearsBack = timelineSlider ? parseInt(timelineSlider.value) : 5;
+
+
+    // NEW: Update app state with search parameters
+    window.appState.currentDrug = drug;
+    window.appState.currentCondition = condition;
+
+    // Validate input
+    if (!drug && !condition) {
+        console.warn('No search terms provided');
+        elements.placeholderMessage.innerHTML = `
+            <div class="text-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-yellow-500 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+                <p class="text-lg">Please enter a drug name or medical condition</p>
+                <p class="mt-2 text-sm">Search for clinical trials, FDA data, and publications</p>
+            </div>`;
+        showSection(elements.placeholderMessage, true);
+        // displayLoading(false);
+        hideLoading()
+        return;
+    }
+
+    try {
+        // Log search activity to backend if available
+        try {
+            if (typeof getCurrentUserId === 'function') {
+                const userId = getCurrentUserId();
+                if (userId && typeof logSearchActivity === 'function') {
+                    const searchDetails = {
+                        timestamp: new Date().toISOString(),
+                        searchType: drug ? (condition ? 'drug_condition' : 'drug') : 'condition',
+                        searchTerms: { drug, condition },
+                        filters: { hasResultsOnly, trdFocusOnly, yearsBack },
+                        isAISearch
+                    };
+                    
+                    await logSearchActivity(userId, searchDetails);
+                }
+            }
+        } catch (logError) {
+            console.warn('Failed to log search activity:', logError);
+        }
+
+        // Update minimized search bar
+        if (typeof updateMinimizedSearchBar === 'function') {
+            updateMinimizedSearchBar(drug, condition, yearsBack);
+        }
+
+        // Minimize search after delay
+        if (typeof minimizeSearch === 'function') {
+            // setTimeout(() => {
+                if (drug || condition) {
+                    minimizeSearch();
+                }
+            // }, 500);
+        }
+
+        // Setup pubmed options
+        const pubmedOptions = {
+            sortBy: 'relevance',
+            fullTextOnly: false,
+            yearRange: yearsBack
+        };
+
+        // Variable to store filtered studies
+        let filteredStudies = [];
+
+        // HANDLE CLINICAL TRIALS SEARCH IF REQUESTED
+        if ((drug || condition) && showTrials) {
+            try {
+                updateSectionStatus('trials', 'loading', '-', 25);
+                
+                // Use your existing trials search logic
+                if (typeof SearchCacheModule !== 'undefined') {
+                    // Check for cached search results first
+                    const cachedSearch = await SearchCacheModule.getCachedSearchResults(
+                        drug, condition, hasResultsOnly, trdFocusOnly, yearsBack
+                    );
+                    
+                    let studies = [];
+                    let usedCache = false;
+                    
+                    if (cachedSearch) {
+                        const MAX_CACHE_AGE_DAYS = 7;
+                        const isOutdated = SearchCacheModule.isSearchOutdated(cachedSearch.timestamp, MAX_CACHE_AGE_DAYS);
+                        
+                        if (!isOutdated) {
+                            console.log(`Using cached search results from ${cachedSearch.timestamp}`);
+                            studies = cachedSearch.results;
+                            usedCache = true;
+                        } else {
+                            console.log(`Cached search is outdated. Fetching new studies...`);
+                            const newStudies = await advancedFetchStudies(searchConfig.clinicalTrials);
+                            const searchKey = cachedSearch.searchKey || 
+                                `${drug || ''}_${condition || ''}_${hasResultsOnly ? 'results' : 'all'}_${trdFocusOnly ? 'trd' : 'all'}_${yearsBack || 'all'}`;
+                            
+                            const updatedStudies = await SearchCacheModule.updateSearchWithNewStudies(searchKey, newStudies);
+                            
+                            if (updatedStudies) {
+                                studies = updatedStudies;
+                                usedCache = true;
+                            }
+                        }
+                    }
+                    
+                    if (!usedCache) {
+                        console.log('No cached results available, fetching new data...');
+                        
+                        if (drug) {
+                            studies = await advancedFetchStudies(searchConfig.clinicalTrials);
+                        } else if (condition) {
+                            studies = await advancedFetchStudies(searchConfig.clinicalTrials);
+                        }
+                        
+                        await SearchCacheModule.saveSearchResults(
+                            drug, condition, hasResultsOnly, trdFocusOnly, yearsBack, studies
+                        );
+                        
+                        console.log(`Retrieved ${studies.length} studies and saved to cache`);
+                    }
+                    
+                    // Filter studies based on criteria
+                    filteredStudies = studies;
+                    
+
+                    
+                    // Apply results filter
+                    if (hasResultsOnly) {
+                        filteredStudies = filteredStudies.filter(study => study.hasResults === true);
+                    }
+                    
+                } else {
+                    // Fallback to simple fetchStudies if SearchCacheModule not available
+                    if (drug) {
+
+                        filteredStudies = await advancedFetchStudies(searchConfig.clinicalTrials);
+                    } else if (condition) {
+                        filteredStudies = await advancedFetchStudies(searchConfig.clinicalTrials);
+                    }
+                }
+                
+                // NEW: Update app state and status
+                window.appState.trialsData = filteredStudies;
+                const trialsCount = calculateTrialsCount(filteredStudies);
+                updateSectionStatus('trials', 'success', trialsCount, 100);
+                
+                // Display the results
+if (typeof displayStudies === 'function') {
+    const searchTerm = drug || condition || '';
+    const conditionParam = condition || '';
+    displayStudies(filteredStudies, searchTerm, conditionParam);
+}
+                // showSection(elements.studiesSection, true);
+                
+            } catch (error) {
+                console.error('Clinical trials search error:', error);
+                updateSectionStatus('trials', 'error', 0, 100);
+            }
+        } else if (showTrials) {
+            updateSectionStatus('trials', 'idle', '-', 0);
+        }
+
+        // FDA DATA SEARCH
+        if (showFDA && drug) {
+            try {
+                updateSectionStatus('fda', 'loading', '-', 25);
+                
+                // Call your existing FDA display function
+                if (typeof displayFdaData === 'function') {
+                    await displayFdaData(drug);
+                }
+                
+                // ADD FDA Response Letters search here
+                console.log('🔍 Searching FDA Response Letters for:', drug);
+                searchFDAResponseLettersForCurrentContext(drug, ''); // Empty string for company since you don't have company search
+
+                if (!window.appState.fdaData) {
+                    updateSectionStatus('fda', 'success', '-', 100);
+                }
+                
+            } catch (error) {
+                console.error('FDA search error:', error);
+                updateSectionStatus('fda', 'error', 0, 100);
+            }
+        } else if (showFDA) {
+            updateSectionStatus('fda', 'idle', '-', 0);
+        }
+
+        // searchFDAResponseLettersForCurrentContext(drug, company);
+
+        // EMA DATA SEARCH
+        if (showEMA && drug) {
+            try {
+                updateSectionStatus('ema', 'loading', '-', 25);
+                
+                if (typeof EmaDataModule !== 'undefined') {
+                    EmaDataModule.init();
+                    await EmaDataModule.searchDrug(drug);
+                }
+                
+                // Note: EMA count will be updated by the enhanced EmaDataModule
+                // If you haven't enhanced it yet, add this temporary count:
+                if (!window.appState.emaData) {
+                    updateSectionStatus('ema', 'success', '-', 100);
+                }
+                
+            } catch (error) {
+                console.error('EMA search error:', error);
+                updateSectionStatus('ema', 'error', 0, 100);
+            }
+        } else if (showEMA) {
+            updateSectionStatus('ema', 'idle', '-', 0);
+        }
+
+        // PUBMED SEARCH
+//         if (showPubMed && (drug || condition)) {
+//             try {
+//                 updateSectionStatus('pubmed', 'loading', '-', 25);
+                
+//                 if (typeof PubMedModule !== 'undefined') {
+//                     let pubmedResults = null;
+                    
+//                     if (drug && condition) {
+//                         console.log("Searching PubMed for drug and condition:", drug, condition);
+//                         const combinedTerm = `${drug} AND ${condition}`;
+                        
+//                         if (PubMedModule.performPubMedSearchAdvanced) {
+//                             pubmedResults = await PubMedModule.performPubMedSearchAdvanced(searchConfig.pubmed);
+//                         } else if (PubMedModule.searchPubMed) {
+//                             pubmedResults = await PubMedModule.searchPubMed(combinedTerm, pubmedOptions);
+//                         }
+                        
+//                     } else if (drug) {
+//                         console.log("Searching PubMed for drug:", drug);
+                        
+//                         if (PubMedModule.performPubMedSearchAdvanced) {
+//                             pubmedResults = await PubMedModule.performPubMedSearchAdvanced(searchConfig.pubmed);
+//                         } else if (PubMedModule.searchPubMedByDrug) {
+//                             pubmedResults = await PubMedModule.searchPubMedByDrug(drug, pubmedOptions);
+//                         } else if (PubMedModule.searchPubMed) {
+//                             pubmedResults = await PubMedModule.searchPubMed(drug, pubmedOptions);
+//                         }
+                        
+//                     } else if (condition) {
+//                         console.log("Searching PubMed for condition:", condition);
+                        
+//                         if (PubMedModule.searchPubMedByCondition) {
+//                             pubmedResults = await PubMedModule.searchPubMedByCondition(condition, pubmedOptions);
+//                         } else if (PubMedModule.searchPubMed) {
+//                             pubmedResults = await PubMedModule.searchPubMed(condition, pubmedOptions);
+//                         }
+//                     }
+                    
+//                     // NEW: Store results in app state for summary
+//   if (pubmedResults) {
+//     // Store the full result object
+//     window.appState.pubmedData = pubmedResults;
+    
+//     const pubmedCount = calculatePubMedCount(pubmedResults);
+//     updateSectionStatus('pubmed', 'success', pubmedCount, 100);
+//   } else {
+//     // Try to get data from PubMed module state as fallback
+//     const moduleState = PubMedModule.state || {};
+//     const fallbackData = {
+//       articles: moduleState.articles || [],
+//       totalResults: moduleState.totalResults || 0
+//     };
+    
+//     window.appState.pubmedData = fallbackData;
+//     const count = calculatePubMedCount(fallbackData);
+//     updateSectionStatus('pubmed', 'success', count, 100);
+//   }
+                    
+//                     // showSection(elements.pubmedSection, true);
+//                 }
+                
+//             } catch (error) {
+//                 console.error('PubMed search error:', error);
+//                 updateSectionStatus('pubmed', 'error', 0, 100);
+//             }
+//         } else if (showPubMed) {
+//             updateSectionStatus('pubmed', 'idle', '-', 0);
+//         }
+
+// In your handleSearchAdvanced function, add this PubMed section:
+
+// PUBMED SEARCH
+if (showPubMed && searchConfig.pubmed && searchConfig.pubmed.enabled) {
+    try {
+        updateSectionStatus('pubmed', 'loading', '-', 25);
+        
+        console.log("🔍 Starting PubMed advanced search with config:", searchConfig.pubmed);
+        
+        const pubmedResults = await PubMedModule.performPubMedSearchAdvanced(
+            searchConfig.pubmed, 
+            'tabpubmedSection'
+        );
+        
+        if (pubmedResults && pubmedResults.length > 0) {
+            // Store results in app state for summary
+            window.appState.pubmedData = {
+                articles: pubmedResults,
+                totalResults: pubmedResults.length,
+                searchTerm: searchConfig.pubmed.term
+            };
+            
+            const pubmedCount = pubmedResults.length;
+            updateSectionStatus('pubmed', 'success', pubmedCount, 100);
+            
+            // Show the PubMed section
+            showSection(elements.pubmedSection, true);
+        } else {
+            updateSectionStatus('pubmed', 'success', 0, 100);
+        }
+        
+    } catch (error) {
+        console.error('PubMed advanced search error:', error);
+        updateSectionStatus('pubmed', 'error', 'Error', 100);
+    }
+}
+
+
+        // Special handling for TEG6S user (if this is still needed)
+        if (typeof getCurrentUserInfo === 'function') {
+            const userInfo = getCurrentUserInfo();
+            if (userInfo && userInfo.username === "TEG6S") {
+                console.log(`Logged in as: ${userInfo.username}`);
+                
+                // Hide main search, show AI sections
+                showSection(elements.mainSearch, false);
+                if (elements.pubmedAI) showSection(elements.pubmedAI, true);
+                if (elements.clinicalai) showSection(elements.clinicalai, true);
+                
+                // Hide specific elements
+                const wlElement = document.getElementById('wl');
+                if (wlElement) wlElement.style.display = "none";
+            }
+        }
+
+        // displayLoading(false);
+       
+        
+        // FIXED: Show summary section if we have any data and auto-generate
+        const hasSomeData = window.appState.trialsData || 
+                           window.appState.fdaData || 
+                           window.appState.emaData || 
+                           window.appState.pubmedData;
+        
+        if (hasSomeData) {
+            const summarySection = document.getElementById('summarySection');
+            if (summarySection) {
+                showSection(summarySection, true);
+                
+                // Auto-generate summary after a short delay
+                // setTimeout(() => {
+                    if (typeof generateComprehensiveSummary === 'function') {
+                        console.log('Auto-generating summary...');
+                        generateComprehensiveSummary();
+                    } else {
+                        console.warn('generateComprehensiveSummary function not found');
+                    }
+                // }, 2000);
+            } else {
+                console.warn('summarySection element not found');
+            }
+        }
+        
+    } catch (error) {
+        console.error('Error during search:', error);
+        elements.placeholderMessage.innerHTML = `
+            <div class="text-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-red-500 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <p class="text-lg">Error searching for studies</p>
+                <p class="mt-2 text-sm">Please try again later.</p>
+                <p class="mt-2 text-xs text-gray-500">${error.message}</p>
+            </div>`;
+        showSection(elements.placeholderMessage, true);
+        displayLoading(false);
+        hideLoading()
+    }
+
+}
+
+
+
 // Now create the backward-compatible handleSearch function
 // This preserves your existing function calls
+
+
+
+
+
 async function handleSearch() {
   console.log("hsifhaios fhasf")
     // Get search parameters from form inputs (your existing way)
@@ -59524,6 +61230,11 @@ async function handleSearch() {
     // Call the enhanced function with manual search flag
     return await enhancedHandleSearch(false, '');
 }
+
+
+
+
+
 
 // Create the AI search handler (for AI search button clicks)
 async function handleAISearch(isAISearch = true, aiQuery = '') {
@@ -61021,6 +62732,397 @@ async function fetchStudies(
     return [];
   }
 }
+
+
+
+
+/**
+ * Advanced fetch studies function that handles complex search configurations
+ * from the advanced search form
+ * 
+ * @param {Object} clinicalTrialsConfig - Clinical trials configuration from advanced search
+ * @returns {Promise<Array>} - Array of studies matching the advanced criteria
+ */
+// 3. UPDATED advancedFetchStudies to pass API v2 structure directly
+// async function advancedFetchStudies(clinicalTrialsConfig) {
+//     try {
+//         console.log('🔍 Starting advanced clinical trials search with API v2 config:', clinicalTrialsConfig);
+        
+//         if (!clinicalTrialsConfig || !clinicalTrialsConfig.enabled) {
+//             console.log('Clinical trials search is disabled');
+//             return [];
+//         }
+
+//         // Extract the API v2 parameters directly
+//         const {
+//             query = {},
+//             filter = {},
+//             postFilter = {},
+//             format = 'json',
+//             markupFormat = 'markdown',
+//             fields = ['protocolSection', 'derivedSection', 'hasResults'],
+//             sort = [],
+//             countTotal = true,
+//             pageSize = 100,
+//             aggFilters = '',
+//             geoDecay = 'func:exp,scale:300mi,offset:0mi,decay:0.5'
+//         } = clinicalTrialsConfig;
+
+//         // Build the exact API v2 request payload
+//         const apiPayload = {
+//             // Query parameters (exactly as API v2 expects)
+//             ...query,
+            
+//             // Filter parameters (exactly as API v2 expects)  
+//             ...filter,
+            
+//             // Post-filter parameters
+//             ...postFilter,
+            
+//             // Format and response parameters
+//             format,
+//             markupFormat,
+//             fields: Array.isArray(fields) ? fields : [fields],
+//             countTotal,
+//             pageSize,
+            
+//             // Additional parameters
+//             ...(sort.length > 0 && { sort }),
+//             ...(aggFilters && { aggFilters }),
+//             ...(geoDecay && { geoDecay })
+//         };
+
+//         console.log('🔍 Sending API v2 payload to backend:', apiPayload);
+
+//         // Send to backend (which will forward directly to ClinicalTrials.gov API v2)
+//         const response = await fetch('/api/studies/advanced-search-v2', {
+//             method: 'POST',
+//             headers: {
+//                 'Content-Type': 'application/json',
+//                 'Accept': 'application/json'
+//             },
+//             body: JSON.stringify(apiPayload)
+//         });
+
+//         if (!response.ok) {
+//             const errorText = await response.text();
+//             throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+//         }
+
+//         const searchResults = await response.json();
+
+//         if (!searchResults.success) {
+//             console.error('Advanced clinical trials search failed:', searchResults.error);
+//             return [];
+//         }
+
+//         const studies = searchResults.data?.studies || [];
+//         console.log(`✅ Advanced search found ${studies.length} studies`);
+//         return studies;
+
+//     } catch (error) {
+//         console.error('❌ Error in advancedFetchStudies:', error);
+//         return [];
+//     }
+// }
+
+async function advancedFetchStudies(clinicalTrialsConfig) {
+    try {
+        console.log('🔍 Starting advanced clinical trials search with corrected API v2 config:', clinicalTrialsConfig);
+        
+        if (!clinicalTrialsConfig || !clinicalTrialsConfig.enabled) {
+            console.log('Clinical trials search is disabled');
+            return [];
+        }
+
+        // IMPORTANT: Create clean payload - remove internal flags and ensure proper format
+        const apiPayload = { ...clinicalTrialsConfig };
+        
+        // Remove our internal enabled flag
+        delete apiPayload.enabled;
+        
+        // FIXED: Ensure fields is a string, not array
+        if (Array.isArray(apiPayload.fields)) {
+            apiPayload.fields = apiPayload.fields.join(',');
+        }
+        
+        // FIXED: Ensure sort is properly formatted or remove if empty
+        if (Array.isArray(apiPayload.sort) && apiPayload.sort.length === 0) {
+            delete apiPayload.sort;
+        }
+        
+        // Remove any undefined or null values
+        Object.keys(apiPayload).forEach(key => {
+            if (apiPayload[key] === undefined || apiPayload[key] === null || apiPayload[key] === '') {
+                delete apiPayload[key];
+            }
+        });
+
+        console.log('🔍 Sending corrected API v2 payload to backend:', apiPayload);
+
+        // Send to backend endpoint
+        const response = await fetch('/api/studies/advanced-search-v2', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify(apiPayload)
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+        }
+
+        const searchResults = await response.json();
+
+        if (!searchResults.success) {
+            console.error('Advanced clinical trials search failed:', searchResults.error);
+            return [];
+        }
+
+        const studies = searchResults.data?.studies || [];
+        console.log(`✅ Advanced search found ${studies.length} studies`);
+        return studies;
+
+    } catch (error) {
+        console.error('❌ Error in advancedFetchStudies:', error);
+        return [];
+    }
+}
+
+async function debugAdvancedFetchStudies(clinicalTrialsConfig) {
+    try {
+        console.log('🔍 DEBUG: Starting advanced clinical trials search');
+        console.log('🔍 DEBUG: Clinical trials config:', JSON.stringify(clinicalTrialsConfig, null, 2));
+        
+        if (!clinicalTrialsConfig || !clinicalTrialsConfig.enabled) {
+            console.log('❌ DEBUG: Clinical trials search is disabled');
+            return [];
+        }
+
+        // Create a test payload to ensure the endpoint works
+        const testPayload = {
+            queries: [
+                {
+                    field: 'drug',
+                    value: 'aspirin',
+                    operator: 'contains',
+                    connector: 'AND'
+                }
+            ],
+            filters: {
+                hasResults: false,
+                status: null,
+                searchRelated: false
+            },
+            timeRange: {
+                yearsBack: 5,
+                sinceDate: null
+            },
+            studyTypes: [],
+            phases: [],
+            enrollment: {},
+            geography: {},
+            sponsor: {},
+            fetchAll: true,
+            pageSize: 100
+        };
+
+        console.log('🔍 DEBUG: Sending test payload:', JSON.stringify(testPayload, null, 2));
+
+        // Test the endpoint first
+        console.log('🔍 DEBUG: Making fetch request to /api/studies/advanced-search');
+        
+        const response = await fetch('/api/studies/advanced-search', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify(testPayload)
+        });
+
+        console.log('🔍 DEBUG: Response status:', response.status);
+        console.log('🔍 DEBUG: Response ok:', response.ok);
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('❌ DEBUG: HTTP error response:', errorText);
+            throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+        }
+
+        const searchResults = await response.json();
+        console.log('🔍 DEBUG: Search results:', JSON.stringify(searchResults, null, 2));
+
+        if (!searchResults.success) {
+            console.error('❌ DEBUG: Search failed:', searchResults.error);
+            return [];
+        }
+
+        const studies = searchResults.data.studies || [];
+        console.log(`✅ DEBUG: Found ${studies.length} studies`);
+        
+        return studies;
+
+    } catch (error) {
+        console.error('❌ DEBUG: Error in advancedFetchStudies:', error);
+        console.error('❌ DEBUG: Error stack:', error.stack);
+        return [];
+    }
+}
+
+// 2. Add this test function to quickly test the advanced search
+async function testAdvancedSearch() {
+    console.log('🧪 Starting advanced search test...');
+    
+    // Simulate the advanced search configuration
+    const testConfig = {
+        enabled: true,
+        queries: [
+            {
+                field: 'drug',
+                value: 'aspirin',
+                operator: 'contains',
+                connector: 'AND'
+            }
+        ],
+        filters: {
+            hasResults: false,
+            status: null,
+            searchRelated: false
+        },
+        timeRange: {
+            yearsBack: 5
+        }
+    };
+    
+    const results = await debugAdvancedFetchStudies(testConfig);
+    console.log(`🧪 Test complete. Found ${results.length} studies`);
+    return results;
+}
+
+
+
+// testAdvancedSearch()
+// 3. Add this debug version of handleadvancedsearch
+async function debugHandleAdvancedSearch() {
+    try {
+        console.log('🔍 DEBUG: Starting debugHandleAdvancedSearch');
+        
+        // Clear previous app state
+        window.appState = {
+            trialsData: null,
+            fdaData: null,
+            emaData: null,
+            pubmedData: null,
+            currentDrug: null,
+            currentCondition: null,
+            lastSearchType: 'advanced'
+        };
+
+        // Get the search configuration
+        let searchConfig;
+        try {
+            searchConfig = buildCompleteSearchConfiguration();
+            console.log('🔍 DEBUG: Search config:', JSON.stringify(searchConfig, null, 2));
+        } catch (configError) {
+            console.error('❌ DEBUG: Error building search config:', configError);
+            // Use a fallback test configuration
+            searchConfig = {
+                main: [{
+                    field: 'drug',
+                    value: 'aspirin',
+                    operator: 'contains',
+                    connector: 'AND'
+                }],
+                clinicalTrials: {
+                    enabled: true,
+                    queries: [{
+                        field: 'drug',
+                        value: 'aspirin',
+                        operator: 'contains',
+                        connector: 'AND'
+                    }],
+                    filters: {
+                        hasResults: false,
+                        status: null,
+                        searchRelated: false
+                    },
+                    timeRange: {
+                        yearsBack: 5
+                    }
+                }
+            };
+            console.log('🔍 DEBUG: Using fallback config:', JSON.stringify(searchConfig, null, 2));
+        }
+
+        // Validate configuration
+        if (!searchConfig.clinicalTrials) {
+            console.log('❌ DEBUG: No clinical trials configuration found');
+            searchConfig.clinicalTrials = {
+                enabled: true,
+                queries: searchConfig.main || [{
+                    field: 'drug',
+                    value: 'aspirin',
+                    operator: 'contains',
+                    connector: 'AND'
+                }],
+                filters: {
+                    hasResults: false,
+                    status: null,
+                    searchRelated: false
+                },
+                timeRange: {
+                    yearsBack: 5
+                }
+            };
+        }
+
+        // Show loading states
+        displayLoading(true);
+        showLoading();
+
+        console.log('🔍 DEBUG: About to call debugAdvancedFetchStudies');
+        
+        // Test the clinical trials search
+        const studies = await debugAdvancedFetchStudies(searchConfig.clinicalTrials);
+        
+        console.log(`🔍 DEBUG: Received ${studies.length} studies from debugAdvancedFetchStudies`);
+
+        // Update app state
+        window.appState.trialsData = studies;
+        
+        // Update status
+        const trialsCount = studies.length;
+        updateSectionStatus('trials', 'success', trialsCount, 100);
+        
+        // Display the results
+        if (typeof displayStudies === 'function') {
+            const searchTerm = 'Debug Test';
+            const conditionParam = '';
+            displayStudies(studies, searchTerm, conditionParam);
+        }
+        
+        // Show the studies section
+        showSection(elements.studiesSection, true);
+        
+        // Hide loading states
+        displayLoading(false);
+        hideLoading();
+
+        console.log(`✅ DEBUG: Advanced search completed with ${trialsCount} studies`);
+        
+    } catch (error) {
+        console.error('❌ DEBUG: Error in debugHandleAdvancedSearch:', error);
+        console.error('❌ DEBUG: Error stack:', error.stack);
+        
+        displayLoading(false);
+        hideLoading();
+    }
+}             
+
 // async function fetchStudies(intervention, condition, hasResults, yearsBack = 5, sinceDate = null) {
 //   try {
 //     const params = {
@@ -80375,7 +82477,108 @@ ${pmids.map(pmid => `https://pubmed.ncbi.nlm.nih.gov/${pmid}/`).join('\n')}
     state.isLoading = false;
   }
 
-  // Function to populate filter options based on data
+
+
+async function performPubMedSearchAdvanced(pubmedConfig, sectionId = 'tabpubmedSection') {
+    try {
+        console.log('🔍 PubMed: Starting advanced search with config:', pubmedConfig);
+        
+        if (!pubmedConfig || !pubmedConfig.enabled) {
+            console.log('PubMed search is disabled');
+            return [];
+        }
+        
+        // Validate required term
+        if (!pubmedConfig.term || pubmedConfig.term.trim() === '') {
+            console.warn('PubMed: No search term provided');
+            return [];
+        }
+        
+        // Prepare the API payload
+        const apiPayload = {
+            term: pubmedConfig.term,
+            db: pubmedConfig.db || 'pubmed',
+            retmode: pubmedConfig.retmode || 'json',
+            rettype: pubmedConfig.rettype || 'abstract',
+            retmax: pubmedConfig.retmax || 100,
+            retstart: pubmedConfig.retstart || 0,
+            sort: pubmedConfig.sort || 'relevance',
+            filters: pubmedConfig.filters || {}
+        };
+        
+        console.log('🔍 PubMed: Sending API payload:', apiPayload);
+        
+        // Call backend PubMed API
+        const response = await fetch('/api/pubmed/advanced-search', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify(apiPayload)
+        });
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+        }
+        
+        const searchResults = await response.json();
+        
+        if (!searchResults.success) {
+            console.error('PubMed advanced search failed:', searchResults.error);
+            return [];
+        }
+        
+        const articles = searchResults.data?.articles || [];
+        console.log(`✅ PubMed: Found ${articles.length} articles`);
+        
+        // Use your existing renderPubMedResults function
+        const section = document.getElementById(sectionId);
+        
+        if (section && typeof renderPubMedResults === 'function') {
+            console.log('🔍 PubMed: Using existing renderPubMedResults function');
+            
+            // Format data in the EXACT structure your existing function expects
+            const formattedData = {
+                articles: articles,
+                totalResults: searchResults.data?.totalCount || articles.length,
+                searchTerm: pubmedConfig.term
+            };
+            
+            // Call your existing display function with proper suffix
+            renderPubMedResults(formattedData, section, '');
+            
+            // Show the section
+            section.classList.remove('hidden');
+            
+        } else {
+            console.error('❌ PubMed: renderPubMedResults function or section not found');
+        }
+        
+        return articles;
+        
+    } catch (error) {
+        console.error('❌ PubMed: Error in performPubMedSearchAdvanced:', error);
+        
+        // Display error in the section
+        const section = document.getElementById(sectionId);
+        if (section) {
+            const errorDiv = section.querySelector('.error-message') || document.createElement('div');
+            errorDiv.className = 'error-message bg-red-50 border border-red-200 p-4 rounded-lg';
+            errorDiv.innerHTML = `
+                <h3 class="text-red-800 font-medium">PubMed Search Error</h3>
+                <p class="text-red-600">${error.message}</p>
+            `;
+            section.appendChild(errorDiv);
+        }
+        
+        return [];
+    }
+}
+ 
+ 
+    // Function to populate filter options based on data
   function populateFilters() {
     // Populate search type dropdown if it exists
     if (elements.pubmedSearchType) {
@@ -81707,7 +83910,8 @@ window.ComprehensiveDrugAnalysis = {
     performPubMedSearch,
     filterArticlesByLocalSearch,
     generateAISummary,
-    toggleAnnotations
+    toggleAnnotations,
+    performPubMedSearchAdvanced
   };
 })();
 

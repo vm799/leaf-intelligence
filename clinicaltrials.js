@@ -372,128 +372,1093 @@ const grokAPI = axios.create({
 });
 
 
+// app.post('/api/studies/advanced-search-v2', async (req, res) => {
+//   try {
+//     console.log('🔍 API v2: Advanced clinical trials search request received');
+//     console.log('🔍 API v2: Request payload:', JSON.stringify(req.body, null, 2));
+        
+//     // The frontend now sends the exact API v2 structure, so we can pass it through directly
+//     const apiPayload = req.body;
+        
+//     // Validate that we have at least one query parameter
+//     const hasQueryParams = Object.keys(apiPayload).some(key => 
+//       key.startsWith('query.') && apiPayload[key]
+//     );
+        
+//     if (!hasQueryParams) {
+//       console.log('❌ API v2: No query parameters found');
+//       return res.status(400).json({
+//         success: false,
+//         error: 'At least one query parameter (query.*) must be provided',
+//         data: { studies: [], totalCount: 0 }
+//       });
+//     }
+        
+//     // Define the ClinicalTrials.gov API v2 base URL
+//     const CLINICAL_TRIALS_API_V2 = 'https://clinicaltrials.gov/api/v2';
+        
+//     // Build the base query parameters for the API request
+//     const baseQueryParams = new URLSearchParams();
+        
+//     // Add all parameters from the payload to query string (except pagination params)
+//     Object.keys(apiPayload).forEach(key => {
+//       const value = apiPayload[key];
+      
+//       // Skip pagination parameters - we'll handle these ourselves
+//       if (key === 'pageSize' || key === 'pageToken') {
+//         return;
+//       }
+            
+//       if (value !== null && value !== undefined && value !== '') {
+//         if (Array.isArray(value)) {
+//           // For arrays, join with commas (API v2 format)
+//           if (value.length > 0) {
+//             baseQueryParams.append(key, value.join(','));
+//           }
+//         } else {
+//           baseQueryParams.append(key, value.toString());
+//         }
+//       }
+//     });
+
+//     // Set maximum page size and enable total count for first request
+//     baseQueryParams.set('pageSize', '1000'); // Maximum allowed by API
+//     baseQueryParams.set('countTotal', 'true');
+        
+//     console.log('🔍 API v2: Base params for pagination:', baseQueryParams.toString());
+        
+//     // Initialize variables for pagination
+//     let allStudies = [];
+//     let totalCount = 0;
+//     let pageToken = null;
+//     let pageNumber = 1;
+//     let hasMorePages = true;
+        
+//     // Fetch all pages
+//     while (hasMorePages) {
+//       // Create query params for this page
+//       const currentQueryParams = new URLSearchParams(baseQueryParams);
+      
+//       // Add page token for subsequent pages
+//       if (pageToken) {
+//         currentQueryParams.set('pageToken', pageToken);
+//         // Don't count total again for subsequent pages
+//         currentQueryParams.delete('countTotal');
+//       }
+      
+//       const apiUrl = `${CLINICAL_TRIALS_API_V2}/studies?${currentQueryParams.toString()}`;
+//       console.log(`🔍 API v2: Fetching page ${pageNumber} - URL: ${apiUrl}`);
+            
+//       try {
+//         const response = await axios.get(apiUrl, {
+//           headers: {
+//             'Accept': 'application/json',
+//             'Cache-Control': 'no-cache',
+//             'User-Agent': 'Clinical-Research-Tool/1.0'
+//           },
+//           timeout: 30000 // 30 second timeout
+//         });
+            
+//         console.log(`🔍 API v2: Page ${pageNumber} response status:`, response.status);
+//         console.log(`🔍 API v2: Studies in page ${pageNumber}:`, response.data.studies?.length || 0);
+            
+//         // Add studies from this page to our collection
+//         if (response.data.studies && response.data.studies.length > 0) {
+//           allStudies = allStudies.concat(response.data.studies);
+//         }
+            
+//         // Store total count from first page
+//         if (pageNumber === 1 && response.data.totalCount !== undefined) {
+//           totalCount = response.data.totalCount;
+//           console.log(`🔍 API v2: Total count from API: ${totalCount}`);
+//         }
+            
+//         // Check if there are more pages
+//         if (response.data.nextPageToken) {
+//           pageToken = response.data.nextPageToken;
+//           pageNumber++;
+          
+//           // Safety check to prevent infinite loops (optional)
+//           if (pageNumber > 1000) {
+//             console.log('⚠️ API v2: Reached maximum page limit (1000), stopping pagination');
+//             hasMorePages = false;
+//           }
+//         } else {
+//           hasMorePages = false;
+//           console.log(`🔍 API v2: No more pages. Fetched ${pageNumber} pages total.`);
+//         }
+            
+//       } catch (pageError) {
+//         console.error(`❌ API v2: Error fetching page ${pageNumber}:`, pageError.message);
+        
+//         // If we have some studies already, we can still return them
+//         if (allStudies.length > 0) {
+//           console.log(`⚠️ API v2: Returning ${allStudies.length} studies collected before error`);
+//           break;
+//         } else {
+//           // Re-throw error if we haven't collected any studies yet
+//           throw pageError;
+//         }
+//       }
+//     }
+        
+//     console.log(`🔍 API v2: Final results - Total studies collected: ${allStudies.length}`);
+//     console.log(`🔍 API v2: API reported total count: ${totalCount}`);
+        
+//     // Use the collected count if API didn't provide totalCount
+//     const finalTotalCount = totalCount || allStudies.length;
+        
+//     // Return all collected studies
+//     res.json({
+//       success: true,
+//       data: {
+//         studies: allStudies,
+//         totalCount: finalTotalCount,
+//         pagesProcessed: pageNumber,
+//         nextPageToken: null // Always null since we fetched everything
+//       },
+//       apiResponse: {
+//         status: 200,
+//         timestamp: new Date().toISOString(),
+//         note: `Aggregated results from ${pageNumber} page(s)`
+//       }
+//     });
+        
+//   } catch (error) {
+//     console.error("❌ API v2: Advanced clinical trials search error:", error);
+        
+//     // Provide detailed error information
+//     let errorMessage = error.message;
+//     let errorDetails = {};
+        
+//     if (error.response) {
+//       // API returned an error response
+//       errorMessage = `ClinicalTrials.gov API error: ${error.response.status} ${error.response.statusText}`;
+//       errorDetails = {
+//         status: error.response.status,
+//         statusText: error.response.statusText,
+//         data: error.response.data
+//       };
+//       console.error("❌ API v2: API response error:", error.response.data);
+//     } else if (error.request) {
+//       // Network error
+//       errorMessage = 'Network error: Could not reach ClinicalTrials.gov API';
+//       errorDetails = { request: 'No response received' };
+//     }
+        
+//     res.status(500).json({
+//       success: false,
+//       error: errorMessage,
+//       details: errorDetails,
+//       data: { studies: [], totalCount: 0 }
+//     });
+//   }
+// });
+
+
+
+app.post('/api/studies/advanced-search-v2', async (req, res) => {
+  try {
+    console.log('🔍 Advanced search v2 request received:', req.body);
+    
+    // IMPORTANT: Parameters come directly in req.body, not nested
+    const queryParams = { ...req.body };
+    
+    // VALIDATION: Clean up parameters before sending to API
+    
+    // Ensure required format parameters
+    if (!queryParams.format) {
+      queryParams.format = 'json';
+    }
+    
+    // FIXED: Ensure fields is properly formatted (comma-separated string)
+    if (Array.isArray(queryParams.fields)) {
+      queryParams.fields = queryParams.fields.join(',');
+    }
+    if (!queryParams.fields) {
+      queryParams.fields = 'protocolSection,derivedSection,hasResults';
+    }
+    
+    // FIXED: Clean up sort parameter
+    if (Array.isArray(queryParams.sort)) {
+      if (queryParams.sort.length === 0) {
+        delete queryParams.sort;
+      } else {
+        queryParams.sort = queryParams.sort.join(',');
+      }
+    }
+    
+    // Remove empty or undefined parameters
+    Object.keys(queryParams).forEach(key => {
+      if (queryParams[key] === undefined || 
+          queryParams[key] === null || 
+          queryParams[key] === '' ||
+          (Array.isArray(queryParams[key]) && queryParams[key].length === 0)) {
+        delete queryParams[key];
+      }
+    });
+    
+    // Log cleaned parameters
+    console.log('🔍 Cleaned parameters for ClinicalTrials.gov API v2:', queryParams);
+    
+    // VALIDATION: Check for known problematic parameters
+    const problematicParams = [];
+    if (Array.isArray(queryParams.fields)) {
+      problematicParams.push('fields is array (should be string)');
+    }
+    if (queryParams['fields[]']) {
+      problematicParams.push('fields[] parameter detected (should be fields)');
+      delete queryParams['fields[]'];
+    }
+    
+    if (problematicParams.length > 0) {
+      console.warn('⚠️ Fixed problematic parameters:', problematicParams);
+    }
+    
+    // Make request to ClinicalTrials.gov API v2
+    const apiUrl = 'https://clinicaltrials.gov/api/v2/studies';
+    console.log('🔍 Making request to:', apiUrl);
+    console.log('🔍 With parameters:', queryParams);
+    
+    const response = await axios.get(apiUrl, {
+      params: queryParams,
+      timeout: 30000, // 30 second timeout
+      headers: {
+        'User-Agent': 'Clinical Research Tool/1.0',
+        'Accept': 'application/json'
+      }
+    });
+    
+    console.log('✅ ClinicalTrials.gov API response received:', {
+      status: response.status,
+      studyCount: response.data?.studies?.length || 0,
+      totalCount: response.data?.totalCount || 0
+    });
+    
+    res.json({
+      success: true,
+      data: response.data
+    });
+    
+  } catch (error) {
+    console.error('❌ ClinicalTrials.gov API error:', {
+      message: error.message,
+      status: error.response?.status,
+      statusText: error.response?.statusText,
+      data: error.response?.data,
+      config: error.config?.params
+    });
+    
+    // Provide detailed error information
+    const errorResponse = {
+      success: false,
+      error: `ClinicalTrials.gov API error: ${error.response?.status || 'Unknown error'}`,
+      details: {
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        data: error.response?.data
+      },
+      data: {
+        studies: [],
+        totalCount: 0
+      }
+    };
+    
+    // If it's a parameter error, provide helpful info
+    if (error.response?.status === 400) {
+      errorResponse.details.originalRequest = error.config?.params;
+      errorResponse.details.hint = 'Check parameter format - fields should be comma-separated string, not array';
+    }
+    
+    res.status(500).json(errorResponse);
+  }
+});
+
+// ALTERNATIVE: Simpler version with minimal processing
+app.post('/api/studies/advanced-search-v2-simple', async (req, res) => {
+  try {
+    console.log('🔍 Simple advanced search v2 request:', req.body);
+    
+    // Minimal parameter processing
+    const params = { ...req.body };
+    
+    // Only fix the known issue with fields parameter
+    if (Array.isArray(params.fields)) {
+      params.fields = params.fields.join(',');
+    }
+    
+    // Remove empty values
+    Object.keys(params).forEach(key => {
+      if (params[key] === '' || params[key] === null || params[key] === undefined) {
+        delete params[key];
+      }
+    });
+    
+    console.log('🔍 Sending to ClinicalTrials.gov:', params);
+    
+    const response = await axios.get('https://clinicaltrials.gov/api/v2/studies', {
+      params: params
+    });
+    
+    res.json({
+      success: true,
+      data: response.data
+    });
+    
+  } catch (error) {
+    console.error('❌ API Error:', error.response?.data || error.message);
+    
+    res.status(500).json({
+      success: false,
+      error: error.response?.data || error.message,
+      data: { studies: [], totalCount: 0 }
+    });
+  }
+});
+
+app.get('/api/test/advanced-search', async (req, res) => {
+  try {
+    console.log('🧪 TEST: Advanced search test endpoint called');
+    
+    // Test the fetchClinicalTrials function directly
+    const testParams = {
+      drug: 'aspirin',
+      condition: null,
+      hasResults: false,
+      yearsBack: 5,
+      sinceDate: null,
+      searchRelated: false,
+      page: 1,
+      pageSize: 10,
+      fetchAll: false,
+      status: null
+    };
+    
+    console.log('🧪 TEST: Calling fetchClinicalTrials with params:', testParams);
+    
+    const result = await fetchClinicalTrials(testParams);
+    
+    console.log('🧪 TEST: fetchClinicalTrials result:', {
+      success: result.success,
+      studyCount: result.data?.studies?.length || 0,
+      error: result.error
+    });
+    
+    res.json({
+      testEndpoint: 'working',
+      fetchClinicalTrialsResult: result,
+      timestamp: new Date().toISOString()
+    });
+    
+  } catch (error) {
+    console.error('🧪 TEST: Error in test endpoint:', error);
+    res.status(500).json({
+      testEndpoint: 'error',
+      error: error.message,
+      stack: error.stack
+    });
+  }
+});
 
 
 // Add to clinicaltrials.js
 
-/**
- * Advanced Clinical Trials Search
- * POST /api/advanced/clinical-trials
- */
-app.post('/api/advanced/clinical-trials', async (req, res) => {
+app.post('/api/studies/advanced-search', async (req, res) => {
   try {
+    console.log('🔍 Advanced clinical trials search request received');
+    
     const {
-      queries,           // Array of {field, operator, value, connector}
-      filters,           // Status, phase, demographics filters
-      timeline,          // Years back
-      proximity,         // Proximity search settings
-      aiEnhancements     // AI-powered features
+      queries = [],
+      filters = {},
+      timeRange = {},
+      studyTypes = [],
+      phases = [],
+      enrollment = {},
+      geography = {},
+      sponsor = {},
+      fetchAll = true,
+      pageSize = 100
     } = req.body;
 
-    console.log('🔬 Advanced Clinical Trials search initiated');
+    console.log('Advanced search parameters:', req.body);
 
-    // Build advanced query string
-    const advancedQuery = buildAdvancedClinicalTrialsQuery(queries, filters);
-    
-    // Apply timeline filters
-    const dateFilter = buildTimelineFilter(timeline);
-    
-    // Execute search with enhanced parameters
-    const params = {
-      'filter.advanced': advancedQuery,
-      'filter.overallStatus': filters.overallStatus?.join(','),
-      'filter.studyType': filters.studyType,
-      'filter.phase': filters.phases?.join(','),
-      'query.locn': filters.location?.country,
-      'pageSize': 100,
-      'countTotal': true,
-      'format': 'json',
-      'fields': 'protocolSection,derivedSection,hasResults'
-    };
+    // Process main search terms
+    let interventionTerms = [];
+    let conditionTerms = [];
+    let generalTerms = [];
 
-    if (dateFilter) {
-      params['filter.studyFirstPostDate'] = dateFilter;
-    }
-
-    const response = await axios.get(`${CLINICAL_TRIALS_API_BASE}/studies`, {
-      params
-    });
-
-    // Apply AI enhancements if enabled
-    let enhancedData = response.data;
-    if (aiEnhancements.smartSuggestions) {
-      enhancedData = await applyAIEnhancements(enhancedData, queries);
-    }
-
-    res.json({
-      success: true,
-      data: enhancedData,
-      searchConfig: { queries, filters, timeline, proximity, aiEnhancements },
-      metadata: {
-        searchType: 'advanced_clinical_trials',
-        timestamp: new Date().toISOString()
+    queries.forEach(query => {
+      if (query.value && query.value.trim()) {
+        switch (query.field) {
+          case 'drug':
+          case 'intervention':
+            interventionTerms.push(query.value.trim());
+            break;
+          case 'condition':
+          case 'disease':
+            conditionTerms.push(query.value.trim());
+            break;
+          default:
+            generalTerms.push(query.value.trim());
+            break;
+        }
       }
     });
 
+    // Build parameters for fetchClinicalTrials function
+    const searchParams = {
+      drug: interventionTerms.length > 0 ? interventionTerms.join(' ') : null,
+      condition: conditionTerms.length > 0 ? conditionTerms.join(' ') : null,
+      hasResults: filters.hasResults,
+      yearsBack: timeRange.yearsBack || 5,
+      sinceDate: timeRange.sinceDate || null,
+      searchRelated: filters.searchRelated,
+      fetchAll: fetchAll,
+      pageSize: pageSize,
+      status: filters.status
+    };
+
+    // Build advanced query for complex filters
+    let advancedQuery = [];
+
+    // Add study phases
+    if (phases && phases.length > 0) {
+      const phaseQuery = phases.map(phase => `AREA[Phase]${phase}`).join(' OR ');
+      advancedQuery.push(`(${phaseQuery})`);
+    }
+
+    // Add study types  
+    if (studyTypes && studyTypes.length > 0) {
+      const typeQuery = studyTypes.map(type => `AREA[StudyType]${type}`).join(' OR ');
+      advancedQuery.push(`(${typeQuery})`);
+    }
+
+    // Add enrollment criteria
+    if (enrollment.min || enrollment.max) {
+      if (enrollment.min && enrollment.max) {
+        advancedQuery.push(`AREA[EnrollmentCount]RANGE[${enrollment.min},${enrollment.max}]`);
+      } else if (enrollment.min) {
+        advancedQuery.push(`AREA[EnrollmentCount]RANGE[${enrollment.min},MAX]`);
+      } else if (enrollment.max) {
+        advancedQuery.push(`AREA[EnrollmentCount]RANGE[MIN,${enrollment.max}]`);
+      }
+    }
+
+    // Add geographical filters
+    if (geography.countries && geography.countries.length > 0) {
+      const countryQuery = geography.countries.map(country => `AREA[LocationCountry]${country}`).join(' OR ');
+      advancedQuery.push(`(${countryQuery})`);
+    }
+
+    // Add sponsor filters
+    if (sponsor.type) {
+      advancedQuery.push(`AREA[LeadSponsorClass]${sponsor.type}`);
+    }
+    if (sponsor.name) {
+      advancedQuery.push(`AREA[LeadSponsorName]${sponsor.name}`);
+    }
+
+    // Combine advanced query parts
+    if (advancedQuery.length > 0) {
+      // Combine with existing date filters if they exist
+      const existingAdvanced = searchParams.advanced || '';
+      searchParams.advanced = existingAdvanced ? 
+        `(${existingAdvanced}) AND (${advancedQuery.join(' AND ')})` : 
+        advancedQuery.join(' AND ');
+    }
+
+    console.log('Final search parameters for fetchClinicalTrials:', searchParams);
+
+    // Use the existing fetchClinicalTrials function
+    const searchResults = await fetchClinicalTrials(searchParams);
+
+    // Return the results in the expected format
+    res.json(searchResults);
+
   } catch (error) {
-    handleApiError(error, res);
+    console.error("Advanced clinical trials search error:", error);
+    res.status(500).json({
+      success: false,
+      error: error.message,
+      data: { studies: [], totalCount: 0 }
+    });
   }
 });
 
+// ==========================================
+// BACKEND: PubMed Advanced Search API (clinicaltrials.js)
+// ==========================================
+
+// Add this to your clinicaltrials.js backend file
+
+// PubMed E-utilities API constants
+const PUBMED_EUTILS_BASE = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils';
+const NCBI_API_KEY = process.env.NCBI_API_KEY || ''; // Optional: Add your API key
+
 /**
- * Advanced PubMed Search
- * POST /api/advanced/pubmed
+ * Advanced PubMed Search Endpoint
+ * POST /api/pubmed/advanced-search
  */
-app.post('/api/advanced/pubmed', async (req, res) => {
+app.post('/api/pubmed/advanced-search', async (req, res) => {
   try {
-    const { queries, filters, timeline, proximity } = req.body;
-
-    console.log('📚 Advanced PubMed search initiated');
-
-    // Build PubMed query string with field-specific searches
-    const pubmedQuery = buildAdvancedPubMedQuery(queries, proximity);
+    console.log('🔍 PubMed: Advanced search request received');
     
-    // Apply publication filters
-    const searchParams = {
-      term: pubmedQuery,
-      retmax: 100,
-      sort: filters.sortOrder || 'relevance',
-      field: 'title,abstract,author',
-      datetype: filters.dateType || 'pdat'
-    };
+    const {
+      term,
+      db = 'pubmed',
+      retmode = 'json',
+      rettype = 'abstract',
+      retmax = 100,
+      retstart = 0,
+      sort = 'relevance',
+      filters = {}
+    } = req.body;
 
-    // Add date range if specified
-    if (timeline) {
-      const currentYear = new Date().getFullYear();
-      const startYear = currentYear - timeline;
-      searchParams.mindate = `${startYear}/01/01`;
-      searchParams.maxdate = `${currentYear}/12/31`;
+    console.log('🔍 PubMed: Search parameters:', {
+      term: term,
+      retmax: retmax,
+      sort: sort,
+      filtersCount: Object.keys(filters).length
+    });
+
+    if (!term || term.trim() === '') {
+      return res.status(400).json({
+        success: false,
+        error: 'Search term is required for PubMed search',
+        data: { articles: [], totalCount: 0 }
+      });
     }
 
-    // Add publication type filters
-    if (filters.publicationTypes?.length > 0) {
-      searchParams.term += ` AND (${filters.publicationTypes.map(type => `"${type}"[Publication Type]`).join(' OR ')})`;
+    // Step 1: Search for article IDs using esearch (this returns JSON correctly)
+    const searchParams = new URLSearchParams({
+      db: db,
+      term: term.trim(),
+      retmax: retmax.toString(),
+      retstart: retstart.toString(),
+      retmode: 'json',  // This works for esearch
+      sort: sort
+    });
+
+    if (process.env.NCBI_API_KEY) {
+      searchParams.append('api_key', process.env.NCBI_API_KEY);
     }
 
-    const publications = await PubMed.searchPublications(searchParams.term, searchParams);
+    console.log('🔍 PubMed: Step 1 - Searching for article IDs...');
+    const searchUrl = `${PUBMED_EUTILS_BASE}/esearch.fcgi?${searchParams.toString()}`;
+    console.log('🔍 Search URL:', searchUrl);
+    
+    const searchResponse = await fetch(searchUrl, {
+      headers: {
+        'Accept': 'application/json',
+        'User-Agent': 'Clinical-Research-Tool/1.0'
+      },
+      timeout: 10000
+    });
+    
+    if (!searchResponse.ok) {
+      throw new Error(`PubMed esearch API error: ${searchResponse.status} ${searchResponse.statusText}`);
+    }
+    
+    const searchData = await searchResponse.json();
+    console.log('🔍 PubMed: Search response:', searchData);
+    
+    const idList = searchData.esearchresult?.idlist || [];
+    const totalCount = parseInt(searchData.esearchresult?.count || 0);
+    
+    console.log(`🔍 PubMed: Found ${idList.length} article IDs, total count: ${totalCount}`);
+    
+    if (idList.length === 0) {
+      return res.json({
+        success: true,
+        data: {
+          articles: [],
+          totalCount: 0
+        }
+      });
+    }
 
+    // Step 2: Fetch article details using esummary (NOT efetch for JSON)
+    // ❌ WRONG: Using efetch with retmode=json (doesn't work reliably)
+    // ✅ CORRECT: Using esummary with retmode=json (always works)
+    
+    const detailsParams = new URLSearchParams({
+      db: 'pubmed',
+      id: idList.join(','),
+      retmode: 'json'  // esummary supports JSON mode properly
+    });
+
+    if (process.env.NCBI_API_KEY) {
+      detailsParams.append('api_key', process.env.NCBI_API_KEY);
+    }
+
+    console.log('🔍 PubMed: Step 2 - Fetching article details...');
+    const detailsUrl = `${PUBMED_EUTILS_BASE}/esummary.fcgi?${detailsParams.toString()}`;
+    console.log('🔍 Details URL:', detailsUrl);
+    
+    const detailsResponse = await fetch(detailsUrl, {
+      headers: {
+        'Accept': 'application/json',
+        'User-Agent': 'Clinical-Research-Tool/1.0'
+      },
+      timeout: 10000
+    });
+    
+    if (!detailsResponse.ok) {
+      throw new Error(`PubMed esummary API error: ${detailsResponse.status} ${detailsResponse.statusText}`);
+    }
+    
+    const detailsData = await detailsResponse.json();
+    console.log('🔍 PubMed: Details response received');
+    
+    // Step 3: Format articles from esummary data
+    const articles = [];
+    
+    idList.forEach(pmid => {
+      const summary = detailsData.result?.[pmid];
+      
+      if (summary && summary.title) {
+        const article = formatPubMedSummary(summary, pmid);
+        articles.push(article);
+      }
+    });
+
+    console.log(`✅ PubMed: Formatted ${articles.length} articles`);
+
+    // Return in the exact format your frontend expects
     res.json({
       success: true,
       data: {
-        articles: publications,
-        totalResults: publications.length
-      },
-      searchConfig: { queries, filters, timeline, proximity },
-      metadata: {
-        searchType: 'advanced_pubmed',
-        timestamp: new Date().toISOString()
+        articles: articles,
+        totalCount: totalCount
       }
     });
 
   } catch (error) {
-    handleApiError(error, res);
+    console.error("❌ PubMed: Advanced search error:", error);
+    res.status(500).json({
+      success: false,
+      error: error.message,
+      data: { articles: [], totalCount: 0 }
+    });
   }
 });
+
+// Helper function to format PubMed summary data
+function formatPubMedSummary(summary, pmid) {
+  try {
+    // Extract authors
+    const authors = (summary.authors || [])
+      .filter(author => author.authtype === 'Author')
+      .map(author => author.name || '')
+      .slice(0, 5); // Limit to first 5 authors
+
+    // Extract publication date
+    const pubDate = summary.pubdate || summary.epubdate || '';
+
+    // Extract journal name
+    const journal = summary.source || summary.fulljournalname || '';
+
+    // Extract title
+    const title = summary.title || 'Untitled';
+
+    // Extract DOI
+    const articleIds = summary.articleids || [];
+    const doi = articleIds.find(id => id.idtype === 'doi')?.value || '';
+    
+    // Extract PMCID if available
+    const pmcId = articleIds.find(id => id.idtype === 'pmc')?.value || '';
+
+    return {
+      pmid: pmid,
+      title: title,
+      authors: authors,
+      journal: journal,
+      pubDate: pubDate,
+      abstract: summary.abstract || '', // Basic abstract from summary
+      keywords: summary.keywords || [],
+      doi: doi,
+      pmcId: pmcId,
+      citationCount: summary.pmc_refcount || 0,
+      url: `https://pubmed.ncbi.nlm.nih.gov/${pmid}/`,
+      fullTextUrl: pmcId ? `https://www.ncbi.nlm.nih.gov/pmc/articles/${pmcId}/` : '',
+      isOpenAccess: !!pmcId,
+      publicationType: summary.pubtype || [],
+      volume: summary.volume || '',
+      issue: summary.issue || '',
+      pages: summary.pages || '',
+      language: summary.lang || ['eng']
+    };
+
+  } catch (error) {
+    console.error(`Error formatting article ${pmid}:`, error);
+    return {
+      pmid: pmid,
+      title: 'Error loading article',
+      authors: [],
+      journal: '',
+      pubDate: '',
+      abstract: '',
+      keywords: [],
+      doi: '',
+      citationCount: 0,
+      url: `https://pubmed.ncbi.nlm.nih.gov/${pmid}/`
+    };
+  }
+}
+
+// Optional: If you need full abstracts, add this separate endpoint
+app.get('/api/pubmed/abstract/:pmid', async (req, res) => {
+  try {
+    const pmid = req.params.pmid;
+    
+    // Use efetch for getting full abstract (in XML format)
+    const params = new URLSearchParams({
+      db: 'pubmed',
+      id: pmid,
+      rettype: 'abstract',
+      retmode: 'xml'  // Use XML for efetch
+    });
+
+    if (process.env.NCBI_API_KEY) {
+      params.append('api_key', process.env.NCBI_API_KEY);
+    }
+
+    const url = `${PUBMED_EUTILS_BASE}/efetch.fcgi?${params.toString()}`;
+    const response = await fetch(url);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const xmlData = await response.text();
+    
+    // Parse XML to extract abstract (you'll need xml2js or similar)
+    // For now, return raw XML or implement XML parsing
+    
+    res.json({
+      success: true,
+      pmid: pmid,
+      abstractXml: xmlData
+    });
+    
+  } catch (error) {
+    console.error(`Error fetching abstract for ${req.params.pmid}:`, error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * Extract and format author names
+ */
+function extractAuthors(authorsData) {
+  if (!authorsData || !Array.isArray(authorsData)) {
+    return ['Unknown'];
+  }
+  
+  return authorsData.map(author => {
+    if (typeof author === 'string') {
+      return author;
+    } else if (author.name) {
+      return author.name;
+    } else {
+      return 'Unknown Author';
+    }
+  }).filter(name => name !== 'Unknown Author').slice(0, 10); // Limit to 10 authors
+}
+
+/**
+ * Format publication date
+ */
+function formatPubDate(pubdate) {
+  if (!pubdate) return 'Unknown';
+  
+  try {
+    // PubMed dates can be in various formats
+    if (pubdate.includes(' ')) {
+      // Format: "2023 Jan 15" or "2023 Jan"
+      return pubdate;
+    } else if (pubdate.length === 4) {
+      // Format: "2023"
+      return pubdate;
+    } else {
+      // Try to parse as date
+      const date = new Date(pubdate);
+      if (!isNaN(date.getTime())) {
+        return date.toLocaleDateString('en-US', { 
+          year: 'numeric', 
+          month: 'short', 
+          day: 'numeric' 
+        });
+      }
+    }
+    
+    return pubdate;
+  } catch (error) {
+    return pubdate || 'Unknown';
+  }
+}
+
+/**
+ * Extract DOI from article data
+ */
+function extractDOI(elocationid, articleids) {
+  // Check elocationid first
+  if (elocationid && elocationid.includes('doi:')) {
+    return elocationid.replace('doi:', '').trim();
+  }
+  
+  // Check articleids array
+  if (articleids && Array.isArray(articleids)) {
+    for (const id of articleids) {
+      if (id.idtype === 'doi') {
+        return id.value;
+      }
+    }
+  }
+  
+  return '';
+}
+
+/**
+ * Extract publication type
+ */
+function extractPublicationType(pubtype) {
+  if (!pubtype || !Array.isArray(pubtype)) {
+    return 'Article';
+  }
+  
+  // Return the first non-generic publication type
+  const genericTypes = ['Journal Article', 'Article'];
+  const specificType = pubtype.find(type => !genericTypes.includes(type));
+  
+  return specificType || pubtype[0] || 'Article';
+}
+
+/**
+ * Extract language
+ */
+function extractLanguage(langArray) {
+  if (!langArray || !Array.isArray(langArray)) {
+    return 'eng';
+  }
+  
+  return langArray[0] || 'eng';
+}
+
+/**
+ * Extract keywords
+ */
+function extractKeywords(keywordsData) {
+  if (!keywordsData || !Array.isArray(keywordsData)) {
+    return [];
+  }
+  
+  return keywordsData.slice(0, 10); // Limit to 10 keywords
+}
+
+/**
+ * Check if article is open access
+ */
+function checkOpenAccess(articleids) {
+  if (!articleids || !Array.isArray(articleids)) {
+    return false;
+  }
+  
+  // Check for PMC ID (indicates open access)
+  return articleids.some(id => id.idtype === 'pmc');
+}
+
+/**
+ * Extract MeSH terms
+ */
+function extractMeshTerms(meshData) {
+  if (!meshData || !Array.isArray(meshData)) {
+    return [];
+  }
+  
+  return meshData.map(mesh => {
+    if (mesh.descriptorname) {
+      return mesh.descriptorname;
+    }
+    return null;
+  }).filter(term => term !== null).slice(0, 15); // Limit to 15 MeSH terms
+}
+
+/**
+ * Test endpoint for PubMed API connection
+ * GET /api/test/pubmed-connection
+ */
+app.get('/api/test/pubmed-connection', async (req, res) => {
+  try {
+    console.log('🧪 Testing PubMed E-utilities API connection...');
+    
+    // Simple test search for "aspirin"
+    const testParams = new URLSearchParams({
+      db: 'pubmed',
+      term: 'aspirin',
+      retmax: '5',
+      retmode: 'json'
+    });
+    
+    if (NCBI_API_KEY) {
+      testParams.append('api_key', NCBI_API_KEY);
+    }
+    
+    const testUrl = `${PUBMED_EUTILS_BASE}/esearch.fcgi?${testParams.toString()}`;
+    console.log('🧪 Test URL:', testUrl.replace(/api_key=[^&]*&?/, ''));
+    
+    const response = await axios.get(testUrl, {
+      headers: {
+        'Accept': 'application/json',
+        'User-Agent': 'Clinical-Research-Tool-Test/1.0'
+      },
+      timeout: 10000
+    });
+    
+    const resultsCount = response.data.esearchresult?.count || 0;
+    const pmids = response.data.esearchresult?.idlist || [];
+    
+    res.json({
+      success: true,
+      message: 'PubMed E-utilities API connection successful',
+      testQuery: 'aspirin',
+      resultsFound: parseInt(resultsCount, 10),
+      samplePMIDs: pmids.slice(0, 3),
+      apiKey: NCBI_API_KEY ? 'Configured' : 'Not configured',
+      timestamp: new Date().toISOString()
+    });
+    
+  } catch (error) {
+    console.error('🧪 PubMed test failed:', error);
+    res.status(500).json({
+      success: false,
+      message: 'PubMed E-utilities API connection failed',
+      error: error.message,
+      apiKey: NCBI_API_KEY ? 'Configured' : 'Not configured',
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
+/**
+ * Enhanced existing PubMed search endpoint for backward compatibility
+ * GET /api/pubmed
+ */
+app.get('/api/pubmed', async (req, res) => {
+  try {
+    const term = req.query.term;
+    if (!term) {
+      return res.status(400).json({ 
+        success: false,
+        error: 'Search term is required' 
+      });
+    }
+    
+    console.log(`🔍 PubMed: Legacy search for: ${term}`);
+    
+    // Convert to advanced search format
+    const advancedPayload = {
+      term: term,
+      retmax: req.query.retmax || 20,
+      sort: req.query.sort || 'relevance'
+    };
+    
+    // Forward to advanced search endpoint
+    const advancedResponse = await axios.post(`http://localhost:${process.env.PORT || 3000}/api/pubmed/advanced-search`, advancedPayload);
+    
+    // Format response for backward compatibility
+    const articles = advancedResponse.data.data?.articles || [];
+    
+    res.json({
+      articles: articles,
+      totalResults: advancedResponse.data.data?.totalCount || articles.length,
+      searchTerm: term,
+      legacy: true
+    });
+    
+  } catch (error) {
+    console.error('PubMed legacy API error:', error);
+    res.status(500).json({ 
+      success: false,
+      error: error.message,
+      articles: [],
+      totalResults: 0
+    });
+  }
+});
+
+/**
+ * Utility endpoint to get PubMed article details by PMID
+ * GET /api/pubmed/article/:pmid
+ */
+app.get('/api/pubmed/article/:pmid', async (req, res) => {
+  try {
+    const pmid = req.params.pmid;
+    
+    if (!pmid || !/^\d+$/.test(pmid)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Valid PMID is required'
+      });
+    }
+    
+    console.log(`🔍 PubMed: Fetching article details for PMID: ${pmid}`);
+    
+    const summaryParams = new URLSearchParams({
+      db: 'pubmed',
+      id: pmid,
+      retmode: 'json',
+      rettype: 'abstract'
+    });
+    
+    if (NCBI_API_KEY) {
+      summaryParams.append('api_key', NCBI_API_KEY);
+    }
+    
+    const summaryUrl = `${PUBMED_EUTILS_BASE}/esummary.fcgi?${summaryParams.toString()}`;
+    
+    const response = await axios.get(summaryUrl, {
+      headers: {
+        'Accept': 'application/json',
+        'User-Agent': 'Clinical-Research-Tool/1.0'
+      },
+      timeout: 10000
+    });
+    
+    const articleData = response.data.result?.[pmid];
+    
+    if (!articleData) {
+      return res.status(404).json({
+        success: false,
+        error: 'Article not found'
+      });
+    }
+    
+    const formattedArticle = formatPubMedArticle(articleData, pmid);
+    
+    res.json({
+      success: true,
+      data: formattedArticle
+    });
+    
+  } catch (error) {
+    console.error(`Error fetching PMID ${req.params.pmid}:`, error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+console.log('✅ BACKEND: PubMed advanced search endpoints loaded');
+console.log('  - POST /api/pubmed/advanced-search (new advanced endpoint)');
+console.log('  - GET /api/pubmed (legacy compatibility)');
+console.log('  - GET /api/pubmed/article/:pmid (single article details)');
+console.log('  - GET /api/test/pubmed-connection (connection test)');
+
 
 /**
  * Advanced FDA Search
@@ -2907,7 +3872,7 @@ const transporter = nodemailer.createTransport({
 You're registered for "Cracking the FDA Code" webinar!
 
 Event Details:
-- Date: Wednesday, July 23rd, 2025
+- Date: Wednesday, July 31st, 2025
 - Time: 2:00 PM EST / 11:00 AM PST
 - Duration: 45 minutes + Q&A
 - Platform: Google Meet
