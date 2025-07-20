@@ -3771,8 +3771,8 @@ const getConfirmationEmailHTML = (userData, calendarLinks) => {
             </ul>
             
             <h3>Your Expert Panel:</h3>
-            <p><strong>Rohan Mehi</strong> - Co-Founder, SyneticX</p>
-            <p><strong>Alexander MacGregor</strong> - Co-Founder, SyneticX</p>
+            <p><strong>Rohan Mehmi</strong> - Co-Founder, SyneticX</p>
+            <p><strong>Alexander Macgregor</strong> - Co-Founder, SyneticX</p>
             <p><strong>Mark Paxton</strong> - Regulatory Expert, Founder of White Oak AI Law</p>
             
             <p style="margin-top: 30px;">If you have any questions before the webinar, feel free to reply to this email.</p>
