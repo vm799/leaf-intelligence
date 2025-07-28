@@ -1,0 +1,1975 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DMD Exon 44 Competitive Intelligence | Avidity Biosciences</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+        .gradient-text {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        @media print {
+            .no-print { display: none !important; }
+            body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .hover-lift {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .hover-lift:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900">
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 glass-effect border-b border-gray-200 no-print">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-8">
+                    <h1 class="text-xl font-semibold gradient-text">DMD Competitive Intelligence</h1>
+                    <div class="hidden md:flex space-x-6">
+                        <a href="#dashboard" class="text-sm font-medium text-gray-700 hover:text-indigo-600 transition-colors">Dashboard</a>
+                        <a href="#competitors" class="text-sm font-medium text-gray-700 hover:text-indigo-600 transition-colors">Competitors</a>
+                        <a href="#patents" class="text-sm font-medium text-gray-700 hover:text-indigo-600 transition-colors">Patents</a>
+                        <a href="#analysis" class="text-sm font-medium text-gray-700 hover:text-indigo-600 transition-colors">Analysis</a>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button onclick="exportToPDF()" class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors">
+                        Export PDF
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="pt-20 pb-12">
+        <!-- Executive Summary -->
+        <section id="dashboard" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-12 fade-in">
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+                <h2 class="text-2xl font-bold mb-6">Executive Summary</h2>
+                <div class="prose max-w-none text-gray-600">
+                    <p class="text-lg leading-relaxed">
+                        Analysis of the DMD exon 44 skipping market reveals a competitive landscape with <strong>4 primary threats</strong> to Avidity's AOC-1044. 
+                        The market represents <strong>6-8% of all DMD patients</strong> (~900 US patients) with no currently approved therapies.
+                    </p>
+                </div>
+                
+                <!-- Key Metrics -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mt-8">
+                    <div class="bg-gradient-to-br from-red-50 to-red-100 rounded-xl p-6 hover-lift">
+                        <div class="text-red-600 text-sm font-semibold mb-1">Primary Threat</div>
+                        <div class="text-2xl font-bold text-gray-900">NS Pharma</div>
+                        <div class="text-sm text-gray-600 mt-1">Phase 2, Breakthrough Designation</div>
+                    </div>
+                    <div class="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-6 hover-lift">
+                        <div class="text-orange-600 text-sm font-semibold mb-1">Secondary Threat</div>
+                        <div class="text-2xl font-bold text-gray-900">Entrada</div>
+                        <div class="text-sm text-gray-600 mt-1">Phase 1b Starting</div>
+                    </div>
+                    <div class="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl p-6 hover-lift">
+                        <div class="text-yellow-700 text-sm font-semibold mb-1">IP Risk</div>
+                        <div class="text-2xl font-bold text-gray-900">Sarepta</div>
+                        <div class="text-sm text-gray-600 mt-1">Patent Holder</div>
+                    </div>
+                    <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6 hover-lift">
+                        <div class="text-blue-600 text-sm font-semibold mb-1">Market Size</div>
+                        <div class="text-2xl font-bold text-gray-900">~900</div>
+                        <div class="text-sm text-gray-600 mt-1">US Patients</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Competitor Overview Table -->
+        <section id="competitors" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-12 fade-in">
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-bold">Competitor Overview</h2>
+                    <input type="text" id="searchInput" placeholder="Search competitors..." 
+                           class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                </div>
+                
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="border-b border-gray-200">
+                                <th class="text-left py-4 px-4 font-semibold text-gray-700">Company</th>
+                                <th class="text-left py-4 px-4 font-semibold text-gray-700">Program</th>
+                                <th class="text-left py-4 px-4 font-semibold text-gray-700">Stage</th>
+                                <th class="text-left py-4 px-4 font-semibold text-gray-700">Threat Level</th>
+                                <th class="text-left py-4 px-4 font-semibold text-gray-700">Key Advantages</th>
+                                <th class="text-center py-4 px-4 font-semibold text-gray-700">Details</th>
+                            </tr>
+                        </thead>
+                        <tbody id="competitorTable">
+                            <tr class="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                                <td class="py-4 px-4 font-medium">NS Pharma</td>
+                                <td class="py-4 px-4">NS-089 (Brogidirsen)</td>
+                                <td class="py-4 px-4">
+                                    <span class="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-medium">Phase 2</span>
+                                </td>
+                                <td class="py-4 px-4">
+                                    <span class="px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm font-medium">🔥 Very High</span>
+                                </td>
+                                <td class="py-4 px-4 text-sm text-gray-600">Breakthrough Designation, First to market</td>
+                                <td class="py-4 px-4 text-center">
+                                    <button onclick="showCompetitorPage('ns-pharma')" class="text-indigo-600 hover:text-indigo-800 font-medium">View →</button>
+                                </td>
+                            </tr>
+                            <tr class="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                                <td class="py-4 px-4 font-medium">Entrada Therapeutics</td>
+                                <td class="py-4 px-4">ENTR-601-44</td>
+                                <td class="py-4 px-4">
+                                    <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">Phase 1b</span>
+                                </td>
+                                <td class="py-4 px-4">
+                                    <span class="px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-sm font-medium">🔥 High</span>
+                                </td>
+                                <td class="py-4 px-4 text-sm text-gray-600">EEV Platform, Strong funding</td>
+                                <td class="py-4 px-4 text-center">
+                                    <button onclick="showCompetitorPage('entrada')" class="text-indigo-600 hover:text-indigo-800 font-medium">View →</button>
+                                </td>
+                            </tr>
+                            <tr class="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                                <td class="py-4 px-4 font-medium">Sarepta Therapeutics</td>
+                                <td class="py-4 px-4">Patent Portfolio</td>
+                                <td class="py-4 px-4">
+                                    <span class="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm font-medium">IP Only</span>
+                                </td>
+                                <td class="py-4 px-4">
+                                    <span class="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-sm font-medium">⚠️ Moderate</span>
+                                </td>
+                                <td class="py-4 px-4 text-sm text-gray-600">Key exon 44 patents</td>
+                                <td class="py-4 px-4 text-center">
+                                    <button onclick="showCompetitorPage('sarepta')" class="text-indigo-600 hover:text-indigo-800 font-medium">View →</button>
+                                </td>
+                            </tr>
+                            <tr class="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                                <td class="py-4 px-4 font-medium">Dyne Therapeutics</td>
+                                <td class="py-4 px-4">Exon 44 Program</td>
+                                <td class="py-4 px-4">
+                                    <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">Preclinical</span>
+                                </td>
+                                <td class="py-4 px-4">
+                                    <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">🟡 Low</span>
+                                </td>
+                                <td class="py-4 px-4 text-sm text-gray-600">FORCE Platform, Strong pipeline</td>
+                                <td class="py-4 px-4 text-center">
+                                    <button onclick="showCompetitorPage('dyne')" class="text-indigo-600 hover:text-indigo-800 font-medium">View →</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="mt-6 flex justify-center gap-4">
+                    <button onclick="showMinorCompetitors()" class="px-6 py-3 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium transition-colors">
+                        View Minor Competitors (5+ Companies)
+                    </button>
+                    <button onclick="showComparativeAnalysis()" class="px-6 py-3 bg-indigo-100 hover:bg-indigo-200 text-indigo-700 rounded-lg font-medium transition-colors">
+                        Comparative Analysis
+                    </button>
+                    <button onclick="showPatentLandscape()" class="px-6 py-3 bg-purple-100 hover:bg-purple-200 text-purple-700 rounded-lg font-medium transition-colors">
+                        Patent Landscape
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Insights -->
+        <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-12 fade-in">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover-lift">
+                    <h3 class="text-lg font-semibold mb-3">🎯 Strategic Priority</h3>
+                    <p class="text-gray-600 text-sm leading-relaxed">
+                        NS Pharma poses the greatest immediate threat with Phase 2 progress and Breakthrough Designation. 
+                        Their 10-16% dystrophin levels, while lower than AOC-1044's 25-58%, may be sufficient for approval.
+                    </p>
+                </div>
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover-lift">
+                    <h3 class="text-lg font-semibold mb-3">⚖️ IP Landscape</h3>
+                    <p class="text-gray-600 text-sm leading-relaxed">
+                        17 high-proximity patents identified across competitors. Sarepta's portfolio represents potential 
+                        licensing requirements or litigation risk despite no active clinical program.
+                    </p>
+                </div>
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover-lift">
+                    <h3 class="text-lg font-semibold mb-3">💊 Market Opportunity</h3>
+                    <p class="text-gray-600 text-sm leading-relaxed">
+                        First-to-market advantage critical in ~900 patient US market. AOC-1044's superior efficacy 
+                        (25-58% dystrophin) and Q6W dosing provide competitive differentiation.
+                    </p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Page Templates (Hidden by default) -->
+    <div id="pageContainer" class="hidden"></div>
+
+    <script>
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const rows = document.querySelectorAll('#competitorTable tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
+        });
+
+        // Export to PDF functionality
+        function exportToPDF() {
+            const element = document.body;
+            const opt = {
+                margin: 0.5,
+                filename: 'DMD_Competitive_Intelligence_Avidity.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+            };
+            html2pdf().set(opt).from(element).save();
+        }
+
+        // Show competitor page
+        function showCompetitorPage(competitor) {
+            const container = document.getElementById('pageContainer');
+            container.classList.remove('hidden');
+            
+            // Load competitor-specific content
+            if (competitor === 'ns-pharma') {
+                loadNSPharmaPage();
+            } else if (competitor === 'entrada') {
+                loadEntradaPage();
+            } else if (competitor === 'sarepta') {
+                loadSareptaPage();
+            } else if (competitor === 'dyne') {
+                loadDynePage();
+            }
+            
+            // Scroll to top
+            window.scrollTo(0, 0);
+        }
+
+        // Show minor competitors
+        function showMinorCompetitors() {
+            const container = document.getElementById('pageContainer');
+            container.classList.remove('hidden');
+            loadMinorCompetitorsPage();
+            window.scrollTo(0, 0);
+        }
+
+        // Show comparative analysis
+        function showComparativeAnalysis() {
+            const container = document.getElementById('pageContainer');
+            container.classList.remove('hidden');
+            loadComparativeAnalysisPage();
+            window.scrollTo(0, 0);
+        }
+
+        // Show patent landscape
+        function showPatentLandscape() {
+            const container = document.getElementById('pageContainer');
+            container.classList.remove('hidden');
+            loadPatentLandscapePage();
+            window.scrollTo(0, 0);
+        }
+
+        // NS Pharma page content
+        function loadNSPharmaPage() {
+            const container = document.getElementById('pageContainer');
+            container.innerHTML = `
+                <div class="min-h-screen bg-gray-50 pt-20 pb-12">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <!-- Header -->
+                        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 mb-8">
+                            <div class="flex items-center justify-between mb-6">
+                                <div>
+                                    <h1 class="text-3xl font-bold text-gray-900">NS Pharma</h1>
+                                    <p class="text-gray-600 mt-2">Brogidirsen (NS-089) - Primary Competitive Threat</p>
+                                </div>
+                                <button onclick="closeCompetitorPage()" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
+                                    ← Back to Dashboard
+                                </button>
+                            </div>
+                            
+                            <!-- Threat Assessment -->
+                            <div class="bg-gradient-to-r from-red-50 to-red-100 rounded-xl p-6 mt-6">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <h3 class="text-lg font-semibold text-red-900">Threat Level: Very High</h3>
+                                        <p class="text-red-700 mt-1">Phase 2 ongoing with Breakthrough Therapy Designation</p>
+                                    </div>
+                                    <div class="text-4xl">🔥</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tabs -->
+                        <div class="bg-white rounded-2xl shadow-sm border border-gray-200">
+                            <div class="border-b border-gray-200">
+                                <nav class="flex space-x-8 px-8" aria-label="Tabs">
+                                    <button onclick="showTab('ns-overview')" class="tab-button active py-4 px-1 border-b-2 border-indigo-500 font-medium text-sm text-indigo-600">
+                                        Overview
+                                    </button>
+                                    <button onclick="showTab('ns-clinical')" class="tab-button py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                                        Clinical Data
+                                    </button>
+                                    <button onclick="showTab('ns-patents')" class="tab-button py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                                        Patents
+                                    </button>
+                                    <button onclick="showTab('ns-regulatory')" class="tab-button py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                                        Regulatory
+                                    </button>
+                                    <button onclick="showTab('ns-financial')" class="tab-button py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                                        Financial
+                                    </button>
+                                </nav>
+                            </div>
+
+                            <!-- Tab Content -->
+                            <div class="p-8">
+                                <!-- Overview Tab -->
+                                <div id="ns-overview" class="tab-content">
+                                    <h3 class="text-xl font-semibold mb-4">Company Overview</h3>
+                                    <div class="prose max-w-none text-gray-600">
+                                        <p>NS Pharma, a subsidiary of Nippon Shinyaku, represents the most immediate competitive threat to Avidity's AOC-1044. 
+                                        Their lead candidate, brogidirsen (NS-089), is a phosphorodiamidate morpholino oligomer (PMO) designed to skip exon 44 
+                                        in the dystrophin gene.</p>
+                                        
+                                        <h4 class="text-lg font-semibold mt-6 mb-3">Key Competitive Advantages</h4>
+                                        <ul class="space-y-2">
+                                            <li>• <strong>FDA Breakthrough Therapy Designation</strong> - Received in 2024, enabling expedited review</li>
+                                            <li>• <strong>Phase 2 Progress</strong> - Currently enrolling patients in US and Japan</li>
+                                            <li>• <strong>Regulatory Support</strong> - FDA Orphan Drug and Rare Pediatric Disease designations</li>
+                                            <li>• <strong>Parent Company Backing</strong> - Nippon Shinyaku's established infrastructure and resources</li>
+                                        </ul>
+                                        
+                                        <h4 class="text-lg font-semibold mt-6 mb-3">Strategic Threat Analysis</h4>
+                                        <div class="bg-yellow-50 rounded-lg p-4 mt-4">
+                                            <p class="text-sm leading-relaxed">
+                                                NS-089's 10-16% dystrophin expression, while lower than AOC-1044's 25-58%, may be sufficient for accelerated approval 
+                                                based on FDA precedent (eteplirsen approved with <1% dystrophin). Their 6+ month timeline advantage positions them 
+                                                for potential first-to-market status in the exon 44 population.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Clinical Data Tab -->
+                                <div id="ns-clinical" class="tab-content hidden">
+                                    <h3 class="text-xl font-semibold mb-4">Clinical Trial Data</h3>
+                                    
+                                    <div class="bg-blue-50 rounded-lg p-6 mb-6">
+                                        <h4 class="font-semibold text-blue-900 mb-2">Phase 1/2 Results</h4>
+                                        <div class="grid grid-cols-2 gap-4 mt-4">
+                                            <div>
+                                                <p class="text-sm text-gray-600">Dystrophin Expression</p>
+                                                <p class="text-2xl font-bold text-blue-900">10.27-15.79%</p>
+                                            </div>
+                                            <div>
+                                                <p class="text-sm text-gray-600">Treatment Duration</p>
+                                                <p class="text-2xl font-bold text-blue-900">24 weeks</p>
+                                            </div>
+                                        </div>
+                                        <p class="text-sm text-gray-600 mt-4">
+                                            Source: <a href="#" class="text-blue-600 hover:underline">Clinical trial publication</a>
+                                        </p>
+                                    </div>
+                                    
+                                    <h4 class="font-semibold mb-3">Ongoing Studies</h4>
+                                    <div class="space-y-4">
+                                        <div class="border border-gray-200 rounded-lg p-4">
+                                            <h5 class="font-medium">Phase 2 Study (US)</h5>
+                                            <p class="text-sm text-gray-600 mt-1">Status: Enrolling</p>
+                                            <p class="text-sm text-gray-600">Expected completion: 2026</p>
+                                        </div>
+                                        <div class="border border-gray-200 rounded-lg p-4">
+                                            <h5 class="font-medium">Phase 2 Study (Japan)</h5>
+                                            <p class="text-sm text-gray-600 mt-1">Status: Active</p>
+                                            <p class="text-sm text-gray-600">Enrollment: Ongoing</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Patents Tab -->
+                                <div id="ns-patents" class="tab-content hidden">
+                                    <h3 class="text-xl font-semibold mb-4">Patent Portfolio</h3>
+                                    
+                                    <div class="space-y-4">
+                                        <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                                            <div class="flex items-center justify-between">
+                                                <div>
+                                                    <h5 class="font-medium text-red-900">US12060556B2</h5>
+                                                    <p class="text-sm text-gray-600 mt-1">PMOs for exon 44 skipping in DMD. Specific sequences (SEQ ID NO: 55, 106)</p>
+                                                </div>
+                                                <span class="px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm">High Proximity</span>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                                            <div class="flex items-center justify-between">
+                                                <div>
+                                                    <h5 class="font-medium text-red-900">US11193125B2</h5>
+                                                    <p class="text-sm text-gray-600 mt-1">PMOs constructed from two unit oligos for exon 44 skipping</p>
+                                                </div>
+                                                <span class="px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm">High Proximity</span>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="mt-6">
+                                            <h4 class="font-semibold mb-3">Medium Proximity Patents</h4>
+                                            <p class="text-sm text-gray-600">Additional PMO chemistries and methods for various DMD mutations</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Regulatory Tab -->
+                                <div id="ns-regulatory" class="tab-content hidden">
+                                    <h3 class="text-xl font-semibold mb-4">Regulatory Status</h3>
+                                    
+                                    <div class="space-y-6">
+                                        <div class="bg-green-50 rounded-lg p-6">
+                                            <h4 class="font-semibold text-green-900 mb-4">FDA Designations</h4>
+                                            <div class="space-y-3">
+                                                <div class="flex items-center">
+                                                    <div class="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center text-white text-sm">✓</div>
+                                                    <p class="ml-3">Breakthrough Therapy Designation (2024)</p>
+                                                </div>
+                                                <div class="flex items-center">
+                                                    <div class="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center text-white text-sm">✓</div>
+                                                    <p class="ml-3">Orphan Drug Designation</p>
+                                                </div>
+                                                <div class="flex items-center">
+                                                    <div class="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center text-white text-sm">✓</div>
+                                                    <p class="ml-3">Rare Pediatric Disease Designation</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div>
+                                            <h4 class="font-semibold mb-3">Regulatory Timeline</h4>
+                                            <div class="relative">
+                                                <div class="absolute left-8 top-0 bottom-0 w-0.5 bg-gray-300"></div>
+                                                <div class="space-y-6">
+                                                    <div class="flex items-center">
+                                                        <div class="w-4 h-4 bg-indigo-600 rounded-full"></div>
+                                                        <div class="ml-8">
+                                                            <p class="font-medium">2024</p>
+                                                            <p class="text-sm text-gray-600">Breakthrough Therapy Designation granted</p>
+                                                        </div>
+                                                    </div>
+                                                    <div class="flex items-center">
+                                                        <div class="w-4 h-4 bg-indigo-600 rounded-full"></div>
+                                                        <div class="ml-8">
+                                                            <p class="font-medium">2025</p>
+                                                            <p class="text-sm text-gray-600">Phase 2 enrollment ongoing</p>
+                                                        </div>
+                                                    </div>
+                                                    <div class="flex items-center">
+                                                        <div class="w-4 h-4 bg-gray-400 rounded-full"></div>
+                                                        <div class="ml-8">
+                                                            <p class="font-medium">2026 (Projected)</p>
+                                                            <p class="text-sm text-gray-600">Potential NDA submission</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Financial Tab -->
+                                <div id="ns-financial" class="tab-content hidden">
+                                    <h3 class="text-xl font-semibold mb-4">Financial Analysis</h3>
+                                    
+                                    <div class="bg-gray-50 rounded-lg p-6 mb-6">
+                                        <h4 class="font-semibold mb-4">Parent Company: Nippon Shinyaku</h4>
+                                        <div class="grid grid-cols-2 gap-6">
+                                            <div>
+                                                <p class="text-sm text-gray-600">Total R&D Budget (FY2024)</p>
+                                                <p class="text-2xl font-bold">¥31.7B</p>
+                                                <p class="text-sm text-gray-500">~$211M USD</p>
+                                            </div>
+                                            <div>
+                                                <p class="text-sm text-gray-600">Estimated DMD Spend</p>
+                                                <p class="text-2xl font-bold">¥9.5-11.1B</p>
+                                                <p class="text-sm text-gray-500">30-35% of R&D</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="prose max-w-none text-gray-600">
+                                        <p>Nippon Shinyaku's substantial financial commitment to DMD research, with an estimated 30-35% of their 
+                                        R&D budget allocated to nucleic acid therapeutics, demonstrates their strategic focus on this market. 
+                                        Their financial stability and commitment position NS-089 for aggressive development and commercialization.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Entrada page content
+        function loadEntradaPage() {
+            const container = document.getElementById('pageContainer');
+            container.innerHTML = `
+                <div class="min-h-screen bg-gray-50 pt-20 pb-12">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <!-- Header -->
+                        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 mb-8">
+                            <div class="flex items-center justify-between mb-6">
+                                <div>
+                                    <h1 class="text-3xl font-bold text-gray-900">Entrada Therapeutics</h1>
+                                    <p class="text-gray-600 mt-2">ENTR-601-44 - Secondary Competitive Threat</p>
+                                </div>
+                                <button onclick="closeCompetitorPage()" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
+                                    ← Back to Dashboard
+                                </button>
+                            </div>
+                            
+                            <!-- Threat Assessment -->
+                            <div class="bg-gradient-to-r from-orange-50 to-orange-100 rounded-xl p-6 mt-6">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <h3 class="text-lg font-semibold text-orange-900">Threat Level: High</h3>
+                                        <p class="text-orange-700 mt-1">Phase 1b starting after FDA clinical hold lifted</p>
+                                    </div>
+                                    <div class="text-4xl">🔥</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tabs -->
+                        <div class="bg-white rounded-2xl shadow-sm border border-gray-200">
+                            <div class="border-b border-gray-200">
+                                <nav class="flex space-x-8 px-8" aria-label="Tabs">
+                                    <button onclick="showTab('entrada-overview')" class="tab-button active py-4 px-1 border-b-2 border-indigo-500 font-medium text-sm text-indigo-600">
+                                        Overview
+                                    </button>
+                                    <button onclick="showTab('entrada-clinical')" class="tab-button py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                                        Clinical Data
+                                    </button>
+                                    <button onclick="showTab('entrada-technology')" class="tab-button py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                                        EEV Platform
+                                    </button>
+                                    <button onclick="showTab('entrada-regulatory')" class="tab-button py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                                        Regulatory
+                                    </button>
+                                    <button onclick="showTab('entrada-financial')" class="tab-button py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                                        Financial
+                                    </button>
+                                </nav>
+                            </div>
+
+                            <!-- Tab Content -->
+                            <div class="p-8">
+                                <!-- Overview Tab -->
+                                <div id="entrada-overview" class="tab-content">
+                                    <h3 class="text-xl font-semibold mb-4">Company Overview</h3>
+                                    <div class="prose max-w-none text-gray-600">
+                                        <p>Entrada Therapeutics represents the second most significant threat with their ENTR-601-44 program. 
+                                        Their proprietary Endosomal Escape Vehicle (EEV™) platform offers a differentiated approach to 
+                                        oligonucleotide delivery that could rival Avidity's AOC technology.</p>
+                                        
+                                        <h4 class="text-lg font-semibold mt-6 mb-3">Key Competitive Factors</h4>
+                                        <ul class="space-y-2">
+                                            <li>• <strong>Novel EEV Platform</strong> - Proprietary delivery technology with potential advantages</li>
+                                            <li>• <strong>FDA Hold Lifted</strong> - Clinical development resumed February 2025</li>
+                                            <li>• <strong>Strong Funding</strong> - $420M cash runway through 2027</li>
+                                            <li>• <strong>Adult Population Focus</strong> - Targeting underserved segment</li>
+                                        </ul>
+                                        
+                                        <h4 class="text-lg font-semibold mt-6 mb-3">Competitive Disadvantages</h4>
+                                        <div class="bg-red-50 rounded-lg p-4 mt-4">
+                                            <ul class="space-y-2 text-sm">
+                                                <li>• 2+ year delay from FDA clinical hold (Dec 2022 - Feb 2025)</li>
+                                                <li>• No patient efficacy data available yet</li>
+                                                <li>• No FDA expedited designations announced</li>
+                                                <li>• Later market entry projected (2027+ vs 2026)</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Clinical Data Tab -->
+                                <div id="entrada-clinical" class="tab-content hidden">
+                                    <h3 class="text-xl font-semibold mb-4">Clinical Development</h3>
+                                    
+                                    <div class="bg-blue-50 rounded-lg p-6 mb-6">
+                                        <h4 class="font-semibold text-blue-900 mb-2">Phase 1 Healthy Volunteer Study</h4>
+                                        <div class="mt-4">
+                                            <p class="text-sm text-gray-600 mb-2">32 healthy male volunteers, doses up to 6 mg/kg</p>
+                                            <div class="bg-white rounded p-4 mt-3">
+                                                <p class="font-medium text-green-700">✓ No serious adverse events</p>
+                                                <p class="font-medium text-green-700">✓ No drug-related AEs reported</p>
+                                                <p class="text-sm text-gray-600 mt-2">Only mild/moderate AEs (headache, toothache)</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <h4 class="font-semibold mb-3">Upcoming Studies</h4>
+                                    <div class="space-y-4">
+                                        <div class="border border-gray-200 rounded-lg p-4">
+                                            <h5 class="font-medium">ELEVATE-44-102 (Phase 1b MAD)</h5>
+                                            <p class="text-sm text-gray-600 mt-1">Status: FDA authorized, starting H1 2026</p>
+                                            <p class="text-sm text-gray-600">32-patient multiple ascending dose study</p>
+                                        </div>
+                                        <div class="border border-gray-200 rounded-lg p-4">
+                                            <h5 class="font-medium">ELEVATE-44-201 (Phase 1/2)</h5>
+                                            <p class="text-sm text-gray-600 mt-1">Status: Planning phase</p>
+                                            <p class="text-sm text-gray-600">First efficacy data in DMD patients</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Technology Tab -->
+                                <div id="entrada-technology" class="tab-content hidden">
+                                    <h3 class="text-xl font-semibold mb-4">EEV™ Platform Technology</h3>
+                                    
+                                    <div class="bg-purple-50 rounded-lg p-6 mb-6">
+                                        <h4 class="font-semibold text-purple-900 mb-3">Endosomal Escape Vehicle (EEV) Advantages</h4>
+                                        <ul class="space-y-2 text-sm">
+                                            <li>• Novel cyclic peptide design for enhanced cellular uptake</li>
+                                            <li>• Improved endosomal escape compared to traditional conjugates</li>
+                                            <li>• Potential for both skeletal and cardiac muscle delivery</li>
+                                            <li>• Platform applicable to multiple oligonucleotide types</li>
+                                        </ul>
+                                    </div>
+                                    
+                                    <div class="prose max-w-none text-gray-600">
+                                        <p>The EEV platform represents a potential competitive advantage if clinical efficacy is demonstrated. 
+                                        However, with no patient data available and the recent FDA hold, the technology remains unproven 
+                                        compared to Avidity's validated AOC platform.</p>
+                                    </div>
+                                </div>
+
+                                <!-- Regulatory Tab -->
+                                <div id="entrada-regulatory" class="tab-content hidden">
+                                    <h3 class="text-xl font-semibold mb-4">Regulatory Status</h3>
+                                    
+                                    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6 mb-6">
+                                        <h4 class="font-semibold text-yellow-900 mb-3">⚠️ Regulatory Challenges</h4>
+                                        <div class="space-y-3">
+                                            <div>
+                                                <p class="font-medium">FDA Clinical Hold (Dec 2022 - Feb 2025)</p>
+                                                <p class="text-sm text-gray-600 mt-1">2+ year delay due to initial safety concerns</p>
+                                            </div>
+                                            <div>
+                                                <p class="font-medium">No Expedited Designations</p>
+                                                <p class="text-sm text-gray-600 mt-1">Unlike competitors, no Fast Track, Breakthrough, or Orphan designations announced</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <h4 class="font-semibold mb-3">Current Status</h4>
+                                    <div class="bg-green-50 rounded-lg p-4">
+                                        <p class="font-medium text-green-900">✓ FDA Clinical Hold Lifted (February 2025)</p>
+                                        <p class="text-sm text-gray-600 mt-2">
+                                            Source: <a href="https://cureduchenne.org/general/entrada-therapeutics-announces-the-fda-has-removed-the-clinical-hold-on-entr-601-44-their-experimental-therapeutic-designed-to-skip-exon-44/" 
+                                                     class="text-blue-600 hover:underline" target="_blank">CureDuchenne Announcement</a>
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <!-- Financial Tab -->
+                                <div id="entrada-financial" class="tab-content hidden">
+                                    <h3 class="text-xl font-semibold mb-4">Financial Position</h3>
+                                    
+                                    <div class="grid grid-cols-2 gap-6 mb-6">
+                                        <div class="bg-gray-50 rounded-lg p-6">
+                                            <p class="text-sm text-gray-600">Cash Position (Dec 2024)</p>
+                                            <p class="text-3xl font-bold">$420M</p>
+                                            <p class="text-sm text-gray-500 mt-1">Runway through 2027</p>
+                                        </div>
+                                        <div class="bg-gray-50 rounded-lg p-6">
+                                            <p class="text-sm text-gray-600">2024 R&D Expenses</p>
+                                            <p class="text-3xl font-bold">$125.3M</p>
+                                            <p class="text-sm text-gray-500 mt-1">Q4: $33.4M</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <h4 class="font-semibold mb-3">Revenue & Partnerships</h4>
+                                    <div class="bg-blue-50 rounded-lg p-4">
+                                        <p class="text-sm">2024 Collaboration Revenue: <span class="font-bold">$210.8M</span></p>
+                                        <p class="text-sm mt-2">Net Income: <span class="font-bold">$65.6M</span> (profitable)</p>
+                                        <p class="text-sm text-gray-600 mt-3">
+                                            Source: <a href="https://www.globenewswire.com/news-release/2025/02/27/3033703/0/en/Entrada-Therapeutics-Reports-Fourth-Quarter-and-Full-Year-2024-Financial-Results.html" 
+                                                     class="text-blue-600 hover:underline" target="_blank">Q4 2024 Earnings</a>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Sarepta page content
+        function loadSareptaPage() {
+            const container = document.getElementById('pageContainer');
+            container.innerHTML = `
+                <div class="min-h-screen bg-gray-50 pt-20 pb-12">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <!-- Header -->
+                        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 mb-8">
+                            <div class="flex items-center justify-between mb-6">
+                                <div>
+                                    <h1 class="text-3xl font-bold text-gray-900">Sarepta Therapeutics</h1>
+                                    <p class="text-gray-600 mt-2">Patent Portfolio - IP Risk Assessment</p>
+                                </div>
+                                <button onclick="closeCompetitorPage()" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
+                                    ← Back to Dashboard
+                                </button>
+                            </div>
+                            
+                            <!-- Threat Assessment -->
+                            <div class="bg-gradient-to-r from-yellow-50 to-yellow-100 rounded-xl p-6 mt-6">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <h3 class="text-lg font-semibold text-yellow-900">Threat Level: Moderate (IP Risk)</h3>
+                                        <p class="text-yellow-700 mt-1">No clinical program but significant patent holdings</p>
+                                    </div>
+                                    <div class="text-4xl">⚠️</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tabs -->
+                        <div class="bg-white rounded-2xl shadow-sm border border-gray-200">
+                            <div class="border-b border-gray-200">
+                                <nav class="flex space-x-8 px-8" aria-label="Tabs">
+                                    <button onclick="showTab('sarepta-overview')" class="tab-button active py-4 px-1 border-b-2 border-indigo-500 font-medium text-sm text-indigo-600">
+                                        Overview
+                                    </button>
+                                    <button onclick="showTab('sarepta-patents')" class="tab-button py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                                        Patent Portfolio
+                                    </button>
+                                    <button onclick="showTab('sarepta-safety')" class="tab-button py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                                        Safety Issues
+                                    </button>
+                                    <button onclick="showTab('sarepta-financial')" class="tab-button py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                                        Financial Impact
+                                    </button>
+                                </nav>
+                            </div>
+
+                            <!-- Tab Content -->
+                            <div class="p-8">
+                                <!-- Overview Tab -->
+                                <div id="sarepta-overview" class="tab-content">
+                                    <h3 class="text-xl font-semibold mb-4">Strategic IP Threat</h3>
+                                    <div class="prose max-w-none text-gray-600">
+                                        <p>While Sarepta has no active clinical program for exon 44 skipping, they represent a significant 
+                                        intellectual property risk through their patent portfolio. Their strategic position as an IP holder 
+                                        could impact Avidity's commercialization strategy.</p>
+                                        
+                                        <h4 class="text-lg font-semibold mt-6 mb-3">Key Risk Factors</h4>
+                                        <ul class="space-y-2">
+                                            <li>• <strong>Granted Patents</strong> - Active patents covering exon 44 antisense sequences</li>
+                                            <li>• <strong>Potential Assertion</strong> - Could claim IP overlap with AOC-1044 sequences</li>
+                                            <li>• <strong>Licensing Leverage</strong> - May require royalty agreements or partnerships</li>
+                                            <li>• <strong>Litigation Risk</strong> - Could delay launch through legal challenges</li>
+                                        </ul>
+                                        
+                                        <div class="bg-blue-50 rounded-lg p-4 mt-6">
+                                            <h4 class="font-semibold text-blue-900 mb-2">Recent Company Challenges</h4>
+                                            <p class="text-sm">Sarepta faces significant challenges with their Elevidys gene therapy program, 
+                                            including FDA shipment halt due to patient deaths and workforce reduction of ~36%. This may impact 
+                                            their strategic priorities and IP enforcement approach.</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Patents Tab -->
+                                <div id="sarepta-patents" class="tab-content hidden">
+                                    <h3 class="text-xl font-semibold mb-4">Exon 44 Patent Portfolio</h3>
+                                    
+                                    <div class="space-y-4 mb-6">
+                                        <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                                            <div class="flex items-center justify-between mb-2">
+                                                <h5 class="font-medium text-red-900">US10907154B2</h5>
+                                                <span class="px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm">High Proximity</span>
+                                            </div>
+                                            <p class="text-sm text-gray-600">PMO (SEQ ID NO: 6) for exon 44 skipping in DMD. Covers PEGylation and IV delivery.</p>
+                                            <p class="text-xs text-gray-500 mt-2">Expiry: ~2037</p>
+                                        </div>
+                                        
+                                        <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                                            <div class="flex items-center justify-between mb-2">
+                                                <h5 class="font-medium text-red-900">US9217148B2</h5>
+                                                <span class="px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm">High Proximity</span>
+                                            </div>
+                                            <p class="text-sm text-gray-600">Claims 28-base PMO for exon 44 skipping; includes delivery-enhancing conjugates.</p>
+                                            <p class="text-xs text-gray-500 mt-2">Expiry: ~2033</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="bg-yellow-50 rounded-lg p-6">
+                                        <h4 class="font-semibold text-yellow-900 mb-3">IP Risk Mitigation Strategies</h4>
+                                        <ul class="space-y-2 text-sm">
+                                            <li>• Design around existing claims with novel sequences</li>
+                                            <li>• Pursue licensing agreement proactively</li>
+                                            <li>• Challenge patent validity if necessary</li>
+                                            <li>• Leverage Sarepta's current financial constraints</li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <!-- Safety Tab -->
+                                <div id="sarepta-safety" class="tab-content hidden">
+                                    <h3 class="text-xl font-semibold mb-4">Elevidys Safety Crisis</h3>
+                                    
+                                    <div class="bg-red-50 border border-red-200 rounded-lg p-6 mb-6">
+                                        <h4 class="font-semibold text-red-900 mb-3">⚠️ Critical Safety Issues</h4>
+                                        <ul class="space-y-3">
+                                            <li>
+                                                <p class="font-medium">Multiple Patient Deaths</p>
+                                                <p class="text-sm text-gray-600">FDA ordered halt to Elevidys shipments due to acute liver failure deaths</p>
+                                            </li>
+                                            <li>
+                                                <p class="font-medium">European Rejection</p>
+                                                <p class="text-sm text-gray-600">EMA denied approval citing insufficient efficacy and safety concerns</p>
+                                            </li>
+                                            <li>
+                                                <p class="font-medium">Regulatory Trust Damaged</p>
+                                                <p class="text-sm text-gray-600">Initial resistance to FDA pause harmed regulatory relationships</p>
+                                            </li>
+                                        </ul>
+                                        <p class="text-xs text-gray-500 mt-4">
+                                            Source: <a href="https://www.washingtonpost.com/business/2025/07/26/fda-rare-disease-sarepta-duchenne/" 
+                                                     class="text-blue-600 hover:underline" target="_blank">Washington Post Report</a>
+                                        </p>
+                                    </div>
+                                    
+                                    <div class="prose max-w-none text-gray-600">
+                                        <p>These safety challenges may impact Sarepta's strategic focus and resource allocation, 
+                                        potentially affecting their approach to IP enforcement in the exon skipping space.</p>
+                                    </div>
+                                </div>
+
+                                <!-- Financial Tab -->
+                                <div id="sarepta-financial" class="tab-content hidden">
+                                    <h3 class="text-xl font-semibold mb-4">Financial Impact & Restructuring</h3>
+                                    
+                                    <div class="grid grid-cols-2 gap-6 mb-6">
+                                        <div class="bg-gray-50 rounded-lg p-6">
+                                            <p class="text-sm text-gray-600">2024 Revenue</p>
+                                            <p class="text-3xl font-bold">$638.2M</p>
+                                            <p class="text-sm text-green-600 mt-1">+75% YoY</p>
+                                        </div>
+                                        <div class="bg-red-50 rounded-lg p-6">
+                                            <p class="text-sm text-gray-600">Workforce Reduction</p>
+                                            <p class="text-3xl font-bold">~36%</p>
+                                            <p class="text-sm text-red-600 mt-1">500 layoffs</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="bg-yellow-50 rounded-lg p-6">
+                                        <h4 class="font-semibold text-yellow-900 mb-3">Cost-Cutting Measures</h4>
+                                        <ul class="space-y-2 text-sm">
+                                            <li>• Annual savings target: $400M</li>
+                                            <li>• Cash position: ~$850M</li>
+                                            <li>• 2027 debt obligations pending</li>
+                                            <li>• Suspended gene therapy expansion</li>
+                                        </ul>
+                                        <p class="text-xs text-gray-500 mt-4">
+                                            Sources: <a href="https://www.investors.com/news/technology/sarepta-stock-layoffs-restructuring-patient-deaths/" 
+                                                      class="text-blue-600 hover:underline" target="_blank">Investor's Business Daily</a>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Dyne page content
+        function loadDynePage() {
+            const container = document.getElementById('pageContainer');
+            container.innerHTML = `
+                <div class="min-h-screen bg-gray-50 pt-20 pb-12">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <!-- Header -->
+                        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 mb-8">
+                            <div class="flex items-center justify-between mb-6">
+                                <div>
+                                    <h1 class="text-3xl font-bold text-gray-900">Dyne Therapeutics</h1>
+                                    <p class="text-gray-600 mt-2">FORCE™ Platform - Future Competitive Threat</p>
+                                </div>
+                                <button onclick="closeCompetitorPage()" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
+                                    ← Back to Dashboard
+                                </button>
+                            </div>
+                            
+                            <!-- Threat Assessment -->
+                            <div class="bg-gradient-to-r from-green-50 to-green-100 rounded-xl p-6 mt-6">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <h3 class="text-lg font-semibold text-green-900">Threat Level: Low (Currently)</h3>
+                                        <p class="text-green-700 mt-1">Preclinical exon 44 program, focus on other targets</p>
+                                    </div>
+                                    <div class="text-4xl">🟡</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tabs -->
+                        <div class="bg-white rounded-2xl shadow-sm border border-gray-200">
+                            <div class="border-b border-gray-200">
+                                <nav class="flex space-x-8 px-8" aria-label="Tabs">
+                                    <button onclick="showTab('dyne-overview')" class="tab-button active py-4 px-1 border-b-2 border-indigo-500 font-medium text-sm text-indigo-600">
+                                        Overview
+                                    </button>
+                                    <button onclick="showTab('dyne-clinical')" class="tab-button py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                                        Clinical Programs
+                                    </button>
+                                    <button onclick="showTab('dyne-patents')" class="tab-button py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                                        Patents
+                                    </button>
+                                    <button onclick="showTab('dyne-platform')" class="tab-button py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                                        FORCE Platform
+                                    </button>
+                                    <button onclick="showTab('dyne-financial')" class="tab-button py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                                        Financial
+                                    </button>
+                                </nav>
+                            </div>
+
+                            <!-- Tab Content -->
+                            <div class="p-8">
+                                <!-- Overview Tab -->
+                                <div id="dyne-overview" class="tab-content">
+                                    <h3 class="text-xl font-semibold mb-4">Strategic Assessment</h3>
+                                    <div class="prose max-w-none text-gray-600">
+                                        <p>Dyne Therapeutics represents a future threat rather than immediate competition. While they have 
+                                        no active exon 44 clinical program, their FORCE™ platform success with DYNE-251 (exon 51) and 
+                                        strong financial position make them a potential late entrant.</p>
+                                        
+                                        <h4 class="text-lg font-semibold mt-6 mb-3">Why They're Less Threatening (Now)</h4>
+                                        <ul class="space-y-2">
+                                            <li>• <strong>No Clinical Program</strong> - Exon 44 remains in preclinical development</li>
+                                            <li>• <strong>Focus Elsewhere</strong> - Priority on DYNE-251 (exon 51) and FSHD programs</li>
+                                            <li>• <strong>3+ Years Behind</strong> - Significant timeline disadvantage vs AOC-1044</li>
+                                            <li>• <strong>No Regulatory Designations</strong> - For exon 44 specifically</li>
+                                        </ul>
+                                        
+                                        <h4 class="text-lg font-semibold mt-6 mb-3">Future Risk Factors</h4>
+                                        <div class="bg-yellow-50 rounded-lg p-4 mt-4">
+                                            <ul class="space-y-2 text-sm">
+                                                <li>• Strong platform with proven delivery (8.72% dystrophin in DYNE-251)</li>
+                                                <li>• $670M+ cash position enables aggressive development</li>
+                                                <li>• Multi-exon strategy could leverage learnings across programs</li>
+                                                <li>• Executive departures in 2024 created uncertainty but core remains strong</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Clinical Programs Tab -->
+                                <div id="dyne-clinical" class="tab-content hidden">
+                                    <h3 class="text-xl font-semibold mb-4">Clinical Pipeline</h3>
+                                    
+                                    <div class="bg-blue-50 rounded-lg p-6 mb-6">
+                                        <h4 class="font-semibold text-blue-900 mb-2">DYNE-251 (Exon 51) - Lead Program</h4>
+                                        <div class="grid grid-cols-2 gap-4 mt-4">
+                                            <div>
+                                                <p class="text-sm text-gray-600">Dystrophin Expression</p>
+                                                <p class="text-2xl font-bold text-blue-900">8.72%</p>
+                                                <p class="text-xs text-gray-500">Exceeds eteplirsen</p>
+                                            </div>
+                                            <div>
+                                                <p class="text-sm text-gray-600">Phase</p>
+                                                <p class="text-2xl font-bold text-blue-900">Registrational</p>
+                                                <p class="text-xs text-gray-500">20 mg/kg Q4W</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <h4 class="font-semibold mb-3">Pipeline Status</h4>
+                                    <div class="space-y-3">
+                                        <div class="border border-gray-200 rounded-lg p-4">
+                                            <div class="flex items-center justify-between">
+                                                <div>
+                                                    <h5 class="font-medium">Exon 44 Program</h5>
+                                                    <p class="text-sm text-gray-600">Status: Preclinical</p>
+                                                </div>
+                                                <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm">Early Stage</span>
+                                            </div>
+                                        </div>
+                                        <div class="border border-gray-200 rounded-lg p-4">
+                                            <div class="flex items-center justify-between">
+                                                <div>
+                                                    <h5 class="font-medium">DM1 Program</h5>
+                                                    <p class="text-sm text-gray-600">ACHIEVE trial ongoing</p>
+                                                </div>
+                                                <span class="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm">Phase 1/2</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Patents Tab -->
+                                <div id="dyne-patents" class="tab-content hidden">
+                                    <h3 class="text-xl font-semibold mb-4">Patent Portfolio</h3>
+                                    
+                                    <div class="mb-6">
+                                        <h4 class="font-semibold mb-3">High Proximity Patents (Related to DMD)</h4>
+                                        <div class="space-y-3">
+                                            <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                                                <h5 class="font-medium text-red-900">US12329825B1</h5>
+                                                <p class="text-sm text-gray-600">PMO conjugated to anti-TfR antibody targeting exon 44. DAR 1-5.</p>
+                                            </div>
+                                            <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                                                <h5 class="font-medium text-red-900">US12325753B2</h5>
+                                                <p class="text-sm text-gray-600">PMO-anti-TfR antibody complex for muscular dystrophy.</p>
+                                            </div>
+                                            <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                                                <h5 class="font-medium text-red-900">US12173079B2</h5>
+                                                <p class="text-sm text-gray-600">Complexes with anti-TfR antibody and PMO targeting muscle diseases.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="bg-gray-50 rounded-lg p-4">
+                                        <p class="text-sm text-gray-600">Additional medium proximity patents covering production methods, 
+                                        antibody variants, and other DMD exons.</p>
+                                    </div>
+                                </div>
+
+                                <!-- Platform Tab -->
+                                <div id="dyne-platform" class="tab-content hidden">
+                                    <h3 class="text-xl font-semibold mb-4">FORCE™ Platform Technology</h3>
+                                    
+                                    <div class="bg-purple-50 rounded-lg p-6 mb-6">
+                                        <h4 class="font-semibold text-purple-900 mb-3">Platform Capabilities</h4>
+                                        <ul class="space-y-2">
+                                            <li class="flex items-start">
+                                                <span class="text-purple-600 mr-2">•</span>
+                                                <span>Fab antibody fragment conjugated to oligonucleotides</span>
+                                            </li>
+                                            <li class="flex items-start">
+                                                <span class="text-purple-600 mr-2">•</span>
+                                                <span>TfR1 targeting for muscle-specific delivery</span>
+                                            </li>
+                                            <li class="flex items-start">
+                                                <span class="text-purple-600 mr-2">•</span>
+                                                <span>Modular design enables multiple disease targets</span>
+                                            </li>
+                                            <li class="flex items-start">
+                                                <span class="text-purple-600 mr-2">•</span>
+                                                <span>Demonstrated safety in 54 participants (DELIVER trial)</span>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    
+                                    <div class="grid grid-cols-2 gap-6">
+                                        <div class="bg-green-50 rounded-lg p-4">
+                                            <h5 class="font-medium text-green-900 mb-2">Advantages</h5>
+                                            <ul class="text-sm space-y-1">
+                                                <li>• Proven clinical efficacy</li>
+                                                <li>• Good safety profile</li>
+                                                <li>• Platform scalability</li>
+                                            </ul>
+                                        </div>
+                                        <div class="bg-yellow-50 rounded-lg p-4">
+                                            <h5 class="font-medium text-yellow-900 mb-2">vs AOC Platform</h5>
+                                            <ul class="text-sm space-y-1">
+                                                <li>• Lower dystrophin levels</li>
+                                                <li>• Less clinical data</li>
+                                                <li>• Behind in exon 44</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Financial Tab -->
+                                <div id="dyne-financial" class="tab-content hidden">
+                                    <h3 class="text-xl font-semibold mb-4">Financial Strength</h3>
+                                    
+                                    <div class="grid grid-cols-3 gap-4 mb-6">
+                                        <div class="bg-gray-50 rounded-lg p-6">
+                                            <p class="text-sm text-gray-600">Cash Position</p>
+                                            <p class="text-2xl font-bold">$678-779M</p>
+                                            <p class="text-xs text-gray-500">As of mid-2025</p>
+                                        </div>
+                                        <div class="bg-gray-50 rounded-lg p-6">
+                                            <p class="text-sm text-gray-600">Recent Raises</p>
+                                            <p class="text-2xl font-bold">$574M</p>
+                                            <p class="text-xs text-gray-500">2024-2025</p>
+                                        </div>
+                                        <div class="bg-gray-50 rounded-lg p-6">
+                                            <p class="text-sm text-gray-600">Runway</p>
+                                            <p class="text-2xl font-bold">Mid-2026</p>
+                                            <p class="text-xs text-gray-500">Operational funding</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="bg-blue-50 rounded-lg p-6">
+                                        <h4 class="font-semibold text-blue-900 mb-3">Investment Highlights</h4>
+                                        <ul class="space-y-2 text-sm">
+                                            <li>• Q2 2024: Raised $374M showing strong investor confidence</li>
+                                            <li>• Mid-2025: Additional $200M with minimal dilution</li>
+                                            <li>• Ability to fund multiple programs in parallel</li>
+                                            <li>• Strategic flexibility for exon 44 entry if desired</li>
+                                        </ul>
+                                    </div>
+                                    
+                                    <div class="mt-6 p-4 bg-yellow-50 rounded-lg">
+                                        <p class="text-sm text-yellow-900">
+                                            <strong>Note:</strong> September 2024 executive departures (CMO, CCO, CBO) created temporary uncertainty 
+                                            but core operations remain strong.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Minor Competitors Page
+        function loadMinorCompetitorsPage() {
+            const container = document.getElementById('pageContainer');
+            container.innerHTML = `
+                <div class="min-h-screen bg-gray-50 pt-20 pb-12">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <!-- Header -->
+                        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 mb-8">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h1 class="text-3xl font-bold text-gray-900">Minor Competitors</h1>
+                                    <p class="text-gray-600 mt-2">Additional companies with DMD-related patents and programs</p>
+                                </div>
+                                <button onclick="closeCompetitorPage()" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
+                                    ← Back to Dashboard
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Company Grid -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Nippon Shinyaku -->
+                            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover-lift">
+                                <h3 class="text-lg font-semibold mb-3">Nippon Shinyaku Co Ltd</h3>
+                                <div class="space-y-2 text-sm text-gray-600">
+                                    <p><strong>Focus:</strong> Parent company of NS Pharma, multiple DMD programs</p>
+                                    <p><strong>Key Patents:</strong> US12060556B2, US11193125B2 (exon 44 PMOs)</p>
+                                    <p><strong>R&D Spend:</strong> ¥31.7B total, ~30-35% on DMD (FY2024)</p>
+                                    <div class="mt-3">
+                                        <span class="px-2 py-1 bg-orange-100 text-orange-700 rounded text-xs">Medium Risk</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Royal Holloway -->
+                            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover-lift">
+                                <h3 class="text-lg font-semibold mb-3">Royal Holloway and Bedford New College</h3>
+                                <div class="space-y-2 text-sm text-gray-600">
+                                    <p><strong>Focus:</strong> Academic institution with oligomer research</p>
+                                    <p><strong>Key Patent:</strong> US9650632B2 - Oligomers for DMD treatment</p>
+                                    <p><strong>Technology:</strong> PMO chemistry and muscle-targeting conjugates</p>
+                                    <div class="mt-3">
+                                        <span class="px-2 py-1 bg-green-100 text-green-700 rounded text-xs">Low Risk</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Charlotte Mecklenburg -->
+                            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover-lift">
+                                <h3 class="text-lg font-semibold mb-3">Charlotte Mecklenburg Hospital</h3>
+                                <div class="space-y-2 text-sm text-gray-600">
+                                    <p><strong>Focus:</strong> Hospital system with DMD research</p>
+                                    <p><strong>Key Patent:</strong> US9078911B2 - PMO targeting exon 45</p>
+                                    <p><strong>Note:</strong> Different exon target, limited commercial threat</p>
+                                    <div class="mt-3">
+                                        <span class="px-2 py-1 bg-green-100 text-green-700 rounded text-xs">Low Risk</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- University of Western Australia -->
+                            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover-lift">
+                                <h3 class="text-lg font-semibold mb-3">University of Western Australia</h3>
+                                <div class="space-y-2 text-sm text-gray-600">
+                                    <p><strong>Focus:</strong> Academic research in antisense molecules</p>
+                                    <p><strong>Patents:</strong> US11447776B2, US8637483B2, US9605262B2, US8455635B2</p>
+                                    <p><strong>Proximity:</strong> Medium/Low - broad PMO designs</p>
+                                    <div class="mt-3">
+                                        <span class="px-2 py-1 bg-yellow-100 text-yellow-700 rounded text-xs">Medium/Low Risk</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Cold Spring Harbor -->
+                            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover-lift">
+                                <h3 class="text-lg font-semibold mb-3">Cold Spring Harbor Laboratory</h3>
+                                <div class="space-y-2 text-sm text-gray-600">
+                                    <p><strong>Focus:</strong> Gene expression modulation research</p>
+                                    <p><strong>Key Patent:</strong> US9976143B2 - Nuclear transcript targeting</p>
+                                    <p><strong>Relevance:</strong> Tangential to exon skipping</p>
+                                    <div class="mt-3">
+                                        <span class="px-2 py-1 bg-yellow-100 text-yellow-700 rounded text-xs">Medium Risk</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Université de Mons Hainaut -->
+                            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover-lift">
+                                <h3 class="text-lg font-semibold mb-3">Université de Mons Hainaut</h3>
+                                <div class="space-y-2 text-sm text-gray-600">
+                                    <p><strong>Focus:</strong> FSHD treatments</p>
+                                    <p><strong>Technology:</strong> May intersect with PMO delivery</p>
+                                    <p><strong>Threat Level:</strong> Minimal for exon 44 specifically</p>
+                                    <div class="mt-3">
+                                        <span class="px-2 py-1 bg-green-100 text-green-700 rounded text-xs">Low Risk</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Summary -->
+                        <div class="mt-8 bg-blue-50 rounded-xl p-6">
+                            <h3 class="text-lg font-semibold text-blue-900 mb-3">Minor Competitor Assessment</h3>
+                            <p class="text-gray-700">
+                                These organizations primarily represent academic research efforts or tangential commercial interests. 
+                                While they hold relevant patents, they lack the clinical development capabilities, funding, or strategic 
+                                focus to pose significant near-term threats to AOC-1044's market position. Their IP may require monitoring 
+                                for potential licensing opportunities or freedom-to-operate considerations.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Comparative Analysis Page
+        function loadComparativeAnalysisPage() {
+            const container = document.getElementById('pageContainer');
+            container.innerHTML = `
+                <div class="min-h-screen bg-gray-50 pt-20 pb-12">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <!-- Header -->
+                        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 mb-8">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h1 class="text-3xl font-bold text-gray-900">Comparative Analysis</h1>
+                                    <p class="text-gray-600 mt-2">Head-to-head comparison of all exon 44 competitors</p>
+                                </div>
+                                <button onclick="closeCompetitorPage()" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
+                                    ← Back to Dashboard
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Comparison Table -->
+                        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                            <div class="overflow-x-auto">
+                                <table class="w-full">
+                                    <thead class="bg-gray-50 border-b border-gray-200">
+                                        <tr>
+                                            <th class="sticky left-0 bg-gray-50 text-left py-4 px-6 font-semibold text-gray-700">Parameter</th>
+                                            <th class="text-center py-4 px-6 font-semibold text-indigo-600 bg-indigo-50">AOC-1044 (Avidity)</th>
+                                            <th class="text-center py-4 px-6 font-semibold text-gray-700">NS-089 (NS Pharma)</th>
+                                            <th class="text-center py-4 px-6 font-semibold text-gray-700">ENTR-601-44 (Entrada)</th>
+                                            <th class="text-center py-4 px-6 font-semibold text-gray-700">Exon 44 (Dyne)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr class="border-b border-gray-100 hover:bg-gray-50">
+                                            <td class="sticky left-0 bg-white py-4 px-6 font-medium">Development Stage</td>
+                                            <td class="text-center py-4 px-6">
+                                                <span class="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm">BLA Prep Q4 2025</span>
+                                            </td>
+                                            <td class="text-center py-4 px-6">
+                                                <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm">Phase 2 Ongoing</span>
+                                            </td>
+                                            <td class="text-center py-4 px-6">
+                                                <span class="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-sm">Phase 1b H1 2026</span>
+                                            </td>
+                                            <td class="text-center py-4 px-6">
+                                                <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm">Preclinical</span>
+                                            </td>
+                                        </tr>
+                                        <tr class="border-b border-gray-100 hover:bg-gray-50">
+                                            <td class="sticky left-0 bg-white py-4 px-6 font-medium">Dystrophin Levels</td>
+                                            <td class="text-center py-4 px-6">
+                                                <div class="font-bold text-green-600 text-lg">25-58%</div>
+                                                <div class="text-xs text-gray-500">Superior efficacy</div>
+                                            </td>
+                                            <td class="text-center py-4 px-6">
+                                                <div class="font-bold text-orange-600">10-16%</div>
+                                                <div class="text-xs text-gray-500">Lower but sufficient</div>
+                                            </td>
+                                            <td class="text-center py-4 px-6">
+                                                <div class="text-gray-400">Unknown</div>
+                                                <div class="text-xs text-gray-500">No patient data</div>
+                                            </td>
+                                            <td class="text-center py-4 px-6">
+                                                <div class="text-gray-400">Unknown</div>
+                                                <div class="text-xs text-gray-500">Preclinical</div>
+                                            </td>
+                                        </tr>
+                                        <tr class="border-b border-gray-100 hover:bg-gray-50">
+                                            <td class="sticky left-0 bg-white py-4 px-6 font-medium">Dosing Frequency</td>
+                                            <td class="text-center py-4 px-6">
+                                                <div class="font-semibold text-green-600">Every 6 Weeks</div>
+                                                <div class="text-xs text-gray-500">9 doses/year</div>
+                                            </td>
+                                            <td class="text-center py-4 px-6">
+                                                <div class="font-semibold text-red-600">Weekly</div>
+                                                <div class="text-xs text-gray-500">52 doses/year</div>
+                                            </td>
+                                            <td class="text-center py-4 px-6">
+                                                <div class="font-semibold">Every 6 Weeks</div>
+                                                <div class="text-xs text-gray-500">Expected</div>
+                                            </td>
+                                            <td class="text-center py-4 px-6">
+                                                <div class="text-gray-400">Unknown</div>
+                                            </td>
+                                        </tr>
+                                        <tr class="border-b border-gray-100 hover:bg-gray-50">
+                                            <td class="sticky left-0 bg-white py-4 px-6 font-medium">FDA Designations</td>
+                                            <td class="text-center py-4 px-6">
+                                                <div class="flex flex-wrap justify-center gap-1">
+                                                    <span class="px-2 py-1 bg-green-100 text-green-700 rounded text-xs">Fast Track</span>
+                                                    <span class="px-2 py-1 bg-green-100 text-green-700 rounded text-xs">Orphan</span>
+                                                    <span class="px-2 py-1 bg-green-100 text-green-700 rounded text-xs">Rare Pediatric</span>
+                                                </div>
+                                            </td>
+                                            <td class="text-center py-4 px-6">
+                                                <div class="flex flex-wrap justify-center gap-1">
+                                                  <span class="px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs font-semibold">Breakthrough</span>
+                                                    <span class="px-2 py-1 bg-green-100 text-green-700 rounded text-xs">Orphan</span>
+                                                    <span class="px-2 py-1 bg-green-100 text-green-700 rounded text-xs">Rare Pediatric</span>
+                                                </div>
+                                            </td>
+                                            <td class="text-center py-4 px-6">
+                                                <span class="text-gray-400">None Announced</span>
+                                            </td>
+                                            <td class="text-center py-4 px-6">
+                                                <span class="text-gray-400">None Announced</span>
+                                            </td>
+                                        </tr>
+                                        <tr class="border-b border-gray-100 hover:bg-gray-50">
+                                            <td class="sticky left-0 bg-white py-4 px-6 font-medium">Platform Technology</td>
+                                            <td class="text-center py-4 px-6">AOC™ (TfR1-mAb)</td>
+                                            <td class="text-center py-4 px-6">Traditional PMO</td>
+                                            <td class="text-center py-4 px-6">EEV™</td>
+                                            <td class="text-center py-4 px-6">FORCE™</td>
+                                        </tr>
+                                        <tr class="border-b border-gray-100 hover:bg-gray-50">
+                                            <td class="sticky left-0 bg-white py-4 px-6 font-medium">Cash Position</td>
+                                            <td class="text-center py-4 px-6">
+                                                <div class="font-semibold">$1.4B+</div>
+                                                <div class="text-xs text-gray-500">+ BMS partnership</div>
+                                            </td>
+                                            <td class="text-center py-4 px-6">
+                                                <div class="font-semibold">¥31.7B R&D</div>
+                                                <div class="text-xs text-gray-500">Parent funding</div>
+                                            </td>
+                                            <td class="text-center py-4 px-6">
+                                                <div class="font-semibold">$420M</div>
+                                                <div class="text-xs text-gray-500">Through 2027</div>
+                                            </td>
+                                            <td class="text-center py-4 px-6">
+                                                <div class="font-semibold">$678-779M</div>
+                                                <div class="text-xs text-gray-500">Mid-2026 runway</div>
+                                            </td>
+                                        </tr>
+                                        <tr class="border-b border-gray-100 hover:bg-gray-50">
+                                            <td class="sticky left-0 bg-white py-4 px-6 font-medium">Expected Market Entry</td>
+                                            <td class="text-center py-4 px-6">
+                                                <div class="font-semibold text-green-600">H2 2026</div>
+                                                <div class="text-xs text-gray-500">First to market</div>
+                                            </td>
+                                            <td class="text-center py-4 px-6">
+                                                <div class="font-semibold text-orange-600">2026-2027</div>
+                                                <div class="text-xs text-gray-500">Close second</div>
+                                            </td>
+                                            <td class="text-center py-4 px-6">
+                                                <div class="font-semibold text-red-600">2027+</div>
+                                                <div class="text-xs text-gray-500">Delayed entry</div>
+                                            </td>
+                                            <td class="text-center py-4 px-6">
+                                                <div class="text-gray-400">2029+</div>
+                                                <div class="text-xs text-gray-500">If pursued</div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="sticky left-0 bg-white py-4 px-6 font-medium">Competitive Position</td>
+                                            <td class="text-center py-4 px-6">
+                                                <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-semibold">LEADING</span>
+                                            </td>
+                                            <td class="text-center py-4 px-6">
+                                                <span class="px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm font-semibold">HIGH THREAT</span>
+                                            </td>
+                                            <td class="text-center py-4 px-6">
+                                                <span class="px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-sm font-semibold">MEDIUM THREAT</span>
+                                            </td>
+                                            <td class="text-center py-4 px-6">
+                                                <span class="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-sm font-semibold">LOW THREAT</span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Key Insights -->
+                        <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                                <h3 class="text-lg font-semibold mb-4">Efficacy Comparison</h3>
+                                <canvas id="efficacyChart"></canvas>
+                            </div>
+                            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                                <h3 class="text-lg font-semibold mb-4">Timeline to Market</h3>
+                                <canvas id="timelineChart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Strategic Summary -->
+                        <div class="mt-8 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl p-8">
+                            <h3 class="text-xl font-semibold mb-4">Strategic Positioning Summary</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <h4 class="font-semibold text-indigo-900 mb-2">AOC-1044 Advantages</h4>
+                                    <ul class="space-y-2 text-sm">
+                                        <li class="flex items-start">
+                                            <span class="text-green-600 mr-2">✓</span>
+                                            <span>Superior efficacy: 2.5-5x higher dystrophin than NS-089</span>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <span class="text-green-600 mr-2">✓</span>
+                                            <span>Best-in-class dosing: Q6W vs weekly for NS-089</span>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <span class="text-green-600 mr-2">✓</span>
+                                            <span>Timeline advantage: 6+ months ahead of competition</span>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <span class="text-green-600 mr-2">✓</span>
+                                            <span>Strong financial backing: $1.4B+ resources</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-red-900 mb-2">Competitive Risks</h4>
+                                    <ul class="space-y-2 text-sm">
+                                        <li class="flex items-start">
+                                            <span class="text-red-600 mr-2">•</span>
+                                            <span>NS-089 Breakthrough designation provides regulatory advantage</span>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <span class="text-red-600 mr-2">•</span>
+                                            <span>Sarepta IP may require licensing or design-around</span>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <span class="text-red-600 mr-2">•</span>
+                                            <span>Entrada's novel platform could disrupt if successful</span>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <span class="text-red-600 mr-2">•</span>
+                                            <span>Small market size intensifies competition</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <script>
+                    // Wait for DOM to be ready before creating charts
+                    setTimeout(() => {
+                        // Efficacy Chart
+                        const efficacyCtx = document.getElementById('efficacyChart').getContext('2d');
+                        new Chart(efficacyCtx, {
+                            type: 'bar',
+                            data: {
+                                labels: ['AOC-1044', 'NS-089', 'ENTR-601-44', 'Dyne'],
+                                datasets: [{
+                                    label: 'Dystrophin Expression (%)',
+                                    data: [41.5, 13, 0, 0],
+                                    backgroundColor: [
+                                        'rgba(34, 197, 94, 0.8)',
+                                        'rgba(251, 146, 60, 0.8)',
+                                        'rgba(156, 163, 175, 0.5)',
+                                        'rgba(156, 163, 175, 0.5)'
+                                    ],
+                                    borderColor: [
+                                        'rgb(34, 197, 94)',
+                                        'rgb(251, 146, 60)',
+                                        'rgb(156, 163, 175)',
+                                        'rgb(156, 163, 175)'
+                                    ],
+                                    borderWidth: 1
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                scales: {
+                                    y: {
+                                        beginAtZero: true,
+                                        max: 60
+                                    }
+                                },
+                                plugins: {
+                                    legend: {
+                                        display: false
+                                    }
+                                }
+                            }
+                        });
+
+                        // Timeline Chart
+                        const timelineCtx = document.getElementById('timelineChart').getContext('2d');
+                        new Chart(timelineCtx, {
+                            type: 'line',
+                            data: {
+                                labels: ['2024', '2025', '2026', '2027', '2028', '2029'],
+                                datasets: [
+                                    {
+                                        label: 'AOC-1044',
+                                        data: [null, null, 100, 100, 100, 100],
+                                        borderColor: 'rgb(99, 102, 241)',
+                                        backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                                        borderWidth: 3
+                                    },
+                                    {
+                                        label: 'NS-089',
+                                        data: [null, null, 50, 100, 100, 100],
+                                        borderColor: 'rgb(239, 68, 68)',
+                                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                                        borderWidth: 2
+                                    },
+                                    {
+                                        label: 'ENTR-601-44',
+                                        data: [null, null, null, 50, 100, 100],
+                                        borderColor: 'rgb(251, 146, 60)',
+                                        backgroundColor: 'rgba(251, 146, 60, 0.1)',
+                                        borderWidth: 2
+                                    },
+                                    {
+                                        label: 'Dyne',
+                                        data: [null, null, null, null, null, 50],
+                                        borderColor: 'rgb(156, 163, 175)',
+                                        backgroundColor: 'rgba(156, 163, 175, 0.1)',
+                                        borderWidth: 2,
+                                        borderDash: [5, 5]
+                                    }
+                                ]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                scales: {
+                                    y: {
+                                        beginAtZero: true,
+                                        max: 100,
+                                        ticks: {
+                                            display: false
+                                        }
+                                    }
+                                },
+                                plugins: {
+                                    legend: {
+                                        position: 'bottom'
+                                    }
+                                }
+                            }
+                        });
+                    }, 100);
+                <\/script>
+            `;
+        }
+
+        // Patent Landscape Page
+        function loadPatentLandscapePage() {
+            const container = document.getElementById('pageContainer');
+            container.innerHTML = `
+                <div class="min-h-screen bg-gray-50 pt-20 pb-12">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <!-- Header -->
+                        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 mb-8">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h1 class="text-3xl font-bold text-gray-900">Patent Landscape Analysis</h1>
+                                    <p class="text-gray-600 mt-2">Intellectual property clustering and proximity mapping</p>
+                                </div>
+                                <button onclick="closeCompetitorPage()" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
+                                    ← Back to Dashboard
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Patent Clustering Visualization -->
+                        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 mb-8">
+                            <h2 class="text-xl font-semibold mb-6">Patent Proximity Clustering</h2>
+                            <div class="relative mx-auto" style="max-width: 600px;">
+                                <canvas id="patentCluster" width="600" height="600"></canvas>
+                            </div>
+                            
+                            <!-- Legend -->
+                            <div class="mt-8 flex flex-wrap justify-center gap-4">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-4 h-4 bg-red-500 rounded-full"></div>
+                                    <span class="text-sm">High Proximity (80-100)</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <div class="w-4 h-4 bg-orange-500 rounded-full"></div>
+                                    <span class="text-sm">Medium-High (60-80)</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <div class="w-4 h-4 bg-yellow-500 rounded-full"></div>
+                                    <span class="text-sm">Medium (30-60)</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <div class="w-4 h-4 bg-green-500 rounded-full"></div>
+                                    <span class="text-sm">Low (0-30)</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Patent Statistics -->
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                                <h3 class="text-3xl font-bold text-red-600">17</h3>
+                                <p class="text-gray-600 mt-1">High Proximity Patents</p>
+                            </div>
+                            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                                <h3 class="text-3xl font-bold text-orange-600">25+</h3>
+                                <p class="text-gray-600 mt-1">Medium Proximity Patents</p>
+                            </div>
+                            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                                <h3 class="text-3xl font-bold text-yellow-600">60+</h3>
+                                <p class="text-gray-600 mt-1">Low Proximity Patents</p>
+                            </div>
+                            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                                <h3 class="text-3xl font-bold text-indigo-600">9</h3>
+                                <p class="text-gray-600 mt-1">Key Patent Holders</p>
+                            </div>
+                        </div>
+
+                        <!-- Detailed Patent Analysis -->
+                        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+                            <h2 class="text-xl font-semibold mb-6">High Proximity Patent Analysis</h2>
+                            
+                            <div class="space-y-6">
+                                <!-- Avidity Biosciences -->
+                                <div class="border-l-4 border-red-500 pl-6">
+                                    <h3 class="text-lg font-semibold mb-3">Avidity Biosciences Inc (6 patents)</h3>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                        <div class="bg-gray-50 rounded p-3">
+                                            <span class="font-mono text-sm text-blue-600">US11179472B2</span>
+                                            <p class="text-xs text-gray-600 mt-1">ASO conjugates, exon 44, various DARs</p>
+                                        </div>
+                                        <div class="bg-gray-50 rounded p-3">
+                                            <span class="font-mono text-sm text-blue-600">US12064483B2</span>
+                                            <p class="text-xs text-gray-600 mt-1">Anti-TfR antibody conjugates, PMO chemistry</p>
+                                        </div>
+                                        <div class="bg-gray-50 rounded p-3">
+                                            <span class="font-mono text-sm text-blue-600">US11400163B2</span>
+                                            <p class="text-xs text-gray-600 mt-1">PMO-TfR conjugates for muscle cells</p>
+                                        </div>
+                                        <div class="bg-gray-50 rounded p-3">
+                                            <span class="font-mono text-sm text-blue-600">US12071621B2</span>
+                                            <p class="text-xs text-gray-600 mt-1">SEQ ID 116-119, DAR 3.5-8.5</p>
+                                        </div>
+                                        <div class="bg-gray-50 rounded p-3">
+                                            <span class="font-mono text-sm text-blue-600">US11311627B1</span>
+                                            <p class="text-xs text-gray-600 mt-1">Oligonucleotide conjugates for DMD</p>
+                                        </div>
+                                        <div class="bg-gray-50 rounded p-3">
+                                            <span class="font-mono text-sm text-blue-600">US10994020B2</span>
+                                            <p class="text-xs text-gray-600 mt-1">PMO-TfR, cleavable linkers</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Dyne Therapeutics -->
+                                <div class="border-l-4 border-red-500 pl-6">
+                                    <h3 class="text-lg font-semibold mb-3">Dyne Therapeutics Inc (4 patents)</h3>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                        <div class="bg-gray-50 rounded p-3">
+                                            <span class="font-mono text-sm text-blue-600">US12329825B1</span>
+                                            <p class="text-xs text-gray-600 mt-1">Anti-TfR CDRs, exon 44, DAR 1-5</p>
+                                        </div>
+                                        <div class="bg-gray-50 rounded p-3">
+                                            <span class="font-mono text-sm text-blue-600">US12325753B2</span>
+                                            <p class="text-xs text-gray-600 mt-1">FSHD and muscular dystrophy delivery</p>
+                                        </div>
+                                        <div class="bg-gray-50 rounded p-3">
+                                            <span class="font-mono text-sm text-blue-600">US12173079B2</span>
+                                            <p class="text-xs text-gray-600 mt-1">TfR1 binding C89-F760</p>
+                                        </div>
+                                        <div class="bg-gray-50 rounded p-3">
+                                            <span class="font-mono text-sm text-blue-600">US12263225B2</span>
+                                            <p class="text-xs text-gray-600 mt-1">Exon 51, val-cit linkers, DAR 1-3</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Other Key Patent Holders -->
+                                <div class="border-l-4 border-orange-500 pl-6">
+                                    <h3 class="text-lg font-semibold mb-3">Other Key Patent Holders</h3>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                        <div>
+                                            <h4 class="font-medium text-gray-900">Sarepta (2)</h4>
+                                            <p class="text-xs text-gray-600">US10907154B2, US9217148B2</p>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-medium text-gray-900">Nippon Shinyaku (2)</h4>
+                                            <p class="text-xs text-gray-600">US12060556B2, US11193125B2</p>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-medium text-gray-900">Royal Holloway (1)</h4>
+                                            <p class="text-xs text-gray-600">US9650632B2</p>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-medium text-gray-900">Charlotte Mecklenburg (1)</h4>
+                                            <p class="text-xs text-gray-600">US9078911B2</p>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-medium text-gray-900">U. Western Australia (4)</h4>
+                                            <p class="text-xs text-gray-600">Multiple medium proximity</p>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-medium text-gray-900">Others (3)</h4>
+                                            <p class="text-xs text-gray-600">CSHL, U. Mons Hainaut</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Freedom to Operate Analysis -->
+                        <div class="mt-8 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-2xl p-8">
+                            <h2 class="text-xl font-semibold mb-6">Freedom to Operate Assessment</h2>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <div class="bg-white rounded-lg p-6 shadow-sm">
+                                    <div class="flex items-center justify-between mb-3">
+                                        <h3 class="font-semibold text-red-900">High Risk Areas</h3>
+                                        <span class="text-2xl">🔴</span>
+                                    </div>
+                                    <ul class="space-y-2 text-sm text-gray-700">
+                                        <li>• PMO sequences for exon 44</li>
+                                        <li>• Anti-TfR antibody conjugates</li>
+                                        <li>• DAR ranges 1-8.5</li>
+                                        <li>• Cleavable linker chemistry</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-white rounded-lg p-6 shadow-sm">
+                                    <div class="flex items-center justify-between mb-3">
+                                        <h3 class="font-semibold text-yellow-900">Potential Strategies</h3>
+                                        <span class="text-2xl">🟡</span>
+                                    </div>
+                                    <ul class="space-y-2 text-sm text-gray-700">
+                                        <li>• Novel sequence design</li>
+                                        <li>• Alternative targeting moieties</li>
+                                        <li>• Unique linker chemistries</li>
+                                        <li>• Cross-licensing opportunities</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-white rounded-lg p-6 shadow-sm">
+                                    <div class="flex items-center justify-between mb-3">
+                                        <h3 class="font-semibold text-green-900">Open Opportunities</h3>
+                                        <span class="text-2xl">🟢</span>
+                                    </div>
+                                    <ul class="space-y-2 text-sm text-gray-700">
+                                        <li>• Novel delivery vehicles</li>
+                                        <li>• Alternative muscle targets</li>
+                                        <li>• Combination approaches</li>
+                                        <li>• Formulation innovations</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <script>
+
+                <\/script>
+            `;
+            requestAnimationFrame(() => {
+    initializePatentChart();
+});
+        }
+
+function initializePatentChart() {
+    // Patent Cluster Visualization
+    const canvas = document.getElementById('patentCluster');
+    if (!canvas) {
+        console.error('Patent cluster canvas not found');
+        return;
+    }
+    
+    const ctx = canvas.getContext('2d');
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+    const maxRadius = 250;
+
+    // Draw proximity zones
+    const zones = [
+        { radius: 60, color: 'rgba(239, 68, 68, 0.3)', label: 'High Proximity' },
+        { radius: 120, color: 'rgba(251, 146, 60, 0.2)', label: 'Medium-High' },
+        { radius: 180, color: 'rgba(250, 204, 21, 0.15)', label: 'Medium' },
+        { radius: 250, color: 'rgba(34, 197, 94, 0.1)', label: 'Low Proximity' }
+    ];
+
+    zones.reverse().forEach(zone => {
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, zone.radius, 0, 2 * Math.PI);
+        ctx.fillStyle = zone.color;
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(0, 0, 0, 0.1)';
+        ctx.stroke();
+    });
+
+    // Draw center point (Your Innovation)
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, 8, 0, 2 * Math.PI);
+    ctx.fillStyle = '#6366f1';
+    ctx.fill();
+    ctx.strokeStyle = '#4f46e5';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Patent data with positions
+    const patents = [
+        // High proximity (inner circle)
+        { company: 'Avidity', count: 6, angle: 0, distance: 40, color: '#ef4444' },
+        { company: 'Dyne', count: 4, angle: 60, distance: 45, color: '#ef4444' },
+        { company: 'Sarepta', count: 2, angle: 120, distance: 50, color: '#ef4444' },
+        { company: 'Nippon', count: 2, angle: 180, distance: 45, color: '#ef4444' },
+        // Medium proximity
+        { company: 'Royal Holloway', count: 1, angle: 30, distance: 90, color: '#fb923c' },
+        { company: 'Charlotte Meck', count: 1, angle: 90, distance: 95, color: '#fb923c' },
+        { company: 'UWA', count: 4, angle: 150, distance: 100, color: '#fb923c' },
+        // Low proximity
+        { company: 'CSHL', count: 1, angle: 210, distance: 140, color: '#fbbf24' },
+        { company: 'U Mons', count: 1, angle: 270, distance: 150, color: '#fbbf24' },
+        // Other companies
+        { company: 'Others', count: 60, angle: 330, distance: 200, color: '#22c55e' }
+    ];
+
+    // Draw patent clusters
+    patents.forEach(patent => {
+        const x = centerX + Math.cos(patent.angle * Math.PI / 180) * patent.distance;
+        const y = centerY + Math.sin(patent.angle * Math.PI / 180) * patent.distance;
+        
+        // Draw circle
+        ctx.beginPath();
+        ctx.arc(x, y, 5 + patent.count * 1.5, 0, 2 * Math.PI);
+        ctx.fillStyle = patent.color;
+        ctx.fill();
+        ctx.strokeStyle = 'white';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        
+        // Draw label
+        ctx.fillStyle = '#1f2937';
+        ctx.font = '11px Inter';
+        ctx.textAlign = 'center';
+        ctx.fillText(patent.company, x, y - 15 - patent.count * 1.5);
+        ctx.font = '9px Inter';
+        ctx.fillText(patent.count.toString(), x, y - 5 - patent.count * 1.5);
+    });
+
+    // Draw quadrant labels
+    const labels = [
+        { text: 'Dyne\nTherapeutics Inc', x: centerX + 200, y: centerY - 200 },
+        { text: 'Sarepta\nTherapeutics Inc', x: centerX + 200, y: centerY + 200 },
+        { text: 'Avidity\nBiosciences Inc', x: centerX - 200, y: centerY + 200 },
+        { text: 'Nippon Shinyaku\nCo Ltd', x: centerX - 200, y: centerY - 200 }
+    ];
+
+    ctx.fillStyle = '#6b7280';
+    ctx.font = '12px Inter';
+    labels.forEach(label => {
+        const lines = label.text.split('\n');
+        lines.forEach((line, i) => {
+            ctx.fillText(line, label.x, label.y + i * 15);
+        });
+    });
+
+    // Center label
+    ctx.fillStyle = '#1f2937';
+    ctx.font = 'bold 12px Inter';
+    ctx.textAlign = 'center';
+    ctx.fillText('AOC-1044', centerX, centerY + 20);
+}
+
+        // Tab switching functionality
+        function showTab(tabId) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.add('hidden');
+            });
+            
+            // Remove active state from all tab buttons
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.classList.remove('border-indigo-500', 'text-indigo-600');
+                button.classList.add('border-transparent', 'text-gray-500');
+            });
+            
+            // Show selected tab content
+            document.getElementById(tabId).classList.remove('hidden');
+            
+            // Set active state on clicked tab button
+            event.target.classList.remove('border-transparent', 'text-gray-500');
+            event.target.classList.add('border-indigo-500', 'text-indigo-600');
+        }
+
+        // Close competitor page
+        function closeCompetitorPage() {
+            document.getElementById('pageContainer').classList.add('hidden');
+            document.getElementById('pageContainer').innerHTML = '';
+            window.scrollTo(0, 0);
+        }
+
+        // Add smooth scroll behavior
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
