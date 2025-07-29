@@ -1608,7 +1608,7 @@ return `
 
   // Hide loading state  
   hideLoading: function() {
-    this.showLoading(false);
+    // this.showLoading(false);
   },
 
   // Show success message
