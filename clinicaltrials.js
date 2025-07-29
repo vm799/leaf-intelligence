@@ -38,9 +38,10 @@ const { UserSession } = require('./db');
 const mongoose = require('mongoose');
 const { router: drugWatchRouter, initializeDrugWatchService } = require('./watch.js');
 const fdaRoutes = require('./devices'); // Adjust path as needed
-
-
-const { 
+const pharmaceuticalRouter = require('./labelling.js'); // Adjust path as needed
+const emaMongoRouter = require('./ema-mongo-routes.js');
+const { createPerfectCompanyMatcher, PharmaceuticalCompanyMatcher } = require('./pharmaceutical-matcher');
+const {
   DrugClassification, 
   FDAGuidance, 
   FDAApproval, 
@@ -200,51 +201,1896 @@ function initializeUsersFile(callback) {
   });
 }
 
-// Get all users
-function getUsers(callback) {
-  fs.readFile(usersFile, 'utf8', (err, data) => {
-      if (err) {
-          console.error('Error reading users file:', err);
-          return callback(err, []);
+
+
+const Form483Schema = new mongoose.Schema({
+  recordDate: { type: Date, index: true },
+  feiNumber: { type: String, index: true },
+  legalName: { type: String, index: true },
+  recordType: String,
+  publishDate: Date,
+  download: String,
+  recordId: String,
+  parsedObservations: [String], // Will be populated by PDF parsing
+  drugMentions: [String],
+  violations: [String]
+});
+
+const CGMPGuidanceSchema = new mongoose.Schema({
+  filename: String,
+  question: String,
+  answer: String,
+  text_snippet: String,
+  summary: String,
+  category: { type: String, index: true },
+  keywords: [String],
+  drug_mentions: [String],
+  regulations: [String],
+  risk_level: String,
+  uploadedAt: Date,
+  dataSource: String
+});
+
+
+
+
+const Form483Model = mongoose.model('483s', Form483Schema, '483s');
+const CGMPGuidance = mongoose.model('cgmp_guidance', CGMPGuidanceSchema);
+
+
+// // API ENDPOINTS
+// app.get('/api/debug/test-companies', async (req, res) => {
+//   try {
+//     const testCompanies = ['ENDO', 'EUGIA', 'FRESENIUS', 'GLAND', 'HIKMA', 'HOSPIRA', 'JANSSEN'];
+    
+//     console.log('🧪 Testing companies in database...');
+    
+//     const results = {};
+    
+//     for (const company of testCompanies) {
+//       // Test Form 483s
+//       const form483Count = await Form483Model.countDocuments({ 
+//         legalName: new RegExp(company, 'i') 
+//       });
+      
+//       const sampleForm483s = await Form483Model.find({ 
+//         legalName: new RegExp(company, 'i') 
+//       }).limit(3).lean();
+      
+//       // Test Warning Letters
+//       const warningLetterCount = warningLetters ? 
+//         warningLetters.filter(wl => 
+//           wl.companyName?.toLowerCase().includes(company.toLowerCase())
+//         ).length : 0;
+      
+//       results[company] = {
+//         form483s: {
+//           count: form483Count,
+//           samples: sampleForm483s.map(f => ({
+//             legalName: f.legalName,
+//             recordDate: f.recordDate,
+//             feiNumber: f.feiNumber,
+//             hasObservations: !!f.parsedObservations?.length,
+//             hasDrugMentions: !!f.drugMentions?.length,
+//             hasViolations: !!f.violations?.length
+//           }))
+//         },
+//         warningLetters: {
+//           count: warningLetterCount
+//         }
+//       };
+//     }
+    
+//     res.json({
+//       success: true,
+//       data: results,
+//       summary: {
+//         totalForm483s: Object.values(results).reduce((sum, r) => sum + r.form483s.count, 0),
+//         totalWarningLetters: Object.values(results).reduce((sum, r) => sum + r.warningLetters.count, 0),
+//         companiesWithData: Object.keys(results).filter(c => 
+//           results[c].form483s.count > 0 || results[c].warningLetters.count > 0
+//         )
+//       }
+//     });
+//   } catch (error) {
+//     console.error('Debug test error:', error);
+//     res.status(500).json({ success: false, error: error.message });
+//   }
+// });
+
+// // Enhanced extractDrugMentions function
+// const enhancedExtractDrugMentions = (text) => {
+//   if (!text) return [];
+  
+//   const drugMentions = new Set();
+  
+//   // Enhanced drug patterns
+//   const drugPatterns = [
+//     // Specific drug names (add more as needed)
+//     /\b(ketamine|fentanyl|morphine|oxycodone|hydrocodone|codeine|tramadol|methadone)\b/gi,
+//     /\b(insulin|metformin|lisinopril|atorvastatin|amlodipine|losartan|levothyroxine)\b/gi,
+//     /\b(amoxicillin|azithromycin|ciprofloxacin|doxycycline|cephalexin|clindamycin)\b/gi,
+//     /\b(ibuprofen|acetaminophen|aspirin|naproxen|diclofenac|celecoxib)\b/gi,
+//     /\b(sertraline|fluoxetine|citalopram|escitalopram|paroxetine|venlafaxine)\b/gi,
+//     /\b(omeprazole|pantoprazole|lansoprazole|esomeprazole|ranitidine)\b/gi,
+//     /\b(warfarin|rivaroxaban|apixaban|dabigatran|enoxaparin)\b/gi,
+    
+//     // Drug suffixes and patterns
+//     /\b\w*(?:mab|nib|tide|cycline|statin|pril|sartan|azole|amine|cillin)\b/gi,
+    
+//     // API mentions with context
+//     /(?:API|active\s+(?:pharmaceutical\s+)?ingredient)[:\s]+([a-zA-Z][a-zA-Z0-9\s\-]{2,30})/gi,
+    
+//     // Drug product mentions
+//     /(?:drug\s+product|pharmaceutical\s+product)[:\s]+([a-zA-Z][a-zA-Z0-9\s\-]{2,30})/gi,
+    
+//     // Batch/lot mentions
+//     /(?:batch|lot)\s+(?:of\s+)?([a-zA-Z][a-zA-Z0-9\s\-]{2,20})/gi,
+    
+//     // Tablet/capsule mentions
+//     /([a-zA-Z][a-zA-Z0-9\s\-]{2,20})\s+(?:tablets?|capsules?|injection|cream|ointment|solution|suspension)\b/gi
+//   ];
+  
+//   drugPatterns.forEach(pattern => {
+//     let match;
+//     while ((match = pattern.exec(text)) !== null) {
+//       const drug = (match[1] || match[0])?.trim();
+//       if (drug && drug.length > 2 && drug.length < 50 && !/^\d+$/.test(drug)) {
+//         // Clean up the drug name
+//         const cleanDrug = drug
+//           .replace(/[^\w\s\-]/g, '')
+//           .trim()
+//           .toLowerCase();
+        
+//         if (cleanDrug.length > 2) {
+//           drugMentions.add(cleanDrug.charAt(0).toUpperCase() + cleanDrug.slice(1));
+//         }
+//       }
+//     }
+//   });
+  
+//   return Array.from(drugMentions).slice(0, 10); // Limit to top 10
+// };
+
+// // Enhanced extractViolations function
+// const enhancedExtractViolations = (text) => {
+//   if (!text) return [];
+  
+//   const violations = new Set();
+//   const lowerText = text.toLowerCase();
+  
+//   // Enhanced violation patterns with priorities
+//   const violationPatterns = [
+//     // High priority violations
+//     { pattern: /data\s+integrity/gi, type: 'Data Integrity', priority: 1 },
+//     { pattern: /contamination/gi, type: 'Contamination Control', priority: 1 },
+//     { pattern: /sterility/gi, type: 'Sterility Assurance', priority: 1 },
+//     { pattern: /microbiological/gi, type: 'Microbiological Controls', priority: 1 },
+    
+//     // Medium priority violations
+//     { pattern: /quality\s+control/gi, type: 'Quality Control', priority: 2 },
+//     { pattern: /validation/gi, type: 'Validation', priority: 2 },
+//     { pattern: /documentation/gi, type: 'Documentation', priority: 2 },
+//     { pattern: /capa/gi, type: 'CAPA System', priority: 2 },
+//     { pattern: /investigation/gi, type: 'Investigation Procedures', priority: 2 },
+    
+//     // Standard violations
+//     { pattern: /manufacturing\s+practice/gi, type: 'Manufacturing Practices', priority: 3 },
+//     { pattern: /stability/gi, type: 'Stability Testing', priority: 3 },
+//     { pattern: /labeling/gi, type: 'Labeling', priority: 3 },
+//     { pattern: /adverse\s+event/gi, type: 'Adverse Event Reporting', priority: 3 },
+//     { pattern: /deviation/gi, type: 'Deviation Handling', priority: 3 },
+//     { pattern: /specification/gi, type: 'Specification Compliance', priority: 3 },
+//     { pattern: /raw\s+material/gi, type: 'Raw Material Control', priority: 3 },
+//     { pattern: /finished\s+product/gi, type: 'Finished Product Testing', priority: 3 },
+//     { pattern: /environmental\s+monitoring/gi, type: 'Environmental Monitoring', priority: 3 },
+//     { pattern: /cleaning\s+validation/gi, type: 'Cleaning Validation', priority: 3 },
+//     { pattern: /process\s+validation/gi, type: 'Process Validation', priority: 3 },
+//     { pattern: /method\s+validation/gi, type: 'Method Validation', priority: 3 },
+//     { pattern: /quality\s+assurance/gi, type: 'Quality Assurance', priority: 3 },
+//     { pattern: /out\s+of\s+specification|oos/gi, type: 'OOS Results', priority: 2 },
+//     { pattern: /batch\s+record/gi, type: 'Batch Records', priority: 3 },
+//     { pattern: /cgmp|gmp/gi, type: 'CGMP Compliance', priority: 2 },
+//     { pattern: /misbranding/gi, type: 'Misbranding', priority: 2 },
+//     { pattern: /adulteration/gi, type: 'Adulteration', priority: 1 }
+//   ];
+  
+//   violationPatterns.forEach(({ pattern, type, priority }) => {
+//     const matches = text.match(pattern);
+//     if (matches) {
+//       violations.add(type);
+//     }
+//   });
+  
+//   return Array.from(violations);
+// };
+// // Get comprehensive regulatory data for companies
+// app.post('/api/fda/comprehensive-regulatory-data', async (req, res) => {
+//   try {
+//     const { companies = [], dateRange = {} } = req.body;
+    
+//     if (!companies || companies.length === 0) {
+//       return res.status(400).json({ success: false, error: 'Companies list is required' });
+//     }
+    
+//     console.log('🔍 Fetching comprehensive regulatory data for:', companies);
+    
+//     // Create more flexible regex patterns for company matching
+//     const companyRegexes = companies.map(company => {
+//       // Handle partial matches and common variations
+//       const cleanCompany = company.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+//       return new RegExp(cleanCompany, 'i');
+//     });
+    
+//     // Get Form 483s with better matching
+//     console.log('📋 Searching Form 483s...');
+//     const form483Query = {
+//       $or: companyRegexes.map(regex => ({ legalName: regex }))
+//     };
+    
+//     if (dateRange.start || dateRange.end) {
+//       form483Query.recordDate = {};
+//       if (dateRange.start) form483Query.recordDate.$gte = new Date(dateRange.start);
+//       if (dateRange.end) form483Query.recordDate.$lte = new Date(dateRange.end);
+//     }
+    
+//     const form483s = await Form483Model.find(form483Query).lean();
+//     console.log(`📊 Found ${form483s.length} Form 483s`);
+    
+//     // Get Warning Letters with better matching
+//     console.log('📄 Searching Warning Letters...');
+//     let filteredWarningLetters = [];
+//     if (warningLetters && Array.isArray(warningLetters)) {
+//       filteredWarningLetters = warningLetters.filter(wl => {
+//         if (!wl.companyName) return false;
+        
+//         return companies.some(company => {
+//           const wlCompany = wl.companyName.toLowerCase();
+//           const searchCompany = company.toLowerCase();
+          
+//           // Multiple matching strategies
+//           return (
+//             wlCompany.includes(searchCompany) ||
+//             searchCompany.includes(wlCompany) ||
+//             wlCompany.split(' ').some(word => searchCompany.includes(word)) ||
+//             searchCompany.split(' ').some(word => wlCompany.includes(word))
+//           );
+//         });
+//       });
+//     }
+//     console.log(`📊 Found ${filteredWarningLetters.length} Warning Letters`);
+    
+//     // Apply date filter to warning letters
+//     if (dateRange.start || dateRange.end) {
+//       filteredWarningLetters = filteredWarningLetters.filter(wl => {
+//         const wlDate = new Date(wl.letterIssueDate);
+//         if (dateRange.start && wlDate < new Date(dateRange.start)) return false;
+//         if (dateRange.end && wlDate > new Date(dateRange.end)) return false;
+//         return true;
+//       });
+//     }
+    
+//     // Process warning letters with enhanced extraction
+//     console.log('⚗️ Processing Warning Letters data...');
+//     const processedWarningLetters = filteredWarningLetters.map(wl => ({
+//       ...wl,
+//       drugMentions: enhancedExtractDrugMentions(wl.fullContent || wl.content || ''),
+//       violations: enhancedExtractViolations(wl.fullContent || wl.content || '')
+//     }));
+    
+//     // Process Form 483s with enhanced extraction
+//     console.log('⚗️ Processing Form 483s data...');
+//     const processedForm483s = form483s.map(f => {
+//       const observationsText = Array.isArray(f.parsedObservations) ? 
+//         f.parsedObservations.join(' ') : (f.parsedObservations || '');
+      
+//       return {
+//         ...f,
+//         drugMentions: f.drugMentions?.length > 0 ? 
+//           f.drugMentions : enhancedExtractDrugMentions(observationsText),
+//         violations: f.violations?.length > 0 ? 
+//           f.violations : enhancedExtractViolations(observationsText)
+//       };
+//     });
+    
+//     // Aggregate all drug mentions with counts
+//     console.log('📊 Aggregating drug mentions...');
+//     const drugMentionCounts = {};
+//     [...processedWarningLetters, ...processedForm483s].forEach(item => {
+//       if (item.drugMentions && Array.isArray(item.drugMentions)) {
+//         item.drugMentions.forEach(drug => {
+//           drugMentionCounts[drug] = (drugMentionCounts[drug] || 0) + 1;
+//         });
+//       }
+//     });
+    
+//     // Aggregate violations with counts
+//     console.log('📊 Aggregating violations...');
+//     const violationCounts = {};
+//     [...processedWarningLetters, ...processedForm483s].forEach(item => {
+//       if (item.violations && Array.isArray(item.violations)) {
+//         item.violations.forEach(violation => {
+//           violationCounts[violation] = (violationCounts[violation] || 0) + 1;
+//         });
+//       }
+//     });
+    
+//     // Calculate company-specific data with better matching
+//     console.log('🏢 Calculating company-specific data...');
+//     const companiesData = companies.map(company => {
+//       // Find matching warning letters
+//       const companyWLs = processedWarningLetters.filter(wl => {
+//         const wlCompany = (wl.companyName || '').toLowerCase();
+//         const searchCompany = company.toLowerCase();
+        
+//         return (
+//           wlCompany.includes(searchCompany) ||
+//           searchCompany.includes(wlCompany) ||
+//           wlCompany.split(' ').some(word => searchCompany.includes(word))
+//         );
+//       });
+      
+//       // Find matching Form 483s
+//       const companyF483s = processedForm483s.filter(f => {
+//         const legalName = (f.legalName || '').toLowerCase();
+//         const searchCompany = company.toLowerCase();
+        
+//         return (
+//           legalName.includes(searchCompany) ||
+//           searchCompany.includes(legalName) ||
+//           legalName.split(' ').some(word => searchCompany.includes(word))
+//         );
+//       });
+      
+//       // Calculate risk level
+//       const recentDate = new Date();
+//       recentDate.setMonth(recentDate.getMonth() - 12); // Last 12 months
+      
+//       const recentWLs = companyWLs.filter(wl => 
+//         new Date(wl.letterIssueDate) > recentDate
+//       ).length;
+      
+//       const recentF483s = companyF483s.filter(f => 
+//         new Date(f.recordDate) > recentDate
+//       ).length;
+      
+//       let riskLevel = 'low';
+//       if (companyWLs.length > 2 || (recentWLs > 0 && recentF483s > 1)) {
+//         riskLevel = 'high';
+//       } else if (recentWLs > 0 || recentF483s > 0 || companyWLs.length > 0) {
+//         riskLevel = 'medium';
+//       }
+      
+//       console.log(`Company ${company}: WLs=${companyWLs.length}, 483s=${companyF483s.length}, Risk=${riskLevel}`);
+      
+//       return {
+//         name: company,
+//         warningLetterCount: companyWLs.length,
+//         form483Count: companyF483s.length,
+//         inspectionCount: 0, // Will be populated from inspection data if available
+//         riskLevel,
+//         recentActivity: {
+//           warningLetters: recentWLs,
+//           form483s: recentF483s
+//         },
+//         lastWarningLetter: companyWLs.length > 0 ? 
+//           companyWLs.sort((a, b) => new Date(b.letterIssueDate) - new Date(a.letterIssueDate))[0].letterIssueDate : null,
+//         lastForm483: companyF483s.length > 0 ? 
+//           companyF483s.sort((a, b) => new Date(b.recordDate) - new Date(a.recordDate))[0].recordDate : null
+//       };
+//     });
+    
+//     // Calculate escalation metrics
+//     console.log('📈 Calculating escalation metrics...');
+//     let escalationCount = 0;
+//     const escalationDetails = [];
+    
+//     processedForm483s.forEach(f483 => {
+//       const f483Date = new Date(f483.recordDate);
+//       const matchingWL = processedWarningLetters.find(wl => {
+//         const wlDate = new Date(wl.letterIssueDate);
+//         const companyMatch = 
+//           wl.companyName?.toLowerCase().includes(f483.legalName?.toLowerCase()) ||
+//           f483.legalName?.toLowerCase().includes(wl.companyName?.toLowerCase());
+//         const dateMatch = wlDate > f483Date && (wlDate - f483Date) / (1000 * 60 * 60 * 24) <= 365;
+//         return companyMatch && dateMatch;
+//       });
+      
+//       if (matchingWL) {
+//         escalationCount++;
+//         escalationDetails.push({
+//           form483: f483,
+//           warningLetter: matchingWL,
+//           daysBetween: Math.floor((new Date(matchingWL.letterIssueDate) - f483Date) / (1000 * 60 * 60 * 24))
+//         });
+//       }
+//     });
+    
+//     const escalationRate = processedForm483s.length > 0 ? 
+//       (escalationCount / processedForm483s.length * 100).toFixed(1) : 0;
+    
+//     // Prepare final response
+//     const responseData = {
+//       warningLetters: processedWarningLetters,
+//       form483s: processedForm483s,
+//       inspections: [], // Will be populated separately if needed
+//       companies: companiesData,
+//       metrics: {
+//         totalWarningLetters: processedWarningLetters.length,
+//         totalForm483s: processedForm483s.length,
+//         totalInspections: 0,
+//         companiesAffected: companies.length,
+//         escalationRate: escalationRate,
+//         escalationCount: escalationCount,
+//         escalationDetails: escalationDetails
+//       },
+//       commonViolations: Object.entries(violationCounts)
+//         .sort((a, b) => b[1] - a[1])
+//         .slice(0, 10)
+//         .map(([violation, count]) => ({ type: violation, count })),
+//       drugMentions: Object.entries(drugMentionCounts)
+//         .sort((a, b) => b[1] - a[1])
+//         .slice(0, 15)
+//         .map(([name, mentions]) => ({ 
+//           name, 
+//           mentions, 
+//           category: 'Pharmaceutical' 
+//         })),
+//       cgmpGuidance: [] // Will be populated if CGMP guidance is needed
+//     };
+    
+//     console.log('✅ Response prepared:', {
+//       warningLetters: responseData.warningLetters.length,
+//       form483s: responseData.form483s.length,
+//       companies: responseData.companies.length,
+//       violations: responseData.commonViolations.length,
+//       drugMentions: responseData.drugMentions.length
+//     });
+    
+//     res.json({
+//       success: true,
+//       data: responseData
+//     });
+    
+//   } catch (error) {
+//     console.error('❌ Error fetching comprehensive regulatory data:', error);
+//     res.status(500).json({ 
+//       success: false, 
+//       error: error.message,
+//       stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+//     });
+//   }
+// });
+
+// // Get detailed company regulatory profile
+// app.get('/api/fda/company-profile/:companyName', async (req, res) => {
+//   try {
+//     const { companyName } = req.params;
+    
+//     // Create regex for flexible matching
+//     const companyRegex = new RegExp(companyName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+    
+//     // Get all data for the company
+//     const [form483s, warningLetterData, cgmpGuidance] = await Promise.all([
+//       Form483Model.find({ legalName: companyRegex }).lean(),
+//       Promise.resolve(warningLetters.filter(wl => 
+//         wl.companyName?.toLowerCase().includes(companyName.toLowerCase())
+//       )),
+//       CGMPGuidance.find({
+//         $or: [
+//           { drug_mentions: { $in: [companyName] } },
+//           { summary: companyRegex }
+//         ]
+//       }).limit(10).lean()
+//     ]);
+    
+//     // Get inspection data
+//     const inspectionResponse = await new Promise((resolve) => {
+//       const mockReq = { query: {} };
+//       const mockRes = {
+//         json: (data) => resolve(data),
+//         status: () => ({ json: (data) => resolve(data) })
+//       };
+//       req.app._router.stack.find(r => r.route?.path === '/api/inspection-data').route.stack[0].handle(mockReq, mockRes);
+//     });
+    
+//     const companyInspections = inspectionResponse.historicalInspections.filter(i =>
+//       i["Firm Name"]?.toLowerCase().includes(companyName.toLowerCase())
+//     );
+    
+//     // Build timeline of all events
+//     const timeline = [];
+    
+//     // Add Form 483s to timeline
+//     form483s.forEach(f => {
+//       timeline.push({
+//         type: 'form483',
+//         date: f.recordDate,
+//         title: 'Form 483 Issued',
+//         details: {
+//           feiNumber: f.feiNumber,
+//           recordId: f.recordId,
+//           download: f.download
+//         },
+//         severity: 'medium'
+//       });
+//     });
+    
+//     // Add Warning Letters to timeline
+//     warningLetterData.forEach(wl => {
+//       timeline.push({
+//         type: 'warningLetter',
+//         date: new Date(wl.letterIssueDate),
+//         title: 'Warning Letter Issued',
+//         details: {
+//           letterId: wl.letterId,
+//           subject: wl.subject,
+//           issuingOffice: wl.issuingOffice
+//         },
+//         severity: 'high'
+//       });
+//     });
+    
+//     // Add Inspections to timeline
+//     companyInspections.forEach(i => {
+//       timeline.push({
+//         type: 'inspection',
+//         date: new Date(i["Inspection End Date"]),
+//         title: `Inspection - ${i["Inspection Classification"]}`,
+//         details: {
+//           district: i["District"],
+//           projectArea: i["Project Area"],
+//           classification: i["Inspection Classification"]
+//         },
+//         severity: i["Inspection Classification"] === 'OAI' ? 'high' : 
+//                  i["Inspection Classification"] === 'VAI' ? 'medium' : 'low'
+//       });
+//     });
+    
+//     // Sort timeline by date
+//     timeline.sort((a, b) => new Date(b.date) - new Date(a.date));
+    
+//     // Extract facility information
+//     const facilities = new Set();
+//     companyInspections.forEach(i => {
+//       if (i["City"] && i["State"]) {
+//         facilities.add({
+//           city: i["City"],
+//           state: i["State"],
+//           country: i["Country/Area"],
+//           zip: i["Zip"]
+//         });
+//       }
+//     });
+    
+//     // Calculate escalation paths
+//     const escalationPaths = [];
+//     form483s.forEach(f => {
+//       const form483Date = new Date(f.recordDate);
+//       const subsequentWL = warningLetterData.find(wl => {
+//         const wlDate = new Date(wl.letterIssueDate);
+//         return wlDate > form483Date && (wlDate - form483Date) / (1000 * 60 * 60 * 24) <= 365;
+//       });
+      
+//       if (subsequentWL) {
+//         escalationPaths.push({
+//           form483: f,
+//           warningLetter: subsequentWL,
+//           daysBetween: Math.floor(
+//             (new Date(subsequentWL.letterIssueDate) - form483Date) / (1000 * 60 * 60 * 24)
+//           )
+//         });
+//       }
+//     });
+    
+//     res.json({
+//       success: true,
+//       data: {
+//         company: companyName,
+//         summary: {
+//           warningLetters: warningLetterData.length,
+//           form483s: form483s.length,
+//           inspections: companyInspections.length,
+//           escalationPaths: escalationPaths.length
+//         },
+//         timeline,
+//         facilities: Array.from(facilities),
+//         escalationPaths,
+//         warningLetters: warningLetterData,
+//         form483s,
+//         inspections: companyInspections,
+//         cgmpGuidance
+//       }
+//     });
+//   } catch (error) {
+//     console.error('Error fetching company profile:', error);
+//     res.status(500).json({ success: false, error: error.message });
+//   }
+// });
+
+// // Search CGMP guidance based on violations or drugs
+// app.post('/api/fda/cgmp-guidance/search', async (req, res) => {
+//   try {
+//     const { violations = [], drugMentions = [], keywords = [], limit = 10 } = req.body;
+    
+//     const searchQuery = { $or: [] };
+    
+//     if (violations.length > 0) {
+//       searchQuery.$or.push({ keywords: { $in: violations } });
+//     }
+    
+//     if (drugMentions.length > 0) {
+//       searchQuery.$or.push({ drug_mentions: { $in: drugMentions } });
+//     }
+    
+//     if (keywords.length > 0) {
+//       searchQuery.$or.push({
+//         $or: [
+//           { question: { $in: keywords.map(k => new RegExp(k, 'i')) } },
+//           { answer: { $in: keywords.map(k => new RegExp(k, 'i')) } },
+//           { summary: { $in: keywords.map(k => new RegExp(k, 'i')) } }
+//         ]
+//       });
+//     }
+    
+//     if (searchQuery.$or.length === 0) {
+//       return res.json({ success: true, data: [] });
+//     }
+    
+//     const guidance = await CGMPGuidance
+//       .find(searchQuery)
+//       .limit(limit)
+//       .sort({ risk_level: -1 })
+//       .lean();
+    
+//     res.json({
+//       success: true,
+//       data: guidance
+//     });
+//   } catch (error) {
+//     console.error('Error searching CGMP guidance:', error);
+//     res.status(500).json({ success: false, error: error.message });
+//   }
+// });
+
+// // Get Form 483 details with parsed observations
+// app.get('/api/fda/form483/:id', async (req, res) => {
+//   try {
+//     const { id } = req.params;
+    
+//     const form483 = await Form483Model.findById(id).lean();
+    
+//     if (!form483) {
+//       return res.status(404).json({ success: false, error: 'Form 483 not found' });
+//     }
+    
+//     // If observations aren't parsed yet, you could trigger PDF parsing here
+//     // For now, return what we have
+    
+//     res.json({
+//       success: true,
+//       data: form483
+//     });
+//   } catch (error) {
+//     console.error('Error fetching Form 483 details:', error);
+//     res.status(500).json({ success: false, error: error.message });
+//   }
+// });
+
+// app.post('/api/fda/comprehensive-search', async (req, res) => {
+//   try {
+//     const { companies = [] } = req.body;
+    
+//     if (!companies || companies.length === 0) {
+//       return res.status(400).json({ success: false, error: 'Companies required' });
+//     }
+    
+//     console.log('🔍 Comprehensive search for:', companies);
+    
+//     // ENHANCED COMPANY MATCHING STRATEGIES
+//     const generateSearchPatterns = (company) => {
+//       const patterns = [];
+//       const cleaned = company.trim();
+      
+//       // Original name
+//       patterns.push(cleaned);
+      
+//       // Remove common suffixes
+//       const withoutSuffixes = cleaned.replace(/\s+(INC|LLC|LTD|CORP|CORPORATION|COMPANY|CO|PHARMA|PHARMACEUTICALS|PHARMS|USA|OPERATIONS|MANUFACTURING|MFG|LABS|LABORATORIES)\.?$/i, '').trim();
+//       if (withoutSuffixes !== cleaned && withoutSuffixes.length > 2) {
+//         patterns.push(withoutSuffixes);
+//       }
+      
+//       // Individual words (for compound names)
+//       const words = cleaned.split(/\s+/).filter(w => w.length > 3);
+//       patterns.push(...words);
+      
+//       // Remove duplicates
+//       return [...new Set(patterns)];
+//     };
+    
+//     // Generate all search patterns
+//     const allPatterns = companies.flatMap(generateSearchPatterns);
+//     console.log('🔍 Search patterns:', allPatterns);
+    
+//     // SEARCH FORM 483s
+//     const form483Patterns = allPatterns.map(pattern => ({
+//       legalName: { $regex: pattern, $options: 'i' }
+//     }));
+    
+//     const form483s = await Form483Model.find({
+//       $or: form483Patterns
+//     }).lean();
+    
+//     console.log(`📋 Found ${form483s.length} Form 483s`);
+    
+//     // SEARCH WARNING LETTERS
+//     let warningLetters = [];
+//     if (window.warningLetters && Array.isArray(window.warningLetters)) {
+//       warningLetters = window.warningLetters.filter(wl => {
+//         if (!wl.companyName) return false;
+        
+//         const wlCompany = wl.companyName.toLowerCase();
+//         return allPatterns.some(pattern => 
+//           wlCompany.includes(pattern.toLowerCase()) || 
+//           pattern.toLowerCase().includes(wlCompany)
+//         );
+//       });
+//     }
+    
+//     console.log(`📄 Found ${warningLetters.length} Warning Letters`);
+    
+//     // GET INSPECTION DATA
+//     let inspections = [];
+//     try {
+//       // Call your existing inspection endpoint internally
+//       const inspectionData = await new Promise((resolve, reject) => {
+//         // Simulate internal API call - replace with your actual logic
+//         fetch('/api/inspection-data')
+//           .then(response => response.json())
+//           .then(data => resolve(data))
+//           .catch(err => reject(err));
+//       });
+      
+//       if (inspectionData.historicalInspections) {
+//         inspections = inspectionData.historicalInspections.filter(inspection => {
+//           const firmName = (inspection["Firm Name"] || '').toLowerCase();
+//           return allPatterns.some(pattern => 
+//             firmName.includes(pattern.toLowerCase()) || 
+//             pattern.toLowerCase().includes(firmName)
+//           );
+//         });
+//       }
+//     } catch (error) {
+//       console.error('Inspection data fetch failed:', error);
+//     }
+    
+//     console.log(`🏭 Found ${inspections.length} Inspections`);
+    
+//     // MATCH DATA TO COMPANIES
+//     const companyResults = companies.map(company => {
+//       const patterns = generateSearchPatterns(company);
+      
+//       // Find matching records
+//       const companyForm483s = form483s.filter(f => 
+//         patterns.some(pattern => 
+//           (f.legalName || '').toLowerCase().includes(pattern.toLowerCase())
+//         )
+//       );
+      
+//       const companyWarningLetters = warningLetters.filter(wl => 
+//         patterns.some(pattern => 
+//           (wl.companyName || '').toLowerCase().includes(pattern.toLowerCase())
+//         )
+//       );
+      
+//       const companyInspections = inspections.filter(inspection => 
+//         patterns.some(pattern => 
+//           ((inspection["Firm Name"] || '').toLowerCase().includes(pattern.toLowerCase()))
+//         )
+//       );
+      
+//       // Calculate risk level
+//       const recentDate = new Date();
+//       recentDate.setMonth(recentDate.getMonth() - 12);
+      
+//       const recentWarnings = companyWarningLetters.filter(wl => 
+//         new Date(wl.letterIssueDate) > recentDate
+//       ).length;
+      
+//       const recent483s = companyForm483s.filter(f => 
+//         new Date(f.recordDate) > recentDate
+//       ).length;
+      
+//       let riskLevel = 'low';
+//       if (companyWarningLetters.length > 2 || (recentWarnings > 0 && recent483s > 1)) {
+//         riskLevel = 'high';
+//       } else if (recentWarnings > 0 || recent483s > 0 || companyWarningLetters.length > 0) {
+//         riskLevel = 'medium';
+//       }
+      
+//       return {
+//         name: company,
+//         warningLetterCount: companyWarningLetters.length,
+//         form483Count: companyForm483s.length,
+//         inspectionCount: companyInspections.length,
+//         riskLevel,
+//         warningLetters: companyWarningLetters,
+//         form483s: companyForm483s,
+//         inspections: companyInspections
+//       };
+//     });
+    
+//     // AGGREGATE VIOLATIONS AND DRUGS
+//     const allWarningLetters = warningLetters;
+//     const allForm483s = form483s;
+    
+//     // Extract violations
+//     const violationCounts = {};
+//     [...allWarningLetters, ...allForm483s].forEach(item => {
+//       const text = (item.fullContent || item.subject || item.parsedObservations?.join(' ') || '').toLowerCase();
+      
+//       const violations = [
+//         'data integrity', 'contamination', 'quality control', 'validation',
+//         'documentation', 'manufacturing practices', 'sterility', 'labeling',
+//         'cgmp compliance', 'investigation procedures', 'capa system'
+//       ];
+      
+//       violations.forEach(violation => {
+//         if (text.includes(violation)) {
+//           violationCounts[violation] = (violationCounts[violation] || 0) + 1;
+//         }
+//       });
+//     });
+    
+//     // Extract drug mentions (improved)
+//     const drugCounts = {};
+//     const knownDrugs = [
+//       'ketamine', 'fentanyl', 'morphine', 'oxycodone', 'insulin', 'metformin',
+//       'amoxicillin', 'ibuprofen', 'acetaminophen', 'propofol', 'midazolam'
+//     ];
+    
+//     [...allWarningLetters, ...allForm483s].forEach(item => {
+//       const text = (item.fullContent || item.subject || item.parsedObservations?.join(' ') || '').toLowerCase();
+      
+//       knownDrugs.forEach(drug => {
+//         if (text.includes(drug)) {
+//           drugCounts[drug] = (drugCounts[drug] || 0) + 1;
+//         }
+//       });
+//     });
+    
+//     const response = {
+//       success: true,
+//       data: {
+//         companies: companyResults,
+//         metrics: {
+//           totalWarningLetters: allWarningLetters.length,
+//           totalForm483s: allForm483s.length,
+//           totalInspections: inspections.length,
+//           companiesAffected: companies.length,
+//           escalationRate: '0%' // Calculate if needed
+//         },
+//         commonViolations: Object.entries(violationCounts)
+//           .sort((a, b) => b[1] - a[1])
+//           .slice(0, 10)
+//           .map(([type, count]) => ({ type, count })),
+//         drugMentions: Object.entries(drugCounts)
+//           .sort((a, b) => b[1] - a[1])
+//           .slice(0, 10)
+//           .map(([name, mentions]) => ({ name, mentions, category: 'Pharmaceutical' })),
+//         warningLetters: allWarningLetters,
+//         form483s: allForm483s,
+//         inspections: inspections
+//       }
+//     };
+    
+//     console.log('✅ Response prepared:', {
+//       companies: response.data.companies.length,
+//       warningLetters: response.data.warningLetters.length,
+//       form483s: response.data.form483s.length,
+//       inspections: response.data.inspections.length
+//     });
+    
+//     res.json(response);
+    
+//   } catch (error) {
+//     console.error('Comprehensive search error:', error);
+//     res.status(500).json({ success: false, error: error.message });
+//   }
+// });
+
+// Import the perfect pharmaceutical matcher at the top
+// const { createPerfectCompanyMatcher, PharmaceuticalCompanyMatcher } = require('./pharmaceutical-matcher');
+
+// API ENDPOINTS (keeping all existing endpoints with perfect matching)
+app.get('/api/debug/test-companies', async (req, res) => {
+  try {
+    const testCompanies = ['ENDO', 'EUGIA', 'FRESENIUS', 'GLAND', 'HIKMA', 'HOSPIRA', 'JANSSEN'];
+    
+    console.log('🧪 Testing companies in database with perfect matching...');
+    
+    const results = {};
+    
+    for (const company of testCompanies) {
+      // Create perfect matcher for this company
+      const matcher = createPerfectCompanyMatcher([company]);
+      
+      // Test Form 483s with perfect matching
+      const allTestForm483s = await Form483Model.find({
+        legalName: { $exists: true, $ne: null }
+      }).lean();
+      
+      const matchedForm483s = allTestForm483s.filter(f => matcher(f.legalName));
+      
+      // Test Warning Letters with perfect matching
+      const warningLetterCount = warningLetters ? 
+        warningLetters.filter(wl => matcher(wl.companyName)).length : 0;
+      
+      results[company] = {
+        form483s: {
+          count: matchedForm483s.length,
+          samples: matchedForm483s.slice(0, 3).map(f => ({
+            legalName: f.legalName,
+            recordDate: f.recordDate,
+            feiNumber: f.feiNumber,
+            hasObservations: !!f.parsedObservations?.length,
+            hasDrugMentions: !!f.drugMentions?.length,
+            hasViolations: !!f.violations?.length
+          }))
+        },
+        warningLetters: {
+          count: warningLetterCount
+        }
+      };
+    }
+    
+    res.json({
+      success: true,
+      data: results,
+      summary: {
+        totalForm483s: Object.values(results).reduce((sum, r) => sum + r.form483s.count, 0),
+        totalWarningLetters: Object.values(results).reduce((sum, r) => sum + r.warningLetters.count, 0),
+        companiesWithData: Object.keys(results).filter(c => 
+          results[c].form483s.count > 0 || results[c].warningLetters.count > 0
+        )
       }
-      try {
-          const users = JSON.parse(data);
-          callback(null, users);
-      } catch (parseErr) {
-          console.error('Error parsing users file:', parseErr);
-          callback(parseErr, []);
+    });
+
+// HELPER FUNCTION: Direct inspection data fetching (avoiding async issues with CSV reading)
+async function getInspectionDataDirectly() {
+  const fs = require('fs');
+  const csv = require('csv-parser');
+  const path = require('path');
+  
+  // Define paths to CSV files
+  const file1Path = path.join(__dirname, './e18f4f87-a73a-42c6-ae4e-9a3b76245bdc.csv');
+  // const file2Path = path.join(__dirname, 'data/NonClinical_Labs_Inspections_List_(10-1-2000_through_10-1-2024).csv');
+  
+  const recentInspections = [];
+  const historicalInspections = [];
+  const projectAreasSet = new Set();
+  
+  // Helper function to read a CSV file and process its rows
+  const readCSV = (filePath, dataArray, processRow) => {
+    return new Promise((resolve, reject) => {
+      fs.createReadStream(filePath)
+        .on('error', (err) => {
+          console.warn(`Warning: Could not read CSV file (${filePath}):`, err.message);
+          resolve([]); // Return empty array as fallback
+        })
+        .pipe(csv())
+        .on('data', (row) => {
+          const processedRow = processRow(row);
+          if (processedRow) dataArray.push(processedRow);
+        })
+        .on('end', () => {
+          resolve(dataArray);
+        });
+    });
+  };
+  
+  // Process recent inspections (file 1)
+  const processRecentInspections = async () => {
+    await readCSV(file1Path, recentInspections, (row) => {
+      return {
+        "Record Date": row["Record Date"],
+        "Legal Name": row["Legal Name"],
+        "Record Type": row["Record Type"],
+        "FEI Number": row["FEI Number"],
+        "Download": row["Download"]
+      };
+    });
+  };
+  
+  // Process historical inspections (file 2)
+  const processHistoricalInspections = async () => {
+    await readCSV(file2Path, historicalInspections, (row) => {
+      const processedRow = {
+        "District": row["District"],
+        "Firm Name": row["Firm Name"],
+        "City": row["City"],
+        "State": row["State"],
+        "Zip": row["Zip"],
+        "Country/Area": row["Country/Area"],
+        "Inspection End Date": row["Inspection End Date"],
+        "Project Area": row["Project Area"],
+        "Center/Program Area": row["Center/Program Area"],
+        "Inspection Classification": row["Inspection Classification"]
+      };
+      
+      // Add to project areas collection
+      if (processedRow["Project Area"]) {
+        projectAreasSet.add(processedRow["Project Area"]);
       }
+      
+      return processedRow;
+    });
+  };
+  
+  // Process both files synchronously
+  try {
+    await Promise.all([processRecentInspections(), processHistoricalInspections()]);
+    
+    // If no data was loaded, provide empty arrays
+    if (recentInspections.length === 0 && historicalInspections.length === 0) {
+      console.warn('No inspection data loaded from CSV files');
+    }
+    
+    return {
+      recentInspections: recentInspections,
+      historicalInspections: historicalInspections,
+      projectAreas: Array.from(projectAreasSet)
+    };
+  } catch (error) {
+    console.error('Error processing inspection CSV data:', error);
+    return {
+      recentInspections: [],
+      historicalInspections: [],
+      projectAreas: []
+    };
+  }
+}
+  } catch (error) {
+    console.error('Debug test error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Enhanced extractDrugMentions function (keeping existing)
+const enhancedExtractDrugMentions = (text) => {
+  if (!text) return [];
+  
+  const drugMentions = new Set();
+  
+  // Enhanced drug patterns
+  const drugPatterns = [
+    // Specific drug names (add more as needed)
+    /\b(ketamine|fentanyl|morphine|oxycodone|hydrocodone|codeine|tramadol|methadone)\b/gi,
+    /\b(insulin|metformin|lisinopril|atorvastatin|amlodipine|losartan|levothyroxine)\b/gi,
+    /\b(amoxicillin|azithromycin|ciprofloxacin|doxycycline|cephalexin|clindamycin)\b/gi,
+    /\b(ibuprofen|acetaminophen|aspirin|naproxen|diclofenac|celecoxib)\b/gi,
+    /\b(sertraline|fluoxetine|citalopram|escitalopram|paroxetine|venlafaxine)\b/gi,
+    /\b(omeprazole|pantoprazole|lansoprazole|esomeprazole|ranitidine)\b/gi,
+    /\b(warfarin|rivaroxaban|apixaban|dabigatran|enoxaparin)\b/gi,
+    
+    // Drug suffixes and patterns
+    /\b\w*(?:mab|nib|tide|cycline|statin|pril|sartan|azole|amine|cillin)\b/gi,
+    
+    // API mentions with context
+    /(?:API|active\s+(?:pharmaceutical\s+)?ingredient)[:\s]+([a-zA-Z][a-zA-Z0-9\s\-]{2,30})/gi,
+    
+    // Drug product mentions
+    /(?:drug\s+product|pharmaceutical\s+product)[:\s]+([a-zA-Z][a-zA-Z0-9\s\-]{2,30})/gi,
+    
+    // Batch/lot mentions
+    /(?:batch|lot)\s+(?:of\s+)?([a-zA-Z][a-zA-Z0-9\s\-]{2,20})/gi,
+    
+    // Tablet/capsule mentions
+    /([a-zA-Z][a-zA-Z0-9\s\-]{2,20})\s+(?:tablets?|capsules?|injection|cream|ointment|solution|suspension)\b/gi
+  ];
+  
+  drugPatterns.forEach(pattern => {
+    let match;
+    while ((match = pattern.exec(text)) !== null) {
+      const drug = (match[1] || match[0])?.trim();
+      if (drug && drug.length > 2 && drug.length < 50 && !/^\d+$/.test(drug)) {
+        // Clean up the drug name
+        const cleanDrug = drug
+          .replace(/[^\w\s\-]/g, '')
+          .trim()
+          .toLowerCase();
+        
+        if (cleanDrug.length > 2) {
+          drugMentions.add(cleanDrug.charAt(0).toUpperCase() + cleanDrug.slice(1));
+        }
+      }
+    }
   });
-}
+  
+  return Array.from(drugMentions).slice(0, 10); // Limit to top 10
+};
 
-// Save users
-function saveUsers(users, callback) {
-  fs.writeFile(usersFile, JSON.stringify(users, null, 2), (err) => {
-      if (err) {
-          console.error('Error writing to users file:', err);
-          return callback(err);
-      }
-      callback(null);
+// Enhanced extractViolations function (keeping existing)
+const enhancedExtractViolations = (text) => {
+  if (!text) return [];
+  
+  const violations = new Set();
+  const lowerText = text.toLowerCase();
+  
+  // Enhanced violation patterns with priorities
+  const violationPatterns = [
+    // High priority violations
+    { pattern: /data\s+integrity/gi, type: 'Data Integrity', priority: 1 },
+    { pattern: /contamination/gi, type: 'Contamination Control', priority: 1 },
+    { pattern: /sterility/gi, type: 'Sterility Assurance', priority: 1 },
+    { pattern: /microbiological/gi, type: 'Microbiological Controls', priority: 1 },
+    
+    // Medium priority violations
+    { pattern: /quality\s+control/gi, type: 'Quality Control', priority: 2 },
+    { pattern: /validation/gi, type: 'Validation', priority: 2 },
+    { pattern: /documentation/gi, type: 'Documentation', priority: 2 },
+    { pattern: /capa/gi, type: 'CAPA System', priority: 2 },
+    { pattern: /investigation/gi, type: 'Investigation Procedures', priority: 2 },
+    
+    // Standard violations
+    { pattern: /manufacturing\s+practice/gi, type: 'Manufacturing Practices', priority: 3 },
+    { pattern: /stability/gi, type: 'Stability Testing', priority: 3 },
+    { pattern: /labeling/gi, type: 'Labeling', priority: 3 },
+    { pattern: /adverse\s+event/gi, type: 'Adverse Event Reporting', priority: 3 },
+    { pattern: /deviation/gi, type: 'Deviation Handling', priority: 3 },
+    { pattern: /specification/gi, type: 'Specification Compliance', priority: 3 },
+    { pattern: /raw\s+material/gi, type: 'Raw Material Control', priority: 3 },
+    { pattern: /finished\s+product/gi, type: 'Finished Product Testing', priority: 3 },
+    { pattern: /environmental\s+monitoring/gi, type: 'Environmental Monitoring', priority: 3 },
+    { pattern: /cleaning\s+validation/gi, type: 'Cleaning Validation', priority: 3 },
+    { pattern: /process\s+validation/gi, type: 'Process Validation', priority: 3 },
+    { pattern: /method\s+validation/gi, type: 'Method Validation', priority: 3 },
+    { pattern: /quality\s+assurance/gi, type: 'Quality Assurance', priority: 3 },
+    { pattern: /out\s+of\s+specification|oos/gi, type: 'OOS Results', priority: 2 },
+    { pattern: /batch\s+record/gi, type: 'Batch Records', priority: 3 },
+    { pattern: /cgmp|gmp/gi, type: 'CGMP Compliance', priority: 2 },
+    { pattern: /misbranding/gi, type: 'Misbranding', priority: 2 },
+    { pattern: /adulteration/gi, type: 'Adulteration', priority: 1 }
+  ];
+  
+  violationPatterns.forEach(({ pattern, type, priority }) => {
+    const matches = text.match(pattern);
+    if (matches) {
+      violations.add(type);
+    }
   });
-}
+  
+  return Array.from(violations);
+};
 
-// Helper function to hash passwords
-function hashPassword(password, salt = crypto.randomBytes(16).toString('hex')) {
-  const hash = crypto.pbkdf2Sync(password, salt, 1000, 64, 'sha512').toString('hex');
-  return { hash, salt };
-}
+// Get comprehensive regulatory data for companies with PERFECT MATCHING
+app.post('/api/fda/comprehensive-regulatory-data', async (req, res) => {
+  try {
+    const { companies = [], dateRange = {} } = req.body;
+    
+    if (!companies || companies.length === 0) {
+      return res.status(400).json({ success: false, error: 'Companies list is required' });
+    }
+    
+    console.log('🔍 Fetching comprehensive regulatory data with PERFECT MATCHING for:', companies);
+    
+    // CREATE PERFECT MATCHER
+    const matcher = createPerfectCompanyMatcher(companies);
+    
+    // Get Form 483s with perfect matching
+    console.log('📋 Searching Form 483s...');
+    const allAvailableForm483s = await Form483Model.find({
+      legalName: { $exists: true, $ne: null, $ne: "" }
+    }).lean();
+    
+    const matchedForm483s = allAvailableForm483s.filter(f => matcher(f.legalName));
+    console.log(`📊 Found ${matchedForm483s.length} Form 483s with perfect matching`);
+    
+    // Get Warning Letters with perfect matching
+    console.log('📄 Searching Warning Letters...');
+    let matchedWarningLetters = [];
+    if (warningLetters && Array.isArray(warningLetters)) {
+      matchedWarningLetters = warningLetters.filter(wl => matcher(wl.companyName));
+    }
+    console.log(`📊 Found ${matchedWarningLetters.length} Warning Letters with perfect matching`);
+    
+    // Apply date filtering
+    if (dateRange.start || dateRange.end) {
+      console.log('📅 Applying date filters...');
+      
+      if (dateRange.start || dateRange.end) {
+        matchedWarningLetters = matchedWarningLetters.filter(wl => {
+          const wlDate = new Date(wl.letterIssueDate);
+          if (dateRange.start && wlDate < new Date(dateRange.start)) return false;
+          if (dateRange.end && wlDate > new Date(dateRange.end)) return false;
+          return true;
+        });
+      }
+    }
+    
+    // Process warning letters with enhanced extraction
+    console.log('⚗️ Processing Warning Letters data...');
+    const processedWarningLetters = matchedWarningLetters.map(wl => ({
+      ...wl,
+      drugMentions: enhancedExtractDrugMentions(wl.fullContent || wl.content || ''),
+      violations: enhancedExtractViolations(wl.fullContent || wl.content || '')
+    }));
+    
+    // Process Form 483s with enhanced extraction
+    console.log('⚗️ Processing Form 483s data...');
+    const processedForm483s = matchedForm483s.map(f => {
+      const observationsText = Array.isArray(f.parsedObservations) ? 
+        f.parsedObservations.join(' ') : (f.parsedObservations || '');
+      
+      return {
+        ...f,
+        drugMentions: f.drugMentions?.length > 0 ? 
+          f.drugMentions : enhancedExtractDrugMentions(observationsText),
+        violations: f.violations?.length > 0 ? 
+          f.violations : enhancedExtractViolations(observationsText)
+      };
+    });
+    
+    // Aggregate all drug mentions with counts
+    console.log('📊 Aggregating drug mentions...');
+    const drugMentionCounts = {};
+    [...processedWarningLetters, ...processedForm483s].forEach(item => {
+      if (item.drugMentions && Array.isArray(item.drugMentions)) {
+        item.drugMentions.forEach(drug => {
+          drugMentionCounts[drug] = (drugMentionCounts[drug] || 0) + 1;
+        });
+      }
+    });
+    
+    // Aggregate violations with counts
+    console.log('📊 Aggregating violations...');
+    const violationCounts = {};
+    [...processedWarningLetters, ...processedForm483s].forEach(item => {
+      if (item.violations && Array.isArray(item.violations)) {
+        item.violations.forEach(violation => {
+          violationCounts[violation] = (violationCounts[violation] || 0) + 1;
+        });
+      }
+    });
+    
+    // Calculate company-specific data with perfect matching
+    console.log('🏢 Calculating company-specific data...');
+    const companiesData = companies.map(company => {
+      // Use perfect matcher for individual company matching
+      const companyMatcher = createPerfectCompanyMatcher([company]);
+      
+      // Find matching warning letters
+      const companyWLs = processedWarningLetters.filter(wl => companyMatcher(wl.companyName));
+      
+      // Find matching Form 483s
+      const companyF483s = processedForm483s.filter(f => companyMatcher(f.legalName));
+      
+      // Calculate risk level
+      const recentDate = new Date();
+      recentDate.setMonth(recentDate.getMonth() - 12); // Last 12 months
+      
+      const recentWLs = companyWLs.filter(wl => 
+        new Date(wl.letterIssueDate) > recentDate
+      ).length;
+      
+      const recentF483s = companyF483s.filter(f => 
+        new Date(f.recordDate) > recentDate
+      ).length;
+      
+      let riskLevel = 'low';
+      if (companyWLs.length > 2 || (recentWLs > 0 && recentF483s > 1)) {
+        riskLevel = 'high';
+      } else if (recentWLs > 0 || recentF483s > 0 || companyWLs.length > 0) {
+        riskLevel = 'medium';
+      }
+      
+      console.log(`Company ${company}: WLs=${companyWLs.length}, 483s=${companyF483s.length}, Risk=${riskLevel}`);
+      
+      return {
+        name: company,
+        warningLetterCount: companyWLs.length,
+        form483Count: companyF483s.length,
+        inspectionCount: inspectionCounts[company] || 0, // Use calculated inspection count
+        riskLevel,
+        recentActivity: {
+          warningLetters: recentWLs,
+          form483s: recentF483s
+        },
+        lastWarningLetter: companyWLs.length > 0 ? 
+          companyWLs.sort((a, b) => new Date(b.letterIssueDate) - new Date(a.letterIssueDate))[0].letterIssueDate : null,
+        lastForm483: companyF483s.length > 0 ? 
+          companyF483s.sort((a, b) => new Date(b.recordDate) - new Date(a.recordDate))[0].recordDate : null
+      };
+    });
+    
+    // Calculate escalation metrics with perfect matching
+    console.log('📈 Calculating escalation metrics...');
+    let escalationCount = 0;
+    const escalationDetails = [];
+    
+    processedForm483s.forEach(f483 => {
+      const f483Date = new Date(f483.recordDate);
+      const f483Matcher = createPerfectCompanyMatcher([f483.legalName]);
+      
+      const matchingWL = processedWarningLetters.find(wl => {
+        const wlDate = new Date(wl.letterIssueDate);
+        const companyMatch = f483Matcher(wl.companyName);
+        const dateMatch = wlDate > f483Date && (wlDate - f483Date) / (1000 * 60 * 60 * 24) <= 365;
+        return companyMatch && dateMatch;
+      });
+      
+      if (matchingWL) {
+        escalationCount++;
+        escalationDetails.push({
+          form483: f483,
+          warningLetter: matchingWL,
+          daysBetween: Math.floor((new Date(matchingWL.letterIssueDate) - f483Date) / (1000 * 60 * 60 * 24))
+        });
+      }
+    });
+    
+    const escalationRate = processedForm483s.length > 0 ? 
+      (escalationCount / processedForm483s.length * 100).toFixed(1) : 0;
+    
+    // Prepare final response (keeping exact same structure for frontend compatibility)
+    const responseData = {
+      warningLetters: processedWarningLetters,
+      form483s: processedForm483s,
+      inspections: [], // Will be populated separately if needed
+      companies: companiesData,
+      metrics: {
+        totalWarningLetters: processedWarningLetters.length,
+        totalForm483s: processedForm483s.length,
+        totalInspections: matchedInspections.length,
+        companiesAffected: companies.length,
+        escalationRate: escalationRate,
+        escalationCount: escalationCount,
+        escalationDetails: escalationDetails
+      },
+      commonViolations: Object.entries(violationCounts)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 10)
+        .map(([violation, count]) => ({ type: violation, count })),
+      drugMentions: Object.entries(drugMentionCounts)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 15)
+        .map(([name, mentions]) => ({ 
+          name, 
+          mentions, 
+          category: 'Pharmaceutical' 
+        })),
+      cgmpGuidance: [] // Will be populated if CGMP guidance is needed
+    };
+    
+    console.log('✅ Response prepared with perfect matching:', {
+      warningLetters: responseData.warningLetters.length,
+      form483s: responseData.form483s.length,
+      companies: responseData.companies.length,
+      violations: responseData.commonViolations.length,
+      drugMentions: responseData.drugMentions.length
+    });
+    
+    res.json({
+      success: true,
+      data: responseData
+    });
+    
+  } catch (error) {
+    console.error('❌ Error fetching comprehensive regulatory data with perfect matching:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: error.message,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    });
+  }
+});
 
-// Helper function to verify passwords
-function verifyPassword(password, hash, salt) {
-  const verifyHash = crypto.pbkdf2Sync(password, salt, 1000, 64, 'sha512').toString('hex');
-  return hash === verifyHash;
-}
+// Get detailed company regulatory profile with PERFECT MATCHING
+app.get('/api/fda/company-profile/:companyName', async (req, res) => {
+  try {
+    const { companyName } = req.params;
+    
+    console.log(`🔍 Getting company profile for: ${companyName} with perfect matching`);
+    
+    // Create perfect matcher for this specific company
+    const matcher = createPerfectCompanyMatcher([companyName]);
+    
+    // Get all Form 483s and filter with perfect matching
+    const allCompanyForm483s = await Form483Model.find({
+      legalName: { $exists: true, $ne: null }
+    }).lean();
+    
+    const form483s = allCompanyForm483s.filter(f => matcher(f.legalName));
+    
+    // Get Warning Letters with perfect matching
+    const warningLetterData = warningLetters ? 
+      warningLetters.filter(wl => matcher(wl.companyName)) : [];
+    
+    // Get CGMP Guidance
+    const cgmpGuidance = await CGMPGuidance.find({
+      $or: [
+        { drug_mentions: { $in: [companyName] } },
+        { summary: new RegExp(companyName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i') }
+      ]
+    }).limit(10).lean();
+    
+    // Get inspection data (keeping your existing logic)
+    const inspectionResponse = await new Promise((resolve) => {
+      const mockReq = { query: {} };
+      const mockRes = {
+        json: (data) => resolve(data),
+        status: () => ({ json: (data) => resolve(data) })
+      };
+      req.app._router.stack.find(r => r.route?.path === '/api/inspection-data').route.stack[0].handle(mockReq, mockRes);
+    });
+    
+    // Filter inspections with perfect matching
+    const companyInspections = inspectionResponse.historicalInspections.filter(i =>
+      matcher(i["Firm Name"])
+    );
+    
+    // Build timeline of all events (keeping existing logic)
+    const timeline = [];
+    
+    // Add Form 483s to timeline
+    form483s.forEach(f => {
+      timeline.push({
+        type: 'form483',
+        date: f.recordDate,
+        title: 'Form 483 Issued',
+        details: {
+          feiNumber: f.feiNumber,
+          recordId: f.recordId,
+          download: f.download
+        },
+        severity: 'medium'
+      });
+    });
+    
+    // Add Warning Letters to timeline
+    warningLetterData.forEach(wl => {
+      timeline.push({
+        type: 'warningLetter',
+        date: new Date(wl.letterIssueDate),
+        title: 'Warning Letter Issued',
+        details: {
+          letterId: wl.letterId,
+          subject: wl.subject,
+          issuingOffice: wl.issuingOffice
+        },
+        severity: 'high'
+      });
+    });
+    
+    // Add Inspections to timeline
+    companyInspections.forEach(i => {
+      timeline.push({
+        type: 'inspection',
+        date: new Date(i["Inspection End Date"]),
+        title: `Inspection - ${i["Inspection Classification"]}`,
+        details: {
+          district: i["District"],
+          projectArea: i["Project Area"],
+          classification: i["Inspection Classification"]
+        },
+        severity: i["Inspection Classification"] === 'OAI' ? 'high' : 
+                 i["Inspection Classification"] === 'VAI' ? 'medium' : 'low'
+      });
+    });
+    
+    // Sort timeline by date
+    timeline.sort((a, b) => new Date(b.date) - new Date(a.date));
+    
+    // Extract facility information
+    const facilities = new Set();
+    companyInspections.forEach(i => {
+      if (i["City"] && i["State"]) {
+        facilities.add({
+          city: i["City"],
+          state: i["State"],
+          country: i["Country/Area"],
+          zip: i["Zip"]
+        });
+      }
+    });
+    
+    // Calculate escalation paths with perfect matching
+    const escalationPaths = [];
+    form483s.forEach(f => {
+      const form483Date = new Date(f.recordDate);
+      const form483Matcher = createPerfectCompanyMatcher([f.legalName]);
+      
+      const subsequentWL = warningLetterData.find(wl => {
+        const wlDate = new Date(wl.letterIssueDate);
+        const companyMatch = form483Matcher(wl.companyName);
+        return companyMatch && wlDate > form483Date && (wlDate - form483Date) / (1000 * 60 * 60 * 24) <= 365;
+      });
+      
+      if (subsequentWL) {
+        escalationPaths.push({
+          form483: f,
+          warningLetter: subsequentWL,
+          daysBetween: Math.floor(
+            (new Date(subsequentWL.letterIssueDate) - form483Date) / (1000 * 60 * 60 * 24)
+          )
+        });
+      }
+    });
+    
+    res.json({
+      success: true,
+      data: {
+        company: companyName,
+        summary: {
+          warningLetters: warningLetterData.length,
+          form483s: form483s.length,
+          inspections: companyInspections.length,
+          escalationPaths: escalationPaths.length
+        },
+        timeline,
+        facilities: Array.from(facilities),
+        escalationPaths,
+        warningLetters: warningLetterData,
+        form483s,
+        inspections: companyInspections,
+        cgmpGuidance
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching company profile with perfect matching:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
 
+// Search CGMP guidance based on violations or drugs (keeping existing)
+app.post('/api/fda/cgmp-guidance/search', async (req, res) => {
+  try {
+    const { violations = [], drugMentions = [], keywords = [], limit = 10 } = req.body;
+    
+    const searchQuery = { $or: [] };
+    
+    if (violations.length > 0) {
+      searchQuery.$or.push({ keywords: { $in: violations } });
+    }
+    
+    if (drugMentions.length > 0) {
+      searchQuery.$or.push({ drug_mentions: { $in: drugMentions } });
+    }
+    
+    if (keywords.length > 0) {
+      searchQuery.$or.push({
+        $or: [
+          { question: { $in: keywords.map(k => new RegExp(k, 'i')) } },
+          { answer: { $in: keywords.map(k => new RegExp(k, 'i')) } },
+          { summary: { $in: keywords.map(k => new RegExp(k, 'i')) } }
+        ]
+      });
+    }
+    
+    if (searchQuery.$or.length === 0) {
+      return res.json({ success: true, data: [] });
+    }
+    
+    const guidance = await CGMPGuidance
+      .find(searchQuery)
+      .limit(limit)
+      .sort({ risk_level: -1 })
+      .lean();
+    
+    res.json({
+      success: true,
+      data: guidance
+    });
+  } catch (error) {
+    console.error('Error searching CGMP guidance:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
 
+// Get Form 483 details with parsed observations (keeping existing)
+app.get('/api/fda/form483/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const form483 = await Form483Model.findById(id).lean();
+    
+    if (!form483) {
+      return res.status(404).json({ success: false, error: 'Form 483 not found' });
+    }
+    
+    res.json({
+      success: true,
+      data: form483
+    });
+  } catch (error) {
+    console.error('Error fetching Form 483 details:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
 
+// UPDATED: Main comprehensive search with PERFECT MATCHING
+app.post('/api/fda/comprehensive-search', async (req, res) => {
+  try {
+    const { companies = [] } = req.body;
+    
+    if (!companies || companies.length === 0) {
+      return res.status(400).json({ success: false, error: 'Companies required' });
+    }
+    
+    console.log('🔍 Comprehensive search with PERFECT MATCHING for:', companies);
+    
+    // CREATE PERFECT MATCHER
+    const matcher = createPerfectCompanyMatcher(companies);
+    
+    // SEARCH FORM 483s with perfect matching
+    console.log('📋 Searching Form 483s with perfect matching...');
+    const allDatabaseForm483s = await Form483Model.find({
+      legalName: { $exists: true, $ne: null, $ne: "" }
+    }).lean();
+    
+    const form483s = allDatabaseForm483s.filter(f => matcher(f.legalName));
+    console.log(`📋 Found ${form483s.length} Form 483s with perfect matching`);
+    
+    // SEARCH WARNING LETTERS with perfect matching
+    console.log('📄 Searching Warning Letters with perfect matching...');
+    let warningLetters = [];
+    if (window.warningLetters && Array.isArray(window.warningLetters)) {
+      warningLetters = window.warningLetters.filter(wl => matcher(wl.companyName));
+    }
+    console.log(`📄 Found ${warningLetters.length} Warning Letters with perfect matching`);
+    
+    // GET INSPECTION DATA with perfect matching
+    let inspections = [];
+    let inspectionCounts = {};
+    
+    try {
+      // Get inspection data directly from your existing function
+      const inspectionData = await getInspectionDataDirectly();
+      
+      if (inspectionData.historicalInspections) {
+        // Filter all inspections with perfect matching
+        const matchedHistoricalInspections = inspectionData.historicalInspections.filter(inspection => 
+          matcher(inspection["Firm Name"]) || matcher(inspection["Legal Name"])
+        );
+        
+        const matchedRecentInspections = inspectionData.recentInspections ? 
+          inspectionData.recentInspections.filter(inspection => 
+            matcher(inspection["Legal Name"]) || matcher(inspection["Firm Name"])
+          ) : [];
+        
+        inspections = [...matchedHistoricalInspections, ...matchedRecentInspections];
+        
+        // Calculate individual company inspection counts
+        companies.forEach(company => {
+          const companyMatcher = createPerfectCompanyMatcher([company]);
+          
+          const historicalCount = inspectionData.historicalInspections.filter(i => 
+            companyMatcher(i["Firm Name"]) || companyMatcher(i["Legal Name"])
+          ).length;
+          
+          const recentCount = inspectionData.recentInspections ? 
+            inspectionData.recentInspections.filter(i => 
+              companyMatcher(i["Legal Name"]) || companyMatcher(i["Firm Name"])
+            ).length : 0;
+          
+          inspectionCounts[company] = historicalCount + recentCount;
+        });
+      }
+    } catch (error) {
+      console.error('Inspection data fetch failed:', error);
+      // Initialize all counts to 0
+      companies.forEach(company => {
+        inspectionCounts[company] = 0;
+      });
+    }
+    
+    console.log(`🏭 Found ${inspections.length} Inspections with perfect matching`);
+    
+    // MATCH DATA TO COMPANIES with perfect matching
+    const companyResults = companies.map(company => {
+      const companyMatcher = createPerfectCompanyMatcher([company]);
+      
+      // Find matching records with perfect matching
+      const companyForm483s = form483s.filter(f => companyMatcher(f.legalName));
+      const companyWarningLetters = warningLetters.filter(wl => companyMatcher(wl.companyName));
+      const companyInspections = inspections.filter(inspection => 
+        companyMatcher(inspection["Firm Name"]) || companyMatcher(inspection["Legal Name"])
+      );
+      
+      // Use the calculated inspection count from inspectionCounts
+      const inspectionCount = inspectionCounts[company] || 0;
+      
+      // Calculate risk level
+      const recentDate = new Date();
+      recentDate.setMonth(recentDate.getMonth() - 12);
+      
+      const recentWarnings = companyWarningLetters.filter(wl => 
+        new Date(wl.letterIssueDate) > recentDate
+      ).length;
+      
+      const recent483s = companyForm483s.filter(f => 
+        new Date(f.recordDate) > recentDate
+      ).length;
+      
+      let riskLevel = 'low';
+      if (companyWarningLetters.length > 2 || (recentWarnings > 0 && recent483s > 1)) {
+        riskLevel = 'high';
+      } else if (recentWarnings > 0 || recent483s > 0 || companyWarningLetters.length > 0) {
+        riskLevel = 'medium';
+      }
+      
+      return {
+        name: company,
+        warningLetterCount: companyWarningLetters.length,
+        form483Count: companyForm483s.length,
+        inspectionCount: inspectionCount, // Use calculated count
+        riskLevel,
+        warningLetters: companyWarningLetters,
+        form483s: companyForm483s,
+        inspections: companyInspections
+      };
+    });
+    
+    // AGGREGATE VIOLATIONS AND DRUGS (keeping existing logic)
+    const allWarningLetters = warningLetters;
+    const allForm483s = form483s;
+    
+    // Extract violations
+    const violationCounts = {};
+    [...allWarningLetters, ...allForm483s].forEach(item => {
+      const text = (item.fullContent || item.subject || item.parsedObservations?.join(' ') || '').toLowerCase();
+      
+      const violations = [
+        'data integrity', 'contamination', 'quality control', 'validation',
+        'documentation', 'manufacturing practices', 'sterility', 'labeling',
+        'cgmp compliance', 'investigation procedures', 'capa system'
+      ];
+      
+      violations.forEach(violation => {
+        if (text.includes(violation)) {
+          violationCounts[violation] = (violationCounts[violation] || 0) + 1;
+        }
+      });
+    });
+    
+    // Extract drug mentions (improved)
+    const drugCounts = {};
+    const knownDrugs = [
+      'ketamine', 'fentanyl', 'morphine', 'oxycodone', 'insulin', 'metformin',
+      'amoxicillin', 'ibuprofen', 'acetaminophen', 'propofol', 'midazolam'
+    ];
+    
+    [...allWarningLetters, ...allForm483s].forEach(item => {
+      const text = (item.fullContent || item.subject || item.parsedObservations?.join(' ') || '').toLowerCase();
+      
+      knownDrugs.forEach(drug => {
+        if (text.includes(drug)) {
+          drugCounts[drug] = (drugCounts[drug] || 0) + 1;
+        }
+      });
+    });
+    
+    // Prepare response (keeping exact same structure for frontend compatibility)
+    const response = {
+      success: true,
+      data: {
+        companies: companyResults,
+        metrics: {
+          totalWarningLetters: allWarningLetters.length,
+          totalForm483s: allForm483s.length,
+          totalInspections: inspections.length,
+          companiesAffected: companies.length,
+          escalationRate: '0%' // Calculate if needed
+        },
+        commonViolations: Object.entries(violationCounts)
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 10)
+          .map(([type, count]) => ({ type, count })),
+        drugMentions: Object.entries(drugCounts)
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 10)
+          .map(([name, mentions]) => ({ name, mentions, category: 'Pharmaceutical' })),
+        warningLetters: allWarningLetters,
+        form483s: allForm483s,
+        inspections: inspections
+      }
+    };
+    
+    console.log('✅ Response prepared with perfect matching:', {
+      companies: response.data.companies.length,
+      warningLetters: response.data.warningLetters.length,
+      form483s: response.data.form483s.length,
+      inspections: response.data.inspections.length
+    });
+    
+    res.json(response);
+    
+  } catch (error) {
+    console.error('Comprehensive search error with perfect matching:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
 
-
-
+// ADD NEW DEBUG ENDPOINT FOR PERFECT MATCHING TESTING
+app.post('/api/debug/test-perfect-matching', async (req, res) => {
+  try {
+    const { companies = [], testCompanies = [] } = req.body;
+    
+    console.log('🧪 Testing perfect matching...');
+    
+    // Create the matcher
+    const matcher = createPerfectCompanyMatcher(companies);
+    const debugMatcher = new PharmaceuticalCompanyMatcher();
+    
+    // Test against provided test companies or use defaults
+    const defaultTestCompanies = [
+      'Pfizer Inc',
+      'Pfizer Manufacturing LLC',
+      'Janssen Pharmaceuticals',
+      'Johnson & Johnson',
+      'J&J Innovation',
+      'Novartis AG',
+      'Sandoz Inc',
+      'Anti-Pfizer Legal Services', // Should NOT match
+      'Random Company Inc' // Should NOT match
+    ];
+    
+    const companiesToTest = testCompanies.length > 0 ? testCompanies : defaultTestCompanies;
+    
+    // Test each company
+    const results = companiesToTest.map(testCompany => {
+      const isMatch = matcher(testCompany);
+      const confidence = debugMatcher.getMatchWithConfidence(testCompany, companies);
+      
+      return {
+        company: testCompany,
+        matches: isMatch,
+        confidence: confidence.confidence,
+        reason: confidence.reason
+      };
+    });
+    
+    // Get actual database counts
+    const actualForm483Count = await Form483Model.countDocuments({
+      legalName: { $exists: true }
+    });
+    
+    const actualWarningLetterCount = warningLetters ? warningLetters.length : 0;
+    
+    // Test with actual database
+    const allDebugForm483s = await Form483Model.find({
+      legalName: { $exists: true, $ne: null }
+    }).limit(100).lean(); // Limit for testing
+    
+    const matchedForm483s = allDebugForm483s.filter(f => matcher(f.legalName));
+    const matchedWarningLetters = warningLetters ? 
+      warningLetters.filter(wl => matcher(wl.companyName)).slice(0, 50) : [];
+    
+    res.json({
+      success: true,
+      searchTerms: companies,
+      testResults: results,
+      databaseTest: {
+        totalForm483s: actualForm483Count,
+        totalWarningLetters: actualWarningLetterCount,
+        matchedForm483s: matchedForm483s.length,
+        matchedWarningLetters: matchedWarningLetters.length,
+        sampleMatches: {
+          form483s: matchedForm483s.slice(0, 5).map(f => f.legalName),
+          warningLetters: matchedWarningLetters.slice(0, 5).map(wl => wl.companyName)
+        }
+      }
+    });
+    
+  } catch (error) {
+    console.error('Debug test error:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: error.message 
+    });
+  }
+});
 // // Login endpoint
 // app.post('/api/login', async (req, res) => {
 //   try {
@@ -357,7 +2203,8 @@ initializeDrugWatchService();
 app.use('/api', drugWatchRouter);
 app.use('/api/biomarkers', biomarkerRoutes);
 app.use('/api/device', fdaRoutes);
-
+app.use('/api/pharmaceutical-labels', pharmaceuticalRouter);
+app.use('/api/ema', emaMongoRouter);
 
 // Grok API Configuration
 const GROK_API = 'https://api.grok.ai/v1';
@@ -5675,7 +7522,50 @@ const LetterSchema = new mongoose.Schema({
 const Letter = mongoose.model('Letter', LetterSchema);
 
 // ===== API ROUTES =====
-
+// Enhanced FDA endpoint with recent events filtering
+app.get('/api/fda/recent-events/:drugName', async (req, res) => {
+  const { drugName } = req.params;
+  const days = parseInt(req.query.days) || 365;
+  
+  try {
+    // Use your existing FDA data fetching logic
+    const fdaData = await fetchFDAData(drugName);
+    
+    // Filter for recent events
+    const cutoffDate = new Date();
+    cutoffDate.setDate(cutoffDate.getDate() - days);
+    
+    const recentEvents = [];
+    
+    // Filter enforcement actions by date
+    if (fdaData.endpoints.enforcement?.data) {
+      fdaData.endpoints.enforcement.data.forEach(enforcement => {
+        const reportDate = parseDate(enforcement.report_date);
+        if (reportDate && reportDate > cutoffDate) {
+          recentEvents.push({
+            type: 'enforcement',
+            date: reportDate.toISOString().split('T')[0],
+            title: `Enforcement: ${enforcement.product_description?.substring(0, 50)}`,
+            details: enforcement
+          });
+        }
+      });
+    }
+    
+    res.json({
+      success: true,
+      data: {
+        events: recentEvents,
+        count: recentEvents.length,
+        period: `${days} days`,
+        compound: drugName
+      }
+    });
+    
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
 /**
  * Search FDA Complete Response Letters
  * POST /api/fda/response-letters/search
@@ -6221,122 +8111,590 @@ const xml2js = require('xml2js');
 
 
 
-app.get('/api/inspection-data', (req, res) => {
-  try {
-    // Define paths to CSV files
-    const file1Path = path.join(__dirname, 'data/e18f4f87-a73a-42c6-ae4e-9a3b76245bdc.csv');
-    const file2Path = path.join(__dirname, 'data/NonClinical_Labs_Inspections_List_(10-1-2000_through_10-1-2024).csv');
+// app.get('/api/inspection-data', (req, res) => {
+//   try {
+//     // Define paths to CSV files
+//     const file1Path = path.join(__dirname, 'data/e18f4f87-a73a-42c6-ae4e-9a3b76245bdc.csv');
+//     const file2Path = path.join(__dirname, 'data/NonClinical_Labs_Inspections_List_(10-1-2000_through_10-1-2024).csv');
     
+//     const recentInspections = [];
+//     const historicalInspections = [];
+//     const projectAreasSet = new Set();
+    
+//     // Helper function to read a CSV file and process its rows
+//     const readCSV = (filePath, dataArray, processRow) => {
+//       return new Promise((resolve, reject) => {
+//         fs.createReadStream(filePath)
+//           .on('error', (err) => {
+//             console.warn(`Warning: Could not read CSV file (${filePath}):`, err.message);
+//             resolve([]); // Return empty array as fallback
+//           })
+//           .pipe(csv())
+//           .on('data', (row) => {
+//             const processedRow = processRow(row);
+//             if (processedRow) dataArray.push(processedRow);
+//           })
+//           .on('end', () => {
+//             resolve(dataArray);
+//           });
+//       });
+//     };
+    
+//     // Process recent inspections (file 1)
+//     const processRecentInspections = async () => {
+//       await readCSV(file1Path, recentInspections, (row) => {
+//         // Process the row according to expected structure
+//         return {
+//           "Record Date": row["Record Date"],
+//           "Legal Name": row["Legal Name"],
+//           "Record Type": row["Record Type"],
+//           "FEI Number": row["FEI Number"],
+//           "Download": row["Download"]
+//         };
+//       });
+//     };
+    
+// // Process historical inspections (file 2)
+// const processHistoricalInspections = async () => {
+//   await readCSV(file2Path, historicalInspections, (row) => {
+//     // Match the exact structure from the provided CSV
+//     const processedRow = {
+//       "District": row["District"],
+//       "Firm Name": row["Firm Name"],
+//       "City": row["City"],
+//       "State": row["State"],
+//       "Zip": row["Zip"],
+//       "Country/Area": row["Country/Area"],
+//       "Inspection End Date": row["Inspection End Date"],
+//       "Project Area": row["Project Area"],
+//       "Center/Program Area": row["Center/Program Area"],
+//       "Inspection Classification": row["Inspection Classification"]
+//     };
+    
+//     // Add to project areas collection
+//     if (processedRow["Project Area"]) {
+//       projectAreasSet.add(processedRow["Project Area"]);
+//     }
+//     console.log(processedRow)
+//     return processedRow;
+//   });
+// };
+//     // Process both files and return response
+//     Promise.all([processRecentInspections(), processHistoricalInspections()])
+//       .then(() => {
+//         // If no data was loaded, provide sample data
+//         if (recentInspections.length === 0) {
+//           recentInspections.push({
+//             "Record Date": "2023-01-01",
+//             "Legal Name": "Sample Pharmaceutical",
+//             "Record Type": "Form 483",
+//             "FEI Number": 12345
+//           });
+//         }
+        
+//         if (historicalInspections.length === 0) {
+//           historicalInspections.push({
+//             "District": "Sample District",
+//             "Firm Name": "Sample Labs",
+//             "City": "Sample City",
+//             "State": "CA", 
+//             "Zip": "90210",
+//             "Country/Area": "United States",
+//             "Inspection End Date": "10/15/2022",
+//             "Project Area": "Quality Control",
+//             "Center/Program Area": "CDER",
+//             "Inspection Classification": "NAI"
+//           });
+          
+//           projectAreasSet.add("Quality Control");
+//           projectAreasSet.add("Manufacturing");
+//         }
+        
+//         res.json({
+//           recentInspections: recentInspections,
+//           historicalInspections: historicalInspections,
+//           projectAreas: Array.from(projectAreasSet)
+//         });
+//       })
+//       .catch(err => {
+//         console.error("Error processing CSV data:", err);
+//         res.status(500).json({ error: 'Failed to process CSV data', details: err.message });
+//       });
+    
+//   } catch (error) {
+//     console.error('Error in API endpoint:', error);
+//     res.status(500).json({ error: 'Failed to process inspection data', details: error.message });
+//   }
+// });
+
+// ===================================================================
+// FDA INSPECTION API INTEGRATION - Add to your existing clinicaltrials.js
+// Add this code to your existing server file (after your warning letters routes)
+// ===================================================================
+
+// Helper function to fetch all pages from FDA API
+async function fetchAllPages(endpoint, requestBody, headers, maxRows = null) {
+  const allResults = [];
+  let currentStart = 1;
+  const pageSize = 5000; // FDA API maximum
+  let hasMoreData = true;
+  let totalFetched = 0;
+
+  while (hasMoreData) {
+    try {
+      // Update request with current pagination
+      const paginatedRequest = {
+        ...requestBody,
+        start: currentStart,
+        rows: pageSize,
+        returntotalcount: currentStart === 1 // Only get total count on first request
+      };
+
+      console.log(`Fetching ${endpoint} - page starting at row ${currentStart}`);
+
+      const response = await axios.post(endpoint, paginatedRequest, { headers });
+
+      if (response.data.statuscode === 400 && response.data.result) {
+        const results = response.data.result;
+        allResults.push(...results);
+        totalFetched += results.length;
+
+        // Check if we have a total count to know when to stop
+        const totalRecords = response.data.totalrecordcount;
+        
+        // Determine if there's more data to fetch
+        if (results.length < pageSize) {
+          // We got less than a full page, so we're done
+          hasMoreData = false;
+        } else if (totalRecords && totalFetched >= totalRecords) {
+          // We've fetched all available records
+          hasMoreData = false;
+        } else if (maxRows && totalFetched >= maxRows) {
+          // We've reached the maximum requested rows
+          hasMoreData = false;
+        } else {
+          // Move to next page
+          currentStart += pageSize;
+        }
+
+        console.log(`Fetched ${results.length} records (total so far: ${totalFetched})`);
+      } else {
+        console.error(`Unexpected response status: ${response.data.statuscode}`);
+        break;
+      }
+    } catch (error) {
+      console.error(`Error fetching page at start=${currentStart}:`, error.message);
+      throw error;
+    }
+  }
+
+  console.log(`Total records fetched from ${endpoint}: ${allResults.length}`);
+  return allResults;
+}
+
+// Main FDA inspection data endpoint - supports company search
+app.get('/api/inspection-data', async (req, res) => {
+  try {
+    // Get search parameters from query
+    const { company, feiNumber } = req.query;
+    
+    // Check if credentials are configured
+    if (!process.env.FDA_API_USER || !process.env.FDA_API_KEY) {
+      console.error('FDA API credentials not configured');
+      return res.status(500).json({
+        error: 'FDA API credentials not configured',
+        details: 'Please set FDA_API_USER and FDA_API_KEY in your .env file'
+      });
+    }
+
+    // FDA API configuration
+    const FDA_API_BASE_URL = 'https://api-datadashboard.fda.gov/v1';
+    const FDA_API_HEADERS = {
+      'Content-Type': 'application/json',
+      'Authorization-User': process.env.FDA_API_USER,
+      'Authorization-Key': process.env.FDA_API_KEY
+    };
+
     const recentInspections = [];
     const historicalInspections = [];
     const projectAreasSet = new Set();
     
-    // Helper function to read a CSV file and process its rows
-    const readCSV = (filePath, dataArray, processRow) => {
-      return new Promise((resolve, reject) => {
-        fs.createReadStream(filePath)
-          .on('error', (err) => {
-            console.warn(`Warning: Could not read CSV file (${filePath}):`, err.message);
-            resolve([]); // Return empty array as fallback
-          })
-          .pipe(csv())
-          .on('data', (row) => {
-            const processedRow = processRow(row);
-            if (processedRow) dataArray.push(processedRow);
-          })
-          .on('end', () => {
-            resolve(dataArray);
-          });
+    // Build filters based on search parameters
+    const buildFilters = (baseFilters = {}) => {
+      const filters = { ...baseFilters };
+      
+      if (company) {
+        // Use partial match for company name
+        filters.LegalName = [company];
+      }
+      
+      if (feiNumber) {
+        // FEI Number must be numeric
+        filters.FEINumber = [parseInt(feiNumber)];
+      }
+      
+      return filters;
+    };
+
+    try {
+      // Build filters for citations (recent inspections)
+      const citationFilters = buildFilters({
+        // Get inspections from the last 2 years
+        "InspectionEndDateFrom": [new Date(Date.now() - 2 * 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]]
       });
-    };
-    
-    // Process recent inspections (file 1)
-    const processRecentInspections = async () => {
-      await readCSV(file1Path, recentInspections, (row) => {
-        // Process the row according to expected structure
-        return {
-          "Record Date": row["Record Date"],
-          "Legal Name": row["Legal Name"],
-          "Record Type": row["Record Type"],
-          "FEI Number": row["FEI Number"],
-          "Download": row["Download"]
-        };
-      });
-    };
-    
-// Process historical inspections (file 2)
-const processHistoricalInspections = async () => {
-  await readCSV(file2Path, historicalInspections, (row) => {
-    // Match the exact structure from the provided CSV
-    const processedRow = {
-      "District": row["District"],
-      "Firm Name": row["Firm Name"],
-      "City": row["City"],
-      "State": row["State"],
-      "Zip": row["Zip"],
-      "Country/Area": row["Country/Area"],
-      "Inspection End Date": row["Inspection End Date"],
-      "Project Area": row["Project Area"],
-      "Center/Program Area": row["Center/Program Area"],
-      "Inspection Classification": row["Inspection Classification"]
-    };
-    
-    // Add to project areas collection
-    if (processedRow["Project Area"]) {
-      projectAreasSet.add(processedRow["Project Area"]);
-    }
-    console.log(processedRow)
-    return processedRow;
-  });
-};
-    // Process both files and return response
-    Promise.all([processRecentInspections(), processHistoricalInspections()])
-      .then(() => {
-        // If no data was loaded, provide sample data
-        if (recentInspections.length === 0) {
-          recentInspections.push({
-            "Record Date": "2023-01-01",
-            "Legal Name": "Sample Pharmaceutical",
-            "Record Type": "Form 483",
-            "FEI Number": 12345
-          });
-        }
-        
-        if (historicalInspections.length === 0) {
-          historicalInspections.push({
-            "District": "Sample District",
-            "Firm Name": "Sample Labs",
-            "City": "Sample City",
-            "State": "CA", 
-            "Zip": "90210",
-            "Country/Area": "United States",
-            "Inspection End Date": "10/15/2022",
-            "Project Area": "Quality Control",
-            "Center/Program Area": "CDER",
-            "Inspection Classification": "NAI"
-          });
-          
-          projectAreasSet.add("Quality Control");
-          projectAreasSet.add("Manufacturing");
-        }
-        
-        res.json({
-          recentInspections: recentInspections,
-          historicalInspections: historicalInspections,
-          projectAreas: Array.from(projectAreasSet)
+      
+      // Fetch inspections citations data from FDA API
+      const citationsRequestBody = {
+        "sort": "InspectionEndDate",
+        "sortorder": "DESC",
+        "filters": citationFilters,
+        "columns": [
+          "InspectionEndDate",
+          "FEINumber",
+          "LegalName",
+          "CitationID",
+          "InspectionID",
+          "Program",
+          "ShortDescription",
+          "LongDescription"
+        ]
+      };
+
+      console.log('Fetching citations...');
+      if (company || feiNumber) {
+        console.log(`Searching for: ${company ? `Company: "${company}"` : ''} ${feiNumber ? `FEI: ${feiNumber}` : ''}`);
+      }
+      
+      const allCitations = await fetchAllPages(
+        `${FDA_API_BASE_URL}/inspections_citations`,
+        citationsRequestBody,
+        FDA_API_HEADERS
+      );
+
+      // Process citations data to match your expected format
+      allCitations.forEach(row => {
+        recentInspections.push({
+          "Record Date": row.InspectionEndDate,
+          "Legal Name": row.LegalName,
+          "Record Type": "Citation",
+          "FEI Number": row.FEINumber,
+          "Download": row.CitationID
         });
-      })
-      .catch(err => {
-        console.error("Error processing CSV data:", err);
-        res.status(500).json({ error: 'Failed to process CSV data', details: err.message });
       });
-    
+
+      // Build filters for classifications (historical inspections)
+      const classificationFilters = buildFilters({});
+      
+      // Fetch historical inspections (classifications)
+      const classificationsRequestBody = {
+        "sort": "InspectionEndDate",
+        "sortorder": "DESC",
+        "filters": classificationFilters,
+        "columns": [
+          "DistrictName",
+          "LegalName",
+          "City",
+          "State",
+          "Zip",
+          "CountryName",
+          "InspectionEndDate",
+          "Program",
+          "ProductType",
+          "Classification",
+          "FEINumber"
+        ]
+      };
+
+      console.log('Fetching classifications...');
+      const allClassifications = await fetchAllPages(
+        `${FDA_API_BASE_URL}/inspections_classifications`,
+        classificationsRequestBody,
+        FDA_API_HEADERS
+      );
+
+      // Process classifications data
+      allClassifications.forEach(row => {
+        const processedRow = {
+          "District": row.DistrictName,
+          "Firm Name": row.LegalName,
+          "City": row.City,
+          "State": row.State,
+          "Zip": row.Zip,
+          "Country/Area": row.CountryName,
+          "Inspection End Date": row.InspectionEndDate,
+          "Project Area": row.Program,
+          "Center/Program Area": row.ProductType || row.Program,
+          "Inspection Classification": row.Classification
+        };
+        
+        historicalInspections.push(processedRow);
+        
+        if (row.Program) {
+          projectAreasSet.add(row.Program);
+        }
+      });
+
+      console.log(`Total recent inspections: ${recentInspections.length}`);
+      console.log(`Total historical inspections: ${historicalInspections.length}`);
+      console.log(`Total unique project areas: ${projectAreasSet.size}`);
+
+    } catch (apiError) {
+      console.error('FDA API Error:', apiError.response?.data || apiError.message);
+      
+      // If API fails, provide sample data as fallback
+      console.warn('Using sample data due to API error');
+      
+      recentInspections.push({
+        "Record Date": "2023-01-01",
+        "Legal Name": "Sample Pharmaceutical",
+        "Record Type": "Form 483",
+        "FEI Number": "12345"
+      });
+      
+      historicalInspections.push({
+        "District": "Sample District",
+        "Firm Name": "Sample Labs",
+        "City": "Sample City",
+        "State": "CA", 
+        "Zip": "90210",
+        "Country/Area": "United States",
+        "Inspection End Date": "10/15/2022",
+        "Project Area": "Quality Control",
+        "Center/Program Area": "CDER",
+        "Inspection Classification": "NAI"
+      });
+      
+      projectAreasSet.add("Quality Control");
+      projectAreasSet.add("Manufacturing");
+    }
+
+    // Return response in the same format as before
+    res.json({
+      recentInspections: recentInspections,
+      historicalInspections: historicalInspections,
+      projectAreas: Array.from(projectAreasSet)
+    });
+
   } catch (error) {
     console.error('Error in API endpoint:', error);
-    res.status(500).json({ error: 'Failed to process inspection data', details: error.message });
+    res.status(500).json({ 
+      error: 'Failed to process inspection data', 
+      details: error.message 
+    });
   }
 });
 
+// Health check endpoint for FDA API
+app.get('/api/fda-api-status', async (req, res) => {
+  try {
+    const FDA_API_BASE_URL = 'https://api-datadashboard.fda.gov/v1';
+    const FDA_API_HEADERS = {
+      'Content-Type': 'application/json',
+      'Authorization-User': process.env.FDA_API_USER,
+      'Authorization-Key': process.env.FDA_API_KEY
+    };
+
+    // Test with a minimal request
+    const response = await axios.post(
+      `${FDA_API_BASE_URL}/inspections_classifications`,
+      {
+        "start": 1,
+        "rows": 1,
+        "sort": "",
+        "sortorder": "",
+        "filters": {},
+        "columns": ["FEINumber"]
+      },
+      { headers: FDA_API_HEADERS }
+    );
+
+    res.json({
+      status: 'connected',
+      fdaApiStatus: response.data.statuscode,
+      message: response.data.message,
+      authConfigured: !!(process.env.FDA_API_USER && process.env.FDA_API_KEY)
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      status: 'error',
+      message: error.response?.data?.message || error.message,
+      authConfigured: !!(process.env.FDA_API_USER && process.env.FDA_API_KEY),
+      details: error.response?.data
+    });
+  }
+});
+
+// Company search endpoint - returns company names and FEI numbers
+app.get('/api/search-companies', async (req, res) => {
+  try {
+    const { query } = req.query;
+    
+    if (!query || query.length < 2) {
+      return res.status(400).json({
+        error: 'Search query must be at least 2 characters long'
+      });
+    }
+
+    const FDA_API_BASE_URL = 'https://api-datadashboard.fda.gov/v1';
+    const FDA_API_HEADERS = {
+      'Content-Type': 'application/json',
+      'Authorization-User': process.env.FDA_API_USER,
+      'Authorization-Key': process.env.FDA_API_KEY
+    };
+
+    // Search for companies in classifications
+    const searchRequest = {
+      "start": 1,
+      "rows": 100, // Limit results for search
+      "sort": "LegalName",
+      "sortorder": "ASC",
+      "filters": {
+        "LegalName": [query]
+      },
+      "columns": ["LegalName", "FEINumber", "City", "State", "CountryName"]
+    };
+
+    console.log(`Searching for companies matching: "${query}"`);
+
+    const response = await axios.post(
+      `${FDA_API_BASE_URL}/inspections_classifications`,
+      searchRequest,
+      { headers: FDA_API_HEADERS }
+    );
+
+    if (response.data.statuscode === 400 && response.data.result) {
+      // Remove duplicates based on FEI Number
+      const uniqueCompanies = new Map();
+      response.data.result.forEach(company => {
+        if (!uniqueCompanies.has(company.FEINumber)) {
+          uniqueCompanies.set(company.FEINumber, {
+            legalName: company.LegalName,
+            feiNumber: company.FEINumber,
+            location: `${company.City || ''}, ${company.State || ''} ${company.CountryName || ''}`.trim()
+          });
+        }
+      });
+
+      res.json({
+        results: Array.from(uniqueCompanies.values()),
+        count: uniqueCompanies.size,
+        query: query
+      });
+    } else {
+      res.json({
+        results: [],
+        count: 0,
+        query: query
+      });
+    }
+
+  } catch (error) {
+    console.error('Company search error:', error.response?.data || error.message);
+    res.status(500).json({
+      error: 'Failed to search companies',
+      details: error.message
+    });
+  }
+});
+
+// Get specific company details
+app.get('/api/company/:feiNumber', async (req, res) => {
+  try {
+    const { feiNumber } = req.params;
+    
+    const FDA_API_BASE_URL = 'https://api-datadashboard.fda.gov/v1';
+    const FDA_API_HEADERS = {
+      'Content-Type': 'application/json',
+      'Authorization-User': process.env.FDA_API_USER,
+      'Authorization-Key': process.env.FDA_API_KEY
+    };
+
+    // Get all information for a specific FEI Number
+    const [citations, classifications] = await Promise.all([
+      // Get citations
+      axios.post(
+        `${FDA_API_BASE_URL}/inspections_citations`,
+        {
+          "start": 1,
+          "rows": 5000,
+          "sort": "InspectionEndDate",
+          "sortorder": "DESC",
+          "filters": {
+            "FEINumber": [parseInt(feiNumber)]
+          },
+          "columns": []
+        },
+        { headers: FDA_API_HEADERS }
+      ),
+      // Get classifications
+      axios.post(
+        `${FDA_API_BASE_URL}/inspections_classifications`,
+        {
+          "start": 1,
+          "rows": 5000,
+          "sort": "InspectionEndDate",
+          "sortorder": "DESC",
+          "filters": {
+            "FEINumber": [parseInt(feiNumber)]
+          },
+          "columns": []
+        },
+        { headers: FDA_API_HEADERS }
+      )
+    ]);
+
+    const companyData = {
+      feiNumber: feiNumber,
+      companyName: '',
+      citations: [],
+      inspections: [],
+      summary: {
+        totalInspections: 0,
+        totalCitations: 0,
+        latestInspection: null,
+        inspectionTypes: new Set()
+      }
+    };
+
+    // Process citations
+    if (citations.data.statuscode === 400 && citations.data.result) {
+      companyData.citations = citations.data.result;
+      companyData.summary.totalCitations = citations.data.result.length;
+      if (citations.data.result.length > 0) {
+        companyData.companyName = citations.data.result[0].LegalName;
+      }
+    }
+
+    // Process classifications
+    if (classifications.data.statuscode === 400 && classifications.data.result) {
+      companyData.inspections = classifications.data.result;
+      companyData.summary.totalInspections = classifications.data.result.length;
+      
+      if (classifications.data.result.length > 0) {
+        companyData.companyName = companyData.companyName || classifications.data.result[0].LegalName;
+        companyData.summary.latestInspection = classifications.data.result[0].InspectionEndDate;
+        
+        classifications.data.result.forEach(inspection => {
+          if (inspection.Classification) {
+            companyData.summary.inspectionTypes.add(inspection.Classification);
+          }
+        });
+      }
+    }
+
+    companyData.summary.inspectionTypes = Array.from(companyData.summary.inspectionTypes);
+
+    res.json(companyData);
+
+  } catch (error) {
+    console.error('Company details error:', error.response?.data || error.message);
+    res.status(500).json({
+      error: 'Failed to get company details',
+      details: error.message
+    });
+  }
+});
 
 
 /////////////////////////////////////WL///////////////////////////////////////////////
@@ -12274,12 +14632,19 @@ app.post('/api/aggregate-trials', async (req, res) => {
   }
 });
 
-// RxNorm API functions
+// Fixed RxNorm API function - Following official API documentation
 async function searchRxNorm(drugName, results) {
   try {
-    // Step 1: Get RxCUI for the drug
-    const rxcuiResponse = await axios.get(`https://rxnav.nlm.nih.gov/REST/rxcui.json?name=${encodeURIComponent(drugName)}&search=1`);
+    // Step 1: Get RxCUI for the drug using CORRECT endpoint format
+    // According to docs: GET /REST/rxcui.json?name=yourName&search=0or1or2or9
+    const rxcuiResponse = await axios.get(`https://rxnav.nlm.nih.gov/REST/rxcui.json`, {
+      params: {
+        name: drugName,
+        search: 2  // "Exact or Normalized" search (try exact first, then normalized)
+      }
+    });
     
+    // Check if we got valid data
     if (rxcuiResponse.data && rxcuiResponse.data.idGroup && rxcuiResponse.data.idGroup.rxnormId) {
       const rxcui = rxcuiResponse.data.idGroup.rxnormId[0];
       
@@ -12296,7 +14661,8 @@ async function searchRxNorm(drugName, results) {
         });
       }
       
-      // Step 2: Get related names
+      // Step 2: Get related names using CORRECT endpoint format
+      // According to docs: GET /REST/rxcui/rxcui/allrelated.json
       const relatedResponse = await axios.get(`https://rxnav.nlm.nih.gov/REST/rxcui/${rxcui}/allrelated.json`);
       
       if (relatedResponse.data && relatedResponse.data.allRelatedGroup && relatedResponse.data.allRelatedGroup.conceptGroup) {
@@ -12312,93 +14678,415 @@ async function searchRxNorm(drugName, results) {
           }
         }
       }
+    } else {
+      // No RxCUI found - try approximate search as fallback
+      console.log(`No exact/normalized match found for "${drugName}", trying approximate search...`);
+      
+      try {
+        const approximateResponse = await axios.get(`https://rxnav.nlm.nih.gov/REST/rxcui.json`, {
+          params: {
+            name: drugName,
+            search: 9  // Approximate search
+          }
+        });
+        
+        if (approximateResponse.data && approximateResponse.data.idGroup && approximateResponse.data.idGroup.rxnormId) {
+          const rxcui = approximateResponse.data.idGroup.rxnormId[0];
+          results.sources.rxnorm.names.push({
+            name: `Approximate match found (RxCUI: ${rxcui})`,
+            type: 'Approximate Match'
+          });
+        } else {
+          results.sources.rxnorm.names.push({
+            name: `No RxNorm data found for "${drugName}"`,
+            type: 'No Results'
+          });
+        }
+      } catch (approxError) {
+        results.sources.rxnorm.names.push({
+          name: `No RxNorm data found for "${drugName}"`,
+          type: 'No Results'
+        });
+      }
     }
   } catch (error) {
     console.error('Error searching RxNorm:', error.message);
+    
+    // Log more specific error details for debugging
+    if (error.response) {
+      console.error('RxNorm API Error Response:', {
+        status: error.response.status,
+        statusText: error.response.statusText,
+        data: error.response.data,
+        url: error.config?.url,
+        params: error.config?.params
+      });
+    }
+    
     results.sources.rxnorm.names.push({
       name: "Error searching RxNorm database",
-      type: "Error"
+      type: "Error",
+      details: error.response?.status === 400 ? 'Bad Request - Check API parameters' : error.message
     });
   }
 }
 
 // FDA API function
+// async function searchFDA(drugName, results) {
+//   try {
+//     // Search by generic name
+//     const fdaGenericResponse = await axios.get(`https://api.fda.gov/drug/label.json?search=openfda.generic_name:${encodeURIComponent(drugName)}&limit=5`);
+    
+//     if (fdaGenericResponse.data && fdaGenericResponse.data.results) {
+//       processFDAResults(fdaGenericResponse.data.results, results);
+//     }
+    
+//     // Search by brand name
+//     const fdaBrandResponse = await axios.get(`https://api.fda.gov/drug/label.json?search=openfda.brand_name:${encodeURIComponent(drugName)}&limit=5`);
+    
+//     if (fdaBrandResponse.data && fdaBrandResponse.data.results) {
+//       processFDAResults(fdaBrandResponse.data.results, results);
+//     }
+//   } catch (error) {
+//     if (error.response && error.response.status === 404) {
+//       // No results found is a normal condition
+//       results.sources.fda.names.push({
+//         name: "No FDA records found",
+//         type: "Info"
+//       });
+//     } else {
+//       console.error('Error searching FDA:', error.message);
+//       results.sources.fda.names.push({
+//         name: "Error searching FDA database",
+//         type: "Error"
+//       });
+//     }
+//   }
+// }
+
+// 1. UPDATED: Modified searchFDA function to prepare labeling data
 async function searchFDA(drugName, results) {
   try {
-    // Search by generic name
-    const fdaGenericResponse = await axios.get(`https://api.fda.gov/drug/label.json?search=openfda.generic_name:${encodeURIComponent(drugName)}&limit=5`);
+    console.log(`🔍 Searching FDA labeling for: ${drugName}`);
     
-    if (fdaGenericResponse.data && fdaGenericResponse.data.results) {
-      processFDAResults(fdaGenericResponse.data.results, results);
+    // Multiple search strategies to improve hit rate
+    const searchStrategies = [
+      // Strategy 1: Search by generic name (exact match)
+      {
+        query: `search=openfda.generic_name.exact:"${drugName}"`,
+        description: 'Generic name (exact)'
+      },
+      // Strategy 2: Search by brand name (exact match)
+      {
+        query: `search=openfda.brand_name.exact:"${drugName}"`,
+        description: 'Brand name (exact)'
+      },
+      // Strategy 3: Search by substance name
+      {
+        query: `search=openfda.substance_name:"${drugName}"`,
+        description: 'Substance name'
+      },
+      // Strategy 4: Broader search across multiple name fields
+      {
+        query: `search=openfda.generic_name:"${drugName}"+OR+openfda.brand_name:"${drugName}"+OR+openfda.substance_name:"${drugName}"`,
+        description: 'Multi-field search'
+      }
+    ];
+
+    let totalResults = 0;
+    let hasBoxedWarning = false;
+    let labelInfo = [];
+    let labelingData = []; // NEW: Store labeling data for the labeling section
+
+    // Try each search strategy until we get results
+    for (const strategy of searchStrategies) {
+      try {
+        const url = `https://api.fda.gov/drug/label.json?${strategy.query}&limit=10`;
+        console.log(`📡 Trying strategy: ${strategy.description}`);
+        console.log(`🔗 URL: ${url}`);
+        
+        const response = await axios.get(url, { 
+          timeout: 15000,
+          headers: {
+            'Accept': 'application/json',
+            'User-Agent': 'Mozilla/5.0 (compatible; FDA-API-Client/1.0)'
+          }
+        });
+        
+        if (response.data && response.data.results && response.data.results.length > 0) {
+          console.log(`✅ Found ${response.data.results.length} results with strategy: ${strategy.description}`);
+          totalResults += response.data.results.length;
+          
+          // Process each label result
+          response.data.results.forEach((label, index) => {
+            // Check for boxed warning
+            const hasLabelBoxedWarning = !!(label.boxed_warning && label.boxed_warning.length > 0);
+            if (hasLabelBoxedWarning) {
+              hasBoxedWarning = true;
+              console.log(`⚠️ BOXED WARNING FOUND in result ${index + 1}`);
+            }
+            
+            // NEW: Create labeling data object for the labeling section
+            const labelData = {
+              setid: label.set_id || `fda_${Date.now()}_${index}`,
+              type: 'FDA',
+              source: 'FDA Drug Labeling',
+              productName: label.openfda?.brand_name?.[0] || label.openfda?.generic_name?.[0] || drugName,
+              indication: (label.indications_and_usage && label.indications_and_usage[0]) || 'Not specified',
+              route: (label.openfda?.route && label.openfda.route[0]) || 'Not specified',
+              manufacturerName: (label.openfda?.manufacturer_name && label.openfda.manufacturer_name[0]) || 'Not specified',
+              lastUpdated: label.effective_time || new Date().toISOString(),
+              boxedWarning: hasLabelBoxedWarning, // This is the key field!
+              
+              // Additional FDA-specific data for detailed view
+              warnings: (label.warnings && label.warnings[0]) || 'See full labeling',
+              adverseReactions: (label.adverse_reactions && label.adverse_reactions[0]) || 'See full labeling',
+              contraindications: (label.contraindications && label.contraindications[0]) || 'See full labeling',
+              dosageAndAdministration: (label.dosage_and_administration && label.dosage_and_administration[0]) || 'See full labeling',
+              
+              // Boxed warning content (if available)
+              boxedWarningContent: hasLabelBoxedWarning ? (label.boxed_warning[0] || 'Boxed warning present - see full labeling') : null,
+              
+              // Raw label data for advanced processing
+              rawLabel: label
+            };
+            
+            labelingData.push(labelData);
+            
+            // Extract names from the label (your existing logic)
+            if (label.openfda) {
+              // Add generic names
+              if (label.openfda.generic_name) {
+                label.openfda.generic_name.forEach(name => {
+                  results.sources.fda.names.push({
+                    name: name,
+                    type: 'Generic Name',
+                    hasBoxedWarning: hasLabelBoxedWarning
+                  });
+                });
+              }
+              
+              // Add brand names
+              if (label.openfda.brand_name) {
+                label.openfda.brand_name.forEach(name => {
+                  results.sources.fda.names.push({
+                    name: name,
+                    type: 'Brand Name',
+                    hasBoxedWarning: hasLabelBoxedWarning
+                  });
+                });
+              }
+              
+              // Add substance names
+              if (label.openfda.substance_name) {
+                label.openfda.substance_name.forEach(name => {
+                  results.sources.fda.names.push({
+                    name: name,
+                    type: 'Substance Name',
+                    hasBoxedWarning: hasLabelBoxedWarning
+                  });
+                });
+              }
+              
+              // Add manufacturer info
+              if (label.openfda.manufacturer_name) {
+                results.sources.fda.names.push({
+                  name: `Manufactured by: ${label.openfda.manufacturer_name[0]}`,
+                  type: 'Manufacturer'
+                });
+              }
+              
+              // Add application number link
+              if (label.openfda.application_number && label.openfda.application_number[0]) {
+                const appNum = label.openfda.application_number[0];
+                results.sources.fda.links.push({
+                  url: `https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=${appNum.replace(/[^0-9]/g, '')}`,
+                  description: `FDA Application: ${appNum}`
+                });
+              }
+            }
+            
+            // Store label info for further processing
+            labelInfo.push({
+              hasBoxedWarning: hasLabelBoxedWarning,
+              hasWarnings: !!label.warnings,
+              hasContraindications: !!label.contraindications,
+              indications: label.indications_and_usage || [],
+              effectiveTime: label.effective_time
+            });
+          });
+          
+          // Break after first successful strategy
+          break;
+        }
+        
+      } catch (strategyError) {
+        console.log(`❌ Strategy failed: ${strategy.description} - ${strategyError.message}`);
+        // Continue to next strategy
+        continue;
+      }
     }
     
-    // Search by brand name
-    const fdaBrandResponse = await axios.get(`https://api.fda.gov/drug/label.json?search=openfda.brand_name:${encodeURIComponent(drugName)}&limit=5`);
-    
-    if (fdaBrandResponse.data && fdaBrandResponse.data.results) {
-      processFDAResults(fdaBrandResponse.data.results, results);
-    }
-  } catch (error) {
-    if (error.response && error.response.status === 404) {
-      // No results found is a normal condition
+    // Add summary information
+    if (totalResults > 0) {
       results.sources.fda.names.push({
-        name: "No FDA records found",
-        type: "Info"
+        name: `Found ${totalResults} FDA label(s)`,
+        type: 'Summary',
+        hasBoxedWarning: hasBoxedWarning
       });
+      
+      if (hasBoxedWarning) {
+        results.sources.fda.names.push({
+          name: "⚠️ CONTAINS BOXED WARNING",
+          type: 'Safety Alert',
+          hasBoxedWarning: true
+        });
+      }
+      
+      // Add warnings summary
+      const warningCount = labelInfo.filter(l => l.hasWarnings).length;
+      if (warningCount > 0) {
+        results.sources.fda.names.push({
+          name: `${warningCount} label(s) with warnings`,
+          type: 'Warning Info'
+        });
+      }
+      
     } else {
-      console.error('Error searching FDA:', error.message);
+      // No results found with any strategy
       results.sources.fda.names.push({
-        name: "Error searching FDA database",
-        type: "Error"
+        name: "No FDA labeling records found",
+        type: "No Results"
+      });
+      console.log(`❌ No FDA labeling found for "${drugName}" with any search strategy`);
+    }
+    
+    // NEW: Store labeling data in results for the labeling section
+    results.labelingData = labelingData;
+    
+  } catch (error) {
+    console.error('Error searching FDA labeling:', error.message);
+    
+    // Log detailed error information
+    if (error.response) {
+      console.error('FDA API Error Response:', {
+        status: error.response.status,
+        statusText: error.response.statusText,
+        data: error.response.data,
+        url: error.config?.url
       });
     }
+    
+    results.sources.fda.names.push({
+      name: "Error searching FDA labeling database",
+      type: "Error",
+      details: error.response?.status === 400 ? 'Bad Request - Check search parameters' : error.message
+    });
   }
 }
 
-function processFDAResults(fdaResults, results) {
-  for (const drug of fdaResults) {
-    if (drug.openfda) {
-      // Add generic names
-      if (drug.openfda.generic_name) {
-        for (const name of drug.openfda.generic_name) {
-          results.sources.fda.names.push({
-            name: name,
-            type: 'Generic Name'
-          });
-        }
+// 2. NEW: Function to update the labeling section with boxed warning data
+function updateLabelingSectionWithBoxedWarnings(fdaResults) {
+  console.log('🏷️ Updating labeling section with FDA results...');
+  
+  // Check if labeling section exists and has the needed elements
+  const labellingSection = document.getElementById('LabellingSection');
+  if (!labellingSection) {
+    console.log('❌ Labeling section not found');
+    return;
+  }
+  
+  // Get the labeling data from FDA results
+  const labelingData = fdaResults.labelingData || [];
+  
+  if (labelingData.length === 0) {
+    console.log('❌ No labeling data found in FDA results');
+    return;
+  }
+  
+  console.log(`📊 Found ${labelingData.length} labeling records to display`);
+  
+  // Update the labeling module with the new data
+  if (window.PharmaLabellingModule && typeof window.PharmaLabellingModule.displayResults === 'function') {
+    // Use the existing labeling module
+    window.PharmaLabellingModule.displayResults({
+      labels: labelingData,
+      summary: {
+        totalLabels: labelingData.length,
+        fdaLabels: labelingData.filter(l => l.type === 'FDA').length,
+        boxedWarnings: labelingData.filter(l => l.boxedWarning).length,
+        lastAnalyzed: new Date().toISOString()
       }
-      
-      // Add brand names
-      if (drug.openfda.brand_name) {
-        for (const name of drug.openfda.brand_name) {
-          results.sources.fda.names.push({
-            name: name,
-            type: 'Brand Name'
-          });
-        }
-      }
-      
-      // Add substance names
-      if (drug.openfda.substance_name) {
-        for (const name of drug.openfda.substance_name) {
-          results.sources.fda.names.push({
-            name: name,
-            type: 'Substance Name'
-          });
-        }
-      }
-      
-      // Add application number for link
-      if (drug.openfda.application_number && drug.openfda.application_number[0]) {
-        const appNum = drug.openfda.application_number[0];
-        results.sources.fda.links.push({
-          url: `https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=${appNum.replace(/[^0-9]/g, '')}`,
-          description: `FDA Application: ${appNum}`
-        });
-      }
-    }
+    });
+  } else {
+    // Fallback: manually update the labeling section
+    console.log('⚠️ PharmaLabellingModule not available, using fallback method');
+    updateLabelingSectionFallback(labelingData);
   }
 }
+
+// 3. NEW: Fallback function to update labeling section manually
+function updateLabelingSectionFallback(labelingData) {
+  // Update summary counts
+  const totalLabelsEl = document.querySelector('#LabellingSection [data-element="totalLabels"]');
+  const boxedWarningsEl = document.querySelector('#LabellingSection [data-element="boxedWarnings"]');
+  
+  if (totalLabelsEl) totalLabelsEl.textContent = labelingData.length;
+  if (boxedWarningsEl) boxedWarningsEl.textContent = labelingData.filter(l => l.boxedWarning).length;
+  
+  // Show the labeling section
+  const labellingSection = document.getElementById('LabellingSection');
+  if (labellingSection) {
+    labellingSection.classList.remove('hidden');
+  }
+  
+  console.log(`✅ Updated labeling section with ${labelingData.length} labels, ${labelingData.filter(l => l.boxedWarning).length} with boxed warnings`);
+}
+
+// function processFDAResults(fdaResults, results) {
+//   for (const drug of fdaResults) {
+//     if (drug.openfda) {
+//       // Add generic names
+//       if (drug.openfda.generic_name) {
+//         for (const name of drug.openfda.generic_name) {
+//           results.sources.fda.names.push({
+//             name: name,
+//             type: 'Generic Name'
+//           });
+//         }
+//       }
+      
+//       // Add brand names
+//       if (drug.openfda.brand_name) {
+//         for (const name of drug.openfda.brand_name) {
+//           results.sources.fda.names.push({
+//             name: name,
+//             type: 'Brand Name'
+//           });
+//         }
+//       }
+      
+//       // Add substance names
+//       if (drug.openfda.substance_name) {
+//         for (const name of drug.openfda.substance_name) {
+//           results.sources.fda.names.push({
+//             name: name,
+//             type: 'Substance Name'
+//           });
+//         }
+//       }
+      
+//       // Add application number for link
+//       if (drug.openfda.application_number && drug.openfda.application_number[0]) {
+//         const appNum = drug.openfda.application_number[0];
+//         results.sources.fda.links.push({
+//           url: `https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=${appNum.replace(/[^0-9]/g, '')}`,
+//           description: `FDA Application: ${appNum}`
+//         });
+//       }
+//     }
+//   }
+// }
 
 // PubChem API function
 async function searchPubChem(drugName, results) {
@@ -12454,7 +15142,112 @@ async function searchPubChem(drugName, results) {
     }
   }
 }
-
+function processFDAResults(fdaResults, results) {
+  let hasAnyBoxedWarning = false;
+  let labelingData = results.labelingData || []; // Initialize labeling data array if not exists
+  
+  for (const drug of fdaResults) {
+    // Check for boxed warning in this drug
+    const hasBoxedWarning = !!(drug.boxed_warning && drug.boxed_warning.length > 0);
+    if (hasBoxedWarning) {
+      hasAnyBoxedWarning = true;
+      console.log('⚠️ BOXED WARNING detected in FDA result');
+    }
+    
+    if (drug.openfda) {
+      // Add generic names WITH boxed warning flag
+      if (drug.openfda.generic_name) {
+        for (const name of drug.openfda.generic_name) {
+          results.sources.fda.names.push({
+            name: name,
+            type: 'Generic Name',
+            hasBoxedWarning: hasBoxedWarning // NEW: Add boxed warning flag
+          });
+        }
+      }
+      
+      // Add brand names WITH boxed warning flag
+      if (drug.openfda.brand_name) {
+        for (const name of drug.openfda.brand_name) {
+          results.sources.fda.names.push({
+            name: name,
+            type: 'Brand Name',
+            hasBoxedWarning: hasBoxedWarning // NEW: Add boxed warning flag
+          });
+        }
+      }
+      
+      // Add substance names WITH boxed warning flag
+      if (drug.openfda.substance_name) {
+        for (const name of drug.openfda.substance_name) {
+          results.sources.fda.names.push({
+            name: name,
+            type: 'Substance Name',
+            hasBoxedWarning: hasBoxedWarning // NEW: Add boxed warning flag
+          });
+        }
+      }
+      
+      // Add manufacturer info
+      if (drug.openfda.manufacturer_name) {
+        results.sources.fda.names.push({
+          name: `Manufactured by: ${drug.openfda.manufacturer_name[0]}`,
+          type: 'Manufacturer'
+        });
+      }
+      
+      // Add application number for link
+      if (drug.openfda.application_number && drug.openfda.application_number[0]) {
+        const appNum = drug.openfda.application_number[0];
+        results.sources.fda.links.push({
+          url: `https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=${appNum.replace(/[^0-9]/g, '')}`,
+          description: `FDA Application: ${appNum}`
+        });
+      }
+    }
+    
+    // NEW: Create labeling data for the labeling section
+    const labelData = {
+      setid: drug.set_id || `fda_${Date.now()}_${Math.random()}`,
+      type: 'FDA',
+      source: 'FDA Drug Labeling',
+      productName: drug.openfda?.brand_name?.[0] || drug.openfda?.generic_name?.[0] || 'Unknown Product',
+      indication: (drug.indications_and_usage && drug.indications_and_usage[0]) || 'Not specified',
+      route: (drug.openfda?.route && drug.openfda.route[0]) || 'Not specified',
+      manufacturerName: (drug.openfda?.manufacturer_name && drug.openfda.manufacturer_name[0]) || 'Not specified',
+      lastUpdated: drug.effective_time || new Date().toISOString(),
+      boxedWarning: hasBoxedWarning, // This is the key field for the labeling section!
+      
+      // Additional FDA-specific data for detailed view
+      warnings: (drug.warnings && drug.warnings[0]) || 'See full labeling',
+      adverseReactions: (drug.adverse_reactions && drug.adverse_reactions[0]) || 'See full labeling',
+      contraindications: (drug.contraindications && drug.contraindications[0]) || 'See full labeling',
+      dosageAndAdministration: (drug.dosage_and_administration && drug.dosage_and_administration[0]) || 'See full labeling',
+      
+      // Boxed warning content (if available)
+      boxedWarningContent: hasBoxedWarning ? (drug.boxed_warning[0] || 'Boxed warning present - see full labeling') : null,
+      
+      // Raw label data for advanced processing
+      rawLabel: drug
+    };
+    
+    labelingData.push(labelData);
+  }
+  
+  // NEW: Add summary information about boxed warnings
+  if (hasAnyBoxedWarning) {
+    results.sources.fda.names.push({
+      name: "⚠️ CONTAINS BOXED WARNING",
+      type: 'Safety Alert',
+      hasBoxedWarning: true
+    });
+  }
+  
+  // Store labeling data back in results
+  results.labelingData = labelingData;
+  
+  console.log(`📊 Processed ${fdaResults.length} FDA results, ${labelingData.filter(l => l.boxedWarning).length} with boxed warnings`);
+}
 // ChEMBL API function
 async function searchChEMBL(drugName, results) {
   try {

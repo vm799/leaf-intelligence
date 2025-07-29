@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pharmaceutical Research Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': '#1f2937',
+                        'secondary': '#6b7280',
+                        'accent': '#3b82f6',
+                        'surface': '#f8fafc'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .card-hover {
+            transition: all 0.2s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+        .loading-spinner {
+            border: 2px solid #e5e7eb;
+            border-top: 2px solid #3b82f6;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-white min-h-screen">
+    <!-- Clean Header -->
+    <header class="bg-white border-b border-gray-100">
+        <div class="max-w-7xl mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-xl font-semibold text-primary">Pharmaceutical Research Platform</h1>
+                    <p class="text-sm text-secondary mt-1">FDA & EMA labeling database with AI analysis</p>
+                </div>
+                <div class="flex items-center space-x-4 text-xs text-secondary">
+                    <span>Real-time data</span>
+                    <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-6 py-8">
+        <!-- Search Section -->
+        <div class="bg-surface rounded-lg border border-gray-100 p-6 mb-8">
+            <div class="flex gap-4">
+                <div class="flex-1">
+                    <input 
+                        type="text" 
+                        id="compound-search" 
+                        placeholder="Enter compound name (e.g., lisinopril, metformin, atorvastatin)"
+                        class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent text-sm"
+                    >
+                </div>
+                <button 
+                    id="search-btn" 
+                    class="px-6 py-3 bg-accent hover:bg-blue-600 text-white text-sm font-medium rounded-lg transition-colors flex items-center gap-2"
+                >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                    Search
+                </button>
+            </div>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loading" class="hidden text-center py-16">
+            <div class="loading-spinner mx-auto mb-4"></div>
+            <p class="text-secondary text-sm">Searching pharmaceutical databases...</p>
+        </div>
+
+        <!-- Summary Stats -->
+        <div id="summary-section" class="hidden mb-8">
+            <div class="bg-white rounded-lg border border-gray-100 p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-lg font-medium text-primary">Search Results</h2>
+                    <div id="last-analyzed" class="text-xs text-secondary"></div>
+                </div>
+                
+                <div class="grid grid-cols-2 md:grid-cols-6 gap-4">
+                    <div class="text-center">
+                        <div class="text-2xl font-semibold text-primary" id="total-labels">0</div>
+                        <div class="text-xs text-secondary mt-1">Total Labels</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl font-semibold text-red-600" id="fda-labels">0</div>
+                        <div class="text-xs text-secondary mt-1">FDA Labels</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl font-semibold text-green-600" id="ema-labels">0</div>
+                        <div class="text-xs text-secondary mt-1">EMA Labels</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl font-semibold text-orange-600" id="boxed-warnings">0</div>
+                        <div class="text-xs text-secondary mt-1">Boxed Warnings</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-lg font-semibold text-purple-600" id="rxcui">-</div>
+                        <div class="text-xs text-secondary mt-1">RxCUI</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl font-semibold text-blue-600" id="ndc-count">0</div>
+                        <div class="text-xs text-secondary mt-1">NDC Codes</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div id="results-section" class="hidden">
+            <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center gap-4">
+                    <h2 class="text-lg font-medium text-primary">Labels</h2>
+                    <div class="flex gap-2">
+                        <button id="filter-all" class="px-3 py-1 text-xs border rounded-md bg-accent text-white border-accent">All</button>
+                        <button id="filter-fda" class="px-3 py-1 text-xs border border-gray-200 rounded-md hover:bg-gray-50 text-secondary">FDA</button>
+                        <button id="filter-ema" class="px-3 py-1 text-xs border border-gray-200 rounded-md hover:bg-gray-50 text-secondary">EMA</button>
+                        <button id="filter-warnings" class="px-3 py-1 text-xs border border-gray-200 rounded-md hover:bg-gray-50 text-secondary">Warnings</button>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="text-xs text-secondary">
+                        <span id="current-page">1</span> of <span id="total-pages">1</span>
+                    </div>
+                    <div class="flex gap-1">
+                        <button id="prev-page" class="p-1 border border-gray-200 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                            </svg>
+                        </button>
+                        <button id="next-page" class="p-1 border border-gray-200 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="labels-grid" class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <!-- Label cards will be inserted here -->
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div id="empty-state" class="text-center py-16">
+            <svg class="mx-auto h-12 w-12 text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            </svg>
+            <h3 class="text-lg font-medium text-primary mb-2">Search pharmaceutical compounds</h3>
+            <p class="text-secondary text-sm">Enter a drug name to access comprehensive labeling information</p>
+        </div>
+    </main>
+
+    <!-- Clean Modal -->
+    <div id="label-modal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-black/20">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+                <div class="flex items-center justify-between p-6 border-b border-gray-100">
+                    <div>
+                        <h3 class="text-lg font-medium text-primary" id="modal-title">Label Information</h3>
+                        <div class="flex items-center gap-2 mt-1">
+                            <span id="modal-source-badge" class="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-700 rounded"></span>
+                            <span class="text-xs text-secondary" id="modal-subtitle"></span>
+                        </div>
+                    </div>
+                    <button id="close-modal" class="p-2 hover:bg-gray-100 rounded-lg">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                
+                <div id="modal-content" class="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+                    <!-- Modal content will be inserted here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentLabels = [];
+        let currentFilter = 'all';
+        let currentPage = 1;
+        const itemsPerPage = 12;
+
+        // DOM Elements
+        const searchInput = document.getElementById('compound-search');
+        const searchBtn = document.getElementById('search-btn');
+        const loading = document.getElementById('loading');
+        const summarySection = document.getElementById('summary-section');
+        const resultsSection = document.getElementById('results-section');
+        const emptyState = document.getElementById('empty-state');
+        const labelsGrid = document.getElementById('labels-grid');
+        const labelModal = document.getElementById('label-modal');
+
+        // Event Listeners
+        searchBtn.addEventListener('click', performSearch);
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') performSearch();
+        });
+
+        document.getElementById('close-modal').addEventListener('click', () => {
+            labelModal.classList.add('hidden');
+        });
+
+        // Filter buttons
+        document.getElementById('filter-all').addEventListener('click', () => setFilter('all'));
+        document.getElementById('filter-fda').addEventListener('click', () => setFilter('fda'));
+        document.getElementById('filter-ema').addEventListener('click', () => setFilter('ema'));
+        document.getElementById('filter-warnings').addEventListener('click', () => setFilter('warnings'));
+
+        // Pagination
+        document.getElementById('prev-page').addEventListener('click', () => changePage(-1));
+        document.getElementById('next-page').addEventListener('click', () => changePage(1));
+
+        async function performSearch() {
+            const compound = searchInput.value.trim();
+            if (!compound) return;
+
+            showLoading();
+            
+            try {
+                const response = await fetch(`/api/search/${encodeURIComponent(compound)}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayResults(data);
+                } else {
+                    showError(data.error || 'Search failed');
+                }
+            } catch (error) {
+                showError('Network error occurred');
+            }
+        }
+
+        function showLoading() {
+            loading.classList.remove('hidden');
+            summarySection.classList.add('hidden');
+            resultsSection.classList.add('hidden');
+            emptyState.classList.add('hidden');
+        }
+
+        function displayResults(data) {
+            loading.classList.add('hidden');
+            currentLabels = data.labels;
+            currentPage = 1;
+            
+            // Update summary
+            document.getElementById('total-labels').textContent = data.summary.totalLabels;
+            document.getElementById('fda-labels').textContent = data.summary.fdaLabels;
+            document.getElementById('ema-labels').textContent = data.summary.emaLabels;
+            document.getElementById('boxed-warnings').textContent = data.summary.withBoxedWarnings;
+            document.getElementById('rxcui').textContent = data.summary.rxcui || 'N/A';
+            document.getElementById('ndc-count').textContent = data.summary.ndcCount;
+            document.getElementById('last-analyzed').textContent = `Last analyzed: ${formatDateTime(data.summary.lastAnalyzed)}`;
+            
+            summarySection.classList.remove('hidden');
+            summarySection.classList.add('fade-in');
+            
+            if (data.labels.length > 0) {
+                resultsSection.classList.remove('hidden');
+                resultsSection.classList.add('fade-in');
+                emptyState.classList.add('hidden');
+                renderLabels();
+            } else {
+                resultsSection.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+            }
+        }
+
+        function renderLabels() {
+            const filteredLabels = currentLabels.filter(label => {
+                if (currentFilter === 'all') return true;
+                if (currentFilter === 'fda') return label.type === 'FDA';
+                if (currentFilter === 'ema') return label.type === 'EMA';
+                if (currentFilter === 'warnings') return label.boxedWarning;
+                return true;
+            });
+
+            const totalPages = Math.ceil(filteredLabels.length / itemsPerPage);
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const pageLabels = filteredLabels.slice(startIndex, endIndex);
+
+            labelsGrid.innerHTML = pageLabels.map(label => createCleanLabelCard(label)).join('');
+            
+            // Update pagination
+            document.getElementById('current-page').textContent = currentPage;
+            document.getElementById('total-pages').textContent = totalPages;
+            document.getElementById('prev-page').disabled = currentPage === 1;
+            document.getElementById('next-page').disabled = currentPage === totalPages;
+        }
+
+        function createCleanLabelCard(label) {
+            const isEMA = label.type === 'EMA';
+            const tagColor = isEMA ? 'bg-green-600' : 'bg-red-600';
+            const warningBadge = label.boxedWarning ? 
+                '<span class="inline-flex items-center px-2 py-1 text-xs font-medium bg-orange-100 text-orange-800 rounded-full">⚠ Warning</span>' : '';
+            
+            return `
+                <div class="card-hover bg-white border border-gray-100 rounded-lg p-5">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="flex items-center gap-2">
+                            <span class="px-2 py-1 text-xs font-medium text-white ${tagColor} rounded">${label.type}</span>
+                            ${warningBadge}
+                        </div>
+                        <div class="text-xs text-secondary">
+                            ${formatDate(label.lastUpdated)}
+                        </div>
+                    </div>
+                    
+                    <h3 class="font-medium text-primary mb-3 text-sm leading-relaxed">${escapeHtml(label.productName)}</h3>
+                    
+                    <div class="space-y-3 mb-4">
+                        <div>
+                            <div class="text-xs font-medium text-secondary mb-1">Indication</div>
+                            <p class="text-xs text-primary leading-relaxed">${truncateText(escapeHtml(label.indication), 120)}</p>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <div class="text-xs font-medium text-secondary mb-1">Route</div>
+                                <div class="text-xs text-primary">${escapeHtml(label.route)}</div>
+                            </div>
+                            <div>
+                                <div class="text-xs font-medium text-secondary mb-1">Source</div>
+                                <div class="text-xs text-primary">${label.source || label.type}</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button 
+                        onclick="showFullLabel('${label.setid}')" 
+                        class="w-full px-4 py-2 bg-accent hover:bg-blue-600 text-white text-xs font-medium rounded transition-colors"
+                    >
+                        View Complete Label
+                    </button>
+                </div>
+            `;
+        }
+
+        async function showFullLabel(setid) {
+            const label = currentLabels.find(l => l.setid === setid);
+            if (!label) return;
+
+            // Update modal header
+            document.getElementById('modal-title').textContent = label.productName;
+            document.getElementById('modal-subtitle').textContent = `Last updated: ${formatDate(label.lastUpdated)}`;
+            
+            const isEMA = label.type === 'EMA';
+            const modalSourceBadge = document.getElementById('modal-source-badge');
+            modalSourceBadge.textContent = `${label.type} Label`;
+            modalSourceBadge.className = `px-2 py-1 text-xs font-medium rounded ${
+                isEMA ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+            }`;
+
+            // Create clean modal content
+            const modalContent = document.getElementById('modal-content');
+            modalContent.innerHTML = `
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Left Column -->
+                    <div class="space-y-6">
+                        <div>
+                            <h4 class="text-sm font-medium text-primary mb-3">Indication & Usage</h4>
+                            <div class="text-sm text-secondary leading-relaxed">
+                                ${formatTextContent(label.indication)}
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h4 class="text-sm font-medium text-primary mb-3">Dosage & Administration</h4>
+                            <div class="text-sm text-secondary leading-relaxed">
+                                ${formatTextContent(label.dosage)}
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h4 class="text-sm font-medium text-primary mb-3">Clinical Studies</h4>
+                            <div class="text-sm text-secondary leading-relaxed">
+                                ${formatTextContent(label.clinicalStudies)}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column -->
+                    <div class="space-y-6">
+                        ${label.boxedWarning ? `
+                        <div class="bg-orange-50 border border-orange-200 rounded-lg p-4">
+                            <h4 class="text-sm font-medium text-orange-900 mb-2">⚠ Boxed Warning</h4>
+                            <p class="text-sm text-orange-800">This medication carries FDA boxed warnings.</p>
+                        </div>
+                        ` : ''}
+                        
+                        <div>
+                            <h4 class="text-sm font-medium text-primary mb-3">Warnings & Precautions</h4>
+                            <div class="text-sm text-secondary leading-relaxed">
+                                ${formatTextContent(label.warnings)}
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h4 class="text-sm font-medium text-primary mb-3">Adverse Reactions</h4>
+                            <div class="text-sm text-secondary leading-relaxed">
+                                ${formatTextContent(label.adverseReactions)}
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <h4 class="text-sm font-medium text-primary mb-3">Additional Information</h4>
+                            <div class="space-y-2 text-xs">
+                                <div class="flex justify-between">
+                                    <span class="text-secondary">Set ID:</span>
+                                    <span class="text-primary font-mono">${label.setid}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-secondary">Route:</span>
+                                    <span class="text-primary">${escapeHtml(label.route)}</span>
+                                </div>
+                                ${label.manufacturerName && label.manufacturerName !== 'Not specified' ? `
+                                <div class="flex justify-between">
+                                    <span class="text-secondary">Manufacturer:</span>
+                                    <span class="text-primary">${escapeHtml(label.manufacturerName)}</span>
+                                </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            labelModal.classList.remove('hidden');
+        }
+
+        function setFilter(filter) {
+            currentFilter = filter;
+            currentPage = 1;
+            
+            // Update button styles
+            document.querySelectorAll('[id^="filter-"]').forEach(btn => {
+                btn.className = 'px-3 py-1 text-xs border border-gray-200 rounded-md hover:bg-gray-50 text-secondary';
+            });
+            
+            const activeBtn = document.getElementById(`filter-${filter}`);
+            activeBtn.className = 'px-3 py-1 text-xs border rounded-md bg-accent text-white border-accent';
+            
+            renderLabels();
+        }
+
+        function changePage(direction) {
+            const filteredLabels = currentLabels.filter(label => {
+                if (currentFilter === 'all') return true;
+                if (currentFilter === 'fda') return label.type === 'FDA';
+                if (currentFilter === 'ema') return label.type === 'EMA';
+                if (currentFilter === 'warnings') return label.boxedWarning;
+                return true;
+            });
+            
+            const totalPages = Math.ceil(filteredLabels.length / itemsPerPage);
+            const newPage = currentPage + direction;
+            
+            if (newPage >= 1 && newPage <= totalPages) {
+                currentPage = newPage;
+                renderLabels();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        function showError(message) {
+            loading.classList.add('hidden');
+            console.error(message);
+            
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'fixed top-4 right-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg shadow-sm z-50';
+            errorDiv.innerHTML = `
+                <div class="flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <span class="text-sm">${message}</span>
+                    <button onclick="this.parentElement.parentElement.remove()" class="ml-2 text-red-500 hover:text-red-700">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+            `;
+            document.body.appendChild(errorDiv);
+            
+            setTimeout(() => {
+                if (errorDiv.parentElement) {
+                    errorDiv.remove();
+                }
+            }, 5000);
+        }
+
+        // Utility functions
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function truncateText(text, length) {
+            if (!text) return '';
+            return text.length > length ? text.substring(0, length) + '...' : text;
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr || dateStr === 'Unknown') return 'Unknown';
+            try {
+                return new Date(dateStr).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric'
+                });
+            } catch {
+                return dateStr;
+            }
+        }
+
+        function formatDateTime(dateStr) {
+            if (!dateStr) return 'Unknown';
+            try {
+                return new Date(dateStr).toLocaleString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            } catch {
+                return dateStr;
+            }
+        }
+
+        function formatTextContent(text) {
+            if (!text || text === 'Not specified' || text.includes('Refer to full prescribing information')) {
+                return '<em class="text-gray-400">Detailed information requires individual SPL document review</em>';
+            }
+            
+            const cleaned = text.replace(/<[^>]*>/g, '').trim();
+            if (cleaned.length === 0) {
+                return '<em class="text-gray-400">Information not available in current dataset</em>';
+            }
+            
+            return `<p>${cleaned}</p>`;
+        }
+
+        // Make showFullLabel globally available
+        window.showFullLabel = showFullLabel;
+    </script>
+</body>
+</html>

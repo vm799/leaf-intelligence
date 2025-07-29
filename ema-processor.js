@@ -131,11 +131,11 @@ const FIELD_MAPPINGS = {
 async function getFieldMappings(filePath, fileType) {
   return new Promise((resolve, reject) => {
     if (!fs.existsSync(filePath)) {
-      console.log(`File not found: ${filePath}`);
+      // console.log(`File not found: ${filePath}`);
       return resolve(null);
     }
 
-    console.log(`Detecting field mappings for ${fileType} file: ${filePath}`);
+    // // console.log(`Detecting field mappings for ${fileType} file: ${filePath}`);
 
     // Define specific field name patterns to look for based on file type
     const fieldPatterns = {
@@ -196,7 +196,7 @@ async function getFieldMappings(filePath, fileType) {
 
     readStream.on('end', () => {
       try {
-        console.log(`Read ${fileContent.length} bytes from ${filePath}`);
+        // // console.log(`Read ${fileContent.length} bytes from ${filePath}`);
         
         // Use Papa Parse to get headers more reliably
         const parsedData = Papa.parse(fileContent, {
@@ -206,7 +206,7 @@ async function getFieldMappings(filePath, fileType) {
         });
 
         const headers = parsedData.meta.fields || [];
-        console.log(`Detected ${headers.length} headers:`, headers);
+        // // console.log(`Detected ${headers.length} headers:`, headers);
         
         // Create an initial mapping object
         let mappings = {};
@@ -223,7 +223,7 @@ async function getFieldMappings(filePath, fileType) {
           if (!header) return;
           
           const lowerHeader = header.toLowerCase().trim();
-          console.log(`Processing header: "${lowerHeader}"`);
+          // // console.log(`Processing header: "${lowerHeader}"`);
           
           // Match each header against our patterns for this file type
           const patterns = fieldPatterns[fileType];
@@ -235,7 +235,7 @@ async function getFieldMappings(filePath, fileType) {
                   const match = lowerHeader.includes(keyword) || 
                               levenshteinDistance(lowerHeader, keyword) <= 3; // Allow for small typos
                   if (match) {
-                    console.log(`Matched ${field} to "${header}" using pattern "${keyword}"`);
+                    // console.log(`Matched ${field} to "${header}" using pattern "${keyword}"`);
                   }
                   return match;
                 });
@@ -252,19 +252,19 @@ async function getFieldMappings(filePath, fileType) {
         if (fileType === 'MEDICINES' && !mappings.name && headers.length > 1) {
           // Second column is often the medicine name
           mappings.name = headers[1];
-          console.log(`Using fallback for medicine name: ${headers[1]}`);
+          // console.log(`Using fallback for medicine name: ${headers[1]}`);
         }
         
         if (fileType === 'ORPHANS' && !mappings.name && headers.length > 0) {
           // First column is often the medicine name in orphan designations
           mappings.name = headers[0];
-          console.log(`Using fallback for orphan name: ${headers[0]}`);
+          // console.log(`Using fallback for orphan name: ${headers[0]}`);
         }
 
         // Store all headers so we can search all fields even if unmapped
         mappings._all_headers = headers;
         
-        console.log(`Field mappings for ${fileType}:`, mappings);
+        // // console.log(`Field mappings for ${fileType}:`, mappings);
         resolve(mappings);
       } catch (error) {
         console.error(`Error parsing headers for ${fileType}:`, error);
@@ -282,13 +282,13 @@ async function getFieldMappings(filePath, fileType) {
 async function searchCsvFile(filePath, searchTerm, fieldMappings, threshold = 0.7) {
   return new Promise((resolve, reject) => {
     if (!fs.existsSync(filePath)) {
-      console.log(`File not found: ${filePath}`);
+      // console.log(`File not found: ${filePath}`);
       return resolve([]);
     }
 
     // Normalize search term
     const normalizedSearchTerm = searchTerm.toLowerCase().trim();
-    console.log(`Searching for "${normalizedSearchTerm}" in ${filePath} with threshold ${threshold}`);
+    // console.log(`Searching for "${normalizedSearchTerm}" in ${filePath} with threshold ${threshold}`);
     
     let results = [];
 
@@ -324,7 +324,7 @@ async function searchCsvFile(filePath, searchTerm, fieldMappings, threshold = 0.
           console.warn(`Warnings when parsing ${filePath}:`, parsedData.errors);
         }
         
-        console.log(`Parsed ${parsedData.data.length} rows from ${filePath}`);
+        // // console.log(`Parsed ${parsedData.data.length} rows from ${filePath}`);
 
         // Track matched columns for debugging
         const matchedColumns = new Set();
@@ -349,7 +349,7 @@ async function searchCsvFile(filePath, searchTerm, fieldMappings, threshold = 0.
               matchingField = field;
               directMatch = true;
               matchedColumns.add(field);
-              console.log(`Exact match found in field "${field}": "${value}"`);
+              // console.log(`Exact match found in field "${field}": "${value}"`);
               return;
             }
 
@@ -360,7 +360,7 @@ async function searchCsvFile(filePath, searchTerm, fieldMappings, threshold = 0.
                 highestSimilarity = containSimilarity;
                 matchingField = field;
                 matchedColumns.add(field);
-                console.log(`Substring match found in field "${field}": "${value}" contains "${normalizedSearchTerm}"`);
+                // console.log(`Substring match found in field "${field}": "${value}" contains "${normalizedSearchTerm}"`);
               }
             }
 
@@ -417,9 +417,9 @@ async function searchCsvFile(filePath, searchTerm, fieldMappings, threshold = 0.
         });
         
         if (matchedColumns.size > 0) {
-          console.log(`Search matched in columns: ${Array.from(matchedColumns).join(', ')}`);
+          // // console.log(`Search matched in columns: ${Array.from(matchedColumns).join(', ')}`);
         }
-        console.log(`Found ${results.length} matches for "${normalizedSearchTerm}"`);
+        // // console.log(`Found ${results.length} matches for "${normalizedSearchTerm}"`);
 
         // Sort results by similarity score (highest first)
         results.sort((a, b) => {
@@ -456,7 +456,7 @@ async function searchEmaDrugData(drugName, threshold = 0.7) {
     
     // Normalize drug name for search
     const normalizedDrugName = drugName.toLowerCase().trim();
-    console.log(`Searching for "${normalizedDrugName}" with threshold ${threshold}`);
+    // console.log(`Searching for "${normalizedDrugName}" with threshold ${threshold}`);
     
     // Search results structure
     const results = {
@@ -479,7 +479,7 @@ async function searchEmaDrugData(drugName, threshold = 0.7) {
       
       // Normalize the medicine results
       results.medicines = normalizeEmaData(medicinesResults);
-      console.log(`Found ${results.medicines.length} medicine results`);
+      // console.log(`Found ${results.medicines.length} medicine results`);
     }
     
     // Search in orphans data with improved field mappings
@@ -493,7 +493,7 @@ async function searchEmaDrugData(drugName, threshold = 0.7) {
       
       // Normalize the orphan results
       results.orphans = normalizeEmaData(orphansResults);
-      console.log(`Found ${results.orphans.length} orphan results`);
+      // console.log(`Found ${results.orphans.length} orphan results`);
     }
     
     // Search in other data files (can be extended with similar improvements)
@@ -507,7 +507,7 @@ async function searchEmaDrugData(drugName, threshold = 0.7) {
       
       // Normalize the referrals results
       results.referrals = normalizeEmaData(referralsResults);
-      console.log(`Found ${results.referrals.length} referral results`);
+      // console.log(`Found ${results.referrals.length} referral results`);
     }
     
     if (fs.existsSync(EMA_FILES.DHPC)) {
@@ -520,7 +520,7 @@ async function searchEmaDrugData(drugName, threshold = 0.7) {
       
       // Normalize the DHPC results
       results.dhpc = normalizeEmaData(dhpcResults);
-      console.log(`Found ${results.dhpc.length} safety communication results`);
+      // console.log(`Found ${results.dhpc.length} safety communication results`);
     }
     
     if (fs.existsSync(EMA_FILES.PSUSA)) {
@@ -533,7 +533,7 @@ async function searchEmaDrugData(drugName, threshold = 0.7) {
       
       // Normalize the PSUSA results
       results.psusa = normalizeEmaData(psusaResults);
-      console.log(`Found ${results.psusa.length} PSUSA results`);
+      // console.log(`Found ${results.psusa.length} PSUSA results`);
     }
     
     if (fs.existsSync(EMA_FILES.SHORTAGES)) {
@@ -546,7 +546,7 @@ async function searchEmaDrugData(drugName, threshold = 0.7) {
       
       // Normalize the shortages results
       results.shortages = normalizeEmaData(shortagesResults);
-      console.log(`Found ${results.shortages.length} shortage results`);
+      // console.log(`Found ${results.shortages.length} shortage results`);
     }
     
     // Return comprehensive results
@@ -1263,7 +1263,7 @@ function parseDate(dateString) {
 
 async function initializeFieldMappings() {
   try {
-    console.log('Initializing field mappings...');
+    // console.log('Initializing field mappings...');
     
     // Get field mappings for each file type with enhanced detection
     const medicinesMappings = await getFieldMappings(EMA_FILES.MEDICINES, 'MEDICINES');
@@ -1275,31 +1275,31 @@ async function initializeFieldMappings() {
     
     // Update global field mappings
     if (medicinesMappings) {
-      console.log('Medicine mappings:', medicinesMappings);
+      // console.log('Medicine mappings:', medicinesMappings);
       FIELD_MAPPINGS.MEDICINES = medicinesMappings;
     }
     if (orphansMappings) {
-      console.log('Orphan mappings:', orphansMappings);
+      // console.log('Orphan mappings:', orphansMappings);
       FIELD_MAPPINGS.ORPHANS = orphansMappings;
     }
     if (dhpcMappings) {
-      console.log('DHPC mappings:', dhpcMappings);
+      // console.log('DHPC mappings:', dhpcMappings);
       FIELD_MAPPINGS.DHPC = dhpcMappings;
     }
     if (psusaMappings) {
-      console.log('PSUSA mappings:', psusaMappings);
+      // console.log('PSUSA mappings:', psusaMappings);
       FIELD_MAPPINGS.PSUSA = psusaMappings;
     }
     if (referralsMappings) {
-      console.log('Referrals mappings:', referralsMappings);
+      // console.log('Referrals mappings:', referralsMappings);
       FIELD_MAPPINGS.REFERRALS = referralsMappings;
     }
     if (shortagesMappings) {
-      console.log('Shortages mappings:', shortagesMappings);
+      // console.log('Shortages mappings:', shortagesMappings);
       FIELD_MAPPINGS.SHORTAGES = shortagesMappings;
     }
     
-    console.log('Field mappings initialization complete');
+    // console.log('Field mappings initialization complete');
   } catch (error) {
     console.error('Error initializing field mappings:', error);
   }
@@ -1489,7 +1489,7 @@ function formatDate(dateString) {
 async function processCSVFile(filePath, fileType) {
   return new Promise((resolve, reject) => {
     if (!fs.existsSync(filePath)) {
-      console.log(`File not found: ${filePath}`);
+      // console.log(`File not found: ${filePath}`);
       return resolve([]);
     }
     
@@ -1500,18 +1500,18 @@ async function processCSVFile(filePath, fileType) {
       }
       
       try {
-        console.log(`Processing ${fileType} file: ${filePath}`);
+        // console.log(`Processing ${fileType} file: ${filePath}`);
         
         // Clean the file content - remove BOM and normalize line endings
         const cleanContent = fileContent
           .replace(/^\uFEFF/, '') // Remove BOM
           .replace(/\r\n/g, '\n'); // Normalize line endings
         
-        console.log(`File size: ${cleanContent.length} bytes`);
+        // console.log(`File size: ${cleanContent.length} bytes`);
         
         // Get the first few lines to inspect
         const firstLines = cleanContent.split('\n').slice(0, 10).join('\n');
-        console.log(`First few lines of file:\n${firstLines}`);
+        // console.log(`First few lines of file:\n${firstLines}`);
         
         // Parse with PapaParse for better handling
         const parseOptions = {
@@ -1532,12 +1532,12 @@ async function processCSVFile(filePath, fileType) {
           console.warn(`Warnings when parsing ${filePath}:`, parseResult.errors);
         }
         
-        console.log(`Parsed ${parseResult.data.length} rows from ${fileType} file`);
+        // console.log(`Parsed ${parseResult.data.length} rows from ${fileType} file`);
         
         // Log the first row to see the structure
         if (parseResult.data.length > 0) {
-          console.log('Sample row:', JSON.stringify(parseResult.data[0], null, 2));
-          console.log('Detected headers:', parseResult.meta.fields);
+          // console.log('Sample row:', JSON.stringify(parseResult.data[0], null, 2));
+          // console.log('Detected headers:', parseResult.meta.fields);
         }
         
         // Process each row with enhanced data extraction
@@ -1545,11 +1545,11 @@ async function processCSVFile(filePath, fileType) {
           .filter(row => Object.keys(row).length > 0) // Filter out empty rows
           .map(row => {
             const extracted = extractRowData(row, fileType);
-            console.log(`Extracted ${Object.keys(extracted.normalized).length} fields for row`);
+            // console.log(`Extracted ${Object.keys(extracted.normalized).length} fields for row`);
             return extracted;
           });
         
-        console.log(`Successfully processed ${processedData.length} rows from ${fileType} file`);
+        // console.log(`Successfully processed ${processedData.length} rows from ${fileType} file`);
         resolve(processedData);
       } catch (error) {
         console.error(`Error processing ${filePath}:`, error);
@@ -1580,7 +1580,7 @@ async function getMedicineData(medicineName) {
     
     // If no results found, try a more relaxed search
     if (searchResults.total.all === 0) {
-      console.log(`No exact matches found for "${medicineName}". Trying with relaxed threshold.`);
+      // console.log(`No exact matches found for "${medicineName}". Trying with relaxed threshold.`);
       const relaxedResults = await searchEmaDrugData(medicineName, 0.6);
       return {
         ...relaxedResults,
@@ -1599,7 +1599,7 @@ async function getMedicineData(medicineName) {
         data: searchResults.results.medicines[0]
       };
       bestMatchScore = searchResults.results.medicines[0]._similarity;
-      console.log(`Found best match in medicines: ${getValueForField(searchResults.results.medicines[0], 'name')} (score: ${bestMatchScore})`);
+      // console.log(`Found best match in medicines: ${getValueForField(searchResults.results.medicines[0], 'name')} (score: ${bestMatchScore})`);
     }
     
     // Check orphans
@@ -1611,13 +1611,13 @@ async function getMedicineData(medicineName) {
           data: topOrphan
         };
         bestMatchScore = topOrphan._similarity;
-        console.log(`Found best match in orphans: ${getValueForField(topOrphan, 'name')} (score: ${bestMatchScore})`);
+        // console.log(`Found best match in orphans: ${getValueForField(topOrphan, 'name')} (score: ${bestMatchScore})`);
       }
     }
     
     // If we found a good match, gather more comprehensive data
     if (bestMatch && bestMatchScore > 0.75) {
-      console.log(`Processing best match (${bestMatch.type}) with score ${bestMatchScore}`);
+      // console.log(`Processing best match (${bestMatch.type}) with score ${bestMatchScore}`);
       
       // Gather related information
       const medicineInfo = {
@@ -1642,7 +1642,7 @@ async function getMedicineData(medicineName) {
           if (medicineSubstance && orphanSubstance) {
             const similarity = calculateSimilarity(medicineSubstance, orphanSubstance);
             if (similarity > 0.8) {
-              console.log(`Found related orphan designation based on substance similarity (${similarity})`);
+              // console.log(`Found related orphan designation based on substance similarity (${similarity})`);
               return true;
             }
           }
@@ -1650,7 +1650,7 @@ async function getMedicineData(medicineName) {
         });
         
         medicineInfo.related.orphanDesignations = orphanMatches;
-        console.log(`Found ${orphanMatches.length} related orphan designations`);
+        // console.log(`Found ${orphanMatches.length} related orphan designations`);
       } else if (bestMatch.type === 'orphan') {
         // If we found an orphan, look for related medicines
         const medicineMatches = searchResults.results.medicines.filter(medicine => {
@@ -1661,7 +1661,7 @@ async function getMedicineData(medicineName) {
           if (orphanSubstance && medicineSubstance) {
             const similarity = calculateSimilarity(orphanSubstance, medicineSubstance);
             if (similarity > 0.8) {
-              console.log(`Found related medicine based on substance similarity (${similarity})`);
+              // console.log(`Found related medicine based on substance similarity (${similarity})`);
               return true;
             }
           }
@@ -1669,7 +1669,7 @@ async function getMedicineData(medicineName) {
         });
         
         medicineInfo.related.medicines = medicineMatches;
-        console.log(`Found ${medicineMatches.length} related medicines`);
+        // console.log(`Found ${medicineMatches.length} related medicines`);
       }
       
       // Add normalized data fields to each item
@@ -1696,7 +1696,7 @@ async function getMedicineData(medicineName) {
     }
     
     // If no good match found, return all potential matches
-    console.log(`No definitive match found for "${medicineName}", returning all potential matches`);
+    // console.log(`No definitive match found for "${medicineName}", returning all potential matches`);
     return {
       query: medicineName,
       result: searchResults,
@@ -2034,7 +2034,7 @@ function getEmaDataStatus(){
 // Add to ema-processor.js
 async function generateAISummary(drugName, data) {
   try {
-    console.log(`Generating AI summary for ${drugName}`);
+    // console.log(`Generating AI summary for ${drugName}`);
     
     if (!data || !data.results) {
       console.error('Invalid data for AI summary');
@@ -2091,14 +2091,14 @@ async function generateAISummary(drugName, data) {
       }))
     };
     
-    console.log('Context prepared for AI summary');
+    // console.log('Context prepared for AI summary');
     
     // Generate summary using AI service (mock implementation for now)
     // In a real implementation, you would call an AI service API
     // For this example, we'll generate a structured summary based on the context
     
     const summary = generateStructuredSummary(context);
-    console.log('AI summary generated successfully');
+    // console.log('AI summary generated successfully');
     
     return {
       summary,
@@ -2465,7 +2465,7 @@ module.exports = {
 //     if (referralsMappings) FIELD_MAPPINGS.REFERRALS = referralsMappings;
 //     if (shortagesMappings) FIELD_MAPPINGS.SHORTAGES = shortagesMappings;
     
-//     console.log('Field mappings initialized:', FIELD_MAPPINGS);
+//     // console.log('Field mappings initialized:', FIELD_MAPPINGS);
 //   } catch (error) {
 //     console.error('Error initializing field mappings:', error);
 //   }

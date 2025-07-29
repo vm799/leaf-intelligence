@@ -1,0 +1,15 @@
+{"level":"info","message":"Connected to MongoDB","timestamp":"2025-07-25T15:05:03.189Z"}
+{"level":"info","message":"Created unique index on Name of medicine and Active substance","timestamp":"2025-07-25T15:05:03.271Z"}
+{"level":"info","message":"Processed batch: inserted 17, updated 0","timestamp":"2025-07-25T15:05:03.409Z"}
+{"level":"info","message":"Upload complete. Processed 17 records, inserted 17 documents, updated 0 documents, skipped 0 records.","timestamp":"2025-07-25T15:05:03.409Z"}
+{"level":"info","message":"MongoDB connection closed.","timestamp":"2025-07-25T15:05:03.413Z"}
+{"level":"info","message":"Connected to MongoDB","timestamp":"2025-07-25T15:06:37.194Z"}
+{"level":"info","message":"Created unique index on Name of medicine and Active substance","timestamp":"2025-07-25T15:06:37.291Z"}
+{"level":"info","message":"Processed batch: inserted 0, updated 0","timestamp":"2025-07-25T15:06:37.405Z"}
+{"level":"info","message":"Upload complete. Processed 17 records, inserted 0 documents, updated 0 documents, skipped 0 records.","timestamp":"2025-07-25T15:06:37.405Z"}
+{"level":"info","message":"MongoDB connection closed.","timestamp":"2025-07-25T15:06:37.408Z"}
+{"level":"info","message":"Connected to MongoDB","timestamp":"2025-07-25T15:06:51.201Z"}
+{"level":"info","message":"Created unique index on Name of medicine and Active substance","timestamp":"2025-07-25T15:06:51.265Z"}
+{"level":"info","message":"Processed batch: inserted 0, updated 0","timestamp":"2025-07-25T15:06:51.368Z"}
+{"level":"info","message":"Upload complete. Processed 17 records, inserted 0 documents, updated 0 documents, skipped 0 records.","timestamp":"2025-07-25T15:06:51.368Z"}
+{"level":"info","message":"MongoDB connection closed.","timestamp":"2025-07-25T15:06:51.371Z"}
