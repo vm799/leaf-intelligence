@@ -1,5 +1,5 @@
 // ===================================================================
-// COMPLETE ENHANCED WARNING LETTERS V2 - Full System with View Details Integration
+// COMPLETE ENHANCED WARNING LETTERS V2 - Full System with Modern UI
 // Replace your entire enhanced-warning-letters-v2.js with this complete version
 // ===================================================================
 
@@ -9,6 +9,7 @@ window.enhancedWarningLettersFixed = {
     warningLetters: [],
     form483s: [],
     inspections: [],
+    citations: [],  // Added for recent citations
     companies: [],
     metrics: {},
     commonViolations: [],
@@ -18,7 +19,7 @@ window.enhancedWarningLettersFixed = {
 
   // Initialize with companies
   init: function(companies) {
-    console.log('🚀 Initializing COMPLETE Enhanced Warning Letters for:', companies);
+    console.log('🚀 Initializing Enhanced Warning Letters for:', companies);
     this.state.selectedCompanies = companies || [];
     this.setupUI();
     if (companies && companies.length > 0) {
@@ -59,68 +60,90 @@ window.enhancedWarningLettersFixed = {
     this.renderDashboard();
   },
 
-  // Render complete dashboard
+  // Render complete dashboard with modern UI
   renderDashboard: function() {
     const container = document.getElementById('enhancedWLContainer');
     if (!container) return;
 
     container.innerHTML = `
-      <!-- Metrics Cards -->
-      <div class="mb-6">
-        <h2 class="text-2xl font-bold text-gray-900 mb-4">Warning Letters & 483s Intelligence Dashboard</h2>
+      <!-- Modern Dashboard Header -->
+      <div class="mb-8">
+        <div class="bg-gradient-to-r from-indigo-600 to-blue-600 rounded-lg shadow-lg p-6 text-white">
+          <h2 class="text-2xl font-bold mb-2">FDA Regulatory Intelligence Dashboard</h2>
+          <p class="text-indigo-100">Comprehensive analysis of Warning Letters, Form 483s, and Inspections</p>
+        </div>
+      </div>
+      
+      <!-- Metrics Cards with Modern Design -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div class="bg-white rounded-lg shadow-md p-6 border-t-4 border-red-500 transform hover:scale-105 transition-transform">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm font-medium text-gray-600">Warning Letters</p>
+              <p class="text-3xl font-bold text-gray-900 mt-1" id="totalWarningLetters">0</p>
+            </div>
+            <div class="p-3 bg-red-100 rounded-full">
+              <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+              </svg>
+            </div>
+          </div>
+        </div>
         
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-          <div class="bg-white rounded-lg shadow p-6 border-l-4 border-red-500">
-            <div class="flex items-center justify-between">
-              <div>
-                <p class="text-sm font-medium text-gray-600">Total Warning Letters</p>
-                <p class="text-2xl font-bold text-gray-900" id="totalWarningLetters">0</p>
-              </div>
-              <div class="p-3 bg-red-100 rounded-full">
-                <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-                </svg>
-              </div>
+        <div class="bg-white rounded-lg shadow-md p-6 border-t-4 border-yellow-500 transform hover:scale-105 transition-transform">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm font-medium text-gray-600">Form 483s</p>
+              <p class="text-3xl font-bold text-gray-900 mt-1" id="totalForm483s">0</p>
+            </div>
+            <div class="p-3 bg-yellow-100 rounded-full">
+              <svg class="w-8 h-8 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+              </svg>
             </div>
           </div>
-          
-          <div class="bg-white rounded-lg shadow p-6 border-l-4 border-orange-500">
-            <div class="flex items-center justify-between">
-              <div>
-                <p class="text-sm font-medium text-gray-600">Companies Affected</p>
-                <p class="text-2xl font-bold text-gray-900" id="companiesAffected">0</p>
-              </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-md p-6 border-t-4 border-blue-500 transform hover:scale-105 transition-transform">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm font-medium text-gray-600">Citations</p>
+              <p class="text-3xl font-bold text-gray-900 mt-1" id="totalCitations">0</p>
+            </div>
+            <div class="p-3 bg-blue-100 rounded-full">
+              <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+              </svg>
             </div>
           </div>
-          
-          <div class="bg-white rounded-lg shadow p-6 border-l-4 border-yellow-500">
-            <div class="flex items-center justify-between">
-              <div>
-                <p class="text-sm font-medium text-gray-600">Total Form 483s</p>
-                <p class="text-2xl font-bold text-gray-900" id="totalForm483s">0</p>
-              </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-md p-6 border-t-4 border-purple-500 transform hover:scale-105 transition-transform">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm font-medium text-gray-600">Total Inspections</p>
+              <p class="text-3xl font-bold text-gray-900 mt-1" id="totalInspections">0</p>
             </div>
-          </div>
-          
-          <div class="bg-white rounded-lg shadow p-6 border-l-4 border-blue-500">
-            <div class="flex items-center justify-between">
-              <div>
-                <p class="text-sm font-medium text-gray-600">Total Inspections</p>
-                <p class="text-2xl font-bold text-gray-900" id="totalInspections">0</p>
-              </div>
+            <div class="p-3 bg-purple-100 rounded-full">
+              <svg class="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+              </svg>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Company Table -->
-      <div class="bg-white rounded-lg shadow mb-6">
-        <div class="p-6 border-b">
+      <!-- Company Analysis Table with Modern Design -->
+      <div class="bg-white rounded-lg shadow-lg mb-6 overflow-hidden">
+        <div class="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 border-b">
           <div class="flex justify-between items-center">
-            <h3 class="text-lg font-semibold">Company Regulatory Analysis</h3>
+            <h3 class="text-lg font-semibold text-gray-800">Company Regulatory Analysis</h3>
             <button onclick="window.enhancedWarningLettersFixed.refreshData()" 
-                    class="px-3 py-2 text-sm bg-indigo-100 text-indigo-700 rounded hover:bg-indigo-200">
-              Refresh
+                    class="px-4 py-2 text-sm bg-white text-indigo-600 border border-indigo-300 rounded-lg hover:bg-indigo-50 transition-colors flex items-center">
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+              </svg>
+              Refresh Data
             </button>
           </div>
         </div>
@@ -131,6 +154,7 @@ window.enhancedWarningLettersFixed = {
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Company</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Warning Letters</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Form 483s</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Citations</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Inspections</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Risk Status</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
@@ -143,25 +167,27 @@ window.enhancedWarningLettersFixed = {
         </div>
       </div>
 
-      <!-- Violations and Drugs -->
+      <!-- Analytics Section -->
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <div class="bg-white rounded-lg shadow">
-          <div class="p-6 border-b">
-            <h3 class="text-lg font-semibold">Most Common Violations</h3>
+        <!-- Common Violations Card -->
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+          <div class="bg-gradient-to-r from-orange-50 to-orange-100 px-6 py-4 border-b">
+            <h3 class="text-lg font-semibold text-gray-800">Most Common Violations</h3>
           </div>
           <div class="p-6">
-            <div id="commonViolations">
+            <div id="commonViolations" class="space-y-3">
               <!-- Dynamic content -->
             </div>
           </div>
         </div>
         
-        <div class="bg-white rounded-lg shadow">
-          <div class="p-6 border-b">
-            <h3 class="text-lg font-semibold">Drug/Compound Mentions</h3>
+        <!-- Drug Mentions Card -->
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+          <div class="bg-gradient-to-r from-green-50 to-green-100 px-6 py-4 border-b">
+            <h3 class="text-lg font-semibold text-gray-800">Drug/Compound Mentions</h3>
           </div>
           <div class="p-6">
-            <div id="drugMentions">
+            <div id="drugMentions" class="space-y-3">
               <!-- Dynamic content -->
             </div>
           </div>
@@ -170,497 +196,334 @@ window.enhancedWarningLettersFixed = {
     `;
   },
 
-  // Perform comprehensive search
+  // Perform comprehensive search using proper backend endpoints
   performSearch: async function(companies) {
-    console.log('🔍 MAIN SEARCH: Performing comprehensive search for:', companies);
+    console.log('🔍 Performing comprehensive search for:', companies);
     
     this.state.loading = true;
     this.state.selectedCompanies = companies;
     this.showLoading(true);
 
     try {
-        let data = null;
-        let usedBackend = false;
+      // Fetch all data types in parallel using proper endpoints
+      const [warningLettersData, form483Data, inspectionData] = await Promise.all([
+        this.fetchWarningLetters(companies),
+        this.fetchForm483s(companies),
+        this.fetchInspections(companies)
+      ]);
 
-        // STEP 1: Try the comprehensive backend endpoint
-        try {
-            console.log('📡 Trying comprehensive backend endpoint...');
-            const response = await fetch('/api/fda/comprehensive-search', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ companies })
-            });
-            
-            if (response.ok) {
-                const result = await response.json();
-                if (result.success && result.data) {
-                    data = result.data;
-                    usedBackend = true;
-                    console.log('✅ Using backend comprehensive endpoint');
-                }
-            } else {
-                console.log(`Backend endpoint failed: ${response.status}`);
-            }
-        } catch (error) {
-            console.log('Backend endpoint not available:', error.message);
-        }
+      // Process and store results
+      this.state.warningLetters = warningLettersData || [];
+      this.state.form483s = form483Data || [];
+      this.state.citations = inspectionData.recentInspections || [];
+      this.state.inspections = inspectionData.historicalInspections || [];
 
-        // STEP 2: If backend fails, use ENHANCED fallback
-        if (!data) {
-            console.log('🔄 Backend failed, using ENHANCED fallback search...');
-            data = await this.performEnhancedFallbackSearch(companies);
-        }
+      // Process analytics
+      this.processViolations();
+      this.processDrugMentions();
+      this.buildCompanyMetrics();
 
-        // STEP 3: Update state with results
-        this.state.companies = data.companies || [];
-        this.state.warningLetters = data.warningLetters || [];
-        this.state.form483s = data.form483s || [];
-        this.state.inspections = data.inspections || [];
-        this.state.metrics = data.metrics || {};
-        this.state.commonViolations = data.commonViolations || [];
-        this.state.drugMentions = data.drugMentions || [];
-
-        // STEP 4: Update UI
-        this.updateDashboard();
-        
-        // STEP 5: Show results
-        const totalRecords = this.state.warningLetters.length + this.state.form483s.length + this.state.inspections.length;
-        console.log(`✅ MAIN SEARCH completed: ${totalRecords} total records (Backend: ${usedBackend})`);
-        
-        if (totalRecords > 0) {
-            this.showSuccess(`Found ${totalRecords} regulatory records using ${usedBackend ? 'backend' : 'enhanced fallback'} search`);
-        } else {
-            this.showInfo('No regulatory records found. Companies may be clean or use different naming conventions.');
-        }
+      // Update UI
+      this.updateDashboard();
+      
+      // Show results summary
+      const totalRecords = this.state.warningLetters.length + 
+                          this.state.form483s.length + 
+                          this.state.citations.length + 
+                          this.state.inspections.length;
+      
+      console.log(`✅ Search completed: ${totalRecords} total records found`);
+      
+      if (totalRecords > 0) {
+        this.showSuccess(`Found ${totalRecords} regulatory records for ${companies.length} companies`);
+      } else {
+        this.showInfo('No regulatory records found. Try using different company name variations.');
+      }
 
     } catch (error) {
-        console.error('❌ MAIN SEARCH failed:', error);
-        this.showError('Search failed: ' + error.message);
+      console.error('❌ Search failed:', error);
+      this.showError('Search failed: ' + error.message);
     } finally {
-        this.state.loading = false;
-        this.showLoading(false);
+      this.state.loading = false;
+      this.showLoading(false);
     }
   },
 
-  // Enhanced fallback search with deep inspection
-  performEnhancedFallbackSearch: async function(companies) {
-    console.log('🔄 ENHANCED FALLBACK: Starting comprehensive search...');
-    
-    const data = {
-        companies: [],
-        warningLetters: [],
-        form483s: [],
-        inspections: [],
-        metrics: {},
-        commonViolations: [],
-        drugMentions: []
-    };
-
-    // ENHANCED SEARCH VARIATIONS GENERATOR
-    const generateEnhancedVariations = (company) => {
-        const variations = new Set();
-        const original = company.trim();
-        
-        // 1. Original name
-        variations.add(original);
-        
-        // 2. Remove common business suffixes
-        const withoutSuffixes = original.replace(/\s+(INC|LLC|LTD|CORP|CORPORATION|COMPANY|CO|PHARMA|PHARMACEUTICALS|PHARMS|USA|OPERATIONS|MANUFACTURING|MFG|LABS|LABORATORIES|LLABS|MEDICAL|HEALTHCARE|THERAPEUTICS)\.?$/i, '').trim();
-        if (withoutSuffixes !== original && withoutSuffixes.length > 2) {
-            variations.add(withoutSuffixes);
-        }
-        
-        // 3. Individual significant words
-        const words = original.split(/\s+/).filter(w => w.length > 3 && !w.match(/^(INC|LLC|LTD|CORP|USA|CO|THE|AND|OF|FOR)$/i));
-        words.forEach(word => variations.add(word));
-        
-        // 4. First significant word
-        if (words.length > 0) {
-            variations.add(words[0]);
-        }
-        
-        // 5. Last significant word (often the key identifier)
-        if (words.length > 1) {
-            const lastWord = words[words.length - 1];
-            if (!lastWord.match(/^(INC|LLC|LTD|CORP|USA|CO)$/i)) {
-                variations.add(lastWord);
-            }
-        }
-        
-        // 6. First two words
-        if (words.length > 1) {
-            variations.add(words.slice(0, 2).join(' '));
-        }
-        
-        return Array.from(variations).filter(v => v.length > 2).slice(0, 8);
-    };
-
-    // 1. ENHANCED WARNING LETTERS SEARCH
-    console.log('📄 Searching Warning Letters with enhanced patterns...');
-    const searchedWLTerms = new Set();
-    
-    for (const company of companies) {
-        const variations = generateEnhancedVariations(company);
-        console.log(`WL variations for "${company}":`, variations);
-        
-        let foundWL = false;
-        
-        for (const variation of variations) {
-            if (foundWL || searchedWLTerms.has(variation.toLowerCase())) continue;
-            searchedWLTerms.add(variation.toLowerCase());
-            
-            try {
-                const params = new URLSearchParams({
-                    term: variation,
-                    field: 'company',
-                    page: 1,
-                    perPage: 200
-                });
-                
-                const response = await fetch(`/api/wl/search?${params}`);
-                if (response.ok) {
-                    const result = await response.json();
-                    if (result.results?.length > 0) {
-                        console.log(`✅ WL: Found ${result.results.length} results for "${variation}" → ${company}`);
-                        result.results.forEach(wl => {
-                            wl.sourceCompany = company;
-                            wl.matchedTerm = variation;
-                            data.warningLetters.push(wl);
-                        });
-                        foundWL = true;
-                    }
-                }
-                
-                // Small delay to avoid overwhelming the API
-                await new Promise(resolve => setTimeout(resolve, 50));
-                
-            } catch (error) {
-                console.warn(`WL search failed for ${variation}:`, error.message);
-            }
-        }
-    }
-
-    // 2. ENHANCED FORM 483 SEARCH - Multiple strategies
-    console.log('📋 Searching Form 483s with multiple strategies...');
-    const searchedF483Terms = new Set();
-    
-    for (const company of companies) {
-        const variations = generateEnhancedVariations(company);
-        console.log(`483 variations for "${company}":`, variations);
-        
-        let foundF483 = false;
-        
-        // Strategy A: Direct API search
-        for (const variation of variations) {
-            if (foundF483 || searchedF483Terms.has(variation.toLowerCase())) continue;
-            searchedF483Terms.add(variation.toLowerCase());
-            
-            try {
-                const params = new URLSearchParams({
-                    term: variation,
-                    field: 'legalName',
-                    page: 1,
-                    perPage: 200
-                });
-                
-                const response = await fetch(`/api/form483/search?${params}`);
-                if (response.ok) {
-                    const result = await response.json();
-                    if (result.results?.length > 0) {
-                        console.log(`✅ 483 API: Found ${result.results.length} results for "${variation}" → ${company}`);
-                        result.results.forEach(f483 => {
-                            f483.sourceCompany = company;
-                            f483.matchedTerm = variation;
-                            data.form483s.push(f483);
-                        });
-                        foundF483 = true;
-                    }
-                }
-                
-                await new Promise(resolve => setTimeout(resolve, 50));
-                
-            } catch (error) {
-                console.warn(`483 API search failed for ${variation}:`, error.message);
-            }
-        }
-        
-        // Strategy B: Inspection data mining (if API search fails)
-        if (!foundF483) {
-            try {
-                const inspectionResponse = await fetch('/api/inspection-data');
-                if (inspectionResponse.ok) {
-                    const inspectionData = await inspectionResponse.json();
-                    
-                    if (inspectionData.recentInspections) {
-                        const matching483s = inspectionData.recentInspections.filter(item => {
-                            const legalName = (item["Legal Name"] || '').toLowerCase();
-                            const recordType = (item["Record Type"] || '').toLowerCase();
-                            
-                            // Check if it's a Form 483
-                            const is483 = recordType.includes('483') || recordType === 'form 483' || recordType === 'citation';
-                            
-                            if (is483) {
-                                // Check if any variation matches
-                                return variations.some(variation => {
-                                    const varLower = variation.toLowerCase();
-                                    return legalName.includes(varLower) || 
-                                           varLower.includes(legalName.split(' ')[0] || '') ||
-                                           this.fuzzyMatchStrings(legalName, varLower);
-                                });
-                            }
-                            return false;
-                        });
-                        
-                        if (matching483s.length > 0) {
-                            console.log(`✅ 483 Inspection: Found ${matching483s.length} results for ${company}`);
-                            matching483s.forEach(f483 => {
-                                f483.sourceCompany = company;
-                                f483.matchedTerm = 'inspection_data';
-                                // Normalize fields
-                                f483.legalName = f483["Legal Name"];
-                                f483.recordDate = f483["Record Date"];
-                                f483.feiNumber = f483["FEI Number"];
-                                data.form483s.push(f483);
-                            });
-                            foundF483 = true;
-                        }
-                    }
-                }
-            } catch (error) {
-                console.warn(`483 inspection mining failed for ${company}:`, error.message);
-            }
-        }
-    }
-
-    // 3. ENHANCED INSPECTION SEARCH
-    console.log('🏭 Searching Historical Inspections...');
+  // Fetch warning letters using backend endpoint
+  fetchWarningLetters: async function(companies) {
     try {
-        const response = await fetch('/api/inspection-data');
+      console.log('📄 Fetching warning letters...');
+      const allLetters = [];
+      
+      // Search for each company
+      for (const company of companies) {
+        const response = await fetch('/api/search-wl', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            query: company,
+            limit: 100
+          })
+        });
+        
         if (response.ok) {
-            const inspectionData = await response.json();
-            
-            if (inspectionData.historicalInspections) {
-                companies.forEach(company => {
-                    const variations = generateEnhancedVariations(company);
-                    
-                    const companyInspections = inspectionData.historicalInspections.filter(inspection => {
-                        const firmName = (inspection["Firm Name"] || '').toLowerCase();
-                        const legalName = (inspection["Legal Name"] || '').toLowerCase();
-                        
-                        return variations.some(variation => {
-                            const varLower = variation.toLowerCase();
-                            return firmName.includes(varLower) || 
-                                   legalName.includes(varLower) ||
-                                   varLower.includes(firmName.split(' ')[0] || '') ||
-                                   varLower.includes(legalName.split(' ')[0] || '') ||
-                                   this.fuzzyMatchStrings(firmName, varLower) ||
-                                   this.fuzzyMatchStrings(legalName, varLower);
-                        });
-                    });
-                    
-                    companyInspections.forEach(inspection => {
-                        inspection.sourceCompany = company;
-                        data.inspections.push(inspection);
-                    });
-                    
-                    if (companyInspections.length > 0) {
-                        console.log(`✅ Inspections: Found ${companyInspections.length} results for ${company}`);
-                    }
-                });
-            }
+          const data = await response.json();
+          if (data.results && Array.isArray(data.results)) {
+            // Add source company for tracking
+            data.results.forEach(letter => {
+              letter.sourceCompany = company;
+            });
+            allLetters.push(...data.results);
+          }
         }
+      }
+      
+      console.log(`Found ${allLetters.length} warning letters`);
+      return allLetters;
     } catch (error) {
-        console.warn('Inspection search failed:', error);
+      console.error('Error fetching warning letters:', error);
+      return [];
     }
+  },
 
-    // 4. ENHANCED VIOLATION EXTRACTION
-    console.log('⚗️ Extracting violations from content...');
+  // Fetch Form 483s using backend endpoint
+  fetchForm483s: async function(companies) {
+    try {
+      console.log('📋 Fetching Form 483s...');
+      const allForm483s = [];
+      
+      // Search for each company using multiple search strategies
+      for (const company of companies) {
+        // Try different search fields
+        const searchFields = ['company', 'legalName'];
+        
+        for (const field of searchFields) {
+          const params = new URLSearchParams({
+            term: company,
+            field: field,
+            page: 1,
+            perPage: 200
+          });
+          
+          const response = await fetch(`/api/form483/search?${params}`);
+          
+          if (response.ok) {
+            const data = await response.json();
+            if (data.results && Array.isArray(data.results)) {
+              // Add source company for tracking
+              data.results.forEach(form483 => {
+                form483.sourceCompany = company;
+              });
+              allForm483s.push(...data.results);
+            }
+          }
+        }
+      }
+      
+      // Remove duplicates based on ID
+      const uniqueForm483s = Array.from(
+        new Map(allForm483s.map(item => [item._id || item.id, item])).values()
+      );
+      
+      console.log(`Found ${uniqueForm483s.length} Form 483s`);
+      return uniqueForm483s;
+    } catch (error) {
+      console.error('Error fetching Form 483s:', error);
+      return [];
+    }
+  },
+
+  // Fetch inspections using backend endpoint
+  fetchInspections: async function(companies) {
+    try {
+      console.log('🏭 Fetching inspections...');
+      const allInspections = {
+        recentInspections: [],
+        historicalInspections: []
+      };
+      
+      // Fetch for each company
+      for (const company of companies) {
+        const response = await fetch(`/api/inspection-data?company=${encodeURIComponent(company)}`);
+        
+        if (response.ok) {
+          const data = await response.json();
+          
+          // Add source company for tracking
+          if (data.recentInspections) {
+            data.recentInspections.forEach(inspection => {
+              inspection.sourceCompany = company;
+            });
+            allInspections.recentInspections.push(...data.recentInspections);
+          }
+          
+          if (data.historicalInspections) {
+            data.historicalInspections.forEach(inspection => {
+              inspection.sourceCompany = company;
+            });
+            allInspections.historicalInspections.push(...data.historicalInspections);
+          }
+        }
+      }
+      
+      console.log(`Found ${allInspections.recentInspections.length} citations and ${allInspections.historicalInspections.length} historical inspections`);
+      return allInspections;
+    } catch (error) {
+      console.error('Error fetching inspections:', error);
+      return { recentInspections: [], historicalInspections: [] };
+    }
+  },
+
+  // Process violations from all data
+  processViolations: function() {
     const violationCounts = {};
     const violationPatterns = [
-        { regex: /data\s+integrity/gi, name: 'Data Integrity' },
-        { regex: /contamination/gi, name: 'Contamination Control' },
-        { regex: /quality\s+control/gi, name: 'Quality Control' },
-        { regex: /validation/gi, name: 'Process Validation' },
-        { regex: /documentation/gi, name: 'Documentation' },
-        { regex: /manufacturing\s+practice/gi, name: 'Manufacturing Practices' },
-        { regex: /sterility/gi, name: 'Sterility Assurance' },
-        { regex: /labeling|labelling/gi, name: 'Labeling' },
-        { regex: /cgmp|gmp/gi, name: 'CGMP Compliance' },
-        { regex: /investigation/gi, name: 'Investigation Procedures' },
-        { regex: /capa/gi, name: 'CAPA System' },
-        { regex: /deviation/gi, name: 'Deviation Handling' },
-        { regex: /specification/gi, name: 'Specification Compliance' },
-        { regex: /cleaning/gi, name: 'Cleaning Procedures' },
-        { regex: /testing/gi, name: 'Testing Procedures' },
-        { regex: /raw\s+material/gi, name: 'Raw Material Control' },
-        { regex: /batch\s+record/gi, name: 'Batch Records' },
-        { regex: /environmental\s+monitoring/gi, name: 'Environmental Monitoring' },
-        { regex: /stability/gi, name: 'Stability Testing' },
-        { regex: /microbiological/gi, name: 'Microbiological Control' },
-        { regex: /corrective\s+action/gi, name: 'Corrective Actions' },
-        { regex: /preventive\s+action/gi, name: 'Preventive Actions' },
-        { regex: /out\s+of\s+specification/gi, name: 'Out of Specification' },
-        { regex: /oos/gi, name: 'OOS Investigations' }
+      { regex: /data\s+integrity/gi, name: 'Data Integrity' },
+      { regex: /contamination/gi, name: 'Contamination Control' },
+      { regex: /quality\s+control/gi, name: 'Quality Control' },
+      { regex: /validation/gi, name: 'Process Validation' },
+      { regex: /documentation/gi, name: 'Documentation' },
+      { regex: /manufacturing\s+practice/gi, name: 'Manufacturing Practices' },
+      { regex: /sterility/gi, name: 'Sterility Assurance' },
+      { regex: /labeling|labelling/gi, name: 'Labeling' },
+      { regex: /cgmp|gmp/gi, name: 'CGMP Compliance' },
+      { regex: /investigation/gi, name: 'Investigation Procedures' },
+      { regex: /capa/gi, name: 'CAPA System' },
+      { regex: /deviation/gi, name: 'Deviation Handling' }
     ];
 
-    const processedItems = [...data.warningLetters, ...data.form483s];
-    processedItems.forEach(item => {
-        // Collect all text content
-        const textSources = [
-            item.fullContent,
-            item.subject,
-            item.content,
-            item.excerpt,
-            item.description,
-            Array.isArray(item.parsedObservations) ? item.parsedObservations.join(' ') : item.parsedObservations
-        ].filter(text => text && typeof text === 'string' && text.length > 10);
-        
-        const combinedText = textSources.join(' ');
-        
-        violationPatterns.forEach(({ regex, name }) => {
-            const matches = combinedText.match(regex);
-            if (matches) {
-                violationCounts[name] = (violationCounts[name] || 0) + matches.length;
-            }
-        });
-    });
-
-    // 5. ENHANCED DRUG EXTRACTION
-    console.log('💊 Extracting drug mentions from content...');
-    const drugCounts = {};
-    const knownDrugs = [
-        'ketamine', 'esketamine', 'fentanyl', 'morphine', 'oxycodone', 'hydrocodone', 'codeine', 'tramadol',
-        'insulin', 'metformin', 'lisinopril', 'atorvastatin', 'amlodipine', 'losartan', 'simvastatin',
-        'amoxicillin', 'azithromycin', 'ciprofloxacin', 'doxycycline', 'cephalexin', 'clindamycin',
-        'ibuprofen', 'acetaminophen', 'aspirin', 'naproxen', 'diclofenac', 'celecoxib',
-        'propofol', 'midazolam', 'lidocaine', 'bupivacaine', 'sevoflurane', 'isoflurane',
-        'sertraline', 'fluoxetine', 'citalopram', 'paroxetine', 'escitalopram', 'duloxetine',
-        'omeprazole', 'pantoprazole', 'lansoprazole', 'esomeprazole', 'famotidine',
-        'warfarin', 'rivaroxaban', 'apixaban', 'dabigatran', 'enoxaparin',
-        'levothyroxine', 'methylphenidate', 'amphetamine', 'adderall', 'dextroamphetamine',
-        'alprazolam', 'lorazepam', 'clonazepam', 'diazepam', 'temazepam',
-        'prednisone', 'prednisolone', 'hydrocortisone', 'methylprednisolone',
-        'gabapentin', 'pregabalin', 'topiramate', 'lamotrigine', 'levetiracetam',
-        'adalimumab', 'etanercept', 'infliximab', 'rituximab', 'bevacizumab',
-        'montelukast', 'albuterol', 'budesonide', 'fluticasone', 'salmeterol'
+    // Process all documents
+    const allDocuments = [
+      ...this.state.warningLetters,
+      ...this.state.form483s
     ];
 
-    processedItems.forEach(item => {
-        const textSources = [
-            item.fullContent,
-            item.subject,
-            item.content,
-            item.excerpt,
-            Array.isArray(item.parsedObservations) ? item.parsedObservations.join(' ') : item.parsedObservations
-        ].filter(text => text && typeof text === 'string' && text.length > 10);
-        
-        const combinedText = textSources.join(' ').toLowerCase();
-        
-        knownDrugs.forEach(drug => {
-            const drugRegex = new RegExp(`\\b${drug}\\b`, 'gi');
-            const matches = combinedText.match(drugRegex);
-            if (matches) {
-                drugCounts[drug] = (drugCounts[drug] || 0) + matches.length;
-            }
-        });
-    });
-
-    // 6. BUILD COMPANY RESULTS with Enhanced Risk Assessment
-    data.companies = companies.map(company => {
-        const companyWLs = data.warningLetters.filter(wl => wl.sourceCompany === company);
-        const companyF483s = data.form483s.filter(f => f.sourceCompany === company);
-        const companyInspections = data.inspections.filter(i => i.sourceCompany === company);
-        
-        // Enhanced risk calculation
-        let riskLevel = 'low';
-        const wlCount = companyWLs.length;
-        const f483Count = companyF483s.length;
-        const totalIssues = wlCount + f483Count;
-        
-        // Recent activity check (last 2 years)
-        const twoYearsAgo = new Date();
-        twoYearsAgo.setFullYear(twoYearsAgo.getFullYear() - 2);
-        
-        const recentWLs = companyWLs.filter(wl => {
-            const date = new Date(wl.letterIssueDate);
-            return date > twoYearsAgo;
-        }).length;
-        
-        const recent483s = companyF483s.filter(f => {
-            const date = new Date(f.recordDate || f["Record Date"]);
-            return date > twoYearsAgo;
-        }).length;
-        
-        // Risk level determination
-        if (wlCount > 3 || totalIssues > 8 || (recentWLs > 1 && recent483s > 2)) {
-            riskLevel = 'high';
-        } else if (wlCount > 0 || f483Count > 3 || totalIssues > 3 || recentWLs > 0 || recent483s > 1) {
-            riskLevel = 'medium';
+    allDocuments.forEach(doc => {
+      const textContent = [
+        doc.fullContent,
+        doc.subject,
+        doc.content,
+        doc.excerpt,
+        doc.description,
+        doc.ShortDescription,
+        doc.LongDescription
+      ].filter(text => text && typeof text === 'string').join(' ');
+      
+      violationPatterns.forEach(({ regex, name }) => {
+        const matches = textContent.match(regex);
+        if (matches) {
+          violationCounts[name] = (violationCounts[name] || 0) + matches.length;
         }
-        
-        console.log(`📊 ${company}: WL=${wlCount}, 483s=${f483Count}, Inspections=${companyInspections.length}, Risk=${riskLevel} (Recent: WL=${recentWLs}, 483s=${recent483s})`);
-        
-        return {
-            name: company,
-            warningLetterCount: wlCount,
-            form483Count: f483Count,
-            inspectionCount: companyInspections.length,
-            riskLevel
-        };
+      });
     });
 
-    // 7. FINAL METRICS CALCULATION
-    data.metrics = {
-        totalWarningLetters: data.warningLetters.length,
-        totalForm483s: data.form483s.length,
-        totalInspections: data.inspections.length,
-        companiesAffected: companies.length,
-        escalationRate: '0%'
-    };
-
-    data.commonViolations = Object.entries(violationCounts)
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, 15)
-        .map(([type, count]) => ({ type, count }));
-
-    data.drugMentions = Object.entries(drugCounts)
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, 20)
-        .map(([name, mentions]) => ({ name, mentions, category: 'Pharmaceutical' }));
-
-    console.log('✅ ENHANCED FALLBACK completed:', {
-        warningLetters: data.warningLetters.length,
-        form483s: data.form483s.length,
-        inspections: data.inspections.length,
-        violations: data.commonViolations.length,
-        drugs: data.drugMentions.length,
-        companies: data.companies.length
-    });
-
-    return data;
+    this.state.commonViolations = Object.entries(violationCounts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 10)
+      .map(([type, count]) => ({ type, count }));
   },
 
-  // Fuzzy string matching
-  fuzzyMatchStrings: function(str1, str2, threshold = 0.5) {
-    if (!str1 || !str2) return false;
-    
-    const words1 = str1.toLowerCase().split(/\s+/).filter(w => w.length > 2);
-    const words2 = str2.toLowerCase().split(/\s+/).filter(w => w.length > 2);
-    
-    if (words1.length === 0 || words2.length === 0) return false;
-    
-    let matches = 0;
-    for (const word1 of words1) {
-        for (const word2 of words2) {
-            if (word1.includes(word2) || word2.includes(word1)) {
-                matches++;
-                break;
-            }
+  // Process drug mentions from all data
+  processDrugMentions: function() {
+    const drugCounts = {};
+    const commonDrugs = [
+      'ketamine', 'esketamine', 'fentanyl', 'morphine', 'oxycodone',
+      'insulin', 'metformin', 'lisinopril', 'atorvastatin', 'amlodipine',
+      'amoxicillin', 'azithromycin', 'ciprofloxacin', 'doxycycline',
+      'ibuprofen', 'acetaminophen', 'aspirin', 'omeprazole', 'pantoprazole',
+      'sertraline', 'fluoxetine', 'warfarin', 'rivaroxaban', 'gabapentin'
+    ];
+
+    const allDocuments = [
+      ...this.state.warningLetters,
+      ...this.state.form483s
+    ];
+
+    allDocuments.forEach(doc => {
+      const textContent = [
+        doc.fullContent,
+        doc.subject,
+        doc.content,
+        doc.excerpt
+      ].filter(text => text && typeof text === 'string').join(' ').toLowerCase();
+      
+      commonDrugs.forEach(drug => {
+        const drugRegex = new RegExp(`\\b${drug}\\b`, 'gi');
+        const matches = textContent.match(drugRegex);
+        if (matches) {
+          drugCounts[drug] = (drugCounts[drug] || 0) + matches.length;
         }
-    }
+      });
+    });
+
+    this.state.drugMentions = Object.entries(drugCounts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 15)
+      .map(([name, mentions]) => ({ name, mentions, category: 'Pharmaceutical' }));
+  },
+
+  // Build company metrics
+  buildCompanyMetrics: function() {
+    this.state.companies = this.state.selectedCompanies.map(company => {
+      const warningLetters = this.state.warningLetters.filter(wl => 
+        wl.sourceCompany === company || this.isRelatedCompany(wl.companyName, company)
+      );
+      
+      const form483s = this.state.form483s.filter(f => 
+        f.sourceCompany === company || this.isRelatedCompany(f.companyName || f.legalName, company)
+      );
+      
+      const citations = this.state.citations.filter(c => 
+        c.sourceCompany === company || this.isRelatedCompany(c["Legal Name"], company)
+      );
+      
+      const inspections = this.state.inspections.filter(i => 
+        i.sourceCompany === company || this.isRelatedCompany(i["Firm Name"], company)
+      );
+      
+      // Calculate risk level
+      const totalIssues = warningLetters.length + form483s.length + citations.length;
+      let riskLevel = 'low';
+      
+      if (warningLetters.length > 2 || totalIssues > 10) {
+        riskLevel = 'high';
+      } else if (warningLetters.length > 0 || totalIssues > 5) {
+        riskLevel = 'medium';
+      }
+      
+      return {
+        name: company,
+        warningLetterCount: warningLetters.length,
+        form483Count: form483s.length,
+        citationCount: citations.length,
+        inspectionCount: inspections.length,
+        riskLevel
+      };
+    });
+
+    // Update metrics
+    this.state.metrics = {
+      totalWarningLetters: this.state.warningLetters.length,
+      totalForm483s: this.state.form483s.length,
+      totalCitations: this.state.citations.length,
+      totalInspections: this.state.inspections.length,
+      companiesAffected: this.state.selectedCompanies.length
+    };
+  },
+
+  // Check if company names are related
+  isRelatedCompany: function(name1, name2) {
+    if (!name1 || !name2) return false;
     
-    const similarity = matches / Math.max(words1.length, words2.length);
-    return similarity >= threshold;
+    const normalize = (str) => str.toLowerCase()
+      .replace(/[,.\s]+/g, ' ')
+      .replace(/\b(inc|llc|ltd|corp|corporation|company|co|pharma|pharmaceuticals)\b/gi, '')
+      .trim();
+    
+    const normalized1 = normalize(name1);
+    const normalized2 = normalize(name2);
+    
+    return normalized1.includes(normalized2) || normalized2.includes(normalized1);
   },
 
   // Update dashboard display
@@ -669,8 +532,8 @@ window.enhancedWarningLettersFixed = {
     
     // Update metrics
     this.safeSetText('totalWarningLetters', this.state.metrics.totalWarningLetters || 0);
-    this.safeSetText('companiesAffected', this.state.metrics.companiesAffected || 0);
     this.safeSetText('totalForm483s', this.state.metrics.totalForm483s || 0);
+    this.safeSetText('totalCitations', this.state.metrics.totalCitations || 0);
     this.safeSetText('totalInspections', this.state.metrics.totalInspections || 0);
 
     // Update company table
@@ -688,23 +551,18 @@ window.enhancedWarningLettersFixed = {
     const element = document.getElementById(id);
     if (element) {
       element.textContent = value;
-    } else {
-      console.warn(`Element ${id} not found`);
     }
   },
 
   // Update company table
   updateCompanyTable: function() {
     const tbody = document.getElementById('companyTableBody');
-    if (!tbody) {
-      console.warn('Company table body not found');
-      return;
-    }
+    if (!tbody) return;
 
     if (this.state.companies.length === 0) {
       tbody.innerHTML = `
         <tr>
-          <td colspan="6" class="px-6 py-8 text-center text-gray-500">
+          <td colspan="7" class="px-6 py-8 text-center text-gray-500">
             No companies found. Try different search terms.
           </td>
         </tr>
@@ -713,22 +571,35 @@ window.enhancedWarningLettersFixed = {
     }
 
     tbody.innerHTML = this.state.companies.map(company => `
-      <tr class="hover:bg-gray-50">
-        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-          ${company.name}
+      <tr class="hover:bg-gray-50 transition-colors">
+        <td class="px-6 py-4 whitespace-nowrap">
+          <div class="text-sm font-medium text-gray-900">${company.name}</div>
         </td>
-        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+        <td class="px-6 py-4 whitespace-nowrap">
+          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+            company.warningLetterCount > 0 ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800'
+          }">
             ${company.warningLetterCount}
           </span>
         </td>
-        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+        <td class="px-6 py-4 whitespace-nowrap">
+          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+            company.form483Count > 0 ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-100 text-gray-800'
+          }">
             ${company.form483Count}
           </span>
         </td>
-        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+        <td class="px-6 py-4 whitespace-nowrap">
+          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+            company.citationCount > 0 ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'
+          }">
+            ${company.citationCount}
+          </span>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap">
+          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+            company.inspectionCount > 0 ? 'bg-purple-100 text-purple-800' : 'bg-gray-100 text-gray-800'
+          }">
             ${company.inspectionCount}
           </span>
         </td>
@@ -737,7 +608,7 @@ window.enhancedWarningLettersFixed = {
         </td>
         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
           <button onclick="window.enhancedWarningLettersFixed.viewCompanyDetails('${company.name}')" 
-                  class="text-indigo-600 hover:text-indigo-900">
+                  class="text-indigo-600 hover:text-indigo-900 font-medium">
             View Details
           </button>
         </td>
@@ -748,11 +619,11 @@ window.enhancedWarningLettersFixed = {
   // Get risk badge
   getRiskBadge: function(riskLevel) {
     const badges = {
-      'low': '<span class="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">Low Risk</span>',
-      'medium': '<span class="px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800">Medium Risk</span>',
-      'high': '<span class="px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800">High Risk</span>'
+      'low': '<span class="px-3 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">Low Risk</span>',
+      'medium': '<span class="px-3 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800">Medium Risk</span>',
+      'high': '<span class="px-3 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800">High Risk</span>'
     };
-    return badges[riskLevel] || '<span class="px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-800">Unknown</span>';
+    return badges[riskLevel] || '<span class="px-3 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-800">Unknown</span>';
   },
 
   // Update violations display
@@ -765,10 +636,13 @@ window.enhancedWarningLettersFixed = {
       return;
     }
 
-    container.innerHTML = this.state.commonViolations.map(violation => `
-      <div class="flex justify-between items-center py-2 border-b border-gray-200">
-        <span class="text-sm text-gray-700 capitalize">${violation.type}</span>
-        <span class="text-sm font-medium text-gray-900">${violation.count}</span>
+    container.innerHTML = this.state.commonViolations.map((violation, index) => `
+      <div class="flex items-center justify-between py-3 ${index < this.state.commonViolations.length - 1 ? 'border-b border-gray-100' : ''}">
+        <div class="flex items-center">
+          <div class="w-2 h-2 bg-orange-400 rounded-full mr-3"></div>
+          <span class="text-sm text-gray-700">${violation.type}</span>
+        </div>
+        <span class="text-sm font-semibold text-gray-900">${violation.count}</span>
       </div>
     `).join('');
   },
@@ -783,897 +657,862 @@ window.enhancedWarningLettersFixed = {
       return;
     }
 
-    container.innerHTML = this.state.drugMentions.map(drug => `
-      <div class="flex justify-between items-center py-2 border-b border-gray-200">
-        <div>
+    container.innerHTML = this.state.drugMentions.map((drug, index) => `
+      <div class="flex items-center justify-between py-3 ${index < this.state.drugMentions.length - 1 ? 'border-b border-gray-100' : ''}">
+        <div class="flex items-center">
+          <div class="w-2 h-2 bg-green-400 rounded-full mr-3"></div>
           <span class="text-sm font-medium text-gray-900 capitalize">${drug.name}</span>
-          <span class="text-xs text-gray-500 ml-2">${drug.category}</span>
         </div>
-        <span class="text-sm font-medium text-gray-900">${drug.mentions}</span>
+        <span class="text-sm font-semibold text-gray-900">${drug.mentions}</span>
       </div>
     `).join('');
   },
 
   // ===================================================================
-  // VIEW DETAILS MODAL - COMPREHENSIVE COMPANY PROFILE
+  // VIEW DETAILS MODAL - Modern Design
   // ===================================================================
 
-  // View company details with comprehensive modal
+  // View company details with modern modal
   viewCompanyDetails: async function(companyName) {
-    console.log(`🔍 Loading comprehensive details for: ${companyName}`);
+    console.log(`🔍 Loading details for: ${companyName}`);
     
-    // Show loading modal first
-    this.showLoading();
+    // Show loading modal
+    this.showLoadingModal();
     
     try {
-        // Fetch all data for this company in parallel
-        const [warningLetters, inspectionData] = await Promise.all([
-            this.fetchWarningLettersForCompany(companyName),
-            this.fetchInspectionDataForCompany(companyName)
-        ]);
+      // Get filtered data for this company
+      const companyData = {
+        warningLetters: this.state.warningLetters.filter(wl => 
+          wl.sourceCompany === companyName || this.isRelatedCompany(wl.companyName, companyName)
+        ),
+        form483s: this.state.form483s.filter(f => 
+          f.sourceCompany === companyName || this.isRelatedCompany(f.companyName || f.legalName, companyName)
+        ),
+        citations: this.state.citations.filter(c => 
+          c.sourceCompany === companyName || this.isRelatedCompany(c["Legal Name"], companyName)
+        ),
+        inspections: this.state.inspections.filter(i => 
+          i.sourceCompany === companyName || this.isRelatedCompany(i["Firm Name"], companyName)
+        )
+      };
 
-        console.log(`📊 Data loaded for ${companyName}:`, {
-            warningLetters: warningLetters.length,
-            recentInspections: inspectionData.recentInspections.length,
-            historicalInspections: inspectionData.historicalInspections.length
-        });
-
-        // Hide loading and show comprehensive modal
-        this.hideLoading();
-        this.showComprehensiveCompanyModal(companyName, warningLetters, inspectionData);
+      // Hide loading and show modal
+      this.hideLoadingModal();
+      this.showCompanyDetailsModal(companyName, companyData);
 
     } catch (error) {
-        console.error('❌ Error loading company details:', error);
-        this.hideLoading();
-        this.showError(`Failed to load details for ${companyName}: ${error.message}`);
+      console.error('❌ Error loading company details:', error);
+      this.hideLoadingModal();
+      this.showError(`Failed to load details for ${companyName}`);
     }
   },
 
-  // Fetch warning letters for a specific company
-  fetchWarningLettersForCompany: async function(companyName) {
-    try {
-        const apiBaseUrl = window.API_BASE_URL || '/api';
-        const response = await fetch(`${apiBaseUrl}/wl/search?term=${encodeURIComponent(companyName)}&field=companyName`);
-        
-        if (!response.ok) {
-            throw new Error(`Warning letters fetch failed: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        return data.results || [];
-    } catch (error) {
-        console.warn('Warning letters fetch failed:', error);
-        return [];
-    }
-  },
-
-  // Fetch inspection data for a specific company
-  fetchInspectionDataForCompany: async function(companyName) {
-    try {
-        const response = await fetch(`/api/inspection-data?company=${encodeURIComponent(companyName)}`);
-        
-        if (!response.ok) {
-            throw new Error(`Inspection data fetch failed: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        return data;
-    } catch (error) {
-        console.warn('Inspection data fetch failed:', error);
-        return { recentInspections: [], historicalInspections: [], projectAreas: [] };
-    }
-  },
-
-  // Show comprehensive company modal
-  showComprehensiveCompanyModal: function(companyName, warningLetters, inspectionData) {
-    const { recentInspections, historicalInspections, projectAreas } = inspectionData;
+  // Show modern company details modal
+  showCompanyDetailsModal: function(companyName, data) {
+    const { warningLetters, form483s, citations, inspections } = data;
     
-    // Calculate summary statistics
-    const totalWarningLetters = warningLetters.length;
-    const totalForm483s = recentInspections.length;
-    const totalInspections = historicalInspections.length;
+    // Calculate risk assessment
+    const riskScore = this.calculateRiskScore(data);
     
-    // Get risk level
-    const riskLevel = this.calculateCompanyRisk(totalWarningLetters, totalForm483s, totalInspections);
-
-    // Create comprehensive modal content
-    const modalContent = `
-        <div class="max-w-6xl mx-auto bg-white rounded-lg overflow-hidden">
-            <!-- Company Header -->
-            <div class="bg-gradient-to-r from-indigo-600 to-blue-600 text-white p-6">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <h2 class="text-2xl font-bold mb-2">${companyName}</h2>
-                        <p class="text-indigo-100">Comprehensive Regulatory Profile</p>
-                    </div>
-                    <div class="text-right">
-                        <div class="flex items-center space-x-2">
-                            <span class="px-3 py-1 rounded-full text-sm font-medium ${this.getRiskBadgeClasses(riskLevel)}">
-                                ${riskLevel}
-                            </span>
-                        </div>
-                    </div>
+    // Create modal HTML with modern design
+    const modalHtml = `
+      <div class="fixed inset-0 z-50 overflow-y-auto" id="companyDetailsModal">
+        <!-- Backdrop with blur -->
+        <div class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm transition-opacity"></div>
+        
+        <!-- Modal Container -->
+        <div class="flex min-h-screen items-center justify-center p-4">
+          <div class="relative w-full max-w-6xl transform overflow-hidden rounded-2xl bg-white shadow-2xl transition-all">
+            
+            <!-- Modal Header with Gradient -->
+            <div class="bg-gradient-to-r from-indigo-600 via-blue-600 to-purple-600 px-8 py-6 text-white">
+              <div class="flex items-start justify-between">
+                <div>
+                  <h2 class="text-3xl font-bold">${companyName}</h2>
+                  <p class="mt-2 text-indigo-100">Comprehensive Regulatory Profile</p>
                 </div>
+                <button onclick="window.enhancedWarningLettersFixed.closeModal('companyDetailsModal')" 
+                        class="rounded-lg bg-white bg-opacity-20 p-2 hover:bg-opacity-30 transition-colors">
+                  <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                  </svg>
+                </button>
+              </div>
             </div>
-
-            <!-- Summary Statistics -->
-            <div class="bg-gray-50 p-6 border-b">
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-                    <div class="text-center">
-                        <div class="text-3xl font-bold text-red-600">${totalWarningLetters}</div>
-                        <div class="text-sm text-gray-600">Warning Letters</div>
-                    </div>
-                    <div class="text-center">
-                        <div class="text-3xl font-bold text-yellow-600">${totalForm483s}</div>
-                        <div class="text-sm text-gray-600">Form 483s</div>
-                    </div>
-                    <div class="text-center">
-                        <div class="text-3xl font-bold text-blue-600">${totalInspections}</div>
-                        <div class="text-sm text-gray-600">Total Inspections</div>
-                    </div>
-                    <div class="text-center">
-                        <div class="text-3xl font-bold text-green-600">${projectAreas.length}</div>
-                        <div class="text-sm text-gray-600">Project Areas</div>
-                    </div>
+            
+            <!-- Risk Assessment Bar -->
+            <div class="bg-gradient-to-r from-gray-50 to-gray-100 px-8 py-4">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                  <span class="text-sm font-medium text-gray-700">Risk Assessment:</span>
+                  <div class="flex items-center space-x-2">
+                    ${this.getRiskIndicators(riskScore)}
+                  </div>
                 </div>
+                <span class="text-sm text-gray-600">Based on ${warningLetters.length + form483s.length + citations.length + inspections.length} regulatory records</span>
+              </div>
             </div>
-
+            
+            <!-- Statistics Cards -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 p-8 bg-gray-50">
+              <div class="bg-white rounded-xl p-4 text-center shadow-sm">
+                <div class="text-3xl font-bold text-red-600">${warningLetters.length}</div>
+                <div class="text-sm text-gray-600 mt-1">Warning Letters</div>
+              </div>
+              <div class="bg-white rounded-xl p-4 text-center shadow-sm">
+                <div class="text-3xl font-bold text-yellow-600">${form483s.length}</div>
+                <div class="text-sm text-gray-600 mt-1">Form 483s</div>
+              </div>
+              <div class="bg-white rounded-xl p-4 text-center shadow-sm">
+                <div class="text-3xl font-bold text-blue-600">${citations.length}</div>
+                <div class="text-sm text-gray-600 mt-1">Citations</div>
+              </div>
+              <div class="bg-white rounded-xl p-4 text-center shadow-sm">
+                <div class="text-3xl font-bold text-purple-600">${inspections.length}</div>
+                <div class="text-sm text-gray-600 mt-1">Inspections</div>
+              </div>
+            </div>
+            
             <!-- Tabbed Content -->
             <div class="bg-white">
-                <!-- Tab Navigation -->
-                <div class="border-b border-gray-200">
-                    <nav class="flex space-x-8 px-6" aria-label="Tabs">
-                        <button onclick="window.enhancedWarningLettersFixed.switchDetailTab('warningLetters')" 
-                                class="detail-tab-btn border-b-2 border-red-500 text-red-600 py-4 px-1 text-sm font-medium"
-                                data-tab="warningLetters">
-                            Warning Letters (${totalWarningLetters})
-                        </button>
-                        <button onclick="window.enhancedWarningLettersFixed.switchDetailTab('form483s')" 
-                                class="detail-tab-btn border-b-2 border-transparent text-gray-500 hover:text-gray-700 py-4 px-1 text-sm font-medium"
-                                data-tab="form483s">
-                            Form 483s (${totalForm483s})
-                        </button>
-                        <button onclick="window.enhancedWarningLettersFixed.switchDetailTab('inspections')" 
-                                class="detail-tab-btn border-b-2 border-transparent text-gray-500 hover:text-gray-700 py-4 px-1 text-sm font-medium"
-                                data-tab="inspections">
-                            Inspections (${totalInspections})
-                        </button>
-                        <button onclick="window.enhancedWarningLettersFixed.switchDetailTab('timeline')" 
-                                class="detail-tab-btn border-b-2 border-transparent text-gray-500 hover:text-gray-700 py-4 px-1 text-sm font-medium"
-                                data-tab="timeline">
-                            Timeline
-                        </button>
-                    </nav>
+              <!-- Tab Navigation -->
+              <div class="border-b border-gray-200">
+                <nav class="flex space-x-8 px-8" aria-label="Tabs">
+                  <button onclick="window.enhancedWarningLettersFixed.switchTab('warningLetters')" 
+                          class="tab-btn border-b-2 border-indigo-500 text-indigo-600 py-4 px-1 text-sm font-medium"
+                          data-tab="warningLetters">
+                    Warning Letters
+                  </button>
+                  <button onclick="window.enhancedWarningLettersFixed.switchTab('form483s')" 
+                          class="tab-btn border-b-2 border-transparent text-gray-500 hover:text-gray-700 py-4 px-1 text-sm font-medium"
+                          data-tab="form483s">
+                    Form 483s
+                  </button>
+                  <button onclick="window.enhancedWarningLettersFixed.switchTab('citations')" 
+                          class="tab-btn border-b-2 border-transparent text-gray-500 hover:text-gray-700 py-4 px-1 text-sm font-medium"
+                          data-tab="citations">
+                    Citations
+                  </button>
+                  <button onclick="window.enhancedWarningLettersFixed.switchTab('inspections')" 
+                          class="tab-btn border-b-2 border-transparent text-gray-500 hover:text-gray-700 py-4 px-1 text-sm font-medium"
+                          data-tab="inspections">
+                    Inspections
+                  </button>
+                  <button onclick="window.enhancedWarningLettersFixed.switchTab('timeline')" 
+                          class="tab-btn border-b-2 border-transparent text-gray-500 hover:text-gray-700 py-4 px-1 text-sm font-medium"
+                          data-tab="timeline">
+                    Timeline
+                  </button>
+                </nav>
+              </div>
+              
+              <!-- Tab Content -->
+              <div class="p-8" style="max-height: 600px; overflow-y: auto;">
+                <!-- Warning Letters Tab -->
+                <div id="warningLetters-content" class="tab-content">
+                  ${this.createWarningLettersContent(warningLetters)}
                 </div>
-
-                <!-- Tab Content -->
-                <div class="p-6" style="max-height: 600px; overflow-y: auto;">
-                    <!-- Warning Letters Tab -->
-                    <div id="warningLetters-detail-content" class="detail-tab-content">
-                        ${this.createWarningLettersDetailHTML(warningLetters)}
-                    </div>
-
-                    <!-- Form 483s Tab -->
-                    <div id="form483s-detail-content" class="detail-tab-content hidden">
-                        ${this.createForm483sDetailHTML(recentInspections)}
-                    </div>
-
-                    <!-- Inspections Tab -->
-                    <div id="inspections-detail-content" class="detail-tab-content hidden">
-                        ${this.createInspectionsDetailHTML(historicalInspections)}
-                    </div>
-
-                    <!-- Timeline Tab -->
-                    <div id="timeline-detail-content" class="detail-tab-content hidden">
-                        ${this.createTimelineDetailHTML(warningLetters, recentInspections, historicalInspections)}
-                    </div>
+                
+                <!-- Form 483s Tab -->
+                <div id="form483s-content" class="tab-content hidden">
+                  ${this.createForm483sContent(form483s)}
                 </div>
+                
+                <!-- Citations Tab -->
+                <div id="citations-content" class="tab-content hidden">
+                  ${this.createCitationsContent(citations)}
+                </div>
+                
+                <!-- Inspections Tab -->
+                <div id="inspections-content" class="tab-content hidden">
+                  ${this.createInspectionsContent(inspections)}
+                </div>
+                
+                <!-- Timeline Tab -->
+                <div id="timeline-content" class="tab-content hidden">
+                  ${this.createTimelineContent(warningLetters, form483s, citations, inspections)}
+                </div>
+              </div>
             </div>
-
-            <!-- Action Buttons -->
-            <div class="bg-gray-50 px-6 py-4 border-t flex justify-between items-center">
-                <div class="text-sm text-gray-500">
-                    Last updated: ${new Date().toLocaleDateString()}
-                </div>
-                <div class="flex space-x-3">
-                    <button onclick="window.enhancedWarningLettersFixed.exportCompanyReport('${companyName}')" 
-                            class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 text-sm">
-                        Export Report
-                    </button>
-                    <button onclick="window.enhancedWarningLettersFixed.closeModal('comprehensiveCompanyModal')" 
-                            class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 text-sm">
-                        Close
-                    </button>
-                </div>
+            
+            <!-- Modal Footer -->
+            <div class="bg-gray-50 px-8 py-4 border-t flex justify-between items-center">
+              <div class="text-sm text-gray-500">
+                Last updated: ${new Date().toLocaleDateString()}
+              </div>
+              <div class="flex space-x-3">
+                <button onclick="window.enhancedWarningLettersFixed.exportCompanyData('${companyName}')" 
+                        class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm font-medium">
+                  Export Report
+                </button>
+                <button onclick="window.enhancedWarningLettersFixed.closeModal('companyDetailsModal')" 
+                        class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors text-sm font-medium">
+                  Close
+                </button>
+              </div>
             </div>
+          </div>
         </div>
+      </div>
     `;
 
-    // Create and show modal
-    const modal = document.createElement('div');
-    modal.id = 'comprehensiveCompanyModal';
-    modal.className = 'fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50';
-    
-    modal.innerHTML = `
-        <div class="relative min-h-screen flex items-center justify-center p-4">
-            ${modalContent}
-        </div>
-    `;
+    // Add modal to page
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
 
-    document.body.appendChild(modal);
+    // Add click outside to close
+    document.getElementById('companyDetailsModal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        window.enhancedWarningLettersFixed.closeModal('companyDetailsModal');
+      }
+    });
 
-    // Close modal when clicking outside
-    modal.addEventListener('click', (e) => {
-        if (e.target === modal) {
-            this.closeModal('comprehensiveCompanyModal');
-        }
+    // Add escape key to close
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        window.enhancedWarningLettersFixed.closeModal('companyDetailsModal');
+      }
     });
   },
 
-  // Switch detail tabs
-  switchDetailTab: function(tabName) {
+  // Calculate risk score
+  calculateRiskScore: function(data) {
+    const { warningLetters, form483s, citations, inspections } = data;
+    
+    // Weight different factors
+    const score = (warningLetters.length * 10) + 
+                 (form483s.length * 5) + 
+                 (citations.length * 3) + 
+                 (inspections.length * 1);
+    
+    if (score >= 50) return 'high';
+    if (score >= 20) return 'medium';
+    return 'low';
+  },
+
+  // Get risk indicators
+  getRiskIndicators: function(riskScore) {
+    const indicators = {
+      low: `
+        <div class="flex items-center space-x-1">
+          <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+          <div class="w-3 h-3 bg-gray-300 rounded-full"></div>
+          <div class="w-3 h-3 bg-gray-300 rounded-full"></div>
+          <span class="ml-2 text-sm font-medium text-green-700">Low Risk</span>
+        </div>
+      `,
+      medium: `
+        <div class="flex items-center space-x-1">
+          <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
+          <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
+          <div class="w-3 h-3 bg-gray-300 rounded-full"></div>
+          <span class="ml-2 text-sm font-medium text-yellow-700">Medium Risk</span>
+        </div>
+      `,
+      high: `
+        <div class="flex items-center space-x-1">
+          <div class="w-3 h-3 bg-red-500 rounded-full"></div>
+          <div class="w-3 h-3 bg-red-500 rounded-full"></div>
+          <div class="w-3 h-3 bg-red-500 rounded-full"></div>
+          <span class="ml-2 text-sm font-medium text-red-700">High Risk</span>
+        </div>
+      `
+    };
+    
+    return indicators[riskScore] || indicators.low;
+  },
+
+  // Switch tabs
+  switchTab: function(tabName) {
     // Update tab buttons
-    document.querySelectorAll('.detail-tab-btn').forEach(btn => {
-        btn.className = btn.className.replace(/border-\w+-500 text-\w+-600/, 'border-transparent text-gray-500 hover:text-gray-700');
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.classList.remove('border-indigo-500', 'text-indigo-600');
+      btn.classList.add('border-transparent', 'text-gray-500');
     });
     
-    document.querySelector(`[data-tab="${tabName}"]`).className = 
-        document.querySelector(`[data-tab="${tabName}"]`).className.replace(/border-transparent text-gray-500 hover:text-gray-700/, 'border-red-500 text-red-600');
+    const activeTab = document.querySelector(`[data-tab="${tabName}"]`);
+    activeTab.classList.remove('border-transparent', 'text-gray-500');
+    activeTab.classList.add('border-indigo-500', 'text-indigo-600');
 
     // Update content
-    document.querySelectorAll('.detail-tab-content').forEach(content => {
-        content.classList.add('hidden');
+    document.querySelectorAll('.tab-content').forEach(content => {
+      content.classList.add('hidden');
     });
     
-    document.getElementById(`${tabName}-detail-content`).classList.remove('hidden');
+    document.getElementById(`${tabName}-content`).classList.remove('hidden');
   },
 
-  // Create warning letters detail HTML
-  createWarningLettersDetailHTML: function(warningLetters) {
+  // Create warning letters content
+  createWarningLettersContent: function(warningLetters) {
     if (warningLetters.length === 0) {
-        return `
-            <div class="text-center py-8 text-gray-500">
-                <svg class="w-12 h-12 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                </svg>
-                <p class="text-lg font-medium">No Warning Letters Found</p>
-                <p class="text-sm">This company has no warning letters in our database.</p>
-            </div>
-        `;
+      return this.createEmptyState('Warning Letters', 'No warning letters found for this company');
     }
 
     return `
-        <div class="space-y-6">
-            ${warningLetters.map(letter => `
-                <div class="border border-gray-200 rounded-lg overflow-hidden">
-                    <!-- Letter Header -->
-                    <div class="bg-red-50 border-b border-red-100 px-6 py-4">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <h4 class="text-lg font-semibold text-gray-900">${letter.subject || 'Warning Letter'}</h4>
-                                <div class="mt-2 grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                                    <div>
-                                        <span class="text-gray-500">Date:</span>
-                                        <span class="font-medium ml-1">${this.formatDate(letter.letterIssueDate)}</span>
-                                    </div>
-                                    <div>
-                                        <span class="text-gray-500">Letter ID:</span>
-                                        <span class="font-medium ml-1">${letter.letterId || 'N/A'}</span>
-                                    </div>
-                                    <div>
-                                        <span class="text-gray-500">Office:</span>
-                                        <span class="font-medium ml-1">${letter.issuingOffice || 'N/A'}</span>
-                                    </div>
-                                    <div>
-                                        ${letter.companyUrl ? `
-                                            <a href="${letter.companyUrl}" target="_blank" 
-                                               class="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                                                View on FDA.gov →
-                                            </a>
-                                        ` : ''}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Letter Content -->
-                    <div class="px-6 py-4">
-                        <div class="bg-gray-50 rounded-lg p-4 max-h-96 overflow-y-auto">
-                            <h5 class="font-medium text-gray-900 mb-3">Letter Content:</h5>
-                            <div class="text-sm text-gray-700 whitespace-pre-line leading-relaxed">
-                                ${letter.fullContent || letter.excerpt || 'Content not available'}
-                            </div>
-                        </div>
-                    </div>
+      <div class="space-y-4">
+        ${warningLetters.map(letter => `
+          <div class="border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow">
+            <div class="bg-red-50 px-6 py-4 border-b border-red-100">
+              <div class="flex justify-between items-start">
+                <div>
+                  <h4 class="text-lg font-semibold text-gray-900">${letter.subject || 'Warning Letter'}</h4>
+                  <div class="mt-2 flex flex-wrap gap-4 text-sm text-gray-600">
+                    <span>📅 ${this.formatDate(letter.letterIssueDate)}</span>
+                    <span>🏢 ${letter.issuingOffice || 'FDA Office'}</span>
+                    <span>📄 ${letter.letterId || 'No ID'}</span>
+                  </div>
                 </div>
-            `).join('')}
-        </div>
+                ${letter.pdfUrl ? `
+                  <a href="${letter.pdfUrl}" target="_blank" 
+                     class="inline-flex items-center px-3 py-1 bg-white text-red-600 border border-red-300 rounded-lg hover:bg-red-50 text-sm">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                    </svg>
+                    View PDF
+                  </a>
+                ` : ''}
+              </div>
+            </div>
+            <div class="px-6 py-4">
+              <div class="text-sm text-gray-700 line-clamp-4">
+                ${letter.excerpt || letter.fullContent || 'No content available'}
+              </div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
     `;
   },
 
-  // Create Form 483s detail HTML
-  createForm483sDetailHTML: function(form483s) {
+  // Create Form 483s content
+  createForm483sContent: function(form483s) {
     if (form483s.length === 0) {
-        return `
-            <div class="text-center py-8 text-gray-500">
-                <svg class="w-12 h-12 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                </svg>
-                <p class="text-lg font-medium">No Form 483s Found</p>
-                <p class="text-sm">This company has no recent Form 483 citations in our database.</p>
-            </div>
-        `;
+      return this.createEmptyState('Form 483s', 'No Form 483s found for this company');
     }
 
     return `
-        <div class="overflow-x-auto">
-            <table class="min-w-full bg-white border border-gray-200 rounded-lg overflow-hidden">
-                <thead class="bg-yellow-50">
-                    <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">FEI Number</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Record Type</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Download</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-200">
-                    ${form483s.map(form483 => `
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                ${this.formatDate(form483["Record Date"])}
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                ${form483["FEI Number"] || 'N/A'}
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800">
-                                    ${form483["Record Type"] || 'Citation'}
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm">
-                                ${form483["Download"] ? `
-                                    <a href="https://www.fda.gov/media/${form483["Download"]}" 
-                                       target="_blank" 
-                                       class="inline-flex items-center text-blue-600 hover:text-blue-800">
-                                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                                        </svg>
-                                        Download PDF
-                                    </a>
-                                ` : '<span class="text-gray-400">N/A</span>'}
-                            </td>
-                        </tr>
-                    `).join('')}
-                </tbody>
-            </table>
-        </div>
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Issue Date</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">FEI Number</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Issuing Office</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            ${form483s.map(form483 => `
+              <tr class="hover:bg-gray-50">
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                  ${this.formatDate(form483.issueDate || form483.recordDate || form483["Record Date"])}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  ${form483.feiNumber || form483["FEI Number"] || 'N/A'}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  ${form483.issuingOffice || 'N/A'}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                  ${form483.pdfUrl ? `
+                    <a href="${form483.pdfUrl}" target="_blank" 
+                       class="text-indigo-600 hover:text-indigo-900 font-medium">
+                      View PDF
+                    </a>
+                  ` : '<span class="text-gray-400">No PDF</span>'}
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
     `;
   },
 
-  // Create inspections detail HTML
-  createInspectionsDetailHTML: function(inspections) {
+  // Create citations content
+  createCitationsContent: function(citations) {
+    if (citations.length === 0) {
+      return this.createEmptyState('Citations', 'No citations found for this company');
+    }
+
+    return `
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Legal Name</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            ${citations.map(citation => `
+              <tr class="hover:bg-gray-50">
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                  ${this.formatDate(citation["Record Date"])}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  ${citation["Legal Name"] || 'N/A'}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span class="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
+                    ${citation["Record Type"] || 'Citation'}
+                  </span>
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-500">
+                  ${citation["Description"] || citation["ShortDescription"] || 'N/A'}
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
+  },
+
+  // Create inspections content
+  createInspectionsContent: function(inspections) {
     if (inspections.length === 0) {
-        return `
-            <div class="text-center py-8 text-gray-500">
-                <svg class="w-12 h-12 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
-                <p class="text-lg font-medium">No Historical Inspections Found</p>
-                <p class="text-sm">This company has no historical inspection records in our database.</p>
-            </div>
-        `;
+      return this.createEmptyState('Inspections', 'No historical inspections found for this company');
     }
 
     return `
-        <div class="overflow-x-auto">
-            <table class="min-w-full bg-white border border-gray-200 rounded-lg overflow-hidden">
-                <thead class="bg-blue-50">
-                    <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Project Area</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Classification</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-200">
-                    ${inspections.slice(0, 50).map(inspection => `
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                ${this.formatDate(inspection["Inspection End Date"])}
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                ${[inspection["City"], inspection["State"]].filter(Boolean).join(', ') || 'N/A'}
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
-                                    ${inspection["Project Area"] || 'Unknown'}
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="px-2 py-1 text-xs font-medium rounded-full ${this.getClassificationColor(inspection["Inspection Classification"])}">
-                                    ${inspection["Inspection Classification"] || 'N/A'}
-                                </span>
-                            </td>
-                        </tr>
-                    `).join('')}
-                </tbody>
-            </table>
-            ${inspections.length > 50 ? `
-                <div class="text-center py-4 text-sm text-gray-500">
-                    Showing 50 of ${inspections.length} inspections
-                </div>
-            ` : ''}
-        </div>
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Project Area</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Classification</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            ${inspections.slice(0, 50).map(inspection => `
+              <tr class="hover:bg-gray-50">
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                  ${this.formatDate(inspection["Inspection End Date"])}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  ${[inspection["City"], inspection["State"]].filter(Boolean).join(', ') || 'N/A'}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  ${inspection["Project Area"] || 'Unknown'}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  ${this.getClassificationBadge(inspection["Inspection Classification"])}
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+        ${inspections.length > 50 ? `
+          <div class="text-center py-4 text-sm text-gray-500">
+            Showing 50 of ${inspections.length} inspections
+          </div>
+        ` : ''}
+      </div>
     `;
   },
 
-  // Create timeline detail HTML
-  createTimelineDetailHTML: function(warningLetters, form483s, inspections) {
-    // Combine all events into timeline
-    const timelineEvents = [];
-
-    // Add warning letters
-    warningLetters.forEach(wl => {
-        timelineEvents.push({
-            date: new Date(wl.letterIssueDate),
-            type: 'warning-letter',
-            title: 'Warning Letter Issued',
-            description: wl.subject || 'Warning Letter',
-            severity: 'high',
-            details: wl
-        });
-    });
-
-    // Add Form 483s
-    form483s.forEach(f483 => {
-        timelineEvents.push({
-            date: new Date(f483["Record Date"]),
-            type: 'form-483',
-            title: 'Form 483 Citation',
-            description: `FEI: ${f483["FEI Number"] || 'N/A'}`,
-            severity: 'medium',
-            details: f483
-        });
-    });
-
-    // Add inspections (limit to recent ones)
-    inspections.slice(0, 20).forEach(inspection => {
-        timelineEvents.push({
-            date: new Date(inspection["Inspection End Date"]),
-            type: 'inspection',
-            title: `Inspection - ${inspection["Inspection Classification"] || 'N/A'}`,
-            description: `${inspection["Project Area"] || 'Unknown'} - ${inspection["City"] || ''}, ${inspection["State"] || ''}`,
-            severity: inspection["Inspection Classification"] === 'OAI' ? 'high' : 
-                      inspection["Inspection Classification"] === 'VAI' ? 'medium' : 'low',
-            details: inspection
-        });
-    });
-
-    // Sort by date (newest first)
-    timelineEvents.sort((a, b) => b.date - a.date);
-
-    if (timelineEvents.length === 0) {
-        return `
-            <div class="text-center py-8 text-gray-500">
-                <svg class="w-12 h-12 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
-                <p class="text-lg font-medium">No Timeline Events</p>
-                <p class="text-sm">No regulatory events found for this company.</p>
-            </div>
-        `;
-    }
-
-return `
-        <div class="flow-root">
-            <ul class="-mb-8">
-                ${timelineEvents.map((event, index) => `
-                    <li>
-                        <div class="relative pb-8">
-                            ${index < timelineEvents.length - 1 ? `
-                                <span class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true"></span>
-                            ` : ''}
-                            <div class="relative flex space-x-3">
-                                <div>
-                                    <span class="h-8 w-8 rounded-full flex items-center justify-center ring-8 ring-white ${this.getEventColor(event.type, event.severity)}">
-                                        ${this.getEventIcon(event.type)}
-                                    </span>
-                                </div>
-                                <div class="min-w-0 flex-1 pt-1.5 flex justify-between space-x-4">
-                                    <div>
-                                        <p class="text-sm font-medium text-gray-900">${event.title}</p>
-                                        <p class="text-sm text-gray-500">${event.description}</p>
-                                    </div>
-                                    <div class="text-right text-sm whitespace-nowrap text-gray-500">
-                                        ${this.formatDate(event.date)}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </li>
-                `).join('')}
-            </ul>
-        </div>
-    `;
-  },
-
-  // ===================================================================
-  // UTILITY FUNCTIONS FOR VIEW DETAILS MODAL
-  // ===================================================================
-
-  // Calculate company risk
-  calculateCompanyRisk: function(warningLetters, form483s, inspections) {
-    const score = (warningLetters * 3) + (form483s * 2) + (inspections * 0.1);
+  // Create timeline content
+  createTimelineContent: function(warningLetters, form483s, citations, inspections) {
+    // Combine all events
+    const events = [];
     
-    if (score >= 10) return 'High Risk';
-    if (score >= 5) return 'Medium Risk';
-    return 'Low Risk';
-  },
-
-  // Get risk badge classes
-  getRiskBadgeClasses: function(riskLevel) {
-    switch (riskLevel.toLowerCase().replace(' risk', '')) {
-        case 'high': return 'bg-red-100 text-red-800';
-        case 'medium': return 'bg-yellow-100 text-yellow-800';
-        default: return 'bg-green-100 text-green-800';
+    warningLetters.forEach(wl => {
+      events.push({
+        date: new Date(wl.letterIssueDate),
+        type: 'warning-letter',
+        title: 'Warning Letter',
+        description: wl.subject || 'Warning Letter Issued',
+        icon: '⚠️',
+        color: 'red'
+      });
+    });
+    
+    form483s.forEach(f483 => {
+      events.push({
+        date: new Date(f483.issueDate || f483.recordDate || f483["Record Date"]),
+        type: 'form-483',
+        title: 'Form 483',
+        description: `FEI: ${f483.feiNumber || f483["FEI Number"] || 'N/A'}`,
+        icon: '📋',
+        color: 'yellow'
+      });
+    });
+    
+    citations.forEach(citation => {
+      events.push({
+        date: new Date(citation["Record Date"]),
+        type: 'citation',
+        title: 'Citation',
+        description: citation["Description"] || 'Citation Issued',
+        icon: '📄',
+        color: 'blue'
+      });
+    });
+    
+    inspections.slice(0, 20).forEach(inspection => {
+      events.push({
+        date: new Date(inspection["Inspection End Date"]),
+        type: 'inspection',
+        title: `Inspection - ${inspection["Inspection Classification"] || 'N/A'}`,
+        description: inspection["Project Area"] || 'Inspection Completed',
+        icon: '🔍',
+        color: this.getClassificationColor(inspection["Inspection Classification"])
+      });
+    });
+    
+    // Sort by date (newest first)
+    events.sort((a, b) => b.date - a.date);
+    
+    if (events.length === 0) {
+      return this.createEmptyState('Timeline', 'No regulatory events found for this company');
     }
+    
+    return `
+      <div class="flow-root">
+        <ul class="-mb-8">
+          ${events.map((event, index) => `
+            <li>
+              <div class="relative pb-8">
+                ${index < events.length - 1 ? `
+                  <span class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200"></span>
+                ` : ''}
+                <div class="relative flex space-x-3">
+                  <div>
+                    <span class="h-8 w-8 rounded-full bg-${event.color}-100 flex items-center justify-center ring-8 ring-white">
+                      <span class="text-lg">${event.icon}</span>
+                    </span>
+                  </div>
+                  <div class="min-w-0 flex-1 pt-1.5 flex justify-between space-x-4">
+                    <div>
+                      <p class="text-sm font-medium text-gray-900">${event.title}</p>
+                      <p class="text-sm text-gray-500">${event.description}</p>
+                    </div>
+                    <div class="text-right text-sm whitespace-nowrap text-gray-500">
+                      ${this.formatDate(event.date)}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </li>
+          `).join('')}
+        </ul>
+      </div>
+    `;
   },
 
   // Get classification color
   getClassificationColor: function(classification) {
     switch (classification?.toUpperCase()) {
-        case 'OAI': return 'bg-red-100 text-red-800';
-        case 'VAI': return 'bg-yellow-100 text-yellow-800';
-        case 'NAI': return 'bg-green-100 text-green-800';
-        default: return 'bg-gray-100 text-gray-800';
+      case 'OAI': return 'red';
+      case 'VAI': return 'yellow';
+      case 'NAI': return 'green';
+      default: return 'gray';
     }
   },
 
-  // Get event color
-  getEventColor: function(type, severity) {
-    if (type === 'warning-letter') return 'bg-red-500';
-    if (type === 'form-483') return 'bg-yellow-500';
-    if (severity === 'high') return 'bg-red-500';
-    if (severity === 'medium') return 'bg-yellow-500';
-    return 'bg-green-500';
+  // Get classification badge
+  getClassificationBadge: function(classification) {
+    const colors = {
+      'OAI': 'bg-red-100 text-red-800',
+      'VAI': 'bg-yellow-100 text-yellow-800',
+      'NAI': 'bg-green-100 text-green-800'
+    };
+    
+    const color = colors[classification?.toUpperCase()] || 'bg-gray-100 text-gray-800';
+    
+    return `
+      <span class="px-2 py-1 text-xs font-medium rounded-full ${color}">
+        ${classification || 'N/A'}
+      </span>
+    `;
   },
 
-  // Get event icon
-  getEventIcon: function(type) {
-    const iconClass = "h-5 w-5 text-white";
-    
-    if (type === 'warning-letter') {
-        return `<svg class="${iconClass}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.728-.833-2.498 0L4.316 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
-        </svg>`;
-    }
-    
-    if (type === 'form-483') {
-        return `<svg class="${iconClass}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-        </svg>`;
-    }
-    
-    return `<svg class="${iconClass}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-    </svg>`;
+  // Create empty state
+  createEmptyState: function(title, message) {
+    return `
+      <div class="text-center py-12">
+        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+        </svg>
+        <h3 class="mt-2 text-sm font-medium text-gray-900">${title}</h3>
+        <p class="mt-1 text-sm text-gray-500">${message}</p>
+      </div>
+    `;
   },
+
+  // ===================================================================
+  // UTILITY FUNCTIONS
+  // ===================================================================
 
   // Format date
   formatDate: function(dateString) {
     if (!dateString) return 'N/A';
     
     try {
-        const date = new Date(dateString);
-        return date.toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric'
-        });
+      const date = new Date(dateString);
+      return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      });
     } catch (error) {
-        return dateString;
+      return dateString;
     }
   },
 
-  // Export company report
-  exportCompanyReport: function(companyName) {
-    console.log(`Exporting report for ${companyName}`);
-    this.showInfo(`Export functionality for ${companyName} will be implemented soon!`);
+  // Show loading modal
+  showLoadingModal: function() {
+    // const loadingHtml = `
+    //   <div class="fixed inset-0 z-50 flex items-center justify-center" id="loadingModal">
+    //     <div class="fixed inset-0 bg-black bg-opacity-50"></div>
+    //     <div class="relative bg-white rounded-lg p-8 text-center">
+    //       <div class="loading-spinner mx-auto mb-4"></div>
+    //       <p class="text-gray-600">Loading regulatory data...</p>
+    //     </div>
+    //   </div>
+    // `;
+    // document.body.insertAdjacentHTML('beforeend', loadingHtml);
+  },
+
+// Hide loading modal
+  hideLoadingModal: function() {
+    // const modal = document.getElementById('loadingModal');
+    // if (modal) {
+    //   modal.remove();
+    // }
+  },
+
+  // Show loading state
+  showLoading: function(show) {
+    // if (show) {
+    //   // Create or show loading overlay
+    //   let overlay = document.getElementById('loadingOverlay');
+    //   if (!overlay) {
+    //     overlay = document.createElement('div');
+    //     overlay.id = 'loadingOverlay';
+    //     overlay.className = 'fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-40';
+    //     overlay.innerHTML = `
+    //       <div class="bg-white rounded-lg p-6 shadow-xl">
+    //         <div class="flex items-center space-x-4">
+    //           <svg class="animate-spin h-8 w-8 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+    //             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+    //             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+    //           </svg>
+    //           <span class="text-gray-700 font-medium">Loading regulatory data...</span>
+    //         </div>
+    //       </div>
+    //     `;
+    //     document.body.appendChild(overlay);
+    //   } else {
+    //     overlay.style.display = 'flex';
+    //   }
+    // } else {
+    //   const overlay = document.getElementById('loadingOverlay');
+    //   if (overlay) {
+    //     overlay.style.display = 'none';
+    //   }
+    // }
   },
 
   // Close modal
   closeModal: function(modalId) {
     const modal = document.getElementById(modalId);
     if (modal) {
-        modal.remove();
+      modal.remove();
     }
   },
 
-  // ===================================================================
-  // COMPOUND PROFILE AND VIOLATION ANALYSIS
-  // ===================================================================
+  // Export company data
+  exportCompanyData: function(companyName) {
+    console.log(`Exporting data for ${companyName}`);
+    
+    // Gather data for export
+    const exportData = {
+      company: companyName,
+      exportDate: new Date().toISOString(),
+      warningLetters: this.state.warningLetters.filter(wl => 
+        wl.sourceCompany === companyName || this.isRelatedCompany(wl.companyName, companyName)
+      ),
+      form483s: this.state.form483s.filter(f => 
+        f.sourceCompany === companyName || this.isRelatedCompany(f.companyName || f.legalName, companyName)
+      ),
+      citations: this.state.citations.filter(c => 
+        c.sourceCompany === companyName || this.isRelatedCompany(c["Legal Name"], companyName)
+      ),
+      inspections: this.state.inspections.filter(i => 
+        i.sourceCompany === companyName || this.isRelatedCompany(i["Firm Name"], companyName)
+      )
+    };
 
-  // View compound profile
-  viewCompoundProfile: function(compoundName) {
-    console.log(`🧪 Loading compound profile for: ${compoundName}`);
+    // Create CSV content
+    let csvContent = this.createCSVReport(exportData);
     
-    // Filter mentions from current data
-    const compoundMentions = [];
+    // Download CSV
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
     
-    // Search in warning letters
-    this.state.warningLetters.forEach(wl => {
-        const textSources = [
-            wl.fullContent,
-            wl.subject,
-            wl.excerpt
-        ].filter(text => text && typeof text === 'string');
-        
-        const combinedText = textSources.join(' ').toLowerCase();
-        const compoundRegex = new RegExp(`\\b${compoundName.toLowerCase()}\\b`, 'gi');
-        const matches = combinedText.match(compoundRegex);
-        
-        if (matches) {
-            compoundMentions.push({
-                type: 'Warning Letter',
-                company: wl.sourceCompany || wl.companyName,
-                date: wl.letterIssueDate,
-                context: this.extractContext(combinedText, compoundName.toLowerCase()),
-                document: wl
-            });
-        }
-    });
+    link.setAttribute('href', url);
+    link.setAttribute('download', `${companyName.replace(/[^a-z0-9]/gi, '_')}_regulatory_report_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
     
-    // Search in Form 483s
-    this.state.form483s.forEach(f483 => {
-        const textSources = [
-            f483.content,
-            f483.description,
-            Array.isArray(f483.parsedObservations) ? f483.parsedObservations.join(' ') : f483.parsedObservations
-        ].filter(text => text && typeof text === 'string');
-        
-        const combinedText = textSources.join(' ').toLowerCase();
-        const compoundRegex = new RegExp(`\\b${compoundName.toLowerCase()}\\b`, 'gi');
-        const matches = combinedText.match(compoundRegex);
-        
-        if (matches) {
-            compoundMentions.push({
-                type: 'Form 483',
-                company: f483.sourceCompany || f483.legalName,
-                date: f483.recordDate || f483["Record Date"],
-                context: this.extractContext(combinedText, compoundName.toLowerCase()),
-                document: f483
-            });
-        }
-    });
-
-    this.showCompoundModal(compoundName, compoundMentions);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    this.showSuccess(`Report exported for ${companyName}`);
   },
 
-  // Extract context around compound mention
-  extractContext: function(text, compound, contextLength = 100) {
-    const index = text.toLowerCase().indexOf(compound.toLowerCase());
-    if (index === -1) return 'No context available';
+  // Create CSV report
+  createCSVReport: function(data) {
+    let csv = [];
     
-    const start = Math.max(0, index - contextLength);
-    const end = Math.min(text.length, index + compound.length + contextLength);
+    // Header
+    csv.push(`Regulatory Report for ${data.company}`);
+    csv.push(`Generated on: ${new Date().toLocaleDateString()}`);
+    csv.push('');
     
-    let context = text.substring(start, end);
-    if (start > 0) context = '...' + context;
-    if (end < text.length) context = context + '...';
+    // Summary
+    csv.push('SUMMARY');
+    csv.push(`Total Warning Letters,${data.warningLetters.length}`);
+    csv.push(`Total Form 483s,${data.form483s.length}`);
+    csv.push(`Total Citations,${data.citations.length}`);
+    csv.push(`Total Inspections,${data.inspections.length}`);
+    csv.push('');
     
-    // Highlight the compound
-    const regex = new RegExp(`(${compound})`, 'gi');
-    return context.replace(regex, '<mark class="bg-yellow-200 px-1 rounded">$1</mark>');
-  },
-
-  // Show compound modal
-  showCompoundModal: function(compoundName, mentions) {
-    const modalContent = `
-        <div class="max-w-4xl mx-auto bg-white rounded-lg overflow-hidden">
-            <!-- Compound Header -->
-            <div class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-6">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <h2 class="text-2xl font-bold mb-2">${compoundName}</h2>
-                        <p class="text-blue-100">Compound Regulatory Profile</p>
-                    </div>
-                    <div class="text-right">
-                        <div class="text-3xl font-bold">${mentions.length}</div>
-                        <div class="text-sm text-blue-100">Total Mentions</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Summary Statistics -->
-            <div class="bg-gray-50 p-6 border-b">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div class="text-center">
-                        <div class="text-2xl font-bold text-red-600">${mentions.filter(m => m.type === 'Warning Letter').length}</div>
-                        <div class="text-sm text-gray-600">Warning Letter Mentions</div>
-                    </div>
-                    <div class="text-center">
-                        <div class="text-2xl font-bold text-yellow-600">${mentions.filter(m => m.type === 'Form 483').length}</div>
-                        <div class="text-sm text-gray-600">Form 483 Mentions</div>
-                    </div>
-                    <div class="text-center">
-                        <div class="text-2xl font-bold text-blue-600">${new Set(mentions.map(m => m.company)).size}</div>
-                        <div class="text-sm text-gray-600">Companies Involved</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Mentions List -->
-            <div class="p-6" style="max-height: 500px; overflow-y: auto;">
-                ${mentions.length > 0 ? `
-                    <div class="space-y-4">
-                        ${mentions.map(mention => `
-                            <div class="border border-gray-200 rounded-lg p-4">
-                                <div class="flex justify-between items-start mb-2">
-                                    <div>
-                                        <span class="px-2 py-1 text-xs font-medium rounded-full ${mention.type === 'Warning Letter' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'}">
-                                            ${mention.type}
-                                        </span>
-                                        <span class="ml-2 font-medium text-gray-900">${mention.company}</span>
-                                    </div>
-                                    <span class="text-sm text-gray-500">${this.formatDate(mention.date)}</span>
-                                </div>
-                                <div class="text-sm text-gray-700 mt-2">
-                                    <strong>Context:</strong> ${mention.context}
-                                </div>
-                            </div>
-                        `).join('')}
-                    </div>
-                ` : `
-                    <div class="text-center py-8 text-gray-500">
-                        <p class="text-lg font-medium">No Mentions Found</p>
-                        <p class="text-sm">This compound was not found in the current regulatory documents.</p>
-                    </div>
-                `}
-            </div>
-
-            <!-- Action Buttons -->
-            <div class="bg-gray-50 px-6 py-4 border-t flex justify-between items-center">
-                <div class="text-sm text-gray-500">
-                    Compound analysis based on current search results
-                </div>
-                <button onclick="window.enhancedWarningLettersFixed.closeModal('compoundModal')" 
-                        class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 text-sm">
-                    Close
-                </button>
-            </div>
-        </div>
-    `;
-
-    // Create and show modal
-    const modal = document.createElement('div');
-    modal.id = 'compoundModal';
-    modal.className = 'fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50';
-    
-    modal.innerHTML = `
-        <div class="relative min-h-screen flex items-center justify-center p-4">
-            ${modalContent}
-        </div>
-    `;
-
-    document.body.appendChild(modal);
-
-    // Close modal when clicking outside
-    modal.addEventListener('click', (e) => {
-        if (e.target === modal) {
-            this.closeModal('compoundModal');
-        }
+    // Warning Letters
+    csv.push('WARNING LETTERS');
+    csv.push('Issue Date,Subject,Issuing Office,Letter ID');
+    data.warningLetters.forEach(wl => {
+      csv.push(`${wl.letterIssueDate},"${wl.subject || 'N/A'}","${wl.issuingOffice || 'N/A'}","${wl.letterId || 'N/A'}"`);
     });
+    csv.push('');
+    
+    // Form 483s
+    csv.push('FORM 483s');
+    csv.push('Issue Date,FEI Number,Issuing Office');
+    data.form483s.forEach(f483 => {
+      csv.push(`${f483.issueDate || f483.recordDate || 'N/A'},"${f483.feiNumber || f483["FEI Number"] || 'N/A'}","${f483.issuingOffice || 'N/A'}"`);
+    });
+    csv.push('');
+    
+    // Citations
+    csv.push('CITATIONS');
+    csv.push('Date,Legal Name,Type,Description');
+    data.citations.forEach(citation => {
+      csv.push(`${citation["Record Date"]},"${citation["Legal Name"] || 'N/A'}","${citation["Record Type"] || 'Citation'}","${citation["Description"] || 'N/A'}"`);
+    });
+    csv.push('');
+    
+    // Inspections
+    csv.push('INSPECTIONS');
+    csv.push('End Date,Location,Project Area,Classification');
+    data.inspections.forEach(inspection => {
+      const location = [inspection["City"], inspection["State"]].filter(Boolean).join(', ') || 'N/A';
+      csv.push(`${inspection["Inspection End Date"]},"${location}","${inspection["Project Area"] || 'N/A'}","${inspection["Inspection Classification"] || 'N/A'}"`);
+    });
+    
+    return csv.join('\n');
   },
-
-  // ===================================================================
-  // GENERAL UTILITY FUNCTIONS
-  // ===================================================================
 
   // Refresh data
   refreshData: function() {
     if (this.state.selectedCompanies.length > 0) {
+      console.log('🔄 Refreshing data...');
       this.performSearch(this.state.selectedCompanies);
+    } else {
+      this.showInfo('No companies selected to refresh');
     }
-  },
-
-  // Show loading state
-  showLoading: function(show) {
-    // if (show) {
-    //     // Create loading overlay if it doesn't exist
-    //     let overlay = document.getElementById('loadingOverlay');
-    //     if (!overlay) {
-    //         overlay = document.createElement('div');
-    //         overlay.id = 'loadingOverlay';
-    //         overlay.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
-    //         overlay.innerHTML = `
-    //             <div class="bg-white rounded-lg p-6 text-center">
-    //                 <svg class="animate-spin h-8 w-8 text-blue-500 mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-    //                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-    //                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-    //                 </svg>
-    //                 <p class="text-gray-600">Loading regulatory data...</p>
-    //             </div>
-    //         `;
-    //         document.body.appendChild(overlay);
-    //     }
-    //     overlay.style.display = 'flex';
-    // } else {
-    //     const overlay = document.getElementById('loadingOverlay');
-    //     if (overlay) {
-    //         overlay.style.display = 'none';
-    //     }
-    // }
-  },
-
-  // Hide loading state  
-  hideLoading: function() {
-    // this.showLoading(false);
   },
 
   // Show success message
   showSuccess: function(message) {
     console.log('✅', message);
-    if (window.WLshowToast) {
-      window.WLshowToast(message, 'success');
-    } else {
-      this.showNotification(message, 'success');
-    }
+    this.showNotification(message, 'success');
   },
 
   // Show info message
   showInfo: function(message) {
     console.log('ℹ️', message);
-    if (window.WLshowToast) {
-      window.WLshowToast(message, 'info');
-    } else {
-      this.showNotification(message, 'info');
-    }
+    this.showNotification(message, 'info');
   },
 
   // Show error message
   showError: function(message) {
     console.error('❌', message);
-    if (window.WLshowToast) {
-      window.WLshowToast(message, 'error');
-    } else {
-      this.showNotification(message, 'error');
-    }
+    this.showNotification(message, 'error');
   },
 
-  // Generic notification system (fallback)
+  // Show notification with modern design
   showNotification: function(message, type = 'info') {
+    // Remove any existing notifications
+    const existingNotification = document.getElementById('notification');
+    if (existingNotification) {
+      existingNotification.remove();
+    }
+    
+    const icons = {
+      success: `
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+      `,
+      error: `
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+      `,
+      info: `
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+      `
+    };
+    
+    const colors = {
+      success: 'bg-green-50 text-green-800 border-green-200',
+      error: 'bg-red-50 text-red-800 border-red-200',
+      info: 'bg-blue-50 text-blue-800 border-blue-200'
+    };
+    
     const notification = document.createElement('div');
-    notification.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 max-w-md transform transition-all duration-300 ${
-      type === 'error' ? 'bg-red-100 text-red-800 border border-red-200' :
-      type === 'success' ? 'bg-green-100 text-green-800 border border-green-200' :
-      'bg-blue-100 text-blue-800 border border-blue-200'
-    }`;
+    notification.id = 'notification';
+    notification.className = `fixed top-4 right-4 max-w-md p-4 rounded-lg shadow-lg border transform transition-all duration-300 z-50 ${colors[type]}`;
+    notification.style.transform = 'translateX(400px)';
     
     notification.innerHTML = `
-      <div class="flex items-center">
-        <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-          ${type === 'error' ? 
-            '<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>' :
-            type === 'success' ?
-            '<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>' :
-            '<path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>'
-          }
-        </svg>
-        <span class="text-sm font-medium">${message}</span>
-        <button onclick="this.parentElement.parentElement.remove()" class="ml-auto text-current opacity-70 hover:opacity-100">
-          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
-          </svg>
-        </button>
+      <div class="flex items-start">
+        <div class="flex-shrink-0">
+          ${icons[type]}
+        </div>
+        <div class="ml-3 flex-1">
+          <p class="text-sm font-medium">${message}</p>
+        </div>
+        <div class="ml-4 flex-shrink-0">
+          <button onclick="document.getElementById('notification').remove()" 
+                  class="inline-flex text-current opacity-70 hover:opacity-100">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
       </div>
     `;
     
     document.body.appendChild(notification);
     
-    // Auto-remove after 5 seconds
+    // Animate in
     setTimeout(() => {
-      notification.classList.add('opacity-0');
+      notification.style.transform = 'translateX(0)';
+    }, 10);
+    
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+      notification.style.transform = 'translateX(400px)';
       setTimeout(() => {
         if (notification.parentNode) {
           notification.remove();
@@ -1696,7 +1535,7 @@ document.addEventListener('DOMContentLoaded', function() {
   console.log('🎯 Enhanced Warning Letters v2 system loaded and ready');
   
   // Check for existing search functionality integration
-  if (typeof searchWarningLetters === 'function') {
+  if (typeof window.searchWarningLetters === 'function') {
     console.log('✅ Found existing searchWarningLetters function - integrating...');
     
     // Override existing search function to use our enhanced system
@@ -1712,8 +1551,8 @@ document.addEventListener('DOMContentLoaded', function() {
     };
   }
   
-  // Check for existing searchCompanies function integration
-  if (typeof searchCompanies === 'function') {
+  // Check for existing searchCompanies function
+  if (typeof window.searchCompanies === 'function') {
     console.log('✅ Found existing searchCompanies function - enhancing...');
     
     const originalSearchCompanies = window.searchCompanies;
@@ -1736,7 +1575,21 @@ document.addEventListener('DOMContentLoaded', function() {
     };
   }
   
+  // Also integrate with the checkbox-based company selection if it exists
+  if (typeof window.getSelectedCompanies === 'function') {
+    console.log('✅ Found getSelectedCompanies function - ready for integration');
+  }
+  
   console.log('🎉 Enhanced Warning Letters v2 integration complete!');
+  console.log('📝 Features:');
+  console.log('   ✅ Modern UI with gradient headers and smooth animations');
+  console.log('   ✅ Proper backend endpoint integration');
+  console.log('   ✅ Comprehensive company details modal');
+  console.log('   ✅ Citations properly separated from Form 483s');
+  console.log('   ✅ Risk assessment and analytics');
+  console.log('   ✅ Timeline view of all regulatory events');
+  console.log('   ✅ Export functionality');
+  console.log('   ✅ Real-time data refresh');
 });
 
 // Export for module systems
@@ -1744,18 +1597,546 @@ if (typeof module !== 'undefined' && module.exports) {
   module.exports = window.enhancedWarningLettersFixed;
 }
 
-console.log('✅ Enhanced Warning Letters v2 - Complete system loaded with:');
-console.log('   📊 Comprehensive dashboard with metrics');
-console.log('   🔍 Enhanced search with multiple strategies');
-console.log('   📋 Full warning letter content display');
-console.log('   📄 Form 483 integration with download links');
-console.log('   🏭 Historical inspection data');
-console.log('   📈 Timeline view of all regulatory events');
-console.log('   💊 Drug/compound mention tracking');
-console.log('   ⚗️ Common violations analysis');
-console.log('   🎯 Risk assessment and classification');
-console.log('   📱 Responsive design with modern UI');
+// Add required styles if not already present
+if (!document.getElementById('enhanced-wl-styles')) {
+  const style = document.createElement('style');
+  style.id = 'enhanced-wl-styles';
+  style.textContent = `
+    .loading-spinner {
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #3b82f6;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    .line-clamp-4 {
+      display: -webkit-box;
+      -webkit-line-clamp: 4;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    
+    /* Modern scrollbar styles */
+    .overflow-y-auto::-webkit-scrollbar {
+      width: 8px;
+    }
+    
+    .overflow-y-auto::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 4px;
+    }
+    
+    .overflow-y-auto::-webkit-scrollbar-thumb {
+      background: #888;
+      border-radius: 4px;
+    }
+    
+    .overflow-y-auto::-webkit-scrollbar-thumb:hover {
+      background: #555;
+    }
+  `;
+  document.head.appendChild(style);
+}
 
+// Enhanced dynamic search function for the frontend
+// Add this to your enhanced-warning-letters-v2.js
+// 4. ENHANCED: Main search function with better error handling
+window.enhancedWarningLettersFixed.performEnhancedSearch = async function(companies) {
+  console.log('🔍 Starting enhanced search for:', companies);
+  
+  this.state.loading = true;
+  this.state.selectedCompanies = companies;
+  this.showLoading(true);
+
+  // Generate smart variations for any company name
+  const generateSmartVariations = (company) => {
+    const variations = new Set();
+    const base = company.trim();
+    
+    // Always include original
+    variations.add(base);
+    
+    // Clean version without common suffixes
+    const cleanName = base
+      .replace(/\s+(INC\.?|LLC|LTD|CORP\.?|CORPORATION|COMPANY|CO\.?|PHARMA|PHARMACEUTICALS?|PHARMS?|USA|INTERNATIONAL|GLOBAL|GROUP|HOLDINGS|LABS?|LABORATORIES)\.?$/gi, '')
+      .trim();
+    
+    if (cleanName !== base && cleanName.length > 2) {
+      variations.add(cleanName);
+    }
+    
+    // First word (often the main identifier)
+    const words = cleanName.split(/\s+/).filter(w => w.length > 2);
+    if (words.length > 0) {
+      variations.add(words[0]);
+    }
+    
+    // Handle common abbreviations
+    if (base.includes('PHARMS')) {
+      variations.add(base.replace(/PHARMS/gi, 'PHARMACEUTICALS'));
+    }
+    
+    return Array.from(variations).slice(0, 5); // Limit variations
+  };
+
+  try {
+    const allResults = {
+      warningLetters: [],
+      form483s: [],
+      citations: [],
+      inspections: []
+    };
+
+    // Track which endpoints are available
+    const endpointStatus = {
+      warningLetters: true,
+      form483s: true,
+      inspections: true
+    };
+
+    // Search for each company
+    for (const company of companies) {
+      const variations = generateSmartVariations(company);
+      console.log(`Searching variations for "${company}":`, variations);
+
+      // 1. Search Warning Letters (if endpoint is available)
+      if (endpointStatus.warningLetters) {
+        try {
+          const wlResults = await this.searchWarningLettersWithVariations(company, variations);
+          allResults.warningLetters.push(...wlResults);
+        } catch (error) {
+          console.error('Warning Letters search failed:', error);
+          endpointStatus.warningLetters = false;
+        }
+      }
+
+      // 2. Search Form 483s (if endpoint is available)
+      if (endpointStatus.form483s) {
+        try {
+          const form483Results = await this.searchForm483sWithVariations(company, variations);
+          allResults.form483s.push(...form483Results);
+        } catch (error) {
+          console.error('Form 483s search failed:', error);
+          endpointStatus.form483s = false;
+        }
+      }
+
+      // 3. Search Inspections (including citations)
+      if (endpointStatus.inspections) {
+        try {
+          const inspectionResults = await this.searchInspectionsWithVariations(company, variations);
+          allResults.citations.push(...(inspectionResults.citations || []));
+          allResults.inspections.push(...(inspectionResults.inspections || []));
+        } catch (error) {
+          console.error('Inspections search failed:', error);
+          endpointStatus.inspections = false;
+        }
+      }
+    }
+
+    // Remove duplicates and update state - with error handling
+    try {
+      this.state.warningLetters = this.deduplicateResults(allResults.warningLetters, 'letterId') || [];
+      this.state.form483s = this.deduplicateResults(allResults.form483s, '_id') || [];
+      this.state.citations = this.deduplicateResults(allResults.citations, 'CitationID') || [];
+      this.state.inspections = this.deduplicateResults(allResults.inspections, 'InspectionID') || [];
+    } catch (dedupeError) {
+      console.error('Deduplication error:', dedupeError);
+      // Use raw results if deduplication fails
+      this.state.warningLetters = allResults.warningLetters || [];
+      this.state.form483s = allResults.form483s || [];
+      this.state.citations = allResults.citations || [];
+      this.state.inspections = allResults.inspections || [];
+    }
+
+    // Process analytics (with error handling)
+    try {
+      this.processViolations();
+      this.processDrugMentions();
+      this.buildCompanyMetrics();
+    } catch (analyticsError) {
+      console.error('Analytics processing error:', analyticsError);
+    }
+
+    // Update UI
+    this.updateDashboard();
+    
+    // Show results
+    const totalRecords = this.state.warningLetters.length + 
+                        this.state.form483s.length + 
+                        this.state.citations.length + 
+                        this.state.inspections.length;
+    
+    console.log(`✅ Search completed: ${totalRecords} total records found`);
+    
+    // Check endpoint availability
+    const unavailableEndpoints = [];
+    if (!endpointStatus.warningLetters) unavailableEndpoints.push('Warning Letters');
+    if (!endpointStatus.form483s) unavailableEndpoints.push('Form 483s');
+    if (!endpointStatus.inspections) unavailableEndpoints.push('Inspections');
+    
+    if (unavailableEndpoints.length > 0) {
+      console.warn(`⚠️ Some endpoints were unavailable: ${unavailableEndpoints.join(', ')}`);
+    }
+    
+    if (totalRecords > 0) {
+      this.showSuccess(`Found ${totalRecords} regulatory records`);
+    } else {
+      this.showInfo('No records found. This could mean:\n- The company has a clean record\n- The company uses different naming in FDA databases\n- Some search endpoints may be unavailable');
+    }
+
+  } catch (error) {
+    console.error('❌ Search failed:', error);
+    this.showError('Search failed: ' + error.message);
+  } finally {
+    this.state.loading = false;
+    this.showLoading(false);
+  }
+};
+
+window.enhancedWarningLettersFixed.searchWarningLettersWithVariations = async function(company, variations) {
+  const results = [];
+  
+  for (const variation of variations) {
+    try {
+      // CORRECT ENDPOINT: /api/wl/search with GET method and query params
+      const params = new URLSearchParams({
+        term: variation,
+        field: 'company',
+        page: 1,
+        perPage: 100
+      });
+      
+      const response = await fetch(`/api/wl/search?${params}`, {
+        method: 'GET' // Changed from POST to GET
+      });
+      
+      if (response.ok) {
+        const contentType = response.headers.get('content-type');
+        
+        if (contentType && contentType.includes('application/json')) {
+          const data = await response.json();
+          
+          // The response structure includes results array
+          if (data.results && data.results.length > 0) {
+            console.log(`  ✅ Found ${data.results.length} warning letters for "${variation}"`);
+            data.results.forEach(letter => {
+              letter.sourceCompany = company;
+              letter.matchedVariation = variation;
+            });
+            results.push(...data.results);
+            break; // Found results, no need to try other variations
+          }
+        }
+      } else if (response.status === 404) {
+        console.error('Warning Letters endpoint not found. Check if /api/wl/search exists in your backend.');
+        break;
+      }
+    } catch (error) {
+      console.warn(`Warning letter search failed for ${variation}:`, error.message);
+    }
+  }
+  
+  return results;
+};
+
+// 2. Form 483 search - This looks correct based on your backend
+window.enhancedWarningLettersFixed.searchForm483sWithVariations = async function(company, variations) {
+  const results = [];
+  const searchFields = ['company', 'legalName', 'companyName'];
+  
+  for (const variation of variations) {
+    let found = false;
+    
+    for (const field of searchFields) {
+      try {
+        // Add timestamp to prevent caching
+        const params = new URLSearchParams({
+          term: variation,
+          field: field,
+          page: 1,
+          perPage: 100,
+          _t: Date.now() // Cache buster
+        });
+        
+        const response = await fetch(`/api/form483/search?${params}`);
+        
+        const contentType = response.headers.get('content-type');
+        
+        if (response.ok && contentType && contentType.includes('application/json')) {
+          const data = await response.json();
+          
+          console.log(`Form 483 search for "${variation}" (${field}):`, data);
+          
+          if (data.results && data.results.length > 0) {
+            console.log(`  ✅ Found ${data.results.length} Form 483s`);
+            data.results.forEach(form => {
+              form.sourceCompany = company;
+              form.matchedVariation = variation;
+            });
+            results.push(...data.results);
+            found = true;
+            break;
+          }
+        }
+      } catch (error) {
+        console.warn(`Form 483 search error for ${variation}:`, error.message);
+      }
+    }
+    
+    if (found) break;
+  }
+  
+  return results;
+};
+
+// Search inspections with variations
+window.enhancedWarningLettersFixed.searchInspectionsWithVariations = async function(company, variations) {
+  const results = {
+    citations: [],
+    inspections: []
+  };
+  
+  // Try original company name first, then variations
+  const searchTerms = [company, ...variations];
+  
+  for (const searchTerm of searchTerms) {
+    try {
+      const response = await fetch(`/api/inspection-data?company=${encodeURIComponent(searchTerm)}`);
+      
+      if (response.ok) {
+        const data = await response.json();
+        
+        if (data.recentInspections && data.recentInspections.length > 0) {
+          console.log(`  ✅ Found ${data.recentInspections.length} citations for "${searchTerm}"`);
+          data.recentInspections.forEach(citation => {
+            citation.sourceCompany = company;
+            citation.matchedVariation = searchTerm;
+          });
+          results.citations.push(...data.recentInspections);
+        }
+        
+        if (data.historicalInspections && data.historicalInspections.length > 0) {
+          console.log(`  ✅ Found ${data.historicalInspections.length} inspections for "${searchTerm}"`);
+          data.historicalInspections.forEach(inspection => {
+            inspection.sourceCompany = company;
+            inspection.matchedVariation = searchTerm;
+          });
+          results.inspections.push(...data.historicalInspections);
+        }
+        
+        if (results.citations.length > 0 || results.inspections.length > 0) {
+          break; // Found results
+        }
+      }
+    } catch (error) {
+      console.warn(`Inspection search failed for ${searchTerm}:`, error.message);
+    }
+  }
+  
+  return results;
+};
+
+// Deduplicate results
+window.enhancedWarningLettersFixed.deduplicateResults = function(array, key) {
+  const seen = new Set(); // This was correct, but let's make it more robust
+  
+  if (!Array.isArray(array)) {
+    console.warn('deduplicateResults: Input is not an array', array);
+    return [];
+  }
+  
+  return array.filter(item => {
+    if (!item) return false;
+    
+    // Get the unique identifier
+    const value = key && item[key] ? item[key] : JSON.stringify(item);
+    
+    if (!seen.has(value)) {
+      seen.add(value);
+      return true;
+    }
+    return false;
+  });
+};
+// 3. Override the main performSearch to use correct endpoints
+window.enhancedWarningLettersFixed.performSearch = async function(companies) {
+  console.log('🔍 Starting search for:', companies);
+  
+  this.state.loading = true;
+  this.state.selectedCompanies = companies;
+  this.showLoading(true);
+
+  try {
+    const allResults = {
+      warningLetters: [],
+      form483s: [],
+      citations: [],
+      inspections: []
+    };
+
+    // Generate smart variations for any company name
+    const generateSmartVariations = (company) => {
+      const variations = new Set();
+      const base = company.trim();
+      
+      variations.add(base);
+      
+      // Clean version without common suffixes
+      const cleanName = base
+        .replace(/\s+(INC\.?|LLC|LTD|CORP\.?|CORPORATION|COMPANY|CO\.?|PHARMA|PHARMACEUTICALS?|PHARMS?|USA|INTERNATIONAL|GLOBAL|GROUP|HOLDINGS|LABS?|LABORATORIES)\.?$/gi, '')
+        .trim();
+      
+      if (cleanName !== base && cleanName.length > 2) {
+        variations.add(cleanName);
+      }
+      
+      // First word (often the main identifier)
+      const words = cleanName.split(/\s+/).filter(w => w.length > 2);
+      if (words.length > 0) {
+        variations.add(words[0]);
+      }
+      
+      // Handle common pharma abbreviations
+      if (base.includes('PHARMS')) {
+        variations.add(base.replace(/PHARMS/gi, 'PHARMACEUTICALS'));
+      }
+      if (base.includes('PHARMA')) {
+        variations.add(base.replace(/PHARMA/gi, 'PHARMACEUTICALS'));
+      }
+      
+      return Array.from(variations).slice(0, 5);
+    };
+
+    // Search for each company
+    for (const company of companies) {
+      const variations = generateSmartVariations(company);
+      console.log(`Searching variations for "${company}":`, variations);
+
+      // 1. Search Warning Letters
+      try {
+        const wlResults = await this.searchWarningLettersWithVariations(company, variations);
+        allResults.warningLetters.push(...wlResults);
+      } catch (error) {
+        console.error('Warning Letters search failed:', error);
+      }
+
+      // 2. Search Form 483s
+      try {
+        const form483Results = await this.searchForm483sWithVariations(company, variations);
+        allResults.form483s.push(...form483Results);
+      } catch (error) {
+        console.error('Form 483s search failed:', error);
+      }
+
+      // 3. Search Inspections (this is working based on your logs)
+      try {
+        const inspectionResults = await this.searchInspectionsWithVariations(company, variations);
+        allResults.citations.push(...(inspectionResults.citations || []));
+        allResults.inspections.push(...(inspectionResults.inspections || []));
+      } catch (error) {
+        console.error('Inspections search failed:', error);
+      }
+    }
+
+    // Remove duplicates and update state
+    this.state.warningLetters = this.deduplicateResults(allResults.warningLetters, 'letterId') || [];
+    this.state.form483s = this.deduplicateResults(allResults.form483s, '_id') || [];
+    this.state.citations = this.deduplicateResults(allResults.citations, 'CitationID') || [];
+    this.state.inspections = this.deduplicateResults(allResults.inspections, 'InspectionID') || [];
+
+    // Process analytics
+    try {
+      this.processViolations();
+      this.processDrugMentions();
+      this.buildCompanyMetrics();
+    } catch (analyticsError) {
+      console.error('Analytics processing error:', analyticsError);
+    }
+
+    // Update UI
+    this.updateDashboard();
+    
+    // Show results
+    const totalRecords = this.state.warningLetters.length + 
+                        this.state.form483s.length + 
+                        this.state.citations.length + 
+                        this.state.inspections.length;
+    
+    console.log(`✅ Search completed: ${totalRecords} total records found`);
+    console.log(`  - Warning Letters: ${this.state.warningLetters.length}`);
+    console.log(`  - Form 483s: ${this.state.form483s.length}`);
+    console.log(`  - Citations: ${this.state.citations.length}`);
+    console.log(`  - Inspections: ${this.state.inspections.length}`);
+    
+    if (totalRecords > 0) {
+      this.showSuccess(`Found ${totalRecords} regulatory records`);
+    } else {
+      this.showInfo('No records found. This could mean the company has a clean record or uses different naming in FDA databases.');
+    }
+
+  } catch (error) {
+    console.error('❌ Search failed:', error);
+    this.showError('Search failed: ' + error.message);
+  } finally {
+    this.state.loading = false;
+    this.showLoading(false);
+  }
+};
+
+// 4. OPTIONAL: Test function to verify endpoints
+window.testFDAEndpoints = async function() {
+  console.log('🧪 Testing FDA endpoints...');
+  
+  // Test Warning Letters
+  try {
+    const wlResponse = await fetch('/api/wl/search?term=test&field=company&page=1&perPage=1');
+    console.log('✅ Warning Letters endpoint:', wlResponse.ok ? `Working (${wlResponse.status})` : `Error ${wlResponse.status}`);
+    if (wlResponse.ok) {
+      const data = await wlResponse.json();
+      console.log('   Sample response:', data);
+    }
+  } catch (error) {
+    console.log('❌ Warning Letters endpoint: Failed -', error.message);
+  }
+  
+  // Test Form 483
+  try {
+    const f483Response = await fetch('/api/form483/search?term=test&field=company&page=1&perPage=1');
+    console.log('✅ Form 483 endpoint:', f483Response.ok ? `Working (${f483Response.status})` : `Error ${f483Response.status}`);
+    if (f483Response.ok) {
+      const data = await f483Response.json();
+      console.log('   Sample response:', data);
+    }
+  } catch (error) {
+    console.log('❌ Form 483 endpoint: Failed -', error.message);
+  }
+  
+  // Test Inspection
+  try {
+    const inspResponse = await fetch('/api/inspection-data?company=test');
+    console.log('✅ Inspection endpoint:', inspResponse.ok ? `Working (${inspResponse.status})` : `Error ${inspResponse.status}`);
+    if (inspResponse.ok) {
+      const data = await inspResponse.json();
+      console.log('   Sample response:', data);
+    }
+  } catch (error) {
+    console.log('❌ Inspection endpoint: Failed -', error.message);
+  }
+  
+  console.log('\n💡 Run window.testFDAEndpoints() to test your endpoints');
+};
+// Override the main performSearch to use enhanced version
+window.enhancedWarningLettersFixed.performSearch = window.enhancedWarningLettersFixed.performEnhancedSearch;
+
+console.log('✅ Enhanced Warning Letters System v2 - Complete version loaded successfully!');
 
 // window.enhancedWarningLettersFixed = {
 //   state: {

@@ -200,20 +200,189 @@ function initializeUsersFile(callback) {
       }
   });
 }
+// Form 483 Search Endpoint
+app.get('/api/form483/search', async (req, res) => {
+  try {
+    const { term, field = 'Legal_Name', page = 1, perPage = 50 } = req.query;
+    
+    if (!term) {
+      return res.json({ 
+        success: true, 
+        results: [],
+        pagination: {
+          page: 1,
+          perPage: 50,
+          total: 0,
+          totalPages: 0
+        }
+      });
+    }
 
+    console.log(`🔍 Form 483 search: term="${term}", field="${field}"`);
 
+    // Build search query based on your actual MongoDB field names
+    const searchQueries = [];
+    
+    // Create regex for flexible matching
+    const searchRegex = new RegExp(term, 'i');
+    
+    // Map frontend field names to MongoDB field names
+    const fieldMapping = {
+      'company': 'Legal_Name',
+      'companyName': 'Legal_Name',
+      'legalName': 'Legal_Name',
+      'feiNumber': 'FEI_Number'
+    };
+    
+    const actualField = fieldMapping[field] || field;
+    
+    // Build query based on field
+    if (actualField === 'Legal_Name') {
+      searchQueries.push({ Legal_Name: searchRegex });
+    } else if (actualField === 'FEI_Number') {
+      searchQueries.push({ FEI_Number: term });
+    } else {
+      // Search in Legal_Name by default
+      searchQueries.push({ Legal_Name: searchRegex });
+    }
 
-const Form483Schema = new mongoose.Schema({
-  recordDate: { type: Date, index: true },
-  feiNumber: { type: String, index: true },
-  legalName: { type: String, index: true },
-  recordType: String,
-  publishDate: Date,
-  download: String,
-  recordId: String,
-  parsedObservations: [String], // Will be populated by PDF parsing
-  drugMentions: [String],
-  violations: [String]
+    // Build the final query
+    const query = searchQueries.length > 1 ? { $or: searchQueries } : searchQueries[0];
+
+    // Get total count for pagination
+    const total = await Form483Model.countDocuments(query);
+    
+    // Calculate pagination
+    const pageNum = parseInt(page);
+    const itemsPerPage = parseInt(perPage);
+    const skip = (pageNum - 1) * itemsPerPage;
+    const totalPages = Math.ceil(total / itemsPerPage);
+
+    // Execute search with pagination
+    const results = await Form483Model
+      .find(query)
+      .sort({ Record_Date: -1 }) // Sort by Record_Date
+      .skip(skip)
+      .limit(itemsPerPage)
+      .lean();
+
+    console.log(`✅ Form 483 search found ${results.length} results (page ${pageNum} of ${totalPages})`);
+
+    // Transform results to match frontend expectations
+    const transformedResults = results.map(doc => ({
+      _id: doc._id,
+      legalName: doc.Legal_Name,
+      companyName: doc.Legal_Name, // Use Legal_Name as company name
+      feiNumber: doc.FEI_Number,
+      recordDate: doc.Record_Date,
+      recordType: doc.Record_Type,
+      publishDate: doc.Publish_Date,
+      download: doc.Download,
+      recordId: doc.Record_ID,
+      // Include original field names too for compatibility
+      Legal_Name: doc.Legal_Name,
+      FEI_Number: doc.FEI_Number,
+      Record_Date: doc.Record_Date,
+      Record_Type: doc.Record_Type
+    }));
+
+    // Return results in expected format
+    res.json({
+      success: true,
+      results: transformedResults,
+      pagination: {
+        page: pageNum,
+        perPage: itemsPerPage,
+        total: total,
+        totalPages: totalPages
+      }
+    });
+
+  } catch (error) {
+    console.error('Form 483 search error:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Search failed', 
+      results: []
+    });
+  }
+});
+
+// Debug endpoint to check Form 483 data structure
+app.get('/api/form483/debug', async (req, res) => {
+  try {
+    // Get total count
+    const totalCount = await Form483Model.countDocuments();
+    
+    // Get sample records to see structure
+    const samples = await Form483Model
+      .find({})
+      .limit(10)
+      .lean();
+    
+    // Get unique company names (first 50)
+    const uniqueCompanies = await Form483Model
+      .distinct('Legal_Name');
+    
+    // Get field names from first document
+    const firstDoc = samples[0] || {};
+    const fieldNames = Object.keys(firstDoc);
+    
+    res.json({
+      success: true,
+      totalForm483s: totalCount,
+      fieldNames: fieldNames,
+      sampleRecords: samples.map(s => ({
+        Legal_Name: s.Legal_Name,
+        FEI_Number: s.FEI_Number,
+        Record_Date: s.Record_Date,
+        Record_Type: s.Record_Type
+      })),
+      sampleCompanyNames: uniqueCompanies.slice(0, 20),
+      searchableFields: ['Legal_Name', 'FEI_Number']
+    });
+  } catch (error) {
+    console.error('Debug error:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: error.message 
+    });
+  }
+});
+
+// Get specific Form 483 by ID
+app.get('/api/fda/form483/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const form483 = await Form483Model.findById(id).lean();
+    
+    if (!form483) {
+      return res.status(404).json({ success: false, error: 'Form 483 not found' });
+    }
+    
+    // Transform to match frontend expectations
+    const transformed = {
+      _id: form483._id,
+      legalName: form483.Legal_Name,
+      companyName: form483.Legal_Name,
+      feiNumber: form483.FEI_Number,
+      recordDate: form483.Record_Date,
+      recordType: form483.Record_Type,
+      publishDate: form483.Publish_Date,
+      download: form483.Download,
+      recordId: form483.Record_ID,
+      ...form483 // Include all original fields
+    };
+    
+    res.json({
+      success: true,
+      data: transformed
+    });
+  } catch (error) {
+    console.error('Error fetching Form 483 details:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
 });
 
 const CGMPGuidanceSchema = new mongoose.Schema({
@@ -233,8 +402,27 @@ const CGMPGuidanceSchema = new mongoose.Schema({
 
 
 
+// Also update your Form483Schema to match your MongoDB structure
+const Form483Schema = new mongoose.Schema({
+  Record_Date: { type: Date, index: true },
+  FEI_Number: { type: String, index: true },
+  Legal_Name: { type: String, index: true },
+  Record_Type: String,
+  Publish_Date: Date,
+  Download: String,
+  Record_ID: String,
+  // Keep your additional fields
+  parsedObservations: [String],
+  drugMentions: [String],
+  violations: [String]
+}, {
+  collection: '483s' // Explicitly set collection name
+});
 
+// Update the model (if not already done)
 const Form483Model = mongoose.model('483s', Form483Schema, '483s');
+
+
 const CGMPGuidance = mongoose.model('cgmp_guidance', CGMPGuidanceSchema);
 
 
@@ -8293,12 +8481,13 @@ async function fetchAllPages(endpoint, requestBody, headers, maxRows = null) {
 }
 
 // Main FDA inspection data endpoint - supports company search
+// Fixed FDA inspection data endpoint
+// Fixed FDA inspection data endpoint
+// FIXED FDA inspection data endpoint with correct column names
 app.get('/api/inspection-data', async (req, res) => {
   try {
-    // Get search parameters from query
     const { company, feiNumber } = req.query;
     
-    // Check if credentials are configured
     if (!process.env.FDA_API_USER || !process.env.FDA_API_KEY) {
       console.error('FDA API credentials not configured');
       return res.status(500).json({
@@ -8307,7 +8496,6 @@ app.get('/api/inspection-data', async (req, res) => {
       });
     }
 
-    // FDA API configuration
     const FDA_API_BASE_URL = 'https://api-datadashboard.fda.gov/v1';
     const FDA_API_HEADERS = {
       'Content-Type': 'application/json',
@@ -8319,31 +8507,109 @@ app.get('/api/inspection-data', async (req, res) => {
     const historicalInspections = [];
     const projectAreasSet = new Set();
     
-    // Build filters based on search parameters
+    // Helper function to fetch all pages
+    async function fetchAllPages(endpoint, requestBody, headers) {
+      const allResults = [];
+      let currentPage = 1;
+      const perPage = 1000;
+      let hasMore = true;
+
+      while (hasMore) {
+        try {
+          const pageRequestBody = {
+            ...requestBody,
+            start: (currentPage - 1) * perPage + 1,
+            rows: perPage
+          };
+
+          console.log(`Fetching ${endpoint} - page starting at row ${pageRequestBody.start}`);
+          
+          const response = await axios.post(endpoint, pageRequestBody, { headers });
+          
+          if (response.data.statuscode === 400 && response.data.result) {
+            const pageResults = response.data.result;
+            allResults.push(...pageResults);
+            
+            console.log(`Found ${pageResults.length} results (batch ${currentPage})`);
+            
+            if (pageResults.length < perPage) {
+              hasMore = false;
+            } else {
+              currentPage++;
+            }
+          } else {
+            console.log('No more results or unexpected response format');
+            hasMore = false;
+          }
+        } catch (error) {
+          console.error(`Error fetching page at start=${(currentPage - 1) * perPage + 1}:`, error.message);
+          if (error.response?.data) {
+            console.error('FDA API Error:', error.response.data);
+          }
+          hasMore = false;
+        }
+      }
+
+      console.log(`Found ${allResults.length} total results`);
+      return allResults;
+    }
+    
+    // Build filters with fuzzy matching
     const buildFilters = (baseFilters = {}) => {
       const filters = { ...baseFilters };
       
       if (company) {
-        // Use partial match for company name
-        filters.LegalName = [company];
+        const companyVariations = generateCompanyVariations(company);
+        filters.LegalName = companyVariations;
+        console.log('Searching with company variations:', companyVariations);
       }
       
       if (feiNumber) {
-        // FEI Number must be numeric
         filters.FEINumber = [parseInt(feiNumber)];
       }
       
       return filters;
     };
 
+    // Generate company name variations
+    function generateCompanyVariations(companyName) {
+      const variations = new Set();
+      const base = companyName.trim();
+      
+      variations.add(base);
+      
+      const withoutSuffixes = base
+        .replace(/\s+(INC\.?|LLC|LTD|CORP\.?|CORPORATION|COMPANY|CO\.?|PHARMA|PHARMACEUTICALS?|PHARMS?|USA|INTERNATIONAL|GLOBAL|GROUP|HOLDINGS)\.?$/gi, '')
+        .trim();
+      
+      if (withoutSuffixes !== base && withoutSuffixes.length > 2) {
+        variations.add(withoutSuffixes);
+      }
+      
+      // Add wildcards for partial matching
+      variations.add(`${withoutSuffixes}*`);
+      variations.add(`*${withoutSuffixes}*`);
+      
+      const firstWord = base.split(/\s+/)[0];
+      if (firstWord.length > 3) {
+        variations.add(firstWord);
+        variations.add(`${firstWord}*`);
+      }
+      
+      if (base.includes('PHARMS')) {
+        variations.add(base.replace(/PHARMS/gi, 'PHARMACEUTICALS'));
+      }
+      
+      return Array.from(variations);
+    }
+
     try {
-      // Build filters for citations (recent inspections)
+      // Build filters for citations
       const citationFilters = buildFilters({
-        // Get inspections from the last 2 years
         "InspectionEndDateFrom": [new Date(Date.now() - 2 * 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]]
       });
       
-      // Fetch inspections citations data from FDA API
+      // FIXED: Citations endpoint columns
       const citationsRequestBody = {
         "sort": "InspectionEndDate",
         "sortorder": "DESC",
@@ -8354,54 +8620,55 @@ app.get('/api/inspection-data', async (req, res) => {
           "LegalName",
           "CitationID",
           "InspectionID",
-          "Program",
           "ShortDescription",
           "LongDescription"
         ]
       };
 
       console.log('Fetching citations...');
-      if (company || feiNumber) {
-        console.log(`Searching for: ${company ? `Company: "${company}"` : ''} ${feiNumber ? `FEI: ${feiNumber}` : ''}`);
-      }
       
-      const allCitations = await fetchAllPages(
-        `${FDA_API_BASE_URL}/inspections_citations`,
-        citationsRequestBody,
-        FDA_API_HEADERS
-      );
+      let allCitations = [];
+      try {
+        allCitations = await fetchAllPages(
+          `${FDA_API_BASE_URL}/inspections_citations`,
+          citationsRequestBody,
+          FDA_API_HEADERS
+        );
+      } catch (citationError) {
+        console.log('Citations endpoint failed, will try classifications only');
+      }
 
-      // Process citations data to match your expected format
+      // Process citations data
       allCitations.forEach(row => {
         recentInspections.push({
           "Record Date": row.InspectionEndDate,
           "Legal Name": row.LegalName,
           "Record Type": "Citation",
           "FEI Number": row.FEINumber,
-          "Download": row.CitationID
+          "Download": row.CitationID,
+          "Description": row.ShortDescription || row.LongDescription || "N/A"
         });
       });
 
-      // Build filters for classifications (historical inspections)
+      // Build filters for classifications
       const classificationFilters = buildFilters({});
       
-      // Fetch historical inspections (classifications)
+      // FIXED: Classifications endpoint columns - removed invalid fields
       const classificationsRequestBody = {
         "sort": "InspectionEndDate",
         "sortorder": "DESC",
         "filters": classificationFilters,
         "columns": [
-          "DistrictName",
           "LegalName",
           "City",
           "State",
-          "Zip",
           "CountryName",
           "InspectionEndDate",
-          "Program",
           "ProductType",
           "Classification",
-          "FEINumber"
+          "FEINumber",
+          "InspectionID"
+          // REMOVED: "DistrictName", "Zip", "Program" - these are not valid
         ]
       };
 
@@ -8415,64 +8682,105 @@ app.get('/api/inspection-data', async (req, res) => {
       // Process classifications data
       allClassifications.forEach(row => {
         const processedRow = {
-          "District": row.DistrictName,
+          "District": "N/A", // Not available in this endpoint
           "Firm Name": row.LegalName,
           "City": row.City,
           "State": row.State,
-          "Zip": row.Zip,
+          "Zip": "N/A", // Not available in this endpoint
           "Country/Area": row.CountryName,
           "Inspection End Date": row.InspectionEndDate,
-          "Project Area": row.Program,
-          "Center/Program Area": row.ProductType || row.Program,
-          "Inspection Classification": row.Classification
+          "Project Area": row.ProductType || "N/A", // Using ProductType instead of Program
+          "Center/Program Area": row.ProductType || "N/A",
+          "Inspection Classification": row.Classification,
+          "FEI Number": row.FEINumber
         };
         
         historicalInspections.push(processedRow);
         
-        if (row.Program) {
-          projectAreasSet.add(row.Program);
+        if (row.ProductType) {
+          projectAreasSet.add(row.ProductType);
         }
       });
 
-      console.log(`Total recent inspections: ${recentInspections.length}`);
-      console.log(`Total historical inspections: ${historicalInspections.length}`);
+      console.log(`Total recent inspections (citations): ${recentInspections.length}`);
+      console.log(`Total historical inspections (classifications): ${historicalInspections.length}`);
       console.log(`Total unique project areas: ${projectAreasSet.size}`);
+
+      // If no results found, try alternative search
+      if (recentInspections.length === 0 && historicalInspections.length === 0 && company) {
+        console.log('No results found with exact match, trying broader search...');
+        
+        const firstWord = company.trim().split(/\s+/)[0];
+        const broaderFilters = {
+          LegalName: [firstWord, `${firstWord}*`, `*${firstWord}*`]
+        };
+        
+        const broaderRequestBody = {
+          ...classificationsRequestBody,
+          filters: broaderFilters,
+          rows: 100
+        };
+        
+        try {
+          const broaderResults = await fetchAllPages(
+            `${FDA_API_BASE_URL}/inspections_classifications`,
+            broaderRequestBody,
+            FDA_API_HEADERS
+          );
+          
+          if (broaderResults.length > 0) {
+            console.log(`Found ${broaderResults.length} results with broader search`);
+            broaderResults.forEach(row => {
+              const processedRow = {
+                "District": "N/A",
+                "Firm Name": row.LegalName,
+                "City": row.City,
+                "State": row.State,
+                "Zip": "N/A",
+                "Country/Area": row.CountryName,
+                "Inspection End Date": row.InspectionEndDate,
+                "Project Area": row.ProductType || "N/A",
+                "Center/Program Area": row.ProductType || "N/A",
+                "Inspection Classification": row.Classification,
+                "FEI Number": row.FEINumber
+              };
+              
+              historicalInspections.push(processedRow);
+              
+              if (row.ProductType) {
+                projectAreasSet.add(row.ProductType);
+              }
+            });
+          }
+        } catch (broaderError) {
+          console.error('Broader search also failed:', broaderError.message);
+        }
+      }
 
     } catch (apiError) {
       console.error('FDA API Error:', apiError.response?.data || apiError.message);
       
-      // If API fails, provide sample data as fallback
-      console.warn('Using sample data due to API error');
-      
-      recentInspections.push({
-        "Record Date": "2023-01-01",
-        "Legal Name": "Sample Pharmaceutical",
-        "Record Type": "Form 483",
-        "FEI Number": "12345"
+      return res.status(500).json({
+        error: 'FDA API request failed',
+        details: apiError.response?.data || apiError.message,
+        suggestion: 'Try searching with just the first word of the company name',
+        searchTerm: company
       });
-      
-      historicalInspections.push({
-        "District": "Sample District",
-        "Firm Name": "Sample Labs",
-        "City": "Sample City",
-        "State": "CA", 
-        "Zip": "90210",
-        "Country/Area": "United States",
-        "Inspection End Date": "10/15/2022",
-        "Project Area": "Quality Control",
-        "Center/Program Area": "CDER",
-        "Inspection Classification": "NAI"
-      });
-      
-      projectAreasSet.add("Quality Control");
-      projectAreasSet.add("Manufacturing");
     }
 
-    // Return response in the same format as before
+    // Return response
     res.json({
       recentInspections: recentInspections,
       historicalInspections: historicalInspections,
-      projectAreas: Array.from(projectAreasSet)
+      projectAreas: Array.from(projectAreasSet),
+      summary: {
+        totalRecent: recentInspections.length,
+        totalHistorical: historicalInspections.length,
+        searchCriteria: {
+          company: company || null,
+          feiNumber: feiNumber || null
+        }
+      }
     });
 
   } catch (error) {
@@ -9488,7 +9796,30 @@ async function analyzeTextWithGrokAPI(text) {
           content: [
             { 
               type: "text", 
-              text: `Analyze and summarize this FDA document content:\n\n${truncatedText}` 
+              text: `
+You are an expert FDA regulatory affairs consultant with 20+ years of experience AND an FDA document analyst. Analyze this FDA document and provide BOTH:
+
+1. REGULATORY ANALYSIS (as an expert RA consultant):
+- Which regulatory arguments worked and which didn't
+- What caused friction or required negotiation
+- Historical precedents that could impact future submissions
+- Specific FDA positions on similar cases
+- Strategic recommendations based on precedent analysis
+- Negotiation points and friction areas in FDA submissions
+- Patterns in FDA decision-making
+
+2. DOCUMENT SUMMARY (clear and concise):
+- Drug name and active ingredients
+- Approved indications
+- Important safety information
+- Dosage recommendations
+- Contraindications
+- Special populations or warnings
+
+              
+              
+              
+              Analyze and summarize this FDA document content:\n\n${truncatedText}` 
             }
           ]
         }
