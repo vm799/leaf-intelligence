@@ -25997,18 +25997,40 @@ function extractYearFromDate(dateString) {
     // elements.studyCount.textContent = studies.length;
 
     // Create and append the timeline
-const timelineElement = generateUsageTimeline(studies, entityName, entityType);
+// const timelineElement = generateUsageTimeline(studies, entityName, entityType);
 
-// Check if there's already a timeline
-const existingTimeline = document.getElementById('entity-usage-timeline');
-if (existingTimeline) {
-    existingTimeline.replaceWith(timelineElement);
-} else {
-    // Insert the timeline into the dedicated container
-    const timelineContainer = document.getElementById('timeline-container');
-    timelineElement.id = 'entity-usage-timeline';
-    timelineContainer.appendChild(timelineElement);
-}
+// // Check if there's already a timeline
+// const existingTimeline = document.getElementById('entity-usage-timeline');
+// if (existingTimeline) {
+//     existingTimeline.replaceWith(timelineElement);
+// } else {
+//     // Insert the timeline into the dedicated container
+//     const timelineContainer = document.getElementById('timeline-container');
+//     timelineElement.id = 'entity-usage-timeline';
+//     timelineContainer.appendChild(timelineElement);
+// }
+
+const timelineElement = generateUsageTimelineFixed(studies, entityName, entityType);
+    
+    // CRITICAL: Ensure timeline is inserted into the studies section
+    const studiesSection = elements.studiesSection || elements.resultsOverview;
+    if (studiesSection && timelineElement) {
+        // Remove any existing timeline first
+        const existingTimeline = document.getElementById('containerId2342USAETIMELINE');
+        if (existingTimeline) {
+            existingTimeline.remove();
+            console.log('🗑️ Removed existing timeline');
+        }
+        
+        // Insert timeline at the beginning of studies section
+        if (studiesSection.firstChild) {
+            studiesSection.insertBefore(timelineElement, studiesSection.firstChild);
+        } else {
+            studiesSection.appendChild(timelineElement);
+        }
+        
+        console.log('✅ Timeline inserted into studies section');
+    }
 
 // Now continue with the original display logic
 elements.studiesList.innerHTML = '';
@@ -26149,6 +26171,121 @@ elements.studyCount.textContent = studies.length;
         });
     });
 }
+
+
+
+function generateUsageTimelineFixed(studies, entityName, entityType) {
+    console.log(`🔧 Generating FIXED timeline for ${entityType}: ${entityName}`);
+    
+    // Remove existing timeline completely
+    const existingTimeline = document.getElementById('containerId2342USAETIMELINE');
+    if (existingTimeline) {
+        existingTimeline.remove();
+        console.log('🗑️ Removed existing timeline');
+    }
+    
+    // Create new timeline container
+    const timelineContainer = document.createElement('div');
+    timelineContainer.id = 'containerId2342USAETIMELINE';
+    
+    // CRITICAL: Set up proper visibility from the start
+    timelineContainer.className = 'timeline-container mb-8 p-6 bg-white rounded-xl border border-gray-200 shadow-lg';
+    timelineContainer.style.display = 'block';
+    timelineContainer.style.visibility = 'visible';
+    
+    // Use the correct title based on entity type
+    const titleText = entityType === 'drug' 
+        ? `Historical Use: ${entityName}`
+        : `Treatment History: ${entityName}`;
+    
+    timelineContainer.innerHTML = `
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-6">
+            <div>
+                <h2 class="text-2xl font-bold text-gray-900 mb-2">${titleText}</h2>
+                <p class="text-sm text-gray-600">
+                    <i class="fas fa-chart-line text-blue-500 mr-2"></i>
+                    ${entityType === 'drug' ? 'Conditions where this drug has been studied' : 'Treatments used for this condition'}
+                </p>
+            </div>
+        </div>
+        
+        <div id="usage-timeline" class="relative">
+            <div class="timeline-loading text-center p-8">
+                <div class="inline-block animate-spin rounded-full h-10 w-10 border-4 border-gray-200 border-t-blue-600"></div>
+                <p class="mt-4 text-gray-600 font-medium">Analyzing historical usage patterns...</p>
+            </div>
+        </div>
+    `;
+
+    // Process the data immediately, not in setTimeout
+    setTimeout(async () => {
+        console.log('⏳ Processing timeline data for:', entityName, entityType);
+        
+        try {
+            // Extract and organize timeline data based on entity type
+            const usageData = entityType === 'drug' 
+                ? extractUsageData(studies, entityName) 
+                : extractConditionData(studies, entityName);
+            
+            console.log('📊 Extracted usage data:', usageData);
+            
+            // Validate data
+            const hasValidData = usageData && (
+                (usageData.byCondition && Object.keys(usageData.byCondition).length > 0) ||
+                (usageData.byDrug && Object.keys(usageData.byDrug).length > 0)
+            );
+            
+            const timelineElement = document.getElementById('usage-timeline');
+            if (!timelineElement) {
+                console.error('❌ Timeline element not found during processing');
+                return;
+            }
+            
+            if (!hasValidData) {
+                timelineElement.innerHTML = `
+                    <div class="text-center p-12 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl border border-gray-200">
+                        <div class="mb-6">
+                            <div class="w-20 h-20 mx-auto bg-gray-200 rounded-full flex items-center justify-center">
+                                <i class="fas fa-search text-3xl text-gray-400"></i>
+                            </div>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-700 mb-2">No Historical Data Found</h3>
+                        <p class="text-gray-500 mb-4">Unable to generate usage history for <strong>${entityName}</strong></p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Render the timeline using your existing function
+            await renderImprovedTimelineListWithExistingModals(usageData, entityName, entityType);
+            console.log('✅ Timeline rendered successfully');
+            
+            // CRITICAL: Final visibility check
+            const finalTimelineContainer = document.getElementById('containerId2342USAETIMELINE');
+            if (finalTimelineContainer) {
+                finalTimelineContainer.style.display = 'block';
+                finalTimelineContainer.classList.remove('hidden');
+                console.log('🎯 Final visibility check - timeline forced visible');
+            }
+            
+        } catch (error) {
+            console.error('❌ Error processing timeline data:', error);
+            const timelineElement = document.getElementById('usage-timeline');
+            if (timelineElement) {
+                timelineElement.innerHTML = `
+                    <div class="text-center p-12 bg-gradient-to-br from-red-50 to-orange-50 rounded-xl border border-red-200">
+                        <h3 class="text-xl font-semibold text-red-700 mb-2">Error Loading Timeline</h3>
+                        <p class="text-red-600">${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+    }, 50); // Reduced timeout for faster processing
+    
+    return timelineContainer;
+}
+
+
 
 function markSuccessfulTreatments(usageData, studies) {
     if (!usageData || !usageData.byDrug || !studies || !studies.length) {
@@ -28767,130 +28904,25 @@ The system is now complete and should work as intended!
  * @param {string} entityType - Either 'drug' or 'condition'
  * @returns {HTMLElement} - The timeline container element
  */
-//  function generateUsageTimeline(studies, entityName, entityType) {
-//     // Create container for the timeline
-//     // const timelineContainer = document.createElement('div');
 
-
-
-
-//         // Check if a timeline with this ID already exists and remove it if so
-//         const existingTimeline = document.getElementById('containerId2342USAETIMELINE');
-//     if (existingTimeline) {
-//         existingTimeline.remove();
-//     }
-    
-//     // Create container for the timeline with the unique ID
-//     const timelineContainer = document.createElement('div');
-//     timelineContainer.id = 'containerId2342USAETIMELINE';
-//     timelineContainer.className = 'hidden mb-8 p-4 bg-white rounded-lg border border-gray-200 shadow-sm';
-//     // Use the correct title based on entity type
-//     const titleText = entityType === 'drug' 
-//         ? `Historical Usage Timeline: ${entityName}`
-//         : `Treatment Timeline: ${entityName}`;
-    
-//     timelineContainer.innerHTML = `
-//         <div class="flex flex-col md:flex-row md:items-center justify-between mb-4">
-//             <h2 class="text-xl font-bold">${titleText}</h2>
-            
-//             <div class="flex items-center mt-2 md:mt-0">
-//                 <div class="text-xs text-gray-500 mr-4">
-//                     <span class="inline-block w-3 h-3 rounded-full bg-blue-500 mr-1"></span> 
-//                     ${entityType === 'drug' ? 'Conditions studied' : 'Treatments used'}
-//                 </div>
-//                 <select id="timeline-view-toggle" class="text-sm border border-gray-300 rounded p-1">
-//                     <option value="chart" selected>Chart View</option>
-//                     <option value="list">List View</option>
-//                 </select>
-//             </div>
-//         </div>
-//         <div id="usage-timeline" class="relative">
-//             <div class="timeline-loading text-center p-4">
-//                 <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-200 border-t-blue-500"></div>
-//                 <p class="mt-2 text-gray-600">Analyzing ${entityType === 'drug' ? 'usage patterns' : 'treatment approaches'}...</p>
-//             </div>
-//         </div>
-//     `;
-
-//     // Process the data after rendering the initial container
-//     setTimeout(async () => {
-//         // Extract and organize timeline data based on entity type
-//         const usageData = entityType === 'drug' 
-//             ? extractUsageData(studies, entityName) 
-//             : extractConditionData(studies, entityName);
-//                // If we're processing condition data, make sure to mark successful treatments
-
-//          if (entityType === 'condition') { 
-//             console.log(` USAGE USAGE USAGE usage data for ${entityType}`, usageData)
-
-// //             const trialResults = analyzeTrialResults(usageData);
-
-
-// // console.log("Successful drugs:", trialResults.successfulDrugs);
-// // console.log("Failed drugs:", trialResults.failedDrugs);
-// // console.log("Drugs still in trials:", trialResults.drugsInProgress);
-
-//  await initializeDrugDashboard(usageData, 'clinical-trials-dashboard');
-
-//             markSuccessfulTreatments(usageData, studies);
-//         }
-        
-//         if ((!usageData.byCondition || Object.keys(usageData.byCondition).length === 0) && 
-//             (!usageData.byDrug || Object.keys(usageData.byDrug).length === 0)) {
-//             // No meaningful data found
-//             document.getElementById('usage-timeline').innerHTML = `
-//                 <div class="text-center p-4 text-gray-500">
-//                     <p>Insufficient data to generate a timeline for ${entityName}.</p>
-//                 </div>
-//             `;
-//             return;
-//         }
-        
-//         // Render the timeline visualization
-//         renderTimelineVisualization(usageData, entityName, entityType);
-        
-//         // Add event listener for the view toggle
-//         const viewToggle = timelineContainer.querySelector('#timeline-view-toggle');
-//         if (viewToggle) {
-//             viewToggle.addEventListener('change', (e) => {
-//                 const view = e.target.value;
-//                 if (view === 'chart') {
-//                     renderTimelineVisualization(usageData, entityName, entityType);
-//                 } else if (view === 'list') {
-//                     renderTimelineList(usageData, entityName, entityType);
-//                 }
-//             });
-//         }
-        
-//         // Add export button
-//         addExportButton(timelineContainer, usageData, entityName, entityType);
-        
-//         // Add compare button for advanced comparison
-//         addCompareButton(timelineContainer, entityName, entityType);
-        
-//     }, 100);
-    
-//     return timelineContainer;
-// }
-
-
-// NEW IMPROVED FUNCTION:
 function generateUsageTimeline(studies, entityName, entityType) {
-    console.log(`🔧 Generating improved timeline for ${entityType}: ${entityName}`);
+    console.log(`🔧 Generating timeline for ${entityType}: ${entityName}`);
     
-    // Check if a timeline with this ID already exists and remove it
+    // Remove existing timeline completely
     const existingTimeline = document.getElementById('containerId2342USAETIMELINE');
     if (existingTimeline) {
         existingTimeline.remove();
+        console.log('🗑️ Removed existing timeline');
     }
     
-    // Create container for the timeline with the unique ID
+    // Create new timeline container
     const timelineContainer = document.createElement('div');
     timelineContainer.id = 'containerId2342USAETIMELINE';
-    // REMOVED: 'hidden' class - timeline now shows by default
-    timelineContainer.className = 'hidden mb-8 p-6 bg-white rounded-xl border border-gray-200 shadow-lg';
-    setupTimelineVisibilitySync(timelineContainer);
-
+    
+    // CRITICAL FIX: Start visible, not hidden
+    timelineContainer.className = 'mb-8 p-6 bg-white rounded-xl border border-gray-200 shadow-lg';
+    timelineContainer.style.display = 'block'; // Explicitly set display
+    
     // Use the correct title based on entity type
     const titleText = entityType === 'drug' 
         ? `Historical Use: ${entityName}`
@@ -28905,36 +28937,27 @@ function generateUsageTimeline(studies, entityName, entityType) {
                     ${entityType === 'drug' ? 'Conditions where this drug has been studied' : 'Treatments used for this condition'}
                 </p>
             </div>
-            
-            <div class="mt-4 sm:mt-0 flex items-center space-x-3">
-                <div class="flex items-center text-xs bg-blue-50 text-blue-700 px-3 py-1 rounded-full">
-                    <span class="inline-block w-2 h-2 rounded-full bg-blue-500 mr-2"></span>
-                    Clinical Studies
-                </div>
-            </div>
         </div>
         
         <div id="usage-timeline" class="relative">
             <div class="timeline-loading text-center p-8">
                 <div class="inline-block animate-spin rounded-full h-10 w-10 border-4 border-gray-200 border-t-blue-600"></div>
                 <p class="mt-4 text-gray-600 font-medium">Analyzing historical usage patterns...</p>
-                <p class="text-sm text-gray-500 mt-1">Processing clinical trial data</p>
             </div>
         </div>
     `;
 
     // Process the data after rendering the initial container
     setTimeout(async () => {
-        console.log('Processing timeline data for:', entityName, entityType);
+        console.log('⏳ Processing timeline data for:', entityName, entityType);
         
         try {
             // Extract and organize timeline data based on entity type
-            // USING YOUR EXISTING FUNCTIONS - NO CHANGES NEEDED
             const usageData = entityType === 'drug' 
                 ? extractUsageData(studies, entityName) 
                 : extractConditionData(studies, entityName);
             
-            console.log('Extracted usage data:', usageData);
+            console.log('📊 Extracted usage data:', usageData);
             
             // Validate data
             const hasValidData = usageData && (
@@ -28944,12 +28967,11 @@ function generateUsageTimeline(studies, entityName, entityType) {
             
             const timelineElement = document.getElementById('usage-timeline');
             if (!timelineElement) {
-                console.error('Timeline element not found');
+                console.error('❌ Timeline element not found');
                 return;
             }
             
             if (!hasValidData) {
-                // Show no data message with improved styling
                 timelineElement.innerHTML = `
                     <div class="text-center p-12 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl border border-gray-200">
                         <div class="mb-6">
@@ -28959,40 +28981,23 @@ function generateUsageTimeline(studies, entityName, entityType) {
                         </div>
                         <h3 class="text-xl font-semibold text-gray-700 mb-2">No Historical Data Found</h3>
                         <p class="text-gray-500 mb-4">Unable to generate usage history for <strong>${entityName}</strong></p>
-                        <div class="text-sm text-gray-400">
-                            <p>• Try searching for a different term</p>
-                            <p>• Check if studies contain sufficient historical information</p>
-                        </div>
                     </div>
                 `;
                 return;
             }
             
-            // Render the improved timeline list using YOUR EXISTING modal logic
+            // Render the timeline using your existing function
             await renderImprovedTimelineListWithExistingModals(usageData, entityName, entityType);
-            console.log('✅ Timeline list rendered successfully');
+            console.log('✅ Timeline rendered successfully');
             
         } catch (error) {
             console.error('❌ Error processing timeline data:', error);
-            
-            // Show error message with improved styling
             const timelineElement = document.getElementById('usage-timeline');
             if (timelineElement) {
                 timelineElement.innerHTML = `
                     <div class="text-center p-12 bg-gradient-to-br from-red-50 to-orange-50 rounded-xl border border-red-200">
-                        <div class="mb-6">
-                            <div class="w-20 h-20 mx-auto bg-red-100 rounded-full flex items-center justify-center">
-                                <i class="fas fa-exclamation-triangle text-3xl text-red-500"></i>
-                            </div>
-                        </div>
-                        <h3 class="text-xl font-semibold text-red-700 mb-2">Processing Error</h3>
-                        <p class="text-red-600 mb-4">Failed to analyze historical data for <strong>${entityName}</strong></p>
-                        <div class="text-sm text-red-500 mb-6">${error.message}</div>
-                        <button onclick="location.reload()" 
-                                class="inline-flex items-center px-6 py-3 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition-colors duration-200">
-                            <i class="fas fa-redo mr-2"></i>
-                            Try Again
-                        </button>
+                        <h3 class="text-xl font-semibold text-red-700 mb-2">Error Loading Timeline</h3>
+                        <p class="text-red-600">${error.message}</p>
                     </div>
                 `;
             }
@@ -29001,6 +29006,273 @@ function generateUsageTimeline(studies, entityName, entityType) {
     
     return timelineContainer;
 }
+
+
+
+
+function generateUsageTimeline(studies, entityName, entityType) {
+    console.log(`🔧 Generating timeline for ${entityType}: ${entityName} (Tab-compatible version)`);
+    
+    // Remove existing timeline completely
+    const existingTimeline = document.getElementById('containerId2342USAETIMELINE');
+    if (existingTimeline) {
+        existingTimeline.remove();
+        console.log('🗑️ Removed existing timeline');
+    }
+    
+    // Create new timeline container
+    const timelineContainer = document.createElement('div');
+    timelineContainer.id = 'containerId2342USAETIMELINE';
+    
+    // CRITICAL: Start with hidden class but mark it as ready to show
+    timelineContainer.className = 'timeline-ready mb-8 p-6 bg-white rounded-xl border border-gray-200 shadow-lg';
+    timelineContainer.setAttribute('data-timeline-ready', 'true');
+    
+    // Use the correct title based on entity type
+    const titleText = entityType === 'drug' 
+        ? `Historical Use: ${entityName}`
+        : `Treatment History: ${entityName}`;
+    
+    timelineContainer.innerHTML = `
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-6">
+            <div>
+                <h2 class="text-2xl font-bold text-gray-900 mb-2">${titleText}</h2>
+                <p class="text-sm text-gray-600">
+                    <i class="fas fa-chart-line text-blue-500 mr-2"></i>
+                    ${entityType === 'drug' ? 'Conditions where this drug has been studied' : 'Treatments used for this condition'}
+                </p>
+            </div>
+        </div>
+        
+        <div id="usage-timeline" class="relative">
+            <div class="timeline-loading text-center p-8">
+                <div class="inline-block animate-spin rounded-full h-10 w-10 border-4 border-gray-200 border-t-blue-600"></div>
+                <p class="mt-4 text-gray-600 font-medium">Analyzing historical usage patterns...</p>
+            </div>
+        </div>
+    `;
+
+    // Insert timeline into studies section immediately
+    const studiesSection = elements.studiesSection || elements.resultsOverview;
+    if (studiesSection) {
+        const firstChild = studiesSection.firstChild;
+        if (firstChild) {
+            studiesSection.insertBefore(timelineContainer, firstChild);
+        } else {
+            studiesSection.appendChild(timelineContainer);
+        }
+        console.log('📍 Timeline inserted into studies section');
+    }
+    
+    // Process the data after rendering
+    setTimeout(async () => {
+        console.log('⏳ Processing timeline data...');
+        
+        try {
+            // Your existing timeline processing code
+            const usageData = entityType === 'drug' 
+                ? extractUsageData(studies, entityName) 
+                : extractConditionData(studies, entityName);
+            
+            const hasValidData = usageData && (
+                (usageData.byCondition && Object.keys(usageData.byCondition).length > 0) ||
+                (usageData.byDrug && Object.keys(usageData.byDrug).length > 0)
+            );
+            
+            const timelineElement = document.getElementById('usage-timeline');
+            if (timelineElement) {
+                if (hasValidData) {
+                    await renderImprovedTimelineListWithExistingModals(usageData, entityName, entityType);
+                    console.log('✅ Timeline content rendered successfully');
+                } else {
+                    timelineElement.innerHTML = `
+                        <div class="text-center p-12 bg-gray-50 rounded-xl">
+                            <h3 class="text-xl font-semibold text-gray-700 mb-2">No Historical Data Found</h3>
+                            <p class="text-gray-500">Unable to generate usage history for <strong>${entityName}</strong></p>
+                        </div>
+                    `;
+                }
+            }
+            
+            // Mark as processing complete
+            timelineContainer.setAttribute('data-processing-complete', 'true');
+            console.log('✅ Timeline processing complete');
+            
+            // If currently on trials tab, make sure timeline is visible
+            setTimeout(() => {
+                const currentActiveTab = document.querySelector('.nav-btn.active, .tab-btn.active');
+                if (currentActiveTab && currentActiveTab.textContent.includes('Trial')) {
+                    console.log('🎯 Currently on trials tab - ensuring timeline visibility');
+                    timelineContainer.style.display = 'block';
+                    timelineContainer.classList.remove('hidden');
+                }
+            }, 100);
+            
+        } catch (error) {
+            console.error('❌ Error processing timeline:', error);
+            const timelineElement = document.getElementById('usage-timeline');
+            if (timelineElement) {
+                timelineElement.innerHTML = `
+                    <div class="text-center p-12 bg-red-50 rounded-xl">
+                        <h3 class="text-xl font-semibold text-red-700 mb-2">Error Loading Timeline</h3>
+                        <p class="text-red-600">${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+    }, 100);
+    
+    return timelineContainer;
+}
+
+// Helper function to check if timeline is ready and show it
+function ensureTimelineVisibility() {
+    const timelineElement = document.getElementById('containerId2342USAETIMELINE');
+    if (timelineElement) {
+        const isReady = timelineElement.getAttribute('data-timeline-ready') === 'true';
+        const isProcessingComplete = timelineElement.getAttribute('data-processing-complete') === 'true';
+        
+        console.log(`🔍 Timeline status - Ready: ${isReady}, Processing Complete: ${isProcessingComplete}`);
+        
+        if (isReady) {
+            timelineElement.style.display = 'block';
+            timelineElement.classList.remove('hidden');
+            showSection(timelineElement, true);
+            return true;
+        }
+    }
+    return false;
+}
+
+
+
+
+// function generateUsageTimeline(studies, entityName, entityType) {
+//     console.log(`🔧 Generating improved timeline for ${entityType}: ${entityName}`);
+    
+//     // Check if a timeline with this ID already exists and remove it
+//     const existingTimeline = document.getElementById('containerId2342USAETIMELINE');
+//     if (existingTimeline) {
+//         existingTimeline.remove();
+//     }
+    
+//     // Create container for the timeline with the unique ID
+//     const timelineContainer = document.createElement('div');
+//     timelineContainer.id = 'containerId2342USAETIMELINE';
+//     // REMOVED: 'hidden' class - timeline now shows by default
+//     timelineContainer.className = 'hidden mb-8 p-6 bg-white rounded-xl border border-gray-200 shadow-lg';
+//     setupTimelineVisibilitySync(timelineContainer);
+
+//     // Use the correct title based on entity type
+//     const titleText = entityType === 'drug' 
+//         ? `Historical Use: ${entityName}`
+//         : `Treatment History: ${entityName}`;
+    
+//     timelineContainer.innerHTML = `
+//         <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-6">
+//             <div>
+//                 <h2 class="text-2xl font-bold text-gray-900 mb-2">${titleText}</h2>
+//                 <p class="text-sm text-gray-600">
+//                     <i class="fas fa-chart-line text-blue-500 mr-2"></i>
+//                     ${entityType === 'drug' ? 'Conditions where this drug has been studied' : 'Treatments used for this condition'}
+//                 </p>
+//             </div>
+            
+//             <div class="mt-4 sm:mt-0 flex items-center space-x-3">
+//                 <div class="flex items-center text-xs bg-blue-50 text-blue-700 px-3 py-1 rounded-full">
+//                     <span class="inline-block w-2 h-2 rounded-full bg-blue-500 mr-2"></span>
+//                     Clinical Studies
+//                 </div>
+//             </div>
+//         </div>
+        
+//         <div id="usage-timeline" class="relative">
+//             <div class="timeline-loading text-center p-8">
+//                 <div class="inline-block animate-spin rounded-full h-10 w-10 border-4 border-gray-200 border-t-blue-600"></div>
+//                 <p class="mt-4 text-gray-600 font-medium">Analyzing historical usage patterns...</p>
+//                 <p class="text-sm text-gray-500 mt-1">Processing clinical trial data</p>
+//             </div>
+//         </div>
+//     `;
+
+//     // Process the data after rendering the initial container
+//     setTimeout(async () => {
+//         console.log('Processing timeline data for:', entityName, entityType);
+        
+//         try {
+//             // Extract and organize timeline data based on entity type
+//             // USING YOUR EXISTING FUNCTIONS - NO CHANGES NEEDED
+//             const usageData = entityType === 'drug' 
+//                 ? extractUsageData(studies, entityName) 
+//                 : extractConditionData(studies, entityName);
+            
+//             console.log('Extracted usage data:', usageData);
+            
+//             // Validate data
+//             const hasValidData = usageData && (
+//                 (usageData.byCondition && Object.keys(usageData.byCondition).length > 0) ||
+//                 (usageData.byDrug && Object.keys(usageData.byDrug).length > 0)
+//             );
+            
+//             const timelineElement = document.getElementById('usage-timeline');
+//             if (!timelineElement) {
+//                 console.error('Timeline element not found');
+//                 return;
+//             }
+            
+//             if (!hasValidData) {
+//                 // Show no data message with improved styling
+//                 timelineElement.innerHTML = `
+//                     <div class="text-center p-12 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl border border-gray-200">
+//                         <div class="mb-6">
+//                             <div class="w-20 h-20 mx-auto bg-gray-200 rounded-full flex items-center justify-center">
+//                                 <i class="fas fa-search text-3xl text-gray-400"></i>
+//                             </div>
+//                         </div>
+//                         <h3 class="text-xl font-semibold text-gray-700 mb-2">No Historical Data Found</h3>
+//                         <p class="text-gray-500 mb-4">Unable to generate usage history for <strong>${entityName}</strong></p>
+//                         <div class="text-sm text-gray-400">
+//                             <p>• Try searching for a different term</p>
+//                             <p>• Check if studies contain sufficient historical information</p>
+//                         </div>
+//                     </div>
+//                 `;
+//                 return;
+//             }
+            
+//             // Render the improved timeline list using YOUR EXISTING modal logic
+//             await renderImprovedTimelineListWithExistingModals(usageData, entityName, entityType);
+//             console.log('✅ Timeline list rendered successfully');
+            
+//         } catch (error) {
+//             console.error('❌ Error processing timeline data:', error);
+            
+//             // Show error message with improved styling
+//             const timelineElement = document.getElementById('usage-timeline');
+//             if (timelineElement) {
+//                 timelineElement.innerHTML = `
+//                     <div class="text-center p-12 bg-gradient-to-br from-red-50 to-orange-50 rounded-xl border border-red-200">
+//                         <div class="mb-6">
+//                             <div class="w-20 h-20 mx-auto bg-red-100 rounded-full flex items-center justify-center">
+//                                 <i class="fas fa-exclamation-triangle text-3xl text-red-500"></i>
+//                             </div>
+//                         </div>
+//                         <h3 class="text-xl font-semibold text-red-700 mb-2">Processing Error</h3>
+//                         <p class="text-red-600 mb-4">Failed to analyze historical data for <strong>${entityName}</strong></p>
+//                         <div class="text-sm text-red-500 mb-6">${error.message}</div>
+//                         <button onclick="location.reload()" 
+//                                 class="inline-flex items-center px-6 py-3 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition-colors duration-200">
+//                             <i class="fas fa-redo mr-2"></i>
+//                             Try Again
+//                         </button>
+//                     </div>
+//                 `;
+//             }
+//         }
+//     }, 100);
+    
+//     return timelineContainer;
+// }
 
 // ==================================================================================
 // STEP 2: ADD THESE NEW FUNCTIONS TO YOUR inteltool.html FILE
@@ -31449,6 +31721,614 @@ function extractEnhancedEndpointData(studies) {
     return endpointData;
 }
 
+
+/**
+ * Enrollment Data Validation and Correction System
+ * Handles outliers, data errors, and provides detailed reporting
+ */
+
+// Configuration for validation thresholds
+const ENROLLMENT_VALIDATION_CONFIG = {
+    // Maximum reasonable enrollment for different trial types
+    maxEnrollment: {
+        default: 50000,           // Most trials
+        vaccine: 100000,          // Vaccine trials can be larger
+        observational: 200000,    // Observational studies can be very large
+        registry: 500000          // Patient registries can be massive
+    },
+    // Suspicious patterns that might indicate data errors
+    suspiciousPatterns: {
+        repeatingDigits: /^(\d)\1{5,}$/,  // e.g., 111111
+        concatenated: /^\d{7,}$/,          // 7+ digits is suspicious
+        tooRound: /^[1-9]0{5,}$/          // e.g., 1000000
+    },
+    // Statistical outlier detection
+    outlierDetection: {
+        method: 'IQR',  // Interquartile Range method
+        multiplier: 3   // Values beyond Q3 + 3*IQR are extreme outliers
+    }
+};
+
+/**
+ * Main validation function for enrollment data
+ */
+function validateEnrollmentCount(enrollmentInfo, study) {
+    const count = parseInt(enrollmentInfo?.count || 0);
+    const nctId = study?.protocolSection?.identificationModule?.nctId || 'Unknown';
+    const studyType = study?.protocolSection?.designModule?.studyType || 'INTERVENTIONAL';
+    const phases = study?.protocolSection?.designModule?.phases || [];
+    
+    const validation = {
+        originalValue: count,
+        validatedValue: count,
+        isValid: true,
+        issues: [],
+        confidence: 'high',
+        corrections: []
+    };
+    
+    // Check if enrollment is 0 or missing
+    if (!count || count === 0) {
+        validation.issues.push('No enrollment data');
+        validation.confidence = 'none';
+        return validation;
+    }
+    
+    // Check for suspicious patterns
+    const countStr = String(count);
+    
+    // Check for repeating digits (e.g., 111111)
+    if (ENROLLMENT_VALIDATION_CONFIG.suspiciousPatterns.repeatingDigits.test(countStr)) {
+        validation.issues.push('Repeating digits pattern detected');
+        validation.confidence = 'low';
+        validation.isValid = false;
+    }
+    
+    // Check for concatenated values (7+ digits)
+    if (countStr.length >= 7) {
+        validation.issues.push(`Unusually long number (${countStr.length} digits)`);
+        validation.confidence = 'low';
+        validation.isValid = false;
+        
+        // Try to detect concatenation patterns
+        if (countStr.length === 8 && countStr.substring(0, 4) === countStr.substring(4)) {
+            // Possible duplicate concatenation (e.g., 12341234)
+            const possibleValue = parseInt(countStr.substring(0, 4));
+            validation.corrections.push({
+                type: 'duplicate_concatenation',
+                suggestedValue: possibleValue,
+                explanation: `Possible duplicate concatenation: ${countStr} → ${possibleValue}`
+            });
+        }
+    }
+    
+    // Check for too round numbers
+    if (ENROLLMENT_VALIDATION_CONFIG.suspiciousPatterns.tooRound.test(countStr) && count > 100000) {
+        validation.issues.push('Suspiciously round number');
+        validation.confidence = 'medium';
+    }
+    
+    // Check against maximum thresholds
+    let maxThreshold = ENROLLMENT_VALIDATION_CONFIG.maxEnrollment.default;
+    
+    // Adjust threshold based on study type
+    if (studyType === 'OBSERVATIONAL') {
+        maxThreshold = ENROLLMENT_VALIDATION_CONFIG.maxEnrollment.observational;
+    } else if (phases.includes('PHASE3') && study?.protocolSection?.conditionsModule?.conditions?.some(c => 
+        c.toLowerCase().includes('vaccine') || c.toLowerCase().includes('covid'))) {
+        maxThreshold = ENROLLMENT_VALIDATION_CONFIG.maxEnrollment.vaccine;
+    }
+    
+    if (count > maxThreshold) {
+        validation.issues.push(`Exceeds maximum threshold (${maxThreshold.toLocaleString()})`);
+        validation.confidence = 'low';
+        validation.isValid = false;
+        
+        // Suggest capping at threshold
+        validation.corrections.push({
+            type: 'cap_at_threshold',
+            suggestedValue: maxThreshold,
+            explanation: `Capped at maximum reasonable value for ${studyType} study`
+        });
+    }
+    
+    // Additional checks for specific error patterns
+    if (countStr === '1234412' || countStr === '1234567' || countStr === '9999999') {
+        validation.issues.push('Known test/placeholder value detected');
+        validation.confidence = 'very_low';
+        validation.isValid = false;
+        validation.corrections.push({
+            type: 'placeholder_detected',
+            suggestedValue: null,
+            explanation: 'This appears to be a test or placeholder value'
+        });
+    }
+    
+    return validation;
+}
+
+/**
+ * Statistical outlier detection using IQR method
+ */
+function detectStatisticalOutliers(enrollments) {
+    if (enrollments.length < 4) return { outliers: [], cleaned: enrollments };
+    
+    // Sort enrollments
+    const sorted = [...enrollments].sort((a, b) => a - b);
+    
+    // Calculate quartiles
+    const q1Index = Math.floor(sorted.length * 0.25);
+    const q3Index = Math.floor(sorted.length * 0.75);
+    const q1 = sorted[q1Index];
+    const q3 = sorted[q3Index];
+    const iqr = q3 - q1;
+    
+    // Calculate outlier boundaries
+    const lowerBound = q1 - (ENROLLMENT_VALIDATION_CONFIG.outlierDetection.multiplier * iqr);
+    const upperBound = q3 + (ENROLLMENT_VALIDATION_CONFIG.outlierDetection.multiplier * iqr);
+    
+    const outliers = [];
+    const cleaned = [];
+    
+    enrollments.forEach(value => {
+        if (value < lowerBound || value > upperBound) {
+            outliers.push({
+                value: value,
+                type: value > upperBound ? 'extreme_high' : 'extreme_low',
+                bounds: { lower: lowerBound, upper: upperBound }
+            });
+        } else {
+            cleaned.push(value);
+        }
+    });
+    
+    return {
+        outliers: outliers,
+        cleaned: cleaned,
+        statistics: {
+            q1: q1,
+            q3: q3,
+            iqr: iqr,
+            lowerBound: Math.max(0, lowerBound),
+            upperBound: upperBound
+        }
+    };
+}
+
+/**
+ * Enhanced demographics extraction with validation
+ */
+function extractEnhancedDemographicsDataWithValidation (studies) {
+    console.log('📊 Extracting demographics data from', studies.length, 'studies...');
+    
+    const demographicsData = {
+        enrollment: {
+            total: 0,
+            average: 0,
+            median: 0,
+            range: { min: Infinity, max: 0 },
+            distribution: {
+                verySmall: 0,
+                small: 0,
+                medium: 0,
+                large: 0,
+                veryLarge: 0,
+                megaTrial: 0
+            }
+        },
+        demographics: {
+            ageGroups: {
+                child: 0,
+                adult: 0,
+                olderAdult: 0,
+                allAges: 0,
+                mixed: 0
+            },
+            ageAnalysis: {
+                averageMinAge: 0,
+                averageMaxAge: 0,
+                validAgeRanges: 0
+            },
+            genderDistribution: {
+                male: 0,
+                female: 0,
+                all: 0
+            },
+            inclusionPatterns: {},
+            exclusionPatterns: {}
+        },
+        specialPopulations: {
+            pediatric: 0,
+            geriatric: 0,
+            renalImpairment: 0,
+            hepaticImpairment: 0
+        }
+    };
+    
+    const enrollments = [];
+    const validMinAges = [];
+    const validMaxAges = [];
+    
+    studies.forEach((study, index) => {
+        try {
+            const protocolSection = study.protocolSection || {};
+            const designModule = protocolSection.designModule || {};
+            const eligibilityModule = protocolSection.eligibilityModule || {};
+            
+            // Process enrollment
+            const enrollmentInfo = designModule.enrollmentInfo || {};
+            const enrollmentCount = parseInt(enrollmentInfo.count) || 0;
+            
+            if (enrollmentCount > 0 && enrollmentCount < 1000000) { // Basic validation
+                enrollments.push(enrollmentCount);
+                demographicsData.enrollment.total += enrollmentCount;
+                
+                // Size distribution
+                if (enrollmentCount < 50) {
+                    demographicsData.enrollment.distribution.verySmall++;
+                } else if (enrollmentCount < 100) {
+                    demographicsData.enrollment.distribution.small++;
+                } else if (enrollmentCount < 500) {
+                    demographicsData.enrollment.distribution.medium++;
+                } else if (enrollmentCount < 1000) {
+                    demographicsData.enrollment.distribution.large++;
+                } else if (enrollmentCount < 5000) {
+                    demographicsData.enrollment.distribution.veryLarge++;
+                } else {
+                    demographicsData.enrollment.distribution.megaTrial++;
+                }
+                
+                // Update range
+                demographicsData.enrollment.range.min = Math.min(demographicsData.enrollment.range.min, enrollmentCount);
+                demographicsData.enrollment.range.max = Math.max(demographicsData.enrollment.range.max, enrollmentCount);
+            }
+            
+            // Process age demographics
+            const minimumAge = eligibilityModule.minimumAge;
+            const maximumAge = eligibilityModule.maximumAge;
+            const stdAges = eligibilityModule.stdAges || [];
+            
+            // Debug logging for first few studies
+            if (index < 3) {
+                console.log(`Study ${index + 1} age data:`, {
+                    minimumAge,
+                    maximumAge,
+                    stdAges
+                });
+            }
+            
+            // Categorize age group
+            const ageCategory = categorizeAgeGroups(minimumAge, maximumAge, stdAges);
+            demographicsData.demographics.ageGroups[ageCategory]++;
+            
+            // Parse ages for averaging
+            const minAgeYears = parseAgeToYears(minimumAge);
+            const maxAgeYears = parseAgeToYears(maximumAge);
+            
+            if (minAgeYears !== null) {
+                validMinAges.push(minAgeYears);
+            }
+            if (maxAgeYears !== null) {
+                validMaxAges.push(maxAgeYears);
+            }
+            
+            // Process gender
+            const sex = eligibilityModule.sex;
+            if (sex === 'MALE') {
+                demographicsData.demographics.genderDistribution.male++;
+            } else if (sex === 'FEMALE') {
+                demographicsData.demographics.genderDistribution.female++;
+            } else {
+                demographicsData.demographics.genderDistribution.all++;
+            }
+            
+            // Process special populations
+            const eligibilityCriteria = eligibilityModule.eligibilityCriteria || '';
+            const criteriaLower = eligibilityCriteria.toLowerCase();
+            
+            // Check for pediatric
+            if (stdAges.includes('CHILD') || 
+                (minimumAge && (minimumAge.includes('month') || minimumAge.includes('day'))) ||
+                (minAgeYears !== null && minAgeYears < 18)) {
+                demographicsData.specialPopulations.pediatric++;
+            }
+            
+            // Check for geriatric
+            if (stdAges.includes('OLDER_ADULT') || 
+                (maxAgeYears !== null && maxAgeYears >= 65)) {
+                demographicsData.specialPopulations.geriatric++;
+            }
+            
+            // Check for renal impairment
+            if (criteriaLower.includes('renal') || 
+                criteriaLower.includes('kidney') ||
+                criteriaLower.includes('nephro')) {
+                demographicsData.specialPopulations.renalImpairment++;
+            }
+            
+            // Check for hepatic impairment
+            if (criteriaLower.includes('hepatic') || 
+                criteriaLower.includes('liver') ||
+                criteriaLower.includes('hepato')) {
+                demographicsData.specialPopulations.hepaticImpairment++;
+            }
+            
+            // Extract criteria patterns
+            extractCriteriaPatterns(eligibilityCriteria, demographicsData.demographics);
+            
+        } catch (error) {
+            console.warn(`Error processing study ${index + 1}:`, error);
+        }
+    });
+    
+    // Calculate final statistics
+    if (enrollments.length > 0) {
+        demographicsData.enrollment.average = Math.round(demographicsData.enrollment.total / enrollments.length);
+        enrollments.sort((a, b) => a - b);
+        demographicsData.enrollment.median = enrollments[Math.floor(enrollments.length / 2)];
+        
+        if (demographicsData.enrollment.range.min === Infinity) {
+            demographicsData.enrollment.range.min = 0;
+        }
+    }
+    
+    // Calculate average ages
+    if (validMinAges.length > 0) {
+        const avgMinAge = validMinAges.reduce((sum, age) => sum + age, 0) / validMinAges.length;
+        demographicsData.demographics.ageAnalysis.averageMinAge = Math.round(avgMinAge);
+    }
+    
+    if (validMaxAges.length > 0) {
+        const avgMaxAge = validMaxAges.reduce((sum, age) => sum + age, 0) / validMaxAges.length;
+        demographicsData.demographics.ageAnalysis.averageMaxAge = Math.round(avgMaxAge);
+    }
+    
+    demographicsData.demographics.ageAnalysis.validAgeRanges = Math.min(validMinAges.length, validMaxAges.length);
+    
+    console.log('✅ Demographics extraction complete');
+    console.log('📊 Summary:', {
+        totalStudies: studies.length,
+        validEnrollments: enrollments.length,
+        validMinAges: validMinAges.length,
+        validMaxAges: validMaxAges.length,
+        ageGroups: demographicsData.demographics.ageGroups,
+        specialPopulations: demographicsData.specialPopulations
+    });
+    
+    return demographicsData;
+}
+
+
+/**
+ * Helper function to categorize age groups
+ */
+
+
+/**
+ * Generate validation report UI
+ */
+function generateValidationReportHTML(validationReport) {
+    if (!validationReport || validationReport.corrections.length === 0) {
+        return '';
+    }
+    
+    return `
+        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+            <h4 class="text-lg font-semibold text-yellow-800 mb-3 flex items-center">
+                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                </svg>
+                Data Validation Report
+            </h4>
+            
+            <div class="space-y-3">
+                <div class="text-sm text-yellow-700">
+                    <p><strong>Valid enrollments:</strong> ${validationReport.validEnrollments} trials</p>
+                    <p><strong>Invalid enrollments:</strong> ${validationReport.invalidEnrollments} trials</p>
+                    <p><strong>Statistical outliers:</strong> ${validationReport.outliers.length} trials</p>
+                </div>
+                
+                ${validationReport.corrections.length > 0 ? `
+                    <details class="mt-3">
+                        <summary class="cursor-pointer text-yellow-700 hover:text-yellow-800 font-medium">
+                            View problematic trials (${validationReport.corrections.length})
+                        </summary>
+                        <div class="mt-2 space-y-2 text-sm">
+                            ${validationReport.corrections.map(correction => `
+                                <div class="bg-white p-2 rounded border border-yellow-200">
+                                    <p class="font-medium">${correction.nctId}</p>
+                                    <p class="text-gray-600">Original: ${correction.original.toLocaleString()}</p>
+                                    <p class="text-red-600">Issues: ${correction.issues.join(', ')}</p>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </details>
+                ` : ''}
+                
+                <p class="text-sm font-medium text-yellow-800 mt-3">
+                    ${validationReport.summary.recommendedAction}
+                </p>
+            </div>
+        </div>
+    `;
+}
+
+/**
+ * Helper function to categorize age groups
+ */
+function categorizeAgeGroups(minimumAge, maximumAge, stdAges) {
+    // Parse ages to years
+    const minAgeYears = parseAgeToYears(minimumAge);
+    const maxAgeYears = parseAgeToYears(maximumAge);
+    
+    // If we can't parse ages, check stdAges array
+    if (minAgeYears === null && maxAgeYears === null) {
+        if (stdAges && stdAges.length > 0) {
+            if (stdAges.includes('CHILD')) return 'child';
+            if (stdAges.includes('ADULT')) return 'adult';
+            if (stdAges.includes('OLDER_ADULT')) return 'olderAdult';
+        }
+        return 'allAges';
+    }
+    
+    // Use parsed ages to determine category
+    const includesChildren = minAgeYears !== null && minAgeYears < 18;
+    const includesAdults = (minAgeYears === null || minAgeYears <= 65) && 
+                          (maxAgeYears === null || maxAgeYears >= 18);
+    const includesOlderAdults = maxAgeYears !== null && maxAgeYears > 65;
+    
+    const groupCount = [includesChildren, includesAdults, includesOlderAdults].filter(Boolean).length;
+    
+    if (groupCount === 0) {
+        return 'allAges';
+    } else if (groupCount > 1) {
+        return 'mixed';
+    } else if (includesChildren) {
+        return 'child';
+    } else if (includesOlderAdults) {
+        return 'olderAdult';
+    } else {
+        return 'adult';
+    }
+}
+
+/**
+ * Extract criteria patterns with better parsing
+ */
+function extractCriteriaPatterns(criteria, demographics) {
+    if (!criteria || typeof criteria !== 'string') return;
+    
+    const criteriaLower = criteria.toLowerCase();
+    
+    // Split into inclusion and exclusion sections
+    const parts = criteriaLower.split(/exclusion\s*criteria/i);
+    const inclusionText = parts[0] || '';
+    const exclusionText = parts[1] || criteriaLower; // If no split, assume it's all exclusion
+    
+    // Enhanced inclusion patterns
+    const inclusionPatterns = [
+        { pattern: 'informed consent', key: 'informed consent' },
+        { pattern: 'willing to participate', key: 'willing to participate' },
+        { pattern: 'able to comply', key: 'able to comply' },
+        { pattern: 'confirmed diagnosis', key: 'confirmed diagnosis' },
+        { pattern: 'screening', key: 'screening' },
+        { pattern: 'baseline', key: 'baseline' },
+        { pattern: 'contraception', key: 'contraception' },
+        { pattern: 'written consent', key: 'written consent' }
+    ];
+    
+    // Enhanced exclusion patterns
+    const exclusionPatterns = [
+        { pattern: 'pregnancy', key: 'pregnancy' },
+        { pattern: 'pregnant', key: 'pregnancy' },
+        { pattern: 'lactating', key: 'lactating' },
+        { pattern: 'substance abuse', key: 'substance abuse' },
+        { pattern: 'alcohol', key: 'alcohol abuse' },
+        { pattern: 'psychiatric', key: 'psychiatric disorder' },
+        { pattern: 'mental illness', key: 'mental illness' },
+        { pattern: 'immunocompromised', key: 'immunocompromised' },
+        { pattern: 'hiv', key: 'HIV' },
+        { pattern: 'hepatitis', key: 'hepatitis' },
+        { pattern: 'uncontrolled', key: 'uncontrolled' },
+        { pattern: 'symptomatic', key: 'symptomatic' },
+        { pattern: 'hepatic impairment', key: 'hepatic impairment' },
+        { pattern: 'renal impairment', key: 'renal impairment' },
+        { pattern: 'kidney disease', key: 'renal impairment' },
+        { pattern: 'liver disease', key: 'hepatic impairment' }
+    ];
+    
+    // Count inclusion patterns
+    inclusionPatterns.forEach(({ pattern, key }) => {
+        if (inclusionText.includes(pattern)) {
+            demographics.inclusionPatterns[key] = (demographics.inclusionPatterns[key] || 0) + 1;
+        }
+    });
+    
+    // Count exclusion patterns
+    exclusionPatterns.forEach(({ pattern, key }) => {
+        if (exclusionText.includes(pattern)) {
+            demographics.exclusionPatterns[key] = (demographics.exclusionPatterns[key] || 0) + 1;
+        }
+    });
+}
+/**
+ * Parse age string to years
+ */
+function parseAgeToYears(ageString) {
+    if (!ageString || ageString === 'N/A') return null;
+    
+    // Handle various age formats
+    const patterns = [
+        { regex: /(\d+)\s*year/i, multiplier: 1 },
+        { regex: /(\d+)\s*month/i, multiplier: 1/12 },
+        { regex: /(\d+)\s*week/i, multiplier: 1/52 },
+        { regex: /(\d+)\s*day/i, multiplier: 1/365 }
+    ];
+    
+    for (const pattern of patterns) {
+        const match = ageString.match(pattern.regex);
+        if (match) {
+            const value = parseInt(match[1]);
+            return value * pattern.multiplier;
+        }
+    }
+    
+    // Try to parse as plain number (assume years)
+    const plainNumber = parseInt(ageString);
+    if (!isNaN(plainNumber)) {
+        return plainNumber;
+    }
+    
+    return null;
+}
+/**
+ * Generate validation report UI
+ */
+function generateValidationReportHTML(validationReport) {
+    if (!validationReport || validationReport.corrections.length === 0) {
+        return '';
+    }
+    
+    return `
+        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+            <h4 class="text-lg font-semibold text-yellow-800 mb-3 flex items-center">
+                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                </svg>
+                Data Validation Report
+            </h4>
+            
+            <div class="space-y-3">
+                <div class="text-sm text-yellow-700">
+                    <p><strong>Valid enrollments:</strong> ${validationReport.validEnrollments} trials</p>
+                    <p><strong>Invalid enrollments:</strong> ${validationReport.invalidEnrollments} trials</p>
+                    <p><strong>Statistical outliers:</strong> ${validationReport.outliers.length} trials</p>
+                </div>
+                
+                ${validationReport.corrections.length > 0 ? `
+                    <details class="mt-3">
+                        <summary class="cursor-pointer text-yellow-700 hover:text-yellow-800 font-medium">
+                            View problematic trials (${validationReport.corrections.length})
+                        </summary>
+                        <div class="mt-2 space-y-2 text-sm">
+                            ${validationReport.corrections.map(correction => `
+                                <div class="bg-white p-2 rounded border border-yellow-200">
+                                    <p class="font-medium">${correction.nctId}</p>
+                                    <p class="text-gray-600">Original: ${correction.original.toLocaleString()}</p>
+                                    <p class="text-red-600">Issues: ${correction.issues.join(', ')}</p>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </details>
+                ` : ''}
+                
+                <p class="text-sm font-medium text-yellow-800 mt-3">
+                    ${validationReport.summary.recommendedAction}
+                </p>
+            </div>
+        </div>
+    `;
+}
 /**
  * HELPER FUNCTIONS FOR ENHANCED DATA EXTRACTION
  */
@@ -31524,27 +32404,7 @@ function categorizeDuration(months) {
 }
 
 // Parse age to years
-function parseAgeToYears(ageString) {
-    if (!ageString || ageString === 'N/A') return null;
-    
-    const ageStr = ageString.toLowerCase();
-    const match = ageStr.match(/(\d+)\s*(year|month|day|week)/);
-    
-    if (match) {
-        const value = parseInt(match[1]);
-        const unit = match[2];
-        
-        switch (unit) {
-            case 'year': return value;
-            case 'month': return value / 12;
-            case 'week': return value / 52;
-            case 'day': return value / 365;
-            default: return value;
-        }
-    }
-    
-    return null;
-}
+
 
 // Standardize endpoint names for better matching
 function standardizeEndpointName(measure) {
@@ -32602,7 +33462,8 @@ function generateEnhancedPivotalTrialAnalysis(studies, drugName, conditionName) 
     
     // Extract enhanced data using the 20x better functions
     const designData = extractEnhancedTrialDesignData(studies);
-    const demographicsData = extractEnhancedDemographicsData(studies);
+    // const demographicsData = extractEnhancedDemographicsData(studies);
+    const demographicsData = extractEnhancedDemographicsDataWithValidation(studies)
     const endpointData = extractEnhancedEndpointData(studies);
     
     // Generate comprehensive analysis HTML
@@ -69391,7 +70252,7 @@ function createProductCardsSection(products) {
   let html = `
     <div class="mb-6">
       <div class="flex justify-between items-center mb-4">
-        <h4 class="text-lg font-medium text-gray-900">Products (${products.length})</h4>
+        <h4 class="text-lg font-medium text-gray-900">Products</h4>
         <div class="flex gap-2">
           <button onclick="expandAllCards()" id="expandAllBtn" class="text-sm px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded text-gray-700 transition-colors">
             Expand All
@@ -69476,7 +70337,7 @@ function createProductCard(product) {
               <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/>
               </svg>
-              ${product.related_exclusivity.length} Exclusivity
+              ${product.related_exclusivity.length} Exclusivity Remaining
             </button>
           ` : ''}
           ${!hasPatents && !hasExclusivity ? `
@@ -70257,7 +71118,7 @@ function createProductCardsSection(products) {
 
   let html = `
     <div class="mb-4 flex justify-between items-center">
-      <h4 class="text-lg font-medium text-gray-900">Products (${products.length})</h4>
+      <h4 class="text-lg font-medium text-gray-900">Products</h4>
       <div class="flex gap-2">
         <button onclick="expandAllCards()" id="expandAllBtn" class="text-sm px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded text-gray-700">
           Expand All
@@ -70844,16 +71705,50 @@ productCard.querySelectorAll('.related-pane').forEach(pane => {
 //     });
 // }
 
-let currentOrangeBookPage = 1;
-let currentOrangeBookQuery = '';
+
+// ==========================================
+// SIMPLE ORANGE BOOK PAGINATION SOLUTION
+// Add this code to inteltool.html
+// ==========================================
+
+// Global variables to store current state
+window.currentOrangeBookQuery = '';
+window.currentOrangeBookPage = 1;
+
+// Global function to handle pagination
+window.goToOrangeBookPage = function(page) {
+  console.log(`[OrangeBook] Going to page ${page} with query: ${window.currentOrangeBookQuery}`);
+  
+  // Validate inputs
+  if (!window.currentOrangeBookQuery) {
+    console.error('[OrangeBook] No query stored for pagination');
+    return;
+  }
+  
+  if (!page || isNaN(page)) {
+    console.error('[OrangeBook] Invalid page number:', page);
+    return;
+  }
+  
+  // Call searchOrangeBook with stored query and new page
+  if (typeof searchOrangeBook === 'function') {
+    searchOrangeBook(window.currentOrangeBookQuery, page);
+  } else {
+    console.error('[OrangeBook] searchOrangeBook function not found');
+  }
+};
 
 // Enhanced searchOrangeBook function with pagination
+
+// Keep your existing searchOrangeBook function but ensure it updates the global variables
 function searchOrangeBook(query, page = 1) {
   if (!query) return;
   
-  // Store current query for pagination
-  currentOrangeBookQuery = query;
-  currentOrangeBookPage = page;
+  // Store current query and page globally
+  window.currentOrangeBookQuery = query;
+  window.currentOrangeBookPage = page;
+  
+  console.log(`Searching Orange Book: query="${query}", page=${page}`);
   
   // Show loading state
   elements.orangeBookData.innerHTML = `
@@ -70869,7 +71764,7 @@ function searchOrangeBook(query, page = 1) {
       return response.json();
     })
     .then(data => {
-      // Add pagination info to data before displaying
+      console.log('Orange Book data received:', data);
       displayOrangeBookDataWithPagination(data);
     })
     .catch(error => {
@@ -70882,14 +71777,14 @@ function searchOrangeBook(query, page = 1) {
       elements.orangeBookCount.textContent = '0 entries';
     });
 }
-
 // 1. FIX: Update displayOrangeBookDataWithPagination to not duplicate pagination
 function displayOrangeBookDataWithPagination(data) {
   // Just call displayOrangeBookData - it will handle pagination internally
   displayOrangeBookData(data);
 }
 
-// Function to add pagination controls
+
+// Updated addPaginationControls function - keep everything else the same
 function addPaginationControls(pagination) {
   const paginationHTML = `
     <div class="flex items-center justify-between mt-6 border-t pt-4">
@@ -70903,7 +71798,7 @@ function addPaginationControls(pagination) {
         <span> products</span>
       </div>
       
-      <div class="flex items-center space-x-2">
+      <div class="flex items-center space-x-1">
         ${createPaginationButtons(pagination)}
       </div>
     </div>
@@ -70924,7 +71819,20 @@ function addPaginationControls(pagination) {
   elements.orangeBookData.appendChild(paginationContainer);
 }
 
+// Debug function to check current state
+window.debugOrangeBookPagination = function() {
+  console.log('=== Orange Book Pagination Debug ===');
+  console.log('Current Query:', window.currentOrangeBookQuery);
+  console.log('Current Page:', window.currentOrangeBookPage);
+  console.log('=====================================');
+  return {
+    query: window.currentOrangeBookQuery,
+    page: window.currentOrangeBookPage
+  };
+};
 // Function to create pagination buttons
+
+// Simple pagination buttons that use the global function
 function createPaginationButtons(pagination) {
   const { currentPage, totalPages, hasPrevPage, hasNextPage } = pagination;
   let buttonsHTML = '';
@@ -70932,17 +71840,18 @@ function createPaginationButtons(pagination) {
   // Previous button
   buttonsHTML += `
     <button 
-      onclick="searchOrangeBook('${currentOrangeBookQuery}', ${currentPage - 1})"
+      onclick="goToOrangeBookPage(${currentPage - 1})"
       ${!hasPrevPage ? 'disabled' : ''}
-      class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 ${!hasPrevPage ? 'opacity-50 cursor-not-allowed' : 'hover:text-gray-700'}"
+      class="relative inline-flex items-center px-3 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium ${!hasPrevPage ? 'text-gray-300 cursor-not-allowed' : 'text-gray-700 hover:bg-gray-50'}"
     >
-      <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+      <svg class="h-5 w-5 mr-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
         <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
       </svg>
+      Previous
     </button>
   `;
   
-  // Page numbers
+  // Page numbers - simplified version
   const pageNumbers = getPageNumbers(currentPage, totalPages);
   pageNumbers.forEach(pageNum => {
     if (pageNum === '...') {
@@ -70951,8 +71860,8 @@ function createPaginationButtons(pagination) {
       const isActive = pageNum === currentPage;
       buttonsHTML += `
         <button 
-          onclick="searchOrangeBook('${currentOrangeBookQuery}', ${pageNum})"
-          class="relative inline-flex items-center px-4 py-2 border border-gray-300 ${isActive ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'} text-sm font-medium"
+          onclick="goToOrangeBookPage(${pageNum})"
+          class="relative inline-flex items-center px-4 py-2 border border-gray-300 ${isActive ? 'bg-blue-600 text-white z-10' : 'bg-white text-gray-700 hover:bg-gray-50'} text-sm font-medium"
         >
           ${pageNum}
         </button>
@@ -70963,11 +71872,12 @@ function createPaginationButtons(pagination) {
   // Next button
   buttonsHTML += `
     <button 
-      onclick="searchOrangeBook('${currentOrangeBookQuery}', ${currentPage + 1})"
+      onclick="goToOrangeBookPage(${currentPage + 1})"
       ${!hasNextPage ? 'disabled' : ''}
-      class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 ${!hasNextPage ? 'opacity-50 cursor-not-allowed' : 'hover:text-gray-700'}"
+      class="relative inline-flex items-center px-3 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium ${!hasNextPage ? 'text-gray-300 cursor-not-allowed' : 'text-gray-700 hover:bg-gray-50'}"
     >
-      <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+      Next
+      <svg class="h-5 w-5 ml-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
         <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
       </svg>
     </button>
@@ -70975,6 +71885,8 @@ function createPaginationButtons(pagination) {
   
   return buttonsHTML;
 }
+
+
 
 // Helper function to determine which page numbers to show
 function getPageNumbers(current, total) {
@@ -76081,7 +76993,7 @@ function initializeMinimizedSearchBar() {
             exportDropdown.classList.add('hidden');
         });
     });
-    newsearch()
+    // newearch()
 }
 
 // Placeholder functions for export actions (replace with your actual implementations)
@@ -76555,6 +77467,7 @@ function backtosimple(){
 }
 // First, create the enhanced search function with a different name
 async function enhancedHandleSearch(isAISearch = false, aiQuery = '') {
+    document.getElementById('summaryContent').innerHTML = ``;
     // NEW: Clear previous app state and initialize
     window.appState = {
         trialsData: null,
@@ -76933,8 +77846,10 @@ if (showEMA && drug) {
                         
                         if (PubMedModule.performPubMedSearch) {
                             pubmedResults = await PubMedModule.performPubMedSearch(combinedTerm, pubmedOptions);
+                            autostartComprehensiveAnalysis(drug, true)
                         } else if (PubMedModule.searchPubMed) {
                             pubmedResults = await PubMedModule.searchPubMed(combinedTerm, pubmedOptions);
+autostartComprehensiveAnalysis(drug, true)
                         }
                         
                     } else if (drug) {
@@ -76942,10 +77857,13 @@ if (showEMA && drug) {
                         
                         if (PubMedModule.performPubMedSearch) {
                             pubmedResults = await PubMedModule.performPubMedSearch(drug, pubmedOptions);
+autostartComprehensiveAnalysis(drug, true)
                         } else if (PubMedModule.searchPubMedByDrug) {
                             pubmedResults = await PubMedModule.searchPubMedByDrug(drug, pubmedOptions);
+autostartComprehensiveAnalysis(drug, true)
                         } else if (PubMedModule.searchPubMed) {
                             pubmedResults = await PubMedModule.searchPubMed(drug, pubmedOptions);
+autostartComprehensiveAnalysis(drug, true)
                         }
                         
                     } else if (condition) {
@@ -96203,345 +97121,9 @@ function createCollectionSummaryElement(summary) {
   summaryElement.className = 'bg-white rounded-lg shadow-lg border border-gray-200 mb-6';
   
   try {
-    summaryElement.innerHTML = `
-      <div class="bg-gradient-to-r from-blue-600 to-indigo-700 text-white p-4 rounded-t-lg">
-        <div class="flex justify-between items-center">
-          <div>
-            <h3 class="text-xl font-bold">FDA Regulatory Intelligence Summary</h3>
-            <p class="text-blue-100 text-sm mt-1">Analysis of ${safeSummary.articleCount} publications for drug approval assessment</p>
-          </div>
-          <button id="pubmedCollapseCollectionBtn" class="text-white hover:text-blue-200 transition-colors">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
-            </svg>
-          </button>
-        </div>
-      </div>
-      
-      <div id="pubmedCollectionContent" class="p-6">
-        <!-- Regulatory Pathway Assessment -->
-        <div class="mb-8">
-          <h4 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-            <svg class="h-5 w-5 mr-2 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-            </svg>
-            Regulatory Pathway Assessment
-          </h4>
-          <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <div class="text-2xl font-bold text-blue-800">${safeSummary.regulatoryPathway['505b1']?.likelihood || 0}%</div>
-              <div class="text-sm text-blue-700">505(b)(1) Traditional</div>
-              <div class="text-xs text-blue-600 mt-1">${safeSummary.regulatoryPathway['505b1']?.count || 0} evidence points</div>
-            </div>
-            <div class="bg-green-50 border border-green-200 rounded-lg p-4">
-              <div class="text-2xl font-bold text-green-800">${safeSummary.regulatoryPathway['505b2']?.likelihood || 0}%</div>
-              <div class="text-sm text-green-700">505(b)(2) Pathway</div>
-              <div class="text-xs text-green-600 mt-1">${safeSummary.regulatoryPathway['505b2']?.count || 0} evidence points</div>
-            </div>
-            <div class="bg-purple-50 border border-purple-200 rounded-lg p-4">
-              <div class="text-2xl font-bold text-purple-800">${safeSummary.regulatoryPathway.breakthrough?.likelihood || 0}%</div>
-              <div class="text-sm text-purple-700">Breakthrough Eligible</div>
-              <div class="text-xs text-purple-600 mt-1">${safeSummary.regulatoryPathway.breakthrough?.count || 0} indicators</div>
-            </div>
-            <div class="bg-orange-50 border border-orange-200 rounded-lg p-4">
-              <div class="text-2xl font-bold text-orange-800">${safeSummary.regulatoryPathway.accelerated?.likelihood || 0}%</div>
-              <div class="text-sm text-orange-700">Accelerated Approval</div>
-              <div class="text-xs text-orange-600 mt-1">${safeSummary.regulatoryPathway.accelerated?.count || 0} signals</div>
-            </div>
-          </div>
-        </div>
+    
 
-        <!-- Evidence Quality & Timeline -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
-            <h5 class="font-semibold text-gray-800 mb-3">Evidence Quality Grade</h5>
-            <div class="flex items-center mb-3">
-              <span class="text-3xl font-bold mr-3 ${
-                safeSummary.evidenceQuality.regulatoryGrade === 'High' ? 'text-green-600' :
-                safeSummary.evidenceQuality.regulatoryGrade === 'Moderate' ? 'text-yellow-600' : 'text-red-600'
-              }">${safeSummary.evidenceQuality.regulatoryGrade}</span>
-              <div class="text-sm text-gray-600">
-                <div>Level 1-2 Evidence: ${(safeSummary.evidenceQuality.evidenceLevel?.level1 || 0) + (safeSummary.evidenceQuality.evidenceLevel?.level2 || 0)} studies</div>
-                <div>RCTs: ${safeSummary.evidenceQuality.studyTypes?.rct || 0} studies</div>
-              </div>
-            </div>
-            <div class="text-xs text-gray-500">
-              Confidence Score: ${safeSummary.confidence}%
-            </div>
-          </div>
-          
-          <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <h5 class="font-semibold text-gray-800 mb-3">Approval Timeline Prediction</h5>
-            <div class="text-2xl font-bold text-blue-800 mb-2">${safeSummary.timeline.estimatedSubmissionWindow}</div>
-            <div class="text-sm text-blue-700 mb-2">Estimated submission window</div>
-            <div class="flex items-center">
-              <div class="text-lg font-medium text-blue-800">${safeSummary.timeline.approvalProbability}%</div>
-              <div class="text-sm text-blue-600 ml-2">approval probability</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Risk-Benefit Assessment -->
-        <div class="mb-8">
-          <h4 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-            <svg class="h-5 w-5 mr-2 text-red-600" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"/>
-            </svg>
-            Risk-Benefit Assessment
-          </h4>
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div class="bg-white border border-gray-200 rounded-lg p-4">
-              <div class="text-lg font-medium text-gray-800 mb-2">Safety Profile</div>
-              <div class="text-sm text-gray-600">
-                <div>Adverse Events: ${safeSummary.safetyEfficacy.safety?.adverseEvents?.size || 0} studies</div>
-                <div>Serious AEs: ${safeSummary.safetyEfficacy.safety?.seriousAEs?.size || 0} studies</div>
-                <div>Discontinuations: ${safeSummary.safetyEfficacy.safety?.discontinuations || 0}</div>
-              </div>
-            </div>
-            <div class="bg-white border border-gray-200 rounded-lg p-4">
-              <div class="text-lg font-medium text-gray-800 mb-2">Efficacy Signals</div>
-              <div class="text-sm text-gray-600">
-                <div>Primary Endpoints Met: ${safeSummary.safetyEfficacy.efficacy?.primaryEndpointMet || 0}</div>
-                <div>Clinically Meaningful: ${safeSummary.safetyEfficacy.efficacy?.clinicallyMeaningful || 0}</div>
-                <div>Durable Response: ${safeSummary.safetyEfficacy.efficacy?.durabilityOfResponse || 0}</div>
-              </div>
-            </div>
-            <div class="bg-white border border-gray-200 rounded-lg p-4">
-              <div class="text-lg font-medium text-gray-800 mb-2">Overall Assessment</div>
-              <div class="text-xl font-bold mb-2 ${
-                safeSummary.safetyEfficacy.riskBenefitProfile === 'Favorable' ? 'text-green-600' :
-                safeSummary.safetyEfficacy.riskBenefitProfile === 'Acceptable' ? 'text-yellow-600' :
-                safeSummary.safetyEfficacy.riskBenefitProfile === 'Concerning' ? 'text-red-600' : 'text-gray-600'
-              }">${safeSummary.safetyEfficacy.riskBenefitProfile}</div>
-              <div class="text-sm text-gray-600">Risk-Benefit Profile</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Trial Design Intelligence -->
-        <div class="mb-8">
-          <h4 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-            <svg class="h-5 w-5 mr-2 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/>
-            </svg>
-            Trial Design Intelligence
-          </h4>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="bg-purple-50 border border-purple-200 rounded-lg p-4">
-              <h5 class="font-semibold text-gray-800 mb-3">Phase Distribution</h5>
-              <div class="space-y-2">
-                <div class="flex justify-between">
-                  <span class="text-sm text-gray-600">Phase I:</span>
-                  <span class="font-medium">${safeSummary.trialDesigns.phases?.phase1 || 0} studies</span>
-                </div>
-                <div class="flex justify-between">
-                  <span class="text-sm text-gray-600">Phase II:</span>
-                  <span class="font-medium">${safeSummary.trialDesigns.phases?.phase2 || 0} studies</span>
-                </div>
-                <div class="flex justify-between">
-                  <span class="text-sm text-gray-600">Phase III:</span>
-                  <span class="font-medium">${safeSummary.trialDesigns.phases?.phase3 || 0} studies</span>
-                </div>
-                <div class="flex justify-between">
-                  <span class="text-sm text-gray-600">Phase IV:</span>
-                  <span class="font-medium">${safeSummary.trialDesigns.phases?.phase4 || 0} studies</span>
-                </div>
-              </div>
-            </div>
-            
-            <div class="bg-green-50 border border-green-200 rounded-lg p-4">
-              <h5 class="font-semibold text-gray-800 mb-3">Special Populations</h5>
-              <div class="space-y-2">
-                <div class="flex justify-between">
-                  <span class="text-sm text-gray-600">Pediatric:</span>
-                  <span class="font-medium">${safeSummary.trialDesigns.populations?.pediatric || 0} studies</span>
-                </div>
-                <div class="flex justify-between">
-                  <span class="text-sm text-gray-600">Geriatric:</span>
-                  <span class="font-medium">${safeSummary.trialDesigns.populations?.geriatric || 0} studies</span>
-                </div>
-                <div class="flex justify-between">
-                  <span class="text-sm text-gray-600">Renal Impairment:</span>
-                  <span class="font-medium">${safeSummary.trialDesigns.populations?.renalImpairment || 0} studies</span>
-                </div>
-                <div class="flex justify-between">
-                  <span class="text-sm text-gray-600">Hepatic Impairment:</span>
-                  <span class="font-medium">${safeSummary.trialDesigns.populations?.hepaticImpairment || 0} studies</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Competitive Intelligence -->
-        <div class="mb-8">
-          <h4 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-            <svg class="h-5 w-5 mr-2 text-indigo-600" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M2 10a8 8 0 018-8v8h8a8 8 0 11-16 0z"/>
-              <path d="M12 2.252A8.014 8.014 0 0117.748 8H12V2.252z"/>
-            </svg>
-            Competitive Landscape
-          </h4>
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div class="bg-indigo-50 border border-indigo-200 rounded-lg p-4">
-              <div class="text-2xl font-bold text-indigo-800">${safeSummary.competitive.competingDrugs?.size || 0}</div>
-              <div class="text-sm text-indigo-700">Competing Drugs Identified</div>
-              <div class="text-xs text-indigo-600 mt-1">Based on literature analysis</div>
-            </div>
-            <div class="bg-cyan-50 border border-cyan-200 rounded-lg p-4">
-              <div class="text-2xl font-bold text-cyan-800">${safeSummary.competitive.mechanismsOfAction?.size || 0}</div>
-              <div class="text-sm text-cyan-700">Mechanisms of Action</div>
-              <div class="text-xs text-cyan-600 mt-1">Distinct therapeutic approaches</div>
-            </div>
-            <div class="bg-teal-50 border border-teal-200 rounded-lg p-4">
-              <div class="text-2xl font-bold text-teal-800">${safeSummary.competitive.comparativeStudies || 0}</div>
-              <div class="text-sm text-teal-700">Comparative Studies</div>
-              <div class="text-xs text-teal-600 mt-1">Head-to-head comparisons</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Strategic Recommendations -->
-        ${safeSummary.recommendations && safeSummary.recommendations.length > 0 ? `
-        <div class="mb-8">
-          <h4 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-            <svg class="h-5 w-5 mr-2 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/>
-            </svg>
-            Strategic Recommendations
-          </h4>
-          <div class="space-y-4">
-            ${safeSummary.recommendations.map(rec => `
-              <div class="bg-white border-l-4 ${
-                rec.priority === 'High' ? 'border-red-500 bg-red-50' :
-                rec.priority === 'Medium' ? 'border-yellow-500 bg-yellow-50' : 'border-blue-500 bg-blue-50'
-              } p-4 rounded-r-lg">
-                <div class="flex items-start">
-                  <div class="flex-shrink-0">
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                      rec.priority === 'High' ? 'bg-red-100 text-red-800' :
-                      rec.priority === 'Medium' ? 'bg-yellow-100 text-yellow-800' : 'bg-blue-100 text-blue-800'
-                    }">
-                      ${rec.priority} Priority
-                    </span>
-                  </div>
-                  <div class="ml-3 flex-1">
-                    <h5 class="text-sm font-medium text-gray-900">${rec.type || 'Recommendation'}</h5>
-                    <p class="text-sm text-gray-600 mt-1">${rec.description || 'No description available'}</p>
-                    <p class="text-xs text-gray-500 mt-2">Timeline: ${rec.timeline || 'Not specified'}</p>
-                  </div>
-                </div>
-              </div>
-            `).join('')}
-          </div>
-        </div>
-        ` : ''}
-
-        <!-- Risk Flags -->
-        ${safeSummary.riskFlags && safeSummary.riskFlags.length > 0 ? `
-        <div class="mb-8">
-          <h4 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-            <svg class="h-5 w-5 mr-2 text-red-600" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"/>
-            </svg>
-            Regulatory Risk Flags
-          </h4>
-          <div class="space-y-3">
-            ${safeSummary.riskFlags.map(risk => `
-              <div class="bg-red-50 border border-red-200 rounded-lg p-4">
-                <div class="flex items-start">
-                  <div class="flex-shrink-0">
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                      risk.severity === 'High' ? 'bg-red-100 text-red-800' :
-                      risk.severity === 'Medium' ? 'bg-orange-100 text-orange-800' : 'bg-yellow-100 text-yellow-800'
-                    }">
-                      ${risk.severity} Risk
-                    </span>
-                  </div>
-                  <div class="ml-3 flex-1">
-                    <h5 class="text-sm font-medium text-gray-900">${risk.type || 'Risk'}</h5>
-                    <p class="text-sm text-gray-600 mt-1">${risk.description || 'No description available'}</p>
-                    <p class="text-xs text-gray-700 mt-2"><strong>Mitigation:</strong> ${risk.mitigation || 'Not specified'}</p>
-                  </div>
-                </div>
-              </div>
-            `).join('')}
-          </div>
-        </div>
-        ` : ''}
-
-        <!-- Action Items Dashboard -->
-        <div class="bg-gradient-to-r from-gray-50 to-blue-50 border border-gray-200 rounded-lg p-6">
-          <h4 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-            <svg class="h-5 w-5 mr-2 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"/>
-            </svg>
-            Next Steps & Action Items
-          </h4>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="bg-white rounded-lg p-4 border border-gray-200">
-              <h5 class="font-medium text-gray-800 mb-2">Immediate Actions (0-3 months)</h5>
-              <ul class="text-sm text-gray-600 space-y-1">
-                <li class="flex items-start">
-                  <span class="text-blue-500 mr-2">•</span>
-                  Review existing clinical data quality
-                </li>
-                <li class="flex items-start">
-                  <span class="text-blue-500 mr-2">•</span>
-                  Identify regulatory pathway optimization opportunities
-                </li>
-                <li class="flex items-start">
-                  <span class="text-blue-500 mr-2">•</span>
-                  Assess competitive positioning
-                </li>
-              </ul>
-            </div>
-            <div class="bg-white rounded-lg p-4 border border-gray-200">
-              <h5 class="font-medium text-gray-800 mb-2">Strategic Planning (3-12 months)</h5>
-              <ul class="text-sm text-gray-600 space-y-1">
-                <li class="flex items-start">
-                  <span class="text-green-500 mr-2">•</span>
-                  Develop comprehensive regulatory strategy
-                </li>
-                <li class="flex items-start">
-                  <span class="text-green-500 mr-2">•</span>
-                  Plan additional clinical studies if needed
-                </li>
-                <li class="flex items-start">
-                  <span class="text-green-500 mr-2">•</span>
-                  Engage with FDA for pre-submission meetings
-                </li>
-              </ul>
-            </div>
-          </div>
-        </div>
-
-        <!-- Export Actions -->
-        <div class="mt-6 flex justify-between items-center pt-4 border-t border-gray-200">
-          <div class="text-xs text-gray-500">
-            Last updated: ${new Date().toLocaleDateString()} | 
-            Confidence: ${safeSummary.confidence}% | 
-            Based on ${safeSummary.articleCount} publications
-          </div>
-          <div class="flex space-x-2">
-            <button onclick="exportRegulatoryReport()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm flex items-center">
-              <svg class="h-4 w-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"/>
-              </svg>
-              Export Report
-            </button>
-            <button onclick="scheduleReview()" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors text-sm flex items-center">
-              <svg class="h-4 w-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"/>
-              </svg>
-              Schedule Review
-            </button>
-          </div>
-        </div>
-      </div>
-    `;
-
-    return summaryElement;
+    return ``;
     
   } catch (error) {
     console.error('Error creating collection summary element:', error);
@@ -96566,6 +97148,10 @@ function createCollectionSummaryElement(summary) {
     return summaryElement;
   }
 }
+
+
+
+
 // Helper functions for the enhanced summary
 
 
@@ -98539,7 +99125,7 @@ function initializeComprehensiveDrugAnalysis() {
       <div>
         <h3 class="text-xl font-bold text-blue-800 flex items-center">
           <span class="mr-2">🔬</span>
-          Comprehensive Drug Analysis
+          PubMed Comprehensive Drug Analysis
         </h3>
         <p class="text-blue-600 text-sm mt-1">
           Advanced multi-dimensional analysis covering pivotal trials, approval pathways, RWE, and more
@@ -98570,7 +99156,7 @@ function initializeComprehensiveDrugAnalysis() {
       </div>
     </div>
     
-    <div class="flex items-center space-x-4">
+    <div class="hidden flex items-center space-x-4">
       <input 
         type="text" 
         id="comprehensiveDrugName" 
@@ -98649,6 +99235,49 @@ async function startComprehensiveAnalysis() {
   }
 }
 
+
+// Define globally so it can be called from anywhere
+window.autostartComprehensiveAnalysis = async function(drugName, includeAI) {
+  console.log('Starting comprehensive analysis for:', drugName);
+  
+    if (!drugName) {
+    alert('Please enter a drug name');
+    return;
+  }
+  
+  // Show progress interface
+  showAnalysisProgress();
+  
+  try {
+    // Call comprehensive analysis API
+    const response = await fetch('/api/pubmed/comprehensive-analysis', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        drugName,
+        includeAI
+      })
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Analysis failed: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    
+    if (data.success) {
+      displayComprehensiveResults(data);
+    } else {
+      throw new Error(data.error || 'Analysis failed');
+    }
+    
+  } catch (error) {
+    console.error('Comprehensive analysis error:', error);
+    showAnalysisError(error.message);
+  }
+}
 /**
  * Show analysis progress with animated steps
  */
@@ -98799,7 +99428,7 @@ function displayComprehensiveResults(data) {
     <div class="results-header mb-6">
       <div class="flex items-center justify-between">
         <h3 class="text-2xl font-bold text-gray-800">Analysis Complete</h3>
-        <div class="flex space-x-2">
+        <div class="flex space-x-2 hidden">
           <button id="exportResults" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
             📄 Export Report
           </button>
@@ -98823,10 +99452,10 @@ function displayComprehensiveResults(data) {
         <button class="hidden action-button bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-colors">
           📊 View Data Tables
         </button>
-        <button class="action-button bg-purple-600 text-white p-3 rounded-lg hover:bg-purple-700 transition-colors">
+        <button class="hidden action-button bg-purple-600 text-white p-3 rounded-lg hover:bg-purple-700 transition-colors">
           🤖 Generate More Insights
         </button>
-        <button class="action-button bg-green-600 text-white p-3 rounded-lg hover:bg-green-700 transition-colors">
+        <button class="hidden action-button bg-green-600 text-white p-3 rounded-lg hover:bg-green-700 transition-colors">
           📋 Create Summary Report
         </button>
       </div>
@@ -107627,22 +108256,55 @@ function showOnlySection(sectionName) {
     });
     
     
-    // Reset any enhanced tab buttons
-    const enhancedTabButtons = document.querySelectorAll('.enhanced-tab-btn');
-    enhancedTabButtons.forEach(btn => {
-        btn.classList.remove('active', 'border-blue-500', 'text-blue-600');
-        btn.classList.add('border-transparent', 'text-gray-500');
-    });
-    
-    // Handle timeline visibility
+// Reset any enhanced tab buttons
+    // const enhancedTabButtons = document.querySelectorAll('.enhanced-tab-btn');
+    // enhancedTabButtons.forEach(btn => {
+    //     btn.classList.remove('active', 'border-blue-500', 'text-blue-600');
+    //     btn.classList.add('border-transparent', 'text-gray-500');
+    // });
+
+    // ENHANCED timeline visibility handling with debugging
     const timelineElement = document.getElementById('containerId2342USAETIMELINE');
+    console.log(`🔍 Timeline element found: ${!!timelineElement}, Section: ${sectionName}`);
+    
     if (timelineElement) {
         if (sectionName === 'trials') {
-            showSection(timelineElement, true);  // Show timeline in trials section
+            console.log('👁️ Showing timeline for trials section');
+            // Use multiple methods to ensure visibility
+            showSection(timelineElement, true);
+            timelineElement.style.display = 'block';
+            timelineElement.style.visibility = 'visible';
+            timelineElement.classList.remove('hidden');
+            
+            // Ensure timeline is in the right parent
+            const studiesSection = elements.studiesSection || elements.resultsOverview;
+            if (studiesSection && !studiesSection.contains(timelineElement)) {
+                console.log('📍 Moving timeline to studies section');
+                studiesSection.insertBefore(timelineElement, studiesSection.firstChild);
+            }
+            
+            console.log('✅ Timeline should now be visible');
         } else {
-            showSection(timelineElement, false); // Hide timeline in other sections
+            console.log('🙈 Hiding timeline for non-trials section');
+            showSection(timelineElement, false);
         }
+    } else if (sectionName === 'trials') {
+        console.log('⚠️ Timeline element not found when trying to show trials section');
     }
+
+    
+    // Handle timeline visibility
+    // const timelineElement = document.getElementById('containerId2342USAETIMELINE');
+    // if (timelineElement) {
+    //     if (sectionName === 'trials') {
+    //         showSection(timelineElement, true);  // Show timeline in trials section
+    //     } else {
+    //         showSection(timelineElement, false); // Hide timeline in other sections
+    //     }
+    // }
+
+        // ENHANCED timeline visibility handling
+    
     
     // Show the requested section
     const sectionMap = {

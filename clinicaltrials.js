@@ -308,6 +308,205 @@ app.get('/api/form483/search', async (req, res) => {
   }
 });
 
+
+
+// app.get('/api/form483/search', async (req, res) => {
+//   try {
+//     const { term, field = 'Legal_Name', page = 1, perPage = 50, debug = false } = req.query;
+    
+//     if (!term) {
+//       return res.status(400).json({ success: false, error: 'Search term required' });
+//     }
+
+//     if (debug) console.log(`🔍 Form 483 MongoDB search: "${term}" in field "${field}"`);
+
+//     // MULTIPLE SEARCH STRATEGIES - This is the key fix!
+//     const searchStrategies = [];
+//     const termLower = term.toLowerCase().trim();
+    
+//     // Strategy 1: Exact match (case-insensitive)
+//     searchStrategies.push({
+//       [field]: { $regex: new RegExp(`^${escapeRegex(term)}$`, 'i') }
+//     });
+    
+//     // Strategy 2: Contains match
+//     searchStrategies.push({
+//       [field]: { $regex: new RegExp(escapeRegex(term), 'i') }
+//     });
+    
+//     // Strategy 3: Word boundary match (for partial company names)
+//     const words = term.split(/\s+/).filter(w => w.length > 2);
+//     if (words.length > 0) {
+//       for (const word of words) {
+//         searchStrategies.push({
+//           [field]: { $regex: new RegExp(`\\b${escapeRegex(word)}`, 'i') }
+//         });
+//       }
+//     }
+    
+//     // Strategy 4: Try alternative field names based on your schema
+//     const alternativeFields = ['Legal_Name', 'legalName', 'Legal Name'];
+//     for (const altField of alternativeFields) {
+//       if (altField !== field) {
+//         searchStrategies.push({
+//           [altField]: { $regex: new RegExp(escapeRegex(term), 'i') }
+//         });
+//       }
+//     }
+    
+//     // Strategy 5: Clean company name matching (remove common suffixes)
+//     const cleanedTerm = term.replace(/\s+(INC\.?|LLC|LTD|CORP\.?|CORPORATION|COMPANY|CO\.?|PHARMA|PHARMACEUTICALS?|PHARMS?|USA|INTERNATIONAL)\.?$/gi, '').trim();
+//     if (cleanedTerm !== term && cleanedTerm.length > 3) {
+//       searchStrategies.push({
+//         [field]: { $regex: new RegExp(escapeRegex(cleanedTerm), 'i') }
+//       });
+//     }
+
+//     // Build the final MongoDB query using $or
+//     const mongoQuery = { $or: searchStrategies };
+    
+//     if (debug) {
+//       console.log('MongoDB Query:', JSON.stringify(mongoQuery, null, 2));
+//     }
+    
+//     // Get total count for pagination
+//     const total = await db.collection('483s').countDocuments(mongoQuery);
+    
+//     // Calculate pagination
+//     const pageNum = parseInt(page);
+//     const itemsPerPage = parseInt(perPage);
+//     const skip = (pageNum - 1) * itemsPerPage;
+//     const totalPages = Math.ceil(total / itemsPerPage);
+
+//     // Execute search with sorting by Record_Date (most recent first)
+//     const results = await db.collection('483s')
+//       .find(mongoQuery)
+//       .sort({ Record_Date: -1 })
+//       .skip(skip)
+//       .limit(itemsPerPage)
+//       .toArray();
+
+//     if (debug) {
+//       console.log(`✅ Found ${results.length} Form 483 results (total: ${total})`);
+//       if (results.length > 0) {
+//         console.log('Sample result:', {
+//           Legal_Name: results[0].Legal_Name,
+//           Record_Date: results[0].Record_Date,
+//           Record_Type: results[0].Record_Type
+//         });
+//       }
+//     }
+
+//     // Add relevance scoring to results
+//     const scoredResults = results.map(doc => {
+//       const relevanceScore = calculateForm483Relevance(term, doc);
+//       return {
+//         ...doc,
+//         relevanceScore,
+//         searchTerm: term,
+//         matchedField: field
+//       };
+//     });
+
+//     // Sort by relevance score (highest first), then by date
+//     scoredResults.sort((a, b) => {
+//       const scoreDiff = (b.relevanceScore || 0) - (a.relevanceScore || 0);
+//       if (scoreDiff !== 0) return scoreDiff;
+//       return new Date(b.Record_Date || 0) - new Date(a.Record_Date || 0);
+//     });
+
+//     // Transform results to match frontend expectations
+//     const transformedResults = scoredResults.map(doc => ({
+//       _id: doc._id,
+//       legalName: doc.Legal_Name,           // Map to expected field
+//       companyName: doc.Legal_Name,         // Map to expected field
+//       feiNumber: doc.FEI_Number,
+//       recordDate: doc.Record_Date,
+//       recordType: doc.Record_Type,
+//       publishDate: doc.Publish_Date,
+//       download: doc.Download,
+//       recordId: doc.Record_ID,
+//       relevanceScore: doc.relevanceScore,
+      
+//       // Keep original fields for compatibility
+//       Legal_Name: doc.Legal_Name,
+//       FEI_Number: doc.FEI_Number,
+//       Record_Date: doc.Record_Date,
+//       Record_Type: doc.Record_Type,
+//       Publish_Date: doc.Publish_Date,
+//       Download: doc.Download,
+//       Record_ID: doc.Record_ID
+//     }));
+
+//     console.log(`✅ Form 483 search completed: ${transformedResults.length} results for "${term}"`);
+
+//     res.json({
+//       success: true,
+//       results: transformedResults,
+//       pagination: {
+//         page: pageNum,
+//         perPage: itemsPerPage,
+//         total: total,
+//         totalPages: totalPages
+//       },
+//       searchInfo: {
+//         term: term,
+//         field: field,
+//         strategiesUsed: searchStrategies.length,
+//         totalInDatabase: 1851 // Your collection size
+//       }
+//     });
+
+//   } catch (error) {
+//     console.error('Form 483 MongoDB search error:', error);
+//     res.status(500).json({ 
+//       success: false, 
+//       error: 'Search failed: ' + error.message,
+//       results: []
+//     });
+//   }
+// });
+
+
+// Helper function to calculate relevance for Form 483 records
+function calculateForm483Relevance(searchTerm, doc) {
+  const term = searchTerm.toLowerCase();
+  const legalName = (doc.Legal_Name || '').toLowerCase();
+  
+  // Exact match = 1.0
+  if (legalName === term) return 1.0;
+  
+  // Legal name contains search term = 0.9
+  if (legalName.includes(term)) return 0.9;
+  
+  // Search term contains legal name (shorter company name) = 0.8
+  if (term.includes(legalName) && legalName.length > 3) return 0.8;
+  
+  // Word-based matching
+  const termWords = term.split(/\s+/).filter(w => w.length > 2);
+  const nameWords = legalName.split(/\s+/).filter(w => w.length > 2);
+  
+  let matchingWords = 0;
+  for (const tWord of termWords) {
+    for (const nWord of nameWords) {
+      if (tWord.includes(nWord) || nWord.includes(tWord)) {
+        matchingWords++;
+        break;
+      }
+    }
+  }
+  
+  if (matchingWords > 0) {
+    return (matchingWords / termWords.length) * 0.7;
+  }
+  
+  return 0.1; // Minimal score for any match that got through MongoDB query
+}
+
+// Regex escape helper
+function escapeRegex(string) {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
 // Debug endpoint to check Form 483 data structure
 app.get('/api/form483/debug', async (req, res) => {
   try {

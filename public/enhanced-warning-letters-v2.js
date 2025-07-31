@@ -335,44 +335,51 @@ window.enhancedWarningLettersFixed = {
 
   // Fetch inspections using backend endpoint
   fetchInspections: async function(companies) {
-    try {
-      console.log('🏭 Fetching inspections...');
-      const allInspections = {
-        recentInspections: [],
-        historicalInspections: []
-      };
+  try {
+    console.log('🏭 Fetching inspections for companies:', companies);
+    const allInspections = {
+      recentInspections: [],
+      historicalInspections: []
+    };
+    
+    // FIX: Use company parameter for each company
+    for (const company of companies) {
+      console.log(`  🔍 Fetching inspections for: ${company}`);
       
-      // Fetch for each company
-      for (const company of companies) {
-        const response = await fetch(`/api/inspection-data?company=${encodeURIComponent(company)}`);
+      // Use the company parameter your backend supports
+      const response = await fetch(`/api/inspection-data?company=${encodeURIComponent(company)}`);
+      
+      if (response.ok) {
+        const data = await response.json();
         
-        if (response.ok) {
-          const data = await response.json();
-          
-          // Add source company for tracking
-          if (data.recentInspections) {
-            data.recentInspections.forEach(inspection => {
-              inspection.sourceCompany = company;
-            });
-            allInspections.recentInspections.push(...data.recentInspections);
-          }
-          
-          if (data.historicalInspections) {
-            data.historicalInspections.forEach(inspection => {
-              inspection.sourceCompany = company;
-            });
-            allInspections.historicalInspections.push(...data.historicalInspections);
-          }
+        // Add source company for tracking
+        if (data.recentInspections) {
+          data.recentInspections.forEach(inspection => {
+            inspection.sourceCompany = company;
+          });
+          allInspections.recentInspections.push(...data.recentInspections);
         }
+        
+        if (data.historicalInspections) {
+          data.historicalInspections.forEach(inspection => {
+            inspection.sourceCompany = company;
+          });
+          allInspections.historicalInspections.push(...data.historicalInspections);
+        }
+        
+        console.log(`    ✅ Found ${data.recentInspections?.length || 0} recent + ${data.historicalInspections?.length || 0} historical for ${company}`);
+      } else {
+        console.warn(`    ⚠️ Failed to fetch inspections for ${company}: ${response.status}`);
       }
-      
-      console.log(`Found ${allInspections.recentInspections.length} citations and ${allInspections.historicalInspections.length} historical inspections`);
-      return allInspections;
-    } catch (error) {
-      console.error('Error fetching inspections:', error);
-      return { recentInspections: [], historicalInspections: [] };
     }
-  },
+    
+    console.log(`🎯 Total: ${allInspections.recentInspections.length} citations and ${allInspections.historicalInspections.length} historical inspections`);
+    return allInspections;
+  } catch (error) {
+    console.error('Error fetching inspections:', error);
+    return { recentInspections: [], historicalInspections: [] };
+  }
+},
 
   // Process violations from all data
   processViolations: function() {
@@ -1286,37 +1293,7 @@ window.enhancedWarningLettersFixed = {
     // }
   },
 
-  // Show loading state
-  showLoading: function(show) {
-    // if (show) {
-    //   // Create or show loading overlay
-    //   let overlay = document.getElementById('loadingOverlay');
-    //   if (!overlay) {
-    //     overlay = document.createElement('div');
-    //     overlay.id = 'loadingOverlay';
-    //     overlay.className = 'fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-40';
-    //     overlay.innerHTML = `
-    //       <div class="bg-white rounded-lg p-6 shadow-xl">
-    //         <div class="flex items-center space-x-4">
-    //           <svg class="animate-spin h-8 w-8 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-    //             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-    //             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-    //           </svg>
-    //           <span class="text-gray-700 font-medium">Loading regulatory data...</span>
-    //         </div>
-    //       </div>
-    //     `;
-    //     document.body.appendChild(overlay);
-    //   } else {
-    //     overlay.style.display = 'flex';
-    //   }
-    // } else {
-    //   const overlay = document.getElementById('loadingOverlay');
-    //   if (overlay) {
-    //     overlay.style.display = 'none';
-    //   }
-    // }
-  },
+
 
   // Close modal
   closeModal: function(modalId) {
@@ -1847,102 +1824,10 @@ window.enhancedWarningLettersFixed.searchWarningLettersWithVariations = async fu
   return results;
 };
 
-// 2. Form 483 search - This looks correct based on your backend
-window.enhancedWarningLettersFixed.searchForm483sWithVariations = async function(company, variations) {
-  const results = [];
-  const searchFields = ['company', 'legalName', 'companyName'];
-  
-  for (const variation of variations) {
-    let found = false;
-    
-    for (const field of searchFields) {
-      try {
-        // Add timestamp to prevent caching
-        const params = new URLSearchParams({
-          term: variation,
-          field: field,
-          page: 1,
-          perPage: 100,
-          _t: Date.now() // Cache buster
-        });
-        
-        const response = await fetch(`/api/form483/search?${params}`);
-        
-        const contentType = response.headers.get('content-type');
-        
-        if (response.ok && contentType && contentType.includes('application/json')) {
-          const data = await response.json();
-          
-          console.log(`Form 483 search for "${variation}" (${field}):`, data);
-          
-          if (data.results && data.results.length > 0) {
-            console.log(`  ✅ Found ${data.results.length} Form 483s`);
-            data.results.forEach(form => {
-              form.sourceCompany = company;
-              form.matchedVariation = variation;
-            });
-            results.push(...data.results);
-            found = true;
-            break;
-          }
-        }
-      } catch (error) {
-        console.warn(`Form 483 search error for ${variation}:`, error.message);
-      }
-    }
-    
-    if (found) break;
-  }
-  
-  return results;
-};
 
-// Search inspections with variations
-window.enhancedWarningLettersFixed.searchInspectionsWithVariations = async function(company, variations) {
-  const results = {
-    citations: [],
-    inspections: []
-  };
-  
-  // Try original company name first, then variations
-  const searchTerms = [company, ...variations];
-  
-  for (const searchTerm of searchTerms) {
-    try {
-      const response = await fetch(`/api/inspection-data?company=${encodeURIComponent(searchTerm)}`);
-      
-      if (response.ok) {
-        const data = await response.json();
-        
-        if (data.recentInspections && data.recentInspections.length > 0) {
-          console.log(`  ✅ Found ${data.recentInspections.length} citations for "${searchTerm}"`);
-          data.recentInspections.forEach(citation => {
-            citation.sourceCompany = company;
-            citation.matchedVariation = searchTerm;
-          });
-          results.citations.push(...data.recentInspections);
-        }
-        
-        if (data.historicalInspections && data.historicalInspections.length > 0) {
-          console.log(`  ✅ Found ${data.historicalInspections.length} inspections for "${searchTerm}"`);
-          data.historicalInspections.forEach(inspection => {
-            inspection.sourceCompany = company;
-            inspection.matchedVariation = searchTerm;
-          });
-          results.inspections.push(...data.historicalInspections);
-        }
-        
-        if (results.citations.length > 0 || results.inspections.length > 0) {
-          break; // Found results
-        }
-      }
-    } catch (error) {
-      console.warn(`Inspection search failed for ${searchTerm}:`, error.message);
-    }
-  }
-  
-  return results;
-};
+
+
+
 
 // Deduplicate results
 window.enhancedWarningLettersFixed.deduplicateResults = function(array, key) {
@@ -1966,6 +1851,142 @@ window.enhancedWarningLettersFixed.deduplicateResults = function(array, key) {
     return false;
   });
 };
+
+
+// 3. Enhanced Matching Helper Functions
+window.enhancedWarningLettersFixed.isRelaxedMatch = function(companyName, recordName, searchTerm) {
+  if (!recordName) return false;
+  
+  const company = companyName.toLowerCase();
+  const record = recordName.toLowerCase();
+  const term = searchTerm.toLowerCase();
+  
+  // Direct matches
+  if (record.includes(company) || company.includes(record)) return true;
+  if (record.includes(term) || term.includes(record)) return true;
+  
+  // Word-based matching
+  const companyWords = company.split(/\s+/).filter(w => w.length > 2);
+  const recordWords = record.split(/\s+/).filter(w => w.length > 2);
+  
+  // Check if major words match
+  let matchingWords = 0;
+  for (const cWord of companyWords) {
+    for (const rWord of recordWords) {
+      if (cWord.includes(rWord) || rWord.includes(cWord)) {
+        matchingWords++;
+        break;
+      }
+    }
+  }
+  
+  // Require at least 1 significant word match
+  return matchingWords > 0 && matchingWords >= Math.min(companyWords.length * 0.5, 2);
+};
+
+window.enhancedWarningLettersFixed.calculateMatchScore = function(companyName, recordName) {
+  if (!recordName) return 0;
+  
+  const company = companyName.toLowerCase();
+  const record = recordName.toLowerCase();
+  
+  // Exact match = 1.0
+  if (company === record) return 1.0;
+  
+  // Substring matches
+  if (record.includes(company)) return 0.9;
+  if (company.includes(record)) return 0.8;
+  
+  // Word-based scoring
+  const companyWords = company.split(/\s+/).filter(w => w.length > 2);
+  const recordWords = record.split(/\s+/).filter(w => w.length > 2);
+  
+  let totalScore = 0;
+  let matches = 0;
+  
+  for (const cWord of companyWords) {
+    let bestMatch = 0;
+    for (const rWord of recordWords) {
+      if (cWord === rWord) bestMatch = Math.max(bestMatch, 1.0);
+      else if (cWord.includes(rWord) || rWord.includes(cWord)) bestMatch = Math.max(bestMatch, 0.7);
+    }
+    if (bestMatch > 0) {
+      totalScore += bestMatch;
+      matches++;
+    }
+  }
+  
+  return matches > 0 ? (totalScore / companyWords.length) * 0.7 : 0;
+};
+
+window.enhancedWarningLettersFixed.generatePartialMatches = function(company) {
+  const partials = [];
+  const cleaned = company.replace(/\s+(INC|LLC|LTD|CORP|CORPORATION|CO|USA|INTERNATIONAL|PHARMACEUTICALS?|PHARMA)\.?$/gi, '').trim();
+  
+  if (cleaned !== company) partials.push(cleaned.toLowerCase());
+  
+  const words = cleaned.split(/\s+/).filter(w => w.length > 3);
+  
+  // Add first word if significant
+  if (words.length > 0) partials.push(words[0].toLowerCase());
+  
+  // Add first two words if available
+  if (words.length > 1) partials.push(`${words[0]} ${words[1]}`.toLowerCase());
+  
+  return partials;
+};
+
+window.enhancedWarningLettersFixed.calculateInspectionMatchScore = function(searchTerms, recordFields, originalCompany) {
+  let maxScore = 0;
+  
+  for (const term of searchTerms) {
+    for (const field of recordFields) {
+      if (!field) continue;
+      
+      let score = 0;
+      
+      // Exact match
+      if (field === term) score = 1.0;
+      // Contains term
+      else if (field.includes(term)) score = 0.8;
+      // Term contains field (shorter company name in field)
+      else if (term.includes(field) && field.length > 3) score = 0.6;
+      // Word overlap
+      else {
+        const termWords = term.split(/\s+/);
+        const fieldWords = field.split(/\s+/);
+        const overlap = termWords.filter(tw => fieldWords.some(fw => fw.includes(tw) || tw.includes(fw)));
+        if (overlap.length > 0) score = (overlap.length / termWords.length) * 0.5;
+      }
+      
+      maxScore = Math.max(maxScore, score);
+    }
+  }
+  
+  return maxScore;
+};
+
+// 4. Configuration Override for Search Parameters
+window.enhancedWarningLettersFixed.SEARCH_CONFIG = {
+  form483: {
+    maxResults: 50,
+    minTermLength: 3, // Reduced from default
+    strictFiltering: false,
+    relevanceThreshold: 0.3
+  },
+  inspections: {
+    maxCitations: 20, // Limit citations
+    maxInspections: 50, // Limit inspections  
+    relevanceThreshold: 0.3,
+    enableScoring: true
+  },
+  warningLetters: {
+    maxResults: 100,
+    relevanceThreshold: 0.4
+  }
+};
+
+
 // 3. Override the main performSearch to use correct endpoints
 window.enhancedWarningLettersFixed.performSearch = async function(companies) {
   console.log('🔍 Starting search for:', companies);
@@ -2133,6 +2154,896 @@ window.testFDAEndpoints = async function() {
   
   console.log('\n💡 Run window.testFDAEndpoints() to test your endpoints');
 };
+
+
+// Enhanced Company Matching Logic with Intelligent Search Strategies
+// This replaces the existing matching functions in enhanced-warning-letters-v2.js
+
+// 1. Smart Company Matcher with configurable strictness
+window.enhancedWarningLettersFixed.createSmartCompanyMatcher = function(searchTerm, options = {}) {
+  const {
+    strictness = 'balanced', // 'strict', 'balanced', 'loose'
+    requireWordBoundary = true,
+    minWordLength = 3
+  } = options;
+  
+  // Normalize the search term
+  const normalizedSearch = searchTerm.trim().toLowerCase()
+    .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, ' ')
+    .replace(/\s+/g, ' ');
+  
+  // Extract significant words (excluding common suffixes)
+  const commonSuffixes = ['inc', 'llc', 'ltd', 'corp', 'corporation', 'company', 'co', 
+                         'pharma', 'pharmaceutical', 'pharmaceuticals', 'pharms', 
+                         'usa', 'international', 'global', 'group', 'holdings', 
+                         'labs', 'lab', 'laboratories', 'laboratory'];
+  
+  const searchWords = normalizedSearch.split(' ')
+    .filter(word => word.length >= minWordLength && !commonSuffixes.includes(word));
+  
+  return function(targetString) {
+    if (!targetString) return false;
+    
+    const normalizedTarget = targetString.toLowerCase()
+      .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, ' ')
+      .replace(/\s+/g, ' ');
+    
+    const targetWords = normalizedTarget.split(' ')
+      .filter(word => word.length >= minWordLength);
+    
+    // Strict mode: Exact match or all significant words must match
+    if (strictness === 'strict') {
+      // Check for exact match first
+      if (normalizedTarget === normalizedSearch) return true;
+      
+      // All search words must be present as whole words
+      return searchWords.every(searchWord => {
+        if (requireWordBoundary) {
+          const regex = new RegExp(`\\b${searchWord}\\b`, 'i');
+          return regex.test(normalizedTarget);
+        }
+        return targetWords.some(targetWord => targetWord === searchWord);
+      });
+    }
+    
+    // Balanced mode: Smart matching with word boundaries
+    if (strictness === 'balanced') {
+      // If search term is a single word, require it to be a whole word match
+      if (searchWords.length === 1) {
+        const searchWord = searchWords[0];
+        if (requireWordBoundary) {
+          // For single words, match as whole word or at the beginning of a word
+          const regex = new RegExp(`\\b${searchWord}(?:\\b|\\w*)`, 'i');
+          return regex.test(normalizedTarget);
+        }
+        return targetWords.some(targetWord => 
+          targetWord === searchWord || targetWord.startsWith(searchWord)
+        );
+      }
+      
+      // For multi-word searches, require majority of words to match
+      const matchThreshold = Math.ceil(searchWords.length * 0.6);
+      let matchCount = 0;
+      
+      for (const searchWord of searchWords) {
+        if (targetWords.some(targetWord => 
+          targetWord === searchWord || 
+          (targetWord.startsWith(searchWord) && searchWord.length >= 4)
+        )) {
+          matchCount++;
+        }
+      }
+      
+      return matchCount >= matchThreshold;
+    }
+    
+    // Loose mode: Any significant word match
+    if (strictness === 'loose') {
+      return searchWords.some(searchWord => {
+        return targetWords.some(targetWord => 
+          targetWord.includes(searchWord) || searchWord.includes(targetWord)
+        );
+      });
+    }
+    
+    return false;
+  };
+};
+
+// 2. Enhanced variation generator with better logic
+window.enhancedWarningLettersFixed.generateIntelligentVariations = function(company, options = {}) {
+  const {
+    maxVariations = 8,
+    includeAbbreviations = true,
+    includeAcronyms = true
+  } = options;
+  
+  const variations = new Set();
+  const original = company.trim();
+  
+  // Always include original
+  variations.add(original);
+  
+  // Common pharma abbreviation mappings
+  const abbreviationMap = {
+    'PHARMACEUTICAL': ['PHARMA', 'PHARM'],
+    'PHARMACEUTICALS': ['PHARMA', 'PHARMS'],
+    'LABORATORIES': ['LABS', 'LAB'],
+    'LABORATORY': ['LAB'],
+    'CORPORATION': ['CORP'],
+    'INCORPORATED': ['INC'],
+    'LIMITED': ['LTD'],
+    'COMPANY': ['CO']
+  };
+  
+  // Remove common suffixes to get base name
+  const suffixPattern = /\s+(INC\.?|LLC|LTD|CORP\.?|CORPORATION|COMPANY|CO\.?|PHARMA|PHARMACEUTICALS?|PHARMS?|USA|INTERNATIONAL|GLOBAL|GROUP|HOLDINGS|LABS?|LABORATORIES?|LABORATORY|MEDICAL|HEALTHCARE|THERAPEUTICS|OPERATIONS?|MANUFACTURING|MFG)\.?$/gi;
+  
+  const baseName = original.replace(suffixPattern, '').trim();
+  if (baseName !== original && baseName.length > 2) {
+    variations.add(baseName);
+  }
+  
+  // Extract meaningful words
+  const words = baseName.split(/\s+/).filter(word => 
+    word.length >= 3 && 
+    !['THE', 'AND', 'OF', 'FOR', 'IN', 'AT', 'BY'].includes(word.toUpperCase())
+  );
+  
+  // Add individual significant words (but not common ones)
+  if (words.length > 1) {
+    // First word (often the primary identifier)
+    variations.add(words[0]);
+    
+    // Last meaningful word if different from first
+    const lastWord = words[words.length - 1];
+    if (lastWord !== words[0] && lastWord.length >= 4) {
+      variations.add(lastWord);
+    }
+    
+    // First two words combined
+    if (words.length >= 2) {
+      variations.add(words.slice(0, 2).join(' '));
+    }
+  }
+  
+  // Generate abbreviation variations
+  if (includeAbbreviations) {
+    const currentVariations = Array.from(variations);
+    for (const variation of currentVariations) {
+      // Expand abbreviations
+      for (const [full, abbrevs] of Object.entries(abbreviationMap)) {
+        if (variation.toUpperCase().includes(full)) {
+          for (const abbrev of abbrevs) {
+            const abbreviated = variation.replace(new RegExp(full, 'gi'), abbrev);
+            if (abbreviated !== variation) {
+              variations.add(abbreviated);
+            }
+          }
+        }
+      }
+      
+      // Contract to abbreviations
+      for (const [full, abbrevs] of Object.entries(abbreviationMap)) {
+        for (const abbrev of abbrevs) {
+          if (variation.toUpperCase().includes(abbrev) && !variation.toUpperCase().includes(full)) {
+            const expanded = variation.replace(new RegExp(abbrev, 'gi'), full);
+            if (expanded !== variation) {
+              variations.add(expanded);
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  // Generate acronym if multi-word
+  if (includeAcronyms && words.length > 1) {
+    const acronym = words.map(w => w[0]).join('').toUpperCase();
+    if (acronym.length >= 2 && acronym.length <= 5) {
+      variations.add(acronym);
+    }
+  }
+  
+  // Remove duplicates and limit
+  return Array.from(variations)
+    .filter(v => v.length >= 2)
+    .slice(0, maxVariations);
+};
+
+// 3. Updated search functions with intelligent matching
+window.enhancedWarningLettersFixed.searchWarningLettersWithVariations = async function(company, variations) {
+  const results = [];
+  const searchedTerms = new Set();
+  
+  // Use balanced matching for warning letters
+  const matcher = this.createSmartCompanyMatcher(company, { strictness: 'balanced' });
+  
+  for (const variation of variations) {
+    if (searchedTerms.has(variation.toLowerCase())) continue;
+    searchedTerms.add(variation.toLowerCase());
+    
+    try {
+      const params = new URLSearchParams({
+        term: variation,
+        field: 'company',
+        page: 1,
+        perPage: 100,
+        _t: Date.now()
+      });
+      
+      const response = await fetch(`/api/wl/search?${params}`);
+      
+      if (response.ok) {
+        const data = await response.json();
+        
+        if (data.results && data.results.length > 0) {
+          // Filter results using smart matcher
+          const filteredResults = data.results.filter(wl => 
+            matcher(wl.companyName) || matcher(wl.company)
+          );
+          
+          if (filteredResults.length > 0) {
+            console.log(`✅ Found ${filteredResults.length} relevant Warning Letters for "${variation}"`);
+            filteredResults.forEach(wl => {
+              wl.sourceCompany = company;
+              wl.matchedVariation = variation;
+            });
+            results.push(...filteredResults);
+          }
+        }
+      }
+    } catch (error) {
+      console.warn(`Warning letter search failed for ${variation}:`, error.message);
+    }
+  }
+  
+  return results;
+};
+
+window.enhancedWarningLettersFixed.searchInspectionsWithVariations = async function(company, variations) {
+  const results = { citations: [], inspections: [] };
+  
+  console.log(`🏭 Enhanced Inspections Search for: ${company}`);
+  
+  try {
+    // FIX: Use the company parameter your backend already supports!
+    const response = await fetch(`/api/inspection-data?company=${encodeURIComponent(company)}`);
+    
+    if (!response.ok) {
+      throw new Error(`Inspection API error: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    console.log(`  📊 Retrieved ${data.recentInspections?.length || 0} inspection records for ${company}`);
+    
+    if (!data.recentInspections || data.recentInspections.length === 0) {
+      console.log(`  ℹ️ No inspection data found for ${company}`);
+      return results;
+    }
+    
+    // Process the already-filtered results from backend
+    const matchedRecords = [];
+    
+    for (const record of data.recentInspections) {
+      // Add metadata
+      record.sourceCompany = company;
+      record.matchedAgainst = record["Legal Name"] || record["Firm Name"] || record.company;
+      matchedRecords.push(record);
+    }
+    
+    console.log(`  🎯 Processing ${matchedRecords.length} inspection records`);
+    
+    // Separate into citations and inspections
+    const MAX_CITATIONS = 20;
+    const MAX_INSPECTIONS = 50;
+    
+    let citationCount = 0;
+    let inspectionCount = 0;
+    
+    for (const record of matchedRecords) {
+      const recordType = (record["Record Type"] || record.recordType || '').toLowerCase();
+      
+      if (recordType.includes('form 483') || recordType.includes('citation')) {
+        if (citationCount < MAX_CITATIONS) {
+          results.citations.push(record);
+          citationCount++;
+        }
+      } else {
+        if (inspectionCount < MAX_INSPECTIONS) {
+          results.inspections.push(record);
+          inspectionCount++;
+        }
+      }
+    }
+    
+    console.log(`  ✅ Found ${results.citations.length} citations and ${results.inspections.length} inspections for ${company}`);
+    return results;
+    
+  } catch (error) {
+    console.error(`Inspection search failed for ${company}:`, error);
+    return results;
+  }
+};
+
+// 4. Main search function with new matching logic
+window.enhancedWarningLettersFixed.performEnhancedSearch = async function(companies) {
+  console.log('🔍 Starting enhanced search with intelligent matching for:', companies);
+  
+  this.state.loading = true;
+  this.state.selectedCompanies = companies;
+  this.showLoading(true);
+
+  try {
+    const allResults = {
+      warningLetters: [],
+      form483s: [],
+      citations: [],
+      inspections: []
+    };
+
+    // Search for each company
+    for (const company of companies) {
+      const variations = this.generateIntelligentVariations(company, {
+        maxVariations: 8,
+        includeAbbreviations: true,
+        includeAcronyms: true
+      });
+      
+      console.log(`Generated intelligent variations for "${company}":`, variations);
+
+      // 1. Search Warning Letters with smart matching
+      try {
+        const wlResults = await this.searchWarningLettersWithVariations(company, variations);
+        allResults.warningLetters.push(...wlResults);
+      } catch (error) {
+        console.error('Warning Letters search failed:', error);
+      }
+
+      // 2. Search Form 483s with flexible matching
+      try {
+        const form483Results = await this.searchForm483sWithVariations(company, variations);
+        allResults.form483s.push(...form483Results);
+      } catch (error) {
+        console.error('Form 483s search failed:', error);
+      }
+
+      // 3. Search Inspections
+      try {
+        const inspectionResults = await this.searchInspectionsWithVariations(company, variations);
+        allResults.citations.push(...(inspectionResults.citations || []));
+        allResults.inspections.push(...(inspectionResults.inspections || []));
+      } catch (error) {
+        console.error('Inspections search failed:', error);
+      }
+    }
+
+    // Remove duplicates
+    this.state.warningLetters = this.deduplicateResults(allResults.warningLetters, 'letterId');
+    this.state.form483s = this.deduplicateResults(allResults.form483s, '_id');
+    this.state.citations = this.deduplicateResults(allResults.citations, 'CitationID');
+    this.state.inspections = this.deduplicateResults(allResults.inspections, 'InspectionID');
+
+    // Process analytics
+    try {
+      this.processViolations();
+      this.processDrugMentions();
+      this.buildCompanyMetrics();
+    } catch (analyticsError) {
+      console.error('Analytics processing error:', analyticsError);
+    }
+
+    // Update UI
+    this.updateDashboard();
+    
+    // Show results summary
+    const totalRecords = this.state.warningLetters.length + 
+                        this.state.form483s.length + 
+                        this.state.citations.length + 
+                        this.state.inspections.length;
+    
+    console.log(`✅ Search completed: ${totalRecords} total records found`);
+    console.log(`  - Warning Letters: ${this.state.warningLetters.length}`);
+    console.log(`  - Form 483s: ${this.state.form483s.length}`);
+    console.log(`  - Citations: ${this.state.citations.length}`);
+    console.log(`  - Inspections: ${this.state.inspections.length}`);
+    
+    if (totalRecords > 0) {
+      this.showSuccess(`Found ${totalRecords} regulatory records`);
+    } else {
+      this.showInfo('No records found. Try adjusting the company name or check for alternative names.');
+    }
+
+  } catch (error) {
+    console.error('❌ Search failed:', error);
+    this.showError('Search failed: ' + error.message);
+  } finally {
+    this.state.loading = false;
+    this.showLoading(false);
+  }
+};
+
+
+// ===================================================================
+// PROFESSIONAL INLINE LOADING SYSTEM - Enhanced Warning Letters
+// Clean, minimal, and enterprise-grade loading experience
+// ===================================================================
+
+window.enhancedWarningLettersFixed.showLoading = function(show) {
+  const container = document.getElementById('enhancedWLContainer');
+  if (!container) return;
+
+  if (show) {
+    container.innerHTML = `
+      <!-- Professional Header -->
+      <div class="mb-8">
+        <div class="bg-gradient-to-r from-slate-900 to-slate-700 rounded-xl shadow-xl p-8">
+          <div class="flex items-center justify-between">
+            <div>
+              <h1 class="text-3xl font-bold text-white mb-2">FDA Regulatory Intelligence</h1>
+              <p class="text-slate-300 text-lg">Analyzing regulatory data across multiple FDA databases</p>
+            </div>
+            <div class="hidden md:block">
+              <div class="flex items-center space-x-2 text-slate-300">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <span class="text-sm font-medium">Secure Connection</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Professional Loading Interface -->
+      <div class="bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden">
+        
+        <!-- Progress Header -->
+        <div class="bg-gradient-to-r from-slate-50 to-white px-8 py-6 border-b border-slate-200">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+              <div class="relative">
+                <div class="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center">
+                  <div class="w-6 h-6 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+                </div>
+                <div class="absolute inset-0 flex items-center justify-center">
+                  <div class="w-2 h-2 bg-indigo-600 rounded-full"></div>
+                </div>
+              </div>
+              <div>
+                <h2 class="text-xl font-semibold text-slate-900">Processing Search Request</h2>
+                <p class="text-slate-600 text-sm" id="loadingStatus">Initializing FDA database connections...</p>
+              </div>
+            </div>
+            <div class="text-right">
+              <div class="text-2xl font-bold text-indigo-600" id="loadingProgress">0%</div>
+              <div class="text-xs text-slate-500 uppercase tracking-wide">Complete</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Search Progress Steps -->
+        <div class="px-8 py-8">
+          <div class="space-y-6">
+            
+            <!-- Warning Letters Step -->
+            <div class="flex items-center space-x-4 group" id="step-wl">
+              <div class="flex-shrink-0">
+                <div class="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center step-indicator">
+                  <div class="w-4 h-4 border-2 border-slate-400 rounded-full animate-pulse"></div>
+                </div>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <h3 class="text-base font-medium text-slate-900">Warning Letters Database</h3>
+                    <p class="text-sm text-slate-500">Searching FDA enforcement records</p>
+                  </div>
+                  <div class="text-sm text-slate-400 step-status">Pending</div>
+                </div>
+                <div class="mt-2 w-full bg-slate-200 rounded-full h-1.5">
+                  <div class="bg-slate-400 h-1.5 rounded-full transition-all duration-300 step-progress" style="width: 0%"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Form 483s Step -->
+            <div class="flex items-center space-x-4 group" id="step-483">
+              <div class="flex-shrink-0">
+                <div class="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center step-indicator">
+                  <div class="w-4 h-4 border-2 border-slate-400 rounded-full animate-pulse"></div>
+                </div>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <h3 class="text-base font-medium text-slate-900">Form 483 Observations</h3>
+                    <p class="text-sm text-slate-500">Analyzing inspection observations</p>
+                  </div>
+                  <div class="text-sm text-slate-400 step-status">Pending</div>
+                </div>
+                <div class="mt-2 w-full bg-slate-200 rounded-full h-1.5">
+                  <div class="bg-slate-400 h-1.5 rounded-full transition-all duration-300 step-progress" style="width: 0%"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Inspections Step -->
+            <div class="flex items-center space-x-4 group" id="step-insp">
+              <div class="flex-shrink-0">
+                <div class="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center step-indicator">
+                  <div class="w-4 h-4 border-2 border-slate-400 rounded-full animate-pulse"></div>
+                </div>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <h3 class="text-base font-medium text-slate-900">Inspection Records</h3>
+                    <p class="text-sm text-slate-500">Processing historical inspection data</p>
+                  </div>
+                  <div class="text-sm text-slate-400 step-status">Pending</div>
+                </div>
+                <div class="mt-2 w-full bg-slate-200 rounded-full h-1.5">
+                  <div class="bg-slate-400 h-1.5 rounded-full transition-all duration-300 step-progress" style="width: 0%"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Analytics Step -->
+            <div class="flex items-center space-x-4 group" id="step-analytics">
+              <div class="flex-shrink-0">
+                <div class="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center step-indicator">
+                  <div class="w-4 h-4 border-2 border-slate-400 rounded-full animate-pulse"></div>
+                </div>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <h3 class="text-base font-medium text-slate-900">Risk Analytics</h3>
+                    <p class="text-sm text-slate-500">Generating compliance insights</p>
+                  </div>
+                  <div class="text-sm text-slate-400 step-status">Pending</div>
+                </div>
+                <div class="mt-2 w-full bg-slate-200 rounded-full h-1.5">
+                  <div class="bg-slate-400 h-1.5 rounded-full transition-all duration-300 step-progress" style="width: 0%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Professional Footer -->
+        <div class="bg-slate-50 px-8 py-4 border-t border-slate-200">
+          <div class="flex items-center justify-between text-sm">
+            <div class="flex items-center space-x-2 text-slate-500">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+              </svg>
+              <span>Secure FDA API Connection</span>
+            </div>
+            <div class="text-slate-500">
+              <span id="searchTime">Search initiated at ${new Date().toLocaleTimeString()}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    this.startProfessionalLoadingAnimation();
+  } else {
+    this.stopProfessionalLoadingAnimation();
+  }
+};
+
+// Professional loading animation with realistic progress
+window.enhancedWarningLettersFixed.startProfessionalLoadingAnimation = function() {
+  const statusMessages = [
+    "Establishing secure connection to FDA databases...",
+    "Authenticating API credentials...",
+    "Querying Warning Letters database...",
+    "Processing enforcement actions...",
+    "Analyzing Form 483 observations...",
+    "Cross-referencing inspection records...",
+    "Extracting violation patterns...",
+    "Calculating compliance metrics...",
+    "Generating risk assessment...",
+    "Finalizing regulatory intelligence report..."
+  ];
+  
+  const steps = [
+    { id: 'step-wl', duration: 3000, name: 'Warning Letters' },
+    { id: 'step-483', duration: 3500, name: 'Form 483s' },
+    { id: 'step-insp', duration: 2500, name: 'Inspections' },
+    { id: 'step-analytics', duration: 2000, name: 'Analytics' }
+  ];
+  
+  let currentStep = 0;
+  let messageIndex = 0;
+  let totalProgress = 0;
+  
+  // Update status message
+  const updateStatus = () => {
+    const statusElement = document.getElementById('loadingStatus');
+    const progressElement = document.getElementById('loadingProgress');
+    
+    if (statusElement && messageIndex < statusMessages.length) {
+      statusElement.textContent = statusMessages[messageIndex];
+      messageIndex++;
+      
+      totalProgress = Math.min(95, (messageIndex / statusMessages.length) * 100);
+      if (progressElement) {
+        progressElement.textContent = Math.round(totalProgress) + '%';
+      }
+    }
+  };
+  
+  // Process each step
+  const processStep = (stepIndex) => {
+    if (stepIndex >= steps.length || !this.state.loading) return;
+    
+    const step = steps[stepIndex];
+    const stepElement = document.getElementById(step.id);
+    
+    if (stepElement) {
+      // Start step
+      const indicator = stepElement.querySelector('.step-indicator');
+      const status = stepElement.querySelector('.step-status');
+      const progress = stepElement.querySelector('.step-progress');
+      
+      // Update to processing state
+      indicator.innerHTML = `
+        <div class="w-4 h-4 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+      `;
+      indicator.className = 'w-10 h-10 rounded-lg bg-indigo-100 flex items-center justify-center step-indicator';
+      status.textContent = 'Processing...';
+      status.className = 'text-sm text-indigo-600 step-status font-medium';
+      
+      // Animate progress bar
+      let stepProgress = 0;
+      const progressInterval = setInterval(() => {
+        stepProgress += 2;
+        if (progress) {
+          progress.style.width = Math.min(stepProgress, 100) + '%';
+          progress.className = 'bg-indigo-600 h-1.5 rounded-full transition-all duration-300 step-progress';
+        }
+        
+        if (stepProgress >= 100) {
+          clearInterval(progressInterval);
+          
+          // Complete step
+          indicator.innerHTML = `
+            <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+            </svg>
+          `;
+          indicator.className = 'w-10 h-10 rounded-lg bg-green-500 flex items-center justify-center step-indicator';
+          status.textContent = 'Complete';
+          status.className = 'text-sm text-green-600 step-status font-medium';
+          
+          // Move to next step
+          setTimeout(() => processStep(stepIndex + 1), 300);
+        }
+      }, step.duration / 50);
+    }
+  };
+  
+  // Start animations
+  this.statusInterval = setInterval(updateStatus, 1000);
+  setTimeout(() => processStep(0), 500);
+  
+  updateStatus(); // Initial status
+};
+
+// Stop professional loading animation
+window.enhancedWarningLettersFixed.stopProfessionalLoadingAnimation = function() {
+  if (this.statusInterval) {
+    clearInterval(this.statusInterval);
+    this.statusInterval = null;
+  }
+};
+
+// Clean up old loading functions
+window.enhancedWarningLettersFixed.showLoadingModal = function() {
+  console.log('Using professional inline loading');
+};
+
+window.enhancedWarningLettersFixed.hideLoadingModal = function() {
+  console.log('Professional loading complete');
+};
+
+// Enhanced CSS for professional loading
+if (!document.getElementById('professional-loading-styles')) {
+  const style = document.createElement('style');
+  style.id = 'professional-loading-styles';
+  style.textContent = `
+    /* Professional loading animations */
+    .step-indicator {
+      transition: all 0.3s ease-in-out;
+    }
+    
+    .step-progress {
+      transition: width 0.3s ease-in-out;
+    }
+    
+    .group:hover .step-indicator {
+      transform: translateX(2px);
+    }
+    
+    /* Smooth progress transitions */
+    @keyframes slideInRight {
+      from {
+        opacity: 0;
+        transform: translateX(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+    
+    .animate-slide-in {
+      animation: slideInRight 0.3s ease-out;
+    }
+    
+    /* Enhanced spinner */
+    @keyframes professional-spin {
+      from {
+        transform: rotate(0deg);
+      }
+      to {
+        transform: rotate(360deg);
+      }
+    }
+    
+    /* Pulse effect for pending states */
+    .animate-pulse-professional {
+      animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: .7;
+      }
+    }
+  `;
+  document.head.appendChild(style);
+}
+
+console.log('✅ Professional Loading System initialized');
+console.log('📋 Features:');
+console.log('   • Clean, enterprise-grade design');
+console.log('   • Step-by-step progress visualization');
+console.log('   • Realistic status messaging');
+console.log('   • Professional color scheme');
+console.log('   • Smooth animations and transitions');
+
+
+window.enhancedWarningLettersFixed.searchForm483sWithVariations = async function(company, variations) {
+  const results = [];
+  const searchedTerms = new Set();
+  
+  console.log(`🔍 Enhanced Form 483 Search for: ${company}`);
+  
+  // RELAXED search strategies - try multiple approaches
+  const searchStrategies = [
+    // Strategy 1: Exact company name with multiple fields
+    {
+      terms: [company],
+      fields: ['legalName', 'Legal_Name', 'company', 'companyName', 'firm_name'],
+      description: 'Exact match - multiple fields',
+      strict: false
+    },
+    // Strategy 2: Partial matches without common suffixes
+    {
+      terms: [
+        company.replace(/\s+(INC|LLC|LTD|CORP|CORPORATION|CO|USA|INTERNATIONAL|PHARMACEUTICALS?|PHARMA)\.?$/gi, '').trim()
+      ].filter(term => term && term.length > 3),
+      fields: ['legalName', 'Legal_Name'],
+      description: 'Without business suffixes',
+      strict: false
+    },
+    // Strategy 3: First significant word (often brand name)
+    {
+      terms: (() => {
+        const words = company.split(/\s+/).filter(w => 
+          w.length > 3 && !['INC', 'LLC', 'LTD', 'CORP', 'USA', 'THE', 'AND'].includes(w.toUpperCase())
+        );
+        return words.slice(0, 2); // Try first 1-2 significant words
+      })(),
+      fields: ['legalName', 'Legal_Name'],
+      description: 'Key word search',
+      strict: false
+    },
+    // Strategy 4: Fuzzy matching with shorter terms
+    {
+      terms: variations.filter(v => v.length >= 4), // Accept shorter terms
+      fields: ['legalName', 'Legal_Name', 'company'],
+      description: 'All variations - relaxed',
+      strict: false
+    }
+  ];
+
+  // Try each strategy
+  for (const strategy of searchStrategies) {
+    console.log(`  📋 Strategy: ${strategy.description}`);
+    
+    for (const searchTerm of strategy.terms) {
+      if (!searchTerm || searchedTerms.has(searchTerm.toLowerCase())) continue;
+      searchedTerms.add(searchTerm.toLowerCase());
+      
+      for (const field of strategy.fields) {
+        try {
+          const params = new URLSearchParams({
+            term: searchTerm,
+            field: field,
+            page: 1,
+            perPage: 50, // Smaller batches for faster processing
+            _t: Date.now()
+          });
+          
+          const response = await fetch(`/api/form483/search?${params}`);
+          
+          if (response.ok) {
+            const data = await response.json();
+            
+            if (data.results && data.results.length > 0) {
+              console.log(`    ✅ Found ${data.results.length} Form 483s for "${searchTerm}" in ${field}`);
+              
+              // RELAXED relevance filtering
+              data.results.forEach(f483 => {
+                const recordCompanyName = (
+                  f483.legalName || 
+                  f483.Legal_Name || 
+                  f483.companyName || 
+                  f483.company || 
+                  ''
+                ).trim().toLowerCase();
+                
+                // More lenient matching - check for partial matches
+                const isRelevant = this.isRelaxedMatch(company.toLowerCase(), recordCompanyName, searchTerm.toLowerCase());
+                
+                if (isRelevant) {
+                  f483.sourceCompany = company;
+                  f483.matchedVariation = searchTerm;
+                  f483.matchStrategy = strategy.description;
+                  f483.matchField = field;
+                  f483.normalizedCompanyName = recordCompanyName;
+                  f483.relevanceScore = this.calculateMatchScore(company, recordCompanyName);
+                  results.push(f483);
+                } else {
+                  console.log(`    ⚠️ Weak match filtered: "${recordCompanyName}"`);
+                }
+              });
+              
+              // Don't break on first success - collect from all strategies
+            }
+          }
+        } catch (error) {
+          console.warn(`    ❌ Form 483 search error for ${searchTerm}:`, error.message);
+        }
+        
+        // Small delay to avoid overwhelming the API
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+    }
+  }
+  
+  // Remove duplicates and sort by relevance
+  const uniqueResults = this.deduplicateResults(results, '_id');
+  const sortedResults = uniqueResults.sort((a, b) => (b.relevanceScore || 0) - (a.relevanceScore || 0));
+  
+  console.log(`  📋 Form 483 Final: ${sortedResults.length} relevant results for ${company}`);
+  return sortedResults;
+};
+
+// Override the main performSearch
+window.enhancedWarningLettersFixed.performSearch = window.enhancedWarningLettersFixed.performEnhancedSearch;
+
+console.log('✅ Enhanced Company Matching Logic loaded successfully!');
+
 // Override the main performSearch to use enhanced version
 window.enhancedWarningLettersFixed.performSearch = window.enhancedWarningLettersFixed.performEnhancedSearch;
 

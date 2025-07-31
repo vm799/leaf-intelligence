@@ -775,7 +775,7 @@ function addRealOnlyRecentEventsToSummary() {
                   <div class="flex flex-col space-y-2">
                     <button 
                       onclick="exportAllRecentEvents()" 
-                      class="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors text-sm font-medium">
+                      class="hidden px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors text-sm font-medium">
                       📥 Export All Events
                     </button>
                   </div>
