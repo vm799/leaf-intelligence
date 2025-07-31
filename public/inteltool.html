@@ -43140,22 +43140,22 @@ function applyFilters() {
         }
         
         // Apply "has results" filter
-        // if (appState.filters.hasResults) {
-        //     filteredStudies = filteredStudies.filter(study => study.hasResults === true);
-        // }
+        if (appState.filters.hasResults) {
+            filteredStudies = filteredStudies.filter(study => study.hasResults === true);
+        }
         
         // Apply "completed studies" filter
-        // if (appState.filters.isCompleted) {
-        //     filteredStudies = filteredStudies.filter(study => 
-        //         study.protocolSection?.statusModule?.overallStatus === "COMPLETED"
-        //     );
-        // }
+        if (appState.filters.isCompleted) {
+            filteredStudies = filteredStudies.filter(study => 
+                study.protocolSection?.statusModule?.overallStatus === "COMPLETED"
+            );
+        }
         
         // Apply phase filters
-        // filteredStudies = filteredStudies.filter(study => {
-        //     const phase = study.protocolSection?.designModule?.phases?.[0] || "PRE_PHASE";
-        //     return appState.filters.phaseFilters[phase] === true;
-        // });
+        filteredStudies = filteredStudies.filter(study => {
+            const phase = study.protocolSection?.designModule?.phases?.[0] || "PRE_PHASE";
+            return appState.filters.phaseFilters[phase] === true;
+        });
         
         // Store filtered studies in app state
         appState.filteredStudies = filteredStudies;
@@ -68964,6 +68964,11 @@ function handleEscapeKey(e) {
   
 //   console.log('✅ Enhanced Orange Book display completed');
 // }
+
+
+
+
+// 2. FIX: Update displayOrangeBookData to include pagination
 function displayOrangeBookData(data) {
   console.log('🚀 Enhanced displayOrangeBookData called with:', data);
   
@@ -69031,9 +69036,87 @@ function displayOrangeBookData(data) {
   
   elements.orangeBookData.innerHTML = html;
   
-  // Add modal close fix
+  // Add pagination controls if needed
+  if (data.pagination && data.pagination.totalPages > 1) {
+    addPaginationControls(data.pagination);
+  }
+  
+  // Fix modal closing
   fixModalClosing();
 }
+
+// function displayOrangeBookData(data) {
+//   console.log('🚀 Enhanced displayOrangeBookData called with:', data);
+  
+//   // Store data globally
+//   storeCurrentOrangeBookData(data);
+  
+//   // Count total entries across all categories
+//   const totalProducts = data.total.products || 0;
+//   const totalPatents = data.total.patents || 0;
+//   const totalExclusivity = data.total.exclusivity || 0;
+//   const totalApplications = new Set(data.results.products.map(p => p.Appl_No)).size;
+  
+//   // Calculate unlinked patents and exclusivity
+//   const linkedPatentIds = new Set();
+//   const linkedExclusivityIds = new Set();
+  
+//   data.results.products.forEach(product => {
+//     if (product.related_patents) {
+//       product.related_patents.forEach(patent => {
+//         linkedPatentIds.add(`${patent.Appl_Type}-${patent.Appl_No}-${patent.Product_No}-${patent.Patent_No}`);
+//       });
+//     }
+//     if (product.related_exclusivity) {
+//       product.related_exclusivity.forEach(exclusivity => {
+//         linkedExclusivityIds.add(`${exclusivity.Appl_Type}-${exclusivity.Appl_No}-${exclusivity.Product_No}-${exclusivity.Exclusivity_Code}`);
+//       });
+//     }
+//   });
+  
+//   const unlinkedPatents = data.results.patents.filter(patent => 
+//     !linkedPatentIds.has(`${patent.Appl_Type}-${patent.Appl_No}-${patent.Product_No}-${patent.Patent_No}`)
+//   );
+  
+//   const unlinkedExclusivity = data.results.exclusivity.filter(exclusivity => 
+//     !linkedExclusivityIds.has(`${exclusivity.Appl_Type}-${exclusivity.Appl_No}-${exclusivity.Product_No}-${exclusivity.Exclusivity_Code}`)
+//   );
+  
+//   // Update counter with page info
+//   let countText = `${totalProducts} Products | ${totalPatents} Patents | ${totalExclusivity} Exclusivity Records`;
+//   if (data.pagination) {
+//     countText += ` | Page ${data.pagination.currentPage} of ${data.pagination.totalPages}`;
+//   }
+//   elements.orangeBookCount.textContent = countText;
+//   elements.orangeBookCount.style.display = 'inline-block';
+  
+//   if (totalProducts === 0 && totalPatents === 0 && totalExclusivity === 0) {
+//     elements.orangeBookData.innerHTML = createEmptyState();
+//     return;
+//   }
+
+//   // Create the enhanced HTML structure
+//   let html = `
+//     ${createEnhancedSummarySection({ 
+//       totalProducts, 
+//       totalPatents, 
+//       totalExclusivity, 
+//       totalApplications,
+//       unlinkedPatents: unlinkedPatents.length,
+//       unlinkedExclusivity: unlinkedExclusivity.length
+//     })}
+//     ${createProductCardsSection(data.results.products)}
+//     ${unlinkedPatents.length > 0 ? createUnlinkedPatentsSection(unlinkedPatents) : ''}
+//     ${unlinkedExclusivity.length > 0 ? createUnlinkedExclusivitySection(unlinkedExclusivity) : ''}
+//   `;
+  
+//   elements.orangeBookData.innerHTML = html;
+  
+//   // Add modal close fix
+//   fixModalClosing();
+// }
+
+
 
 // Fix modal closing issues
 function fixModalClosing() {
@@ -70800,15 +70883,10 @@ function searchOrangeBook(query, page = 1) {
     });
 }
 
-// Enhanced display function with pagination controls
+// 1. FIX: Update displayOrangeBookDataWithPagination to not duplicate pagination
 function displayOrangeBookDataWithPagination(data) {
-  // First, call the existing display function
+  // Just call displayOrangeBookData - it will handle pagination internally
   displayOrangeBookData(data);
-  
-  // Then add pagination controls if needed
-  if (data.pagination && data.pagination.totalPages > 1) {
-    addPaginationControls(data.pagination);
-  }
 }
 
 // Function to add pagination controls
