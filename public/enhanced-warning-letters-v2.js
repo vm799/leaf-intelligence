@@ -208,7 +208,7 @@ window.enhancedWarningLettersFixed = {
       // Fetch all data types in parallel using proper endpoints
       const [warningLettersData, form483Data, inspectionData] = await Promise.all([
         this.fetchWarningLetters(companies),
-        this.fetchForm483s(companies),
+        // this.fetchForm483s(companies),
         this.fetchInspections(companies)
       ]);
 

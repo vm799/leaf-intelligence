@@ -608,7 +608,7 @@ function addRealOnlyRecentEventsToSummary() {
               </div>
               
               <!-- Filter Controls -->
-              <div class="mt-4 flex flex-wrap gap-3">
+              <div class="hidden mt-4 flex flex-wrap gap-3">
                 <select id="companyFilterRecent" class="px-3 py-2 border border-gray-300 rounded-md bg-white text-sm">
                   <option value="">All Companies</option>
                   ${Object.keys(recentEventsData.eventsByCompany).map(company => 

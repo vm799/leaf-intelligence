@@ -27478,52 +27478,77 @@ function generateEndpointFrequencyTable(endpoints, type) {
 /**
  * Generate endpoint categories
  */
-function generateEndpointCategories(endpointFrequency) {
-    const categories = {
-        'Efficacy': ['overall survival', 'progression-free survival', 'response rate', 'madrs', 'ham-d', 'panss'],
-        'Safety': ['adverse events', 'safety', 'tolerability', 'serious adverse events'],
-        'Quality of Life': ['quality of life', 'functional', 'disability', 'patient reported'],
-        'Biomarkers': ['biomarker', 'laboratory', 'pharmacokinetic', 'pharmacodynamic']
-    };
+// function generateEndpointCategories(endpointFrequency) {
+//     const categories = {
+//         'Efficacy': ['overall survival', 'progression-free survival', 'response rate', 'madrs', 'ham-d', 'panss'],
+//         'Safety': ['adverse events', 'safety', 'tolerability', 'serious adverse events'],
+//         'Quality of Life': ['quality of life', 'functional', 'disability', 'patient reported'],
+//         'Biomarkers': ['biomarker', 'laboratory', 'pharmacokinetic', 'pharmacodynamic']
+//     };
     
-    const categorizedEndpoints = {};
+//     const categorizedEndpoints = {};
     
-    // Initialize categories
-    Object.keys(categories).forEach(category => {
-        categorizedEndpoints[category] = 0;
-    });
+//     // Initialize categories
+//     Object.keys(categories).forEach(category => {
+//         categorizedEndpoints[category] = 0;
+//     });
     
-    // Categorize endpoints
-    [...endpointFrequency.primary, ...endpointFrequency.secondary].forEach(([endpoint, count]) => {
-        const lowerEndpoint = endpoint.toLowerCase();
-        let categorized = false;
+//     // Categorize endpoints
+//     [...endpointFrequency.primary, ...endpointFrequency.secondary].forEach(([endpoint, count]) => {
+//         const lowerEndpoint = endpoint.toLowerCase();
+//         let categorized = false;
         
-        for (const [category, keywords] of Object.entries(categories)) {
-            if (keywords.some(keyword => lowerEndpoint.includes(keyword))) {
-                categorizedEndpoints[category] += count;
-                categorized = true;
-                break;
-            }
-        }
+//         for (const [category, keywords] of Object.entries(categories)) {
+//             if (keywords.some(keyword => lowerEndpoint.includes(keyword))) {
+//                 categorizedEndpoints[category] += count;
+//                 categorized = true;
+//                 break;
+//             }
+//         }
         
-        if (!categorized) {
-            categorizedEndpoints['Other'] = (categorizedEndpoints['Other'] || 0) + count;
-        }
-    });
+//         if (!categorized) {
+//             categorizedEndpoints['Other'] = (categorizedEndpoints['Other'] || 0) + count;
+//         }
+//     });
+    
+//     return `
+//         <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+//             ${Object.entries(categorizedEndpoints).map(([category, count]) => `
+//                 <div class="text-center p-4 bg-gray-50 rounded-lg">
+//                     <div class="text-2xl font-bold text-blue-600">${count}</div>
+//                     <div class="text-sm font-medium text-gray-700">${category}</div>
+//                     <div class="text-xs text-gray-500">endpoints</div>
+//                 </div>
+//             `).join('')}
+//         </div>
+//     `;
+// }
+function generateEndpointCategories(categories = {}) {
+    if (!categories || Object.keys(categories).length === 0) {
+        return '<div class="text-gray-500 text-sm">No category data available</div>';
+    }
+
+    const total = Object.values(categories).reduce((sum, count) => sum + (count || 0), 0);
     
     return `
-        <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-            ${Object.entries(categorizedEndpoints).map(([category, count]) => `
-                <div class="text-center p-4 bg-gray-50 rounded-lg">
-                    <div class="text-2xl font-bold text-blue-600">${count}</div>
-                    <div class="text-sm font-medium text-gray-700">${category}</div>
-                    <div class="text-xs text-gray-500">endpoints</div>
-                </div>
-            `).join('')}
+        <div class="space-y-2">
+            ${Object.entries(categories).map(([category, count]) => {
+                const percentage = total > 0 ? ((count / total) * 100).toFixed(1) : '0';
+                const displayName = category.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                
+                return `
+                    <div class="flex justify-between items-center py-1">
+                        <span class="text-sm text-gray-700">${displayName}</span>
+                        <div class="flex items-center space-x-2">
+                            <span class="text-sm font-medium text-gray-900">${count || 0}</span>
+                            <span class="text-xs text-gray-500">(${percentage}%)</span>
+                        </div>
+                    </div>
+                `;
+            }).join('')}
         </div>
     `;
 }
-
 /**
  * Generate outcomes comparison using existing displayStudyDetail logic
  */
@@ -28338,7 +28363,55 @@ function generatePivotalTrialAnalysisHTML(analysis) {
 }
 
 // 4. MISSING CALCULATION FUNCTIONS
+/**
+ * Generate regulatory intelligence section
+ */
+function generateRegulatoryIntelligence(regulatoryData) {
+    if (!regulatoryData) return '';
 
+    const fdaAccepted = regulatoryData.fdaAcceptedEndpoints?.size || 0;
+    const emaAccepted = regulatoryData.emaAcceptedEndpoints?.size || 0;
+
+    return `
+        <div class="hidden bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg p-6 border border-indigo-200">
+            <h4 class="text-lg font-semibold text-indigo-900 mb-4">🏛️ Regulatory Intelligence</h4>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="bg-white rounded-lg p-4 text-center">
+                    <div class="text-2xl font-bold text-indigo-900">${fdaAccepted}</div>
+                    <div class="text-sm text-indigo-700">FDA-Accepted Endpoints</div>
+                </div>
+                <div class="bg-white rounded-lg p-4 text-center">
+                    <div class="text-2xl font-bold text-purple-900">${emaAccepted}</div>
+                    <div class="text-sm text-purple-700">EMA-Accepted Endpoints</div>
+                </div>
+                <div class="bg-white rounded-lg p-4 text-center">
+                    <div class="text-2xl font-bold text-green-900">${regulatoryData.surrogateBiomarkers?.size || 0}</div>
+                    <div class="text-sm text-green-700">Surrogate Biomarkers</div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+/**
+ * Toggle function for showing/hiding additional endpoints
+ */
+function toggleEndpointsList(type) {
+    const button = document.getElementById(`show-more-${type}`);
+    const extraContainer = document.getElementById(`${type}-endpoints-extra`);
+    
+    if (!button || !extraContainer) return;
+    
+    const isHidden = extraContainer.classList.contains('hidden');
+    
+    if (isHidden) {
+        extraContainer.classList.remove('hidden');
+        button.textContent = `Show Less ${type.charAt(0).toUpperCase() + type.slice(1)} Endpoints ←`;
+    } else {
+        extraContainer.classList.add('hidden');
+        button.textContent = `Show All ${type.charAt(0).toUpperCase() + type.slice(1)} Endpoints →`;
+    }
+}
 /**
  * Calculate regulatory success rate for display
  */
@@ -32962,40 +33035,236 @@ function generateEnhancedEnrollmentSection(demographicsData) {
 /**
  * Generate enhanced endpoints section - 20x better UI
  */
-function generateEnhancedEndpointsSection(endpointData) {
-    const primaryEndpoints = Array.from(endpointData.primary.endpoints.entries())
-        .sort(([,a], [,b]) => b - a)
-        .slice(0, 10);
+// function generateEnhancedEndpointsSection(endpointData) {
+//     const primaryEndpoints = Array.from(endpointData.primary.endpoints.entries())
+//         .sort(([,a], [,b]) => b - a)
+//         .slice(0, 10);
     
-    const secondaryEndpoints = Array.from(endpointData.secondary.endpoints.entries())
-        .sort(([,a], [,b]) => b - a)
-        .slice(0, 10);
+//     const secondaryEndpoints = Array.from(endpointData.secondary.endpoints.entries())
+//         .sort(([,a], [,b]) => b - a)
+//         .slice(0, 10);
+
+//     return `
+//         <div class="enhanced-endpoints space-y-6">
+//             <!-- Endpoint Overview -->
+//             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+//                 <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-6 border border-blue-200">
+//                     <div class="text-center">
+//                         <div class="text-3xl font-bold text-blue-900">${endpointData.primary.endpoints.size}</div>
+//                         <div class="text-sm font-medium text-blue-600">Unique Primary Endpoints</div>
+//                     </div>
+//                 </div>
+//                 <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-6 border border-green-200">
+//                     <div class="text-center">
+//                         <div class="text-3xl font-bold text-green-900">${endpointData.secondary.endpoints.size}</div>
+//                         <div class="text-sm font-medium text-green-600">Unique Secondary Endpoints</div>
+//                     </div>
+//                 </div>
+//                 <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg p-6 border border-purple-200">
+//                     <div class="text-center">
+//                         <div class="text-3xl font-bold text-purple-900">${endpointData.outcomes.trialsWithResults}</div>
+//                         <div class="text-sm font-medium text-purple-600">Trials with Results</div>
+//                     </div>
+//                 </div>
+//                 <div class="bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg p-6 border border-orange-200">
+//                     <div class="text-center">
+//                         <div class="text-3xl font-bold text-orange-900">${Math.round((endpointData.outcomes.positiveOutcomes / Math.max(endpointData.outcomes.trialsWithResults, 1)) * 100)}%</div>
+//                         <div class="text-sm font-medium text-orange-600">Success Rate</div>
+//                     </div>
+//                 </div>
+//             </div>
+
+//             <!-- Primary Endpoints Analysis -->
+//             <div class="bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
+//                 <div class="flex justify-between items-center mb-6">
+//                     <h4 class="text-lg font-semibold text-gray-900">Most Used Primary Endpoints</h4>
+//                     <button id="show-more-primary" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+//                         Show All Primary Endpoints →
+//                     </button>
+//                 </div>
+//                 <div class="grid grid-cols-1 gap-4" id="primary-endpoints-container">
+//                     ${primaryEndpoints.slice(0, 5).map(([endpoint, count]) => {
+//                         const endpointInfo = endpointData.primary.trialOutcomes.get(endpoint);
+//                         const successRate = endpointInfo ? 
+//                             Math.round((endpointInfo.successfulTrials / Math.max(endpointInfo.trialsWithResults, 1)) * 100) : 0;
+                        
+//                         return generateEndpointCard(endpoint, count, endpointInfo, successRate, 'primary');
+//                     }).join('')}
+//                 </div>
+//                 <div class="hidden grid grid-cols-1 gap-4 mt-4" id="primary-endpoints-extra">
+//                     ${primaryEndpoints.slice(5).map(([endpoint, count]) => {
+//                         const endpointInfo = endpointData.primary.trialOutcomes.get(endpoint);
+//                         const successRate = endpointInfo ? 
+//                             Math.round((endpointInfo.successfulTrials / Math.max(endpointInfo.trialsWithResults, 1)) * 100) : 0;
+                        
+//                         return generateEndpointCard(endpoint, count, endpointInfo, successRate, 'primary');
+//                     }).join('')}
+//                 </div>
+//             </div>
+
+//             <!-- Secondary Endpoints Analysis -->
+//             <div class="bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
+//                 <div class="flex justify-between items-center mb-6">
+//                     <h4 class="text-lg font-semibold text-gray-900">Most Used Secondary Endpoints</h4>
+//                     <button id="show-more-secondary" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+//                         Show All Secondary Endpoints →
+//                     </button>
+//                 </div>
+//                 <div class="grid grid-cols-1 gap-4" id="secondary-endpoints-container">
+//                     ${secondaryEndpoints.slice(0, 5).map(([endpoint, count]) => {
+//                         const endpointInfo = endpointData.secondary.trialOutcomes.get(endpoint);
+//                         const successRate = endpointInfo ? 
+//                             Math.round((endpointInfo.successfulTrials / Math.max(endpointInfo.trialsWithResults, 1)) * 100) : 0;
+                        
+//                         return generateEndpointCard(endpoint, count, endpointInfo, successRate, 'secondary');
+//                     }).join('')}
+//                 </div>
+//                 <div class="hidden grid grid-cols-1 gap-4 mt-4" id="secondary-endpoints-extra">
+//                     ${secondaryEndpoints.slice(5).map(([endpoint, count]) => {
+//                         const endpointInfo = endpointData.secondary.trialOutcomes.get(endpoint);
+//                         const successRate = endpointInfo ? 
+//                             Math.round((endpointInfo.successfulTrials / Math.max(endpointInfo.trialsWithResults, 1)) * 100) : 0;
+                        
+//                         return generateEndpointCard(endpoint, count, endpointInfo, successRate, 'secondary');
+//                     }).join('')}
+//                 </div>
+//             </div>
+
+//             <!-- Control Strategy Analysis -->
+//             <div class="bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
+//                 <h4 class="text-lg font-semibold text-gray-900 mb-4">Control Strategy Analysis</h4>
+//                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+//                     ${generateControlCard('Placebo-Controlled', endpointData.controls.placebo, 'bg-blue-100 text-blue-800', 'Randomized controlled trials with placebo comparator')}
+//                     ${generateControlCard('Active-Controlled', endpointData.controls.activeComparator, 'bg-green-100 text-green-800', 'Trials comparing to active standard of care')}
+//                     ${generateControlCard('Historical Control', endpointData.controls.historical, 'bg-purple-100 text-purple-800', 'Single-arm trials using historical data')}
+//                     ${generateControlCard('No Control', endpointData.controls.noControl, 'bg-gray-100 text-gray-800', 'Open-label or single-arm studies')}
+//                 </div>
+//             </div>
+
+//             <!-- Endpoint Categories -->
+//             <div class="bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
+//                 <h4 class="text-lg font-semibold text-gray-900 mb-4">Endpoint Categories</h4>
+//                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+//                     <div>
+//                         <h5 class="font-medium text-gray-800 mb-3">Primary Endpoint Categories</h5>
+//                         <div class="space-y-2">
+//                             ${Object.entries(endpointData.primary.categories)
+//                                 .sort(([,a], [,b]) => b - a)
+//                                 .map(([category, count]) => generateCategoryBar(category, count, Object.values(endpointData.primary.categories).reduce((a, b) => a + b, 0), 'blue')).join('')}
+//                         </div>
+//                     </div>
+//                     <div>
+//                         <h5 class="font-medium text-gray-800 mb-3">Secondary Endpoint Categories</h5>
+//                         <div class="space-y-2">
+//                             ${Object.entries(endpointData.secondary.categories)
+//                                 .sort(([,a], [,b]) => b - a)
+//                                 .map(([category, count]) => generateCategoryBar(category, count, Object.values(endpointData.secondary.categories).reduce((a, b) => a + b, 0), 'green')).join('')}
+//                         </div>
+//                     </div>
+//                 </div>
+//             </div>
+//         </div>
+//     `;
+// }
+
+function generateCleanEndpointCategories(categories = {}, color = 'blue') {
+    if (!categories || Object.keys(categories).length === 0) {
+        return '<div class="text-gray-400 text-sm italic">No category data available</div>';
+    }
+
+    const total = Object.values(categories).reduce((sum, count) => sum + (count || 0), 0);
+    const colorMap = {
+        blue: { bg: 'bg-blue-50', text: 'text-blue-900', border: 'border-blue-200', accent: 'bg-blue-100' },
+        green: { bg: 'bg-green-50', text: 'text-green-900', border: 'border-green-200', accent: 'bg-green-100' }
+    };
+    const colors = colorMap[color] || colorMap.blue;
+    
+    return `
+        <div class="space-y-3">
+            ${Object.entries(categories)
+                .sort(([,a], [,b]) => b - a)
+                .map(([category, count]) => {
+                    const percentage = total > 0 ? ((count / total) * 100).toFixed(1) : '0';
+                    const displayName = category.replace(/_/g, ' ');
+                    const widthPercentage = total > 0 ? (count / total) * 100 : 0;
+                    
+                    return `
+                        <div class="${colors.bg} ${colors.border} border rounded-lg p-4">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="font-medium ${colors.text} text-sm">${displayName}</span>
+                                <div class="flex items-center space-x-2">
+                                    <span class="font-bold ${colors.text}">${count}</span>
+                                    <span class="text-xs text-gray-500">(${percentage}%)</span>
+                                </div>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="${colors.accent} h-2 rounded-full transition-all duration-300" 
+                                     style="width: ${widthPercentage}%"></div>
+                            </div>
+                        </div>
+                    `;
+                }).join('')}
+        </div>
+    `;
+}
+
+
+function generateEnhancedEndpointsSection(endpointData) {
+    // Safety checks for data
+    if (!endpointData || (!endpointData.primary && !endpointData.secondary)) {
+        return `
+            <div class="enhanced-endpoints space-y-6">
+                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
+                    <h4 class="text-lg font-semibold text-yellow-800 mb-2">No Endpoint Data Available</h4>
+                    <p class="text-yellow-700">Endpoint analysis requires trial data to be loaded first.</p>
+                </div>
+            </div>
+        `;
+    }
+
+    // Safely extract endpoints with fallbacks
+    const primaryEndpoints = endpointData.primary?.endpoints ? 
+        Array.from(endpointData.primary.endpoints.entries())
+            .sort(([,a], [,b]) => b - a)
+            .slice(0, 10) : [];
+    
+    const secondaryEndpoints = endpointData.secondary?.endpoints ? 
+        Array.from(endpointData.secondary.endpoints.entries())
+            .sort(([,a], [,b]) => b - a)
+            .slice(0, 10) : [];
+
+    // Calculate overview stats safely
+    const primaryCount = primaryEndpoints.reduce((sum, [,count]) => sum + count, 0);
+    const secondaryCount = secondaryEndpoints.reduce((sum, [,count]) => sum + count, 0);
+    const trialsWithResults = endpointData.outcomes?.trialsWithResults || 0;
+    const positiveOutcomes = endpointData.outcomes?.positiveOutcomes || 0;
+    const successRate = trialsWithResults > 0 ? Math.round((positiveOutcomes / trialsWithResults) * 100) : 0;
 
     return `
         <div class="enhanced-endpoints space-y-6">
-            <!-- Endpoint Overview -->
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <!-- Endpoint Overview Cards -->
+            <div class="hidden grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-6 border border-blue-200">
                     <div class="text-center">
-                        <div class="text-3xl font-bold text-blue-900">${endpointData.primary.endpoints.size}</div>
+                        <div class="text-3xl font-bold text-blue-900">${primaryEndpoints.length}</div>
                         <div class="text-sm font-medium text-blue-600">Unique Primary Endpoints</div>
                     </div>
                 </div>
                 <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-6 border border-green-200">
                     <div class="text-center">
-                        <div class="text-3xl font-bold text-green-900">${endpointData.secondary.endpoints.size}</div>
+                        <div class="text-3xl font-bold text-green-900">${secondaryEndpoints.length}</div>
                         <div class="text-sm font-medium text-green-600">Unique Secondary Endpoints</div>
                     </div>
                 </div>
                 <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg p-6 border border-purple-200">
                     <div class="text-center">
-                        <div class="text-3xl font-bold text-purple-900">${endpointData.outcomes.trialsWithResults}</div>
+                        <div class="text-3xl font-bold text-purple-900">${trialsWithResults}</div>
                         <div class="text-sm font-medium text-purple-600">Trials with Results</div>
                     </div>
                 </div>
                 <div class="bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg p-6 border border-orange-200">
                     <div class="text-center">
-                        <div class="text-3xl font-bold text-orange-900">${Math.round((endpointData.outcomes.positiveOutcomes / Math.max(endpointData.outcomes.trialsWithResults, 1)) * 100)}%</div>
+                        <div class="text-3xl font-bold text-orange-900">${successRate}%</div>
                         <div class="text-sm font-medium text-orange-600">Success Rate</div>
                     </div>
                 </div>
@@ -33005,94 +33274,67 @@ function generateEnhancedEndpointsSection(endpointData) {
             <div class="bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
                 <div class="flex justify-between items-center mb-6">
                     <h4 class="text-lg font-semibold text-gray-900">Most Used Primary Endpoints</h4>
-                    <button id="show-more-primary" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                        Show All Primary Endpoints →
-                    </button>
+                    ${primaryEndpoints.length > 5 ? `
+                        <button id="show-more-primary" class="text-blue-600 hover:text-blue-800 text-sm font-medium" onclick="toggleEndpointsList('primary')">
+                            Show All Primary Endpoints →
+                        </button>
+                    ` : ''}
                 </div>
                 <div class="grid grid-cols-1 gap-4" id="primary-endpoints-container">
-                    ${primaryEndpoints.slice(0, 5).map(([endpoint, count]) => {
-                        const endpointInfo = endpointData.primary.trialOutcomes.get(endpoint);
-                        const successRate = endpointInfo ? 
-                            Math.round((endpointInfo.successfulTrials / Math.max(endpointInfo.trialsWithResults, 1)) * 100) : 0;
-                        
-                        return generateEndpointCard(endpoint, count, endpointInfo, successRate, 'primary');
-                    }).join('')}
+                    ${generateEndpointsList(primaryEndpoints.slice(0, 5), endpointData.primary, 'primary')}
                 </div>
-                <div class="hidden grid grid-cols-1 gap-4 mt-4" id="primary-endpoints-extra">
-                    ${primaryEndpoints.slice(5).map(([endpoint, count]) => {
-                        const endpointInfo = endpointData.primary.trialOutcomes.get(endpoint);
-                        const successRate = endpointInfo ? 
-                            Math.round((endpointInfo.successfulTrials / Math.max(endpointInfo.trialsWithResults, 1)) * 100) : 0;
-                        
-                        return generateEndpointCard(endpoint, count, endpointInfo, successRate, 'primary');
-                    }).join('')}
-                </div>
+                ${primaryEndpoints.length > 5 ? `
+                    <div class="hidden grid grid-cols-1 gap-4 mt-4" id="primary-endpoints-extra">
+                        ${generateEndpointsList(primaryEndpoints.slice(5), endpointData.primary, 'primary')}
+                    </div>
+                ` : ''}
             </div>
 
             <!-- Secondary Endpoints Analysis -->
             <div class="bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
                 <div class="flex justify-between items-center mb-6">
                     <h4 class="text-lg font-semibold text-gray-900">Most Used Secondary Endpoints</h4>
-                    <button id="show-more-secondary" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                        Show All Secondary Endpoints →
-                    </button>
+                    ${secondaryEndpoints.length > 5 ? `
+                        <button id="show-more-secondary" class="text-blue-600 hover:text-blue-800 text-sm font-medium" onclick="toggleEndpointsList('secondary')">
+                            Show All Secondary Endpoints →
+                        </button>
+                    ` : ''}
                 </div>
                 <div class="grid grid-cols-1 gap-4" id="secondary-endpoints-container">
-                    ${secondaryEndpoints.slice(0, 5).map(([endpoint, count]) => {
-                        const endpointInfo = endpointData.secondary.trialOutcomes.get(endpoint);
-                        const successRate = endpointInfo ? 
-                            Math.round((endpointInfo.successfulTrials / Math.max(endpointInfo.trialsWithResults, 1)) * 100) : 0;
-                        
-                        return generateEndpointCard(endpoint, count, endpointInfo, successRate, 'secondary');
-                    }).join('')}
+                    ${generateEndpointsList(secondaryEndpoints.slice(0, 5), endpointData.secondary, 'secondary')}
                 </div>
-                <div class="hidden grid grid-cols-1 gap-4 mt-4" id="secondary-endpoints-extra">
-                    ${secondaryEndpoints.slice(5).map(([endpoint, count]) => {
-                        const endpointInfo = endpointData.secondary.trialOutcomes.get(endpoint);
-                        const successRate = endpointInfo ? 
-                            Math.round((endpointInfo.successfulTrials / Math.max(endpointInfo.trialsWithResults, 1)) * 100) : 0;
-                        
-                        return generateEndpointCard(endpoint, count, endpointInfo, successRate, 'secondary');
-                    }).join('')}
-                </div>
-            </div>
-
-            <!-- Control Strategy Analysis -->
-            <div class="bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
-                <h4 class="text-lg font-semibold text-gray-900 mb-4">Control Strategy Analysis</h4>
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    ${generateControlCard('Placebo-Controlled', endpointData.controls.placebo, 'bg-blue-100 text-blue-800', 'Randomized controlled trials with placebo comparator')}
-                    ${generateControlCard('Active-Controlled', endpointData.controls.activeComparator, 'bg-green-100 text-green-800', 'Trials comparing to active standard of care')}
-                    ${generateControlCard('Historical Control', endpointData.controls.historical, 'bg-purple-100 text-purple-800', 'Single-arm trials using historical data')}
-                    ${generateControlCard('No Control', endpointData.controls.noControl, 'bg-gray-100 text-gray-800', 'Open-label or single-arm studies')}
-                </div>
+                ${secondaryEndpoints.length > 5 ? `
+                    <div class="hidden grid grid-cols-1 gap-4 mt-4" id="secondary-endpoints-extra">
+                        ${generateEndpointsList(secondaryEndpoints.slice(5), endpointData.secondary, 'secondary')}
+                    </div>
+                ` : ''}
             </div>
 
             <!-- Endpoint Categories -->
             <div class="bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
-                <h4 class="text-lg font-semibold text-gray-900 mb-4">Endpoint Categories</h4>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <h4 class="text-lg font-semibold text-gray-900 mb-6">Endpoint Categories</h4>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     <div>
-                        <h5 class="font-medium text-gray-800 mb-3">Primary Endpoint Categories</h5>
-                        <div class="space-y-2">
-                            ${Object.entries(endpointData.primary.categories)
-                                .sort(([,a], [,b]) => b - a)
-                                .map(([category, count]) => generateCategoryBar(category, count, Object.values(endpointData.primary.categories).reduce((a, b) => a + b, 0), 'blue')).join('')}
-                        </div>
+                        <h5 class="font-semibold text-blue-800 mb-4 flex items-center">
+                            <span class="w-3 h-3 bg-blue-500 rounded-full mr-2"></span>
+                            Primary Endpoints
+                        </h5>
+                        ${generateCleanEndpointCategories(endpointData.primary?.categories || {}, 'blue')}
                     </div>
                     <div>
-                        <h5 class="font-medium text-gray-800 mb-3">Secondary Endpoint Categories</h5>
-                        <div class="space-y-2">
-                            ${Object.entries(endpointData.secondary.categories)
-                                .sort(([,a], [,b]) => b - a)
-                                .map(([category, count]) => generateCategoryBar(category, count, Object.values(endpointData.secondary.categories).reduce((a, b) => a + b, 0), 'green')).join('')}
-                        </div>
+                        <h5 class="font-semibold text-green-800 mb-4 flex items-center">
+                            <span class="w-3 h-3 bg-green-500 rounded-full mr-2"></span>
+                            Secondary Endpoints
+                        </h5>
+                        ${generateCleanEndpointCategories(endpointData.secondary?.categories || {}, 'green')}
                     </div>
                 </div>
             </div>
         </div>
     `;
 }
+
+
 
 /**
  * Generate enhanced individual trial cards - with show more functionality
@@ -33218,58 +33460,91 @@ function generateGenderBar(label, count, total, colorClass) {
     `;
 }
 
-function generateEndpointCard(endpoint, count, endpointInfo, successRate, type) {
-    const typeColor = type === 'primary' ? 'blue' : 'green';
-    const trialsWithResults = endpointInfo ? endpointInfo.trialsWithResults : 0;
-    const successfulTrials = endpointInfo ? endpointInfo.successfulTrials : 0;
+// function generateEndpointCard(endpoint, count, endpointInfo, successRate, type) {
+//     const typeColor = type === 'primary' ? 'blue' : 'green';
+//     const trialsWithResults = endpointInfo ? endpointInfo.trialsWithResults : 0;
+//     const successfulTrials = endpointInfo ? endpointInfo.successfulTrials : 0;
+    
+//     return `
+//         <div class="border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow cursor-pointer endpoint-card" 
+//              data-endpoint="${endpoint}" data-type="${type}">
+//             <div class="flex justify-between items-start mb-4">
+//                 <div class="flex-1">
+//                     <h5 class="font-semibold text-gray-900 mb-2 capitalize">${endpoint}</h5>
+//                     <div class="flex items-center space-x-4 text-sm text-gray-600">
+//                         <span class="flex items-center">
+//                             <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+//                                 <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+//                             </svg>
+//                             ${count} trials
+//                         </span>
+//                         <span class="flex items-center">
+//                             <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+//                                 <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
+//                                 <path fill-rule="evenodd" d="M4 5a2 2 0 012-2v1a1 1 0 001 1h6a1 1 0 001-1V3a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/>
+//                             </svg>
+//                             ${trialsWithResults} with results
+//                         </span>
+//                     </div>
+//                 </div>
+//                 <div class="text-right">
+//                     <div class="text-lg font-bold text-${typeColor}-600">${successRate}%</div>
+//                     <div class="text-xs text-gray-500">Success Rate</div>
+//                 </div>
+//             </div>
+            
+//             <div class="space-y-3">
+//                 <div class="flex justify-between items-center text-sm">
+//                     <span class="text-gray-600">Successful Trials:</span>
+//                     <span class="font-medium text-green-600">${successfulTrials}/${trialsWithResults}</span>
+//                 </div>
+                
+//                 <div class="w-full bg-gray-200 rounded-full h-2">
+//                     <div class="bg-${typeColor}-500 h-2 rounded-full transition-all duration-300" 
+//                          style="width: ${successRate}%"></div>
+//                 </div>
+                
+//                 <div class="flex justify-between items-center text-xs text-gray-500">
+//                     <span>Click to view trial details</span>
+//                     <span class="capitalize">${type} endpoint</span>
+//                 </div>
+//             </div>
+//         </div>
+//     `;
+// }
+
+
+function generateEndpointCard(endpoint, count, endpointInfo = {}, successRate = 0, type = 'primary') {
+    const colorClasses = type === 'primary' ? 
+        'border-blue-200 bg-blue-50 text-blue-900 bg-blue-200' : 
+        'border-green-200 bg-green-50 text-green-900 bg-green-200';
+    
+    const trialsWithResults = endpointInfo.trialsWithResults || 0;
+    const totalTrials = endpointInfo.totalTrials || count;
     
     return `
-        <div class="border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow cursor-pointer endpoint-card" 
-             data-endpoint="${endpoint}" data-type="${type}">
-            <div class="flex justify-between items-start mb-4">
+        <div class="border ${colorClasses.split(' ')[0]} rounded-lg p-4 hover:shadow-md transition-shadow">
+            <div class="flex justify-between items-start">
                 <div class="flex-1">
-                    <h5 class="font-semibold text-gray-900 mb-2 capitalize">${endpoint}</h5>
-                    <div class="flex items-center space-x-4 text-sm text-gray-600">
-                        <span class="flex items-center">
-                            <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
-                            ${count} trials
-                        </span>
-                        <span class="flex items-center">
-                            <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
-                                <path fill-rule="evenodd" d="M4 5a2 2 0 012-2v1a1 1 0 001 1h6a1 1 0 001-1V3a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/>
-                            </svg>
-                            ${trialsWithResults} with results
-                        </span>
+                    <h5 class="font-medium ${colorClasses.split(' ')[2]} text-sm mb-2 leading-tight">
+                        ${endpoint || 'Unknown Endpoint'}
+                    </h5>
+                    <div class="flex items-center space-x-4 text-xs text-gray-600">
+                        <span>Used in ${count} trials</span>
+                        ${trialsWithResults > 0 ? `<span>${trialsWithResults} with results</span>` : ''}
+                        ${successRate > 0 ? `<span class="font-medium text-green-600">${successRate}% success</span>` : ''}
                     </div>
                 </div>
-                <div class="text-right">
-                    <div class="text-lg font-bold text-${typeColor}-600">${successRate}%</div>
-                    <div class="text-xs text-gray-500">Success Rate</div>
-                </div>
-            </div>
-            
-            <div class="space-y-3">
-                <div class="flex justify-between items-center text-sm">
-                    <span class="text-gray-600">Successful Trials:</span>
-                    <span class="font-medium text-green-600">${successfulTrials}/${trialsWithResults}</span>
-                </div>
-                
-                <div class="w-full bg-gray-200 rounded-full h-2">
-                    <div class="bg-${typeColor}-500 h-2 rounded-full transition-all duration-300" 
-                         style="width: ${successRate}%"></div>
-                </div>
-                
-                <div class="flex justify-between items-center text-xs text-gray-500">
-                    <span>Click to view trial details</span>
-                    <span class="capitalize">${type} endpoint</span>
+                <div class="ml-2">
+                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${colorClasses.split(' ')[3]} ${colorClasses.split(' ')[2]}">
+                        ${count}
+                    </span>
                 </div>
             </div>
         </div>
     `;
 }
+
 
 function generateControlCard(label, count, colorClass, description) {
     return `
@@ -41716,13 +41991,25 @@ function analyzeNaturalProgression(trials) {
     return placeboData.length > 0 ? placeboData : ['Natural disease progression data needed from placebo-controlled studies'];
 }
 
-function generateEndpointsList(usEndpoints, euEndpoints) {
-    const allEndpoints = [...new Set([...usEndpoints, ...euEndpoints])];
-    return allEndpoints.slice(0, 5).map(endpoint => 
-        `<div class="text-sm p-2 bg-gray-50 rounded">${endpoint}</div>`
-    ).join('');
-}
+// function generateEndpointsList(usEndpoints, euEndpoints) {
+//     const allEndpoints = [...new Set([...usEndpoints, ...euEndpoints])];
+//     return allEndpoints.slice(0, 5).map(endpoint => 
+//         `<div class="text-sm p-2 bg-gray-50 rounded">${endpoint}</div>`
+//     ).join('');
+// }
+function generateEndpointsList(endpoints, endpointTypeData, type) {
+    if (!endpoints || endpoints.length === 0) {
+        return `<div class="text-gray-500 text-sm">No ${type} endpoints data available</div>`;
+    }
 
+    return endpoints.map(([endpoint, count]) => {
+        const endpointInfo = endpointTypeData?.trialOutcomes?.get(endpoint) || {};
+        const successRate = endpointInfo.trialsWithResults > 0 ? 
+            Math.round((endpointInfo.successfulTrials / endpointInfo.trialsWithResults) * 100) : 0;
+        
+        return generateEndpointCard(endpoint, count, endpointInfo, successRate, type);
+    }).join('');
+}
 function countDesignFeature(trials, feature) {
     return trials.filter(trial => {
         const designInfo = trial.protocolSection?.designModule?.designInfo;
