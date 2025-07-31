@@ -6504,7 +6504,7 @@ tailwind.config = {
       </div>
 
       <!-- Summary Stats -->
-      <div id="pharma-summary-section" class="hidden mb-8">
+      <!-- <div id="pharma-summary-section" class="hidden mb-8">
         <div class="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-lg border border-green-200 summary-section">
           <div class="flex items-center justify-between mb-4">
             <h2 class="text-xl font-semibold text-gray-900">📊 Labelling Overview</h2>
@@ -6538,7 +6538,46 @@ tailwind.config = {
             </div>
           </div>
         </div>
+      </div> -->
+
+      <div id="pharma-summary-section" class="hidden mb-8">
+  <div class="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-lg border border-green-200 summary-section">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-xl font-semibold text-gray-900">📊 Labelling Overview</h2>
+      <div id="pharma-last-analyzed" class="text-xs text-secondary"></div>
+    </div>
+    
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+      <div class="text-center cursor-pointer labelling-summary-metric hover:bg-white hover:shadow-lg transition-all p-3 rounded">
+        <div class="text-2xl font-bold text-green-600" id="pharma-total-labels">0</div>
+        <div class="text-xs text-gray-600">Total Labels</div>
       </div>
+      <div class="text-center cursor-pointer labelling-summary-metric hover:bg-white hover:shadow-lg transition-all p-3 rounded">
+        <div class="text-2xl font-bold text-red-600" id="pharma-fda-labels">0</div>
+        <div class="text-xs text-gray-600">FDA Labels</div>
+      </div>
+      <div class="text-center cursor-pointer labelling-summary-metric hover:bg-white hover:shadow-lg transition-all p-3 rounded">
+        <div class="text-2xl font-bold text-blue-600" id="pharma-ema-labels">0</div>
+        <div class="text-xs text-gray-600">EMA Labels</div>
+      </div>
+      <div class="hidden text-center cursor-pointer labelling-summary-metric hover:bg-white hover:shadow-lg transition-all p-3 rounded">
+        <div class="text-2xl font-bold text-orange-600" id="pharma-boxed-warnings">0</div>
+        <div class="text-xs text-gray-600">Boxed Warnings</div>
+      </div>
+      <div class="text-center cursor-pointer labelling-summary-metric hover:bg-white hover:shadow-lg transition-all p-3 rounded">
+        <div class="flex flex-col items-center">
+          <div class="text-xs text-gray-500 mb-1">RxCUI ID</div>
+          <div class="text-lg font-bold text-purple-600" id="pharma-rxcui">-</div>
+        </div>
+        <div class="text-xs text-gray-600">Drug Identifier</div>
+      </div>
+      <div class="text-center cursor-pointer labelling-summary-metric hover:bg-white hover:shadow-lg transition-all p-3 rounded">
+        <div class="text-2xl font-bold text-indigo-600" id="pharma-ndc-count">0</div>
+        <div class="text-xs text-gray-600">NDC Codes</div>
+      </div>
+    </div>
+  </div>
+</div>
 
       <!-- Results Section -->
       <div id="pharma-results-section" class="hidden">
@@ -27787,6 +27826,14 @@ function displayPivotalTrialAnalysisComponent(studiesData, drugName, conditionNa
             rebindEnhancedPivotalElements();
         }
 
+        try{
+
+        
+        // switchEnhancedTab('design')
+        } catch (e){
+            console.log("FAILED TAB INIT :", e)
+        }
+
         console.log('✅ Enhanced pivotal analysis displayed successfully');
         return true;
 
@@ -32565,14 +32612,14 @@ function generateEnhancedPivotalTrialAnalysis(studies, drugName, conditionName) 
             <div class="bg-white border-b border-gray-200 px-6 py-4">
                 <div class="flex justify-between items-center">
                     <div>
-                        <h2 class="text-2xl font-bold text-gray-900">Enhanced Pivotal Trial Analysis</h2>
+                        <h2 class="text-2xl font-bold text-gray-900">Trial Analysis</h2>
                         <p class="text-sm text-gray-600 mt-1">
                             ${drugName ? `Drug: ${drugName}` : ''} 
                             ${conditionName ? `• Condition: ${conditionName}` : ''} 
                             • ${studies.length} trials analyzed
                         </p>
                     </div>
-                    <div class="flex space-x-3">
+                    <div class="hidden flex space-x-3">
                         <button onclick="exportEnhancedAnalysis()" 
                                 class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
                             Export Analysis
@@ -32600,10 +32647,7 @@ function generateEnhancedPivotalTrialAnalysis(studies, drugName, conditionName) 
                             class="enhanced-tab-btn py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700">
                         Endpoints & Outcomes
                     </button>
-                    <button onclick="switchEnhancedTab('trials')" 
-                            class="hidden enhanced-tab-btn py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700">
-                        Individual Trials
-                    </button>
+
                 </nav>
             </div>
 
@@ -32628,8 +32672,14 @@ function generateEnhancedPivotalTrialAnalysis(studies, drugName, conditionName) 
             </div>
         </div>
     `;
+   
 }
 
+
+                    // <button onclick="switchEnhancedTab('trials')" 
+                    //         class="enhanced-tab-btn py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700">
+                    //     Individual Trials
+                    // </button>
 /**
  * UTILITY FUNCTIONS
  */
@@ -43090,22 +43140,22 @@ function applyFilters() {
         }
         
         // Apply "has results" filter
-        if (appState.filters.hasResults) {
-            filteredStudies = filteredStudies.filter(study => study.hasResults === true);
-        }
+        // if (appState.filters.hasResults) {
+        //     filteredStudies = filteredStudies.filter(study => study.hasResults === true);
+        // }
         
         // Apply "completed studies" filter
-        if (appState.filters.isCompleted) {
-            filteredStudies = filteredStudies.filter(study => 
-                study.protocolSection?.statusModule?.overallStatus === "COMPLETED"
-            );
-        }
+        // if (appState.filters.isCompleted) {
+        //     filteredStudies = filteredStudies.filter(study => 
+        //         study.protocolSection?.statusModule?.overallStatus === "COMPLETED"
+        //     );
+        // }
         
         // Apply phase filters
-        filteredStudies = filteredStudies.filter(study => {
-            const phase = study.protocolSection?.designModule?.phases?.[0] || "PRE_PHASE";
-            return appState.filters.phaseFilters[phase] === true;
-        });
+        // filteredStudies = filteredStudies.filter(study => {
+        //     const phase = study.protocolSection?.designModule?.phases?.[0] || "PRE_PHASE";
+        //     return appState.filters.phaseFilters[phase] === true;
+        // });
         
         // Store filtered studies in app state
         appState.filteredStudies = filteredStudies;
@@ -59236,7 +59286,7 @@ async function adisplayFdaData(drugName, condition) {
           
           // Email button for basic summary
           const emailButton = document.createElement('button');
-          emailButton.className = 'px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors flex items-center';
+          emailButton.className = 'hidden px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors flex items-center';
           emailButton.innerHTML = `
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
               <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
@@ -59250,7 +59300,7 @@ async function adisplayFdaData(drugName, condition) {
           
           // AI summary button
           const aiSummaryButton = document.createElement('button');
-          aiSummaryButton.className = 'px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors flex items-center';
+          aiSummaryButton.className = 'hidden px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors flex items-center';
           aiSummaryButton.innerHTML = `
             <svg class="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
               <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
@@ -59655,7 +59705,7 @@ function generateFDAExecutiveSummary(allData) {
             <h2 class="text-xl font-bold">${drugName}</h2>
             <p class="text-blue-100 text-sm">FDA Regulatory Executive Summary</p>
           </div>
-          <div class="text-right">
+          <div class="hidden text-right">
             <div class="text-lg font-semibold">${statusLevel.status}</div>
             <div class="text-xs text-blue-100">${statusLevel.description}</div>
           </div>
@@ -60912,7 +60962,7 @@ async function displayFdaData(drug) {
                     
                     // Email button for basic summary
                     const emailButton = document.createElement('button');
-                    emailButton.className = 'px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors flex items-center';
+                    emailButton.className = 'hidden px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors flex items-center';
                     emailButton.innerHTML = `
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
                             <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
@@ -60928,7 +60978,7 @@ async function displayFdaData(drug) {
                     
                     // AI summary button
                     const aiSummaryButton = document.createElement('button');
-                    aiSummaryButton.className = 'px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors flex items-center';
+                    aiSummaryButton.className = 'hidden px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors flex items-center';
                     aiSummaryButton.innerHTML = `
                         <svg class="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
@@ -68826,8 +68876,99 @@ function handleEscapeKey(e) {
 
 
 // 1. FIXED: displayOrangeBookData - This is the MAIN function to replace
-async function displayOrangeBookData(data) {
+// async function displayOrangeBookData(data) {
+//   console.log('🚀 Enhanced displayOrangeBookData called with:', data);
+  
+//   // Count total entries across all categories
+//   const totalProducts = data.total.products || 0;
+//   const totalPatents = data.total.patents || 0;
+//   const totalExclusivity = data.total.exclusivity || 0;
+//   const totalApplications = new Set(data.results.products.map(p => p.Appl_No)).size;
+  
+//   // ⭐ CRITICAL: Calculate unlinked patents and exclusivity
+//   const linkedPatentIds = new Set();
+//   const linkedExclusivityIds = new Set();
+  
+//   data.results.products.forEach(product => {
+//     if (product.related_patents) {
+//       product.related_patents.forEach(patent => {
+//         linkedPatentIds.add(`${patent.Appl_Type}-${patent.Appl_No}-${patent.Product_No}-${patent.Patent_No}`);
+//       });
+//     }
+//     if (product.related_exclusivity) {
+//       product.related_exclusivity.forEach(exclusivity => {
+//         linkedExclusivityIds.add(`${exclusivity.Appl_Type}-${exclusivity.Appl_No}-${exclusivity.Product_No}-${exclusivity.Exclusivity_Code}`);
+//       });
+//     }
+//   });
+  
+//   const unlinkedPatents = data.results.patents.filter(patent => 
+//     !linkedPatentIds.has(`${patent.Appl_Type}-${patent.Appl_No}-${patent.Product_No}-${patent.Patent_No}`)
+//   );
+  
+//   const unlinkedExclusivity = data.results.exclusivity.filter(exclusivity => 
+//     !linkedExclusivityIds.has(`${exclusivity.Appl_Type}-${exclusivity.Appl_No}-${exclusivity.Product_No}-${exclusivity.Exclusivity_Code}`)
+//   );
+  
+//   console.log('📊 Calculated data:', {
+//     totalProducts,
+//     totalPatents, 
+//     totalExclusivity,
+//     unlinkedPatents: unlinkedPatents.length,
+//     unlinkedExclusivity: unlinkedExclusivity.length
+//   });
+  
+//   // Update counter in header
+//   elements.orangeBookCount.textContent = `${totalProducts} Products | ${totalPatents} Patents | ${totalExclusivity} Exclusivity Records`;
+//   elements.orangeBookCount.style.display = 'inline-block';
+  
+//   if (totalProducts === 0 && totalPatents === 0 && totalExclusivity === 0) {
+//     elements.orangeBookData.innerHTML = createEmptyState();
+//     return;
+//   }
+
+//   // Handle warning letters for companies
+//   if (data.results?.companies) {
+//     console.log('Searching warning letters for companies');
+//     await searchWarningLetters(data.results.companies);
+//   } else {
+//     elements.warningLettersData.innerHTML = `
+//       <div class="text-center p-4">
+//         <p class="text-sm text-gray-700">No warning letters found</p>
+//       </div>`;
+//   }
+
+//   // ⭐ CRITICAL: Create the enhanced HTML structure with ALL sections
+//   let html = `
+//     ${createEnhancedSummarySection({ 
+//       totalProducts, 
+//       totalPatents, 
+//       totalExclusivity, 
+//       totalApplications,
+//       unlinkedPatents: unlinkedPatents.length,
+//       unlinkedExclusivity: unlinkedExclusivity.length
+//     })}
+//     ${createProductCardsSection(data.results.products)}
+//     ${unlinkedPatents.length > 0 ? createUnlinkedPatentsSection(unlinkedPatents) : ''}
+//     ${unlinkedExclusivity.length > 0 ? createUnlinkedExclusivitySection(unlinkedExclusivity) : ''}
+//     ${createEnhancedStyles()}
+//   `;
+  
+//   elements.orangeBookData.innerHTML = html;
+  
+//   // Store data globally for modal access
+//   storeCurrentOrangeBookData(data);
+  
+//   // Initialize interactive features
+//   initializeOrangeBookInteractivity();
+  
+//   console.log('✅ Enhanced Orange Book display completed');
+// }
+function displayOrangeBookData(data) {
   console.log('🚀 Enhanced displayOrangeBookData called with:', data);
+  
+  // Store data globally
+  storeCurrentOrangeBookData(data);
   
   // Count total entries across all categories
   const totalProducts = data.total.products || 0;
@@ -68835,7 +68976,7 @@ async function displayOrangeBookData(data) {
   const totalExclusivity = data.total.exclusivity || 0;
   const totalApplications = new Set(data.results.products.map(p => p.Appl_No)).size;
   
-  // ⭐ CRITICAL: Calculate unlinked patents and exclusivity
+  // Calculate unlinked patents and exclusivity
   const linkedPatentIds = new Set();
   const linkedExclusivityIds = new Set();
   
@@ -68860,16 +69001,12 @@ async function displayOrangeBookData(data) {
     !linkedExclusivityIds.has(`${exclusivity.Appl_Type}-${exclusivity.Appl_No}-${exclusivity.Product_No}-${exclusivity.Exclusivity_Code}`)
   );
   
-  console.log('📊 Calculated data:', {
-    totalProducts,
-    totalPatents, 
-    totalExclusivity,
-    unlinkedPatents: unlinkedPatents.length,
-    unlinkedExclusivity: unlinkedExclusivity.length
-  });
-  
-  // Update counter in header
-  elements.orangeBookCount.textContent = `${totalProducts} Products | ${totalPatents} Patents | ${totalExclusivity} Exclusivity Records`;
+  // Update counter with page info
+  let countText = `${totalProducts} Products | ${totalPatents} Patents | ${totalExclusivity} Exclusivity Records`;
+  if (data.pagination) {
+    countText += ` | Page ${data.pagination.currentPage} of ${data.pagination.totalPages}`;
+  }
+  elements.orangeBookCount.textContent = countText;
   elements.orangeBookCount.style.display = 'inline-block';
   
   if (totalProducts === 0 && totalPatents === 0 && totalExclusivity === 0) {
@@ -68877,18 +69014,7 @@ async function displayOrangeBookData(data) {
     return;
   }
 
-  // Handle warning letters for companies
-  if (data.results?.companies) {
-    console.log('Searching warning letters for companies');
-    await searchWarningLetters(data.results.companies);
-  } else {
-    elements.warningLettersData.innerHTML = `
-      <div class="text-center p-4">
-        <p class="text-sm text-gray-700">No warning letters found</p>
-      </div>`;
-  }
-
-  // ⭐ CRITICAL: Create the enhanced HTML structure with ALL sections
+  // Create the enhanced HTML structure
   let html = `
     ${createEnhancedSummarySection({ 
       totalProducts, 
@@ -68901,20 +69027,95 @@ async function displayOrangeBookData(data) {
     ${createProductCardsSection(data.results.products)}
     ${unlinkedPatents.length > 0 ? createUnlinkedPatentsSection(unlinkedPatents) : ''}
     ${unlinkedExclusivity.length > 0 ? createUnlinkedExclusivitySection(unlinkedExclusivity) : ''}
-    ${createEnhancedStyles()}
   `;
   
   elements.orangeBookData.innerHTML = html;
   
-  // Store data globally for modal access
-  storeCurrentOrangeBookData(data);
-  
-  // Initialize interactive features
-  initializeOrangeBookInteractivity();
-  
-  console.log('✅ Enhanced Orange Book display completed');
+  // Add modal close fix
+  fixModalClosing();
 }
 
+// Fix modal closing issues
+function fixModalClosing() {
+  // Override the closeModal function to ensure it works
+  window.closeModal = function(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+      modal.remove();
+    }
+  };
+  
+  // Add global escape key handler
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      ['patent-modal', 'exclusivity-modal'].forEach(modalId => {
+        const modal = document.getElementById(modalId);
+        if (modal) modal.remove();
+      });
+    }
+  });
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('🚀 Orange Book Pagination System Initialized');
+});
+
+
+// Add this function to fix Orange Book modal and display issues
+// function fixOrangeBookIssues() {
+//   // Fix 1: Ensure modals close properly
+//   window.closeModal = function(modalId) {
+//     const modal = document.getElementById(modalId);
+//     if (modal) {
+//       modal.remove();
+//     }
+//   };
+  
+//   // Fix 2: Override displayOrangeBookData to show limitation notice
+//   const originalDisplay = window.displayOrangeBookData;
+//   window.displayOrangeBookData = function(data) {
+//     // Call original function
+//     if (originalDisplay) {
+//       originalDisplay.call(this, data);
+//     }
+    
+//     // Add limitation notice if needed
+//     if (data.total.products > data.results.products.length) {
+//       const orangeBookData = document.getElementById('orangeBookData');
+//       if (orangeBookData) {
+//         const notice = document.createElement('div');
+//         notice.className = 'mt-4 p-4 bg-amber-50 border border-amber-200 rounded-lg';
+//         notice.innerHTML = `
+//           <div class="flex items-center">
+//             <svg class="w-5 h-5 text-amber-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+//               <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+//             </svg>
+//             <p class="text-sm text-amber-800">
+//               <span class="font-medium">Performance Notice:</span> 
+//               Displaying ${data.results.products.length} of ${data.total.products} total products. 
+//               Results are limited to improve loading speed.
+//             </p>
+//           </div>
+//         `;
+//         orangeBookData.appendChild(notice);
+//       }
+//     }
+//   };
+  
+//   // Fix 3: Ensure escape key closes all modals
+//   document.addEventListener('keydown', function(e) {
+//     if (e.key === 'Escape') {
+//       ['patent-modal', 'exclusivity-modal'].forEach(id => {
+//         const modal = document.getElementById(id);
+//         if (modal) modal.remove();
+//       });
+//     }
+//   });
+// }
+
+// // Call this function when the page loads
+// document.addEventListener('DOMContentLoaded', fixOrangeBookIssues);
 // 2. MISSING: createEnhancedSummarySection - This was being called but didn't exist
 function createEnhancedSummarySection({ totalProducts, totalPatents, totalExclusivity, totalApplications, unlinkedPatents, unlinkedExclusivity }) {
   return `
@@ -69163,8 +69364,8 @@ function createProductCard(product) {
               </div>
               <div class="flex">
                 <span class="text-gray-500 font-medium min-w-24">Application:</span>
-                <span class="ml-2 font-mono text-blue-600">${product.Appl_Type} ${product.Appl_No}</span>
-              </div>
+                <a href="https://www.accessdata.fda.gov/scripts/cder/ob/results_product.cfm?Appl_Type=${product.Appl_Type}&Appl_No=${product.Appl_No}" target="_blank" rel="noopener noreferrer" class="ml-2 font-mono text-blue-600 underline hover:text-blue-800">${product.Appl_Type} ${product.Appl_No}</a>
+                </div>
             </div>
           </div>
           <div class="flex flex-col gap-2 ml-4">
@@ -70559,35 +70760,34 @@ productCard.querySelectorAll('.related-pane').forEach(pane => {
 //       elements.orangeBookCount.textContent = '0 entries';
 //     });
 // }
-function searchOrangeBook(query) {
-  if (!query.trim()) {
-    elements.orangeBookData.innerHTML = `
-      <div class="text-center p-4">
-        <p class="text-sm text-gray-700">Please enter a search term</p>
-      </div>
-    `;
-    elements.orangeBookCount.textContent = '0 entries';
-    return;
-  }
+
+let currentOrangeBookPage = 1;
+let currentOrangeBookQuery = '';
+
+// Enhanced searchOrangeBook function with pagination
+function searchOrangeBook(query, page = 1) {
+  if (!query) return;
+  
+  // Store current query for pagination
+  currentOrangeBookQuery = query;
+  currentOrangeBookPage = page;
   
   // Show loading state
   elements.orangeBookData.innerHTML = `
-    <div class="text-center p-4">
-      <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-gray-800"></div>
-      <p class="mt-2 text-sm text-gray-700">Searching...</p>
+    <div class="flex justify-center items-center p-8">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
     </div>
   `;
   
-  // Make the API request
-  fetch(`/api/fda/orangebook/search?q=${encodeURIComponent(query)}`)
+  // Fetch data with pagination
+  fetch(`/api/fda/orangebook/search?q=${encodeURIComponent(query)}&page=${page}&limit=50`)
     .then(response => {
       if (!response.ok) throw new Error('Network response was not ok');
       return response.json();
     })
     .then(data => {
-      // Store data globally for modal access
-      storeCurrentOrangeBookData(data);
-      displayOrangeBookData(data);
+      // Add pagination info to data before displaying
+      displayOrangeBookDataWithPagination(data);
     })
     .catch(error => {
       console.error('Error fetching Orange Book data:', error);
@@ -70599,6 +70799,173 @@ function searchOrangeBook(query) {
       elements.orangeBookCount.textContent = '0 entries';
     });
 }
+
+// Enhanced display function with pagination controls
+function displayOrangeBookDataWithPagination(data) {
+  // First, call the existing display function
+  displayOrangeBookData(data);
+  
+  // Then add pagination controls if needed
+  if (data.pagination && data.pagination.totalPages > 1) {
+    addPaginationControls(data.pagination);
+  }
+}
+
+// Function to add pagination controls
+function addPaginationControls(pagination) {
+  const paginationHTML = `
+    <div class="flex items-center justify-between mt-6 border-t pt-4">
+      <div class="flex items-center text-sm text-gray-700">
+        <span>Showing </span>
+        <span class="font-medium mx-1">${((pagination.currentPage - 1) * pagination.itemsPerPage) + 1}</span>
+        <span> to </span>
+        <span class="font-medium mx-1">${Math.min(pagination.currentPage * pagination.itemsPerPage, pagination.totalItems)}</span>
+        <span> of </span>
+        <span class="font-medium mx-1">${pagination.totalItems}</span>
+        <span> products</span>
+      </div>
+      
+      <div class="flex items-center space-x-2">
+        ${createPaginationButtons(pagination)}
+      </div>
+    </div>
+  `;
+  
+  // Add pagination controls to the orange book data container
+  const paginationContainer = document.createElement('div');
+  paginationContainer.id = 'orangeBookPagination';
+  paginationContainer.innerHTML = paginationHTML;
+  
+  // Remove existing pagination if any
+  const existingPagination = document.getElementById('orangeBookPagination');
+  if (existingPagination) {
+    existingPagination.remove();
+  }
+  
+  // Add new pagination
+  elements.orangeBookData.appendChild(paginationContainer);
+}
+
+// Function to create pagination buttons
+function createPaginationButtons(pagination) {
+  const { currentPage, totalPages, hasPrevPage, hasNextPage } = pagination;
+  let buttonsHTML = '';
+  
+  // Previous button
+  buttonsHTML += `
+    <button 
+      onclick="searchOrangeBook('${currentOrangeBookQuery}', ${currentPage - 1})"
+      ${!hasPrevPage ? 'disabled' : ''}
+      class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 ${!hasPrevPage ? 'opacity-50 cursor-not-allowed' : 'hover:text-gray-700'}"
+    >
+      <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+        <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+      </svg>
+    </button>
+  `;
+  
+  // Page numbers
+  const pageNumbers = getPageNumbers(currentPage, totalPages);
+  pageNumbers.forEach(pageNum => {
+    if (pageNum === '...') {
+      buttonsHTML += `<span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">...</span>`;
+    } else {
+      const isActive = pageNum === currentPage;
+      buttonsHTML += `
+        <button 
+          onclick="searchOrangeBook('${currentOrangeBookQuery}', ${pageNum})"
+          class="relative inline-flex items-center px-4 py-2 border border-gray-300 ${isActive ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'} text-sm font-medium"
+        >
+          ${pageNum}
+        </button>
+      `;
+    }
+  });
+  
+  // Next button
+  buttonsHTML += `
+    <button 
+      onclick="searchOrangeBook('${currentOrangeBookQuery}', ${currentPage + 1})"
+      ${!hasNextPage ? 'disabled' : ''}
+      class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 ${!hasNextPage ? 'opacity-50 cursor-not-allowed' : 'hover:text-gray-700'}"
+    >
+      <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+      </svg>
+    </button>
+  `;
+  
+  return buttonsHTML;
+}
+
+// Helper function to determine which page numbers to show
+function getPageNumbers(current, total) {
+  const delta = 2;
+  const range = [];
+  const rangeWithDots = [];
+  let l;
+
+  for (let i = 1; i <= total; i++) {
+    if (i === 1 || i === total || (i >= current - delta && i <= current + delta)) {
+      range.push(i);
+    }
+  }
+
+  range.forEach((i) => {
+    if (l) {
+      if (i - l === 2) {
+        rangeWithDots.push(l + 1);
+      } else if (i - l !== 1) {
+        rangeWithDots.push('...');
+      }
+    }
+    rangeWithDots.push(i);
+    l = i;
+  });
+
+  return rangeWithDots;
+}
+
+// function searchOrangeBook(query) {
+//   if (!query.trim()) {
+//     elements.orangeBookData.innerHTML = `
+//       <div class="text-center p-4">
+//         <p class="text-sm text-gray-700">Please enter a search term</p>
+//       </div>
+//     `;
+//     elements.orangeBookCount.textContent = '0 entries';
+//     return;
+//   }
+  
+//   // Show loading state
+//   elements.orangeBookData.innerHTML = `
+//     <div class="text-center p-4">
+//       <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-gray-800"></div>
+//       <p class="mt-2 text-sm text-gray-700">Searching...</p>
+//     </div>
+//   `;
+  
+//   // Make the API request
+//   fetch(`/api/fda/orangebook/search?q=${encodeURIComponent(query)}`)
+//     .then(response => {
+//       if (!response.ok) throw new Error('Network response was not ok');
+//       return response.json();
+//     })
+//     .then(data => {
+//       // Store data globally for modal access
+//       storeCurrentOrangeBookData(data);
+//       displayOrangeBookData(data);
+//     })
+//     .catch(error => {
+//       console.error('Error fetching Orange Book data:', error);
+//       elements.orangeBookData.innerHTML = `
+//         <div class="text-center p-4">
+//           <p class="text-sm text-red-600">Error: ${error.message}</p>
+//         </div>
+//       `;
+//       elements.orangeBookCount.textContent = '0 entries';
+//     });
+// }
 
 // Export code reference tables (useful for understanding exclusivity/patent codes)
 function exportCodeReference() {
@@ -87654,7 +88021,7 @@ console.log(`🔥 Event dispatched: emaDataLoaded with ${data.medicines?.length 
         if (!this.elements.pipContent) return;
         const html = data.length ? data.map(item => `
             <div class="bg-white border border-gray-200 rounded-lg p-6 mb-4">
-                <span class="font-medium">Active Substance: </span>
+                <span class="font-medium">Active Substance:   </span>
                 <h3 class="font-semibold text-lg mb-2">${this.escapeHtml(item.activeSubstance || item['Active substance'] || 'N/A')}</h3>
                 <div class="text-sm space-y-1">
                     <p><span class="font-medium">Condition:</span> ${this.escapeHtml(item.condition || item['Condition / indication'] || 'N/A')}</p>
@@ -107181,11 +107548,6 @@ function showOnlySection(sectionName) {
         }
     });
     
-    // Hide enhanced trial content if it exists
-    const enhancedTrialContent = document.querySelectorAll('.enhanced-tab-content');
-    enhancedTrialContent.forEach(content => {
-        content.classList.add('hidden');
-    });
     
     // Reset any enhanced tab buttons
     const enhancedTabButtons = document.querySelectorAll('.enhanced-tab-btn');
@@ -108741,7 +109103,7 @@ function generateExecutiveSummary(searchTerm, dataAnalysis) {
                 <h1 class="text-3xl font-bold text-gray-900">
                     Research Intelligence: ${searchTerm}
                 </h1>
-                <div class="flex items-center space-x-4">
+                <div class="hidden flex items-center space-x-4">
                     <span class="px-3 py-1 ${confidenceColor} rounded-full text-sm font-medium">
                         ${dataAnalysis.confidenceLevel.toUpperCase()} Confidence
                     </span>
