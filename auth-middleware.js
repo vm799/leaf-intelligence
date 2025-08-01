@@ -1,16 +1,15 @@
-// auth-middleware.js
+// auth-middleware.js - Updated version
 const { User } = require('./db');
 
 const authMiddleware = async (req, res, next) => {
   try {
-    // First check for userId in body (your current pattern)
-    let userId = req.body.userId || req.query.userId;
+    // Check for userId in multiple places
+    let userId = req.body.userId || req.query.userId || req.params.userId;
     
-    // If not in body, check headers for token
+    // Check headers for token
     const authHeader = req.headers.authorization;
-    if (authHeader && authHeader.startsWith('Bearer ')) {
+    if (!userId && authHeader && authHeader.startsWith('Bearer ')) {
       const token = authHeader.split(' ')[1];
-      // Simple decode - in production use JWT
       try {
         const decoded = JSON.parse(Buffer.from(token, 'base64').toString());
         userId = decoded.userId;
@@ -19,7 +18,7 @@ const authMiddleware = async (req, res, next) => {
       }
     }
     
-    // If still no userId, check session
+    // Check session
     if (!userId && req.session) {
       userId = req.session.userId;
     }
@@ -34,9 +33,11 @@ const authMiddleware = async (req, res, next) => {
       return res.status(401).json({ error: 'User not found' });
     }
     
-    // Attach to request
+    // Attach to request - use consistent property names
     req.userId = userId;
     req.user = user;
+    req.user._id = user._id; // Ensure _id is available
+    
     next();
   } catch (error) {
     console.error('Auth middleware error:', error);

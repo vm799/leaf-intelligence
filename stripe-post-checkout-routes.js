@@ -106,6 +106,61 @@ router.get('/session-status/:sessionId', authMiddleware, async (req, res) => {
   }
 });
 
+
+// Add this new route to stripe-post-checkout-routes.js (add it before the module.exports line)
+
+// Non-authenticated endpoint to get session details (including user ID from metadata)
+router.get('/session-details/:sessionId', async (req, res) => {
+  try {
+    const { sessionId } = req.params;
+    
+    console.log(`🔍 Getting session details for: ${sessionId}`);
+    
+    // Validate input
+    if (!sessionId) {
+      return res.status(400).json({
+        success: false,
+        error: 'Session ID is required'
+      });
+    }
+    
+    // Get session status and metadata (this doesn't require user auth)
+    const sessionDetails = await PostCheckoutHandler.getSessionStatus(sessionId);
+    
+    if (!sessionDetails.success) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid session ID'
+      });
+    }
+    
+    // Retrieve full session to get metadata
+    const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+    const session = await stripe.checkout.sessions.retrieve(sessionId);
+    
+    // Return session details including user ID from metadata
+    res.json({
+      success: true,
+      userId: session.metadata?.userId,
+      customerId: session.customer,
+      sessionId: session.id,
+      paymentStatus: session.payment_status,
+      mode: session.mode,
+      amount: session.amount_total / 100,
+      currency: session.currency,
+      customerEmail: session.customer_details?.email,
+      created: new Date(session.created * 1000)
+    });
+    
+  } catch (error) {
+    console.error('❌ Session details error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to get session details'
+    });
+  }
+});
+
 // Process any pending checkouts for user
 router.post('/process-pending', authMiddleware, async (req, res) => {
   try {

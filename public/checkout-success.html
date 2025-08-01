@@ -97,7 +97,7 @@
                         class="w-full bg-gray-300 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-400 transition-colors">
                     Contact Support
                 </button>
-                <a href="/" class="block w-full text-center text-blue-500 hover:text-blue-700 py-2">
+                <a href="/leafintelligence.html" class="block w-full text-center text-blue-500 hover:text-blue-700 py-2">
                     Continue to Dashboard
                 </a>
             </div>
@@ -140,7 +140,7 @@
                 please check your email for confirmation or contact support.
             </p>
             <div class="space-y-3">
-                <a href="/" 
+                <a href="/leafintelligence.html" 
                    class="block w-full bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors">
                     Go to Dashboard
                 </a>
@@ -344,15 +344,15 @@
 
             redirectAfterSuccess(result) {
                 if (result.purchaseType === 'subscription') {
-                    window.location.href = '/?subscription=activated';
+                    window.location.href = '/leafintelligence.html?subscription=activated';
                 } else {
                     // Get the search query for redirect
                     const searchQuery = localStorage.getItem('pendingSearchQuery') || '';
                     if (searchQuery) {
-                        window.location.href = `/?q=${encodeURIComponent(searchQuery)}&paid=true`;
+                        window.location.href = `/leafintelligence.html?q=${encodeURIComponent(searchQuery)}&paid=true`;
                         localStorage.removeItem('pendingSearchQuery');
                     } else {
-                        window.location.href = '/?paid=true';
+                        window.location.href = '/leafintelligence.html?paid=true';
                     }
                 }
             }
@@ -411,7 +411,7 @@
             const canceled = urlParams.get('canceled');
 
             if (canceled) {
-                window.location.href = '/?canceled=true';
+                window.location.href = '/leafintelligence.html?canceled=true';
                 return;
             }
 
@@ -427,7 +427,7 @@
             
             if (!authToken) {
                 // Redirect to login with return URL
-                window.location.href = `/?login=required&return=${encodeURIComponent(window.location.href)}`;
+                window.location.href = `/leafintelligence.html?login=required&return=${encodeURIComponent(window.location.href)}`;
                 return;
             }
 
