@@ -51,6 +51,11 @@ const {
   PubMed, 
   TreatmentEffectCalculator 
 } = DataIntegration;
+const stripeRoutes = require('./stripe-routes');
+// const stripeWebhook = require('./stripe-webhook');
+// Add these imports at the top
+const PostCheckoutHandler = require('./stripe-post-checkout-handler');
+const postCheckoutRoutes = require('./stripe-post-checkout-routes');
 
 
 const FDA_DRUGSFDA_URL = 'https://api.fda.gov/drug/drugsfda.json';
@@ -147,6 +152,9 @@ const openai = new OpenAI({
 //   res.setHeader('Content-Security-Policy', "default-src 'self'");
 //   next();
 // });
+// app.use('/stripe', stripeWebhook);
+// Add the new routes
+app.use('/api/stripe', postCheckoutRoutes);
 
 
 app.use(express.json());
@@ -180,6 +188,9 @@ const approvalCache = {
   ema: {}
 };
 
+app.use('/api/stripe', stripeRoutes);
+
+
 
 const usersFile = path.join(__dirname, 'users.json');
 
@@ -200,6 +211,341 @@ function initializeUsersFile(callback) {
       }
   });
 }
+
+
+
+
+async function checkSearchAccess(user, searchQuery) {
+  // Monthly subscribers have unlimited access
+  if (user.subscriptionTier === 'monthly' && user.subscriptionStatus === 'active') {
+    return { hasAccess: true, reason: 'subscription' };
+  }
+  
+  // Check if user has search credits
+  if (user.searchCredits > 0) {
+    return { hasAccess: true, reason: 'credits' };
+  }
+  
+  // Check if user already purchased this specific search
+  const purchasedSearch = user.purchasedSearches?.find(
+    s => s.searchQuery.toLowerCase() === searchQuery.toLowerCase()
+  );
+  
+  if (purchasedSearch) {
+    return { hasAccess: true, reason: 'purchased', searchId: purchasedSearch.searchId };
+  }
+  
+  // Check feature-specific access for free tier
+  return { hasAccess: false, reason: 'payment_required' };
+}
+
+// Check user's access level for frontend
+app.get('/api/check-access', async (req, res) => {
+  try {
+    const { userId } = req.query;
+    
+    if (!userId) {
+      return res.json({ 
+        hasAccess: false, 
+        subscriptionTier: 'free',
+        featureAccess: getDefaultFeatureAccess() 
+      });
+    }
+    
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.json({ 
+        hasAccess: false, 
+        subscriptionTier: 'free',
+        featureAccess: getDefaultFeatureAccess() 
+      });
+    }
+    
+    res.json({
+      hasAccess: user.subscriptionTier !== 'free',
+      subscriptionTier: user.subscriptionTier || 'free',
+      subscriptionStatus: user.subscriptionStatus || 'free',
+      searchCredits: user.searchCredits || 0,
+      featureAccess: user.featureAccess || getDefaultFeatureAccess(),
+      purchasedSearches: user.purchasedSearches || []
+    });
+  } catch (error) {
+    console.error('Error checking access:', error);
+    res.status(500).json({ error: 'Failed to check access' });
+  }
+});
+
+
+// Add these routes near your other static file serving routes
+app.get('/checkout-success', (req, res) => {
+  // Make sure the file exists in the correct location
+  const filePath = path.join(__dirname, 'checkout-success.html');
+  
+  // Check if file exists
+  if (fs.existsSync(filePath)) {
+    res.sendFile(filePath);
+  } else {
+    // File doesn't exist, serve a simple success page
+    console.log(`❌ checkout-success.html not found at: ${filePath}`);
+    res.send(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Payment Successful</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src="https://cdn.tailwindcss.com"></script>
+      </head>
+      <body class="bg-gray-50 min-h-screen flex items-center justify-center">
+        <div class="bg-white p-8 rounded-lg shadow-lg text-center">
+          <h1 class="text-2xl font-bold text-green-600 mb-4">Payment Successful!</h1>
+          <p class="text-gray-600 mb-6">Your purchase is being processed...</p>
+          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <script>
+            // Redirect to home page after 3 seconds
+            setTimeout(() => {
+              const urlParams = new URLSearchParams(window.location.search);
+              const sessionId = urlParams.get('session_id');
+              if (sessionId) {
+                // Try to verify the session via API
+                fetch('/api/stripe/verify-checkout', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + btoa(JSON.stringify({userId: localStorage.getItem('currentUserId')}))
+                  },
+                  body: JSON.stringify({sessionId})
+                }).then(() => {
+                  window.location.href = '/?success=true';
+                }).catch(() => {
+                  window.location.href = '/?success=true';
+                });
+              } else {
+                window.location.href = '/?success=true';
+              }
+            }, 3000);
+          </script>
+        </div>
+      </body>
+      </html>
+    `);
+  }
+});
+
+// 4. UPDATE YOUR EXISTING SUCCESS ROUTES TO REDIRECT
+app.get('/search-success', (req, res) => {
+  const sessionId = req.query.session_id;
+  if (sessionId) {
+    res.redirect(`/checkout-success?session_id=${sessionId}`);
+  } else {
+    res.redirect('/checkout-success');
+  }
+});
+
+app.get('/subscription-success', (req, res) => {
+  const sessionId = req.query.session_id;
+  if (sessionId) {
+    res.redirect(`/checkout-success?session_id=${sessionId}`);
+  } else {
+    res.redirect('/checkout-success');
+  }
+});
+// 5. ADD WEBHOOK DISABLE ROUTE (to stop webhook errors)
+app.post('/webhook', (req, res) => {
+  console.log('⚠️ Webhook endpoint called but webhooks are disabled');
+  res.status(200).send('OK');
+});
+
+// 6. ADD DEBUG ENDPOINT FOR TESTING AUTH
+app.get('/api/debug/auth-test', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    const userId = req.query.userId;
+    const bodyUserId = req.body?.userId;
+    
+    res.json({
+      debug: true,
+      authHeader: authHeader ? 'Present' : 'Missing',
+      queryUserId: userId ? 'Present' : 'Missing',
+      bodyUserId: bodyUserId ? 'Present' : 'Missing',
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// 7. ADD MANUAL VERIFICATION ENDPOINT FOR TESTING
+app.post('/api/admin/manual-verify', async (req, res) => {
+  try {
+    const { sessionId, userEmail } = req.body;
+    
+    if (!sessionId || !userEmail) {
+      return res.status(400).json({
+        error: 'sessionId and userEmail are required'
+      });
+    }
+    
+    // Find user by email
+    const user = await User.findOne({ email: userEmail });
+    if (!user) {
+      return res.status(404).json({
+        error: 'User not found'
+      });
+    }
+    
+    console.log(`🔧 Manual verification: ${sessionId} for ${userEmail}`);
+    
+    // Use the post-checkout handler
+    const PostCheckoutHandler = require('./stripe-post-checkout-handler');
+    const result = await PostCheckoutHandler.verifyAndUpdateUser(sessionId, user._id);
+    
+    res.json({
+      manual: true,
+      result: result,
+      user: {
+        email: user.email,
+        subscriptionTier: user.subscriptionTier,
+        searchCredits: user.searchCredits
+      }
+    });
+    
+  } catch (error) {
+    console.error('Manual verification error:', error);
+    res.status(500).json({
+      error: error.message,
+      stack: error.stack
+    });
+  }
+});
+// ===== USER PREFERENCES ENDPOINT =====
+// Add this to your clinicaltrials.js server file
+
+// Update user preferences (dark mode, etc.)
+app.post('/api/user/preferences', async (req, res) => {
+  try {
+    const { userId, darkModeEnabled } = req.body;
+    
+    if (!userId) {
+      return res.status(400).json({ error: 'User ID required' });
+    }
+    
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    // Update preferences
+    if (darkModeEnabled !== undefined) {
+      user.darkModeEnabled = darkModeEnabled;
+    }
+    
+    await user.save();
+    
+    res.json({ 
+      success: true, 
+      preferences: {
+        darkModeEnabled: user.darkModeEnabled
+      }
+    });
+  } catch (error) {
+    console.error('Error updating preferences:', error);
+    res.status(500).json({ error: 'Failed to update preferences' });
+  }
+});
+
+// Get complete user profile with subscription info
+app.get('/api/user/profile/:userId', async (req, res) => {
+  try {
+    const { userId } = req.params;
+    
+    const user = await User.findById(userId).select('-passwordHash -salt');
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    // Calculate usage percentage
+    let usagePercentage = 0;
+    if (user.subscriptionTier === 'monthly') {
+      // For monthly subscribers, calculate based on searches this month
+      const startOfMonth = new Date();
+      startOfMonth.setDate(1);
+      startOfMonth.setHours(0, 0, 0, 0);
+      
+      const searchesThisMonth = user.activityLog?.filter(
+        log => log.activity === 'search' && new Date(log.timestamp) >= startOfMonth
+      ).length || 0;
+      
+      // Assuming a soft limit of 1000 searches per month for display purposes
+      usagePercentage = Math.min(Math.round((searchesThisMonth / 1000) * 100), 100);
+    } else if (user.searchCredits) {
+      // For pay-per-search users
+      const totalCredits = user.purchasedSearches?.length || 1;
+      const usedCredits = totalCredits - user.searchCredits;
+      usagePercentage = Math.round((usedCredits / totalCredits) * 100);
+    }
+    
+    // Format billing period
+    let billingPeriod = user.billingPeriod;
+    if (user.subscriptionEndDate) {
+      const start = new Date();
+      const end = new Date(user.subscriptionEndDate);
+      billingPeriod = `${start.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} - ${end.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
+    } else if (!billingPeriod) {
+      // Generate current month for free users
+      const now = new Date();
+      const start = new Date(now.getFullYear(), now.getMonth(), 1);
+      const end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+      billingPeriod = `${start.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} - ${end.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
+    }
+    
+    res.json({
+      _id: user._id,
+      username: user.username,
+      email: user.email,
+      role: user.role || 'user',
+      usage: usagePercentage,
+      billingPeriod: billingPeriod,
+      subscriptionStatus: user.subscriptionStatus || 'free',
+      subscriptionTier: user.subscriptionTier || 'free',
+      darkModeEnabled: user.darkModeEnabled || false,
+      searchCredits: user.searchCredits || 0,
+      subscriptionEndDate: user.subscriptionEndDate,
+      featureAccess: user.featureAccess || getDefaultFeatureAccess()
+    });
+  } catch (error) {
+    console.error('Error fetching user profile:', error);
+    res.status(500).json({ error: 'Failed to fetch profile' });
+  }
+});
+
+// Helper function for default feature access
+function getDefaultFeatureAccess() {
+  return {
+    clinicalTrials: {
+      topConditions: 3,
+      trialAnalysis: true,
+      viewAllTrials: true,
+    },
+    fdaData: {
+      viewAllNDAs: false,
+      timelineAccess: 'single',
+      enforcementsAccess: false,
+      adverseEventsAccess: false,
+      labelingAccess: false
+    },
+    responseLetters: false,
+    warningLetters: false,
+    labeling: {
+      latestChanges: 3,
+      emaAccess: false
+    },
+    pubmed: {
+      advancedSearch: false
+    }
+  };
+}
+
 // Form 483 Search Endpoint
 app.get('/api/form483/search', async (req, res) => {
   try {

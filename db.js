@@ -14,7 +14,99 @@ const connectDB = async () => {
 };
 
 // User Schema
+// const WideoakUserSchema = new mongoose.Schema({
+//   username: {
+//     type: String,
+//     required: [true, 'Username is required'],
+//     unique: true,
+//     trim: true
+//   },
+//   email: {
+//     type: String,
+//     required: [true, 'Email is required'],
+//     unique: true,
+//     trim: true,
+//     lowercase: true,
+//     match: [/^\S+@\S+\.\S+$/, 'Please enter a valid email']
+//   },
+//   passwordHash: {
+//     type: String,
+//     required: true
+//   },
+//   salt: {
+//     type: String,
+//     required: true
+//   },
+//   role: {
+//     type: String,
+//     enum: ['user', 'admin'],
+//     default: 'user'
+//   },
+//   usage: {
+//     type: Number,
+//     default: 0
+//   },
+//   billingPeriod: {
+//     type: String,
+//     default: () => {
+//       const now = new Date();
+//       const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+//       const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+//       return `${monthStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} - ${monthEnd.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
+//     }
+//   },
+//   subscriptionStatus: {
+//     type: String,
+//     default: 'free-trial'
+//   },
+//   darkModeEnabled: {
+//     type: Boolean,
+//     default: false
+//   },
+//   createdAt: {
+//     type: Date,
+//     default: Date.now
+//   },
+  
+//   // Tracking fields
+//   lastLogin: {
+//     type: Date,
+//     default: null
+//   },
+//   loginDates: {
+//     type: [Date],
+//     default: []
+//   },
+//   dailyLogins: {
+//     type: Map,
+//     of: Number,
+//     default: {}
+//   },
+//   monthlyLogins: {
+//     type: Map,
+//     of: Number,
+//     default: {}
+//   },
+//   activityLog: {
+//     type: [{
+//       timestamp: {
+//         type: Date,
+//         default: Date.now
+//       },
+//       activity: {
+//         type: String,
+//         required: true
+//       },
+//       details: {
+//         type: mongoose.Schema.Types.Mixed,
+//         default: {}
+//       }
+//     }],
+//     default: []
+//   }
+// });
 const WideoakUserSchema = new mongoose.Schema({
+  // Original fields
   username: {
     type: String,
     required: [true, 'Username is required'],
@@ -55,10 +147,6 @@ const WideoakUserSchema = new mongoose.Schema({
       return `${monthStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} - ${monthEnd.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
     }
   },
-  subscriptionStatus: {
-    type: String,
-    default: 'free-trial'
-  },
   darkModeEnabled: {
     type: Boolean,
     default: false
@@ -68,7 +156,179 @@ const WideoakUserSchema = new mongoose.Schema({
     default: Date.now
   },
   
-  // Tracking fields
+  // STRIPE INTEGRATION FIELDS (NEWLY ADDED)
+  stripeCustomerId: { 
+    type: String, 
+    default: null,
+    index: true  // Add index for faster queries
+  },
+  stripeSubscriptionId: { 
+    type: String, 
+    default: null,
+    index: true  // Add index for faster queries
+  },
+  stripePaymentMethodId: { 
+    type: String, 
+    default: null 
+  },
+  
+  // SUBSCRIPTION MANAGEMENT (UPDATED)
+  subscriptionTier: { 
+    type: String, 
+    enum: ['free', 'single-search', 'monthly', 'team'],
+    default: 'free',
+    index: true  // Add index for faster queries by tier
+  },
+  subscriptionStatus: {
+    type: String,
+    enum: ['free', 'trialing', 'active', 'canceled', 'past_due', 'incomplete', 'incomplete_expired', 'unpaid'],
+    default: 'free',
+    index: true  // Add index for faster queries by status
+  },
+  
+  // SEARCH CREDITS FOR PAY-PER-SEARCH
+  searchCredits: { 
+    type: Number, 
+    default: 0,
+    min: 0  // Ensure credits can't be negative
+  },
+  purchasedSearches: [{
+    searchId: {
+      type: String,
+      required: true
+    },
+    purchaseDate: {
+      type: Date,
+      default: Date.now
+    },
+    stripePaymentIntentId: String,
+    stripeSessionId: String,  // Added for tracking
+    searchQuery: {
+      type: String,
+      default: 'Unknown'
+    },
+    amount: {
+      type: Number,
+      default: 0
+    },
+    expiresAt: {
+      type: Date,
+      default: null  // null means never expires
+    },
+    used: {
+      type: Boolean,
+      default: false
+    }
+  }],
+  
+  // FEATURE ACCESS CONTROL (COMPLETE STRUCTURE)
+  featureAccess: {
+    clinicalTrials: {
+      topConditions: { 
+        type: Number, 
+        default: 3  // Free tier gets 3, -1 means unlimited
+      },
+      trialAnalysis: { 
+        type: Boolean, 
+        default: true 
+      },
+      viewAllTrials: { 
+        type: Boolean, 
+        default: true 
+      },
+    },
+    fdaData: {
+      viewAllNDAs: { 
+        type: Boolean, 
+        default: false 
+      },
+      timelineAccess: { 
+        type: String, 
+        enum: ['none', 'single', 'all'],
+        default: 'single' 
+      },
+      enforcementsAccess: { 
+        type: Boolean, 
+        default: false 
+      },
+      adverseEventsAccess: { 
+        type: Boolean, 
+        default: false 
+      },
+      labelingAccess: { 
+        type: Boolean, 
+        default: false 
+      }
+    },
+    responseLetters: { 
+      type: Boolean, 
+      default: false 
+    },
+    warningLetters: { 
+      type: Boolean, 
+      default: false 
+    },
+    labeling: {
+      latestChanges: { 
+        type: Number, 
+        default: 3  // Free tier gets 3, -1 means unlimited
+      },
+      emaAccess: { 
+        type: Boolean, 
+        default: false 
+      }
+    },
+    pubmed: {
+      advancedSearch: { 
+        type: Boolean, 
+        default: false 
+      }
+    }
+  },
+  
+  // BILLING HISTORY (EXPANDED)
+  billingHistory: [{
+    date: {
+      type: Date,
+      default: Date.now
+    },
+    amount: {
+      type: Number,
+      required: true
+    },
+    description: {
+      type: String,
+      required: true
+    },
+    stripeInvoiceId: String,
+    stripeSessionId: String,  // Added for tracking
+    stripePaymentIntentId: String,  // Added for tracking
+    status: {
+      type: String,
+      enum: ['pending', 'completed', 'failed', 'refunded'],
+      default: 'completed'
+    }
+  }],
+  
+  // SUBSCRIPTION DATES
+  subscriptionStartDate: {
+    type: Date,
+    default: null
+  },
+  subscriptionEndDate: {
+    type: Date,
+    default: null
+  },
+  trialEndDate: {
+    type: Date,
+    default: null
+  },
+  lastSubscriptionCheck: {
+    type: Date,
+    default: null
+  },
+  
+  // Tracking fields (EXISTING)
   lastLogin: {
     type: Date,
     default: null
@@ -105,6 +365,86 @@ const WideoakUserSchema = new mongoose.Schema({
     default: []
   }
 });
+
+// INDEXES FOR PERFORMANCE
+WideoakUserSchema.index({ email: 1 });
+WideoakUserSchema.index({ username: 1 });
+WideoakUserSchema.index({ stripeCustomerId: 1 });
+WideoakUserSchema.index({ stripeSubscriptionId: 1 });
+WideoakUserSchema.index({ subscriptionTier: 1, subscriptionStatus: 1 });
+
+// Add these fields to your existing UserSchema
+// const updatedUserFields = {
+//   // Stripe Integration Fields
+//   stripeCustomerId: { type: String, default: null },
+//   stripeSubscriptionId: { type: String, default: null },
+//   stripePaymentMethodId: { type: String, default: null },
+  
+//   // Enhanced Subscription Management
+//   subscriptionTier: { 
+//     type: String, 
+//     enum: ['free', 'single-search', 'monthly', 'team'],
+//     default: 'free'
+//   },
+//   subscriptionStatus: {
+//     type: String,
+//     enum: ['free', 'trialing', 'active', 'canceled', 'past_due', 'incomplete'],
+//     default: 'free'
+//   },
+  
+//   // Search Credits for pay-per-search
+//   searchCredits: { type: Number, default: 0 },
+//   purchasedSearches: [{
+//     searchId: String,
+//     purchaseDate: Date,
+//     stripePaymentIntentId: String,
+//     searchQuery: String,
+//     expiresAt: Date
+//   }],
+  
+//   // Feature Access Control
+//   featureAccess: {
+//     clinicalTrials: {
+//       topConditions: { type: Number, default: 3 },
+//       trialAnalysis: { type: Boolean, default: true },
+//       viewAllTrials: { type: Boolean, default: true },
+//     },
+//     fdaData: {
+//       viewAllNDAs: { type: Boolean, default: false },
+//       timelineAccess: { type: String, default: 'single' },
+//       enforcementsAccess: { type: Boolean, default: false },
+//       adverseEventsAccess: { type: Boolean, default: false },
+//       labelingAccess: { type: Boolean, default: false }
+//     },
+//     responseLetters: { type: Boolean, default: false },
+//     warningLetters: { type: Boolean, default: false },
+//     labeling: {
+//       latestChanges: { type: Number, default: 3 },
+//       emaAccess: { type: Boolean, default: false }
+//     },
+//     pubmed: {
+//       advancedSearch: { type: Boolean, default: false }
+//     }
+//   },
+  
+//   // Billing History
+//   billingHistory: [{
+//     date: Date,
+//     amount: Number,
+//     description: String,
+//     stripeInvoiceId: String,
+//     status: String
+//   }],
+  
+//   // Subscription Dates
+//   subscriptionStartDate: Date,
+//   subscriptionEndDate: Date,
+//   trialEndDate: Date
+// };
+
+// Merge with your existing schema
+// If you can't modify the existing schema, create a migration script
+
 
 // New Lead Schema for demo requests and contact form submissions
 const LeadSchema = new mongoose.Schema({

@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Management - Syneticx</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50">
+    <div class="min-h-screen">
+        <!-- Navigation -->
+        <nav class="bg-white shadow-sm">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between h-16">
+                    <div class="flex items-center">
+                        <h1 class="text-xl font-semibold">Syneticx</h1>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <a href="/" class="text-gray-700 hover:text-gray-900">Dashboard</a>
+                        <button id="logoutBtn" class="text-red-600 hover:text-red-700">Logout</button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <div class="max-w-4xl mx-auto p-6">
+            <h1 class="text-3xl font-bold mb-8">Account Settings</h1>
+            
+            <!-- Subscription Status -->
+            <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                <h2 class="text-xl font-semibold mb-4">Subscription Status</h2>
+                <div id="subscriptionInfo" class="space-y-4">
+                    <div class="animate-pulse">
+                        <div class="h-4 bg-gray-200 rounded w-1/4 mb-2"></div>
+                        <div class="h-4 bg-gray-200 rounded w-1/3"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Billing History -->
+            <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                <h2 class="text-xl font-semibold mb-4">Billing History</h2>
+                <div id="billingHistory" class="overflow-x-auto">
+                    <div class="animate-pulse">
+                        <div class="h-4 bg-gray-200 rounded w-full mb-2"></div>
+                        <div class="h-4 bg-gray-200 rounded w-full mb-2"></div>
+                        <div class="h-4 bg-gray-200 rounded w-full"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Purchased Searches -->
+            <div id="purchasedSearchesSection" class="bg-white rounded-lg shadow-md p-6 mb-6 hidden">
+                <h2 class="text-xl font-semibold mb-4">Purchased Searches</h2>
+                <div id="purchasedSearches" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Account management JavaScript
+        class AccountManager {
+            constructor() {
+                this.init();
+            }
+
+            async init() {
+                await this.loadAccountData();
+                this.bindEvents();
+            }
+
+            async loadAccountData() {
+                try {
+                    const userId = this.getUserId();
+                    if (!userId) {
+                        window.location.href = '/';
+                        return;
+                    }
+
+                    const response = await fetch(`/api/stripe/subscription-status?userId=${userId}`, {
+                        headers: {
+                            'Authorization': `Bearer ${btoa(JSON.stringify({ userId }))}`
+                        }
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        this.renderSubscriptionInfo(data);
+                        this.renderBillingHistory(data);
+                        this.renderPurchasedSearches(data);
+                    }
+                } catch (error) {
+                    console.error('Error loading account data:', error);
+                }
+            }
+
+            getUserId() {
+                const user = localStorage.getItem('currentUser');
+                if (user) {
+                    try {
+                        return JSON.parse(user)._id;
+                    } catch (e) {
+                        return null;
+                    }
+                }
+                return null;
+            }
+
+            renderSubscriptionInfo(data) {
+                const container = document.getElementById('subscriptionInfo');
+                const statusColors = {
+                    'free': 'bg-gray-100 text-gray-800',
+                    'active': 'bg-green-100 text-green-800',
+                    'canceled': 'bg-red-100 text-red-800',
+                    'past_due': 'bg-yellow-100 text-yellow-800'
+                };
+
+                container.innerHTML = `
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-sm text-gray-600">Current Plan</p>
+                            <p class="text-lg font-medium capitalize">${data.subscriptionTier || 'Free'}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Status</p>
+                            <p class="text-lg font-medium">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusColors[data.subscriptionStatus] || statusColors.free}">
+                                    ${data.subscriptionStatus || 'Free'}
+                                </span>
+                            </p>
+                        </div>
+                        ${data.subscriptionEndDate ? `
+                            <div>
+                                <p class="text-sm text-gray-600">Next Billing Date</p>
+                                <p class="text-lg font-medium">${new Date(data.subscriptionEndDate).toLocaleDateString()}</p>
+                            </div>
+                        ` : ''}
+                        ${data.searchCredits > 0 ? `
+                            <div>
+                                <p class="text-sm text-gray-600">Search Credits</p>
+                                <p class="text-lg font-medium">${data.searchCredits}</p>
+                            </div>
+                        ` : ''}
+                    </div>
+                    
+                    <div class="mt-6 flex space-x-4">
+                        ${data.subscriptionTier === 'monthly' ? `
+                            <button onclick="accountManager.openPortal()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                                Manage Subscription
+                            </button>
+                        ` : `
+                            <a href="/" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 inline-block">
+                                Upgrade Plan
+                            </a>
+                        `}
+                    </div>
+                `;
+            }
+
+            renderBillingHistory(data) {
+                // This would typically come from a separate API call
+                const container = document.getElementById('billingHistory');
+                container.innerHTML = `
+                    <p class="text-gray-500">Billing history will appear here once you make a purchase.</p>
+                `;
+            }
+
+            renderPurchasedSearches(data) {
+                if (!data.purchasedSearches || data.purchasedSearches.length === 0) {
+                    document.getElementById('purchasedSearchesSection').classList.add('hidden');
+                    return;
+                }
+
+                document.getElementById('purchasedSearchesSection').classList.remove('hidden');
+                const container = document.getElementById('purchasedSearches');
+                
+                container.innerHTML = data.purchasedSearches.map(search => `
+                    <div class="border border-gray-200 rounded-lg p-4">
+                        <h3 class="font-medium mb-2">${search.searchQuery}</h3>
+                        <p class="text-sm text-gray-600">
+                            Purchased: ${new Date(search.purchaseDate).toLocaleDateString()}
+                        </p>
+                        <a href="/?q=${encodeURIComponent(search.searchQuery)}" 
+                           class="text-blue-600 hover:underline text-sm mt-2 inline-block">
+                            View Search →
+                        </a>
+                    </div>
+                `).join('');
+            }
+
+            async openPortal() {
+                try {
+                    const userId = this.getUserId();
+                    const response = await fetch('/api/stripe/create-portal-session', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${btoa(JSON.stringify({ userId }))}`
+                        },
+                        body: JSON.stringify({ userId })
+                    });
+
+                    const data = await response.json();
+                    if (data.success) {
+                        window.location.href = data.url;
+                    }
+                } catch (error) {
+                    console.error('Error opening portal:', error);
+                    alert('Failed to open customer portal');
+                }
+            }
+
+            bindEvents() {
+                document.getElementById('logoutBtn').addEventListener('click', () => {
+                    localStorage.clear();
+                    window.location.href = '/';
+                });
+            }
+        }
+
+        // Initialize account manager
+        const accountManager = new AccountManager();
+    </script>
+</body>
+</html>

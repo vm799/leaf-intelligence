@@ -890,7 +890,50 @@ tailwind.config = {
         background-color: #f9fafb;
         border-color: #9ca3af;
     }
-
+/* Profile popup animations */
+    .scale-0 {
+        transform: scale(0);
+        opacity: 0;
+    }
+    
+    .scale-100 {
+        transform: scale(1);
+        opacity: 1;
+    }
+    
+    #profilePopup {
+        transition: transform 0.3s ease, opacity 0.3s ease;
+        transform-origin: bottom right;
+    }
+    
+    /* Hover effect for user profile button */
+    #userProfileButton:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Dark mode styles */
+    .dark #profilePopup {
+        background-color: #1f2937;
+        color: #f3f4f6;
+    }
+    
+    .dark #profilePopup .bg-gradient-to-r {
+        from: #4c1d95;
+        to: #2563eb;
+    }
+    
+    .dark #profilePopup .border-gray-100 {
+        border-color: #374151;
+    }
+    
+    .dark #profilePopup .text-gray-500 {
+        color: #9ca3af;
+    }
+    
+    .dark #profilePopup .text-gray-800 {
+        color: #f3f4f6;
+    }
 </style>
 <body class="bg-gray-50 font-sans text-gray-800" >
 
@@ -1376,7 +1419,7 @@ tailwind.config = {
     </div>
 
     <!-- Profile popup -->
-    <div id="profilePopup" class="hidden fixed bottom-20 right-6 bg-white rounded-lg shadow-xl overflow-hidden w-80 z-50 transition-transform duration-300 origin-bottom-right scale-0 glass">
+    <!-- <div id="profilePopup" class="hidden fixed bottom-20 right-6 bg-white rounded-lg shadow-xl overflow-hidden w-80 z-50 transition-transform duration-300 origin-bottom-right scale-0 glass">
         <div class="relative">
             <button id="closePopup" class="absolute top-4 right-4 text-gray-500 hover:text-gray-700">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1426,8 +1469,58 @@ tailwind.config = {
                 </button>
             </div>
         </div>
+    </div> -->
+<div id="profilePopup" class="hidden fixed bottom-20 right-6 bg-white rounded-lg shadow-xl overflow-hidden w-80 z-50 transition-transform duration-300 origin-bottom-right scale-0 glass">
+    <div class="relative">
+        <button id="closePopup" class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 z-10">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+        </button>
+        <div class="bg-gradient-to-r from-blue-600 to-teal-500 p-6 text-white">
+            <div class="flex items-center">
+                <div class="flex items-center justify-center w-14 h-14 bg-white rounded-full text-blue-600 mr-4">
+                    <span id="popupUserInitials" class="text-xl font-bold"></span>
+                </div>
+                <div>
+                    <h3 id="popupUsername" class="text-lg font-semibold"></h3>
+                    <p id="popupEmail" class="text-xs opacity-90"></p>
+                </div>
+            </div>
+        </div>
+        <div class="p-5">
+            <div class="mb-3 pb-3 border-b border-gray-100">
+                <p class="text-xs text-gray-500 mb-1">Access Level</p>
+                <p id="popupRole" class="font-medium text-gray-800"></p>
+            </div>
+            <div class="mb-3 pb-3 border-b border-gray-100">
+                <p class="text-xs text-gray-500 mb-1">Usage</p>
+                <div class="w-full bg-gray-100 rounded-full h-2">
+                    <div id="usageBar" class="bg-blue-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                </div>
+                <p class="text-xs mt-1"><span id="usagePercent">0</span>% of your quota used</p>
+            </div>
+            <div class="mb-3 pb-3 border-b border-gray-100">
+                <p class="text-xs text-gray-500 mb-1">Billing Period</p>
+                <p id="billingPeriod" class="font-medium text-gray-800"></p>
+            </div>
+            <div class="mb-3 pb-3 border-b border-gray-100">
+                <p class="text-xs text-gray-500 mb-1">Subscription Status</p>
+                <p id="subscriptionStatus" class="inline-block px-2 py-0.5 rounded text-xs font-medium"></p>
+            </div>
+            <div class="mb-3 pb-3 border-b border-gray-100">
+                <label class="flex items-center justify-between cursor-pointer">
+                    <span class="text-sm text-gray-700">Dark Mode</span>
+                    <input type="checkbox" id="darkModeToggle" class="sr-only peer">
+                    <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                </label>
+            </div>
+            <button id="popupLogoutBtn" class="w-full bg-red-50 text-red-600 py-2 px-4 rounded-lg font-medium hover:bg-red-100 transition-colors">
+                Logout
+            </button>
+        </div>
     </div>
-
+</div>
     <main class="container mx-auto p-4">
 
                     <!-- User info area (shows after login) -->
@@ -61457,7 +61550,306 @@ function getStatusColor(value, type) {
   
 //   return html;
 // }
+const FDA_DOC_LOADER_CONFIG = {
+    delayBetweenRequests: 2000,
+    maxConcurrentRequests: 2,
+    retryDelay: 5000,
+    maxRetries: 1
+};
+
+// 2. Document cache
+const fdaDocumentCache = new Map();
+
+// 3. Fixed generateApplicationsContent function
 function generateApplicationsContentWithTags(fdaData, drugName, drugsCount) {
+  let html = `
+    <div id="applications-content" class="fda-tab-pane active">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-medium text-gray-900">Drug Applications</h3>
+        <div class="flex items-center space-x-2">
+          <span class="text-sm text-gray-500">${drugsCount} applications found</span>
+          <div id="fda-doc-loading-status" class="hidden">
+            <span class="text-xs text-blue-600">Loading documents...</span>
+            <span id="fda-loading-progress" class="text-xs"></span>
+          </div>
+        </div>
+      </div>
+  `;
+
+  if (fdaData.categorized && Object.keys(fdaData.categorized).length > 0) {
+    let allProducts = [];
+    Object.entries(fdaData.categorized).forEach(([brandName, strengths]) => {
+      Object.entries(strengths).forEach(([strength, products]) => {
+        products.forEach(product => {
+          allProducts.push({ ...product, strength });
+        });
+      });
+    });
+
+    html += `<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">`;
+    
+    allProducts.slice(0, 9).forEach(product => {
+      // Use data attributes instead of onclick to avoid timing issues
+      html += `
+        <div class="bg-white border border-gray-200 rounded-md shadow-sm hover:shadow-md transition-shadow">
+          <div class="p-3">
+            <div class="flex justify-between items-start">
+              <div class="truncate pr-2">
+                <h4 class="text-sm font-semibold truncate">${product.brandName}</h4>
+                <p class="text-xs text-gray-600">${product.strength}</p>
+              </div>
+              <span class="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full whitespace-nowrap">
+                ${product.applicationNumber}
+              </span>
+            </div>
+            
+            <div class="mt-2 text-xs">
+              <p><span class="font-medium">Approved:</span> ${product.approvalDate}</p>
+              <p class="truncate"><span class="font-medium">Manufacturer:</span> ${product.manufacturerName || product.sponsorName}</p>
+              <p class="truncate"><span class="font-medium">Form:</span> ${product.dosageForm}</p>
+            </div>
+            
+            <!-- Document status indicator -->
+            <div id="doc-status-${product.applicationNumber}" class="mt-2 mb-1 text-xs">
+              <div class="doc-spinner hidden flex items-center">
+                <svg class="animate-spin h-3 w-3 text-blue-500 mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span class="text-gray-600">Loading docs...</span>
+              </div>
+              <div class="doc-result hidden"></div>
+            </div>
+            
+            <div class="mt-2 flex justify-end">
+              <button
+                class="px-2 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition-colors view-details-btn fda-app-details-btn"
+                data-application="${product.applicationNumber}"
+                data-brand="${product.brandName}"
+                data-ingredient="${product.activeIngredients?.[0]?.name || drugName}">
+                Details
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+    });
+    
+    html += `</div>`;
+
+    // Start auto-loading documents after a short delay
+    setTimeout(() => {
+      autoLoadFDADocuments(allProducts.slice(0, 9));
+      // Also set up click handlers after DOM is ready
+      setupApplicationDetailHandlers();
+    }, 500);
+
+    if (allProducts.length > 9) {
+      html += `
+        <div class="mt-4 text-center">
+          <button id="view-all-applications" class="px-4 py-2 bg-gray-100 text-gray-800 border border-gray-300 rounded hover:bg-gray-200 transition-colors text-sm">
+            View All ${allProducts.length} Applications
+          </button>
+        </div>
+      `;
+    }
+  } else {
+    html += `
+      <div class="text-center p-4">
+        <p class="text-sm text-gray-700">No drug application data found for "${drugName}"</p>
+      </div>
+    `;
+  }
+  
+  html += `</div>`;
+  return html;
+}
+// 4. Setup click handlers for detail buttons
+function setupApplicationDetailHandlers() {
+  // Use event delegation to handle clicks
+  document.querySelectorAll('.fda-app-details-btn').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+      e.preventDefault();
+      const applicationNumber = this.getAttribute('data-application');
+      const brandName = this.getAttribute('data-brand');
+      const ingredient = this.getAttribute('data-ingredient');
+      
+      // Check if openApplicationModal exists, if not use a fallback
+      if (typeof openApplicationModal === 'function') {
+        openApplicationModal(applicationNumber, brandName, ingredient);
+      } else {
+        console.warn('openApplicationModal not found, using fallback');
+        // Fallback: trigger the existing modal mechanism
+        const existingBtn = document.querySelector(`.view-details-btn[data-application="${applicationNumber}"]`);
+        if (existingBtn && existingBtn !== this) {
+          existingBtn.click();
+        }
+      }
+    });
+  });
+}
+
+// 4. Add this new function to auto-load documents
+async function autoLoadFDADocuments(products) {
+  const loadingStatus = document.getElementById('fda-doc-loading-status');
+  const progressElement = document.getElementById('fda-loading-progress');
+  
+  if (loadingStatus) {
+    loadingStatus.classList.remove('hidden');
+  }
+  
+  let completed = 0;
+  const total = products.length;
+  
+  const updateProgress = () => {
+    if (progressElement) {
+      progressElement.textContent = `(${completed}/${total})`;
+    }
+    if (completed === total && loadingStatus) {
+      setTimeout(() => {
+        loadingStatus.classList.add('hidden');
+      }, 2000);
+    }
+  };
+  
+  // Process in batches with rate limiting
+  for (let i = 0; i < products.length; i += FDA_DOC_LOADER_CONFIG.maxConcurrentRequests) {
+    const batch = products.slice(i, i + FDA_DOC_LOADER_CONFIG.maxConcurrentRequests);
+    
+    await Promise.all(batch.map(async (product) => {
+      await loadDocumentsForProduct(product.applicationNumber);
+      completed++;
+      updateProgress();
+    }));
+    
+    // Wait between batches
+    if (i + FDA_DOC_LOADER_CONFIG.maxConcurrentRequests < products.length) {
+      await new Promise(resolve => setTimeout(resolve, FDA_DOC_LOADER_CONFIG.delayBetweenRequests));
+    }
+  }
+}
+
+
+// 5. Add this function to load documents for a single product
+async function loadDocumentsForProduct(applicationNumber) {
+  const statusDiv = document.getElementById(`doc-status-${applicationNumber}`);
+  const spinnerDiv = statusDiv?.querySelector('.doc-spinner');
+  const resultDiv = statusDiv?.querySelector('.doc-result');
+  
+  if (spinnerDiv) {
+    spinnerDiv.classList.remove('hidden');
+  }
+  
+  // Check cache first
+  if (fdaDocumentCache.has(applicationNumber)) {
+    updateDocumentStatusUI(applicationNumber, fdaDocumentCache.get(applicationNumber));
+    return;
+  }
+  
+  try {
+    const appNo = applicationNumber.replace(/[^0-9]/g, '');
+    const response = await fetch(`/api/fda-pdfs/${appNo}`, {
+      signal: AbortSignal.timeout(30000)
+    });
+    
+    if (!response.ok) {
+      if (response.status === 404) {
+        // 404 is expected for some applications - not an error
+        console.log(`No documents available for ${applicationNumber} (404)`);
+        fdaDocumentCache.set(applicationNumber, []);
+        updateDocumentStatusUI(applicationNumber, []);
+        return;
+      }
+      throw new Error(`HTTP error ${response.status}`);
+    }
+    
+    const data = await response.json();
+    const documentLinks = data.results || [];
+    
+    // Cache the results
+    fdaDocumentCache.set(applicationNumber, documentLinks);
+    
+    // Update UI
+    updateDocumentStatusUI(applicationNumber, documentLinks);
+    
+  } catch (error) {
+    // Only log non-404 errors as actual errors
+    if (!error.message.includes('404')) {
+      console.error(`Error loading documents for ${applicationNumber}:`, error);
+    }
+    
+    if (spinnerDiv) spinnerDiv.classList.add('hidden');
+    if (resultDiv) {
+      resultDiv.classList.remove('hidden');
+      resultDiv.innerHTML = `<span class="text-gray-500">Unable to load</span>`;
+    }
+  }
+}
+
+function updateDocumentStatusUI(applicationNumber, documentLinks) {
+  const statusDiv = document.getElementById(`doc-status-${applicationNumber}`);
+  const spinnerDiv = statusDiv?.querySelector('.doc-spinner');
+  const resultDiv = statusDiv?.querySelector('.doc-result');
+  
+  if (!statusDiv) return;
+  
+  if (spinnerDiv) {
+    spinnerDiv.classList.add('hidden');
+  }
+  
+  if (resultDiv) {
+    resultDiv.classList.remove('hidden');
+    
+    if (documentLinks.length === 0) {
+      resultDiv.innerHTML = `<span class="text-gray-500">No documents</span>`;
+    } else {
+      // Count document types
+      const typeCounts = {};
+      documentLinks.forEach(link => {
+        typeCounts[link.type] = (typeCounts[link.type] || 0) + 1;
+      });
+      
+      const summary = Object.entries(typeCounts)
+        .map(([type, count]) => `${count} ${type}`)
+        .slice(0, 2)
+        .join(', ');
+      
+      resultDiv.innerHTML = `
+        <span class="text-green-600">✓ ${documentLinks.length} docs</span>
+        <span class="text-xs text-gray-500 block">${summary}</span>
+      `;
+    }
+  }
+}
+document.addEventListener('DOMContentLoaded', () => {
+  console.log('FDA Auto Document Loader initialized');
+  
+  // Set up a mutation observer to handle dynamically added FDA content
+  const observer = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+      if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+        // Check if FDA application buttons were added
+        const hasNewButtons = Array.from(mutation.addedNodes).some(node => 
+          node.nodeType === 1 && (
+            node.classList?.contains('fda-app-details-btn') ||
+            node.querySelector?.('.fda-app-details-btn')
+          )
+        );
+        
+        if (hasNewButtons) {
+          setTimeout(setupApplicationDetailHandlers, 100);
+        }
+      }
+    });
+  });
+  
+  // Start observing the document body for changes
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true
+  });
+});
+function generateApplicationsContent(fdaData, drugName, drugsCount) {
   let html = `
     <div id="applications-content" class="fda-tab-pane active">
       <div class="flex justify-between items-center mb-4">
@@ -74382,6 +74774,118 @@ async function loadModalDetailsUnique(applicationNumber, brandName, ingredient, 
 }
 
 // Updated scrapeDocuments function with unique IDs
+// async function scrapeDocumentsUnique(applicationNumber, contentId, aiSummaryBtnId) {
+//   console.log('Scraping documents for:', applicationNumber);
+  
+//   const modalContent = document.getElementById(contentId);
+//   const aiSummaryBtn = document.getElementById(aiSummaryBtnId);
+  
+//   if (!modalContent) {
+//     console.error('Modal content element not found:', contentId);
+//     return;
+//   }
+  
+//   // Create unique IDs for this operation
+//   const documentSectionId = `fdaDocumentSection_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+//   const retryBtnId = `fdaRetryFetchBtn_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  
+//   // Update the modal content to include the document section with loading state
+//   const currentContent = modalContent.innerHTML;
+//   const updatedContent = currentContent.replace(
+//     /<div id="[^"]*fdaDocumentSection[^"]*"[^>]*>[\s\S]*?<\/div>/,
+//     `<div id="${documentSectionId}" class="mb-6">
+//       <h4 class="text-md font-semibold border-b pb-2 mb-2">FDA Documents</h4>
+//       <div class="flex justify-center items-center py-4">
+//         <svg class="animate-spin h-5 w-5 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+//           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+//           <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+//         </svg>
+//         <span class="ml-2 text-gray-600">Retrieving documents...</span>
+//       </div>
+//     </div>`
+//   );
+//   modalContent.innerHTML = updatedContent;
+  
+//   try {
+//     // Use the API to fetch document links
+//     const appNo = applicationNumber.replace(/[^0-9]/g, '');
+//     const response = await fetch(`/api/fda-pdfs/${appNo}`);
+    
+//     let documentLinks = [];
+//     let errorMessage = null;
+    
+//     if (!response.ok) {
+//       // Handle different types of HTTP errors
+//       if (response.status === 404) {
+//         errorMessage = "Application not found in FDA database";
+//       } else if (response.status === 503) {
+//         errorMessage = "FDA service temporarily unavailable";
+//       } else if (response.status >= 500) {
+//         errorMessage = "Server error while fetching documents";
+//       } else {
+//         errorMessage = "Unable to retrieve documents at this time";
+//       }
+      
+//       // Try to get error details from response if it's JSON
+//       try {
+//         const contentType = response.headers.get("content-type");
+//         if (contentType && contentType.includes("application/json")) {
+//           const errorData = await response.json();
+//           if (errorData.error) {
+//             errorMessage = errorData.error;
+//           }
+//         }
+//       } catch (parseError) {
+//         console.log('Could not parse error response as JSON');
+//       }
+      
+//       console.warn(`HTTP ${response.status}: ${errorMessage}`);
+//     } else {
+//       // Successfully got response, try to parse it
+//       try {
+//         const data = await response.json();
+//         documentLinks = data.results || [];
+//         console.log(`Successfully retrieved ${documentLinks.length} document links`);
+//       } catch (parseError) {
+//         console.error('Error parsing successful response:', parseError);
+//         errorMessage = "Error parsing document data";
+//       }
+//     }
+    
+//     // Display results regardless of whether we got documents or errors
+//     displayDocumentResultsUnique(documentLinks, errorMessage, applicationNumber, documentSectionId, retryBtnId);
+    
+//     // Handle AI Summary button state
+//     configureAISummaryButtonUnique(documentLinks, aiSummaryBtn);
+    
+//   } catch (fetchError) {
+//     // Network errors, CORS errors, or other fetch failures
+//     console.error("Network error retrieving documents:", fetchError);
+    
+//     let userFriendlyMessage = "Network error - please check your connection";
+    
+//     if (fetchError.name === 'TypeError' && fetchError.message.includes('fetch')) {
+//       userFriendlyMessage = "Unable to connect to document service";
+//     } else if (fetchError.name === 'AbortError') {
+//       userFriendlyMessage = "Request timeout - please try again";
+//     }
+    
+//     displayDocumentResultsUnique([], userFriendlyMessage, applicationNumber, documentSectionId, retryBtnId);
+//     configureAISummaryButtonUnique([], aiSummaryBtn);
+//   }
+  
+//   // Add retry functionality after DOM update
+//   setTimeout(() => {
+//     const retryBtn = document.getElementById(retryBtnId);
+//     if (retryBtn) {
+//       retryBtn.addEventListener('click', () => {
+//         scrapeDocumentsUnique(applicationNumber, contentId, aiSummaryBtnId);
+//       });
+//     }
+//   }, 100);
+// }
+
+
 async function scrapeDocumentsUnique(applicationNumber, contentId, aiSummaryBtnId) {
   console.log('Scraping documents for:', applicationNumber);
   
@@ -74396,6 +74900,28 @@ async function scrapeDocumentsUnique(applicationNumber, contentId, aiSummaryBtnI
   // Create unique IDs for this operation
   const documentSectionId = `fdaDocumentSection_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   const retryBtnId = `fdaRetryFetchBtn_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  
+  // Check cache first
+  if (fdaDocumentCache && fdaDocumentCache.has(applicationNumber)) {
+    console.log('Using cached documents for:', applicationNumber);
+    const cachedDocs = fdaDocumentCache.get(applicationNumber);
+    
+    // Update modal to show cached documents immediately
+    const currentContent = modalContent.innerHTML;
+    const updatedContent = currentContent.replace(
+      /<div id="[^"]*fdaDocumentSection[^"]*"[^>]*>[\s\S]*?<\/div>/,
+      `<div id="${documentSectionId}" class="mb-6">
+        <h4 class="text-md font-semibold border-b pb-2 mb-2">FDA Documents</h4>
+        <div class="mt-3"></div>
+      </div>`
+    );
+    modalContent.innerHTML = updatedContent;
+    
+    // Display the cached documents
+    displayDocumentResultsUnique(cachedDocs, null, applicationNumber, documentSectionId, null);
+    configureAISummaryButtonUnique(cachedDocs, aiSummaryBtn);
+    return;
+  }
   
   // Update the modal content to include the document section with loading state
   const currentContent = modalContent.innerHTML;
@@ -74454,6 +74980,12 @@ async function scrapeDocumentsUnique(applicationNumber, contentId, aiSummaryBtnI
         const data = await response.json();
         documentLinks = data.results || [];
         console.log(`Successfully retrieved ${documentLinks.length} document links`);
+        
+        // Cache the results if we have the cache available
+        if (fdaDocumentCache) {
+          fdaDocumentCache.set(applicationNumber, documentLinks);
+          console.log('Cached documents for:', applicationNumber);
+        }
       } catch (parseError) {
         console.error('Error parsing successful response:', parseError);
         errorMessage = "Error parsing document data";
@@ -74487,11 +75019,16 @@ async function scrapeDocumentsUnique(applicationNumber, contentId, aiSummaryBtnI
     const retryBtn = document.getElementById(retryBtnId);
     if (retryBtn) {
       retryBtn.addEventListener('click', () => {
+        // Clear cache on retry to force fresh fetch
+        if (fdaDocumentCache && fdaDocumentCache.has(applicationNumber)) {
+          fdaDocumentCache.delete(applicationNumber);
+        }
         scrapeDocumentsUnique(applicationNumber, contentId, aiSummaryBtnId);
       });
     }
   }, 100);
 }
+
 
 // Helper function to display document results with unique IDs
 function displayDocumentResultsUnique(documentLinks, errorMessage, applicationNumber, documentSectionId, retryBtnId) {
@@ -107991,6 +108528,16 @@ function truncateText(text, maxLength) {
                 this.currentUserId = null;
                 this.init();
                 this.setupEventListeners();
+                this.subscriptionPlans = {
+            'free': { name: 'Free', color: 'bg-gray-100 text-gray-800' },
+            'free-trial': { name: 'Free Trial', color: 'bg-yellow-100 text-yellow-800' },
+            'single-search': { name: 'Pay Per Search', color: 'bg-blue-100 text-blue-800' },
+            'monthly': { name: 'Professional', color: 'bg-green-100 text-green-800' },
+            'team': { name: 'Team', color: 'bg-purple-100 text-purple-800' },
+            'active': { name: 'Active', color: 'bg-green-100 text-green-800' },
+            'canceled': { name: 'Canceled', color: 'bg-red-100 text-red-800' },
+            'past_due': { name: 'Past Due', color: 'bg-orange-100 text-orange-800' }
+        };
             }
             init() {
         const storedUser = localStorage.getItem('currentUser');
@@ -108010,8 +108557,110 @@ function truncateText(text, maxLength) {
     }
 
     // Add a method to get the current user ID
-    getCurrentUserId() {
-        return this.currentUserId;
+     getCurrentUserId() {
+        try {
+            const userData = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            return userData._id;
+        } catch (error) {
+            return null;
+        }
+    }
+
+    updateManageButton(user) {
+        // Remove existing manage button if any
+        const existingButton = document.getElementById('manageSubscriptionBtn');
+        if (existingButton) {
+            existingButton.remove();
+        }
+
+        // Add manage button based on subscription status
+        const buttonContainer = this.profilePopup.querySelector('.p-5');
+        
+        if (user.subscriptionTier === 'monthly' || user.subscriptionStatus === 'active') {
+            // Add manage subscription button for paid users
+            this.addButton(buttonContainer, {
+                id: 'manageSubscriptionBtn',
+                text: 'Manage Subscription',
+                class: 'w-full bg-blue-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-blue-700 transition-colors mt-4',
+                onclick: () => this.openCustomerPortal()
+            });
+        } else if (user.subscriptionTier === 'free' || !user.subscriptionTier) {
+            // Add upgrade button for free users
+            this.addButton(buttonContainer, {
+                id: 'upgradeBtn',
+                text: 'Upgrade to Professional',
+                class: 'w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white py-2 px-4 rounded-lg font-medium hover:opacity-90 transition-opacity mt-4',
+                onclick: () => {
+                    this.hideProfilePopup();
+                    window.stripeIntegration?.showPricingModal();
+                }
+            });
+        }
+
+        // Add account settings button
+        if (!document.getElementById('accountSettingsBtn')) {
+            this.addButton(buttonContainer, {
+                id: 'accountSettingsBtn',
+                text: 'Account Settings',
+                class: 'w-full bg-gray-100 text-gray-700 py-2 px-4 rounded-lg font-medium hover:bg-gray-200 transition-colors mt-2',
+                onclick: () => {
+                    window.location.href = '/account';
+                }
+            });
+        }
+    }
+
+    addButton(container, options) {
+        const button = document.createElement('button');
+        button.id = options.id;
+        button.textContent = options.text;
+        button.className = options.class;
+        button.onclick = options.onclick;
+        container.appendChild(button);
+    }
+
+    async openCustomerPortal() {
+        try {
+            const userId = this.getCurrentUserId();
+            if (!userId) {
+                alert('Please log in to manage your subscription');
+                return;
+            }
+
+            // Show loading state
+            const btn = document.getElementById('manageSubscriptionBtn');
+            if (btn) {
+                btn.textContent = 'Opening portal...';
+                btn.disabled = true;
+            }
+
+            const response = await fetch('/api/stripe/create-portal-session', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${btoa(JSON.stringify({ userId }))}`
+                },
+                body: JSON.stringify({ userId })
+            });
+
+            const data = await response.json();
+            
+            if (data.success) {
+                window.location.href = data.url;
+            } else {
+                throw new Error(data.error || 'Failed to open portal');
+            }
+        } catch (error) {
+            console.error('Portal error:', error);
+            alert('Failed to open customer portal. Please try again.');
+            
+            // Reset button
+            const btn = document.getElementById('manageSubscriptionBtn');
+            if (btn) {
+                btn.textContent = 'Manage Subscription';
+                btn.disabled = false;
+            }
+        }
     }
 
             setupEventListeners() {
@@ -108033,9 +108682,13 @@ function truncateText(text, maxLength) {
                     this.handleLogout();
                 });
 
-                this.userProfileButton.addEventListener('click', () => {
-                    this.toggleProfilePopup();
-                });
+                // this.userProfileButton.addEventListener('click', () => {
+                //     this.toggleProfilePopup();
+                // });
+                  this.userProfileButton.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.toggleProfilePopup();
+        });
 
                 this.closePopup.addEventListener('click', () => {
                     this.hideProfilePopup();
@@ -108062,6 +108715,9 @@ function truncateText(text, maxLength) {
                 this.darkModeToggle.addEventListener('change', () => {
                     this.toggleDarkMode();
                 });
+
+                this.addManageSubscriptionButton();
+
             }
 
             isProfilePopupVisible() {
@@ -108119,43 +108775,147 @@ function truncateText(text, maxLength) {
                 this.welcomeText.textContent = `Welcome, ${user.username}`;
                 this.updateProfilePopup(user);
             }
+            async updateProfileData() {
+        try {
+            // Get current user data
+            const userData = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            
+            // Get subscription status from Stripe integration
+            let subscriptionData = null;
+            if (window.stripeIntegration && window.stripeIntegration.userAccess) {
+                subscriptionData = window.stripeIntegration.userAccess;
+            } else {
+                // Try to fetch fresh data
+                const userId = userData._id;
+                if (userId) {
+                    try {
+                        const response = await fetch(`/api/stripe/subscription-status?userId=${userId}`);
+                        if (response.ok) {
+                            subscriptionData = await response.json();
+                        }
+                    } catch (error) {
+                        console.error('Error fetching subscription status:', error);
+                    }
+                }
+            }
+
+            // Update popup content
+            this.updateProfilePopup({
+                ...userData,
+                ...subscriptionData
+            });
+        } catch (error) {
+            console.error('Error updating profile data:', error);
+        }
+    }
+
+            // updateProfilePopup(user) {
+            //     this.popupUsername.textContent = user.username;
+            //     this.popupEmail.textContent = user.email || 'No email provided';
+            //     this.popupRole.textContent = this.capitalizeFirstLetter(user.role);
+            //     this.usageBar.style.width = `${user.usage}%`;
+            //     this.usagePercent.textContent = user.usage;
+            //     this.billingPeriod.textContent = user.billingPeriod || 'No active billing period';
+            //     this.updateSubscriptionStatus(user.subscriptionStatus);
+            //     this.darkModeToggle.checked = user.darkModeEnabled || false;
+            //     if (user.darkModeEnabled) {
+            //         this.applyDarkMode();
+            //     }
+            // }
 
             updateProfilePopup(user) {
-                this.popupUsername.textContent = user.username;
-                this.popupEmail.textContent = user.email || 'No email provided';
-                this.popupRole.textContent = this.capitalizeFirstLetter(user.role);
-                this.usageBar.style.width = `${user.usage}%`;
-                this.usagePercent.textContent = user.usage;
-                this.billingPeriod.textContent = user.billingPeriod || 'No active billing period';
-                this.updateSubscriptionStatus(user.subscriptionStatus);
-                this.darkModeToggle.checked = user.darkModeEnabled || false;
-                if (user.darkModeEnabled) {
-                    this.applyDarkMode();
-                }
-            }
+        // Update basic info
+        this.popupUsername.textContent = user.username || 'User';
+        this.popupEmail.textContent = user.email || 'No email provided';
+        this.popupRole.textContent = this.capitalizeFirstLetter(user.role || 'user');
+        
+        // Update initials
+        const initials = this.getInitials(user.username || 'U');
+        this.popupUserInitials.textContent = initials;
+        
+        // Update usage bar
+        const usage = user.usage || 0;
+        this.usageBar.style.width = `${usage}%`;
+        this.usagePercent.textContent = usage;
+        
+        // Update billing period
+        const billingPeriod = this.generateBillingPeriod(user);
+        this.billingPeriod.textContent = billingPeriod;
+        
+        // Update subscription status
+        this.updateSubscriptionStatus(user.subscriptionStatus || user.subscriptionTier || 'free');
+        
+        // Add manage subscription button if needed
+        this.updateManageButton(user);
+        
+        // Update dark mode toggle
+        if (this.darkModeToggle) {
+            this.darkModeToggle.checked = user.darkModeEnabled || false;
+        }
+    }
 
-            updateSubscriptionStatus(status) {
-                let text, bgColor;
-                switch (status) {
-                    case 'free-trial':
-                        text = 'Free Trial';
-                        bgColor = 'bg-green-100 text-green-800';
-                        break;
-                    case 'active':
-                        text = 'Active';
-                        bgColor = 'bg-blue-100 text-blue-800';
-                        break;
-                    case 'expired':
-                        text = 'Expired';
-                        bgColor = 'bg-red-100 text-red-800';
-                        break;
-                    default:
-                        text = 'Unknown';
-                        bgColor = 'bg-gray-100 text-gray-800';
-                }
-                this.subscriptionStatus.textContent = text;
-                this.subscriptionStatus.className = `inline-block px-2 py-0.5 rounded text-xs font-medium ${bgColor}`;
-            }
+            // updateSubscriptionStatus(status) {
+            //     let text, bgColor;
+            //     switch (status) {
+            //         case 'free-trial':
+            //             text = 'Free Trial';
+            //             bgColor = 'bg-green-100 text-green-800';
+            //             break;
+            //         case 'active':
+            //             text = 'Active';
+            //             bgColor = 'bg-blue-100 text-blue-800';
+            //             break;
+            //         case 'expired':
+            //             text = 'Expired';
+            //             bgColor = 'bg-red-100 text-red-800';
+            //             break;
+            //         default:
+            //             text = 'Unknown';
+            //             bgColor = 'bg-gray-100 text-gray-800';
+            //     }
+            //     this.subscriptionStatus.textContent = text;
+            //     this.subscriptionStatus.className = `inline-block px-2 py-0.5 rounded text-xs font-medium ${bgColor}`;
+            // }
+
+            generateBillingPeriod(user) {
+        if (user.subscriptionEndDate) {
+            const start = new Date();
+            const end = new Date(user.subscriptionEndDate);
+            return `${this.formatDate(start)} - ${this.formatDate(end)}`;
+        } else if (user.billingPeriod) {
+            return user.billingPeriod;
+        } else {
+            // Generate current month period for free users
+            const now = new Date();
+            const start = new Date(now.getFullYear(), now.getMonth(), 1);
+            const end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+            return `${this.formatDate(start)} - ${this.formatDate(end)}`;
+        }
+    }
+
+    formatDate(date) {
+        return date.toLocaleDateString('en-US', { 
+            month: 'short', 
+            day: 'numeric', 
+            year: 'numeric' 
+        });
+    }
+
+    getInitials(name) {
+        return name
+            .split(' ')
+            .map(word => word[0])
+            .join('')
+            .toUpperCase()
+            .slice(0, 2);
+    }
+
+    updateSubscriptionStatus(status) {
+        const planInfo = this.subscriptionPlans[status] || this.subscriptionPlans['free'];
+        
+        this.subscriptionStatus.textContent = planInfo.name;
+        this.subscriptionStatus.className = `inline-block px-2 py-0.5 rounded text-xs font-medium ${planInfo.color}`;
+    }
 
             capitalizeFirstLetter(string) {
                 return string.charAt(0).toUpperCase() + string.slice(1);
@@ -108242,14 +109002,35 @@ console.log(username, password)
                 }
             }
 
-            handleLogout() {
-              this.currentUserId = null; // Clear the user ID
-                localStorage.removeItem('currentUser');
-                this.userInfo?.classList.add('hidden');
-                this.userProfileButton.classList.add('hidden');
-                this.hideProfilePopup();
-                this.showLoginOverlay();
-            }
+            // handleLogout() {
+            //   this.currentUserId = null; // Clear the user ID
+            //     localStorage.removeItem('currentUser');
+            //     this.userInfo?.classList.add('hidden');
+            //     this.userProfileButton.classList.add('hidden');
+            //     this.hideProfilePopup();
+            //     this.showLoginOverlay();
+            // }
+
+                handleLogout() {
+        // Clear all user data
+        localStorage.removeItem('currentUser');
+        localStorage.removeItem('userAccess');
+        localStorage.removeItem('token');
+        
+        // Clear session storage
+        sessionStorage.clear();
+        
+        // Redirect to login
+        window.location.href = '/';
+    }
+
+     addManageSubscriptionButton() {
+        // This is called during initialization to ensure button handlers are set
+        const manageBtn = document.getElementById('manageSubscriptionBtn');
+        if (manageBtn) {
+            manageBtn.onclick = () => this.openCustomerPortal();
+        }
+    }
 
             toggleProfilePopup() {
                 if (this.isProfilePopupVisible()) {
@@ -108342,10 +109123,1986 @@ function getCurrentUserInfo() {
     return userInfo;
   }
 }
-        document.addEventListener('DOMContentLoaded', () => {
-            window.loginSystem = new LoginSystem();
-            init()
+
+
+
+// ===== STRIPE PAYMENT INTEGRATION =====
+class StripeIntegration {
+  constructor() {
+    this.userAccess = null;
+    this.checkInterval = null;
+    this.init();
+  }
+
+  async init() {
+    // Wait for login system to be ready
+    if (!window.loginSystem || !window.loginSystem.getCurrentUserId()) {
+      // Check every 500ms for login system
+      this.checkInterval = setInterval(() => {
+        if (window.loginSystem && window.loginSystem.getCurrentUserId()) {
+          clearInterval(this.checkInterval);
+          this.initializeStripe();
+        }
+      }, 500);
+      
+      // Stop checking after 10 seconds
+      setTimeout(() => {
+        if (this.checkInterval) {
+          clearInterval(this.checkInterval);
+        }
+      }, 10000);
+    } else {
+      this.initializeStripe();
+    }
+  }
+
+  async initializeStripe() {
+    await this.loadUserAccess();
+    this.applyAccessControls();
+    this.setupPaymentButtons();
+    this.interceptSearchAttempts();
+  }
+
+  async loadUserAccess() {
+    try {
+      const userId = window.loginSystem?.getCurrentUserId();
+      if (!userId) {
+        console.log('No user ID found, using free tier access');
+        this.userAccess = this.getDefaultAccess();
+        return;
+      }
+
+      // First check localStorage cache
+      const cachedAccess = localStorage.getItem('userAccess');
+      if (cachedAccess) {
+        try {
+          this.userAccess = JSON.parse(cachedAccess);
+        } catch (e) {
+          console.error('Error parsing cached access:', e);
+        }
+      }
+
+      // Fetch fresh data from server
+      const response = await fetch(`/api/stripe/subscription-status?userId=${userId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.getAuthToken()}`
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        this.userAccess = data;
+        localStorage.setItem('userAccess', JSON.stringify(data));
+        console.log('User access loaded:', data);
+      } else {
+        console.error('Failed to load user access:', response.status);
+        this.userAccess = this.getDefaultAccess();
+      }
+    } catch (error) {
+      console.error('Error loading user access:', error);
+      this.userAccess = this.getDefaultAccess();
+    }
+  }
+
+  getDefaultAccess() {
+    return {
+      subscriptionTier: 'free',
+      subscriptionStatus: 'free',
+      searchCredits: 0,
+      featureAccess: {
+        clinicalTrials: {
+          topConditions: 3,
+          trialAnalysis: true,
+          viewAllTrials: true,
+        },
+        fdaData: {
+          viewAllNDAs: false,
+          timelineAccess: 'single',
+          enforcementsAccess: false,
+          adverseEventsAccess: false,
+          labelingAccess: false
+        },
+        responseLetters: false,
+        warningLetters: false,
+        labeling: {
+          latestChanges: 3,
+          emaAccess: false
+        },
+        pubmed: {
+          advancedSearch: false
+        }
+      }
+    };
+  }
+
+  getAuthToken() {
+    const userId = window.loginSystem?.getCurrentUserId();
+    if (userId) {
+      return btoa(JSON.stringify({ userId }));
+    }
+    return '';
+  }
+
+  applyAccessControls() {
+    if (!this.userAccess) return;
+
+    console.log('Applying access controls for tier:', this.userAccess.subscriptionTier);
+
+    // Apply controls based on user's access level
+    if (this.userAccess.subscriptionTier === 'free') {
+      this.applyFreeUserRestrictions();
+    }
+
+    // Update UI elements
+    this.updateSubscriptionDisplay();
+  }
+
+  applyFreeUserRestrictions() {
+    // Wait for DOM elements to be ready
+    setTimeout(() => {
+      // Lock FDA features
+      this.lockFDAFeatures();
+      
+      // Limit conditions display
+      this.limitConditionsDisplay();
+      
+      // Lock PubMed advanced search
+      this.lockPubMedAdvanced();
+      
+      // Lock Response and Warning Letters tabs
+      this.lockLettersTabs();
+    }, 1000);
+  }
+
+  lockFDAFeatures() {
+    const fdaLocks = [
+      { id: 'enforcement-tab', feature: 'FDA Enforcement Actions' },
+      { id: 'adverse-events-tab', feature: 'Adverse Events Data' },
+      { id: 'viewAllNDAs', feature: 'View All NDAs' },
+      { id: 'fdaTimeline', feature: 'Complete FDA Timeline' }
+    ];
+
+    fdaLocks.forEach(lock => {
+      const element = document.getElementById(lock.id);
+      if (element) {
+        this.lockFeature(element, lock.feature);
+      } else {
+        // Try to find by class or other selectors
+        const elements = document.querySelectorAll(`[data-feature="${lock.id}"]`);
+        elements.forEach(el => this.lockFeature(el, lock.feature));
+      }
+    });
+  }
+
+  lockLettersTabs() {
+    // Lock Response Letters
+    const responseLettersTab = document.querySelector('[onclick*="showResponseLetters"]');
+    if (responseLettersTab) {
+      responseLettersTab.onclick = (e) => {
+        e.preventDefault();
+        this.showUpgradeModal('Response Letters', 'Access FDA Response Letters with Professional plan');
+      };
+      responseLettersTab.classList.add('opacity-60', 'cursor-not-allowed');
+    }
+
+    // Lock Warning Letters
+    const warningLettersTab = document.querySelector('[onclick*="showWarningLetters"]');
+    if (warningLettersTab) {
+      warningLettersTab.onclick = (e) => {
+        e.preventDefault();
+        this.showUpgradeModal('Warning Letters', 'Access FDA Warning Letters with Professional plan');
+      };
+      warningLettersTab.classList.add('opacity-60', 'cursor-not-allowed');
+    }
+  }
+
+  limitConditionsDisplay() {
+    // Find condition items in clinical trials section
+    const conditionItems = document.querySelectorAll('.condition-item, [data-condition-item]');
+    conditionItems.forEach((item, index) => {
+      if (index >= 3) {
+        item.classList.add('opacity-50', 'pointer-events-none', 'relative');
+        
+        // Check if badge already exists
+        if (!item.querySelector('.pro-badge')) {
+          const badge = document.createElement('span');
+          badge.className = 'pro-badge absolute top-2 right-2 text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded font-medium';
+          badge.textContent = 'Pro';
+          item.appendChild(badge);
+        }
+      }
+    });
+  }
+
+  lockPubMedAdvanced() {
+    const pubmedAdvanced = document.getElementById('pubmedAdvancedSearch');
+    if (pubmedAdvanced) {
+      pubmedAdvanced.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        this.showUpgradeModal('PubMed Advanced Search', 
+          'Unlock powerful research capabilities with advanced search filters, custom queries, and bulk export options.');
+      });
+      pubmedAdvanced.classList.add('opacity-75');
+    }
+  }
+
+  lockFeature(element, featureName) {
+    if (!element || element.querySelector('.lock-overlay')) return;
+    
+    element.classList.add('relative');
+    element.style.position = 'relative';
+    
+    const lockOverlay = document.createElement('div');
+    lockOverlay.className = 'lock-overlay absolute inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center cursor-pointer z-10 rounded';
+    lockOverlay.innerHTML = `
+      <div class="text-center text-white">
+        <svg class="w-8 h-8 mx-auto mb-2" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
+        </svg>
+        <p class="text-sm font-medium">${featureName}</p>
+        <p class="text-xs mt-1">Click to upgrade</p>
+      </div>
+    `;
+    
+    lockOverlay.onclick = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      this.showUpgradeModal(featureName);
+    };
+    
+    element.appendChild(lockOverlay);
+  }
+
+  showUpgradeModal(feature, description = '') {
+    // Remove any existing modal
+    const existingModal = document.querySelector('.upgrade-modal');
+    if (existingModal) {
+      existingModal.remove();
+    }
+
+    const modal = document.createElement('div');
+    modal.className = 'upgrade-modal fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4';
+    modal.innerHTML = `
+      <div class="bg-white rounded-lg shadow-2xl max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto">
+        <div class="p-6">
+          <div class="flex justify-between items-start mb-4">
+            <h3 class="text-2xl font-bold text-gray-900">Unlock ${feature}</h3>
+            <button onclick="this.closest('.upgrade-modal').remove()" class="text-gray-400 hover:text-gray-600">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+            </button>
+          </div>
+          
+          <p class="text-gray-600 mb-6">
+            ${description || `Get full access to ${feature} and all other premium features.`}
+          </p>
+          
+          <div class="space-y-3">
+            <button onclick="window.stripeIntegration.purchaseSingleSearch()" 
+                    class="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors">
+              One-Time Purchase - $74.99
+              <span class="block text-sm font-normal mt-1">Full access for this search</span>
+            </button>
+            
+            <button onclick="window.stripeIntegration.subscribeMonthly()" 
+                    class="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white py-3 rounded-lg font-medium hover:opacity-90 transition-opacity">
+              Monthly Subscription - $199/mo
+              <span class="block text-sm font-normal mt-1">Unlimited searches + All features</span>
+            </button>
+            
+            <button onclick="this.closest('.upgrade-modal').remove()" 
+                    class="w-full bg-gray-100 text-gray-700 py-3 rounded-lg font-medium hover:bg-gray-200 transition-colors">
+              Maybe Later
+            </button>
+          </div>
+          
+          <div class="mt-6 pt-6 border-t border-gray-200">
+            <p class="text-sm text-gray-500 text-center">
+              🔒 Secure payment via Stripe<br>
+              💳 Cancel subscription anytime
+            </p>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    document.body.appendChild(modal);
+  }
+
+  async purchaseSingleSearch() {
+    try {
+      const searchQuery = document.getElementById('drugSearch')?.value || 
+                         document.getElementById('searchQuery')?.value ||
+                         localStorage.getItem('pendingSearchQuery') || 
+                         'New Search';
+
+      const userId = window.loginSystem?.getCurrentUserId();
+      if (!userId) {
+        alert('Please log in to continue');
+        return;
+      }
+
+      // Show loading state
+      this.showLoadingModal('Creating checkout session...');
+
+      const response = await fetch('/api/stripe/create-single-search-checkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.getAuthToken()}`
+        },
+        body: JSON.stringify({ 
+          searchQuery,
+          userId 
+        })
+      });
+
+      const data = await response.json();
+      
+      if (data.success) {
+        localStorage.setItem('pendingSearchQuery', searchQuery);
+        window.location.href = data.checkoutUrl;
+      } else {
+        this.hideLoadingModal();
+        alert(data.error || 'Failed to create checkout session');
+      }
+    } catch (error) {
+      console.error('Purchase error:', error);
+      this.hideLoadingModal();
+      alert('An error occurred. Please try again.');
+    }
+  }
+
+  async subscribeMonthly() {
+    try {
+      const userId = window.loginSystem?.getCurrentUserId();
+      if (!userId) {
+        alert('Please log in to continue');
+        return;
+      }
+
+      // Show loading state
+      this.showLoadingModal('Creating subscription checkout...');
+
+      const response = await fetch('/api/stripe/create-subscription-checkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.getAuthToken()}`
+        },
+        body: JSON.stringify({ userId })
+      });
+
+      const data = await response.json();
+      
+      if (data.success) {
+        window.location.href = data.checkoutUrl;
+      } else {
+        this.hideLoadingModal();
+        alert(data.error || 'Failed to create subscription checkout');
+      }
+    } catch (error) {
+      console.error('Subscription error:', error);
+      this.hideLoadingModal();
+      alert('An error occurred. Please try again.');
+    }
+  }
+
+  showLoadingModal(message = 'Processing...') {
+    const modal = document.createElement('div');
+    modal.id = 'loadingModal';
+    modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+    modal.innerHTML = `
+      <div class="bg-white rounded-lg p-6 flex items-center space-x-4">
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <p class="text-gray-700">${message}</p>
+      </div>
+    `;
+    document.body.appendChild(modal);
+  }
+
+  hideLoadingModal() {
+    const modal = document.getElementById('loadingModal');
+    if (modal) {
+      modal.remove();
+    }
+  }
+
+  setupPaymentButtons() {
+    // Add upgrade button if user is on free tier
+    if (this.userAccess?.subscriptionTier === 'free') {
+      this.addFloatingUpgradeButton();
+    }
+
+    // Add account management for paid users
+    if (this.userAccess?.subscriptionTier !== 'free') {
+      this.addAccountButton();
+    }
+  }
+
+  addFloatingUpgradeButton() {
+    if (document.getElementById('floatingUpgrade')) return;
+
+    const upgradeButton = document.createElement('div');
+    upgradeButton.id = 'floatingUpgrade';
+    upgradeButton.className = 'fixed bottom-24 right-6 bg-gradient-to-r from-purple-600 to-blue-600 text-white px-4 py-2 rounded-full shadow-lg cursor-pointer hover:scale-105 transition-transform z-40 flex items-center space-x-2';
+    upgradeButton.innerHTML = `
+      <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd" d="M5 2a1 1 0 011 1v1h1a1 1 0 010 2H6v1a1 1 0 01-2 0V6H3a1 1 0 010-2h1V3a1 1 0 011-1zm0 10a1 1 0 011 1v1h1a1 1 0 110 2H6v1a1 1 0 11-2 0v-1H3a1 1 0 110-2h1v-1a1 1 0 011-1zM12 2a1 1 0 01.967.744L14.146 7.2 17.5 9.134a1 1 0 010 1.732l-3.354 1.935-1.18 4.455a1 1 0 01-1.933 0L9.854 12.8 6.5 10.866a1 1 0 010-1.732l3.354-1.935 1.18-4.455A1 1 0 0112 2z" clip-rule="evenodd"/>
+      </svg>
+      <span class="font-medium">Upgrade to Pro</span>
+    `;
+    
+    upgradeButton.onclick = () => this.showPricingModal();
+    document.body.appendChild(upgradeButton);
+  }
+
+  addAccountButton() {
+    if (document.getElementById('accountButton')) return;
+
+    const accountButton = document.createElement('div');
+    accountButton.id = 'accountButton';
+    accountButton.className = 'fixed bottom-24 right-6 bg-gray-800 text-white px-4 py-2 rounded-full shadow-lg cursor-pointer hover:bg-gray-700 transition-colors z-40';
+    accountButton.innerHTML = `
+      <div class="flex items-center space-x-2">
+        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/>
+        </svg>
+        <span class="font-medium">Manage Account</span>
+      </div>
+    `;
+    
+    accountButton.onclick = () => this.openCustomerPortal();
+    document.body.appendChild(accountButton);
+  }
+
+  async openCustomerPortal() {
+    try {
+      const userId = window.loginSystem?.getCurrentUserId();
+      if (!userId) {
+        alert('Please log in to continue');
+        return;
+      }
+
+      this.showLoadingModal('Opening account portal...');
+
+      const response = await fetch('/api/stripe/create-portal-session', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.getAuthToken()}`
+        },
+        body: JSON.stringify({ userId })
+      });
+
+      const data = await response.json();
+      
+      if (data.success) {
+        window.location.href = data.url;
+      } else {
+        this.hideLoadingModal();
+        alert(data.error || 'Failed to open account portal');
+      }
+    } catch (error) {
+      console.error('Portal error:', error);
+      this.hideLoadingModal();
+      alert('An error occurred. Please try again.');
+    }
+  }
+
+  showPricingModal() {
+    const modal = document.createElement('div');
+    modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4';
+    modal.innerHTML = `
+      <div class="bg-white rounded-lg shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+        <div class="p-6">
+          <div class="flex justify-between items-center mb-6">
+            <h2 class="text-3xl font-bold text-gray-900">Choose Your Plan</h2>
+            <button onclick="this.closest('.fixed').remove()" class="text-gray-400 hover:text-gray-600">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+            </button>
+          </div>
+          
+          <div class="grid md:grid-cols-3 gap-6">
+            <!-- Free Tier -->
+            <div class="border-2 ${this.userAccess?.subscriptionTier === 'free' ? 'border-green-500' : 'border-gray-200'} rounded-lg p-6">
+              ${this.userAccess?.subscriptionTier === 'free' ? '<div class="bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full inline-block mb-2">CURRENT PLAN</div>' : ''}
+              <h3 class="text-xl font-bold mb-2">Free Access</h3>
+              <p class="text-gray-600 mb-4">Limited features</p>
+              <div class="text-3xl font-bold mb-4">$0</div>
+              <ul class="space-y-2 mb-6 text-sm">
+                <li class="flex items-center">
+                  <svg class="w-5 h-5 text-green-500 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                  </svg>
+                  Top 3 conditions
+                </li>
+                <li class="flex items-center">
+                  <svg class="w-5 h-5 text-green-500 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                  </svg>
+                  Basic clinical trials
+                </li>
+                <li class="flex items-center text-gray-400">
+                  <svg class="w-5 h-5 text-red-500 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                  </svg>
+                  <span class="line-through">FDA Details</span>
+                </li>
+              </ul>
+              ${this.userAccess?.subscriptionTier === 'free' ? 
+                '<button disabled class="w-full bg-gray-300 text-gray-500 py-2 rounded-lg font-medium cursor-not-allowed">Current Plan</button>' :
+                '<button onclick="alert(\'You are already on a paid plan\')" class="w-full bg-gray-300 text-gray-700 py-2 rounded-lg font-medium">Downgrade</button>'
+              }
+            </div>
+            
+            <!-- Single Search -->
+            <div class="border-2 border-blue-500 rounded-lg p-6">
+              <div class="bg-blue-500 text-white text-xs font-bold px-2 py-1 rounded-full inline-block mb-2">
+                ONE-TIME
+              </div>
+              <h3 class="text-xl font-bold mb-2">Single Search</h3>
+              <p class="text-gray-600 mb-4">Pay per search</p>
+              <div class="text-3xl font-bold mb-4">$74.99</div>
+              <ul class="space-y-2 mb-6 text-sm">
+                <li class="flex items-center">
+                  <svg class="w-5 h-5 text-green-500 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                  </svg>
+                  Full access for one search
+                </li>
+                <li class="flex items-center">
+                  <svg class="w-5 h-5 text-green-500 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                  </svg>
+                  Save and return anytime
+                </li>
+                <li class="flex items-center">
+                  <svg class="w-5 h-5 text-green-500 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                  </svg>
+                  All features for that search
+                </li>
+              </ul>
+              <button onclick="stripeIntegration.purchaseSingleSearch()" 
+                      class="w-full bg-blue-600 text-white py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors">
+                Purchase Search
+              </button>
+            </div>
+            
+            <!-- Monthly -->
+            <div class="border-2 ${this.userAccess?.subscriptionTier === 'monthly' ? 'border-purple-600' : 'border-purple-600'} rounded-lg p-6 transform scale-105 shadow-xl">
+              ${this.userAccess?.subscriptionTier === 'monthly' ? '<div class="bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full inline-block mb-2">CURRENT PLAN</div>' : '<div class="bg-yellow-400 text-purple-900 text-xs font-bold px-2 py-1 rounded-full inline-block mb-2">BEST VALUE</div>'}
+              <h3 class="text-xl font-bold mb-2">Professional</h3>
+              <p class="text-gray-600 mb-4">Unlimited access</p>
+              <div class="text-3xl font-bold mb-4">$199/mo</div>
+              <ul class="space-y-2 mb-6 text-sm">
+                <li class="flex items-center">
+                  <svg class="w-5 h-5 text-green-500 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                  </svg>
+                  Unlimited searches
+                </li>
+                <li class="flex items-center">
+                  <svg class="w-5 h-5 text-green-500 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                  </svg>
+                  All features unlocked
+                </li>
+                <li class="flex items-center">
+                  <svg class="w-5 h-5 text-green-500 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                  </svg>
+                  7-day free trial
+                </li>
+              </ul>
+              ${this.userAccess?.subscriptionTier === 'monthly' ? 
+                '<button onclick="stripeIntegration.openCustomerPortal()" class="w-full bg-gray-800 text-white py-2 rounded-lg font-medium hover:bg-gray-700">Manage Subscription</button>' :
+                '<button onclick="stripeIntegration.subscribeMonthly()" class="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white py-2 rounded-lg font-medium hover:opacity-90">Start Free Trial</button>'
+              }
+            </div>
+          </div>
+          
+          <div class="mt-8 text-center">
+            <p class="text-gray-600 mb-4">Need a custom solution for your team?</p>
+            <button onclick="window.location.href='/contact?type=team'" 
+                    class="bg-gray-800 text-white px-6 py-2 rounded-lg font-medium hover:bg-gray-900">
+              Contact Sales
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    document.body.appendChild(modal);
+  }
+
+  updateSubscriptionDisplay() {
+    // Update any subscription status displays in the UI
+    const statusElements = document.querySelectorAll('[data-subscription-status]');
+    statusElements.forEach(element => {
+      element.textContent = this.userAccess.subscriptionTier;
+    });
+
+    // Update profile popup if it exists
+    const popupStatus = document.getElementById('subscriptionStatus');
+    if (popupStatus) {
+      const statusMap = {
+        'free': { text: 'Free', class: 'bg-gray-100 text-gray-800' },
+        'single-search': { text: 'Pay Per Search', class: 'bg-blue-100 text-blue-800' },
+        'monthly': { text: 'Professional', class: 'bg-green-100 text-green-800' },
+        'team': { text: 'Team', class: 'bg-purple-100 text-purple-800' }
+      };
+      
+      const status = statusMap[this.userAccess.subscriptionTier] || statusMap.free;
+      popupStatus.textContent = status.text;
+      popupStatus.className = `inline-block px-2 py-0.5 rounded text-xs font-medium ${status.class}`;
+    }
+  }
+
+  interceptSearchAttempts() {
+    // Find the main search button
+    const searchButton = document.getElementById('searchButton');
+    if (!searchButton) {
+      console.log('Search button not found, retrying...');
+      setTimeout(() => this.interceptSearchAttempts(), 1000);
+      return;
+    }
+
+    // Store original click handler
+    const originalOnClick = searchButton.onclick;
+    
+    // Replace with payment-aware handler
+    searchButton.onclick = async (e) => {
+      e.preventDefault();
+      
+      // Get search query
+      const drugSearch = document.getElementById('drugSearch')?.value;
+      if (!drugSearch) {
+        alert('Please enter a drug name to search');
+        return;
+      }
+
+      // Check user access
+      await this.loadUserAccess(); // Refresh access info
+      
+      if (this.userAccess.subscriptionTier === 'free' && 
+          this.userAccess.searchCredits === 0 && 
+          !this.userAccess.purchasedSearches?.find(s => s.searchQuery?.toLowerCase() === drugSearch.toLowerCase())) {
+        
+        // Store search query for after payment
+        localStorage.setItem('pendingSearchQuery', drugSearch);
+        
+        // Show payment modal
+        this.showUpgradeModal('Full Search Access', 
+          `Purchase access to search for "${drugSearch}". Get complete FDA data, clinical trials, and regulatory information.`);
+        
+        return false;
+      }
+      
+      // User has access, continue with search
+      if (originalOnClick) {
+        return originalOnClick.call(searchButton, e);
+      } else if (typeof handleSearch === 'function') {
+        handleSearch();
+      }
+    };
+  }
+}
+
+// post-checkout-integration.js - Add this to your leafintelligence.html or as separate file
+
+// Enhanced StripeIntegration class that includes post-checkout verification
+class EnhancedStripeIntegration {
+  constructor() {
+    this.apiBase = '/api/stripe';
+    this.userAccess = null;
+    this.loadUserAccess();
+  }
+
+  async loadUserAccess() {
+    try {
+      const userId = this.getCurrentUserId();
+      if (!userId) return;
+
+      const response = await fetch(`/api/check-access?userId=${userId}`);
+      const data = await response.json();
+      this.userAccess = data;
+      
+      // Update UI based on access
+      this.updateSubscriptionUI();
+    } catch (error) {
+      console.error('Error loading user access:', error);
+    }
+  }
+
+  getCurrentUserId() {
+    // Your existing method
+    if (window.loginSystem && typeof window.loginSystem.getCurrentUserId === 'function') {
+      return window.loginSystem.getCurrentUserId();
+    }
+    
+    // Fallback
+    const currentUser = localStorage.getItem('currentUser');
+    if (currentUser) {
+      try {
+        const userData = JSON.parse(currentUser);
+        return userData._id;
+      } catch (e) {
+        console.error('Error parsing current user:', e);
+      }
+    }
+    
+    return null;
+  }
+
+  getAuthToken() {
+    const userId = this.getCurrentUserId();
+    if (userId) {
+      return btoa(JSON.stringify({ userId }));
+    }
+    return null;
+  }
+
+  // Enhanced purchase methods with better error handling
+  async purchaseSingleSearch() {
+    try {
+      const searchQuery = document.getElementById('drugSearch')?.value || 
+                         document.getElementById('searchQuery')?.value ||
+                         localStorage.getItem('pendingSearchQuery') || 
+                         'New Search';
+
+      const userId = this.getCurrentUserId();
+      if (!userId) {
+        this.showLoginPrompt('Please log in to purchase search credits');
+        return;
+      }
+
+      // Validate email before proceeding
+      const isEmailValid = await this.validateUserEmail();
+      if (!isEmailValid) {
+        this.showEmailUpdatePrompt();
+        return;
+      }
+
+      // Show loading state
+      this.showLoadingModal('Creating secure checkout...');
+
+      const response = await fetch('/api/stripe/create-single-search-checkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.getAuthToken()}`
+        },
+        body: JSON.stringify({ 
+          searchQuery,
+          userId 
+        })
+      });
+
+      const data = await response.json();
+      
+      if (data.success) {
+        localStorage.setItem('pendingSearchQuery', searchQuery);
+        window.location.href = data.checkoutUrl;
+      } else {
+        this.hideLoadingModal();
+        this.showErrorModal('Checkout Error', data.error || 'Failed to create checkout session');
+      }
+    } catch (error) {
+      console.error('Purchase error:', error);
+      this.hideLoadingModal();
+      this.showErrorModal('Purchase Error', 'An error occurred. Please try again.');
+    }
+  }
+
+  async subscribeMonthly() {
+    try {
+      const userId = this.getCurrentUserId();
+      if (!userId) {
+        this.showLoginPrompt('Please log in to subscribe');
+        return;
+      }
+
+      // Validate email before proceeding
+      const isEmailValid = await this.validateUserEmail();
+      if (!isEmailValid) {
+        this.showEmailUpdatePrompt();
+        return;
+      }
+
+      // Show loading state
+      this.showLoadingModal('Creating subscription checkout...');
+
+      const response = await fetch('/api/stripe/create-subscription-checkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.getAuthToken()}`
+        },
+        body: JSON.stringify({ userId })
+      });
+
+      const data = await response.json();
+      
+      if (data.success) {
+        window.location.href = data.checkoutUrl;
+      } else {
+        this.hideLoadingModal();
+        this.showErrorModal('Subscription Error', data.error || 'Failed to create subscription checkout');
+      }
+    } catch (error) {
+      console.error('Subscription error:', error);
+      this.hideLoadingModal();
+      this.showErrorModal('Subscription Error', 'An error occurred. Please try again.');
+    }
+  }
+
+  // New method to validate user email
+  async validateUserEmail() {
+    try {
+      const userId = this.getCurrentUserId();
+      if (!userId) return false;
+
+      // Get current user data
+      const currentUser = localStorage.getItem('currentUser');
+      if (!currentUser) return false;
+
+      const userData = JSON.parse(currentUser);
+      const email = userData.email;
+
+      // Basic email validation
+      const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+      return emailRegex.test(email);
+    } catch (error) {
+      console.error('Email validation error:', error);
+      return false;
+    }
+  }
+
+  // Enhanced UI update methods
+  updateSubscriptionUI() {
+    if (!this.userAccess) return;
+
+    // Update subscription tier displays
+    document.querySelectorAll('.subscription-tier').forEach(el => {
+      el.textContent = this.userAccess.subscriptionTier === 'monthly' ? 'Pro' : 'Free';
+      el.className = `subscription-tier tier-${this.userAccess.subscriptionTier}`;
+    });
+
+    // Update search credits
+    document.querySelectorAll('.search-credits').forEach(el => {
+      el.textContent = this.userAccess.searchCredits || 0;
+    });
+
+    // Update subscription status
+    document.querySelectorAll('.subscription-status').forEach(el => {
+      el.textContent = this.getStatusDisplayText(this.userAccess.subscriptionStatus);
+      el.className = `subscription-status status-${this.userAccess.subscriptionStatus || 'inactive'}`;
+    });
+
+    // Show/hide premium features
+    this.togglePremiumFeatures();
+
+    // Update pricing modal buttons
+    this.updatePricingButtons();
+  }
+
+  togglePremiumFeatures() {
+    if (!this.userAccess?.featureAccess) return;
+
+    // Show/hide premium feature elements
+    document.querySelectorAll('[data-premium-feature]').forEach(element => {
+      const feature = element.getAttribute('data-premium-feature');
+      const hasAccess = this.checkFeatureAccess(feature);
+      
+      element.style.display = hasAccess ? 'block' : 'none';
+      element.classList.toggle('premium-locked', !hasAccess);
+    });
+
+    // Update premium buttons
+    document.querySelectorAll('.premium-required').forEach(button => {
+      const isPremium = this.userAccess.subscriptionTier === 'monthly';
+      button.style.display = isPremium ? 'inline-block' : 'none';
+      button.disabled = !isPremium;
+    });
+  }
+
+  checkFeatureAccess(feature) {
+    if (!this.userAccess?.featureAccess) return false;
+    
+    const parts = feature.split('.');
+    let current = this.userAccess.featureAccess;
+    
+    for (const part of parts) {
+      if (current && typeof current === 'object' && part in current) {
+        current = current[part];
+      } else {
+        return false;
+      }
+    }
+    
+    return current === true || current === -1;
+  }
+
+  updatePricingButtons() {
+    // Update the pricing modal to reflect current subscription status
+    if (this.userAccess?.subscriptionTier === 'monthly') {
+      // User is already on professional plan
+      document.querySelectorAll('.subscribe-button').forEach(button => {
+        button.textContent = 'Current Plan';
+        button.disabled = true;
+        button.classList.add('bg-gray-300', 'cursor-not-allowed');
+        button.classList.remove('bg-purple-600', 'hover:bg-purple-700');
+      });
+    }
+  }
+
+  // Enhanced modal methods
+  showLoadingModal(message = 'Processing...') {
+    const modal = this.createModal('loadingModal', `
+      <div class="bg-white rounded-lg p-8 flex flex-col items-center space-y-4 max-w-sm mx-auto">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-4 border-blue-600"></div>
+        <p class="text-gray-700 text-center">${message}</p>
+        <p class="text-sm text-gray-500 text-center">Please don't close this window</p>
+      </div>
+    `);
+    document.body.appendChild(modal);
+  }
+
+  showErrorModal(title, message) {
+    const modal = this.createModal('errorModal', `
+      <div class="bg-white rounded-lg p-8 max-w-md mx-auto">
+        <div class="text-red-500 text-center mb-4">
+          <svg class="w-16 h-16 mx-auto" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+          </svg>
+        </div>
+        <h3 class="text-xl font-semibold text-center mb-4">${title}</h3>
+        <p class="text-gray-600 text-center mb-6">${message}</p>
+        <button onclick="this.closest('.modal-overlay').remove()" 
+                class="w-full bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors">
+          Try Again
+        </button>
+      </div>
+    `);
+    document.body.appendChild(modal);
+  }
+
+  showLoginPrompt(message) {
+    const modal = this.createModal('loginModal', `
+      <div class="bg-white rounded-lg p-8 max-w-md mx-auto">
+        <div class="text-blue-500 text-center mb-4">
+          <svg class="w-16 h-16 mx-auto" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M18 8a6 6 0 01-7.743 5.743L10 14l-4 4-4-4 4-4 .257-.257A6 6 0 1118 8zm-6-2a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/>
+          </svg>
+        </div>
+        <h3 class="text-xl font-semibold text-center mb-4">Login Required</h3>
+        <p class="text-gray-600 text-center mb-6">${message}</p>
+        <div class="space-y-3">
+          <button onclick="window.location.href='/#login'" 
+                  class="w-full bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors">
+            Log In
+          </button>
+          <button onclick="this.closest('.modal-overlay').remove()" 
+                  class="w-full bg-gray-300 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-400 transition-colors">
+            Cancel
+          </button>
+        </div>
+      </div>
+    `);
+    document.body.appendChild(modal);
+  }
+
+  showEmailUpdatePrompt() {
+    const modal = this.createModal('emailModal', `
+      <div class="bg-white rounded-lg p-8 max-w-md mx-auto">
+        <div class="text-yellow-500 text-center mb-4">
+          <svg class="w-16 h-16 mx-auto" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+          </svg>
+        </div>
+        <h3 class="text-xl font-semibold text-center mb-4">Email Update Required</h3>
+        <p class="text-gray-600 text-center mb-6">
+          Please update your email address in your account settings before making a purchase.
+        </p>
+        <div class="space-y-3">
+          <button onclick="window.location.href='/#account'" 
+                  class="w-full bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors">
+            Update Email
+          </button>
+          <button onclick="this.closest('.modal-overlay').remove()" 
+                  class="w-full bg-gray-300 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-400 transition-colors">
+            Cancel
+          </button>
+        </div>
+      </div>
+    `);
+    document.body.appendChild(modal);
+  }
+
+  createModal(id, content) {
+    // Remove existing modal
+    const existing = document.getElementById(id);
+    if (existing) {
+      existing.remove();
+    }
+
+    const modal = document.createElement('div');
+    modal.id = id;
+    modal.className = 'modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4';
+    modal.innerHTML = content;
+    
+    return modal;
+  }
+
+  hideLoadingModal() {
+    const modal = document.getElementById('loadingModal');
+    if (modal) {
+      modal.remove();
+    }
+  }
+
+  getStatusDisplayText(status) {
+    const statusMap = {
+      'active': 'Active',
+      'trialing': 'Free Trial',
+      'past_due': 'Payment Overdue',
+      'canceled': 'Canceled',
+      'unpaid': 'Payment Failed'
+    };
+    
+    return statusMap[status] || 'Inactive';
+  }
+
+  // Method to refresh subscription status (call after checkout)
+  async refreshSubscriptionStatus() {
+    try {
+      const response = await fetch(`${this.apiBase}/refresh-subscription`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.getAuthToken()}`
+        }
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        console.log('✅ Subscription status refreshed');
+        this.userAccess = {
+          subscriptionTier: result.user.subscriptionTier,
+          subscriptionStatus: result.user.subscriptionStatus,
+          searchCredits: result.user.searchCredits,
+          featureAccess: result.user.featureAccess
+        };
+        this.updateSubscriptionUI();
+        return result.user;
+      }
+    } catch (error) {
+      console.error('❌ Subscription refresh error:', error);
+    }
+    return null;
+  }
+
+  // Method to handle checkout success page parameters
+  handleCheckoutReturn() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const subscription = urlParams.get('subscription');
+    const paid = urlParams.get('paid');
+
+    if (subscription === 'activated') {
+      this.showSuccessMessage('🎉 Welcome to Professional! Your subscription is now active.');
+      this.refreshSubscriptionStatus();
+    } else if (paid === 'true') {
+      this.showSuccessMessage('✅ Payment successful! Your search credits are ready to use.');
+      this.refreshSubscriptionStatus();
+    }
+  }
+
+  showSuccessMessage(message) {
+    const toast = document.createElement('div');
+    toast.className = 'fixed top-4 right-4 bg-green-500 text-white p-4 rounded-lg shadow-lg z-50 max-w-sm';
+    toast.textContent = message;
+    
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+      if (toast.parentNode) {
+        toast.parentNode.removeChild(toast);
+      }
+    }, 5000);
+  }
+}
+
+// Initialize enhanced stripe integration
+let enhancedStripeIntegration;
+
+document.addEventListener('DOMContentLoaded', () => {
+  enhancedStripeIntegration = new EnhancedStripeIntegration();
+  
+  // Handle checkout return parameters
+  enhancedStripeIntegration.handleCheckoutReturn();
+  
+  // Make it globally available to match your existing code
+  window.stripeIntegration = enhancedStripeIntegration;
+});
+
+// Export for use in other scripts
+window.EnhancedStripeIntegration = EnhancedStripeIntegration;
+
+// ===== COMPLETE FEATURE PROTECTION IMPLEMENTATION =====
+// Add this code to your inteltool.html file after the StripeIntegration class
+
+class FeatureProtection {
+    constructor() {
+        this.userAccess = null;
+        this.init();
+    }
+
+    async init() {
+        // Wait for StripeIntegration to load user access
+        if (window.stripeIntegration && window.stripeIntegration.userAccess) {
+            this.userAccess = window.stripeIntegration.userAccess;
+            this.applyAllProtections();
+        } else {
+            // Retry after a delay
+            setTimeout(() => this.init(), 500);
+        }
+    }
+
+    applyAllProtections() {
+        console.log('Applying feature protections for user tier:', this.userAccess?.subscriptionTier);
+        
+        // Apply all protections
+        this.protectClinicalTrials();
+        this.protectFDAData();
+        this.protectResponseWarningLetters();
+        this.protectLabeling();
+        this.protectPubMed();
+        this.protectEMAData();
+        this.protectOverviewSection();
+        
+        // Monitor for dynamic content changes
+        this.setupMutationObserver();
+    }
+
+    // 1. CLINICAL TRIALS PROTECTION
+    protectClinicalTrials() {
+        // Limit conditions to top 3
+        this.limitConditionsDisplay();
+        
+        // Lock trial analysis tabs (show only first tab)
+        this.lockTrialAnalysisTabs();
+    }
+
+    limitConditionsDisplay() {
+        // Wait for conditions to load
+        const checkConditions = setInterval(() => {
+            // Find condition items in various possible containers
+            const conditionSelectors = [
+                '.condition-item',
+                '[data-condition]',
+                '.condition-list li',
+                '.conditions-container .item',
+                '#conditionsList li',
+                '.trial-condition'
+            ];
+            
+            let conditionItems = [];
+            conditionSelectors.forEach(selector => {
+                const items = document.querySelectorAll(selector);
+                if (items.length > 0) {
+                    conditionItems = items;
+                }
+            });
+
+            if (conditionItems.length > 0) {
+                clearInterval(checkConditions);
+                
+                conditionItems.forEach((item, index) => {
+                    if (index >= 3) {
+                        // Add blur and lock overlay
+                        item.style.position = 'relative';
+                        item.classList.add('locked-content');
+                        
+                        // Create lock overlay if not exists
+                        if (!item.querySelector('.condition-lock-overlay')) {
+                            const lockOverlay = document.createElement('div');
+                            lockOverlay.className = 'condition-lock-overlay absolute inset-0 bg-gray-900 bg-opacity-60 flex items-center justify-center rounded cursor-pointer z-10';
+                            lockOverlay.innerHTML = `
+                                <div class="text-center">
+                                    <svg class="w-6 h-6 text-white mx-auto mb-1" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
+                                    </svg>
+                                    <span class="text-white text-xs font-medium">Pro</span>
+                                </div>
+                            `;
+                            lockOverlay.onclick = (e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                window.stripeIntegration.showUpgradeModal('All Conditions', 
+                                    'Unlock access to all conditions and comprehensive trial data.');
+                            };
+                            item.appendChild(lockOverlay);
+                        }
+                    }
+                });
+                
+                // Add message after the 3rd item
+                if (conditionItems.length > 3) {
+                    const parent = conditionItems[2].parentElement;
+                    if (!parent.querySelector('.upgrade-message')) {
+                        const upgradeMsg = document.createElement('div');
+                        upgradeMsg.className = 'upgrade-message col-span-full mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-center';
+                        upgradeMsg.innerHTML = `
+                            <p class="text-sm text-yellow-800 mb-2">
+                                <strong>${conditionItems.length - 3} more conditions</strong> available with Professional plan
+                            </p>
+                            <button onclick="window.stripeIntegration.showUpgradeModal('All Conditions')" 
+                                    class="text-blue-600 hover:text-blue-700 font-medium text-sm">
+                                Unlock All Conditions →
+                            </button>
+                        `;
+                        parent.appendChild(upgradeMsg);
+                    }
+                }
+            }
+        }, 500);
+    }
+
+    lockTrialAnalysisTabs() {
+        // Find trial analysis tabs
+        const checkTabs = setInterval(() => {
+            const tabSelectors = [
+                '.trial-analysis-tab',
+                '[role="tab"]',
+                '.nav-tabs li',
+                '.tab-button',
+                '[data-tab]'
+            ];
+            
+            let tabs = [];
+            tabSelectors.forEach(selector => {
+                const items = document.querySelectorAll(selector);
+                if (items.length > 0 && items[0].textContent.toLowerCase().includes('analysis')) {
+                    tabs = items;
+                }
+            });
+
+            if (tabs.length > 1) {
+                clearInterval(checkTabs);
+                
+                tabs.forEach((tab, index) => {
+                    if (index > 0) { // Lock all except first tab
+                        tab.classList.add('opacity-60', 'cursor-not-allowed');
+                        tab.style.position = 'relative';
+                        
+                        // Override click handler
+                        tab.onclick = (e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            window.stripeIntegration.showUpgradeModal('Full Trial Analysis', 
+                                'Access all analysis tabs including efficacy, safety, and statistical analysis.');
+                        };
+                        
+                        // Add lock icon
+                        if (!tab.querySelector('.tab-lock-icon')) {
+                            const lockIcon = document.createElement('span');
+                            lockIcon.className = 'tab-lock-icon ml-1';
+                            lockIcon.innerHTML = '🔒';
+                            tab.appendChild(lockIcon);
+                        }
+                    }
+                });
+            }
+        }, 500);
+    }
+
+    // 2. FDA DATA PROTECTION
+    protectFDAData() {
+        // Lock "View All NDAs" button
+        this.lockViewAllNDAs();
+        
+        // Lock enforcement, adverse events, and labeling tabs
+        this.lockFDATabs();
+        
+        // Limit timeline to single compound
+        this.limitFDATimeline();
+    }
+
+    lockViewAllNDAs() {
+        const selectors = [
+            '#viewAllNDAs',
+            '[data-action="view-all-ndas"]',
+            'button:contains("View All")',
+            '.view-all-applications'
+        ];
+        
+        selectors.forEach(selector => {
+            const elements = document.querySelectorAll(selector);
+            elements.forEach(element => {
+                if (element && element.textContent.toLowerCase().includes('view all')) {
+                    element.classList.add('locked-feature', 'opacity-60', 'cursor-not-allowed');
+                    element.onclick = (e) => {
+                        e.preventDefault();
+                        window.stripeIntegration.showUpgradeModal('All NDA Applications', 
+                            'View complete NDA application history and documents.');
+                    };
+                }
+            });
         });
+    }
+
+    lockFDATabs() {
+        const lockedTabs = [
+            { id: 'enforcement-tab', name: 'FDA Enforcement Actions' },
+            { id: 'adverse-events-tab', name: 'Adverse Events Data' },
+            { id: 'labeling-tab', name: 'FDA Labeling Information' }
+        ];
+
+        lockedTabs.forEach(tab => {
+            // Try multiple selectors
+            const selectors = [
+                `#${tab.id}`,
+                `[data-tab="${tab.id}"]`,
+                `[onclick*="${tab.id}"]`
+            ];
+            
+            selectors.forEach(selector => {
+                const element = document.querySelector(selector);
+                if (element) {
+                    this.lockElement(element, tab.name);
+                }
+            });
+            
+            // Also check for tabs by text content
+            const allTabs = document.querySelectorAll('[role="tab"], .tab-btn, .nav-link');
+            allTabs.forEach(tabElement => {
+                if (tabElement.textContent.toLowerCase().includes(tab.id.replace('-tab', '').replace('-', ' '))) {
+                    this.lockElement(tabElement, tab.name);
+                }
+            });
+        });
+    }
+
+    limitFDATimeline() {
+        // Monitor for timeline elements
+        const checkTimeline = setInterval(() => {
+            const timelineContainers = document.querySelectorAll('.fda-timeline, #fdaTimeline, [data-timeline]');
+            
+            timelineContainers.forEach(container => {
+                const compounds = container.querySelectorAll('.compound-timeline, [data-compound]');
+                
+                if (compounds.length > 1) {
+                    clearInterval(checkTimeline);
+                    
+                    compounds.forEach((compound, index) => {
+                        if (index > 0) {
+                            compound.style.position = 'relative';
+                            compound.classList.add('locked-timeline');
+                            
+                            const overlay = document.createElement('div');
+                            overlay.className = 'absolute inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center rounded z-20';
+                            overlay.innerHTML = `
+                                <div class="text-center text-white p-4">
+                                    <svg class="w-12 h-12 mx-auto mb-2" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
+                                    </svg>
+                                    <p class="font-medium mb-1">Timeline Locked</p>
+                                    <p class="text-sm mb-3">View complete timeline for all compounds</p>
+                                    <button onclick="window.stripeIntegration.showUpgradeModal('Complete FDA Timeline')" 
+                                            class="bg-white text-gray-900 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-100">
+                                        Unlock Timeline
+                                    </button>
+                                </div>
+                            `;
+                            compound.appendChild(overlay);
+                        }
+                    });
+                }
+            });
+        }, 500);
+    }
+
+    // 3. RESPONSE & WARNING LETTERS PROTECTION
+    protectResponseWarningLetters() {
+        const letterTabs = [
+            { selector: 'response-letters', name: 'Response Letters' },
+            { selector: 'warning-letters', name: 'Warning Letters' }
+        ];
+
+        letterTabs.forEach(tab => {
+            // Multiple selector strategies
+            const selectors = [
+                `[onclick*="${tab.selector}"]`,
+                `[data-section="${tab.selector}"]`,
+                `#${tab.selector}-tab`,
+                `.${tab.selector}-tab`
+            ];
+            
+            selectors.forEach(selector => {
+                const elements = document.querySelectorAll(selector);
+                elements.forEach(element => {
+                    this.lockElement(element, tab.name);
+                });
+            });
+            
+            // Check by text content
+            const allButtons = document.querySelectorAll('button, [role="tab"]');
+            allButtons.forEach(button => {
+                if (button.textContent.toLowerCase().includes(tab.selector.replace('-', ' '))) {
+                    this.lockElement(button, tab.name);
+                }
+            });
+        });
+    }
+
+    // 4. LABELING PROTECTION
+    protectLabeling() {
+        // Show only 3 latest label changes
+        this.limitLabelChanges();
+        
+        // Lock EMA labeling
+        this.lockEMALabeling();
+    }
+
+    limitLabelChanges() {
+        const checkLabels = setInterval(() => {
+            const labelContainers = document.querySelectorAll(
+                '.label-changes, #labelChanges, [data-label-changes], .labeling-history'
+            );
+            
+            labelContainers.forEach(container => {
+                const labelItems = container.querySelectorAll('.label-item, .label-change, li, .row');
+                
+                if (labelItems.length > 3) {
+                    clearInterval(checkLabels);
+                    
+                    labelItems.forEach((item, index) => {
+                        if (index >= 3) {
+                            item.style.display = 'none';
+                        }
+                    });
+                    
+                    // Add "view more" message
+                    if (!container.querySelector('.label-upgrade-message')) {
+                        const upgradeMsg = document.createElement('div');
+                        upgradeMsg.className = 'label-upgrade-message mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg';
+                        upgradeMsg.innerHTML = `
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm font-medium text-blue-900">
+                                        ${labelItems.length - 3} more label changes available
+                                    </p>
+                                    <p class="text-xs text-blue-700 mt-1">
+                                        Access complete labeling history with Professional
+                                    </p>
+                                </div>
+                                <button onclick="window.stripeIntegration.showUpgradeModal('Complete Label History')" 
+                                        class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700">
+                                    View All
+                                </button>
+                            </div>
+                        `;
+                        container.appendChild(upgradeMsg);
+                    }
+                }
+            });
+        }, 500);
+    }
+
+    lockEMALabeling() {
+        // Lock EMA-specific content
+        const emaSelectors = [
+            '[data-source="ema"]',
+            '.ema-labeling',
+            '#emaLabeling',
+            '[onclick*="ema"]'
+        ];
+        
+        emaSelectors.forEach(selector => {
+            const elements = document.querySelectorAll(selector);
+            elements.forEach(element => {
+                if (element.textContent.toLowerCase().includes('ema')) {
+                    this.lockElement(element, 'EMA Labeling Data');
+                }
+            });
+        });
+    }
+
+    // 5. PUBMED PROTECTION
+    protectPubMed() {
+        // Find PubMed advanced search button
+        const pubmedSelectors = [
+            '#pubmedAdvancedSearch',
+            '[data-feature="pubmed-advanced"]',
+            'button:contains("Advanced Search")'
+        ];
+        
+        pubmedSelectors.forEach(selector => {
+            const element = document.querySelector(selector);
+            if (element && element.textContent.toLowerCase().includes('advanced')) {
+                // Don't fully lock - show preview
+                element.classList.add('pubmed-preview');
+                element.onclick = (e) => {
+                    e.preventDefault();
+                    this.showPubMedPreview();
+                };
+            }
+        });
+    }
+
+    showPubMedPreview() {
+        const modal = document.createElement('div');
+        modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4';
+        modal.innerHTML = `
+            <div class="bg-white rounded-lg shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-6">
+                        <div>
+                            <h3 class="text-2xl font-bold text-gray-900">PubMed Advanced Search</h3>
+                            <p class="text-gray-600 mt-1">Preview of Professional Features</p>
+                        </div>
+                        <button onclick="this.closest('.fixed').remove()" class="text-gray-400 hover:text-gray-600">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </div>
+                    
+                    <div class="bg-gray-50 rounded-lg p-6 mb-6">
+                        <h4 class="font-semibold text-gray-900 mb-4">Advanced Search Capabilities</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="flex items-start">
+                                <svg class="w-5 h-5 text-green-500 mr-2 mt-1" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                </svg>
+                                <div>
+                                    <p class="font-medium">Boolean Operators</p>
+                                    <p class="text-sm text-gray-600">AND, OR, NOT for complex queries</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <svg class="w-5 h-5 text-green-500 mr-2 mt-1" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                </svg>
+                                <div>
+                                    <p class="font-medium">Field-Specific Search</p>
+                                    <p class="text-sm text-gray-600">Search by author, journal, date range</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <svg class="w-5 h-5 text-green-500 mr-2 mt-1" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                </svg>
+                                <div>
+                                    <p class="font-medium">MeSH Terms</p>
+                                    <p class="text-sm text-gray-600">Medical Subject Headings integration</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <svg class="w-5 h-5 text-green-500 mr-2 mt-1" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                </svg>
+                                <div>
+                                    <p class="font-medium">Bulk Export</p>
+                                    <p class="text-sm text-gray-600">Export up to 10,000 results</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+                        <div class="flex items-start">
+                            <svg class="w-5 h-5 text-yellow-600 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                            </svg>
+                            <div>
+                                <p class="font-medium text-yellow-800">Feature Preview Only</p>
+                                <p class="text-sm text-yellow-700">
+                                    This is a demonstration of PubMed Advanced Search capabilities. 
+                                    Upgrade to Professional to use these powerful research tools.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="border-t pt-6">
+                        <div class="flex flex-col sm:flex-row gap-4">
+                            <button onclick="window.stripeIntegration.subscribeMonthly()" 
+                                    class="flex-1 bg-gradient-to-r from-purple-600 to-blue-600 text-white py-3 rounded-lg font-medium hover:opacity-90">
+                                Unlock Advanced Search - $199/mo
+                            </button>
+                            <button onclick="this.closest('.fixed').remove()" 
+                                    class="flex-1 bg-gray-100 text-gray-700 py-3 rounded-lg font-medium hover:bg-gray-200">
+                                Close Preview
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+    }
+
+    // 6. EMA DATA PROTECTION
+    protectEMAData() {
+        // Check for "No recent EMA events" requirement
+        const emaContainers = document.querySelectorAll('.ema-events, #emaEvents, [data-ema-events]');
+        
+        emaContainers.forEach(container => {
+            if (this.userAccess?.subscriptionTier === 'free') {
+                // Clear content and show message
+                container.innerHTML = `
+                    <div class="p-6 bg-gray-50 rounded-lg text-center">
+                        <svg class="w-12 h-12 text-gray-400 mx-auto mb-3" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
+                        </svg>
+                        <h3 class="font-medium text-gray-900 mb-1">EMA Data Locked</h3>
+                        <p class="text-sm text-gray-600 mb-4">
+                            Access European Medicines Agency data with Professional
+                        </p>
+                        <button onclick="window.stripeIntegration.showUpgradeModal('EMA Data Access')" 
+                                class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700">
+                            Unlock EMA Data
+                        </button>
+                    </div>
+                `;
+            }
+        });
+    }
+
+    // HELPER METHODS
+    lockElement(element, featureName) {
+        if (!element || element.classList.contains('feature-locked')) return;
+        
+        element.classList.add('feature-locked', 'opacity-60', 'cursor-not-allowed');
+        element.style.position = 'relative';
+        
+        // Override click handler
+        const originalOnclick = element.onclick;
+        element.onclick = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            window.stripeIntegration.showUpgradeModal(featureName, 
+                `Access ${featureName} with Professional plan.`);
+        };
+        
+        // Add visual indicator
+        if (!element.querySelector('.lock-icon')) {
+            const lockIcon = document.createElement('span');
+            lockIcon.className = 'lock-icon ml-1';
+            lockIcon.innerHTML = '🔒';
+            element.appendChild(lockIcon);
+        }
+    }
+
+    protectOverviewSection() {
+    // Monitor for overview/summary content
+    const checkOverview = setInterval(() => {
+        const overviewSection = document.querySelector('#summarySection, .summary-section, [data-section="overview"]');
+        
+        if (overviewSection && overviewSection.style.display !== 'none') {
+            clearInterval(checkOverview);
+            
+            // Protect Recent Events sections
+            this.protectRecentEvents();
+        }
+    }, 500);
+}
+
+protectRecentEvents() {
+    // Hide EMA and FDA recent events for free users
+    if (this.userAccess?.subscriptionTier === 'free') {
+        // EMA Recent Events
+        const emaRecentSelectors = [
+            '.ema-recent-events',
+            '#emaRecentEvents',
+            '[data-recent="ema"]',
+            '.recent-events-ema'
+        ];
+        
+        emaRecentSelectors.forEach(selector => {
+            const element = document.querySelector(selector);
+            if (element) {
+                element.innerHTML = `
+                    <div class="p-4 bg-gray-50 rounded-lg text-center">
+                        <p class="text-sm text-gray-600">No recent EMA events</p>
+                        <button onclick="window.stripeIntegration.showUpgradeModal('EMA Events')" 
+                                class="text-blue-600 hover:text-blue-700 text-sm mt-2">
+                            Unlock EMA Data →
+                        </button>
+                    </div>
+                `;
+            }
+        });
+        
+        // FDA Recent Events (if you want to limit these too)
+        const fdaRecentSelectors = [
+            '.fda-recent-events',
+            '#fdaRecentEvents',
+            '[data-recent="fda"]'
+        ];
+        
+        fdaRecentSelectors.forEach(selector => {
+            const element = document.querySelector(selector);
+            if (element) {
+                // Check if it contains recent events
+                const hasRecentEvents = element.textContent.toLowerCase().includes('recent') || 
+                                      element.textContent.toLowerCase().includes('new') ||
+                                      element.textContent.toLowerCase().includes('latest');
+                
+                if (hasRecentEvents) {
+                    element.innerHTML = `
+                        <div class="p-4 bg-gray-50 rounded-lg text-center">
+                            <p class="text-sm text-gray-600">No recent FDA events in free tier</p>
+                            <p class="text-xs text-gray-500 mt-1">Historical data available</p>
+                            <button onclick="window.stripeIntegration.showUpgradeModal('FDA Recent Events')" 
+                                    class="text-blue-600 hover:text-blue-700 text-sm mt-2">
+                                View Recent Events →
+                            </button>
+                        </div>
+                    `;
+                }
+            }
+        });
+    }
+}
+
+    setupMutationObserver() {
+        // Monitor for dynamically added content
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.addedNodes.length > 0) {
+                    // Reapply protections for new content
+                    setTimeout(() => this.applyAllProtections(), 100);
+                }
+            });
+        });
+
+        // Observe the main content area
+        const contentArea = document.querySelector('#mainContent, .main-content, body');
+        if (contentArea) {
+            observer.observe(contentArea, {
+                childList: true,
+                subtree: true
+            });
+        }
+    }
+}
+
+// Initialize feature protection
+document.addEventListener('DOMContentLoaded', () => {
+    // Wait for Stripe integration to load first
+    setTimeout(() => {
+        window.featureProtection = new FeatureProtection();
+    }, 1500);
+});
+
+// Additional CSS styles needed
+const protectionStyles = document.createElement('style');
+protectionStyles.textContent = `
+    .locked-content {
+        filter: blur(2px);
+        pointer-events: none;
+    }
+    
+    .condition-lock-overlay {
+        backdrop-filter: blur(2px);
+    }
+    
+    .locked-timeline {
+        filter: blur(3px);
+    }
+    
+    .feature-locked {
+        position: relative;
+    }
+    
+    .lock-icon {
+        display: inline-block;
+        margin-left: 4px;
+        font-size: 0.9em;
+    }
+    
+    .pubmed-preview {
+        position: relative;
+    }
+    
+    .pubmed-preview::after {
+        content: 'Preview';
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        background: #fbbf24;
+        color: #78350f;
+        font-size: 10px;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-weight: 600;
+    }
+    
+    .upgrade-message {
+        animation: fadeIn 0.5s ease-in;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+`;
+document.head.appendChild(protectionStyles);
+
+// Override search result display functions to apply protections
+const originalHandleSearch = window.handleSearch;
+window.handleSearch = async function(...args) {
+    const result = await originalHandleSearch.apply(this, args);
+    
+    // Reapply protections after search results load
+    setTimeout(() => {
+        if (window.featureProtection) {
+            window.featureProtection.applyAllProtections();
+        }
+    }, 1000);
+    
+    return result;
+};
+
+// Monitor tab switches to reapply protections
+const originalShowSection = window.showSection;
+window.showSection = function(sectionName) {
+    const result = originalShowSection.apply(this, arguments);
+    
+    // Reapply protections after section change
+    setTimeout(() => {
+        if (window.featureProtection) {
+            window.featureProtection.applyAllProtections();
+        }
+    }, 500);
+    
+    return result;
+};
+
+
+// Update the DOMContentLoaded event listener
+document.addEventListener('DOMContentLoaded', () => {
+    window.loginSystem = new LoginSystem();
+    
+    // Initialize Stripe after login system
+    setTimeout(() => {
+        window.stripeIntegration = new StripeIntegration();
+    }, 100);
+    
+    init();
+});
+
+// ===== PAYMENT SUCCESS HANDLER =====
+// Check if we're on a success page
+if (window.location.pathname.includes('-success')) {
+  document.addEventListener('DOMContentLoaded', handlePaymentSuccess);
+}
+
+async function handlePaymentSuccess() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const sessionId = urlParams.get('session_id');
+  
+  if (!sessionId) {
+    console.error('No session ID found');
+    return;
+  }
+  
+  // Show loading state
+  document.body.innerHTML = `
+    <div class="min-h-screen flex items-center justify-center bg-gray-50">
+      <div class="bg-white p-8 rounded-lg shadow-lg text-center max-w-md">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+        <h2 class="text-xl font-semibold text-gray-700">Verifying payment...</h2>
+      </div>
+    </div>
+  `;
+  
+  try {
+    // Verify the session
+    const userId = localStorage.getItem('currentUser') ? 
+                   JSON.parse(localStorage.getItem('currentUser'))._id : null;
+    
+    const response = await fetch(`/api/stripe/verify-session/${sessionId}?userId=${userId}`, {
+      headers: {
+        'Authorization': `Bearer ${btoa(JSON.stringify({ userId }))}`
+      }
+    });
+    
+    const data = await response.json();
+    
+    if (data.success && data.status === 'paid') {
+      // Show success message
+      document.body.innerHTML = `
+        <div class="min-h-screen flex items-center justify-center bg-gray-50">
+          <div class="bg-white p-8 rounded-lg shadow-lg text-center max-w-md">
+            <div class="text-green-500 mb-4">
+              <svg class="w-20 h-20 mx-auto" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+              </svg>
+            </div>
+            <h1 class="text-2xl font-bold mb-4">Payment Successful!</h1>
+            <p class="text-gray-600 mb-6">${
+              window.location.pathname.includes('search-success') ? 
+              'Your search has been unlocked. Redirecting...' : 
+              'Welcome to Professional! Redirecting to dashboard...'
+            }</p>
+            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+          </div>
+        </div>
+      `;
+      
+      // Clear any cached access data to force refresh
+      localStorage.removeItem('userAccess');
+      
+      // Redirect based on type
+      setTimeout(() => {
+        if (window.location.pathname.includes('search-success')) {
+          const searchQuery = urlParams.get('search') || localStorage.getItem('pendingSearchQuery');
+          localStorage.removeItem('pendingSearchQuery');
+          window.location.href = `/?q=${encodeURIComponent(searchQuery)}&paid=true#search`;
+        } else {
+          window.location.href = '/?subscription=success#dashboard';
+        }
+      }, 2000);
+    } else {
+      throw new Error('Payment verification failed');
+    }
+  } catch (error) {
+    console.error('Error verifying payment:', error);
+    document.body.innerHTML = `
+      <div class="min-h-screen flex items-center justify-center bg-gray-50">
+        <div class="bg-white p-8 rounded-lg shadow-lg text-center max-w-md">
+          <div class="text-red-500 mb-4">
+            <svg class="w-20 h-20 mx-auto" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+            </svg>
+          </div>
+          <h1 class="text-2xl font-bold mb-4">Verification Failed</h1>
+          <p class="text-gray-600 mb-6">We couldn't verify your payment. Please contact support if you continue to have issues.</p>
+          <a href="/" class="bg-blue-600 text-white px-6 py-2 rounded-lg inline-block hover:bg-blue-700">
+            Return to Home
+          </a>
+        </div>
+      </div>
+    `;
+  }
+}
+        // document.addEventListener('DOMContentLoaded', () => {
+        //     window.loginSystem = new LoginSystem();
+        //     init()
+        // });
 
             // Complete Drug Watch System JavaScript (Frontend)
 // Complete Updated Drug Watch System JavaScript (Frontend)
