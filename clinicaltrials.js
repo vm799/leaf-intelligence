@@ -3133,149 +3133,149 @@ const NCBI_API_KEY = process.env.NCBI_API_KEY || ''; // Optional: Add your API k
  * Advanced PubMed Search Endpoint
  * POST /api/pubmed/advanced-search
  */
-app.post('/api/pubmed/advanced-search', async (req, res) => {
-  try {
-    console.log('🔍 PubMed: Advanced search request received');
+// app.post('/api/pubmed/advanced-search', async (req, res) => {
+//   try {
+//     console.log('🔍 PubMed: Advanced search request received');
     
-    const {
-      term,
-      db = 'pubmed',
-      retmode = 'json',
-      rettype = 'abstract',
-      retmax = 100,
-      retstart = 0,
-      sort = 'relevance',
-      filters = {}
-    } = req.body;
+//     const {
+//       term,
+//       db = 'pubmed',
+//       retmode = 'json',
+//       rettype = 'abstract',
+//       retmax = 100,
+//       retstart = 0,
+//       sort = 'relevance',
+//       filters = {}
+//     } = req.body;
 
-    console.log('🔍 PubMed: Search parameters:', {
-      term: term,
-      retmax: retmax,
-      sort: sort,
-      filtersCount: Object.keys(filters).length
-    });
+//     console.log('🔍 PubMed: Search parameters:', {
+//       term: term,
+//       retmax: retmax,
+//       sort: sort,
+//       filtersCount: Object.keys(filters).length
+//     });
 
-    if (!term || term.trim() === '') {
-      return res.status(400).json({
-        success: false,
-        error: 'Search term is required for PubMed search',
-        data: { articles: [], totalCount: 0 }
-      });
-    }
+//     if (!term || term.trim() === '') {
+//       return res.status(400).json({
+//         success: false,
+//         error: 'Search term is required for PubMed search',
+//         data: { articles: [], totalCount: 0 }
+//       });
+//     }
 
-    // Step 1: Search for article IDs using esearch (this returns JSON correctly)
-    const searchParams = new URLSearchParams({
-      db: db,
-      term: term.trim(),
-      retmax: retmax.toString(),
-      retstart: retstart.toString(),
-      retmode: 'json',  // This works for esearch
-      sort: sort
-    });
+//     // Step 1: Search for article IDs using esearch (this returns JSON correctly)
+//     const searchParams = new URLSearchParams({
+//       db: db,
+//       term: term.trim(),
+//       retmax: retmax.toString(),
+//       retstart: retstart.toString(),
+//       retmode: 'json',  // This works for esearch
+//       sort: sort
+//     });
 
-    if (process.env.NCBI_API_KEY) {
-      searchParams.append('api_key', process.env.NCBI_API_KEY);
-    }
+//     if (process.env.NCBI_API_KEY) {
+//       searchParams.append('api_key', process.env.NCBI_API_KEY);
+//     }
 
-    console.log('🔍 PubMed: Step 1 - Searching for article IDs...');
-    const searchUrl = `${PUBMED_EUTILS_BASE}/esearch.fcgi?${searchParams.toString()}`;
-    console.log('🔍 Search URL:', searchUrl);
+//     console.log('🔍 PubMed: Step 1 - Searching for article IDs...');
+//     const searchUrl = `${PUBMED_EUTILS_BASE}/esearch.fcgi?${searchParams.toString()}`;
+//     console.log('🔍 Search URL:', searchUrl);
     
-    const searchResponse = await fetch(searchUrl, {
-      headers: {
-        'Accept': 'application/json',
-        'User-Agent': 'Clinical-Research-Tool/1.0'
-      },
-      timeout: 10000
-    });
+//     const searchResponse = await fetch(searchUrl, {
+//       headers: {
+//         'Accept': 'application/json',
+//         'User-Agent': 'Clinical-Research-Tool/1.0'
+//       },
+//       timeout: 10000
+//     });
     
-    if (!searchResponse.ok) {
-      throw new Error(`PubMed esearch API error: ${searchResponse.status} ${searchResponse.statusText}`);
-    }
+//     if (!searchResponse.ok) {
+//       throw new Error(`PubMed esearch API error: ${searchResponse.status} ${searchResponse.statusText}`);
+//     }
     
-    const searchData = await searchResponse.json();
-    console.log('🔍 PubMed: Search response:', searchData);
+//     const searchData = await searchResponse.json();
+//     console.log('🔍 PubMed: Search response:', searchData);
     
-    const idList = searchData.esearchresult?.idlist || [];
-    const totalCount = parseInt(searchData.esearchresult?.count || 0);
+//     const idList = searchData.esearchresult?.idlist || [];
+//     const totalCount = parseInt(searchData.esearchresult?.count || 0);
     
-    console.log(`🔍 PubMed: Found ${idList.length} article IDs, total count: ${totalCount}`);
+//     console.log(`🔍 PubMed: Found ${idList.length} article IDs, total count: ${totalCount}`);
     
-    if (idList.length === 0) {
-      return res.json({
-        success: true,
-        data: {
-          articles: [],
-          totalCount: 0
-        }
-      });
-    }
+//     if (idList.length === 0) {
+//       return res.json({
+//         success: true,
+//         data: {
+//           articles: [],
+//           totalCount: 0
+//         }
+//       });
+//     }
 
-    // Step 2: Fetch article details using esummary (NOT efetch for JSON)
-    // ❌ WRONG: Using efetch with retmode=json (doesn't work reliably)
-    // ✅ CORRECT: Using esummary with retmode=json (always works)
+//     // Step 2: Fetch article details using esummary (NOT efetch for JSON)
+//     // ❌ WRONG: Using efetch with retmode=json (doesn't work reliably)
+//     // ✅ CORRECT: Using esummary with retmode=json (always works)
     
-    const detailsParams = new URLSearchParams({
-      db: 'pubmed',
-      id: idList.join(','),
-      retmode: 'json'  // esummary supports JSON mode properly
-    });
+//     const detailsParams = new URLSearchParams({
+//       db: 'pubmed',
+//       id: idList.join(','),
+//       retmode: 'json'  // esummary supports JSON mode properly
+//     });
 
-    if (process.env.NCBI_API_KEY) {
-      detailsParams.append('api_key', process.env.NCBI_API_KEY);
-    }
+//     if (process.env.NCBI_API_KEY) {
+//       detailsParams.append('api_key', process.env.NCBI_API_KEY);
+//     }
 
-    console.log('🔍 PubMed: Step 2 - Fetching article details...');
-    const detailsUrl = `${PUBMED_EUTILS_BASE}/esummary.fcgi?${detailsParams.toString()}`;
-    console.log('🔍 Details URL:', detailsUrl);
+//     console.log('🔍 PubMed: Step 2 - Fetching article details...');
+//     const detailsUrl = `${PUBMED_EUTILS_BASE}/esummary.fcgi?${detailsParams.toString()}`;
+//     console.log('🔍 Details URL:', detailsUrl);
     
-    const detailsResponse = await fetch(detailsUrl, {
-      headers: {
-        'Accept': 'application/json',
-        'User-Agent': 'Clinical-Research-Tool/1.0'
-      },
-      timeout: 10000
-    });
+//     const detailsResponse = await fetch(detailsUrl, {
+//       headers: {
+//         'Accept': 'application/json',
+//         'User-Agent': 'Clinical-Research-Tool/1.0'
+//       },
+//       timeout: 10000
+//     });
     
-    if (!detailsResponse.ok) {
-      throw new Error(`PubMed esummary API error: ${detailsResponse.status} ${detailsResponse.statusText}`);
-    }
+//     if (!detailsResponse.ok) {
+//       throw new Error(`PubMed esummary API error: ${detailsResponse.status} ${detailsResponse.statusText}`);
+//     }
     
-    const detailsData = await detailsResponse.json();
-    console.log('🔍 PubMed: Details response received');
+//     const detailsData = await detailsResponse.json();
+//     console.log('🔍 PubMed: Details response received');
     
-    // Step 3: Format articles from esummary data
-    const articles = [];
+//     // Step 3: Format articles from esummary data
+//     const articles = [];
     
-    idList.forEach(pmid => {
-      const summary = detailsData.result?.[pmid];
+//     idList.forEach(pmid => {
+//       const summary = detailsData.result?.[pmid];
       
-      if (summary && summary.title) {
-        const article = formatPubMedSummary(summary, pmid);
-        articles.push(article);
-      }
-    });
+//       if (summary && summary.title) {
+//         const article = formatPubMedSummary(summary, pmid);
+//         articles.push(article);
+//       }
+//     });
 
-    console.log(`✅ PubMed: Formatted ${articles.length} articles`);
+//     console.log(`✅ PubMed: Formatted ${articles.length} articles`);
 
-    // Return in the exact format your frontend expects
-    res.json({
-      success: true,
-      data: {
-        articles: articles,
-        totalCount: totalCount
-      }
-    });
+//     // Return in the exact format your frontend expects
+//     res.json({
+//       success: true,
+//       data: {
+//         articles: articles,
+//         totalCount: totalCount
+//       }
+//     });
 
-  } catch (error) {
-    console.error("❌ PubMed: Advanced search error:", error);
-    res.status(500).json({
-      success: false,
-      error: error.message,
-      data: { articles: [], totalCount: 0 }
-    });
-  }
-});
+//   } catch (error) {
+//     console.error("❌ PubMed: Advanced search error:", error);
+//     res.status(500).json({
+//       success: false,
+//       error: error.message,
+//       data: { articles: [], totalCount: 0 }
+//     });
+//   }
+// });
 
 // Helper function to format PubMed summary data
 
@@ -3550,6 +3550,235 @@ app.post('/api/pubmed/advanced-search', async (req, res) => {
 //   }
 // });
 
+
+
+app.post('/api/pubmed/advanced-search', async (req, res) => {
+  try {
+    const { term, retmax = 20, sort = 'relevance' } = req.body;
+    
+    if (!term) {
+      return res.status(400).json({
+        success: false,
+        error: 'Search term is required'
+      });
+    }
+
+    console.log(`🔍 PubMed: Searching for: ${term}`);
+
+    // Step 1: Search for article IDs using esearch
+    const searchParams = new URLSearchParams({
+      db: 'pubmed',
+      term: term,
+      retmax: retmax,
+      retmode: 'json',
+      sort: sort
+    });
+
+    if (process.env.NCBI_API_KEY) {
+      searchParams.append('api_key', process.env.NCBI_API_KEY);
+    }
+
+    const searchUrl = `${PUBMED_EUTILS_BASE}/esearch.fcgi?${searchParams.toString()}`;
+    const searchResponse = await fetch(searchUrl);
+    
+    if (!searchResponse.ok) {
+      throw new Error(`PubMed search failed: ${searchResponse.status}`);
+    }
+    
+    const searchData = await searchResponse.json();
+    const idList = searchData.esearchresult.idlist || [];
+    const totalCount = parseInt(searchData.esearchresult.count) || 0;
+
+    console.log(`🔍 PubMed: Found ${idList.length} article IDs, total count: ${totalCount}`);
+    
+    if (idList.length === 0) {
+      return res.json({
+        success: true,
+        data: {
+          articles: [],
+          totalCount: 0
+        }
+      });
+    }
+
+    // Step 2: Get basic details using esummary
+    const detailsParams = new URLSearchParams({
+      db: 'pubmed',
+      id: idList.join(','),
+      retmode: 'json'
+    });
+
+    if (process.env.NCBI_API_KEY) {
+      detailsParams.append('api_key', process.env.NCBI_API_KEY);
+    }
+
+    const detailsUrl = `${PUBMED_EUTILS_BASE}/esummary.fcgi?${detailsParams.toString()}`;
+    const detailsResponse = await fetch(detailsUrl);
+    
+    if (!detailsResponse.ok) {
+      throw new Error(`PubMed details fetch failed: ${detailsResponse.status}`);
+    }
+    
+    const detailsData = await detailsResponse.json();
+    
+    // Step 3: Fetch abstracts using efetch (XML format for abstracts)
+    const abstractParams = new URLSearchParams({
+      db: 'pubmed',
+      id: idList.join(','),
+      rettype: 'abstract',
+      retmode: 'xml'
+    });
+
+    if (process.env.NCBI_API_KEY) {
+      abstractParams.append('api_key', process.env.NCBI_API_KEY);
+    }
+
+    const abstractUrl = `${PUBMED_EUTILS_BASE}/efetch.fcgi?${abstractParams.toString()}`;
+    const abstractResponse = await fetch(abstractUrl);
+    
+    if (!abstractResponse.ok) {
+      console.warn(`PubMed abstracts fetch failed: ${abstractResponse.status}`);
+      // Continue without abstracts rather than failing completely
+    }
+    
+    let abstractsData = {};
+    if (abstractResponse.ok) {
+      const xmlData = await abstractResponse.text();
+      abstractsData = await parseAbstractXML(xmlData);
+    }
+
+    // Step 4: Format articles with abstracts
+    const articles = [];
+    
+    idList.forEach(pmid => {
+      const summary = detailsData.result?.[pmid];
+      
+      if (summary && summary.title) {
+        const article = formatPubMedSummaryWithAbstract(summary, pmid, abstractsData[pmid]);
+        articles.push(article);
+      }
+    });
+
+    console.log(`✅ PubMed: Formatted ${articles.length} articles with abstracts`);
+
+    // Return in the exact format your frontend expects
+    res.json({
+      success: true,
+      data: {
+        articles: articles,
+        totalCount: totalCount
+      }
+    });
+
+  } catch (error) {
+    console.error("❌ PubMed: Advanced search error:", error);
+    res.status(500).json({
+      success: false,
+      error: error.message,
+      data: { articles: [], totalCount: 0 }
+    });
+  }
+});
+
+// Helper function to parse XML abstracts
+async function parseAbstractXML(xmlData) {
+  const xml2js = require('xml2js');
+  const parser = new xml2js.Parser();
+  
+  try {
+    const result = await parser.parseStringPromise(xmlData);
+    const abstracts = {};
+    
+    const articles = result.PubmedArticleSet?.PubmedArticle || [];
+    
+    articles.forEach(article => {
+      const pmid = article.MedlineCitation?.[0]?.PMID?.[0]._ || article.MedlineCitation?.[0]?.PMID?.[0];
+      const abstractSections = article.MedlineCitation?.[0]?.Article?.[0]?.Abstract?.[0]?.AbstractText || [];
+      
+      if (pmid && abstractSections.length > 0) {
+        // Join all abstract sections
+        const abstractText = abstractSections.map(section => {
+          // Handle structured abstracts with labels
+          if (section.$ && section.$.Label) {
+            return `${section.$.Label}: ${section._}`;
+          }
+          // Handle plain text abstracts
+          return typeof section === 'string' ? section : (section._ || section);
+        }).join(' ');
+        
+        abstracts[pmid] = abstractText;
+      }
+    });
+    
+    return abstracts;
+  } catch (error) {
+    console.error('Error parsing abstract XML:', error);
+    return {};
+  }
+}
+
+// Updated helper function to format PubMed summary data WITH abstracts
+function formatPubMedSummaryWithAbstract(summary, pmid, abstract) {
+  try {
+    // Extract authors
+    const authors = (summary.authors || [])
+      .filter(author => author.authtype === 'Author')
+      .map(author => author.name || '')
+      .slice(0, 5);
+
+    // Extract publication date
+    const pubDate = summary.pubdate || summary.epubdate || '';
+
+    // Extract journal name
+    const journal = summary.source || summary.fulljournalname || '';
+
+    // Extract title
+    const title = summary.title || 'Untitled';
+
+    // Extract DOI
+    const articleIds = summary.articleids || [];
+    const doi = articleIds.find(id => id.idtype === 'doi')?.value || '';
+    
+    // Extract PMCID if available
+    const pmcId = articleIds.find(id => id.idtype === 'pmc')?.value || '';
+
+    return {
+      pmid: pmid,
+      title: title,
+      authors: authors,
+      journal: journal,
+      pubDate: pubDate,
+      abstract: abstract || 'No abstract available', // NOW WE HAVE REAL ABSTRACTS!
+      keywords: summary.keywords || [],
+      doi: doi,
+      pmcId: pmcId,
+      citationCount: summary.pmc_refcount || 0,
+      url: `https://pubmed.ncbi.nlm.nih.gov/${pmid}/`,
+      fullTextUrl: pmcId ? `https://www.ncbi.nlm.nih.gov/pmc/articles/${pmcId}/` : '',
+      isOpenAccess: !!pmcId,
+      publicationType: summary.pubtype || [],
+      volume: summary.volume || '',
+      issue: summary.issue || '',
+      pages: summary.pages || '',
+      language: summary.lang || ['eng']
+    };
+
+  } catch (error) {
+    console.error(`Error formatting article ${pmid}:`, error);
+    return {
+      pmid: pmid,
+      title: 'Error loading article',
+      authors: [],
+      journal: '',
+      pubDate: '',
+      abstract: 'Error loading abstract',
+      keywords: [],
+      doi: '',
+      citationCount: 0,
+      url: `https://pubmed.ncbi.nlm.nih.gov/${pmid}/`
+    };
+  }
+}
 function formatPubMedArticle(summary, pmid, fullAbstract) {
   try {
     // Extract authors safely
@@ -3601,52 +3830,7 @@ function formatPubMedArticle(summary, pmid, fullAbstract) {
     return null;
   }
 }
-// Enhanced formatter function that includes the full abstract
-function formatPubMedSummaryWithAbstract(summary, pmid, fullAbstract) {
-  try {
-    // Extract authors
-    const authors = (summary.authors || [])
-      .filter(author => author.authtype === 'Author')
-      .map(author => author.name || '')
-      .slice(0, 10); // Show more authors
 
-    // Extract publication date
-    const pubDate = summary.pubdate || summary.epubdate || '';
-
-    // Extract journal name
-    const journal = summary.source || summary.fulljournalname || '';
-
-    // Extract title
-    const title = summary.title || 'Untitled';
-
-    // Extract DOI
-    const articleIds = summary.articleids || [];
-    const doi = articleIds.find(id => id.idtype === 'doi')?.value || '';
-    
-    // Extract PMCID if available
-    const pmcId = articleIds.find(id => id.idtype === 'pmc')?.value || '';
-
-    return {
-      pmid: pmid,
-      title: title,
-      authors: authors,
-      journal: journal,
-      pubDate: pubDate,
-      abstract: fullAbstract || summary.abstract || '',  // Use full abstract if available
-      keywords: summary.keywords || [],
-      doi: doi,
-      pmcId: pmcId,
-      citationCount: summary.pmc_refcount || 0,
-      url: `https://pubmed.ncbi.nlm.nih.gov/${pmid}/`,
-      fullTextUrl: pmcId ? `https://www.ncbi.nlm.nih.gov/pmc/articles/${pmcId}/` : '',
-      isOpenAccess: !!pmcId,
-      meshTerms: summary.keywords || []  // Include MeSH terms
-    };
-  } catch (error) {
-    console.error(`Error formatting article ${pmid}:`, error);
-    return null;
-  }
-}
 
 function formatPubMedSummary(summary, pmid) {
   try {
