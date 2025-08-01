@@ -279,7 +279,7 @@ app.get('/api/check-access', async (req, res) => {
 // Add these routes near your other static file serving routes
 app.get('/checkout-success', (req, res) => {
   // Make sure the file exists in the correct location
-  const filePath = path.join(__dirname, 'checkout-success.html');
+  res.sendFile(path.join(__dirname, 'public', 'checkout-success.html'));
   
   // Check if file exists
   if (fs.existsSync(filePath)) {
@@ -336,18 +336,18 @@ app.get('/checkout-success', (req, res) => {
 app.get('/search-success', (req, res) => {
   const sessionId = req.query.session_id;
   if (sessionId) {
-    res.redirect(`/checkout-success?session_id=${sessionId}`);
+    res.redirect(`/checkout-success.html?session_id=${sessionId}`);
   } else {
-    res.redirect('/checkout-success');
+    res.redirect('/checkout-success.html');
   }
 });
 
 app.get('/subscription-success', (req, res) => {
   const sessionId = req.query.session_id;
   if (sessionId) {
-    res.redirect(`/checkout-success?session_id=${sessionId}`);
+    res.redirect(`/checkout-success.html?session_id=${sessionId}`);
   } else {
-    res.redirect('/checkout-success');
+    res.redirect('/checkout-success.html');
   }
 });
 // 5. ADD WEBHOOK DISABLE ROUTE (to stop webhook errors)

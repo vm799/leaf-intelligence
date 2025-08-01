@@ -1,4 +1,4 @@
-// auth-middleware.js - Updated version
+// auth-middleware.js - Fixed version
 const { User } = require('./db');
 
 const authMiddleware = async (req, res, next) => {
@@ -34,7 +34,7 @@ const authMiddleware = async (req, res, next) => {
     }
     
     // Attach to request - use consistent property names
-    req.userId = userId;
+    req.userId = userId;  // This fixes the line 7 error
     req.user = user;
     req.user._id = user._id; // Ensure _id is available
     
