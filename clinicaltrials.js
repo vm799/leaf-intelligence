@@ -3278,6 +3278,376 @@ app.post('/api/pubmed/advanced-search', async (req, res) => {
 });
 
 // Helper function to format PubMed summary data
+
+// app.post('/api/pubmed/advanced-search', async (req, res) => {
+//   try {
+//     console.log('🔍 PubMed: Advanced search request received');
+    
+//     const {
+//       term,
+//       db = 'pubmed',
+//       retmode = 'json',
+//       rettype = 'abstract',
+//       retmax = 100,
+//       retstart = 0,
+//       sort = 'relevance',
+//       filters = {}
+//     } = req.body;
+
+//     console.log('🔍 PubMed: Search parameters:', {
+//       term: term,
+//       retmax: retmax,
+//       retstart: retstart,
+//       sort: sort,
+//       filters: filters
+//     });
+
+//     // Validate required parameters
+//     if (!term || term.trim() === '') {
+//       return res.status(400).json({
+//         success: false,
+//         error: 'Search term is required',
+//         data: { articles: [], totalCount: 0 }
+//       });
+//     }
+
+//     // Step 1: Search for article IDs using esearch
+//     const searchParams = new URLSearchParams({
+//       db: db,
+//       term: term.trim(),
+//       retmax: retmax.toString(),
+//       retstart: retstart.toString(),
+//       retmode: 'json',
+//       sort: sort === 'date' ? 'pub_date' : sort,
+//       datetype: 'pdat'
+//     });
+
+//     // Add API key if available
+//     if (NCBI_API_KEY) {
+//       searchParams.append('api_key', NCBI_API_KEY);
+//     }
+
+//     console.log('🔍 PubMed: Step 1 - Searching for article IDs...');
+//     const searchUrl = `${PUBMED_EUTILS_BASE}/esearch.fcgi?${searchParams.toString()}`;
+    
+//     try {
+//       const searchResponse = await axios.get(searchUrl, {
+//         headers: {
+//           'Accept': 'application/json',
+//           'User-Agent': 'Clinical-Research-Tool/1.0'
+//         },
+//         timeout: 15000 // 15 second timeout
+//       });
+      
+//       const searchData = searchResponse.data;
+//       const idList = searchData.esearchresult?.idlist || [];
+//       const totalCount = parseInt(searchData.esearchresult?.count || 0);
+      
+//       console.log(`🔍 PubMed: Found ${idList.length} IDs out of ${totalCount} total`);
+
+//       if (idList.length === 0) {
+//         return res.json({
+//           success: true,
+//           data: {
+//             articles: [],
+//             totalCount: 0
+//           }
+//         });
+//       }
+
+//       // Step 2: Fetch article summaries using esummary
+//       console.log('🔍 PubMed: Step 2 - Fetching article summaries...');
+//       const summaryParams = new URLSearchParams({
+//         db: db,
+//         id: idList.join(','),
+//         retmode: 'json'
+//       });
+
+//       if (NCBI_API_KEY) {
+//         summaryParams.append('api_key', NCBI_API_KEY);
+//       }
+
+//       const summaryUrl = `${PUBMED_EUTILS_BASE}/esummary.fcgi?${summaryParams.toString()}`;
+      
+//       const summaryResponse = await axios.get(summaryUrl, {
+//         headers: {
+//           'Accept': 'application/json',
+//           'User-Agent': 'Clinical-Research-Tool/1.0'
+//         },
+//         timeout: 20000 // 20 second timeout
+//       });
+
+//       const summaryData = summaryResponse.data.result || {};
+      
+//       // Step 3: Fetch full abstracts in smaller batches to avoid timeouts
+//       console.log('🔍 PubMed: Step 3 - Fetching full abstracts...');
+//       const abstracts = {};
+//       const batchSize = 20; // Process 20 articles at a time
+      
+//       for (let i = 0; i < idList.length; i += batchSize) {
+//         const batchIds = idList.slice(i, i + batchSize);
+//         console.log(`🔍 PubMed: Fetching abstracts for batch ${Math.floor(i/batchSize) + 1}/${Math.ceil(idList.length/batchSize)}`);
+        
+//         try {
+//           const abstractParams = new URLSearchParams({
+//             db: db,
+//             id: batchIds.join(','),
+//             rettype: 'abstract',
+//             retmode: 'xml'
+//           });
+
+//           if (NCBI_API_KEY) {
+//             abstractParams.append('api_key', NCBI_API_KEY);
+//           }
+
+//           const abstractUrl = `${PUBMED_EUTILS_BASE}/efetch.fcgi?${abstractParams.toString()}`;
+          
+//           const abstractResponse = await axios.get(abstractUrl, {
+//             headers: {
+//               'Accept': 'application/xml',
+//               'User-Agent': 'Clinical-Research-Tool/1.0'
+//             },
+//             timeout: 30000 // 30 second timeout per batch
+//           });
+
+//           // Parse XML abstracts
+//           try {
+//             const parsedXML = await parseXML(abstractResponse.data, {
+//               explicitArray: false,
+//               ignoreAttrs: true
+//             });
+            
+//             const pubmedArticles = parsedXML.PubmedArticleSet?.PubmedArticle || [];
+//             const articlesArray = Array.isArray(pubmedArticles) ? pubmedArticles : [pubmedArticles];
+            
+//             articlesArray.forEach(article => {
+//               try {
+//                 const pmid = article.MedlineCitation?.PMID;
+                
+//                 if (pmid) {
+//                   // Extract abstract text
+//                   const abstractObj = article.MedlineCitation?.Article?.Abstract;
+//                   let fullAbstract = '';
+                  
+//                   if (abstractObj?.AbstractText) {
+//                     if (Array.isArray(abstractObj.AbstractText)) {
+//                       // Structured abstract with multiple sections
+//                       fullAbstract = abstractObj.AbstractText
+//                         .map(section => {
+//                           if (typeof section === 'string') {
+//                             return section;
+//                           } else if (section._) {
+//                             // Handle labeled sections
+//                             const label = section.$.Label || '';
+//                             return label ? `${label}: ${section._}` : section._;
+//                           }
+//                           return '';
+//                         })
+//                         .filter(text => text)
+//                         .join(' ');
+//                     } else {
+//                       // Simple abstract
+//                       fullAbstract = abstractObj.AbstractText;
+//                     }
+//                   }
+                  
+//                   abstracts[pmid] = fullAbstract;
+                  
+//                   // Extract keywords (MeSH terms)
+//                   const meshHeadings = article.MedlineCitation?.MeshHeadingList?.MeshHeading;
+//                   if (meshHeadings) {
+//                     const keywords = (Array.isArray(meshHeadings) ? meshHeadings : [meshHeadings])
+//                       .map(heading => heading.DescriptorName?._)
+//                       .filter(Boolean);
+                    
+//                     if (summaryData[pmid]) {
+//                       summaryData[pmid].keywords = keywords;
+//                     }
+//                   }
+//                 }
+//               } catch (articleError) {
+//                 console.error(`Error processing article: ${articleError.message}`);
+//               }
+//             });
+//           } catch (parseError) {
+//             console.error(`Error parsing XML for batch: ${parseError.message}`);
+//             // Continue with partial results
+//           }
+          
+//           // Add a small delay between batches to avoid rate limiting
+//           if (i + batchSize < idList.length) {
+//             await new Promise(resolve => setTimeout(resolve, 100));
+//           }
+          
+//         } catch (batchError) {
+//           console.error(`Error fetching abstract batch: ${batchError.message}`);
+//           // Continue with other batches
+//         }
+//       }
+      
+//       console.log(`✅ PubMed: Extracted abstracts for ${Object.keys(abstracts).length} articles`);
+
+//       // Step 4: Format articles with both summary and abstract data
+//       const articles = [];
+      
+//       idList.forEach(pmid => {
+//         try {
+//           const summary = summaryData[pmid];
+          
+//           if (summary && summary.title) {
+//             const article = formatPubMedArticle(summary, pmid, abstracts[pmid] || '');
+//             if (article) {
+//               articles.push(article);
+//             }
+//           }
+//         } catch (formatError) {
+//           console.error(`Error formatting article ${pmid}: ${formatError.message}`);
+//         }
+//       });
+
+//       console.log(`✅ PubMed: Successfully formatted ${articles.length} articles`);
+
+//       // Return results
+//       res.json({
+//         success: true,
+//         data: {
+//           articles: articles,
+//           totalCount: totalCount,
+//           hasMore: totalCount > (retstart + retmax),
+//           nextStart: retstart + retmax
+//         }
+//       });
+
+//     } catch (apiError) {
+//       console.error('❌ PubMed API Error:', apiError.message);
+      
+//       // Check if it's a rate limit error
+//       if (apiError.response?.status === 429) {
+//         return res.status(429).json({
+//           success: false,
+//           error: 'Rate limit exceeded. Please try again in a few seconds.',
+//           data: { articles: [], totalCount: 0 }
+//         });
+//       }
+      
+//       throw apiError;
+//     }
+
+//   } catch (error) {
+//     console.error('❌ PubMed: Advanced search error:', error);
+    
+//     // Log more details for debugging
+//     if (error.response) {
+//       console.error('Response status:', error.response.status);
+//       console.error('Response data:', error.response.data);
+//     }
+    
+//     res.status(500).json({
+//       success: false,
+//       error: error.message || 'An error occurred while searching PubMed',
+//       data: { articles: [], totalCount: 0 }
+//     });
+//   }
+// });
+
+function formatPubMedArticle(summary, pmid, fullAbstract) {
+  try {
+    // Extract authors safely
+    const authors = [];
+    if (summary.authors && Array.isArray(summary.authors)) {
+      summary.authors.forEach(author => {
+        if (author.name) {
+          authors.push(author.name);
+        }
+      });
+    }
+    
+    // Limit authors to first 10
+    const limitedAuthors = authors.slice(0, 10);
+
+    // Extract publication date
+    const pubDate = summary.pubdate || summary.epubdate || summary.sortpubdate || '';
+
+    // Extract journal name
+    const journal = summary.source || summary.fulljournalname || '';
+
+    // Extract title
+    const title = summary.title || 'Untitled';
+
+    // Extract identifiers
+    const articleIds = summary.articleids || [];
+    const doi = articleIds.find(id => id.idtype === 'doi')?.value || '';
+    const pmcId = articleIds.find(id => id.idtype === 'pmc')?.value || '';
+
+    // Build the article object
+    return {
+      pmid: pmid,
+      title: title,
+      authors: limitedAuthors,
+      journal: journal,
+      pubDate: pubDate,
+      abstract: fullAbstract || summary.abstract || '',
+      keywords: summary.keywords || [],
+      doi: doi,
+      pmcId: pmcId,
+      citationCount: summary.pmcrefcount || 0,
+      url: `https://pubmed.ncbi.nlm.nih.gov/${pmid}/`,
+      fullTextUrl: pmcId ? `https://www.ncbi.nlm.nih.gov/pmc/articles/${pmcId}/` : '',
+      isOpenAccess: !!pmcId,
+      meshTerms: summary.keywords || []
+    };
+  } catch (error) {
+    console.error(`Error formatting article ${pmid}:`, error);
+    return null;
+  }
+}
+// Enhanced formatter function that includes the full abstract
+function formatPubMedSummaryWithAbstract(summary, pmid, fullAbstract) {
+  try {
+    // Extract authors
+    const authors = (summary.authors || [])
+      .filter(author => author.authtype === 'Author')
+      .map(author => author.name || '')
+      .slice(0, 10); // Show more authors
+
+    // Extract publication date
+    const pubDate = summary.pubdate || summary.epubdate || '';
+
+    // Extract journal name
+    const journal = summary.source || summary.fulljournalname || '';
+
+    // Extract title
+    const title = summary.title || 'Untitled';
+
+    // Extract DOI
+    const articleIds = summary.articleids || [];
+    const doi = articleIds.find(id => id.idtype === 'doi')?.value || '';
+    
+    // Extract PMCID if available
+    const pmcId = articleIds.find(id => id.idtype === 'pmc')?.value || '';
+
+    return {
+      pmid: pmid,
+      title: title,
+      authors: authors,
+      journal: journal,
+      pubDate: pubDate,
+      abstract: fullAbstract || summary.abstract || '',  // Use full abstract if available
+      keywords: summary.keywords || [],
+      doi: doi,
+      pmcId: pmcId,
+      citationCount: summary.pmc_refcount || 0,
+      url: `https://pubmed.ncbi.nlm.nih.gov/${pmid}/`,
+      fullTextUrl: pmcId ? `https://www.ncbi.nlm.nih.gov/pmc/articles/${pmcId}/` : '',
+      isOpenAccess: !!pmcId,
+      meshTerms: summary.keywords || []  // Include MeSH terms
+    };
+  } catch (error) {
+    console.error(`Error formatting article ${pmid}:`, error);
+    return null;
+  }
+}
+
 function formatPubMedSummary(summary, pmid) {
   try {
     // Extract authors
@@ -5920,7 +6290,7 @@ const registrations = [];
 
 // Helper function to generate calendar links
 function generateCalendarLinks() {
-  const startDate = '20250731T190000Z'; // July 31, 2025 2:00 PM EST in UTC
+  const startDate = '20250731T190000Z'; // July 31, 2025 2:00 PM EST in EST
   const endDate = '20250731T194500Z';   // 45 minutes later
   const title = encodeURIComponent('Cracking the FDA Code Webinar');
   const description = encodeURIComponent(`Join us for this exclusive webinar on regulatory intelligence. Meeting Link: ${GOOGLE_MEET_LINK}`);
@@ -12424,7 +12794,9 @@ app.get('/api/fda/drug/:drugName', validateDrugNamenew, async (req, res) => {
           
           switch (endpointName) {
             case "drugsFda":
-              searchQuery = `search=openfda.brand_name:"${variation}"+OR+openfda.generic_name:"${variation}"+OR+sponsor_name:"${variation}"`;
+              // searchQuery = `search=openfda.brand_name:"${variation}"+OR+openfda.generic_name:"${variation}"+OR+sponsor_name:"${variation}"`;
+searchQuery = `search=${variation}`;
+              // searchQuery = `search=openfda.brand_name:"${variation}"+OR+openfda.generic_name:"${variation}"+OR+sponsor_name:"${variation}"+OR+products.brand_name:"${variation}"+OR+products.active_ingredients.name:"${variation}"`;
               break;
             case "label":
               searchQuery = `search=openfda.brand_name:"${variation}"+OR+openfda.generic_name:"${variation}"+OR+openfda.manufacturer_name:"${variation}"`;
@@ -12538,69 +12910,206 @@ app.get('/api/fda/drug/:drugName', validateDrugNamenew, async (req, res) => {
     }
 
     // Process drugsFda data into categorized format
-    const categorizedDrugs = {};
+  
     
-    if (results.endpoints.drugsFda && results.endpoints.drugsFda.status === "success") {
-      for (const drug of results.endpoints.drugsFda.data) {
-        const appNumber = drug.application_number;
-        const products = drug.products || [];
-        const submissions = drug.submissions || [];
+    // if (results.endpoints.drugsFda && results.endpoints.drugsFda.status === "success") {
+    //   for (const drug of results.endpoints.drugsFda.data) {
+    //     const appNumber = drug.application_number;
+    //     const products = drug.products || [];
+    //     const submissions = drug.submissions || [];
         
-        // Improved approval date extraction logic
-        let approvalDate = 'Unknown';
+    //     // Improved approval date extraction logic
+    //     let approvalDate = 'Unknown';
         
-        // First try to find ORIG-1 or submission number 1
-        const originalApproval = submissions.find(s =>
-          (s.submission_number === '1' || s.submission_number === 'ORIG-1') &&
-          (s.submission_status === 'AP' || s.submission_status === 'Approved')
-        );
+    //     // First try to find ORIG-1 or submission number 1
+    //     const originalApproval = submissions.find(s =>
+    //       (s.submission_number === '1' || s.submission_number === 'ORIG-1') &&
+    //       (s.submission_status === 'AP' || s.submission_status === 'Approved')
+    //     );
         
-        // If not found, look for any approval
-        if (originalApproval) {
-          approvalDate = originalApproval.submission_status_date;
-        } else {
-          const anyApproval = submissions.find(s =>
-            s.submission_status === 'AP' || s.submission_status === 'Approved'
-          );
-          if (anyApproval) {
-            approvalDate = anyApproval.submission_status_date;
-          }
-        }
+    //     // If not found, look for any approval
+    //     if (originalApproval) {
+    //       approvalDate = originalApproval.submission_status_date;
+    //     } else {
+    //       const anyApproval = submissions.find(s =>
+    //         s.submission_status === 'AP' || s.submission_status === 'Approved'
+    //       );
+    //       if (anyApproval) {
+    //         approvalDate = anyApproval.submission_status_date;
+    //       }
+    //     }
         
-        for (const product of products) {
-          if (!product.brand_name) continue;
+    //     for (const product of products) {
+    //       if (!product.brand_name) continue;
           
-          const brandName = product.brand_name.toLowerCase();
-          const activeIngredients = product.active_ingredients || [];
-          const strength = activeIngredients.map(ing => `${ing.name} ${ing.strength}`).join(', ') || 'Unknown';
+    //       const brandName = product.brand_name.toLowerCase();
+    //       const activeIngredients = product.active_ingredients || [];
+    //       const strength = activeIngredients.map(ing => `${ing.name} ${ing.strength}`).join(', ') || 'Unknown';
           
-          if (!categorizedDrugs[brandName]) categorizedDrugs[brandName] = {};
-          if (!categorizedDrugs[brandName][strength]) categorizedDrugs[brandName][strength] = [];
+    //       if (!categorizedDrugs[brandName]) categorizedDrugs[brandName] = {};
+    //       if (!categorizedDrugs[brandName][strength]) categorizedDrugs[brandName][strength] = [];
           
-          categorizedDrugs[brandName][strength].push({
-            brandName: product.brand_name,
-            applicationNumber: appNumber,
-            approvalDate,
-            submissions: submissions.map(s => ({
-              submissionNumber: s.submission_number,
-              status: s.submission_status,
-              date: s.submission_status_date,
-              type: s.submission_type
-            })),
-            hasDocuments: true,
-            fdaPage: `https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=${appNumber.replace(/[^0-9]/g, '')}`,
-            sponsorName: drug.sponsor_name,
-            activeIngredients,
-            manufacturerName: drug.openfda?.manufacturer_name?.[0] || drug.sponsor_name,
-            dosageForm: product.dosage_form,
-            route: product.route,
-            marketingStatus: product.marketing_status,
-          });
-        }
-      }
-    }
+    //       categorizedDrugs[brandName][strength].push({
+    //         brandName: product.brand_name,
+    //         applicationNumber: appNumber,
+    //         approvalDate,
+    //         submissions: submissions.map(s => ({
+    //           submissionNumber: s.submission_number,
+    //           status: s.submission_status,
+    //           date: s.submission_status_date,
+    //           type: s.submission_type
+    //         })),
+    //         hasDocuments: true,
+    //         fdaPage: `https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=${appNumber.replace(/[^0-9]/g, '')}`,
+    //         sponsorName: drug.sponsor_name,
+    //         activeIngredients,
+    //         manufacturerName: drug.openfda?.manufacturer_name?.[0] || drug.sponsor_name,
+    //         dosageForm: product.dosage_form,
+    //         route: product.route,
+    //         marketingStatus: product.marketing_status,
+    //       });
+    //     }
+    //   }
+    // }
 
     // Add metadata about the request
+    
+const categorizedDrugs = {};
+
+if (results.endpoints.drugsFda && results.endpoints.drugsFda.status === "success") {
+  console.log(`Processing ${results.endpoints.drugsFda.data.length} drug applications from FDA...`);
+  
+  for (const drug of results.endpoints.drugsFda.data) {
+    const appNumber = drug.application_number;
+    const products = drug.products || [];
+    const submissions = drug.submissions || [];
+    
+    // Get all submission statuses, not just approvals
+    let approvalDate = 'Unknown';
+    let currentStatus = 'Unknown';
+    let hasApproval = false;
+    let hasCRL = false;
+    let hasWithdrawn = false;
+    let isPending = false;
+    
+    // Find the earliest approval date if any
+    const approvalSubmissions = submissions.filter(s => 
+      s.submission_status === 'AP' || s.submission_status === 'Approved'
+    );
+    
+    if (approvalSubmissions.length > 0) {
+      hasApproval = true;
+      // Sort by date to find the earliest approval
+      const sortedApprovals = approvalSubmissions
+        .filter(s => s.submission_status_date)
+        .sort((a, b) => new Date(a.submission_status_date) - new Date(b.submission_status_date));
+      
+      if (sortedApprovals.length > 0) {
+        approvalDate = sortedApprovals[0].submission_status_date;
+      }
+    }
+    
+    // Check for other statuses
+    submissions.forEach(submission => {
+      const status = submission.submission_status;
+      
+      if (status === 'CR' || status === 'CRL') {
+        hasCRL = true;
+      } else if (status === 'WD' || status === 'Withdrawn') {
+        hasWithdrawn = true;
+      } else if (status === 'RV' || status === 'RF' || status === 'Received' || status === 'P' || status === 'Pending') {
+        isPending = true;
+      }
+    });
+    
+    // Determine current status based on most recent submission
+    const mostRecentSubmission = submissions
+      .filter(s => s.submission_status_date)
+      .sort((a, b) => new Date(b.submission_status_date) - new Date(a.submission_status_date))[0];
+    
+    if (mostRecentSubmission) {
+      currentStatus = mostRecentSubmission.submission_status;
+    }
+    
+    // Process ALL products without any filtering
+    if (products.length === 0) {
+      // Even if no products, still include the application
+      const brandName = drug.openfda?.brand_name?.[0] || 'unknown';
+      const strength = 'No strength data';
+      
+      if (!categorizedDrugs[brandName.toLowerCase()]) categorizedDrugs[brandName.toLowerCase()] = {};
+      if (!categorizedDrugs[brandName.toLowerCase()][strength]) categorizedDrugs[brandName.toLowerCase()][strength] = [];
+      
+      categorizedDrugs[brandName.toLowerCase()][strength].push({
+        brandName: brandName,
+        applicationNumber: appNumber,
+        approvalDate,
+        currentStatus,
+        hasApproval,
+        hasCRL,
+        hasWithdrawn,
+        isPending,
+        submissions: submissions.map(s => ({
+          submissionNumber: s.submission_number,
+          status: s.submission_status,
+          date: s.submission_status_date,
+          type: s.submission_type,
+          description: s.submission_public_notes || s.submission_property_type?.join(', ') || ''
+        })),
+        hasDocuments: true,
+        fdaPage: `https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=${appNumber.replace(/[^0-9]/g, '')}`,
+        sponsorName: drug.sponsor_name,
+        activeIngredients: [],
+        manufacturerName: drug.openfda?.manufacturer_name?.[0] || drug.sponsor_name,
+        dosageForm: 'N/A',
+        route: 'N/A',
+        marketingStatus: 'Unknown',
+      });
+    } else {
+      // Process all products
+      for (const product of products) {
+        // Include ALL products, even without brand name
+        const brandName = product.brand_name || drug.openfda?.brand_name?.[0] || 'Unknown Brand';
+        const activeIngredients = product.active_ingredients || [];
+        const strength = activeIngredients.length > 0 
+          ? activeIngredients.map(ing => `${ing.name} ${ing.strength}`).join(', ') 
+          : 'No strength data';
+        
+        if (!categorizedDrugs[brandName.toLowerCase()]) categorizedDrugs[brandName.toLowerCase()] = {};
+        if (!categorizedDrugs[brandName.toLowerCase()][strength]) categorizedDrugs[brandName.toLowerCase()][strength] = [];
+        
+        categorizedDrugs[brandName.toLowerCase()][strength].push({
+          brandName: brandName,
+          applicationNumber: appNumber,
+          approvalDate,
+          currentStatus,
+          hasApproval,
+          hasCRL,
+          hasWithdrawn,
+          isPending,
+          submissions: submissions.map(s => ({
+            submissionNumber: s.submission_number,
+            status: s.submission_status,
+            date: s.submission_status_date,
+            type: s.submission_type,
+            description: s.submission_public_notes || s.submission_property_type?.join(', ') || ''
+          })),
+          hasDocuments: true,
+          fdaPage: `https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=${appNumber.replace(/[^0-9]/g, '')}`,
+          sponsorName: drug.sponsor_name,
+          activeIngredients,
+          manufacturerName: drug.openfda?.manufacturer_name?.[0] || drug.sponsor_name,
+          dosageForm: product.dosage_form || 'Not specified',
+          route: product.route || 'Not specified',
+          marketingStatus: product.marketing_status || 'Unknown',
+        });
+      }
+    }
+  }
+  
+  console.log(`Processed applications into ${Object.keys(categorizedDrugs).length} drug brands`);
+}
+
     const metadata = {
       query: drugName,
       timestamp: new Date().toISOString(),
@@ -14634,6 +15143,8 @@ app.get('/api/fda/orangebook/search', (req, res) => {
   
   // Step 2: Create a map of Application Number and Product Number combinations
   const appProductMap = new Set();
+  
+  // FIX: Complete the forEach statement
   results.products.forEach(product => {
     if (product.Appl_No && product.Product_No) {
       appProductMap.add(`${product.Appl_Type}-${product.Appl_No}-${product.Product_No}`);
