@@ -54,9 +54,9 @@
         // Verify session and redirect
         setTimeout(() => {
             if (searchQuery) {
-                window.location.href = `/?q=${encodeURIComponent(searchQuery)}&paid=true&session=${sessionId}`;
+                window.location.href = `/leafintelligence.html?q=${encodeURIComponent(searchQuery)}&paid=true&session=${sessionId}`;
             } else {
-                window.location.href = '/?paid=true';
+                window.location.href = '/leafintelligence.html?paid=true';
             }
         }, 3000);
         
