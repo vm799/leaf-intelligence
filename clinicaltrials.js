@@ -138,20 +138,20 @@ app.use(
   })
 );
 
-app.use(session({
-  secret: process.env.SESSION_SECRET || 'your-secret-key-here',
-  resave: false,
-  saveUninitialized: false,
-  store: MongoStore.create({
-    mongoUrl: process.env.MONGO_URI || 'your-mongodb-connection-string',
-    touchAfter: 24 * 3600 // lazy session update
-  }),
-  cookie: {
-    secure: process.env.NODE_ENV === 'production', // require https in production
-    httpOnly: true,
-    maxAge: 1000 * 60 * 60 * 24 * 7 // 7 days
-  }
-}));
+// app.use(session({
+//   secret: process.env.SESSION_SECRET || 'your-secret-key-here',
+//   resave: false,
+//   saveUninitialized: false,
+//   store: MongoStore.create({
+//     mongoUrl: process.env.MONGO_URI || 'your-mongodb-connection-string',
+//     touchAfter: 24 * 3600 // lazy session update
+//   }),
+//   cookie: {
+//     secure: process.env.NODE_ENV === 'production', // require https in production
+//     httpOnly: true,
+//     maxAge: 1000 * 60 * 60 * 24 * 7 // 7 days
+//   }
+// }));
 // Initialize OpenAI client
 const openai = new OpenAI({
 
