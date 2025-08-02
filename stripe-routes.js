@@ -69,23 +69,35 @@ router.post('/cancel-subscription', authMiddleware, async (req, res) => {
 });
 
 // Get customer portal
+// In stripe-routes.js, update the create-portal-session route
 router.post('/create-portal-session', authMiddleware, async (req, res) => {
   try {
     const user = req.user;
     
     if (!user.stripeCustomerId) {
-      return res.status(404).json({ error: 'No customer found' });
+      return res.status(400).json({ 
+        success: false, 
+        error: 'No Stripe customer found' 
+      });
     }
 
-    const session = await stripeService.createPortalSession(
-      user.stripeCustomerId,
-      `${process.env.FRONTEND_URL || 'https://www.syneticx.com'}/account`
-    );
-    
-    res.json({ success: true, url: session.url });
+    // Add configuration to the portal session
+    const session = await stripe.billingPortal.sessions.create({
+      customer: user.stripeCustomerId,
+      return_url: `${process.env.FRONTEND_URL || 'https://www.syneticx.com'}/account`,
+      configuration: process.env.STRIPE_PORTAL_CONFIG_ID || undefined, // Optional: use a specific config
+    });
+
+    res.json({ 
+      success: true, 
+      url: session.url 
+    });
   } catch (error) {
     console.error('Portal session error:', error);
-    res.status(500).json({ error: 'Failed to create portal session' });
+    res.status(500).json({ 
+      success: false, 
+      error: error.message 
+    });
   }
 });
 
