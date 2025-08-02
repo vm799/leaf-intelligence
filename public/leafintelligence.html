@@ -33868,11 +33868,11 @@ function generateEnhancedPivotalTrialAnalysis(studies, drugName, conditionName) 
                             class="enhanced-tab-btn active py-4 px-1 border-b-2 border-blue-500 font-medium text-sm text-blue-600">
                         Trial Design
                     </button>
-                    <button onclick="switchEnhancedTab('enrollment')" 
+                    <button id='enrollmentandoutcomes' class='pro-feature' onclick="switchEnhancedTab('enrollment')" 
                             class="enhanced-tab-btn py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700">
                         Enrollment & Demographics
                     </button>
-                    <button onclick="switchEnhancedTab('endpoints')" 
+                    <button id='endpointsandoutcomes' class='pro-feature' onclick="switchEnhancedTab('endpoints')" 
                             class="enhanced-tab-btn py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700">
                         Endpoints & Outcomes
                     </button>
@@ -110652,7 +110652,6 @@ class LeafIntelligenceFeatureBlocker {
 
 // Initialize with YOUR configuration
 // Example initialization - modify based on your needs:
-
 const featureBlocker = new LeafIntelligenceFeatureBlocker({
   features: {
     sections: [
@@ -110664,7 +110663,13 @@ const featureBlocker = new LeafIntelligenceFeatureBlocker({
     buttons: [
       'button[onclick*="exportPDF"]',
       'button[onclick*="downloadReport"]',
-      '.advanced-action-btn'
+      '.advanced-action-btn',
+      '#enrollmentandoutcomes',
+      '#endpointsandoutcomes',
+        'button[onclick*="switchEnhancedTab(\'enrollment\')"]',
+        'button[onclick*="switchEnhancedTab(\'endpoints\')"]'
+
+
     ],
     customSelectors: [
       {
