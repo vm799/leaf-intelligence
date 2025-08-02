@@ -108,19 +108,67 @@ router.get('/subscription-status', authMiddleware, async (req, res) => {
 });
 
 // Verify payment success
-router.get('/verify-session/:sessionId', authMiddleware, async (req, res) => {
-  try {
-    const { sessionId } = req.params;
-    const session = await stripeService.retrieveCheckoutSession(sessionId);
+// router.get('/verify-session/:sessionId', authMiddleware, async (req, res) => {
+//   try {
+//     const { sessionId } = req.params;
+//     const session = await stripeService.retrieveCheckoutSession(sessionId);
     
-    res.json({
-      success: true,
-      status: session.payment_status,
-      metadata: session.metadata
+//     res.json({
+//       success: true,
+//       status: session.payment_status,
+//       metadata: session.metadata
+//     });
+//   } catch (error) {
+//     console.error('Session verification error:', error);
+//     res.status(500).json({ error: 'Failed to verify session' });
+//   }
+// });
+// In your stripe routes file, create a separate route without auth middleware
+router.post('/verify-checkout', async (req, res) => {
+  try {
+    const { sessionId, userId } = req.body;
+    
+    // Verify the session with Stripe first
+    const session = await stripe.checkout.sessions.retrieve(sessionId);
+    
+    if (session.payment_status !== 'paid') {
+      return res.status(400).json({ error: 'Payment not completed' });
+    }
+    
+    // Update user in database
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    // Update user with Stripe data
+    user.stripeCustomerId = session.customer;
+    user.subscriptionStatus = 'active';
+    user.subscriptionTier = 'monthly'; // or whatever tier they purchased
+    
+    // Add billing history entry
+    user.billingHistory.push({
+      date: new Date(),
+      amount: session.amount_total / 100, // Convert from cents
+      description: 'Monthly subscription',
+      stripeSessionId: sessionId,
+      status: 'completed'
     });
+    
+    await user.save();
+    
+    // Set session for future requests
+    req.session.userId = userId;
+    await req.session.save(); // Explicitly save the session
+    
+    res.json({ 
+      success: true, 
+      message: 'Subscription activated successfully' 
+    });
+    
   } catch (error) {
-    console.error('Session verification error:', error);
-    res.status(500).json({ error: 'Failed to verify session' });
+    console.error('Verify checkout error:', error);
+    res.status(500).json({ error: 'Verification failed' });
   }
 });
 

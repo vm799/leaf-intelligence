@@ -110257,741 +110257,489 @@ document.addEventListener('DOMContentLoaded', () => {
 // Export for use in other scripts
 window.EnhancedStripeIntegration = EnhancedStripeIntegration;
 
-// ===== COMPLETE FEATURE PROTECTION IMPLEMENTATION =====
-// Add this code to your inteltool.html file after the StripeIntegration class
+// LeafIntelligence Feature Blocker Integration
+// Add this to your leafintelligence.html file or as a separate JS file
 
-class FeatureProtection {
-    constructor() {
-        this.userAccess = null;
-        this.init();
+class LeafIntelligenceFeatureBlocker {
+  constructor(config = {}) {
+    this.isPro = false;
+    this.blockedFeatures = new Set();
+    this.interceptedElements = new WeakMap();
+    this.userAccess = null;
+    
+    // Configuration - YOU define what features to block
+    this.featureConfig = config.features || {
+      // Example configuration - modify this based on your needs
+      // sections: [
+      //   '#some-pro-section',
+      //   '.premium-analytics',
+      //   '[data-feature="advanced-export"]'
+      // ],
+      // buttons: [
+      //   'button[data-action="export-pdf"]',
+      //   'button.premium-action'
+      // ],
+      // customSelectors: []
+    };
+    
+    this.init();
+  }
+  
+  async init() {
+    // Get user subscription status
+    await this.checkUserSubscription();
+    
+    // Block features on page load
+    this.updateBlockedFeatures();
+    
+    // Set up global click interceptor
+    this.setupGlobalInterceptor();
+    
+    // Watch for dynamic content
+    this.setupMutationObserver();
+  }
+  
+  async checkUserSubscription() {
+    try {
+      const currentUser = localStorage.getItem('currentUser');
+      if (currentUser) {
+        const user = JSON.parse(currentUser);
+        this.isPro = user.subscriptionTier === 'monthly' || user.subscriptionStatus === 'active';
+        this.userAccess = user;
+      }
+    } catch (error) {
+      console.error('Error checking subscription:', error);
+      this.isPro = false;
     }
+  }
+  
+  // Create glass overlay for sections
+  createSectionBlocker(element, customMessage = null) {
+    // Check if already blocked
+    if (element.querySelector('.feature-blocker-overlay')) return;
+    
+    // Add blocked class
+    element.classList.add('feature-blocked');
+    
+    // Create overlay
+    const overlay = document.createElement('div');
+    overlay.className = 'feature-blocker-overlay absolute inset-0 rounded-lg flex flex-col items-center justify-center z-10';
+    overlay.style.cssText = `
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+      pointer-events: auto;
+    `;
+    
+    overlay.innerHTML = `
+      <div class="text-center">
+        <svg class="w-16 h-16 mx-auto mb-4 text-white opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+        </svg>
+        <h3 class="text-xl font-bold text-white mb-2">Pro Feature</h3>
+        <p class="text-white opacity-80 mb-4 px-4">${customMessage || 'Upgrade to Pro to access this feature'}</p>
+        <button class="upgrade-btn bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold px-6 py-3 rounded-full hover:from-purple-600 hover:to-pink-600 transform hover:scale-105 transition-all duration-200 shadow-lg">
+          Upgrade to Pro
+        </button>
+      </div>
+    `;
+    
+    // Handle upgrade button click
+    overlay.querySelector('.upgrade-btn').addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.showUpgradeModal();
+    });
+    
+    // Position the element relatively if needed
+    if (getComputedStyle(element).position === 'static') {
+      element.style.position = 'relative';
+    }
+    
+    // Disable all interactive elements within
+    element.style.pointerEvents = 'none';
+    element.style.userSelect = 'none';
+    
+    element.appendChild(overlay);
+  }
+  
+  // Setup global click interceptor
+  setupGlobalInterceptor() {
+    // Capture phase to intercept before other listeners
+    document.addEventListener('click', (e) => {
+      if (this.isPro) return;
+      
+      const proElement = e.target.closest('.pro-feature');
+      if (proElement && !e.target.closest('.feature-blocker-overlay')) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        
+        // Check for custom message
+        const customMessage = proElement.getAttribute('data-pro-message');
+        this.showUpgradeModal(customMessage);
+      }
+    }, true);
+  }
+  
+  // Show upgrade modal
+  showUpgradeModal(customMessage = null) {
+    // Check if PaymentModal exists
+    if (window.paymentModal) {
+      window.paymentModal.show();
+    } else {
+      // Fallback to custom modal
+      this.showCustomUpgradeModal(customMessage);
+    }
+  }
+  
+  showCustomUpgradeModal(customMessage = null) {
+    // Remove existing modal if any
+    const existingModal = document.getElementById('feature-upgrade-modal');
+    if (existingModal) existingModal.remove();
+    
+    // Create modal
+    const modal = document.createElement('div');
+    modal.id = 'feature-upgrade-modal';
+    modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+    modal.innerHTML = `
+      <div class="bg-white rounded-lg p-8 max-w-md mx-4 transform scale-100 transition-transform">
+        <h2 class="text-2xl font-bold mb-4">Unlock Pro Features</h2>
+        <p class="text-gray-600 mb-6">${customMessage || 'Get unlimited access to all LeafIntelligence features!'}</p>
+        
+        <div class="bg-purple-50 rounded-lg p-4 mb-6">
+          <h3 class="font-semibold mb-2 text-purple-900">Pro Features Include:</h3>
+          <ul class="text-sm text-purple-700 space-y-2">
+            <li class="flex items-start">
+              <svg class="w-4 h-4 text-purple-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+              </svg>
+              Unlimited Access to All Features
+            </li>
+            <li class="flex items-start">
+              <svg class="w-4 h-4 text-purple-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+              </svg>
+              Advanced Analytics & Reports
+            </li>
+            <li class="flex items-start">
+              <svg class="w-4 h-4 text-purple-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+              </svg>
+              Export & Download Options
+            </li>
+            <li class="flex items-start">
+              <svg class="w-4 h-4 text-purple-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+              </svg>
+              Priority Support
+            </li>
+          </ul>
+        </div>
+        
+        <div class="bg-gray-100 rounded-lg p-4 mb-6">
+          <div class="text-2xl font-bold text-gray-900">$29/month</div>
+          <div class="text-sm text-gray-600">Cancel anytime</div>
+        </div>
+        
+        <div class="flex gap-4">
+          <button class="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold px-6 py-3 rounded-lg hover:from-purple-700 hover:to-pink-700" onclick="leafIntelligenceFeatureBlocker.subscribeMonthly()">
+            Subscribe Now
+          </button>
+          <button class="flex-1 bg-gray-200 text-gray-800 font-semibold px-6 py-3 rounded-lg hover:bg-gray-300" onclick="document.getElementById('feature-upgrade-modal').remove()">
+            Maybe Later
+          </button>
+        </div>
+      </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Close on background click
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) modal.remove();
+    });
+  }
+  
+  async subscribeMonthly() {
+    try {
+      const userId = this.getCurrentUserId();
+      if (!userId) {
+        alert('Please log in to subscribe');
+        return;
+      }
 
-    async init() {
-        // Wait for StripeIntegration to load user access
-        if (window.stripeIntegration && window.stripeIntegration.userAccess) {
-            this.userAccess = window.stripeIntegration.userAccess;
-            this.applyAllProtections();
-        } else {
-            // Retry after a delay
-            setTimeout(() => this.init(), 500);
+      const response = await fetch('/api/stripe/create-subscription-checkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.getAuthToken()}`
+        },
+        body: JSON.stringify({ userId })
+      });
+
+      const data = await response.json();
+      
+      if (data.success) {
+        window.location.href = data.checkoutUrl;
+      } else {
+        alert('Failed to create subscription checkout');
+      }
+    } catch (error) {
+      console.error('Subscription error:', error);
+      alert('An error occurred. Please try again.');
+    }
+  }
+  
+  getCurrentUserId() {
+    try {
+      const userData = JSON.parse(localStorage.getItem('currentUser') || '{}');
+      return userData._id;
+    } catch (error) {
+      return null;
+    }
+  }
+  
+  getAuthToken() {
+    const currentUser = localStorage.getItem('currentUser');
+    if (currentUser) {
+      try {
+        const userData = JSON.parse(currentUser);
+        return btoa(JSON.stringify({ userId: userData._id }));
+      } catch (e) {
+        return null;
+      }
+    }
+    return null;
+  }
+  
+  // Update blocked features based on subscription status
+  updateBlockedFeatures() {
+    // Remove existing blockers
+    document.querySelectorAll('.feature-blocker-overlay').forEach(overlay => overlay.remove());
+    document.querySelectorAll('.feature-blocked').forEach(el => {
+      el.classList.remove('feature-blocked');
+      el.style.pointerEvents = '';
+      el.style.userSelect = '';
+    });
+    
+    if (!this.isPro) {
+      // Block features based on configuration
+      this.blockConfiguredFeatures();
+      
+      // Block any elements with .pro-feature class
+      document.querySelectorAll('.pro-feature:not(button)').forEach(element => {
+        this.createSectionBlocker(element);
+      });
+    }
+  }
+  
+  blockConfiguredFeatures() {
+    // Block sections from config
+    if (this.featureConfig.sections) {
+      this.featureConfig.sections.forEach(selector => {
+        const elements = document.querySelectorAll(selector);
+        elements.forEach(element => {
+          if (!element.classList.contains('pro-feature')) {
+            element.classList.add('pro-feature');
+          }
+          this.createSectionBlocker(element);
+        });
+      });
+    }
+    
+    // Mark buttons from config as pro features (they'll be intercepted on click)
+    if (this.featureConfig.buttons) {
+      this.featureConfig.buttons.forEach(selector => {
+        const buttons = document.querySelectorAll(selector);
+        buttons.forEach(button => {
+          if (!button.classList.contains('pro-feature')) {
+            button.classList.add('pro-feature');
+          }
+        });
+      });
+    }
+    
+    // Handle custom selectors
+    if (this.featureConfig.customSelectors) {
+      this.featureConfig.customSelectors.forEach(config => {
+        const elements = document.querySelectorAll(config.selector);
+        elements.forEach(element => {
+          if (config.type === 'block') {
+            this.createSectionBlocker(element, config.message);
+          } else {
+            element.classList.add('pro-feature');
+            if (config.message) {
+              element.setAttribute('data-pro-message', config.message);
+            }
+          }
+        });
+      });
+    }
+    
+    // Add pro badges if configured
+    if (this.featureConfig.badges) {
+      this.addProBadges(this.featureConfig.badges);
+    }
+  }
+  
+  addProBadges(badgeConfig) {
+    badgeConfig.forEach(({ selector, text }) => {
+      const elements = document.querySelectorAll(selector);
+      elements.forEach(element => {
+        if (!element.querySelector('.pro-badge')) {
+          const badge = document.createElement('span');
+          badge.className = 'pro-badge ml-2 text-xs bg-purple-600 text-white px-2 py-0.5 rounded-full';
+          badge.textContent = text || 'PRO';
+          element.appendChild(badge);
         }
+      });
+    });
+  }
+  
+  // Setup mutation observer to watch for dynamic content
+  setupMutationObserver() {
+    const observer = new MutationObserver((mutations) => {
+      // Debounce updates
+      clearTimeout(this.updateTimeout);
+      this.updateTimeout = setTimeout(() => {
+        this.updateBlockedFeatures();
+      }, 100);
+    });
+    
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true
+    });
+  }
+  
+  // Public methods for dynamic control
+  
+  // Add a feature to block
+  addBlockedFeature(selector, type = 'button', message = null) {
+    if (type === 'section') {
+      if (!this.featureConfig.sections) this.featureConfig.sections = [];
+      this.featureConfig.sections.push(selector);
+    } else if (type === 'button') {
+      if (!this.featureConfig.buttons) this.featureConfig.buttons = [];
+      this.featureConfig.buttons.push(selector);
     }
-
-    applyAllProtections() {
-        console.log('Applying feature protections for user tier:', this.userAccess?.subscriptionTier);
-        
-        // Apply all protections
-        this.protectClinicalTrials();
-        this.protectFDAData();
-        this.protectResponseWarningLetters();
-        this.protectLabeling();
-        this.protectPubMed();
-        this.protectEMAData();
-        this.protectOverviewSection();
-        
-        // Monitor for dynamic content changes
-        this.setupMutationObserver();
-    }
-
-    // 1. CLINICAL TRIALS PROTECTION
-    protectClinicalTrials() {
-        // Limit conditions to top 3
-        this.limitConditionsDisplay();
-        
-        // Lock trial analysis tabs (show only first tab)
-        this.lockTrialAnalysisTabs();
-    }
-
-    limitConditionsDisplay() {
-        // Wait for conditions to load
-        const checkConditions = setInterval(() => {
-            // Find condition items in various possible containers
-            const conditionSelectors = [
-                '.condition-item',
-                '[data-condition]',
-                '.condition-list li',
-                '.conditions-container .item',
-                '#conditionsList li',
-                '.trial-condition'
-            ];
-            
-            let conditionItems = [];
-            conditionSelectors.forEach(selector => {
-                const items = document.querySelectorAll(selector);
-                if (items.length > 0) {
-                    conditionItems = items;
-                }
-            });
-
-            if (conditionItems.length > 0) {
-                clearInterval(checkConditions);
-                
-                conditionItems.forEach((item, index) => {
-                    if (index >= 3) {
-                        // Add blur and lock overlay
-                        item.style.position = 'relative';
-                        item.classList.add('locked-content');
-                        
-                        // Create lock overlay if not exists
-                        if (!item.querySelector('.condition-lock-overlay')) {
-                            const lockOverlay = document.createElement('div');
-                            lockOverlay.className = 'condition-lock-overlay absolute inset-0 bg-gray-900 bg-opacity-60 flex items-center justify-center rounded cursor-pointer z-10';
-                            lockOverlay.innerHTML = `
-                                <div class="text-center">
-                                    <svg class="w-6 h-6 text-white mx-auto mb-1" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
-                                    </svg>
-                                    <span class="text-white text-xs font-medium">Pro</span>
-                                </div>
-                            `;
-                            lockOverlay.onclick = (e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                window.stripeIntegration.showUpgradeModal('All Conditions', 
-                                    'Unlock access to all conditions and comprehensive trial data.');
-                            };
-                            item.appendChild(lockOverlay);
-                        }
-                    }
-                });
-                
-                // Add message after the 3rd item
-                if (conditionItems.length > 3) {
-                    const parent = conditionItems[2].parentElement;
-                    if (!parent.querySelector('.upgrade-message')) {
-                        const upgradeMsg = document.createElement('div');
-                        upgradeMsg.className = 'upgrade-message col-span-full mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-center';
-                        upgradeMsg.innerHTML = `
-                            <p class="text-sm text-yellow-800 mb-2">
-                                <strong>${conditionItems.length - 3} more conditions</strong> available with Professional plan
-                            </p>
-                            <button onclick="window.stripeIntegration.showUpgradeModal('All Conditions')" 
-                                    class="text-blue-600 hover:text-blue-700 font-medium text-sm">
-                                Unlock All Conditions →
-                            </button>
-                        `;
-                        parent.appendChild(upgradeMsg);
-                    }
-                }
-            }
-        }, 500);
-    }
-
-    lockTrialAnalysisTabs() {
-        // Find trial analysis tabs
-        const checkTabs = setInterval(() => {
-            const tabSelectors = [
-                '.trial-analysis-tab',
-                '[role="tab"]',
-                '.nav-tabs li',
-                '.tab-button',
-                '[data-tab]'
-            ];
-            
-            let tabs = [];
-            tabSelectors.forEach(selector => {
-                const items = document.querySelectorAll(selector);
-                if (items.length > 0 && items[0].textContent.toLowerCase().includes('analysis')) {
-                    tabs = items;
-                }
-            });
-
-            if (tabs.length > 1) {
-                clearInterval(checkTabs);
-                
-                tabs.forEach((tab, index) => {
-                    if (index > 0) { // Lock all except first tab
-                        tab.classList.add('opacity-60', 'cursor-not-allowed');
-                        tab.style.position = 'relative';
-                        
-                        // Override click handler
-                        tab.onclick = (e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            window.stripeIntegration.showUpgradeModal('Full Trial Analysis', 
-                                'Access all analysis tabs including efficacy, safety, and statistical analysis.');
-                        };
-                        
-                        // Add lock icon
-                        if (!tab.querySelector('.tab-lock-icon')) {
-                            const lockIcon = document.createElement('span');
-                            lockIcon.className = 'tab-lock-icon ml-1';
-                            lockIcon.innerHTML = '🔒';
-                            tab.appendChild(lockIcon);
-                        }
-                    }
-                });
-            }
-        }, 500);
-    }
-
-    // 2. FDA DATA PROTECTION
-    protectFDAData() {
-        // Lock "View All NDAs" button
-        this.lockViewAllNDAs();
-        
-        // Lock enforcement, adverse events, and labeling tabs
-        this.lockFDATabs();
-        
-        // Limit timeline to single compound
-        this.limitFDATimeline();
-    }
-
-    lockViewAllNDAs() {
-        const selectors = [
-            '#viewAllNDAs',
-            '[data-action="view-all-ndas"]',
-            'button:contains("View All")',
-            '.view-all-applications'
-        ];
-        
-        selectors.forEach(selector => {
-            const elements = document.querySelectorAll(selector);
-            elements.forEach(element => {
-                if (element && element.textContent.toLowerCase().includes('view all')) {
-                    element.classList.add('locked-feature', 'opacity-60', 'cursor-not-allowed');
-                    element.onclick = (e) => {
-                        e.preventDefault();
-                        window.stripeIntegration.showUpgradeModal('All NDA Applications', 
-                            'View complete NDA application history and documents.');
-                    };
-                }
-            });
-        });
-    }
-
-    lockFDATabs() {
-        const lockedTabs = [
-            { id: 'enforcement-tab', name: 'FDA Enforcement Actions' },
-            { id: 'adverse-events-tab', name: 'Adverse Events Data' },
-            { id: 'labeling-tab', name: 'FDA Labeling Information' }
-        ];
-
-        lockedTabs.forEach(tab => {
-            // Try multiple selectors
-            const selectors = [
-                `#${tab.id}`,
-                `[data-tab="${tab.id}"]`,
-                `[onclick*="${tab.id}"]`
-            ];
-            
-            selectors.forEach(selector => {
-                const element = document.querySelector(selector);
-                if (element) {
-                    this.lockElement(element, tab.name);
-                }
-            });
-            
-            // Also check for tabs by text content
-            const allTabs = document.querySelectorAll('[role="tab"], .tab-btn, .nav-link');
-            allTabs.forEach(tabElement => {
-                if (tabElement.textContent.toLowerCase().includes(tab.id.replace('-tab', '').replace('-', ' '))) {
-                    this.lockElement(tabElement, tab.name);
-                }
-            });
-        });
-    }
-
-    limitFDATimeline() {
-        // Monitor for timeline elements
-        const checkTimeline = setInterval(() => {
-            const timelineContainers = document.querySelectorAll('.fda-timeline, #fdaTimeline, [data-timeline]');
-            
-            timelineContainers.forEach(container => {
-                const compounds = container.querySelectorAll('.compound-timeline, [data-compound]');
-                
-                if (compounds.length > 1) {
-                    clearInterval(checkTimeline);
-                    
-                    compounds.forEach((compound, index) => {
-                        if (index > 0) {
-                            compound.style.position = 'relative';
-                            compound.classList.add('locked-timeline');
-                            
-                            const overlay = document.createElement('div');
-                            overlay.className = 'absolute inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center rounded z-20';
-                            overlay.innerHTML = `
-                                <div class="text-center text-white p-4">
-                                    <svg class="w-12 h-12 mx-auto mb-2" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
-                                    </svg>
-                                    <p class="font-medium mb-1">Timeline Locked</p>
-                                    <p class="text-sm mb-3">View complete timeline for all compounds</p>
-                                    <button onclick="window.stripeIntegration.showUpgradeModal('Complete FDA Timeline')" 
-                                            class="bg-white text-gray-900 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-100">
-                                        Unlock Timeline
-                                    </button>
-                                </div>
-                            `;
-                            compound.appendChild(overlay);
-                        }
-                    });
-                }
-            });
-        }, 500);
-    }
-
-    // 3. RESPONSE & WARNING LETTERS PROTECTION
-    protectResponseWarningLetters() {
-        const letterTabs = [
-            { selector: 'response-letters', name: 'Response Letters' },
-            { selector: 'warning-letters', name: 'Warning Letters' }
-        ];
-
-        letterTabs.forEach(tab => {
-            // Multiple selector strategies
-            const selectors = [
-                `[onclick*="${tab.selector}"]`,
-                `[data-section="${tab.selector}"]`,
-                `#${tab.selector}-tab`,
-                `.${tab.selector}-tab`
-            ];
-            
-            selectors.forEach(selector => {
-                const elements = document.querySelectorAll(selector);
-                elements.forEach(element => {
-                    this.lockElement(element, tab.name);
-                });
-            });
-            
-            // Check by text content
-            const allButtons = document.querySelectorAll('button, [role="tab"]');
-            allButtons.forEach(button => {
-                if (button.textContent.toLowerCase().includes(tab.selector.replace('-', ' '))) {
-                    this.lockElement(button, tab.name);
-                }
-            });
-        });
-    }
-
-    // 4. LABELING PROTECTION
-    protectLabeling() {
-        // Show only 3 latest label changes
-        this.limitLabelChanges();
-        
-        // Lock EMA labeling
-        this.lockEMALabeling();
-    }
-
-    limitLabelChanges() {
-        const checkLabels = setInterval(() => {
-            const labelContainers = document.querySelectorAll(
-                '.label-changes, #labelChanges, [data-label-changes], .labeling-history'
-            );
-            
-            labelContainers.forEach(container => {
-                const labelItems = container.querySelectorAll('.label-item, .label-change, li, .row');
-                
-                if (labelItems.length > 3) {
-                    clearInterval(checkLabels);
-                    
-                    labelItems.forEach((item, index) => {
-                        if (index >= 3) {
-                            item.style.display = 'none';
-                        }
-                    });
-                    
-                    // Add "view more" message
-                    if (!container.querySelector('.label-upgrade-message')) {
-                        const upgradeMsg = document.createElement('div');
-                        upgradeMsg.className = 'label-upgrade-message mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg';
-                        upgradeMsg.innerHTML = `
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <p class="text-sm font-medium text-blue-900">
-                                        ${labelItems.length - 3} more label changes available
-                                    </p>
-                                    <p class="text-xs text-blue-700 mt-1">
-                                        Access complete labeling history with Professional
-                                    </p>
-                                </div>
-                                <button onclick="window.stripeIntegration.showUpgradeModal('Complete Label History')" 
-                                        class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700">
-                                    View All
-                                </button>
-                            </div>
-                        `;
-                        container.appendChild(upgradeMsg);
-                    }
-                }
-            });
-        }, 500);
-    }
-
-    lockEMALabeling() {
-        // Lock EMA-specific content
-        const emaSelectors = [
-            '[data-source="ema"]',
-            '.ema-labeling',
-            '#emaLabeling',
-            '[onclick*="ema"]'
-        ];
-        
-        emaSelectors.forEach(selector => {
-            const elements = document.querySelectorAll(selector);
-            elements.forEach(element => {
-                if (element.textContent.toLowerCase().includes('ema')) {
-                    this.lockElement(element, 'EMA Labeling Data');
-                }
-            });
-        });
-    }
-
-    // 5. PUBMED PROTECTION
-    protectPubMed() {
-        // Find PubMed advanced search button
-        const pubmedSelectors = [
-            '#pubmedAdvancedSearch',
-            '[data-feature="pubmed-advanced"]',
-            'button:contains("Advanced Search")'
-        ];
-        
-        pubmedSelectors.forEach(selector => {
-            const element = document.querySelector(selector);
-            if (element && element.textContent.toLowerCase().includes('advanced')) {
-                // Don't fully lock - show preview
-                element.classList.add('pubmed-preview');
-                element.onclick = (e) => {
-                    e.preventDefault();
-                    this.showPubMedPreview();
-                };
-            }
-        });
-    }
-
-    showPubMedPreview() {
-        const modal = document.createElement('div');
-        modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4';
-        modal.innerHTML = `
-            <div class="bg-white rounded-lg shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-                <div class="p-6">
-                    <div class="flex justify-between items-start mb-6">
-                        <div>
-                            <h3 class="text-2xl font-bold text-gray-900">PubMed Advanced Search</h3>
-                            <p class="text-gray-600 mt-1">Preview of Professional Features</p>
-                        </div>
-                        <button onclick="this.closest('.fixed').remove()" class="text-gray-400 hover:text-gray-600">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                            </svg>
-                        </button>
-                    </div>
-                    
-                    <div class="bg-gray-50 rounded-lg p-6 mb-6">
-                        <h4 class="font-semibold text-gray-900 mb-4">Advanced Search Capabilities</h4>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div class="flex items-start">
-                                <svg class="w-5 h-5 text-green-500 mr-2 mt-1" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                                </svg>
-                                <div>
-                                    <p class="font-medium">Boolean Operators</p>
-                                    <p class="text-sm text-gray-600">AND, OR, NOT for complex queries</p>
-                                </div>
-                            </div>
-                            <div class="flex items-start">
-                                <svg class="w-5 h-5 text-green-500 mr-2 mt-1" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                                </svg>
-                                <div>
-                                    <p class="font-medium">Field-Specific Search</p>
-                                    <p class="text-sm text-gray-600">Search by author, journal, date range</p>
-                                </div>
-                            </div>
-                            <div class="flex items-start">
-                                <svg class="w-5 h-5 text-green-500 mr-2 mt-1" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                                </svg>
-                                <div>
-                                    <p class="font-medium">MeSH Terms</p>
-                                    <p class="text-sm text-gray-600">Medical Subject Headings integration</p>
-                                </div>
-                            </div>
-                            <div class="flex items-start">
-                                <svg class="w-5 h-5 text-green-500 mr-2 mt-1" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                                </svg>
-                                <div>
-                                    <p class="font-medium">Bulk Export</p>
-                                    <p class="text-sm text-gray-600">Export up to 10,000 results</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
-                        <div class="flex items-start">
-                            <svg class="w-5 h-5 text-yellow-600 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
-                            </svg>
-                            <div>
-                                <p class="font-medium text-yellow-800">Feature Preview Only</p>
-                                <p class="text-sm text-yellow-700">
-                                    This is a demonstration of PubMed Advanced Search capabilities. 
-                                    Upgrade to Professional to use these powerful research tools.
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="border-t pt-6">
-                        <div class="flex flex-col sm:flex-row gap-4">
-                            <button onclick="window.stripeIntegration.subscribeMonthly()" 
-                                    class="flex-1 bg-gradient-to-r from-purple-600 to-blue-600 text-white py-3 rounded-lg font-medium hover:opacity-90">
-                                Unlock Advanced Search - $199/mo
-                            </button>
-                            <button onclick="this.closest('.fixed').remove()" 
-                                    class="flex-1 bg-gray-100 text-gray-700 py-3 rounded-lg font-medium hover:bg-gray-200">
-                                Close Preview
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
-        
-        document.body.appendChild(modal);
-    }
-
-    // 6. EMA DATA PROTECTION
-    protectEMAData() {
-        // Check for "No recent EMA events" requirement
-        const emaContainers = document.querySelectorAll('.ema-events, #emaEvents, [data-ema-events]');
-        
-        emaContainers.forEach(container => {
-            if (this.userAccess?.subscriptionTier === 'free') {
-                // Clear content and show message
-                container.innerHTML = `
-                    <div class="p-6 bg-gray-50 rounded-lg text-center">
-                        <svg class="w-12 h-12 text-gray-400 mx-auto mb-3" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
-                        </svg>
-                        <h3 class="font-medium text-gray-900 mb-1">EMA Data Locked</h3>
-                        <p class="text-sm text-gray-600 mb-4">
-                            Access European Medicines Agency data with Professional
-                        </p>
-                        <button onclick="window.stripeIntegration.showUpgradeModal('EMA Data Access')" 
-                                class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700">
-                            Unlock EMA Data
-                        </button>
-                    </div>
-                `;
-            }
-        });
-    }
-
-    // HELPER METHODS
-    lockElement(element, featureName) {
-        if (!element || element.classList.contains('feature-locked')) return;
-        
-        element.classList.add('feature-locked', 'opacity-60', 'cursor-not-allowed');
-        element.style.position = 'relative';
-        
-        // Override click handler
-        const originalOnclick = element.onclick;
-        element.onclick = (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            window.stripeIntegration.showUpgradeModal(featureName, 
-                `Access ${featureName} with Professional plan.`);
-        };
-        
-        // Add visual indicator
-        if (!element.querySelector('.lock-icon')) {
-            const lockIcon = document.createElement('span');
-            lockIcon.className = 'lock-icon ml-1';
-            lockIcon.innerHTML = '🔒';
-            element.appendChild(lockIcon);
-        }
-    }
-
-    protectOverviewSection() {
-    // Monitor for overview/summary content
-    const checkOverview = setInterval(() => {
-        const overviewSection = document.querySelector('#summarySection, .summary-section, [data-section="overview"]');
-        
-        if (overviewSection && overviewSection.style.display !== 'none') {
-            clearInterval(checkOverview);
-            
-            // Protect Recent Events sections
-            this.protectRecentEvents();
-        }
-    }, 500);
+    this.updateBlockedFeatures();
+  }
+  
+  // Remove a blocked feature
+  removeBlockedFeature(selector) {
+    ['sections', 'buttons'].forEach(type => {
+      if (this.featureConfig[type]) {
+        this.featureConfig[type] = this.featureConfig[type].filter(s => s !== selector);
+      }
+    });
+    this.updateBlockedFeatures();
+  }
+  
+  // Set subscription status
+  setSubscriptionStatus(isPro) {
+    this.isPro = isPro;
+    this.updateBlockedFeatures();
+  }
+  
+  // Update configuration
+  updateConfig(newConfig) {
+    this.featureConfig = { ...this.featureConfig, ...newConfig };
+    this.updateBlockedFeatures();
+  }
 }
 
-protectRecentEvents() {
-    // Hide EMA and FDA recent events for free users
-    if (this.userAccess?.subscriptionTier === 'free') {
-        // EMA Recent Events
-        const emaRecentSelectors = [
-            '.ema-recent-events',
-            '#emaRecentEvents',
-            '[data-recent="ema"]',
-            '.recent-events-ema'
-        ];
-        
-        emaRecentSelectors.forEach(selector => {
-            const element = document.querySelector(selector);
-            if (element) {
-                element.innerHTML = `
-                    <div class="p-4 bg-gray-50 rounded-lg text-center">
-                        <p class="text-sm text-gray-600">No recent EMA events</p>
-                        <button onclick="window.stripeIntegration.showUpgradeModal('EMA Events')" 
-                                class="text-blue-600 hover:text-blue-700 text-sm mt-2">
-                            Unlock EMA Data →
-                        </button>
-                    </div>
-                `;
-            }
-        });
-        
-        // FDA Recent Events (if you want to limit these too)
-        const fdaRecentSelectors = [
-            '.fda-recent-events',
-            '#fdaRecentEvents',
-            '[data-recent="fda"]'
-        ];
-        
-        fdaRecentSelectors.forEach(selector => {
-            const element = document.querySelector(selector);
-            if (element) {
-                // Check if it contains recent events
-                const hasRecentEvents = element.textContent.toLowerCase().includes('recent') || 
-                                      element.textContent.toLowerCase().includes('new') ||
-                                      element.textContent.toLowerCase().includes('latest');
-                
-                if (hasRecentEvents) {
-                    element.innerHTML = `
-                        <div class="p-4 bg-gray-50 rounded-lg text-center">
-                            <p class="text-sm text-gray-600">No recent FDA events in free tier</p>
-                            <p class="text-xs text-gray-500 mt-1">Historical data available</p>
-                            <button onclick="window.stripeIntegration.showUpgradeModal('FDA Recent Events')" 
-                                    class="text-blue-600 hover:text-blue-700 text-sm mt-2">
-                                View Recent Events →
-                            </button>
-                        </div>
-                    `;
-                }
-            }
-        });
-    }
-}
+// Initialize with YOUR configuration
+// Example initialization - modify based on your needs:
 
-    setupMutationObserver() {
-        // Monitor for dynamically added content
-        const observer = new MutationObserver((mutations) => {
-            mutations.forEach((mutation) => {
-                if (mutation.addedNodes.length > 0) {
-                    // Reapply protections for new content
-                    setTimeout(() => this.applyAllProtections(), 100);
-                }
-            });
-        });
-
-        // Observe the main content area
-        const contentArea = document.querySelector('#mainContent, .main-content, body');
-        if (contentArea) {
-            observer.observe(contentArea, {
-                childList: true,
-                subtree: true
-            });
-        }
-    }
-}
-
-// Initialize feature protection
-document.addEventListener('DOMContentLoaded', () => {
-    // Wait for Stripe integration to load first
-    setTimeout(() => {
-        window.featureProtection = new FeatureProtection();
-    }, 1500);
+const featureBlocker = new LeafIntelligenceFeatureBlocker({
+  features: {
+    sections: [
+    '#progrid',
+      '#advanced-analytics',
+      '.premium-reports',
+      '[data-feature="export-tools"]'
+    ],
+    buttons: [
+      'button[onclick*="exportPDF"]',
+      'button[onclick*="downloadReport"]',
+      '.advanced-action-btn'
+    ],
+    customSelectors: [
+      {
+        selector: '#special-feature',
+        type: 'block',
+        message: 'This advanced analysis requires a Pro subscription'
+      }
+    ],
+    badges: [
+      { selector: 'button:contains("Export")', text: 'PRO' },
+      { selector: 'button:contains("Download")', text: 'PRO' }
+    ]
+  }
 });
 
-// Additional CSS styles needed
-const protectionStyles = document.createElement('style');
-protectionStyles.textContent = `
-    .locked-content {
-        filter: blur(2px);
-        pointer-events: none;
-    }
-    
-    .condition-lock-overlay {
-        backdrop-filter: blur(2px);
-    }
-    
-    .locked-timeline {
-        filter: blur(3px);
-    }
-    
-    .feature-locked {
-        position: relative;
-    }
-    
-    .lock-icon {
-        display: inline-block;
-        margin-left: 4px;
-        font-size: 0.9em;
-    }
-    
-    .pubmed-preview {
-        position: relative;
-    }
-    
-    .pubmed-preview::after {
-        content: 'Preview';
-        position: absolute;
-        top: -8px;
-        right: -8px;
-        background: #fbbf24;
-        color: #78350f;
-        font-size: 10px;
-        padding: 2px 6px;
-        border-radius: 4px;
-        font-weight: 600;
-    }
-    
-    .upgrade-message {
-        animation: fadeIn 0.5s ease-in;
-    }
-    
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
+
+// Or initialize empty and configure later:
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => {
+    window.leafIntelligenceFeatureBlocker = new LeafIntelligenceFeatureBlocker();
+  });
+} else {
+  window.leafIntelligenceFeatureBlocker = new LeafIntelligenceFeatureBlocker();
+}
+
+// CSS to add to your leafintelligence.html or styles
+const featureBlockerStyles = `
+<style>
+  /* Feature blocker styles */
+  .feature-blocked {
+    position: relative !important;
+    user-select: none !important;
+    pointer-events: none !important;
+  }
+  
+  .feature-blocker-overlay {
+    pointer-events: auto !important;
+  }
+  
+  /* Pro badge styles */
+  .pro-badge {
+    font-size: 0.75rem;
+    vertical-align: middle;
+  }
+  
+  /* Disabled state for pro features */
+  .pro-feature:not(.feature-blocked) {
+    position: relative;
+  }
+  
+  .pro-feature:not(.feature-blocked)::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  
+  /* Button hover state override for free users */
+  body:not(.user-is-pro) .pro-feature:hover {
+    cursor: not-allowed !important;
+  }
+</style>
 `;
-document.head.appendChild(protectionStyles);
 
-// Override search result display functions to apply protections
-const originalHandleSearch = window.handleSearch;
-window.handleSearch = async function(...args) {
-    const result = await originalHandleSearch.apply(this, args);
-    
-    // Reapply protections after search results load
-    setTimeout(() => {
-        if (window.featureProtection) {
-            window.featureProtection.applyAllProtections();
-        }
-    }, 1000);
-    
-    return result;
-};
+// Function to inject styles if not already present
+function injectFeatureBlockerStyles() {
+  if (!document.getElementById('feature-blocker-styles')) {
+    const styleElement = document.createElement('div');
+    styleElement.id = 'feature-blocker-styles';
+    styleElement.innerHTML = featureBlockerStyles;
+    document.head.appendChild(styleElement.firstElementChild);
+  }
+}
 
-// Monitor tab switches to reapply protections
-const originalShowSection = window.showSection;
-window.showSection = function(sectionName) {
-    const result = originalShowSection.apply(this, arguments);
-    
-    // Reapply protections after section change
-    setTimeout(() => {
-        if (window.featureProtection) {
-            window.featureProtection.applyAllProtections();
-        }
-    }, 500);
-    
-    return result;
-};
-
-
+injectFeatureBlockerStyles();
 // Update the DOMContentLoaded event listener
 document.addEventListener('DOMContentLoaded', () => {
     window.loginSystem = new LoginSystem();

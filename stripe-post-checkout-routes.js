@@ -5,76 +5,76 @@ const PostCheckoutHandler = require('./stripe-post-checkout-handler');
 const authMiddleware = require('./auth-middleware');
 
 // Main verification endpoint - called when user returns from Stripe
-router.post('/verify-checkout', authMiddleware, async (req, res) => {
-  try {
-    const { sessionId } = req.body;
-    const userId = req.user._id.toString();
+// router.post('/verify-checkout', authMiddleware, async (req, res) => {
+//   try {
+//     const { sessionId } = req.body;
+//     const userId = req.user._id.toString();
     
-    console.log(`🔍 Checkout verification request - Session: ${sessionId}, User: ${userId}`);
+//     console.log(`🔍 Checkout verification request - Session: ${sessionId}, User: ${userId}`);
     
-    // Validate input
-    if (!sessionId) {
-      return res.status(400).json({
-        success: false,
-        error: 'Session ID is required'
-      });
-    }
+//     // Validate input
+//     if (!sessionId) {
+//       return res.status(400).json({
+//         success: false,
+//         error: 'Session ID is required'
+//       });
+//     }
     
-    // Security check: validate session belongs to user
-    const validation = await PostCheckoutHandler.validateSessionOwnership(sessionId, userId);
-    if (!validation.valid) {
-      console.log(`❌ Session validation failed: ${validation.reason}`);
-      return res.status(403).json({
-        success: false,
-        error: 'Invalid session',
-        details: validation.reason
-      });
-    }
+//     // Security check: validate session belongs to user
+//     const validation = await PostCheckoutHandler.validateSessionOwnership(sessionId, userId);
+//     if (!validation.valid) {
+//       console.log(`❌ Session validation failed: ${validation.reason}`);
+//       return res.status(403).json({
+//         success: false,
+//         error: 'Invalid session',
+//         details: validation.reason
+//       });
+//     }
     
-    // Process the checkout
-    const result = await PostCheckoutHandler.verifyAndUpdateUser(sessionId, userId);
+//     // Process the checkout
+//     const result = await PostCheckoutHandler.verifyAndUpdateUser(sessionId, userId);
     
-    if (result.success) {
-      console.log(`✅ Checkout processed successfully for user: ${req.user.username}`);
+//     if (result.success) {
+//       console.log(`✅ Checkout processed successfully for user: ${req.user.username}`);
       
-      // Return user-friendly response
-      res.json({
-        success: true,
-        message: 'Checkout verified and account updated successfully',
-        purchaseType: result.purchaseType,
-        amount: result.amount,
-        user: {
-          subscriptionTier: result.user.subscriptionTier,
-          subscriptionStatus: result.user.subscriptionStatus,
-          searchCredits: result.user.searchCredits,
-          featureAccess: result.user.featureAccess,
-          subscriptionEndDate: result.user.subscriptionEndDate,
-          trialEndDate: result.user.trialEndDate
-        },
-        details: {
-          subscriptionId: result.subscriptionId,
-          isTrialing: result.isTrialing,
-          searchCreditsAdded: result.searchCreditsAdded,
-          totalSearchCredits: result.totalSearchCredits
-        }
-      });
-    } else {
-      console.log(`❌ Checkout verification failed: ${result.error}`);
-      res.status(400).json({
-        success: false,
-        error: result.error,
-        message: 'Checkout verification failed'
-      });
-    }
-  } catch (error) {
-    console.error('❌ Checkout verification route error:', error);
-    res.status(500).json({
-      success: false,
-      error: 'Internal server error',
-      message: 'Failed to verify checkout'
-    });
-  }
-});
+//       // Return user-friendly response
+//       res.json({
+//         success: true,
+//         message: 'Checkout verified and account updated successfully',
+//         purchaseType: result.purchaseType,
+//         amount: result.amount,
+//         user: {
+//           subscriptionTier: result.user.subscriptionTier,
+//           subscriptionStatus: result.user.subscriptionStatus,
+//           searchCredits: result.user.searchCredits,
+//           featureAccess: result.user.featureAccess,
+//           subscriptionEndDate: result.user.subscriptionEndDate,
+//           trialEndDate: result.user.trialEndDate
+//         },
+//         details: {
+//           subscriptionId: result.subscriptionId,
+//           isTrialing: result.isTrialing,
+//           searchCreditsAdded: result.searchCreditsAdded,
+//           totalSearchCredits: result.totalSearchCredits
+//         }
+//       });
+//     } else {
+//       console.log(`❌ Checkout verification failed: ${result.error}`);
+//       res.status(400).json({
+//         success: false,
+//         error: result.error,
+//         message: 'Checkout verification failed'
+//       });
+//     }
+//   } catch (error) {
+//     console.error('❌ Checkout verification route error:', error);
+//     res.status(500).json({
+//       success: false,
+//       error: 'Internal server error',
+//       message: 'Failed to verify checkout'
+//     });
+//   }
+// });
 
 // Quick session status check (doesn't update user)
 router.get('/session-status/:sessionId', authMiddleware, async (req, res) => {
