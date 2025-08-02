@@ -52,10 +52,10 @@ const {
   TreatmentEffectCalculator 
 } = DataIntegration;
 const stripeRoutes = require('./stripe-routes');
-// const stripeWebhook = require('./stripe-webhook');
+const stripeWebhook = require('./stripe-webhook');
 // Add these imports at the top
-const PostCheckoutHandler = require('./stripe-post-checkout-handler');
-const postCheckoutRoutes = require('./stripe-post-checkout-routes');
+// const PostCheckoutHandler = require('./stripe-post-checkout-handler');
+// const postCheckoutRoutes = require('./stripe-post-checkout-routes');
 
 
 const FDA_DRUGSFDA_URL = 'https://api.fda.gov/drug/drugsfda.json';
@@ -152,9 +152,9 @@ const openai = new OpenAI({
 //   res.setHeader('Content-Security-Policy', "default-src 'self'");
 //   next();
 // });
-// app.use('/stripe', stripeWebhook);
+app.use('/stripe', stripeWebhook);
 // Add the new routes
-app.use('/api/stripe', postCheckoutRoutes);
+// app.use('/api/stripe', postCheckoutRoutes);
 
 
 app.use(express.json());
@@ -212,7 +212,14 @@ function initializeUsersFile(callback) {
   });
 }
 
+// Add these routes near your other static file serving routes
+app.get('/search-success', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'search-success.html'));
+});
 
+app.get('/subscription-success', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'subscription-success.html'));
+});
 
 
 async function checkSearchAccess(user, searchQuery) {
@@ -239,6 +246,7 @@ async function checkSearchAccess(user, searchQuery) {
   return { hasAccess: false, reason: 'payment_required' };
 }
 
+// Check user's access level for frontend
 // Check user's access level for frontend
 app.get('/api/check-access', async (req, res) => {
   try {
@@ -276,148 +284,148 @@ app.get('/api/check-access', async (req, res) => {
 });
 
 
-// Add these routes near your other static file serving routes
-app.get('/checkout-success', (req, res) => {
-  // Make sure the file exists in the correct location
-  res.sendFile(path.join(__dirname, 'public', 'checkout-success.html'));
+// // Add these routes near your other static file serving routes
+// app.get('/checkout-success', (req, res) => {
+//   // Make sure the file exists in the correct location
+//   res.sendFile(path.join(__dirname, 'public', 'checkout-success.html'));
   
-  // Check if file exists
-  if (fs.existsSync(filePath)) {
-    res.sendFile(filePath);
-  } else {
-    // File doesn't exist, serve a simple success page
-    console.log(`❌ checkout-success.html not found at: ${filePath}`);
-    res.send(`
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <title>Payment Successful</title>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <script src="https://cdn.tailwindcss.com"></script>
-      </head>
-      <body class="bg-gray-50 min-h-screen flex items-center justify-center">
-        <div class="bg-white p-8 rounded-lg shadow-lg text-center">
-          <h1 class="text-2xl font-bold text-green-600 mb-4">Payment Successful!</h1>
-          <p class="text-gray-600 mb-6">Your purchase is being processed...</p>
-          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <script>
-            // Redirect to home page after 3 seconds
-            setTimeout(() => {
-              const urlParams = new URLSearchParams(window.location.search);
-              const sessionId = urlParams.get('session_id');
-              if (sessionId) {
-                // Try to verify the session via API
-                fetch('/api/stripe/verify-checkout', {
-                  method: 'POST',
-                  headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + btoa(JSON.stringify({userId: localStorage.getItem('currentUserId')}))
-                  },
-                  body: JSON.stringify({sessionId})
-                }).then(() => {
-                  window.location.href = '/?success=true';
-                }).catch(() => {
-                  window.location.href = '/?success=true';
-                });
-              } else {
-                window.location.href = '/?success=true';
-              }
-            }, 3000);
-          </script>
-        </div>
-      </body>
-      </html>
-    `);
-  }
-});
+//   // Check if file exists
+//   if (fs.existsSync(filePath)) {
+//     res.sendFile(filePath);
+//   } else {
+//     // File doesn't exist, serve a simple success page
+//     console.log(`❌ checkout-success.html not found at: ${filePath}`);
+//     res.send(`
+//       <!DOCTYPE html>
+//       <html>
+//       <head>
+//         <title>Payment Successful</title>
+//         <meta charset="UTF-8">
+//         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+//         <script src="https://cdn.tailwindcss.com"></script>
+//       </head>
+//       <body class="bg-gray-50 min-h-screen flex items-center justify-center">
+//         <div class="bg-white p-8 rounded-lg shadow-lg text-center">
+//           <h1 class="text-2xl font-bold text-green-600 mb-4">Payment Successful!</h1>
+//           <p class="text-gray-600 mb-6">Your purchase is being processed...</p>
+//           <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+//           <script>
+//             // Redirect to home page after 3 seconds
+//             setTimeout(() => {
+//               const urlParams = new URLSearchParams(window.location.search);
+//               const sessionId = urlParams.get('session_id');
+//               if (sessionId) {
+//                 // Try to verify the session via API
+//                 fetch('/api/stripe/verify-checkout', {
+//                   method: 'POST',
+//                   headers: {
+//                     'Content-Type': 'application/json',
+//                     'Authorization': 'Bearer ' + btoa(JSON.stringify({userId: localStorage.getItem('currentUserId')}))
+//                   },
+//                   body: JSON.stringify({sessionId})
+//                 }).then(() => {
+//                   window.location.href = '/?success=true';
+//                 }).catch(() => {
+//                   window.location.href = '/?success=true';
+//                 });
+//               } else {
+//                 window.location.href = '/?success=true';
+//               }
+//             }, 3000);
+//           </script>
+//         </div>
+//       </body>
+//       </html>
+//     `);
+//   }
+// });
 
-// 4. UPDATE YOUR EXISTING SUCCESS ROUTES TO REDIRECT
-app.get('/search-success', (req, res) => {
-  const sessionId = req.query.session_id;
-  if (sessionId) {
-    res.redirect(`/checkout-success.html?session_id=${sessionId}`);
-  } else {
-    res.redirect('/checkout-success.html');
-  }
-});
+// // 4. UPDATE YOUR EXISTING SUCCESS ROUTES TO REDIRECT
+// app.get('/search-success', (req, res) => {
+//   const sessionId = req.query.session_id;
+//   if (sessionId) {
+//     res.redirect(`/checkout-success.html?session_id=${sessionId}`);
+//   } else {
+//     res.redirect('/checkout-success.html');
+//   }
+// });
 
-app.get('/subscription-success', (req, res) => {
-  const sessionId = req.query.session_id;
-  if (sessionId) {
-    res.redirect(`/checkout-success.html?session_id=${sessionId}`);
-  } else {
-    res.redirect('/checkout-success.html');
-  }
-});
-// 5. ADD WEBHOOK DISABLE ROUTE (to stop webhook errors)
-app.post('/webhook', (req, res) => {
-  console.log('⚠️ Webhook endpoint called but webhooks are disabled');
-  res.status(200).send('OK');
-});
+// app.get('/subscription-success', (req, res) => {
+//   const sessionId = req.query.session_id;
+//   if (sessionId) {
+//     res.redirect(`/checkout-success.html?session_id=${sessionId}`);
+//   } else {
+//     res.redirect('/checkout-success.html');
+//   }
+// });
+// // 5. ADD WEBHOOK DISABLE ROUTE (to stop webhook errors)
+// app.post('/webhook', (req, res) => {
+//   console.log('⚠️ Webhook endpoint called but webhooks are disabled');
+//   res.status(200).send('OK');
+// });
 
-// 6. ADD DEBUG ENDPOINT FOR TESTING AUTH
-app.get('/api/debug/auth-test', async (req, res) => {
-  try {
-    const authHeader = req.headers.authorization;
-    const userId = req.query.userId;
-    const bodyUserId = req.body?.userId;
+// // 6. ADD DEBUG ENDPOINT FOR TESTING AUTH
+// app.get('/api/debug/auth-test', async (req, res) => {
+//   try {
+//     const authHeader = req.headers.authorization;
+//     const userId = req.query.userId;
+//     const bodyUserId = req.body?.userId;
     
-    res.json({
-      debug: true,
-      authHeader: authHeader ? 'Present' : 'Missing',
-      queryUserId: userId ? 'Present' : 'Missing',
-      bodyUserId: bodyUserId ? 'Present' : 'Missing',
-      timestamp: new Date().toISOString()
-    });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
+//     res.json({
+//       debug: true,
+//       authHeader: authHeader ? 'Present' : 'Missing',
+//       queryUserId: userId ? 'Present' : 'Missing',
+//       bodyUserId: bodyUserId ? 'Present' : 'Missing',
+//       timestamp: new Date().toISOString()
+//     });
+//   } catch (error) {
+//     res.status(500).json({ error: error.message });
+//   }
+// });
 
-// 7. ADD MANUAL VERIFICATION ENDPOINT FOR TESTING
-app.post('/api/admin/manual-verify', async (req, res) => {
-  try {
-    const { sessionId, userEmail } = req.body;
+// // 7. ADD MANUAL VERIFICATION ENDPOINT FOR TESTING
+// app.post('/api/admin/manual-verify', async (req, res) => {
+//   try {
+//     const { sessionId, userEmail } = req.body;
     
-    if (!sessionId || !userEmail) {
-      return res.status(400).json({
-        error: 'sessionId and userEmail are required'
-      });
-    }
+//     if (!sessionId || !userEmail) {
+//       return res.status(400).json({
+//         error: 'sessionId and userEmail are required'
+//       });
+//     }
     
-    // Find user by email
-    const user = await User.findOne({ email: userEmail });
-    if (!user) {
-      return res.status(404).json({
-        error: 'User not found'
-      });
-    }
+//     // Find user by email
+//     const user = await User.findOne({ email: userEmail });
+//     if (!user) {
+//       return res.status(404).json({
+//         error: 'User not found'
+//       });
+//     }
     
-    console.log(`🔧 Manual verification: ${sessionId} for ${userEmail}`);
+//     console.log(`🔧 Manual verification: ${sessionId} for ${userEmail}`);
     
-    // Use the post-checkout handler
-    const PostCheckoutHandler = require('./stripe-post-checkout-handler');
-    const result = await PostCheckoutHandler.verifyAndUpdateUser(sessionId, user._id);
+//     // Use the post-checkout handler
+//     const PostCheckoutHandler = require('./stripe-post-checkout-handler');
+//     const result = await PostCheckoutHandler.verifyAndUpdateUser(sessionId, user._id);
     
-    res.json({
-      manual: true,
-      result: result,
-      user: {
-        email: user.email,
-        subscriptionTier: user.subscriptionTier,
-        searchCredits: user.searchCredits
-      }
-    });
+//     res.json({
+//       manual: true,
+//       result: result,
+//       user: {
+//         email: user.email,
+//         subscriptionTier: user.subscriptionTier,
+//         searchCredits: user.searchCredits
+//       }
+//     });
     
-  } catch (error) {
-    console.error('Manual verification error:', error);
-    res.status(500).json({
-      error: error.message,
-      stack: error.stack
-    });
-  }
-});
+//   } catch (error) {
+//     console.error('Manual verification error:', error);
+//     res.status(500).json({
+//       error: error.message,
+//       stack: error.stack
+//     });
+//   }
+// });
 // ===== USER PREFERENCES ENDPOINT =====
 // Add this to your clinicaltrials.js server file
 
