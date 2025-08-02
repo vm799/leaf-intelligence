@@ -4587,14 +4587,14 @@ tailwind.config = {
             🏛️ FDA Data
         </button>
                 <!-- NEW FDA Complete Response Letters Button -->
-        <button onclick="showOnlySection('responseLettersSection')" 
-                class="nav-btn px-4 py-2 text-sm font-medium rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 transition-colors"
+        <button onclick="showOnlySection('responseLettersSection')"  id='crltabp'
+                class=" pro-feature nav-btn px-4 py-2 text-sm font-medium rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 transition-colors"
                 data-section="fda">
             📋 Response Letters <span class="ml-1 px-1.5 py-0.5 bg-gray-100 text-gray-800 rounded-full text-xs" id="nav-response-letters-count">0</span>
         </button>
 
-        <button onclick="showOnlySection('warningLetters')" 
-                class="hidden nav-btn px-4 py-2 text-sm font-medium rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 transition-colors"
+        <button onclick="showOnlySection('warningLetters')" id='wltabp'
+                class="pro-feature nav-btn px-4 py-2 text-sm font-medium rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 transition-colors"
                 data-section="fda">
            📑 Warning Letters
         </button>
@@ -64447,7 +64447,7 @@ function displayComprehensiveFdaData(fdaData, drugName) {
           </button>
         </li>
         <li class="mr-2" role="presentation">
-          <button class="fda-tab-button inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300" 
+          <button class="pro-feature fda-tab-button inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300" 
                   id="label-tab" 
                   data-tab="label-content"
                   aria-selected="false">
@@ -64455,7 +64455,7 @@ function displayComprehensiveFdaData(fdaData, drugName) {
           </button>
         </li>
         <li class="mr-2" role="presentation">
-          <button class="fda-tab-button inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300" 
+          <button class=" pro-featurefda-tab-button inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300" 
                   id="ndc-tab" 
                   data-tab="ndc-content"
                   aria-selected="false">
@@ -64463,7 +64463,7 @@ function displayComprehensiveFdaData(fdaData, drugName) {
           </button>
         </li>
         <li class="mr-2" role="presentation">
-          <button class="fda-tab-button inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300" 
+          <button class=" pro-feature fda-tab-button inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300" 
                   id="event-tab" 
                   data-tab="event-content"
                   aria-selected="false">
@@ -64471,7 +64471,7 @@ function displayComprehensiveFdaData(fdaData, drugName) {
           </button>
         </li>
         <li class="mr-2" role="presentation">
-          <button class="fda-tab-button inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300" 
+          <button class=" pro-feature fda-tab-button inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300" 
                   id="enforcement-tab" 
                   data-tab="enforcement-content"
                   aria-selected="false">
@@ -110668,7 +110668,16 @@ const featureBlocker = new LeafIntelligenceFeatureBlocker({
       '#enrollmentandoutcomes',
       '#endpointsandoutcomes',
         'button[onclick*="switchEnhancedTab(\'enrollment\')"]',
-        'button[onclick*="switchEnhancedTab(\'endpoints\')"]'
+        'button[onclick*="switchEnhancedTab(\'endpoints\')"]',
+
+          'button[onclick*="showOnlySection(\'responseLettersSection\')]',
+             'button[onclick*="showOnlySection(\'warningLetters\')]',
+             '#enforcement-tab',
+'#event-tab',
+'#label-tab',
+'#wltabp',
+'#crltabp'
+
 
 
     ],
