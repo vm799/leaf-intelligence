@@ -14,17 +14,20 @@ const authMiddleware = async (req, res, next) => {
         const decoded = JSON.parse(Buffer.from(token, 'base64').toString());
         userId = decoded.userId;
       } catch (e) {
-        // Invalid token format
+        console.error('Invalid token format:', e);
       }
     }
     
     // Check session
-    if (!userId && req.session) {
+    if (!userId && req.session && req.session.userId) {
       userId = req.session.userId;
     }
     
+    // Log what we found
+    console.log('Auth middleware - userId found:', userId ? 'Yes' : 'No');
+    
     if (!userId) {
-      return res.status(401).json({ error: 'Authentication required' });
+      return res.status(401).json({ error: 'Authentication required - no userId found' });
     }
     
     // Verify user exists
@@ -33,11 +36,11 @@ const authMiddleware = async (req, res, next) => {
       return res.status(401).json({ error: 'User not found' });
     }
     
-    // Attach to request - use consistent property names
-    req.userId = userId;  // This fixes the line 7 error
+    // Attach to request
+    req.userId = userId;
     req.user = user;
-    req.user._id = user._id; // Ensure _id is available
     
+    console.log('Auth middleware - User authenticated:', user.username || user.email);
     next();
   } catch (error) {
     console.error('Auth middleware error:', error);

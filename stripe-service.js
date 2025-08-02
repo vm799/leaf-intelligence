@@ -84,7 +84,7 @@ class StripeService {
         }],
         mode: 'payment',
         // UPDATED: Use unified checkout-success page
-        success_url: `${process.env.FRONTEND_URL || 'https://www.syneticx.com'}/checkout-success?session_id={CHECKOUT_SESSION_ID}`,
+        success_url: `${process.env.FRONTEND_URL || 'https://www.syneticx.com'}/checkout-success.html?session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `${process.env.FRONTEND_URL || 'https://www.syneticx.com'}/pricing?canceled=true`,
         customer: customerId,
         metadata: {
@@ -122,7 +122,7 @@ class StripeService {
         }],
         mode: 'subscription',
         // UPDATED: Use unified checkout-success page
-        success_url: `${process.env.FRONTEND_URL || 'https://www.syneticx.com'}/checkout-success?session_id={CHECKOUT_SESSION_ID}`,
+        success_url: `${process.env.FRONTEND_URL || 'https://www.syneticx.com'}/checkout-success.html?session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `${process.env.FRONTEND_URL || 'https://www.syneticx.com'}/pricing?canceled=true`,
         customer: customerId,
         metadata: {

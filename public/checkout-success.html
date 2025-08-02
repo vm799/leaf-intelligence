@@ -169,14 +169,23 @@
                     // Animate progress steps
                     this.animateProgress();
                     
-                    // Get auth token (adapted to your system)
-                    const authToken = this.getAuthToken();
-                    if (!authToken) {
-                        throw new Error('Please log in to complete your purchase verification');
+                    // First, get session details and user ID from Stripe metadata
+                    console.log('🔍 Getting session details...');
+                    const sessionResponse = await fetch(`${this.apiBase}/session-details/${sessionId}`);
+                    const sessionData = await sessionResponse.json();
+                    
+                    if (!sessionData.success) {
+                        throw new Error('Invalid session ID');
+                    }
+                    
+                    console.log('📊 Session data received:', sessionData);
+                    
+                    if (!sessionData.userId) {
+                        throw new Error('No user ID found in session metadata');
                     }
 
-                    // Verify checkout with retries
-                    const result = await this.verifyWithRetries(sessionId, authToken);
+                    // Now verify checkout with the user ID
+                    const result = await this.verifyWithUserId(sessionId, sessionData.userId);
 
                     if (result.success) {
                         console.log('🎉 Checkout processed successfully!');
@@ -191,41 +200,32 @@
                 }
             }
 
-            async verifyWithRetries(sessionId, authToken, attempt = 1) {
-                const maxRetries = 3;
-                
+            async verifyWithUserId(sessionId, userId) {
                 try {
-                    console.log(`🔄 Verification attempt ${attempt}/${maxRetries}`);
+                    console.log(`🔄 Verifying checkout with userId: ${userId}`);
 
                     const response = await fetch(`${this.apiBase}/verify-checkout`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${authToken}`
                         },
-                        body: JSON.stringify({ sessionId })
+                        body: JSON.stringify({ 
+                            sessionId: sessionId,
+                            userId: userId 
+                        })
                     });
 
                     const result = await response.json();
-
+                    
                     if (response.ok && result.success) {
                         return result;
-                    } else if (attempt < maxRetries) {
-                        console.log(`⏳ Retrying in 2 seconds...`);
-                        await new Promise(resolve => setTimeout(resolve, 2000));
-                        return this.verifyWithRetries(sessionId, authToken, attempt + 1);
                     } else {
-                        throw new Error(result.error || `Verification failed after ${maxRetries} attempts`);
+                        throw new Error(result.error || 'Verification failed');
                     }
 
                 } catch (error) {
-                    if (attempt < maxRetries) {
-                        console.log(`⏳ Network error, retrying in 2 seconds...`);
-                        await new Promise(resolve => setTimeout(resolve, 2000));
-                        return this.verifyWithRetries(sessionId, authToken, attempt + 1);
-                    } else {
-                        throw error;
-                    }
+                    console.error('❌ Verification error:', error);
+                    throw error;
                 }
             }
 
@@ -421,17 +421,10 @@
                 return;
             }
 
-            // Check if user is logged in
+            // Check if user is logged in - but don't require it anymore
             const verifier = new CheckoutVerifier();
-            const authToken = verifier.getAuthToken();
             
-            if (!authToken) {
-                // Redirect to login with return URL
-                window.location.href = `/leafintelligence.html?login=required&return=${encodeURIComponent(window.location.href)}`;
-                return;
-            }
-
-            // Start verification process
+            // Start verification process directly
             verifier.handleCheckoutSuccess(sessionId);
         });
 

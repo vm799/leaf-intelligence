@@ -110,13 +110,13 @@ router.get('/session-status/:sessionId', authMiddleware, async (req, res) => {
 // Add this new route to stripe-post-checkout-routes.js (add it before the module.exports line)
 
 // Non-authenticated endpoint to get session details (including user ID from metadata)
+// Non-authenticated endpoint to get session details (including user ID from metadata)
 router.get('/session-details/:sessionId', async (req, res) => {
   try {
     const { sessionId } = req.params;
     
     console.log(`🔍 Getting session details for: ${sessionId}`);
     
-    // Validate input
     if (!sessionId) {
       return res.status(400).json({
         success: false,
@@ -124,17 +124,7 @@ router.get('/session-details/:sessionId', async (req, res) => {
       });
     }
     
-    // Get session status and metadata (this doesn't require user auth)
-    const sessionDetails = await PostCheckoutHandler.getSessionStatus(sessionId);
-    
-    if (!sessionDetails.success) {
-      return res.status(400).json({
-        success: false,
-        error: 'Invalid session ID'
-      });
-    }
-    
-    // Retrieve full session to get metadata
+    // Retrieve full session to get metadata directly from Stripe
     const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
     const session = await stripe.checkout.sessions.retrieve(sessionId);
     
@@ -217,7 +207,7 @@ router.get('/success', async (req, res) => {
     }
     
     // Redirect to a page that will handle verification via JavaScript
-    res.redirect(`/checkout-success?session_id=${sessionId}`);
+    res.redirect(`/checkout-success.html?session_id=${sessionId}`);
   } catch (error) {
     console.error('❌ Success page error:', error);
     res.redirect('/pricing?error=processing_failed');
