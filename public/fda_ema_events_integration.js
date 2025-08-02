@@ -558,7 +558,7 @@ function addRealOnlyRecentEventsToSummary() {
     
     // Create the recent events section HTML with CARD LAYOUT
     const recentEventsHtml = `
-      <div id="recent-events-section" class="mt-8 border-t pt-8">
+      <div id="recent-events-section" class="pro-feature mt-8 border-t pt-8">
         <div class="flex items-center justify-between mb-6">
           <div>
             <h3 class="text-xl font-bold text-gray-900 flex items-center">
@@ -633,7 +633,7 @@ function addRealOnlyRecentEventsToSummary() {
             </div>
             
             <!-- Events Grid -->
-            <div class="pro-feature p-6" id='progrid'>
+            <div class="p-6">
               <div id="recentEventsGrid" class=" grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 ${(() => {
                   // Flatten all events from all companies into a single array
