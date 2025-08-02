@@ -5774,7 +5774,7 @@ app.post('/api/signup', async (req, res) => {
       role: 'user',
       usage: 0,
       billingPeriod: `${new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} - ${new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`,
-      subscriptionStatus: 'free-trial',
+      subscriptionStatus: 'trialing',
       darkModeEnabled: false,
       // New tracking fields
       lastLogin: now,
