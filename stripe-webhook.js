@@ -208,7 +208,7 @@ async function handleInvoicePaymentSucceeded(invoice) {
       amount: invoice.amount_paid / 100,
       description: 'Monthly Subscription Payment',
       stripeInvoiceId: invoice.id,
-      status: 'paid'
+      status: 'completed'
     });
     await user.save();
   }
