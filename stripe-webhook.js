@@ -115,8 +115,20 @@ async function handleSubscriptionUpdate(subscription) {
   user.stripeSubscriptionId = subscription.id;
   user.subscriptionStatus = subscription.status;
   user.subscriptionTier = 'monthly';
+  // user.subscriptionStartDate = new Date(subscription.current_period_start * 1000);
+  // user.subscriptionEndDate = new Date(subscription.current_period_end * 1000);
+
+  if (subscription.current_period_start) {
   user.subscriptionStartDate = new Date(subscription.current_period_start * 1000);
+} else {
+  user.subscriptionStartDate = new Date(); // Default to now if missing
+}
+
+if (subscription.current_period_end) {
   user.subscriptionEndDate = new Date(subscription.current_period_end * 1000);
+} else {
+  user.subscriptionEndDate = null; // Or calculate based on start + duration
+}
   
   // Update feature access for monthly subscription
   user.featureAccess = {

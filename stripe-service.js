@@ -28,6 +28,8 @@ class StripeService {
     }
   }
 
+
+
   async createSingleSearchCheckout(user, searchQuery) {
     try {
       // Ensure customer exists

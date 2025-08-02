@@ -76,6 +76,196 @@ const authMiddleware = require('./auth-middleware');
 //   }
 // });
 
+function generateSearchId() {
+  return 'search_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+}
+
+
+// 2. Add the verify-checkout endpoint
+app.post('/verify-checkout', async (req, res) => {
+  try {
+    const { sessionId } = req.body;
+    
+    // Get userId from either the request body or the auth header
+    let userId = req.body.userId;
+    
+    if (!userId) {
+      const authHeader = req.headers.authorization;
+      if (authHeader && authHeader.startsWith('Bearer ')) {
+        const token = authHeader.split(' ')[1];
+        try {
+          const decoded = JSON.parse(Buffer.from(token, 'base64').toString());
+          userId = decoded.userId;
+        } catch (e) {
+          console.error('Error decoding auth token:', e);
+        }
+      }
+    }
+    
+    if (!userId) {
+      return res.status(401).json({ 
+        success: false, 
+        error: 'User ID not found in request' 
+      });
+    }
+    
+    console.log(`🔍 Verifying checkout session: ${sessionId} for user: ${userId}`);
+    
+    // Retrieve the session from Stripe
+    const stripeService = require('./stripe-service');
+    const session = await stripeService.retrieveCheckoutSession(sessionId);
+    
+    if (!session) {
+      return res.status(404).json({ 
+        success: false, 
+        error: 'Session not found' 
+      });
+    }
+    
+    // Verify the session belongs to this user
+    if (session.metadata.userId !== userId) {
+      return res.status(403).json({ 
+        success: false, 
+        error: 'Session does not belong to this user' 
+      });
+    }
+    
+    // Check if payment was successful
+    if (session.payment_status !== 'paid') {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Payment not completed' 
+      });
+    }
+    
+    // Update user in MongoDB
+    const { User } = require('./db');
+    const user = await User.findById(userId);
+    
+    if (!user) {
+      return res.status(404).json({ 
+        success: false, 
+        error: 'User not found' 
+      });
+    }
+    
+    // Process based on purchase type
+    const purchaseType = session.metadata.type;
+    
+    if (purchaseType === 'single_search') {
+      // Add search credit
+      user.searchCredits = (user.searchCredits || 0) + 1;
+      
+      // Add to purchased searches
+      user.purchasedSearches.push({
+        searchId: generateSearchId(),
+        purchaseDate: new Date(),
+        stripePaymentIntentId: session.payment_intent,
+        searchQuery: session.metadata.searchQuery || 'New Search',
+        expiresAt: null
+      });
+      
+      // Add to billing history
+      user.billingHistory.push({
+        date: new Date(),
+        amount: session.amount_total / 100,
+        description: 'Single Search Purchase',
+        stripeInvoiceId: session.invoice,
+        status: 'completed'
+      });
+      
+    } else if (purchaseType === 'monthly_subscription') {
+      // Update subscription details
+      user.subscriptionTier = 'monthly';
+      user.stripeSubscriptionId = session.subscription;
+      user.subscriptionStatus = 'active';
+      user.subscriptionStartDate = new Date();
+      
+      // Update feature access
+      user.featureAccess = {
+        clinicalTrials: {
+          topConditions: -1, // Unlimited
+          trialAnalysis: true,
+          viewAllTrials: true,
+        },
+        fdaData: {
+          viewAllNDAs: true,
+          timelineAccess: 'all',
+          enforcementsAccess: true,
+          adverseEventsAccess: true,
+          labelingAccess: true
+        },
+        responseLetters: true,
+        warningLetters: true,
+        labeling: {
+          latestChanges: -1, // Unlimited
+          emaAccess: true
+        },
+        pubmed: {
+          advancedSearch: true
+        }
+      };
+    }
+    
+    // Save user
+    await user.save();
+    
+    console.log(`✅ User ${userId} updated successfully after checkout`);
+    
+    // Return updated user data
+    res.json({
+      success: true,
+      user: {
+        _id: user._id,
+        email: user.email,
+        username: user.username,
+        subscriptionTier: user.subscriptionTier,
+        searchCredits: user.searchCredits,
+        featureAccess: user.featureAccess
+      },
+      purchaseType: purchaseType
+    });
+    
+  } catch (error) {
+    console.error('Error in verify-checkout:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Failed to verify checkout: ' + error.message 
+    });
+  }
+});
+
+// 3. Add endpoint to get session details (for checkout-success.html)
+app.get('/session-details/:sessionId', async (req, res) => {
+  try {
+    const { sessionId } = req.params;
+    
+    const stripeService = require('./stripe-service');
+    const session = await stripeService.retrieveCheckoutSession(sessionId);
+    
+    if (!session) {
+      return res.status(404).json({ 
+        success: false, 
+        error: 'Session not found' 
+      });
+    }
+    
+    // Return minimal session details
+    res.json({
+      success: true,
+      userId: session.metadata.userId,
+      type: session.metadata.type,
+      paymentStatus: session.payment_status
+    });
+    
+  } catch (error) {
+    console.error('Error getting session details:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Failed to get session details' 
+    });
+  }
+});
 // Quick session status check (doesn't update user)
 router.get('/session-status/:sessionId', authMiddleware, async (req, res) => {
   try {

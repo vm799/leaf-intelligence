@@ -137,6 +137,21 @@ app.use(
     credentials: true, // If your app uses cookies or authentication
   })
 );
+
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'your-secret-key-here',
+  resave: false,
+  saveUninitialized: false,
+  store: MongoStore.create({
+    mongoUrl: process.env.MONGO_URI || 'your-mongodb-connection-string',
+    touchAfter: 24 * 3600 // lazy session update
+  }),
+  cookie: {
+    secure: process.env.NODE_ENV === 'production', // require https in production
+    httpOnly: true,
+    maxAge: 1000 * 60 * 60 * 24 * 7 // 7 days
+  }
+}));
 // Initialize OpenAI client
 const openai = new OpenAI({
 
@@ -283,6 +298,9 @@ app.get('/api/check-access', async (req, res) => {
   }
 });
 
+function generateSearchId() {
+  return 'search_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+}
 
 // // Add these routes near your other static file serving routes
 // app.get('/checkout-success', (req, res) => {
