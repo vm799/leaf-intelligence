@@ -399,30 +399,30 @@ async function fetchEMAMedicines(searchTerm) {
     }
 }
 
-    function renderLabels() {
-        const filteredLabels = currentLabels.filter(label => {
-            if (currentFilter === 'all') return true;
-            if (currentFilter === 'fda') return label.type === 'FDA';
-            if (currentFilter === 'ema') return label.type === 'EMA';
-            if (currentFilter === 'warnings') return label.boxedWarning;
-            return true;
-        });
+    // function renderLabels() {
+    //     const filteredLabels = currentLabels.filter(label => {
+    //         if (currentFilter === 'all') return true;
+    //         if (currentFilter === 'fda') return label.type === 'FDA';
+    //         if (currentFilter === 'ema') return label.type === 'EMA';
+    //         if (currentFilter === 'warnings') return label.boxedWarning;
+    //         return true;
+    //     });
 
-        const totalPages = Math.ceil(filteredLabels.length / itemsPerPage);
-        const startIndex = (currentPage - 1) * itemsPerPage;
-        const endIndex = startIndex + itemsPerPage;
-        const pageLabels = filteredLabels.slice(startIndex, endIndex);
+    //     const totalPages = Math.ceil(filteredLabels.length / itemsPerPage);
+    //     const startIndex = (currentPage - 1) * itemsPerPage;
+    //     const endIndex = startIndex + itemsPerPage;
+    //     const pageLabels = filteredLabels.slice(startIndex, endIndex);
 
-        if (elements.labelsGrid) {
-            elements.labelsGrid.innerHTML = pageLabels.map(label => createCleanLabelCard(label)).join('');
-        }
+    //     if (elements.labelsGrid) {
+    //         elements.labelsGrid.innerHTML = pageLabels.map(label => createCleanLabelCard(label)).join('');
+    //     }
         
-        // Update pagination
-        if (elements.currentPageSpan) elements.currentPageSpan.textContent = currentPage;
-        if (elements.totalPagesSpan) elements.totalPagesSpan.textContent = totalPages;
-        if (elements.prevPage) elements.prevPage.disabled = currentPage === 1;
-        if (elements.nextPage) elements.nextPage.disabled = currentPage === totalPages;
-    }
+    //     // Update pagination
+    //     if (elements.currentPageSpan) elements.currentPageSpan.textContent = currentPage;
+    //     if (elements.totalPagesSpan) elements.totalPagesSpan.textContent = totalPages;
+    //     if (elements.prevPage) elements.prevPage.disabled = currentPage === 1;
+    //     if (elements.nextPage) elements.nextPage.disabled = currentPage === totalPages;
+    // }
 
     
 //     function createCleanLabelCard(label) {
@@ -709,6 +709,253 @@ async function fetchEMAMedicines(searchTerm) {
 
 
 // Improved createCleanLabelCard function with better UI design
+
+function renderLabels() {
+    // Check if user is Pro
+    const isPro = window.leafIntelligenceFeatureBlocker ? window.leafIntelligenceFeatureBlocker.isPro : false;
+    
+    const filteredLabels = currentLabels.filter(label => {
+        if (currentFilter === 'all') return true;
+        if (currentFilter === 'fda') return label.type === 'FDA';
+        if (currentFilter === 'ema') return label.type === 'EMA';
+        
+        if (currentFilter === 'warnings') return label.boxedWarning;
+        return true;
+    });
+
+    // Sort by date (most recent first)
+    const sortedLabels = [...filteredLabels].sort((a, b) => {
+        const dateA = new Date(a.lastUpdated || 0);
+        const dateB = new Date(b.lastUpdated || 0);
+        return dateB - dateA;
+    });
+
+    // For free users, limit to top 3 most recent
+    // const visibleLabels = isPro ? sortedLabels : sortedLabels.slice(0, 3);
+    const visibleLabels = sortedLabels.filter(label => label.type === 'FDA');
+    const blockedCount = sortedLabels.length - visibleLabels.length;
+    
+    // For Pro users, use pagination normally
+    let pageLabels = visibleLabels;
+    if (isPro) {
+        const totalPages = Math.ceil(visibleLabels.length / itemsPerPage);
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+        pageLabels = visibleLabels.slice(startIndex, endIndex);
+        
+        // Update pagination controls
+        if (elements.currentPageSpan) elements.currentPageSpan.textContent = currentPage;
+        if (elements.totalPagesSpan) elements.totalPagesSpan.textContent = totalPages;
+        if (elements.prevPage) elements.prevPage.disabled = currentPage === 1;
+        if (elements.nextPage) elements.nextPage.disabled = currentPage === totalPages;
+    } else {
+        // Hide pagination for free users
+        const paginationContainer = document.querySelector('.pharma-pagination-container');
+        if (paginationContainer) paginationContainer.style.display = 'none';
+    }
+
+    if (elements.labelsGrid) {
+        // Render visible labels
+        let gridHTML = pageLabels.map(label => createCleanLabelCard(label)).join('');
+        
+        // Add blocker section for free users
+        if (!isPro && blockedCount > 0) {
+            gridHTML += createLabelsBlocker(blockedCount, sortedLabels.length);
+            
+            // Add preview of next 2 blocked labels (blurred)
+            if (sortedLabels.length > 3) {
+                const previewLabels = sortedLabels.slice(3, 5);
+                gridHTML += previewLabels.map(label => createBlurredLabelCard(label)).join('');
+            }
+        }
+        
+        elements.labelsGrid.innerHTML = gridHTML;
+    }
+    
+    // Update the filter buttons to show counts
+    updateFilterCounts(sortedLabels, isPro);
+}
+function updateFilterCounts(allLabels, isPro) {
+    const visibleLabels = isPro ? allLabels : allLabels.slice(0, 3);
+    
+    const counts = {
+        all: visibleLabels.length,
+        fda: visibleLabels.filter(l => l.type === 'FDA').length,
+        ema: visibleLabels.filter(l => l.type === 'EMA').length,
+        warnings: visibleLabels.filter(l => l.boxedWarning).length
+    };
+    
+    const totalCounts = {
+        all: allLabels.length,
+        fda: allLabels.filter(l => l.type === 'FDA').length,
+        ema: allLabels.filter(l => l.type === 'EMA').length,
+        warnings: allLabels.filter(l => l.boxedWarning).length
+    };
+    
+    // Update filter button text to show counts
+    if (!isPro) {
+        if (elements.filterAll) {
+            elements.filterAll.innerHTML = `All (${counts.all}/${totalCounts.all})`;
+        }
+        if (elements.filterFda) {
+            elements.filterFda.innerHTML = `FDA (${counts.fda}/${totalCounts.fda})`;
+        }
+        if (elements.filterEma) {
+            elements.filterEma.innerHTML = `EMA (${counts.ema}/${totalCounts.ema})`;
+        }
+        if (elements.filterWarnings) {
+            elements.filterWarnings.innerHTML = `Warnings (${counts.warnings}/${totalCounts.warnings})`;
+        }
+    }
+}
+
+// Also update the summary section to show limited access for free users
+function updateSummaryForFreeUsers(data) {
+    const isPro = window.leafIntelligenceFeatureBlocker ? window.leafIntelligenceFeatureBlocker.isPro : false;
+    
+    if (!isPro && elements.summarySection) {
+        // Add a banner to the summary section
+        const banner = document.createElement('div');
+        banner.className = 'mb-4 bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-lg p-4';
+        banner.innerHTML = `
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                    </svg>
+                    <span class="text-sm font-medium text-purple-800">
+                        Showing 3 most recent labels • Upgrade to view all ${data.labels?.length || 0} labels
+                    </span>
+                </div>
+                <button 
+                    onclick="window.leafIntelligenceFeatureBlocker ? window.leafIntelligenceFeatureBlocker.showUpgradeModal() : alert('Upgrade to Pro')"
+                    class="text-sm font-medium text-purple-600 hover:text-purple-800"
+                >
+                    Upgrade →
+                </button>
+            </div>
+        `;
+        
+        // Insert banner at the beginning of summary section
+        const firstChild = elements.summarySection.firstChild;
+        if (firstChild) {
+            elements.summarySection.insertBefore(banner, firstChild);
+        } else {
+            elements.summarySection.appendChild(banner);
+        }
+    }
+}
+// Create the blocker card that spans the full width
+function createLabelsBlocker(blockedCount, totalCount) {
+    return `
+        <div class="col-span-full">
+            <div class="relative mt-8 mb-4">
+                <div class="absolute inset-0 bg-gradient-to-b from-transparent via-gray-50 to-gray-100 rounded-xl"></div>
+                <div class="relative bg-white border-2 border-purple-200 rounded-xl p-8 text-center shadow-lg">
+                    <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-purple-100 to-pink-100 rounded-full mb-6">
+                        <svg class="w-10 h-10 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                        </svg>
+                    </div>
+                    
+                    <h3 class="text-2xl font-bold text-gray-900 mb-3">
+                        View All ${totalCount} Pharmaceutical Labels
+                    </h3>
+                    
+                    <p class="text-gray-600 mb-6 max-w-md mx-auto">
+                        Unlock access to ${blockedCount} more pharmaceutical labels including FDA and EMA data, 
+                        boxed warnings, clinical information, and complete prescribing details.
+                    </p>
+                    
+                    <div class="flex flex-wrap justify-center gap-3 mb-6">
+                        <span class="inline-flex items-center px-3 py-1 text-sm bg-blue-100 text-blue-800 rounded-full">
+                            <svg class="w-4 h-4 mr-1.5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                            </svg>
+                            Complete FDA Labels
+                        </span>
+                        <span class="inline-flex items-center px-3 py-1 text-sm bg-green-100 text-green-800 rounded-full">
+                            <svg class="w-4 h-4 mr-1.5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                            </svg>
+                            EMA Medicine Data
+                        </span>
+                        <span class="inline-flex items-center px-3 py-1 text-sm bg-orange-100 text-orange-800 rounded-full">
+                            <svg class="w-4 h-4 mr-1.5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                            </svg>
+                            Boxed Warnings
+                        </span>
+                        <span class="inline-flex items-center px-3 py-1 text-sm bg-purple-100 text-purple-800 rounded-full">
+                            <svg class="w-4 h-4 mr-1.5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                            </svg>
+                            Clinical Studies
+                        </span>
+                    </div>
+                    
+                    <button 
+                        onclick="window.leafIntelligenceFeatureBlocker ? window.leafIntelligenceFeatureBlocker.showUpgradeModal() : alert('Upgrade to Pro')" 
+                        class="inline-flex items-center px-8 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-full hover:from-purple-700 hover:to-pink-700 transform hover:scale-105 transition-all duration-300 shadow-lg"
+                    >
+                        <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
+                        </svg>
+                        Upgrade to Pro
+                    </button>
+                    
+                    <p class="mt-4 text-sm text-gray-500">
+                        Get unlimited access to all pharmaceutical labeling data
+                    </p>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// Create a blurred preview card
+function createBlurredLabelCard(label) {
+    const isEMA = label.type === 'EMA';
+    const typeColor = isEMA ? 'bg-blue-100 text-blue-800' : 'bg-slate-100 text-slate-800';
+    
+    return `
+        <div class="relative group">
+            <div class="absolute inset-0 bg-white/80 backdrop-blur-sm z-10 rounded-xl"></div>
+            <div class="opacity-40 pointer-events-none">
+                <div class="bg-white border border-gray-200 rounded-xl p-6">
+                    <div class="flex items-start justify-between mb-4">
+                        <span class="inline-flex items-center px-3 py-1.5 text-xs font-semibold ${typeColor} border rounded-lg blur-sm">
+                            ${label.type}
+                        </span>
+                        <div class="text-xs text-gray-500 font-medium blur-sm">
+                            ${formatDate(label.lastUpdated)}
+                        </div>
+                    </div>
+                    
+                    <h3 class="font-semibold text-gray-900 mb-4 text-base blur-sm">
+                        ${escapeHtml(label.productName)}
+                    </h3>
+                    
+                    <div class="bg-gray-50 rounded-lg p-4 mb-4 blur-sm">
+                        <div class="text-xs font-semibold text-gray-700 mb-2">INDICATION</div>
+                        <p class="text-sm text-gray-800">••••••••••••••••••••••</p>
+                    </div>
+                    
+                    <button class="w-full px-4 py-2.5 bg-gray-200 text-gray-400 text-sm font-medium rounded-lg cursor-not-allowed">
+                        <span class="flex items-center justify-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                            </svg>
+                            Pro Feature
+                        </span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+
 function createCleanLabelCard(label) {
     const isEMA = label.type === 'EMA';
     
