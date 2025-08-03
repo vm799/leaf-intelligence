@@ -110884,7 +110884,105 @@ class LeafIntelligenceFeatureBlocker {
 
 // Initialize with YOUR configuration
 // Example initialization - modify based on your needs:
+const featureBlocker = new LeafIntelligenceFeatureBlocker({
+  features: {
+    sections: [
+    '#recent-events-section',
+    '.ema-label-card',
+      '#advanced-analytics',
+      '.premium-reports',
+      '[data-feature="export-tools"]',
+      '#enhanced-enrollment-tab',
+      '#enhanced-endpoints-tab',
+      '#responseLettersSection',
+      '#warningLetters'
+    ],
+    buttons: [
+      'button[onclick*="exportPDF"]',
+      '#view-all-applications',
+      'button[onclick*="downloadReport"]',
+      '.advanced-action-btn',
+             '#enforcement-tab',
+'#event-tab',
+'#label-tab',
+'#wltabp',
+'#crltabp'
 
+
+
+    ],
+    customSelectors: [
+      {
+        selector: '#special-feature',
+        type: 'block',
+        message: 'This advanced analysis requires a Pro subscription'
+      }
+    ],
+    badges: [
+      { selector: 'button:contains("Export")', text: 'PRO' },
+      { selector: 'button:contains("Download")', text: 'PRO' }
+    ]
+  }
+});
+
+
+// Or initialize empty and configure later:
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => {
+    window.leafIntelligenceFeatureBlocker = new LeafIntelligenceFeatureBlocker();
+  });
+} else {
+  window.leafIntelligenceFeatureBlocker = new LeafIntelligenceFeatureBlocker();
+}
+
+// CSS to add to your leafintelligence.html or styles
+const featureBlockerStyles = `
+<style>
+  /* Feature blocker styles */
+  .feature-blocked {
+    position: relative !important;
+    user-select: none !important;
+    pointer-events: none !important;
+  }
+  
+  .feature-blocker-overlay {
+    pointer-events: auto !important;
+  }
+  
+  /* Pro badge styles */
+  .pro-badge {
+    font-size: 0.75rem;
+    vertical-align: middle;
+  }
+  
+  /* Disabled state for pro features */
+  .pro-feature:not(.feature-blocked) {
+    position: relative;
+  }
+  
+  .pro-feature:not(.feature-blocked)::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  
+  /* Button hover state override for free users */
+  body:not(.user-is-pro) .pro-feature:hover {
+    cursor: not-allowed !important;
+  }
+</style>
+`;
+
+// Function to inject styles if not already present
+function injectFeatureBlockerStyles() {
+  if (!document.getElementById('feature-blocker-styles')) {
+    const styleElement = document.createElement('div');
+    styleElement.id = 'feature-blocker-styles';
+    styleElement.innerHTML = featureBlockerStyles;
+    document.head.appendChild(styleElement.firstElementChild);
+  }
+}
 
 injectFeatureBlockerStyles();
 // Update the DOMContentLoaded event listener
@@ -118430,105 +118528,7 @@ if (!document.getElementById('enhanced-timeline-styles')) {
 
 // Add the EMA data module to window for debugging
 // window.EmaDataModule = EmaDataModule;
-const featureBlocker = new LeafIntelligenceFeatureBlocker({
-  features: {
-    sections: [
-    '#recent-events-section',
-    '.ema-label-card',
-      '#advanced-analytics',
-      '.premium-reports',
-      '[data-feature="export-tools"]',
-      '#enhanced-enrollment-tab',
-      '#enhanced-endpoints-tab',
-      '#responseLettersSection',
-      '#warningLetters'
-    ],
-    buttons: [
-      'button[onclick*="exportPDF"]',
-      '#view-all-applications',
-      'button[onclick*="downloadReport"]',
-      '.advanced-action-btn',
-             '#enforcement-tab',
-'#event-tab',
-'#label-tab',
-'#wltabp',
-'#crltabp'
 
-
-
-    ],
-    customSelectors: [
-      {
-        selector: '#special-feature',
-        type: 'block',
-        message: 'This advanced analysis requires a Pro subscription'
-      }
-    ],
-    badges: [
-      { selector: 'button:contains("Export")', text: 'PRO' },
-      { selector: 'button:contains("Download")', text: 'PRO' }
-    ]
-  }
-});
-
-
-// Or initialize empty and configure later:
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
-    window.leafIntelligenceFeatureBlocker = new LeafIntelligenceFeatureBlocker();
-  });
-} else {
-  window.leafIntelligenceFeatureBlocker = new LeafIntelligenceFeatureBlocker();
-}
-
-// CSS to add to your leafintelligence.html or styles
-const featureBlockerStyles = `
-<style>
-  /* Feature blocker styles */
-  .feature-blocked {
-    position: relative !important;
-    user-select: none !important;
-    pointer-events: none !important;
-  }
-  
-  .feature-blocker-overlay {
-    pointer-events: auto !important;
-  }
-  
-  /* Pro badge styles */
-  .pro-badge {
-    font-size: 0.75rem;
-    vertical-align: middle;
-  }
-  
-  /* Disabled state for pro features */
-  .pro-feature:not(.feature-blocked) {
-    position: relative;
-  }
-  
-  .pro-feature:not(.feature-blocked)::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-  }
-  
-  /* Button hover state override for free users */
-  body:not(.user-is-pro) .pro-feature:hover {
-    cursor: not-allowed !important;
-  }
-</style>
-`;
-
-// Function to inject styles if not already present
-function injectFeatureBlockerStyles() {
-  if (!document.getElementById('feature-blocker-styles')) {
-    const styleElement = document.createElement('div');
-    styleElement.id = 'feature-blocker-styles';
-    styleElement.innerHTML = featureBlockerStyles;
-    document.head.appendChild(styleElement.firstElementChild);
-  }
-}
 
 
     </script>
