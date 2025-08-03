@@ -732,7 +732,9 @@ function renderLabels() {
 
     // For free users, limit to top 3 most recent
     // const visibleLabels = isPro ? sortedLabels : sortedLabels.slice(0, 3);
-    const visibleLabels = sortedLabels.filter(label => label.type === 'FDA');
+    // const visibleLabels = sortedLabels.filter(label => label.type === 'FDA');
+     const fdaOnlyLabels = sortedLabels.filter(label => label.type === 'FDA');
+        visibleLabels = fdaOnlyLabels.slice(0, 3);
     const blockedCount = sortedLabels.length - visibleLabels.length;
     
     // For Pro users, use pagination normally
