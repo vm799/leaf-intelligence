@@ -11,12 +11,15 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 // Create checkout session for single search
 router.post('/create-single-search-checkout', authMiddleware, async (req, res) => {
   try {
-    const { searchQuery } = req.body;
+     const { searchQuery, userId, returnUrl } = req.body;
     const user = req.user;
     
     // Create checkout session
-    const session = await stripeService.createSingleSearchCheckout(user, searchQuery);
-    
+     const session = await stripeService.createSingleSearchCheckout(
+            user, 
+            searchQuery,
+            returnUrl  // Pass the return URL
+        );
     res.json({ 
       success: true, 
       checkoutUrl: session.url,
@@ -31,11 +34,15 @@ router.post('/create-single-search-checkout', authMiddleware, async (req, res) =
 // Create subscription checkout
 router.post('/create-subscription-checkout', authMiddleware, async (req, res) => {
   try {
+
+      const { userId, returnUrl } = req.body;
     const user = req.user;
     
     // Create checkout session
-    const session = await stripeService.createSubscriptionCheckout(user);
-    
+        const session = await stripeService.createSubscriptionCheckout(
+            user,
+            returnUrl  // Pass the return URL
+        );
     res.json({ 
       success: true, 
       checkoutUrl: session.url,
@@ -85,7 +92,7 @@ router.post('/create-portal-session', authMiddleware, async (req, res) => {
     // Add configuration to the portal session
     const session = await stripe.billingPortal.sessions.create({
       customer: user.stripeCustomerId,
-      return_url: `${process.env.FRONTEND_URL || 'https://www.syneticx.com'}/account`,
+      return_url: `${process.env.FRONTEND_URL || 'https://www.syneticx.com'}/leafintelligence.html`,
       configuration: process.env.STRIPE_PORTAL_CONFIG_ID || undefined, // Optional: use a specific config
     });
 

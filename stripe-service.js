@@ -30,7 +30,7 @@ class StripeService {
 
 
 
-  async createSingleSearchCheckout(user, searchQuery) {
+  async createSingleSearchCheckout(user, searchQuery, returnUrl) {
     try {
       // Ensure customer exists
       let customerId = user.stripeCustomerId;
@@ -43,22 +43,39 @@ class StripeService {
         await user.save();
       }
 
-      const session = await this.stripe.checkout.sessions.create({
-        payment_method_types: ['card'],
-        line_items: [{
-          price: this.prices.singleSearch,
-          quantity: 1
-        }],
-        mode: 'payment',
-        success_url: `${process.env.FRONTEND_URL || 'https://www.syneticx.com'}/search-success?session_id={CHECKOUT_SESSION_ID}&search=${encodeURIComponent(searchQuery)}`,
-        cancel_url: `${process.env.FRONTEND_URL || 'https://www.syneticx.com'}/pricing?canceled=true`,
-        customer: customerId,
-        metadata: {
-          userId: user._id.toString(),
-          searchQuery: searchQuery,
-          type: 'single_search'
-        }
-      });
+      // const session = await this.stripe.checkout.sessions.create({
+      //   payment_method_types: ['card'],
+      //   line_items: [{
+      //     price: this.prices.singleSearch,
+      //     quantity: 1
+      //   }],
+      //   mode: 'payment',
+      //   success_url: `${process.env.FRONTEND_URL || 'https://www.syneticx.com'}/search-success?session_id={CHECKOUT_SESSION_ID}&search=${encodeURIComponent(searchQuery)}`,
+      //   cancel_url: `${process.env.FRONTEND_URL || 'https://www.syneticx.com'}/pricing?canceled=true`,
+      //   customer: customerId,
+      //   metadata: {
+      //     userId: user._id.toString(),
+      //     searchQuery: searchQuery,
+      //     type: 'single_search'
+      //   }
+      // });
+
+          const session = await this.stripe.checkout.sessions.create({
+            payment_method_types: ['card'],
+            line_items: [{
+                price: this.prices.singleSearch,
+                quantity: 1
+            }],
+            mode: 'payment',
+            success_url: `${process.env.FRONTEND_URL || 'https://www.syneticx.com'}/checkout-success.html?session_id={CHECKOUT_SESSION_ID}`,
+            cancel_url: returnUrl ? `${returnUrl}?canceled=true` : `${process.env.FRONTEND_URL || 'https://www.syneticx.com'}/leafintelligence.html?canceled=true`,
+            customer: customerId,
+            metadata: {
+                userId: user._id.toString(),
+                searchQuery: searchQuery,
+                type: 'single_search'
+            }
+        });
       
       return session;
     } catch (error) {
@@ -67,7 +84,7 @@ class StripeService {
     }
   }
 
-  async createSubscriptionCheckout(user) {
+async createSubscriptionCheckout(user, returnUrl) {
     try {
       // Ensure customer exists
       let customerId = user.stripeCustomerId;
@@ -80,27 +97,49 @@ class StripeService {
         await user.save();
       }
 
-      const session = await this.stripe.checkout.sessions.create({
-        payment_method_types: ['card'],
-        line_items: [{
-          price: this.prices.monthlySubscription,
-          quantity: 1
-        }],
-        mode: 'subscription',
-        success_url: `${process.env.FRONTEND_URL || 'https://www.syneticx.com'}/subscription-success?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `${process.env.FRONTEND_URL || 'https://www.syneticx.com'}/pricing?canceled=true`,
-        customer: customerId,
-        metadata: {
-          userId: user._id.toString(),
-          type: 'monthly_subscription'
-        },
-        subscription_data: {
-          // trial_period_days: 7,
-          metadata: {
-            userId: user._id.toString()
-          }
-        }
-      });
+      // const session = await this.stripe.checkout.sessions.create({
+      //   payment_method_types: ['card'],
+      //   line_items: [{
+      //     price: this.prices.monthlySubscription,
+      //     quantity: 1
+      //   }],
+      //   mode: 'subscription',
+      //   success_url: `${process.env.FRONTEND_URL || 'https://www.syneticx.com'}/subscription-success?session_id={CHECKOUT_SESSION_ID}`,
+      //   cancel_url: `${process.env.FRONTEND_URL || 'https://www.syneticx.com'}/pricing?canceled=true`,
+      //   customer: customerId,
+      //   metadata: {
+      //     userId: user._id.toString(),
+      //     type: 'monthly_subscription'
+      //   },
+      //   subscription_data: {
+      //     // trial_period_days: 7,
+      //     metadata: {
+      //       userId: user._id.toString()
+      //     }
+      //   }
+      // });
+
+              const session = await this.stripe.checkout.sessions.create({
+            payment_method_types: ['card'],
+            line_items: [{
+                price: this.prices.monthlySubscription,
+                quantity: 1
+            }],
+            mode: 'subscription',
+            success_url: `${process.env.FRONTEND_URL || 'https://www.syneticx.com'}/checkout-success.html?session_id={CHECKOUT_SESSION_ID}`,
+            cancel_url: returnUrl ? `${returnUrl}?canceled=true` : `${process.env.FRONTEND_URL || 'https://www.syneticx.com'}/leafintelligence.html?canceled=true`,
+            customer: customerId,
+            metadata: {
+                userId: user._id.toString(),
+                type: 'monthly_subscription'
+            },
+            subscription_data: {
+                // trial_period_days: 7,
+                metadata: {
+                    userId: user._id.toString()
+                }
+            }
+        });
       
       return session;
     } catch (error) {

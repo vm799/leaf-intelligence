@@ -109457,7 +109457,8 @@ class StripeIntegration {
         },
         body: JSON.stringify({ 
           searchQuery,
-          userId 
+          userId,
+          returnUrl: window.location.href
         })
       });
 
@@ -109494,7 +109495,10 @@ class StripeIntegration {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${this.getAuthToken()}`
         },
-        body: JSON.stringify({ userId })
+        body: JSON.stringify({ 
+                userId,
+                returnUrl: window.location.href  // Add this line
+            })
       });
 
       const data = await response.json();
@@ -109902,7 +109906,8 @@ class EnhancedStripeIntegration {
         },
         body: JSON.stringify({ 
           searchQuery,
-          userId 
+          userId,
+          returnUrl: window.location.href 
         })
       });
 
@@ -109946,7 +109951,10 @@ class EnhancedStripeIntegration {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${this.getAuthToken()}`
         },
-        body: JSON.stringify({ userId })
+        body: JSON.stringify({ 
+                userId,
+                returnUrl: window.location.href  // Add this line
+            })
       });
 
       const data = await response.json();
@@ -110475,7 +110483,10 @@ class LeafIntelligenceFeatureBlocker {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${this.getAuthToken()}`
         },
-        body: JSON.stringify({ userId })
+        body: JSON.stringify({ 
+                userId,
+                returnUrl: window.location.href  // Add this line
+            })
       });
 
       const data = await response.json();
