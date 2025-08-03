@@ -727,9 +727,14 @@ function createCleanLabelCard(label) {
         ${label.euNumber ? `<span class="inline-flex items-center px-2.5 py-1 text-xs font-medium bg-violet-100 text-violet-800 border border-violet-200 rounded-full">EU ${label.euNumber}</span>` : ''}
     ` : '';
     
+    const cardClasses = isEMA ? 
+        'pro-feature ema-label-card group bg-white border border-gray-200 rounded-xl p-6 transition-all duration-300 hover:border-gray-300 hover:shadow-lg hover:-translate-y-0.5' : 
+        'group bg-white border border-gray-200 rounded-xl p-6 transition-all duration-300 hover:border-gray-300 hover:shadow-lg hover:-translate-y-0.5';
+    
     return `
-        <div class="group bg-white border border-gray-200 rounded-xl p-6 transition-all duration-300 hover:border-gray-300 hover:shadow-lg hover:-translate-y-0.5">
-            
+        <div class="${cardClasses}">
+        
+        
             <!-- Header Section -->
             <div class="flex items-start justify-between mb-4">
                 <div class="flex items-center gap-2 flex-wrap">

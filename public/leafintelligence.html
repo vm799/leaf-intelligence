@@ -6682,7 +6682,7 @@ tailwind.config = {
                 <button id="pharma-filter-all" class="px-3 py-1 text-xs border rounded-md bg-accent text-white border-accent labelling-filter-btn">All</button>
                 <button id="pharma-filter-fda" class="px-3 py-1 text-xs border border-gray-200 rounded-md hover:bg-gray-50 text-secondary labelling-filter-btn">FDA</button>
                 <button id="pharma-filter-ema" class="px-3 py-1 text-xs border border-gray-200 rounded-md hover:bg-gray-50 text-secondary labelling-filter-btn">EMA</button>
-                <button id="pharma-filter-warnings" class="px-3 py-1 text-xs border border-gray-200 rounded-md hover:bg-gray-50 text-secondary labelling-filter-btn">Warnings</button>
+                <button id="pharma-filter-warnings" class="pro-feature px-3 py-1 text-xs border border-gray-200 rounded-md hover:bg-gray-50 text-secondary labelling-filter-btn">Warnings</button>
               </div>
             </div>
             <div class="flex items-center gap-4">
@@ -110656,12 +110656,14 @@ const featureBlocker = new LeafIntelligenceFeatureBlocker({
   features: {
     sections: [
     '#recent-events-section',
+    '.ema-label-card',
       '#advanced-analytics',
       '.premium-reports',
       '[data-feature="export-tools"]'
     ],
     buttons: [
       'button[onclick*="exportPDF"]',
+      '#pharma-filter-warnings',
       '#view-all-applications',
       'button[onclick*="downloadReport"]',
       '.advanced-action-btn',

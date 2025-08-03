@@ -6,6 +6,7 @@ const router = express.Router();
 const { User } = require('./db');
 const stripeService = require('./stripe-service');
 const authMiddleware = require('./auth-middleware');
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 // Create checkout session for single search
 router.post('/create-single-search-checkout', authMiddleware, async (req, res) => {
