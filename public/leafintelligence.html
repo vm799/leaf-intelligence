@@ -7526,7 +7526,7 @@ tailwind.config = {
           </div>
         <!-- </div> -->
         </section>
-<div id="warningLetters" class="hidden bg-white rounded-lg shadow-lg p-6">
+<div id="warningLetters" class="pro-feature hidden bg-white rounded-lg shadow-lg p-6">
     <!-- Enhanced Summary Panel -->
     <div class="mb-6">
         <h2 class="text-2xl font-bold mb-4 text-gray-800">Warning Letters & 483s Intelligence Dashboard</h2>
@@ -34089,11 +34089,11 @@ function generateEnhancedPivotalTrialAnalysis(studies, drugName, conditionName) 
                             class="enhanced-tab-btn active py-4 px-1 border-b-2 border-blue-500 font-medium text-sm text-blue-600">
                         Trial Design
                     </button>
-                    <button id='enrollmentandoutcomes' class='pro-feature' onclick="switchEnhancedTab('enrollment')" 
+                    <button id='enrollmentandoutcomes' class='' onclick="switchEnhancedTab('enrollment')" 
                             class="enhanced-tab-btn py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700">
                         Enrollment & Demographics
                     </button>
-                    <button id='endpointsandoutcomes' class='pro-feature' onclick="switchEnhancedTab('endpoints')" 
+                    <button id='endpointsandoutcomes' class='' onclick="switchEnhancedTab('endpoints')" 
                             class="enhanced-tab-btn py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700">
                         Endpoints & Outcomes
                     </button>
@@ -34109,12 +34109,12 @@ function generateEnhancedPivotalTrialAnalysis(studies, drugName, conditionName) 
                 </div>
 
                 <!-- Enrollment Tab -->
-                <div id="enhanced-enrollment-tab" class="enhanced-tab-content hidden">
+                <div id="enhanced-enrollment-tab" class="pro-feature enhanced-tab-content hidden">
                     ${generateEnhancedEnrollmentSection(demographicsData)}
                 </div>
 
                 <!-- Endpoints Tab -->
-                <div id="enhanced-endpoints-tab" class="enhanced-tab-content hidden">
+                <div id="enhanced-endpoints-tab" class="pro-feature enhanced-tab-content hidden">
                     ${generateEnhancedEndpointsSection(endpointData)}
                 </div>
 
@@ -110884,108 +110884,7 @@ class LeafIntelligenceFeatureBlocker {
 
 // Initialize with YOUR configuration
 // Example initialization - modify based on your needs:
-const featureBlocker = new LeafIntelligenceFeatureBlocker({
-  features: {
-    sections: [
-    '#recent-events-section',
-    '.ema-label-card',
-      '#advanced-analytics',
-      '.premium-reports',
-      '[data-feature="export-tools"]'
-    ],
-    buttons: [
-      'button[onclick*="exportPDF"]',
-      '#pharma-filter-warnings',
-      '#view-all-applications',
-      'button[onclick*="downloadReport"]',
-      '.advanced-action-btn',
-      '#enrollmentandoutcomes',
-      '#endpointsandoutcomes',
-        'button[onclick*="switchEnhancedTab(\'enrollment\')"]',
-        'button[onclick*="switchEnhancedTab(\'endpoints\')"]',
-          'button[onclick*="showOnlySection(\'responseLettersSection\')]',
-             'button[onclick*="showOnlySection(\'warningLetters\')]',
-             '#enforcement-tab',
-'#event-tab',
-'#label-tab',
-'#wltabp',
-'#crltabp'
 
-
-
-    ],
-    customSelectors: [
-      {
-        selector: '#special-feature',
-        type: 'block',
-        message: 'This advanced analysis requires a Pro subscription'
-      }
-    ],
-    badges: [
-      { selector: 'button:contains("Export")', text: 'PRO' },
-      { selector: 'button:contains("Download")', text: 'PRO' }
-    ]
-  }
-});
-
-
-// Or initialize empty and configure later:
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
-    window.leafIntelligenceFeatureBlocker = new LeafIntelligenceFeatureBlocker();
-  });
-} else {
-  window.leafIntelligenceFeatureBlocker = new LeafIntelligenceFeatureBlocker();
-}
-
-// CSS to add to your leafintelligence.html or styles
-const featureBlockerStyles = `
-<style>
-  /* Feature blocker styles */
-  .feature-blocked {
-    position: relative !important;
-    user-select: none !important;
-    pointer-events: none !important;
-  }
-  
-  .feature-blocker-overlay {
-    pointer-events: auto !important;
-  }
-  
-  /* Pro badge styles */
-  .pro-badge {
-    font-size: 0.75rem;
-    vertical-align: middle;
-  }
-  
-  /* Disabled state for pro features */
-  .pro-feature:not(.feature-blocked) {
-    position: relative;
-  }
-  
-  .pro-feature:not(.feature-blocked)::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-  }
-  
-  /* Button hover state override for free users */
-  body:not(.user-is-pro) .pro-feature:hover {
-    cursor: not-allowed !important;
-  }
-</style>
-`;
-
-// Function to inject styles if not already present
-function injectFeatureBlockerStyles() {
-  if (!document.getElementById('feature-blocker-styles')) {
-    const styleElement = document.createElement('div');
-    styleElement.id = 'feature-blocker-styles';
-    styleElement.innerHTML = featureBlockerStyles;
-    document.head.appendChild(styleElement.firstElementChild);
-  }
-}
 
 injectFeatureBlockerStyles();
 // Update the DOMContentLoaded event listener
@@ -118531,7 +118430,105 @@ if (!document.getElementById('enhanced-timeline-styles')) {
 
 // Add the EMA data module to window for debugging
 // window.EmaDataModule = EmaDataModule;
+const featureBlocker = new LeafIntelligenceFeatureBlocker({
+  features: {
+    sections: [
+    '#recent-events-section',
+    '.ema-label-card',
+      '#advanced-analytics',
+      '.premium-reports',
+      '[data-feature="export-tools"]',
+      '#enhanced-enrollment-tab',
+      '#enhanced-endpoints-tab',
+      '#responseLettersSection',
+      '#warningLetters'
+    ],
+    buttons: [
+      'button[onclick*="exportPDF"]',
+      '#view-all-applications',
+      'button[onclick*="downloadReport"]',
+      '.advanced-action-btn',
+             '#enforcement-tab',
+'#event-tab',
+'#label-tab',
+'#wltabp',
+'#crltabp'
 
+
+
+    ],
+    customSelectors: [
+      {
+        selector: '#special-feature',
+        type: 'block',
+        message: 'This advanced analysis requires a Pro subscription'
+      }
+    ],
+    badges: [
+      { selector: 'button:contains("Export")', text: 'PRO' },
+      { selector: 'button:contains("Download")', text: 'PRO' }
+    ]
+  }
+});
+
+
+// Or initialize empty and configure later:
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => {
+    window.leafIntelligenceFeatureBlocker = new LeafIntelligenceFeatureBlocker();
+  });
+} else {
+  window.leafIntelligenceFeatureBlocker = new LeafIntelligenceFeatureBlocker();
+}
+
+// CSS to add to your leafintelligence.html or styles
+const featureBlockerStyles = `
+<style>
+  /* Feature blocker styles */
+  .feature-blocked {
+    position: relative !important;
+    user-select: none !important;
+    pointer-events: none !important;
+  }
+  
+  .feature-blocker-overlay {
+    pointer-events: auto !important;
+  }
+  
+  /* Pro badge styles */
+  .pro-badge {
+    font-size: 0.75rem;
+    vertical-align: middle;
+  }
+  
+  /* Disabled state for pro features */
+  .pro-feature:not(.feature-blocked) {
+    position: relative;
+  }
+  
+  .pro-feature:not(.feature-blocked)::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  
+  /* Button hover state override for free users */
+  body:not(.user-is-pro) .pro-feature:hover {
+    cursor: not-allowed !important;
+  }
+</style>
+`;
+
+// Function to inject styles if not already present
+function injectFeatureBlockerStyles() {
+  if (!document.getElementById('feature-blocker-styles')) {
+    const styleElement = document.createElement('div');
+    styleElement.id = 'feature-blocker-styles';
+    styleElement.innerHTML = featureBlockerStyles;
+    document.head.appendChild(styleElement.firstElementChild);
+  }
+}
 
 
     </script>

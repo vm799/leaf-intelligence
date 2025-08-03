@@ -10,7 +10,7 @@ app.use(express.json());
 // MongoDB connection
 const MONGO_URI = 'mongodb+srv://syneticslz:gMN1GUBtevSaw8DE@synetictest.bl3xxux.mongodb.net/?retryWrites=true&w=majority&appName=SyneticTest';
 
-// MongoDB Schema (same as before)
+// MongoDB Schema (updated for simplified observations)
 const fda483Schema = new mongoose.Schema({
   _id: String,
   Record_Date: Date,
@@ -37,12 +37,8 @@ const fda483Schema = new mongoose.Schema({
     recipientTitle: String,
     observations: [{
       number: Number,
-      title: String,
-      details: String,
-      subItems: [{
-        letter: String,
-        content: String
-      }]
+      title: String,      // First sentence after observation number
+      fullText: String    // Complete text of the observation
     }],
     investigators: [{
       name: String,
@@ -113,18 +109,47 @@ class ImprovedFDA483Parser {
 
   // Find where observations section begins
   findObservationStart() {
+    // Look for common phrases that precede observations in FDA 483s
+    const startPhrases = [
+      /DURING\s+AN?\s+INSPECTION\s+OF\s+YOUR\s+FIRM/i,
+      /I\s+OBSERVED/i,
+      /WE\s+OBSERVED/i,
+      /\(I\)\s*\(WE\)\s*OBSERVED/i,
+      /OBSERVED\s*:/i,
+      /INSPECTIONAL\s+OBSERVATIONS/i,
+      /^OBSERVATION\s+1\b/i
+    ];
+    
     for (let i = 0; i < this.lines.length; i++) {
-      if (/OBSERVATION\s+\d+/i.test(this.lines[i]) || /^\d+\.\s+[A-Z]/i.test(this.lines[i])) {
+      // Check if any start phrase is found
+      if (startPhrases.some(phrase => phrase.test(this.lines[i]))) {
+        console.log(`DEBUG: Found observation start phrase at line ${i}: "${this.lines[i].substring(0, 50)}..."`);
+        // Look ahead for first observation
+        for (let j = i; j < Math.min(i + 20, this.lines.length); j++) {
+          if (/^OBSERVATION\s+1\b/i.test(this.lines[j])) {
+            console.log(`DEBUG: Found OBSERVATION 1 at line ${j}`);
+            return j;
+          }
+        }
+      }
+    }
+    
+    // Fallback: just look for OBSERVATION 1 anywhere
+    for (let i = 0; i < this.lines.length; i++) {
+      if (/^OBSERVATION\s+1\b/i.test(this.lines[i])) {
+        console.log(`DEBUG: Found OBSERVATION 1 (fallback) at line ${i}`);
         return i;
       }
     }
+    
+    console.log('DEBUG: Could not find observation start');
     return -1;
   }
 
   // Extract inspection dates with improved logic
   extractInspectionDates() {
-    // Look for dates pattern near "DATE(S) OF INSPECTION"
-    const dateSection = this.extractSection('DATE(S) OF INSPECTION', 'FEI NUMBER');
+    // Method 1: Look for dates pattern near "DATE(S) OF INSPECTION"
+    const dateSection = this.extractSection('DATE\\(S\\)\\s*OF\\s*INSPECTION', 'FEI NUMBER');
     
     if (dateSection) {
       // Extract date range pattern (MM/DD/YYYY - MM/DD/YYYY)
@@ -137,7 +162,21 @@ class ImprovedFDA483Parser {
       }
     }
     
-    // Fallback: search entire document
+    // Method 2: Look for DATE(S) OF INSPECTION in first 50 lines
+    for (let i = 0; i < Math.min(50, this.lines.length); i++) {
+      if (/DATE\(S\)\s*OF\s*INSPECTION/i.test(this.lines[i])) {
+        // Check next few lines for date range
+        for (let j = i; j < Math.min(i + 5, this.lines.length); j++) {
+          const dateMatch = this.lines[j].match(/(\d{1,2}\/\d{1,2}\/\d{4}\s*[-–]\s*\d{1,2}\/\d{1,2}\/\d{4})/);
+          if (dateMatch) {
+            this.confidence.fields.inspectionDates = 0.9;
+            return dateMatch[1].trim();
+          }
+        }
+      }
+    }
+    
+    // Method 3: Fallback - search entire document for date ranges
     const fullMatch = this.text.match(/(\d{1,2}\/\d{1,2}\/\d{4}\s*[-–]\s*\d{1,2}\/\d{1,2}\/\d{4})/);
     if (fullMatch) {
       this.confidence.fields.inspectionDates = 0.7;
@@ -181,6 +220,7 @@ class ImprovedFDA483Parser {
 
   // Extract FEI Number with better accuracy
   extractFEINumber() {
+    // Method 1: Look for section after "FEI NUMBER"
     const feiSection = this.extractSection('FEI NUMBER', 'NAME AND TITLE');
     
     if (feiSection) {
@@ -194,40 +234,87 @@ class ImprovedFDA483Parser {
       }
     }
     
+    // Method 2: Look for FEI NUMBER pattern anywhere in first 50 lines
+    for (let i = 0; i < Math.min(50, this.lines.length); i++) {
+      if (/FEI\s*NUMBER/i.test(this.lines[i])) {
+        // Check same line first
+        const sameLine = this.lines[i].match(/FEI\s*NUMBER\s*:?\s*(\d{7,10})/i);
+        if (sameLine) {
+          this.confidence.fields.feiNumber = 1.0;
+          return sameLine[1];
+        }
+        
+        // Check next few lines
+        for (let j = i + 1; j < Math.min(i + 5, this.lines.length); j++) {
+          const match = this.lines[j].match(/\b(\d{7,10})\b/);
+          if (match) {
+            this.confidence.fields.feiNumber = 0.9;
+            return match[1];
+          }
+        }
+      }
+    }
+    
     this.confidence.fields.feiNumber = 0;
     return null;
   }
 
   // Extract Firm Name with improved logic
   extractFirmName() {
-    // Look for section after "FIRM NAME" but before "STREET ADDRESS"
+    // Method 1: Look for section after "FIRM NAME" but before "STREET ADDRESS"
     const firmSection = this.extractSection('FIRM NAME', 'STREET ADDRESS');
     
     if (firmSection) {
-      // Remove the markers themselves
+      // Remove the markers and clean up
       let firmName = firmSection
-        .replace(/FIRM\s*NAME/i, '')
-        .replace(/STREET\s*ADDRESS/i, '')
+        .replace(/FIRM\s*NAME\s*:?\s*/i, '')
+        .replace(/STREET\s*ADDRESS.*/i, '')
+        .replace(/CITY.*$/i, '') // Remove city/state info if on same line
         .trim();
       
-      // Remove any remaining address components
-      firmName = firmName.split(/\d{4,}/)[0].trim(); // Remove ZIP codes
+      // Clean up common issues
+      firmName = firmName.split(/\n/)[0].trim(); // Take only first line
+      firmName = firmName.split(/\d{5,}/)[0].trim(); // Remove ZIP codes
       
-      if (firmName && firmName.length > 2 && firmName !== 'STREET') {
+      if (firmName && firmName.length > 2 && !firmName.match(/^(STREET|CITY|STATE|TYPE)/i)) {
         this.confidence.fields.firmName = 1.0;
         return firmName;
       }
     }
     
-    // Fallback: Look near recipient section
-    const recipientArea = this.extractSection('TO:', 'CITY, STATE');
-    if (recipientArea) {
-      const lines = recipientArea.split('\n');
-      for (const line of lines) {
-        if (line.includes('Pharmaceutical') || line.includes('Laboratories') || 
-            line.includes('Inc') || line.includes('Ltd') || line.includes('LLC')) {
+    // Method 2: Look for FIRM NAME pattern in first 50 lines
+    for (let i = 0; i < Math.min(50, this.lines.length); i++) {
+      if (/FIRM\s*NAME/i.test(this.lines[i])) {
+        // Check if firm name is on same line
+        const sameLine = this.lines[i].replace(/FIRM\s*NAME\s*:?\s*/i, '').trim();
+        if (sameLine && sameLine.length > 2 && !sameLine.match(/STREET|ADDRESS/i)) {
+          this.confidence.fields.firmName = 1.0;
+          return sameLine;
+        }
+        
+        // Check next non-empty line
+        for (let j = i + 1; j < Math.min(i + 5, this.lines.length); j++) {
+          const line = this.lines[j].trim();
+          if (line && !line.match(/^(STREET|ADDRESS|CITY|STATE|TYPE|[0-9])/i)) {
+            this.confidence.fields.firmName = 0.9;
+            return line;
+          }
+        }
+      }
+    }
+    
+    // Method 3: Look in structured header area
+    for (let i = 0; i < Math.min(30, this.lines.length); i++) {
+      const line = this.lines[i].trim();
+      if ((line.includes('Pharmaceutical') || line.includes('Laboratories') || 
+           line.includes('Inc') || line.includes('Ltd') || line.includes('LLC') ||
+           line.includes('Corporation') || line.includes('Company')) &&
+          !line.includes('FOOD AND DRUG') && !line.includes('FDA') &&
+          line.length > 5 && line.length < 100) {
+        // Make sure it's not an address line
+        if (!line.match(/^\d+\s+\w+/) && !line.match(/STREET|AVENUE|ROAD|DRIVE|SUITE/i)) {
           this.confidence.fields.firmName = 0.8;
-          return line.trim();
+          return line;
         }
       }
     }
@@ -334,91 +421,112 @@ class ImprovedFDA483Parser {
     return { name: '', title: '' };
   }
 
-  // Extract Observations with improved accuracy
+  // Helper method to extract first sentence
+  extractFirstSentence(text) {
+    // Clean the text first
+    const cleanedText = text
+      .replace(/\(b\)\s*\(\d+\)/g, '[REDACTED]')
+      .replace(/\s+/g, ' ')
+      .trim();
+    
+    // Match first sentence - handles various sentence endings
+    const sentenceMatch = cleanedText.match(/^([^.!?]+[.!?])/);
+    
+    if (sentenceMatch) {
+      return sentenceMatch[1].trim();
+    }
+    
+    // If no sentence ending found, take first 200 characters or until newline
+    const firstLine = cleanedText.split('\n')[0];
+    return firstLine.length > 200 ? firstLine.substring(0, 200) + '...' : firstLine;
+  }
+
+  // Extract Observations with simplified approach - just first sentence
   extractObservations() {
     const observations = [];
     
     if (this.observationStart === -1) {
+      console.log('DEBUG: No observation start found');
       this.confidence.fields.observations = 0;
       return observations;
     }
 
-    // Extract observation section only
-    const obsText = this.lines.slice(this.observationStart).join('\n');
+    console.log(`DEBUG: Starting observation extraction from line ${this.observationStart}`);
     
-    // Pattern to match observations
-    const obsPattern = /(?:OBSERVATION\s*)?(\d+)[\s\.]+(.*?)(?=(?:OBSERVATION\s*)?\d+[\s\.]|EMPLOYEE\(S\)|DATE\s*ISSUED|$)/gsi;
-    
-    let match;
-    while ((match = obsPattern.exec(obsText)) !== null) {
-      const obsNumber = parseInt(match[1]);
-      const obsContent = match[2].trim();
+    // Look for pattern: "OBSERVATION N" at start of line
+    for (let i = this.observationStart; i < this.lines.length; i++) {
+      // More flexible pattern to catch variations
+      const obsMatch = this.lines[i].match(/^\s*OBSERVATION\s+(\d+)\s*(.*)$/i);
       
-      if (obsNumber && obsContent.length > 20) {
-        const observation = this.parseObservationContent(obsNumber, obsContent);
-        observations.push(observation);
+      if (obsMatch) {
+        const obsNumber = parseInt(obsMatch[1]);
+        console.log(`DEBUG: Found OBSERVATION ${obsNumber} at line ${i}`);
+        
+        let firstSentence = obsMatch[2].trim(); // Text on same line as OBSERVATION N
+        
+        // If no text on same line, get the next non-empty line
+        if (!firstSentence) {
+          let j = i + 1;
+          while (j < this.lines.length && !this.lines[j].trim()) {
+            j++;
+          }
+          
+          if (j < this.lines.length) {
+            firstSentence = this.lines[j].trim();
+          }
+        }
+        
+        // Skip if we still don't have a first sentence
+        if (!firstSentence) {
+          console.log(`DEBUG: No text found for OBSERVATION ${obsNumber}, skipping`);
+          continue;
+        }
+        
+        // Collect all text until the next observation or end marker
+        let fullText = firstSentence + '\n';
+        let k = i + 1;
+        
+        // Skip to start of full text if we already grabbed first sentence
+        if (!obsMatch[2].trim() && k < this.lines.length && this.lines[k].trim() === firstSentence) {
+          k++;
+        }
+        
+        while (k < this.lines.length) {
+          // Stop if we hit another observation
+          if (/^\s*OBSERVATION\s+\d+/i.test(this.lines[k])) {
+            break;
+          }
+          // Stop if we hit common end markers
+          if (/^(EMPLOYEE|INVESTIGATOR|FDA\s+EMPLOYEE|DATE\s+ISSUED)/i.test(this.lines[k])) {
+            break;
+          }
+          fullText += this.lines[k] + '\n';
+          k++;
+        }
+        
+        observations.push({
+          number: obsNumber,
+          title: firstSentence,
+          fullText: fullText.replace(/\(b\)\s*\(\d+\)/g, '[REDACTED]').trim()
+        });
       }
     }
 
-    // Remove duplicates and sort
-    const uniqueObs = this.deduplicateObservations(observations);
+    console.log(`DEBUG: Found ${observations.length} observations`);
     
-    this.confidence.fields.observations = uniqueObs.length > 0 ? 1.0 : 0;
-    return uniqueObs;
+    // Sort by observation number
+    observations.sort((a, b) => a.number - b.number);
+    
+    this.confidence.fields.observations = observations.length > 0 ? 1.0 : 0;
+    return observations;
   }
 
-  // Parse individual observation content
-  parseObservationContent(number, content) {
-    // Clean the content
-    content = content
-      .replace(/\(b\)\s*\(\d+\)/g, '[REDACTED]')
-      .replace(/SEE REVERSE.*$/i, '')
-      .replace(/FORM FDA.*$/i, '')
-      .replace(/PAGE \d+ OF \d+.*$/i, '');
-
-    // Extract title (first sentence)
-    const sentences = content.match(/[^.!?]+[.!?]+/g) || [content];
-    const title = sentences[0] ? sentences[0].trim() : content.substring(0, 200);
-
-    // Extract sub-items
-    const subItems = [];
-    const subItemMatches = content.matchAll(/([A-E])\.\s*([^A-E]+?)(?=[A-E]\.|$)/gs);
-    
-    for (const subMatch of subItemMatches) {
-      const letter = subMatch[1];
-      const subContent = subMatch[2].trim()
-        .replace(/\s+/g, ' ')
-        .substring(0, 500);
-      
-      if (subContent.length > 10) {
-        subItems.push({ letter, content: subContent });
-      }
-    }
-
-    // Get details (main content without sub-items)
-    let details = content;
-    if (subItems.length > 0) {
-      // Remove sub-items from details
-      const firstSubIndex = content.search(/[A-E]\.\s*/);
-      if (firstSubIndex > 0) {
-        details = content.substring(0, firstSubIndex).trim();
-      }
-    }
-
-    return {
-      number,
-      title: title.substring(0, 300),
-      details: details.substring(0, 1000),
-      subItems
-    };
-  }
-
-  // Deduplicate observations
+  // Update deduplicateObservations to work with new structure
   deduplicateObservations(observations) {
     const seen = new Map();
     
     observations.forEach(obs => {
-      if (!seen.has(obs.number) || obs.title.length > seen.get(obs.number).title.length) {
+      if (!seen.has(obs.number) || obs.fullText.length > seen.get(obs.number).fullText.length) {
         seen.set(obs.number, obs);
       }
     });
@@ -493,6 +601,7 @@ class ImprovedFDA483Parser {
 
   // Extract date issued
   extractDateIssued() {
+    // Method 1: Look for DATE ISSUED section
     const dateSection = this.extractSection('DATE ISSUED', 'FORM FDA');
     
     if (dateSection) {
@@ -502,6 +611,28 @@ class ImprovedFDA483Parser {
       if (match) {
         this.confidence.fields.dateIssued = 1.0;
         return match[1];
+      }
+    }
+    
+    // Method 2: Look for DATE ISSUED in last 30 lines (often at bottom)
+    const bottomLines = this.lines.slice(-30);
+    for (let i = 0; i < bottomLines.length; i++) {
+      if (/DATE\s*ISSUED/i.test(bottomLines[i])) {
+        // Check same line first
+        const sameLine = bottomLines[i].match(/DATE\s*ISSUED\s*:?\s*(\d{1,2}\/\d{1,2}\/\d{4})/i);
+        if (sameLine) {
+          this.confidence.fields.dateIssued = 1.0;
+          return sameLine[1];
+        }
+        
+        // Check next few lines
+        for (let j = i + 1; j < Math.min(i + 5, bottomLines.length); j++) {
+          const dateMatch = bottomLines[j].match(/(\d{1,2}\/\d{1,2}\/\d{4})/);
+          if (dateMatch) {
+            this.confidence.fields.dateIssued = 0.9;
+            return dateMatch[1];
+          }
+        }
       }
     }
     
@@ -585,7 +716,7 @@ class ImprovedFDA483Parser {
   }
 }
 
-// PDF download function (same as before)
+// PDF download function
 async function downloadPDF(url, maxRetries = 3) {
   let lastError;
   
@@ -666,8 +797,7 @@ async function processFDA483Record(record, useImprovedParser = true) {
     console.log(`Text extracted successfully (${extractedText.length} characters)`);
     
     // Parse the text
-    const Parser = useImprovedParser ? ImprovedFDA483Parser : FDA483Parser;
-    const parser = new Parser(extractedText);
+    const parser = new ImprovedFDA483Parser(extractedText);
     const parsedData = parser.parse();
     
     // Create result object
@@ -680,7 +810,7 @@ async function processFDA483Record(record, useImprovedParser = true) {
     
     // Enhanced output
     console.log('\n📊 PARSING RESULTS:');
-    console.log(`├─ Parser Version: ${useImprovedParser ? 'Improved' : 'Original'}`);
+    console.log(`├─ Parser Version: Improved (Simplified Observations)`);
     console.log(`├─ Confidence Score: ${parsedData.parsingConfidence.overall.toFixed(1)}%`);
     console.log(`├─ Firm Name: ${parsedData.firmName || '❌ Not found'}`);
     console.log(`├─ FEI Number: ${parsedData.feiNumber || '❌ Not found'}`);
@@ -701,9 +831,10 @@ async function processFDA483Record(record, useImprovedParser = true) {
     if (parsedData.observations.length > 0) {
       console.log('\n📋 OBSERVATIONS:');
       parsedData.observations.forEach(obs => {
-        console.log(`\n  ${obs.number}. ${obs.title.substring(0, 100)}...`);
-        if (obs.subItems.length > 0) {
-          console.log(`     Sub-items: ${obs.subItems.length} (${obs.subItems.map(s => s.letter).join(', ')})`);
+        console.log(`\n  ${obs.number}. ${obs.title}`);
+        // Show if there's more content
+        if (obs.fullText.length > obs.title.length) {
+          console.log(`     [Full text contains ${obs.fullText.length} characters]`);
         }
       });
     }
@@ -748,129 +879,94 @@ async function testRealRecord(recordId, compareVersions = false) {
     console.log(`PDF URL: ${record.Download}`);
     console.log('='.repeat(50));
     
-    if (compareVersions) {
-      console.log('\n⚖️  COMPARING PARSER VERSIONS...\n');
-      
-      // Process with improved parser
-      console.log('🔵 IMPROVED PARSER:');
-      const improvedResult = await processFDA483Record(record, true);
-      
-      // Process with original parser
-      console.log('\n🔴 ORIGINAL PARSER:');
-      const originalResult = await processFDA483Record(record, false);
-      
-      // Compare results
-      console.log('\n📊 COMPARISON SUMMARY:');
-      console.log('='.repeat(50));
-      console.log('Field                 | Original        | Improved');
-      console.log('-'.repeat(50));
-      
-      const fields = ['firmName', 'feiNumber', 'inspectionDates', 'typeEstablishment'];
-      fields.forEach(field => {
-        const orig = originalResult.parsedData[field] || 'Not found';
-        const impr = improvedResult.parsedData[field] || 'Not found';
-        console.log(`${field.padEnd(20)} | ${String(orig).substring(0, 15).padEnd(15)} | ${String(impr).substring(0, 15)}`);
-      });
-      
-      console.log(`${'observations'.padEnd(20)} | ${originalResult.parsedData.observations.length} found        | ${improvedResult.parsedData.observations.length} found`);
-      console.log(`${'confidence'.padEnd(20)} | ${originalResult.parsedData.parsingConfidence.overall.toFixed(1)}%           | ${improvedResult.parsedData.parsingConfidence.overall.toFixed(1)}%`);
-      console.log('='.repeat(50));
-      
-      return { improved: improvedResult, original: originalResult };
+    // Process the record
+    const result = await processFDA483Record(record, true);
+    
+    // Display detailed results
+    console.log('\n🔍 DETAILED PARSING RESULTS:');
+    console.log('='.repeat(70));
+    
+    // Basic Info
+    console.log('\n📋 BASIC INFORMATION:');
+    console.log(`Firm Name: ${result.parsedData.firmName || '❌ Not found'}`);
+    console.log(`FEI Number: ${result.parsedData.feiNumber || '❌ Not found'}`);
+    console.log(`Inspection Dates: ${result.parsedData.inspectionDates || '❌ Not found'}`);
+    console.log(`Date Issued: ${result.parsedData.dateIssued || '❌ Not found'}`);
+    console.log(`Type of Establishment: ${result.parsedData.typeEstablishment || '❌ Not found'}`);
+    console.log(`Total Pages: ${result.parsedData.totalPages || '❌ Not found'}`);
+    
+    // Address
+    console.log('\n📍 ADDRESS:');
+    if (result.parsedData.address.street) {
+      console.log(`Street: ${result.parsedData.address.street}`);
+      console.log(`City: ${result.parsedData.address.city}`);
+      console.log(`State: ${result.parsedData.address.state}`);
+      console.log(`ZIP: ${result.parsedData.address.zip}`);
+      console.log(`Country: ${result.parsedData.address.country}`);
     } else {
-      // Just use improved parser
-      const result = await processFDA483Record(record, true);
-      
-      // Display detailed results
-      console.log('\n🔍 DETAILED PARSING RESULTS:');
-      console.log('='.repeat(70));
-      
-      // Basic Info
-      console.log('\n📋 BASIC INFORMATION:');
-      console.log(`Firm Name: ${result.parsedData.firmName || '❌ Not found'}`);
-      console.log(`FEI Number: ${result.parsedData.feiNumber || '❌ Not found'}`);
-      console.log(`Inspection Dates: ${result.parsedData.inspectionDates || '❌ Not found'}`);
-      console.log(`Date Issued: ${result.parsedData.dateIssued || '❌ Not found'}`);
-console.log(`Type of Establishment: ${result.parsedData.typeEstablishment || '❌ Not found'}`);
-      console.log(`Total Pages: ${result.parsedData.totalPages || '❌ Not found'}`);
-      
-      // Address
-      console.log('\n📍 ADDRESS:');
-      if (result.parsedData.address.street) {
-        console.log(`Street: ${result.parsedData.address.street}`);
-        console.log(`City: ${result.parsedData.address.city}`);
-        console.log(`State: ${result.parsedData.address.state}`);
-        console.log(`ZIP: ${result.parsedData.address.zip}`);
-        console.log(`Country: ${result.parsedData.address.country}`);
-      } else {
-        console.log('❌ Address not found');
-      }
-      
-      // Recipient
-      console.log('\n👤 RECIPIENT:');
-      if (result.parsedData.recipientName) {
-        console.log(`Name: ${result.parsedData.recipientName}`);
-        console.log(`Title: ${result.parsedData.recipientTitle}`);
-      } else {
-        console.log('❌ Recipient information not found');
-      }
-      
-      // Investigators
-      console.log('\n👥 INVESTIGATORS:');
-      if (result.parsedData.investigators.length > 0) {
-        result.parsedData.investigators.forEach((inv, i) => {
-          console.log(`${i + 1}. ${inv.name}, ${inv.title}`);
-        });
-      } else {
-        console.log('❌ No investigators found');
-      }
-      
-      // Observations - Full Details
-      console.log('\n📝 OBSERVATIONS (Full Details):');
-      console.log('-'.repeat(70));
-      if (result.parsedData.observations.length > 0) {
-        result.parsedData.observations.forEach(obs => {
-          console.log(`\nOBSERVATION ${obs.number}`);
-          console.log('Title:', obs.title);
-          if (obs.details && obs.details !== obs.title) {
-            console.log('Details:', obs.details);
-          }
-          if (obs.subItems.length > 0) {
-            console.log('Sub-items:');
-            obs.subItems.forEach(item => {
-              console.log(`  ${item.letter}. ${item.content}`);
-            });
-          }
-          console.log('-'.repeat(50));
-        });
-      } else {
-        console.log('❌ No observations found');
-      }
-      
-      // Confidence Analysis
-      console.log('\n📊 CONFIDENCE ANALYSIS:');
-      console.log(`Overall Confidence: ${result.parsedData.parsingConfidence.overall.toFixed(1)}%`);
-      console.log('\nField-by-field confidence:');
-      Object.entries(result.parsedData.parsingConfidence.fields).forEach(([field, conf]) => {
-        const percentage = (conf * 100).toFixed(0);
-        const bar = '█'.repeat(Math.floor(conf * 20)) + '░'.repeat(20 - Math.floor(conf * 20));
-        const icon = conf >= 0.8 ? '✅' : conf >= 0.5 ? '🟡' : '❌';
-        console.log(`  ${icon} ${field.padEnd(20)} [${bar}] ${percentage}%`);
-      });
-      
-      // Save decision
-      console.log('\n💾 SAVE DECISION:');
-      if (result.parsedData.parsingConfidence.overall >= 70) {
-        console.log('✅ This record would be SAVED (confidence >= 70%)');
-      } else {
-        console.log('⚠️  This record would NOT be saved (confidence < 70%)');
-        console.log('   Recommendation: Manual review required');
-      }
-      
-      console.log('\n🏁 TEST COMPLETE - No data was saved to the database\n');
-      
-      return result;
+      console.log('❌ Address not found');
     }
+    
+    // Recipient
+    console.log('\n👤 RECIPIENT:');
+    if (result.parsedData.recipientName) {
+      console.log(`Name: ${result.parsedData.recipientName}`);
+      console.log(`Title: ${result.parsedData.recipientTitle}`);
+    } else {
+      console.log('❌ Recipient information not found');
+    }
+    
+    // Investigators
+    console.log('\n👥 INVESTIGATORS:');
+    if (result.parsedData.investigators.length > 0) {
+      result.parsedData.investigators.forEach((inv, i) => {
+        console.log(`${i + 1}. ${inv.name}, ${inv.title}`);
+      });
+    } else {
+      console.log('❌ No investigators found');
+    }
+    
+    // Observations - Full Details
+    console.log('\n📝 OBSERVATIONS (Full Details):');
+    console.log('-'.repeat(70));
+    if (result.parsedData.observations.length > 0) {
+      result.parsedData.observations.forEach(obs => {
+        console.log(`\nOBSERVATION ${obs.number}`);
+        console.log('First Sentence:', obs.title);
+        console.log('\nFull Text:');
+        console.log('-'.repeat(50));
+        // Wrap long text for better readability
+        const wrapped = obs.fullText.match(/.{1,70}(\s|$)/g) || [obs.fullText];
+        wrapped.forEach(line => console.log(line.trim()));
+        console.log('-'.repeat(50));
+      });
+    } else {
+      console.log('❌ No observations found');
+    }
+    
+    // Confidence Analysis
+    console.log('\n📊 CONFIDENCE ANALYSIS:');
+    console.log(`Overall Confidence: ${result.parsedData.parsingConfidence.overall.toFixed(1)}%`);
+    console.log('\nField-by-field confidence:');
+    Object.entries(result.parsedData.parsingConfidence.fields).forEach(([field, conf]) => {
+      const percentage = (conf * 100).toFixed(0);
+      const bar = '█'.repeat(Math.floor(conf * 20)) + '░'.repeat(20 - Math.floor(conf * 20));
+      const icon = conf >= 0.8 ? '✅' : conf >= 0.5 ? '🟡' : '❌';
+      console.log(`  ${icon} ${field.padEnd(20)} [${bar}] ${percentage}%`);
+    });
+    
+    // Save decision
+    console.log('\n💾 SAVE DECISION:');
+    if (result.parsedData.parsingConfidence.overall >= 70) {
+      console.log('✅ This record would be SAVED (confidence >= 70%)');
+    } else {
+      console.log('⚠️  This record would NOT be saved (confidence < 70%)');
+      console.log('   Recommendation: Manual review required');
+    }
+    
+    console.log('\n🏁 TEST COMPLETE - No data was saved to the database\n');
+    
+    return result;
     
   } catch (error) {
     console.error('❌ Test error:', error);
@@ -883,67 +979,33 @@ app.get('/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date() });
 });
 
-// Process single record with parser selection
+// Process single record
 app.get('/process/:recordId', async (req, res) => {
   try {
-    const useImproved = req.query.parser !== 'original';
     const record = await FDA483.findById(req.params.recordId);
     
     if (!record) {
       return res.status(404).json({ error: 'Record not found' });
     }
     
-    const result = await processFDA483Record(record, useImproved);
+    const result = await processFDA483Record(record, true);
     res.json(result);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
-// Compare parsers endpoint
-app.get('/compare/:recordId', async (req, res) => {
-  try {
-    const record = await FDA483.findById(req.params.recordId);
-    
-    if (!record) {
-      return res.status(404).json({ error: 'Record not found' });
-    }
-    
-    const improvedResult = await processFDA483Record(record, true);
-    const originalResult = await processFDA483Record(record, false);
-    
-    res.json({
-      recordId: record._id,
-      comparison: {
-        improved: {
-          confidence: improvedResult.parsedData.parsingConfidence.overall,
-          firmName: improvedResult.parsedData.firmName,
-          observationCount: improvedResult.parsedData.observations.length
-        },
-        original: {
-          confidence: originalResult.parsedData.parsingConfidence.overall,
-          firmName: originalResult.parsedData.firmName,
-          observationCount: originalResult.parsedData.observations.length
-        }
-      }
-    });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// Batch processing with improved parser
+// Batch processing
 async function startBatchProcessing(options = {}) {
   const {
     limit = 10,
     saveToDb = false,
-    minConfidence = 70,
-    useImproved = true
+    minConfidence = 70
   } = options;
 
   try {
     console.log('\n🤖 Starting automated batch processing...');
-    console.log(`📊 Parameters: limit=${limit}, saveToDb=${saveToDb}, minConfidence=${minConfidence}%, parser=${useImproved ? 'improved' : 'original'}\n`);
+    console.log(`📊 Parameters: limit=${limit}, saveToDb=${saveToDb}, minConfidence=${minConfidence}%\n`);
     
     const records = await FDA483.find({ parsedText: { $exists: false } }).limit(limit);
     console.log(`📁 Found ${records.length} unprocessed records\n`);
@@ -960,7 +1022,7 @@ async function startBatchProcessing(options = {}) {
     
     for (const record of records) {
       try {
-        const result = await processFDA483Record(record, useImproved);
+        const result = await processFDA483Record(record, true);
         results.processed++;
         results.successful++;
         
@@ -1036,30 +1098,25 @@ if (require.main === module) {
   
   const printUsage = () => {
     console.log(`
-FDA 483 Parser - Improved CLI Usage:
-====================================
+FDA 483 Parser - Simplified Observations CLI Usage:
+==================================================
 
 Commands:
   batch [options]           Process multiple records
   single <recordId>         Process a single record
   test-real [recordId]      Test with real record (no save)
-  compare [recordId]        Compare original vs improved parser
   stats                     Show database statistics
 
 Options for 'batch':
   --limit <n>          Number of records to process (default: 10)
   --save               Save results to MongoDB
   --min-conf <n>       Minimum confidence to save (default: 70)
-  --parser <type>      Use 'improved' or 'original' (default: improved)
-
-Options for 'test-real':
-  --compare            Compare both parser versions
 
 Examples:
-  node fda483-parser.js batch --limit 5 --save --parser improved
+  node fda483-parser.js batch --limit 5 --save
   node fda483-parser.js test-real 669c4a1eccc11f227ba6be49
-  node fda483-parser.js test-real --compare
-  node fda483-parser.js compare 669c4a1eccc11f227ba6be49
+  node fda483-parser.js test-real
+  node fda483-parser.js stats
     `);
   };
   
@@ -1075,10 +1132,8 @@ Examples:
           const saveToDb = args.includes('--save');
           const minConfIndex = args.indexOf('--min-conf');
           const minConfidence = minConfIndex > -1 ? parseInt(args[minConfIndex + 1]) : 70;
-          const parserIndex = args.indexOf('--parser');
-          const useImproved = parserIndex > -1 ? args[parserIndex + 1] === 'improved' : true;
           
-          await startBatchProcessing({ limit, saveToDb, minConfidence, useImproved });
+          await startBatchProcessing({ limit, saveToDb, minConfidence });
           break;
         }
         
@@ -1101,25 +1156,8 @@ Examples:
         }
         
         case 'test-real': {
-          const recordId = args[1] === '--compare' ? null : args[1];
-          const compareVersions = args.includes('--compare');
-          await testRealRecord(recordId, compareVersions);
-          break;
-        }
-        
-        case 'compare': {
           const recordId = args[1];
-          if (!recordId) {
-            // Get random record
-            const records = await FDA483.find({ parsedText: { $exists: false } }).limit(1);
-            if (records.length === 0) {
-              console.error('❌ No unparsed records found');
-              break;
-            }
-            await testRealRecord(records[0]._id, true);
-          } else {
-            await testRealRecord(recordId, true);
-          }
+          await testRealRecord(recordId);
           break;
         }
         
@@ -1163,7 +1201,7 @@ mongoose.connect(MONGO_URI)
   app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
     console.log(`📍 Health check: http://localhost:${PORT}/health`);
-    console.log(`📍 Compare parsers: http://localhost:${PORT}/compare/[recordId]`);
+    console.log(`📍 Process single: http://localhost:${PORT}/process/[recordId]`);
   });
 })
 .catch(err => {
