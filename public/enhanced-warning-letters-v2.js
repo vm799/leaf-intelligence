@@ -2239,11 +2239,18 @@ window.enhancedWarningLettersFixed.performSearch = async function(companies) {
 
 // Also update the dashboard to hide Form 483 UI elements
 window.enhancedWarningLettersFixed.updateDashboard = function() {
-  // Update metrics
-  document.getElementById('wl-metric-count').textContent = this.state.warningLetters.length;
-  document.getElementById('f483-metric-count').textContent = '—'; // Show dash instead of 0
-  document.getElementById('citation-metric-count').textContent = this.state.citations.length;
-  document.getElementById('inspection-metric-count').textContent = this.state.inspections.length;
+  // Safely update metrics - check if elements exist first
+  const updateElement = (id, value) => {
+    const element = document.getElementById(id);
+    if (element) {
+      element.textContent = value;
+    }
+  };
+
+  updateElement('wl-metric-count', this.state.warningLetters.length);
+  updateElement('f483-metric-count', '—'); // Show dash instead of 0
+  updateElement('citation-metric-count', this.state.citations.length);
+  updateElement('inspection-metric-count', this.state.inspections.length);
   
   // Hide Form 483 card if it exists
   const f483Card = document.querySelector('.form-483-card');
@@ -2251,13 +2258,29 @@ window.enhancedWarningLettersFixed.updateDashboard = function() {
     f483Card.style.display = 'none';
   }
   
-  // Update risk score
-  this.updateRiskScore();
+  // Update risk score if the method exists
+  if (typeof this.updateRiskScore === 'function') {
+    this.updateRiskScore();
+  }
   
-  // Update tab content
-  this.updateDetailedRecords();
-  this.updateTimelineView();
-  this.updateViolationsAnalysis();
+  // Update tab content if methods exist
+  if (typeof this.updateDetailedRecords === 'function') {
+    this.updateDetailedRecords();
+  }
+  if (typeof this.updateTimelineView === 'function') {
+    this.updateTimelineView();
+  }
+  if (typeof this.updateViolationsAnalysis === 'function') {
+    this.updateViolationsAnalysis();
+  }
+  
+  // If no specific dashboard exists, try to update the main results container
+  const resultsContainer = document.getElementById('wl-results-container') || 
+                          document.getElementById('enhancedWLContainer');
+  
+  if (resultsContainer && typeof this.renderResults === 'function') {
+    this.renderResults();
+  }
 };
 
 // Override createForm483Content to show disabled message
