@@ -2237,51 +2237,8 @@ window.enhancedWarningLettersFixed.performSearch = async function(companies) {
   }
 };
 
-// Also update the dashboard to hide Form 483 UI elements
-window.enhancedWarningLettersFixed.updateDashboard = function() {
-  // Safely update metrics - check if elements exist first
-  const updateElement = (id, value) => {
-    const element = document.getElementById(id);
-    if (element) {
-      element.textContent = value;
-    }
-  };
 
-  updateElement('wl-metric-count', this.state.warningLetters.length);
-  updateElement('f483-metric-count', '—'); // Show dash instead of 0
-  updateElement('citation-metric-count', this.state.citations.length);
-  updateElement('inspection-metric-count', this.state.inspections.length);
-  
-  // Hide Form 483 card if it exists
-  const f483Card = document.querySelector('.form-483-card');
-  if (f483Card) {
-    f483Card.style.display = 'none';
-  }
-  
-  // Update risk score if the method exists
-  if (typeof this.updateRiskScore === 'function') {
-    this.updateRiskScore();
-  }
-  
-  // Update tab content if methods exist
-  if (typeof this.updateDetailedRecords === 'function') {
-    this.updateDetailedRecords();
-  }
-  if (typeof this.updateTimelineView === 'function') {
-    this.updateTimelineView();
-  }
-  if (typeof this.updateViolationsAnalysis === 'function') {
-    this.updateViolationsAnalysis();
-  }
-  
-  // If no specific dashboard exists, try to update the main results container
-  const resultsContainer = document.getElementById('wl-results-container') || 
-                          document.getElementById('enhancedWLContainer');
-  
-  if (resultsContainer && typeof this.renderResults === 'function') {
-    this.renderResults();
-  }
-};
+
 
 // Override createForm483Content to show disabled message
 window.enhancedWarningLettersFixed.createForm483Content = function(form483s) {
@@ -3217,6 +3174,103 @@ window.enhancedWarningLettersFixed.searchForm483sWithVariations = async function
   console.log(`  📋 Form 483 Final: ${sortedResults.length} relevant results for ${company}`);
   return sortedResults;
 };
+
+
+
+// Fix the showLoading function to properly hide loading states
+window.enhancedWarningLettersFixed.showLoading = function(show) {
+  // Try multiple loading indicators that might exist
+  const loadingSelectors = [
+    '#wl-loading',
+    '.loading-indicator',
+    '.loading-spinner',
+    '#loading-overlay',
+    '.enhanced-loading'
+  ];
+  
+  loadingSelectors.forEach(selector => {
+    const element = document.querySelector(selector);
+    if (element) {
+      element.style.display = show ? 'flex' : 'none';
+      if (!show) {
+        // Extra insurance - remove any loading classes
+        element.classList.remove('show', 'active', 'visible');
+      }
+    }
+  });
+  
+  // Also check for any inline loading elements in the container
+  const container = document.getElementById('enhancedWLContainer');
+  if (container) {
+    const inlineLoading = container.querySelector('.loading, .spinner, [class*="loading"]');
+    if (inlineLoading) {
+      inlineLoading.style.display = show ? 'block' : 'none';
+    }
+  }
+  
+  // Update body class if it exists
+  if (!show) {
+    document.body.classList.remove('loading', 'searching');
+  }
+  
+  console.log(`📊 Loading state: ${show ? 'SHOWING' : 'HIDDEN'}`);
+};
+
+// Also update the dashboard to hide Form 483 UI elements
+window.enhancedWarningLettersFixed.updateDashboard = function() {
+  // Safely update metrics - check if elements exist first
+  const updateElement = (id, value) => {
+    const element = document.getElementById(id);
+    if (element) {
+      element.textContent = value;
+    }
+  };
+
+  updateElement('wl-metric-count', this.state.warningLetters.length);
+  updateElement('f483-metric-count', '—'); // Show dash instead of 0
+  updateElement('citation-metric-count', this.state.citations.length);
+  updateElement('inspection-metric-count', this.state.inspections.length);
+  
+  // Hide Form 483 card if it exists
+  const f483Card = document.querySelector('.form-483-card');
+  if (f483Card) {
+    f483Card.style.display = 'none';
+  }
+  
+  // Update risk score if the method exists
+  if (typeof this.updateRiskScore === 'function') {
+    this.updateRiskScore();
+  }
+  
+  // Update tab content if methods exist
+  if (typeof this.updateDetailedRecords === 'function') {
+    this.updateDetailedRecords();
+  }
+  if (typeof this.updateTimelineView === 'function') {
+    this.updateTimelineView();
+  }
+  if (typeof this.updateViolationsAnalysis === 'function') {
+    this.updateViolationsAnalysis();
+  }
+  
+  // If no specific dashboard exists, try to update the main results container
+  const resultsContainer = document.getElementById('wl-results-container') || 
+                          document.getElementById('enhancedWLContainer');
+  
+  if (resultsContainer && typeof this.renderResults === 'function') {
+    this.renderResults();
+  }
+};
+
+// Override createForm483Content to show disabled message
+window.enhancedWarningLettersFixed.createForm483Content = function(form483s) {
+  return `
+    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-center">
+      <p class="text-yellow-800">Form 483 search is temporarily disabled to improve loading performance.</p>
+    </div>
+  `;
+};
+
 
 // Override the main performSearch
 // window.enhancedWarningLettersFixed.performSearch = window.enhancedWarningLettersFixed.performEnhancedSearch;

@@ -1467,31 +1467,144 @@ async function startBatchProcessing(options = {}) {
 }
 
 // CLI Entry Point
+// if (require.main === module) {
+//   const args = process.argv.slice(2);
+//   const command = args[0];
+  
+//   const printUsage = () => {
+//     console.log(`
+// FDA 483 Parser - Simplified Observations CLI Usage:
+// ==================================================
+
+// Commands:
+//   batch [options]           Process multiple records
+//   single <recordId>         Process a single record
+//   test-real [recordId]      Test with real record (no save)
+//   stats                     Show database statistics
+
+// Options for 'batch':
+//   --limit <n>          Number of records to process (default: 10)
+//   --save               Save results to MongoDB
+//   --min-conf <n>       Minimum confidence to save (default: 70)
+
+// Examples:
+//   node fda483-parser.js batch --limit 5 --save
+//   node fda483-parser.js test-real 669c4a1eccc11f227ba6be49
+//   node fda483-parser.js test-real
+//   node fda483-parser.js stats
+//     `);
+//   };
+  
+//   const runCLI = async () => {
+//     try {
+//       await mongoose.connect(MONGO_URI);
+//       console.log('✅ Connected to MongoDB\n');
+      
+//       switch (command) {
+//         case 'batch': {
+//           const limitIndex = args.indexOf('--limit');
+//           const limit = limitIndex > -1 ? parseInt(args[limitIndex + 1]) : 10;
+//           const saveToDb = args.includes('--save');
+//           const minConfIndex = args.indexOf('--min-conf');
+//           const minConfidence = minConfIndex > -1 ? parseInt(args[minConfIndex + 1]) : 70;
+          
+//           await startBatchProcessing({ limit, saveToDb, minConfidence });
+//           break;
+//         }
+        
+//         case 'single': {
+//           const recordId = args[1];
+//           if (!recordId) {
+//             console.error('❌ Please provide a record ID');
+//             printUsage();
+//             break;
+//           }
+          
+//           const record = await FDA483.findById(recordId);
+//           if (!record) {
+//             console.error('❌ Record not found');
+//             break;
+//           }
+          
+//           await processFDA483Record(record, true);
+//           break;
+//         }
+        
+//         case 'test-real': {
+//           const recordId = args[1];
+//           await testRealRecord(recordId);
+//           break;
+//         }
+        
+//         case 'stats': {
+//           const totalCount = await FDA483.countDocuments();
+//           const parsedCount = await FDA483.countDocuments({ parsedText: { $exists: true } });
+//           const highConfCount = await FDA483.countDocuments({ 
+//             'parsedData.parsingConfidence.overall': { $gte: 70 } 
+//           });
+          
+//           console.log('📊 DATABASE STATISTICS:');
+//           console.log('='.repeat(40));
+//           console.log(`Total Records: ${totalCount}`);
+//           console.log(`Parsed Records: ${parsedCount} (${((parsedCount/totalCount)*100).toFixed(1)}%)`);
+//           console.log(`High Confidence (≥70%): ${highConfCount}`);
+//           console.log(`Unparsed Records: ${totalCount - parsedCount}`);
+//           console.log('='.repeat(40));
+//           break;
+//         }
+        
+//         default:
+//           printUsage();
+//       }
+      
+//     } catch (error) {
+//       console.error('❌ CLI Error:', error);
+//     } finally {
+//       await mongoose.disconnect();
+//       console.log('\n👋 Disconnected from MongoDB');
+//     }
+//   };
+  
+//   runCLI();
+// }
 if (require.main === module) {
   const args = process.argv.slice(2);
   const command = args[0];
   
   const printUsage = () => {
     console.log(`
-FDA 483 Parser - Simplified Observations CLI Usage:
-==================================================
+FDA 483 Parser - With Size Limits CLI Usage:
+===========================================
 
 Commands:
-  batch [options]           Process multiple records
+  batch [options]           Process multiple records (original)
+  batch-skip [options]      Process records with size checks (skip large ones)
   single <recordId>         Process a single record
   test-real [recordId]      Test with real record (no save)
+  process-skipped [options] Process previously skipped records
+  skipped-summary           Show summary of skipped records
   stats                     Show database statistics
 
-Options for 'batch':
+Options for 'batch' and 'batch-skip':
   --limit <n>          Number of records to process (default: 10)
   --save               Save results to MongoDB
   --min-conf <n>       Minimum confidence to save (default: 70)
 
+Options for 'process-skipped':
+  --save               Save results to MongoDB
+  --min-conf <n>       Minimum confidence to save (default: 70)
+
 Examples:
-  node fda483-parser.js batch --limit 5 --save
+  node fda483-parser.js batch-skip --limit 20 --save
+  node fda483-parser.js process-skipped --save
+  node fda483-parser.js skipped-summary
   node fda483-parser.js test-real 669c4a1eccc11f227ba6be49
-  node fda483-parser.js test-real
   node fda483-parser.js stats
+
+Size Limits (configurable at top of file):
+  PDF Size: ${SIZE_LIMITS.PDF_SIZE_MB}MB
+  Text Length: ${SIZE_LIMITS.TEXT_LENGTH} characters
+  Observation Count: ${SIZE_LIMITS.OBSERVATION_COUNT} observations
     `);
   };
   
@@ -1509,6 +1622,31 @@ Examples:
           const minConfidence = minConfIndex > -1 ? parseInt(args[minConfIndex + 1]) : 70;
           
           await startBatchProcessing({ limit, saveToDb, minConfidence });
+          break;
+        }
+        
+        case 'batch-skip': {
+          const limitIndex = args.indexOf('--limit');
+          const limit = limitIndex > -1 ? parseInt(args[limitIndex + 1]) : 10;
+          const saveToDb = args.includes('--save');
+          const minConfIndex = args.indexOf('--min-conf');
+          const minConfidence = minConfIndex > -1 ? parseInt(args[minConfIndex + 1]) : 70;
+          
+          await startBatchProcessingWithSkips({ limit, saveToDb, minConfidence });
+          break;
+        }
+        
+        case 'process-skipped': {
+          const saveToDb = args.includes('--save');
+          const minConfIndex = args.indexOf('--min-conf');
+          const minConfidence = minConfIndex > -1 ? parseInt(args[minConfIndex + 1]) : 70;
+          
+          await processSkippedRecords({ saveToDb, minConfidence });
+          break;
+        }
+        
+        case 'skipped-summary': {
+          await showSkippedSummary();
           break;
         }
         
@@ -1572,7 +1710,7 @@ Examples:
 mongoose.connect(MONGO_URI)
 .then(() => {
   console.log('✅ Connected to MongoDB');
-  const PORT = process.env.PORT || 3000;
+  const PORT = 4000;
   app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
     console.log(`📍 Health check: http://localhost:${PORT}/health`);
