@@ -67,7 +67,7 @@ class StripeService {
                 quantity: 1
             }],
             mode: 'payment',
-            success_url: `${process.env.FRONTEND_URL || 'https://www.syneticx.com'}/checkout-success.html?session_id={CHECKOUT_SESSION_ID}`,
+            success_url: `${process.env.FRONTEND_URL || 'https://www.syneticx.com'}/search-success.html?session_id={CHECKOUT_SESSION_ID}`,
             cancel_url: returnUrl ? `${returnUrl}?canceled=true` : `${process.env.FRONTEND_URL || 'https://www.syneticx.com'}/leafintelligence.html?canceled=true`,
             customer: customerId,
             metadata: {
@@ -126,7 +126,7 @@ async createSubscriptionCheckout(user, returnUrl) {
                 quantity: 1
             }],
             mode: 'subscription',
-            success_url: `${process.env.FRONTEND_URL || 'https://www.syneticx.com'}/checkout-success.html?session_id={CHECKOUT_SESSION_ID}`,
+            success_url: `${process.env.FRONTEND_URL || 'https://www.syneticx.com'}/subscription-success.html?session_id={CHECKOUT_SESSION_ID}`,
             cancel_url: returnUrl ? `${returnUrl}?canceled=true` : `${process.env.FRONTEND_URL || 'https://www.syneticx.com'}/leafintelligence.html?canceled=true`,
             customer: customerId,
             metadata: {

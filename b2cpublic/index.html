@@ -1,0 +1,1410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PHARMA-SCAN Terminal v2.077</title>
+    
+    <!-- Chart.js for data visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- 3Dmol.js for molecular visualization -->
+    <script src="https://3dmol.org/build/3Dmol-min.js"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+        
+        :root {
+            --primary-cyan: #00ffff;
+            --secondary-cyan: #00cccc;
+            --primary-red: #ff3333;
+            --secondary-red: #ff6600;
+            --accent-yellow: #ffff00;
+            --accent-gold: #ffcc00;
+            --bg-dark: #0a0a0f;
+            --bg-secondary: #1a1a2e;
+            --grid-red: #663333;
+            --success-green: #00ff88;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: var(--bg-dark);
+            color: var(--primary-cyan);
+            overflow-x: hidden;
+            position: relative;
+            min-height: 100vh;
+        }
+
+        /* Scanline Effect */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(255, 0, 0, 0.03) 2px,
+                rgba(255, 0, 0, 0.03) 4px
+            );
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* Grid Background */
+        .grid-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(102, 51, 51, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(102, 51, 51, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: grid-move 20s linear infinite;
+        }
+
+        @keyframes grid-move {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+
+        /* Header */
+        .header {
+            position: relative;
+            z-index: 10;
+            background: linear-gradient(to bottom, var(--bg-secondary), transparent);
+            padding: 20px;
+            border-bottom: 2px solid var(--primary-red);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: 'Orbitron', monospace;
+            font-size: 2.5em;
+            font-weight: 900;
+            text-shadow: 0 0 20px var(--primary-cyan);
+            animation: flicker 2s infinite;
+        }
+
+        @keyframes flicker {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        .status-bar {
+            display: flex;
+            gap: 20px;
+            font-size: 0.9em;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            background: var(--success-green);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(0, 255, 136, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(0, 255, 136, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 255, 136, 0); }
+        }
+
+        /* Main Container */
+        .main-container {
+            position: relative;
+            z-index: 10;
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Search Section */
+        .search-section {
+            background: rgba(26, 26, 46, 0.8);
+            border: 2px solid var(--primary-red);
+            padding: 30px;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .search-label {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid var(--primary-cyan);
+            color: var(--primary-cyan);
+            font-family: 'Courier New', monospace;
+            font-size: 1.1em;
+            transition: all 0.3s;
+        }
+
+        .search-input:focus {
+            outline: none;
+            box-shadow: 0 0 20px var(--primary-cyan);
+            background: rgba(0, 255, 255, 0.1);
+        }
+
+        .search-button {
+            margin-top: 20px;
+            padding: 15px 40px;
+            background: linear-gradient(45deg, var(--primary-red), var(--secondary-red));
+            border: none;
+            color: white;
+            font-family: 'Orbitron', monospace;
+            font-size: 1.1em;
+            text-transform: uppercase;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+
+        .search-button::before {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: all 0.5s;
+        }
+
+        .search-button:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .search-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(255, 51, 51, 0.5);
+        }
+
+        /* Data Sections */
+        .data-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .data-section {
+            background: rgba(26, 26, 46, 0.8);
+            border: 1px solid var(--grid-red);
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .data-section::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--primary-cyan);
+            animation: height-pulse 2s infinite;
+        }
+
+        @keyframes height-pulse {
+            0%, 100% { height: 0; }
+            50% { height: 100%; }
+        }
+
+        .section-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            color: var(--accent-yellow);
+            text-shadow: 0 0 10px var(--accent-yellow);
+        }
+
+        /* Molecular Viewer */
+        .molecule-viewer {
+            width: 100%;
+            height: 400px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid var(--primary-cyan);
+            margin: 20px 0;
+            position: relative;
+        }
+
+        #mol3d-viewer {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Charts Container */
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin: 20px 0;
+        }
+
+        /* Loading State */
+        .loading {
+            text-align: center;
+            padding: 50px;
+        }
+
+        .loading-spinner {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto;
+            border: 3px solid var(--grid-red);
+            border-top-color: var(--primary-cyan);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Progress Bars */
+        .progress-container {
+            margin: 15px 0;
+        }
+
+        .progress-label {
+            margin-bottom: 5px;
+            font-size: 0.9em;
+        }
+
+        .progress-bar {
+            height: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--grid-red);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-cyan), var(--success-green));
+            transition: width 1s ease-out;
+            position: relative;
+        }
+
+        .progress-fill::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.3),
+                transparent
+            );
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        /* Data Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .stat-card {
+            background: rgba(0, 255, 255, 0.05);
+            border: 1px solid var(--primary-cyan);
+            padding: 15px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0, 255, 255, 0.3);
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-family: 'Orbitron', monospace;
+            color: var(--accent-yellow);
+            text-shadow: 0 0 10px var(--accent-yellow);
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            margin-top: 5px;
+            color: var(--primary-cyan);
+        }
+
+        /* Warning Box */
+        .warning-box {
+            background: rgba(255, 102, 0, 0.1);
+            border: 2px solid var(--secondary-red);
+            padding: 15px;
+            margin: 15px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .warning-box::before {
+            content: "⚠";
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 2em;
+            color: var(--secondary-red);
+            animation: warning-flash 1s infinite;
+        }
+
+        @keyframes warning-flash {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        /* Error Message */
+        .error-message {
+            background: rgba(255, 51, 51, 0.1);
+            border: 1px solid var(--primary-red);
+            padding: 20px;
+            margin: 20px 0;
+            color: var(--primary-red);
+            text-align: center;
+            animation: error-pulse 1s infinite;
+        }
+
+        @keyframes error-pulse {
+            0%, 100% { border-color: var(--primary-red); }
+            50% { border-color: transparent; }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .logo {
+                font-size: 1.8em;
+            }
+            
+            .data-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Glitch Effect */
+        .glitch {
+            position: relative;
+            animation: glitch 5s infinite;
+        }
+
+        @keyframes glitch {
+            0%, 100% { transform: translate(0); }
+            20% { transform: translate(-1px, 1px); }
+            40% { transform: translate(-1px, -1px); }
+            60% { transform: translate(1px, 1px); }
+            80% { transform: translate(1px, -1px); }
+        }
+
+        /* Terminal Output */
+        .terminal-output {
+            background: black;
+            border: 1px solid var(--success-green);
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            color: var(--success-green);
+            max-height: 200px;
+            overflow-y: auto;
+            margin: 10px 0;
+        }
+
+        .terminal-line {
+            margin: 2px 0;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--grid-red);
+        }
+
+        .tab {
+            padding: 10px 20px;
+            background: rgba(26, 26, 46, 0.8);
+            border: 1px solid var(--grid-red);
+            border-bottom: none;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            background: rgba(0, 255, 255, 0.1);
+            border-color: var(--primary-cyan);
+            color: var(--primary-cyan);
+            text-shadow: 0 0 10px var(--primary-cyan);
+        }
+
+        .tab:hover {
+            background: rgba(0, 255, 255, 0.05);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Research Articles */
+        .article-item {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--grid-red);
+            padding: 15px;
+            margin: 10px 0;
+            transition: all 0.3s;
+        }
+
+        .article-item:hover {
+            border-color: var(--primary-cyan);
+            transform: translateX(5px);
+        }
+
+        .article-title {
+            color: var(--accent-yellow);
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .article-meta {
+            font-size: 0.9em;
+            color: var(--secondary-cyan);
+        }
+
+        /* Clinical Trials Table */
+        .trials-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        .trials-table th,
+        .trials-table td {
+            padding: 10px;
+            text-align: left;
+            border: 1px solid var(--grid-red);
+        }
+
+        .trials-table th {
+            background: rgba(0, 255, 255, 0.1);
+            color: var(--accent-yellow);
+            text-transform: uppercase;
+        }
+
+        .trials-table tr:hover {
+            background: rgba(0, 255, 255, 0.05);
+        }
+
+        /* Safety Gauge */
+        .safety-gauge {
+            width: 200px;
+            height: 200px;
+            margin: 20px auto;
+            position: relative;
+        }
+
+        .gauge-circle {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: conic-gradient(
+                from 180deg,
+                var(--primary-red) 0deg,
+                var(--secondary-red) 60deg,
+                var(--accent-yellow) 120deg,
+                var(--success-green) 180deg
+            );
+            position: relative;
+            animation: rotate 2s ease-out;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(var(--rotation)); }
+        }
+
+        .gauge-inner {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            bottom: 10px;
+            background: var(--bg-dark);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        .gauge-value {
+            font-size: 3em;
+            font-family: 'Orbitron', monospace;
+            color: var(--primary-cyan);
+            text-shadow: 0 0 20px var(--primary-cyan);
+        }
+
+        .gauge-label {
+            font-size: 0.9em;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+    <div class="grid-bg"></div>
+    
+    <header class="header">
+        <div class="logo glitch">PHARMA-SCAN v2.077</div>
+        <div class="status-bar">
+            <div class="status-item">
+                <span class="status-indicator"></span>
+                <span>SYSTEM ONLINE</span>
+            </div>
+            <div class="status-item">
+                <span class="status-indicator"></span>
+                <span>API CONNECTED</span>
+            </div>
+            <div class="status-item">
+                <span id="time">00:00:00</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <div class="search-section">
+            <label class="search-label">ENTER DRUG NAME / COMPOUND</label>
+            <input 
+                type="text" 
+                class="search-input" 
+                id="drugSearch" 
+                placeholder="TYPE DRUG NAME OR ACTIVE INGREDIENT..."
+                autocomplete="off"
+            >
+            <button class="search-button" onclick="searchDrug()">
+                INITIATE SCAN
+            </button>
+        </div>
+
+        <div id="resultsContainer">
+            <div style="text-align: center; padding: 100px 0; opacity: 0.5;">
+                <div style="font-size: 3em; margin-bottom: 20px;">⬢</div>
+                <div>AWAITING DRUG QUERY...</div>
+                <div style="font-size: 0.8em; margin-top: 10px;">
+                    ENTER DRUG NAME TO ACCESS COMPREHENSIVE DATA
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const API_BASE_URL = 'http://localhost:3000';
+        
+        // Global variables
+        let currentDrugData = null;
+        let charts = {};
+
+        // Update time
+        function updateTime() {
+            const now = new Date();
+            const time = now.toTimeString().slice(0, 8);
+            document.getElementById('time').textContent = time;
+        }
+        setInterval(updateTime, 1000);
+        updateTime();
+
+        // Main search function
+        async function searchDrug() {
+            const drugName = document.getElementById('drugSearch').value.trim();
+            if (!drugName) {
+                showError('Please enter a drug name');
+                return;
+            }
+
+            const resultsContainer = document.getElementById('resultsContainer');
+            resultsContainer.innerHTML = `
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                    <div style="margin-top: 20px;">SCANNING DATABASES...</div>
+                    <div class="terminal-output" id="loadingTerminal">
+                        <div class="terminal-line">> INITIALIZING PHARMA-SCAN...</div>
+                    </div>
+                </div>
+            `;
+
+            // Simulate terminal output
+            const terminal = document.getElementById('loadingTerminal');
+            const messages = [
+                'CONNECTING TO FDA DATABASE...',
+                'ACCESSING PUBCHEM MOLECULAR DATA...',
+                'RETRIEVING CLINICAL TRIALS...',
+                'ANALYZING ADVERSE EVENTS...',
+                'COMPILING RESEARCH DATA...'
+            ];
+            
+            messages.forEach((msg, index) => {
+                setTimeout(() => {
+                    terminal.innerHTML += `<div class="terminal-line">> ${msg}</div>`;
+                    terminal.scrollTop = terminal.scrollHeight;
+                }, index * 500);
+            });
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/drug/search/${encodeURIComponent(drugName)}`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const result = await response.json();
+                currentDrugData = result.data;
+                
+                setTimeout(() => {
+                    displayResults(currentDrugData);
+                }, messages.length * 500 + 500);
+                
+            } catch (error) {
+                console.error('Search error:', error);
+                setTimeout(() => {
+                    showError('Failed to retrieve drug data. Please check if the backend server is running.');
+                }, 2000);
+            }
+        }
+
+        // Display results
+        function displayResults(data) {
+            const resultsContainer = document.getElementById('resultsContainer');
+            
+            resultsContainer.innerHTML = `
+                <div class="data-section">
+                    <h3 class="section-title">DRUG OVERVIEW</h3>
+                    ${renderOverview(data.overview)}
+                </div>
+
+                <div class="tabs">
+                    <div class="tab active" onclick="switchTab('molecular')">MOLECULAR DATA</div>
+                    <div class="tab" onclick="switchTab('efficacy')">EFFICACY</div>
+                    <div class="tab" onclick="switchTab('safety')">SAFETY</div>
+                    <div class="tab" onclick="switchTab('trials')">CLINICAL TRIALS</div>
+                    <div class="tab" onclick="switchTab('research')">RESEARCH</div>
+                </div>
+
+                <div id="molecular" class="tab-content active">
+                    ${renderMolecularData(data.chemicalData, data.molecularStructure)}
+                </div>
+
+                <div id="efficacy" class="tab-content">
+                    ${renderEfficacyData(data.efficacy)}
+                </div>
+
+                <div id="safety" class="tab-content">
+                    ${renderSafetyData(data.safety, data.charts)}
+                </div>
+
+                <div id="trials" class="tab-content">
+                    ${renderTrialsData(data.clinicalTrials)}
+                </div>
+
+                <div id="research" class="tab-content">
+                    ${renderResearchData(data.research)}
+                </div>
+            `;
+
+            // Initialize molecular viewer if structure available
+            if (data.molecularStructure) {
+                setTimeout(() => initMoleculeViewer(data.molecularStructure), 100);
+            }
+
+            // Initialize charts
+            setTimeout(() => initCharts(data.charts), 100);
+        }
+
+        // Render functions
+        function renderOverview(overview) {
+            return `
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value">${overview.genericName || 'N/A'}</div>
+                        <div class="stat-label">GENERIC NAME</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${overview.brandNames?.length || 0}</div>
+                        <div class="stat-label">BRAND NAMES</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${overview.drugClass ? '✓' : '✗'}</div>
+                        <div class="stat-label">CLASSIFIED</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${overview.rxcui || 'N/A'}</div>
+                        <div class="stat-label">RXCUI</div>
+                    </div>
+                </div>
+                <div style="margin-top: 20px;">
+                    ${overview.brandNames?.length ? `<p><strong>Brand Names:</strong> ${overview.brandNames.join(', ')}</p>` : ''}
+                    ${overview.drugClass ? `<p><strong>Drug Class:</strong> ${overview.drugClass}</p>` : ''}
+                    ${overview.manufacturer ? `<p><strong>Manufacturer:</strong> ${overview.manufacturer}</p>` : ''}
+                    ${overview.activeIngredient ? `<p><strong>Active Ingredient:</strong> ${overview.activeIngredient}</p>` : ''}
+                </div>
+            `;
+        }
+
+        function renderMolecularData(chemical, structure) {
+            let html = '<div class="data-section">';
+            html += '<h3 class="section-title">CHEMICAL PROPERTIES</h3>';
+            
+            if (chemical) {
+                html += `
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-value" style="font-size: 1.2em;">${chemical.formula || 'N/A'}</div>
+                            <div class="stat-label">FORMULA</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${chemical.molecularWeight || 'N/A'}</div>
+                            <div class="stat-label">MOL WEIGHT</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${chemical.properties?.xlogp || 'N/A'}</div>
+                            <div class="stat-label">XLOGP</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${chemical.properties?.complexity || 'N/A'}</div>
+                            <div class="stat-label">COMPLEXITY</div>
+                        </div>
+                    </div>
+                `;
+                
+                if (chemical.synonyms?.length) {
+                    html += `<p style="margin-top: 20px;"><strong>Synonyms:</strong> ${chemical.synonyms.slice(0, 5).join(', ')}</p>`;
+                }
+            }
+            
+            if (structure) {
+                html += `
+                    <h3 class="section-title" style="margin-top: 30px;">MOLECULAR STRUCTURE</h3>
+                    <div class="molecule-viewer">
+                        <div id="mol3d-viewer"></div>
+                    </div>
+                `;
+                
+                if (structure.imageUrl) {
+                    html += `<img src="${structure.imageUrl}" alt="2D Structure" style="max-width: 300px; margin: 20px auto; display: block; background: white; padding: 10px;">`;
+                }
+            }
+            
+            html += '</div>';
+            return html;
+        }
+
+        function renderEfficacyData(efficacy) {
+            let html = '<div class="data-section">';
+            html += '<h3 class="section-title">EFFICACY ANALYSIS</h3>';
+            
+            if (efficacy) {
+                html += `
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-value">${efficacy.clinicalTrials}</div>
+                            <div class="stat-label">TOTAL TRIALS</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${efficacy.completedTrials}</div>
+                            <div class="stat-label">COMPLETED</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${efficacy.activeTrials}</div>
+                            <div class="stat-label">ACTIVE</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${efficacy.totalPatients.toLocaleString()}</div>
+                            <div class="stat-label">PATIENTS</div>
+                        </div>
+                    </div>
+                `;
+                
+               // Continuation of the frontend JavaScript code
+
+                if (efficacy.successRate) {
+                    html += `
+                        <div class="progress-container" style="margin-top: 30px;">
+                            <div class="progress-label">SUCCESS RATE: ${efficacy.successRate}%</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${efficacy.successRate}%"></div>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                // Phase distribution chart
+                html += `
+                    <h4 style="margin-top: 30px; color: var(--accent-yellow);">TRIAL PHASES</h4>
+                    <div class="chart-container">
+                        <canvas id="phaseChart"></canvas>
+                    </div>
+                `;
+                
+                // Top conditions studied
+                if (Object.keys(efficacy.conditions || {}).length > 0) {
+                    const topConditions = Object.entries(efficacy.conditions)
+                        .sort((a, b) => b[1] - a[1])
+                        .slice(0, 5);
+                    
+                    html += `
+                        <h4 style="margin-top: 30px; color: var(--accent-yellow);">TOP CONDITIONS STUDIED</h4>
+                        <div style="margin-top: 15px;">
+                    `;
+                    
+                    topConditions.forEach(([condition, count]) => {
+                        const percentage = ((count / efficacy.clinicalTrials) * 100).toFixed(1);
+                        html += `
+                            <div class="progress-container">
+                                <div class="progress-label">${condition} (${count} trials)</div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: ${percentage}%"></div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    html += '</div>';
+                }
+            }
+            
+            html += '</div>';
+            return html;
+        }
+
+        function renderSafetyData(safety, charts) {
+            let html = '<div class="data-section">';
+            html += '<h3 class="section-title">SAFETY PROFILE</h3>';
+            
+            if (safety) {
+                // Safety overview stats
+                html += `
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-value">${safety.totalReports.toLocaleString()}</div>
+                            <div class="stat-label">TOTAL REPORTS</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" style="color: ${safety.blackBoxWarning ? 'var(--primary-red)' : 'var(--success-green)'}">
+                                ${safety.blackBoxWarning ? '⚠ YES' : '✓ NO'}
+                            </div>
+                            <div class="stat-label">BLACK BOX WARNING</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${safety.seriousAdverseEvents}</div>
+                            <div class="stat-label">SERIOUS EVENTS</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${safety.deathReports}</div>
+                            <div class="stat-label">DEATH REPORTS</div>
+                        </div>
+                    </div>
+                `;
+                
+                // Safety gauge
+                if (charts?.safetyScoreGauge) {
+                    html += `
+                        <div class="safety-gauge" style="--rotation: ${(charts.safetyScoreGauge.score / 100) * 180}deg;">
+                            <div class="gauge-circle"></div>
+                            <div class="gauge-inner">
+                                <div class="gauge-value">${charts.safetyScoreGauge.score}</div>
+                                <div class="gauge-label">SAFETY SCORE</div>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                // Adverse events chart
+                html += `
+                    <h4 style="margin-top: 30px; color: var(--accent-yellow);">TOP ADVERSE EVENTS</h4>
+                    <div class="chart-container">
+                        <canvas id="adverseEventsChart"></canvas>
+                    </div>
+                `;
+                
+                // Common side effects
+                if (safety.commonSideEffects?.length) {
+                    html += `
+                        <div class="warning-box" style="margin-top: 30px;">
+                            <h4>COMMON SIDE EFFECTS</h4>
+                            <div style="margin-top: 15px;">
+                    `;
+                    
+                    safety.commonSideEffects.slice(0, 10).forEach(effect => {
+                        html += `
+                            <div style="margin: 10px 0;">
+                                <strong>${effect.effect}</strong>: ${effect.count.toLocaleString()} reports (${effect.percentage}%)
+                                <div class="progress-bar" style="height: 10px; margin-top: 5px;">
+                                    <div class="progress-fill" style="width: ${Math.min(effect.percentage * 2, 100)}%"></div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    html += '</div></div>';
+                }
+                
+                // Warnings and contraindications
+                if (safety.warnings?.length) {
+                    html += `
+                        <div class="warning-box" style="margin-top: 20px;">
+                            <h4>WARNINGS</h4>
+                            <p>${safety.warnings[0].substring(0, 500)}...</p>
+                        </div>
+                    `;
+                }
+                
+                // Recalls
+                if (safety.recalls?.length) {
+                    html += `
+                        <h4 style="margin-top: 30px; color: var(--primary-red);">RECENT RECALLS</h4>
+                        <div style="margin-top: 15px;">
+                    `;
+                    
+                    safety.recalls.forEach(recall => {
+                        html += `
+                            <div class="warning-box">
+                                <p><strong>Date:</strong> ${recall.date}</p>
+                                <p><strong>Classification:</strong> ${recall.classification}</p>
+                                <p><strong>Reason:</strong> ${recall.reason}</p>
+                            </div>
+                        `;
+                    });
+                    
+                    html += '</div>';
+                }
+            }
+            
+            html += '</div>';
+            return html;
+        }
+
+        function renderTrialsData(trials) {
+            let html = '<div class="data-section">';
+            html += '<h3 class="section-title">CLINICAL TRIALS DATA</h3>';
+            
+            if (trials) {
+                // Timeline chart
+                html += `
+                    <h4 style="color: var(--accent-yellow);">TRIALS TIMELINE</h4>
+                    <div class="chart-container">
+                        <canvas id="timelineChart"></canvas>
+                    </div>
+                `;
+                
+                // Recent trials table
+                if (trials.recent?.length) {
+                    html += `
+                        <h4 style="margin-top: 30px; color: var(--accent-yellow);">RECENT TRIALS</h4>
+                        <div style="overflow-x: auto;">
+                            <table class="trials-table">
+                                <thead>
+                                    <tr>
+                                        <th>NCT ID</th>
+                                        <th>TITLE</th>
+                                        <th>PHASE</th>
+                                        <th>STATUS</th>
+                                        <th>ENROLLMENT</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                    `;
+                    
+                    trials.recent.forEach(trial => {
+                        html += `
+                            <tr>
+                                <td><a href="https://clinicaltrials.gov/ct2/show/${trial.nctId}" target="_blank" style="color: var(--primary-cyan);">${trial.nctId}</a></td>
+                                <td>${trial.title.substring(0, 50)}...</td>
+                                <td>${trial.phase}</td>
+                                <td>${trial.status}</td>
+                                <td>${trial.enrollment}</td>
+                            </tr>
+                        `;
+                    });
+                    
+                    html += `
+                                </tbody>
+                            </table>
+                        </div>
+                    `;
+                }
+                
+                // Status distribution
+                if (Object.keys(trials.byStatus || {}).length > 0) {
+                    html += `
+                        <h4 style="margin-top: 30px; color: var(--accent-yellow);">TRIAL STATUS DISTRIBUTION</h4>
+                        <div class="stats-grid" style="margin-top: 15px;">
+                    `;
+                    
+                    Object.entries(trials.byStatus).forEach(([status, count]) => {
+                        html += `
+                            <div class="stat-card">
+                                <div class="stat-value">${count}</div>
+                                <div class="stat-label">${status}</div>
+                            </div>
+                        `;
+                    });
+                    
+                    html += '</div>';
+                }
+            }
+            
+            html += '</div>';
+            return html;
+        }
+
+        function renderResearchData(research) {
+            let html = '<div class="data-section">';
+            html += '<h3 class="section-title">SCIENTIFIC RESEARCH</h3>';
+            
+            if (research) {
+                html += `
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-value">${research.totalPublications.toLocaleString()}</div>
+                            <div class="stat-label">PUBLICATIONS</div>
+                        </div>
+                    </div>
+                `;
+                
+                // Recent articles
+                if (research.recentArticles?.length) {
+                    html += `
+                        <h4 style="margin-top: 30px; color: var(--accent-yellow);">RECENT PUBLICATIONS</h4>
+                        <div style="margin-top: 15px;">
+                    `;
+                    
+                    research.recentArticles.forEach(article => {
+                        html += `
+                            <div class="article-item">
+                                <div class="article-title">${article.title}</div>
+                                <div class="article-meta">
+                                    <p><strong>Authors:</strong> ${article.authors}</p>
+                                    <p><strong>Journal:</strong> ${article.journal} | <strong>Date:</strong> ${article.pubDate}</p>
+                                    <p><strong>PMID:</strong> <a href="https://pubmed.ncbi.nlm.nih.gov/${article.pmid}" target="_blank" style="color: var(--primary-cyan);">${article.pmid}</a></p>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    html += '</div>';
+                }
+                
+                // Top journals
+                if (Object.keys(research.topJournals || {}).length > 0) {
+                    const topJournals = Object.entries(research.topJournals)
+                        .sort((a, b) => b[1] - a[1])
+                        .slice(0, 5);
+                    
+                    html += `
+                        <h4 style="margin-top: 30px; color: var(--accent-yellow);">TOP PUBLISHING JOURNALS</h4>
+                        <div style="margin-top: 15px;">
+                    `;
+                    
+                    topJournals.forEach(([journal, count]) => {
+                        html += `
+                            <div style="margin: 10px 0;">
+                                <strong>${journal}</strong>: ${count} publications
+                            </div>
+                        `;
+                    });
+                    
+                    html += '</div>';
+                }
+            }
+            
+            html += '</div>';
+            return html;
+        }
+
+        // Tab switching
+        function switchTab(tabName) {
+            // Update tab buttons
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(tabName).classList.add('active');
+        }
+
+        // Initialize 3D molecule viewer
+        function initMoleculeViewer(structure) {
+            if (!structure || !window.$3Dmol) return;
+            
+            const viewer = $3Dmol.createViewer('mol3d-viewer', {
+                backgroundColor: 'black'
+            });
+            
+            if (structure.type === '3d' && structure.sdfUrl) {
+                // Load 3D structure
+                $.get(structure.sdfUrl, function(data) {
+                    viewer.addModel(data, 'sdf');
+                    viewer.setStyle({}, {stick: {color: 'spectrum'}});
+                    viewer.zoomTo();
+                    viewer.render();
+                    viewer.rotate(90, {x: 1, y: 0, z: 0}, 1);
+                });
+            } else if (structure.sdfUrl) {
+                // Load 2D structure as SDF
+                $.get(structure.sdfUrl, function(data) {
+                    viewer.addModel(data, 'sdf');
+                    viewer.setStyle({}, {stick: {color: 'cyan'}});
+                    viewer.zoomTo();
+                    viewer.render();
+                });
+            }
+            
+            // Add rotation animation
+            let rotation = 0;
+            setInterval(() => {
+                rotation += 1;
+                viewer.rotate(1, {y: 1}, 1);
+                viewer.render();
+            }, 50);
+        }
+
+        // Initialize charts
+        function initCharts(chartsData) {
+            if (!chartsData) return;
+            
+            // Chart.js default settings
+            Chart.defaults.color = '#00ffff';
+            Chart.defaults.borderColor = '#663333';
+            Chart.defaults.font.family = 'Courier New';
+            
+            // Adverse Events Chart
+            if (chartsData.adverseEventsChart && document.getElementById('adverseEventsChart')) {
+                const ctx = document.getElementById('adverseEventsChart').getContext('2d');
+                charts.adverseEvents = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: chartsData.adverseEventsChart.labels,
+                        datasets: [{
+                            label: 'Reports',
+                            data: chartsData.adverseEventsChart.data,
+                            backgroundColor: 'rgba(255, 51, 51, 0.6)',
+                            borderColor: '#ff3333',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            title: {
+                                display: true,
+                                text: `Total Reports: ${chartsData.adverseEventsChart.total.toLocaleString()}`,
+                                color: '#ffff00'
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: {
+                                    color: '#663333'
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    color: '#663333'
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Phase Distribution Chart
+            if (chartsData.phaseDistributionChart && document.getElementById('phaseChart')) {
+                const ctx = document.getElementById('phaseChart').getContext('2d');
+                charts.phase = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: chartsData.phaseDistributionChart.labels,
+                        datasets: [{
+                            data: chartsData.phaseDistributionChart.data,
+                            backgroundColor: [
+                                'rgba(255, 51, 51, 0.8)',
+                                'rgba(255, 102, 0, 0.8)',
+                                'rgba(255, 255, 0, 0.8)',
+                                'rgba(0, 255, 136, 0.8)',
+                                'rgba(0, 255, 255, 0.8)'
+                            ],
+                            borderColor: '#00ffff',
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'right',
+                                labels: {
+                                    color: '#00ffff'
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Timeline Chart
+            if (chartsData.trialsTimelineChart && document.getElementById('timelineChart')) {
+                const ctx = document.getElementById('timelineChart').getContext('2d');
+                charts.timeline = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: chartsData.trialsTimelineChart.labels,
+                        datasets: [{
+                            label: 'Clinical Trials',
+                            data: chartsData.trialsTimelineChart.data,
+                            borderColor: '#00ffff',
+                            backgroundColor: 'rgba(0, 255, 255, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: {
+                                    color: '#663333'
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    color: '#663333'
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        // Show error message
+        function showError(message) {
+            const resultsContainer = document.getElementById('resultsContainer');
+            resultsContainer.innerHTML = `
+                <div class="error-message">
+                    <div style="font-size: 2em; margin-bottom: 10px;">⚠</div>
+                    <div>${message}</div>
+                </div>
+            `;
+        }
+
+        // Enter key to search
+        document.getElementById('drugSearch').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchDrug();
+            }
+        });
+
+        // Add glitch effect randomly
+        setInterval(() => {
+            if (Math.random() > 0.95) {
+                document.body.style.filter = 'hue-rotate(180deg)';
+                setTimeout(() => {
+                    document.body.style.filter = 'none';
+                }, 100);
+            }
+        }, 3000);
+
+        // Sound effects (optional)
+        function playSound(frequency, duration) {
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.value = frequency;
+            gainNode.gain.value = 0.1;
+            
+            oscillator.start();
+            oscillator.stop(audioContext.currentTime + duration);
+        }
+
+        // Add click sound to buttons
+        document.addEventListener('click', function(e) {
+            if (e.target.matches('button, .tab')) {
+                playSound(800, 0.05);
+            }
+        });
+    </script>
+</body>
+</html>

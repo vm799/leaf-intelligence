@@ -2552,7 +2552,7 @@ window.enhancedWarningLettersFixed.performSearch = async function(companies) {
   
   this.state.loading = true;
   this.state.selectedCompanies = companies;
-  this.showLoading(true);
+  // this.showLoading(true);
 
   try {
     const allResults = {
@@ -2669,7 +2669,7 @@ window.enhancedWarningLettersFixed.performSearch = async function(companies) {
     this.showError('Search failed: ' + error.message);
   } finally {
     this.state.loading = false;
-    this.showLoading(false);
+    // this.showLoading(false);
   }
 };
 window.enhancedWarningLettersFixed.searchInspectionsWithVariations = async function(company, variations) {
@@ -2756,60 +2756,7 @@ window.enhancedWarningLettersFixed.searchInspectionsWithVariations = async funct
 };
 
 
-// Fix the showLoading function to use overlay instead of replacing content
-window.enhancedWarningLettersFixed.showLoading = function(show) {
-  const container = document.getElementById('enhancedWLContainer');
-  if (!container) return;
 
-  if (show) {
-    // Create overlay instead of replacing content
-    let loadingOverlay = document.getElementById('wl-loading-overlay');
-    if (!loadingOverlay) {
-      loadingOverlay = document.createElement('div');
-      loadingOverlay.id = 'wl-loading-overlay';
-      loadingOverlay.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.5);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 9999;
-      `;
-      
-      loadingOverlay.innerHTML = `
-        <div style="background: white; padding: 2rem; border-radius: 0.5rem; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
-          <div style="text-align: center;">
-            <div style="width: 50px; height: 50px; border: 3px solid #e5e7eb; border-top-color: #4f46e5; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto;"></div>
-            <h3 style="margin-top: 1rem; font-size: 1.125rem; font-weight: 600;">Searching FDA Databases...</h3>
-            <p style="margin-top: 0.5rem; color: #6b7280;">This may take a moment</p>
-          </div>
-        </div>
-        <style>
-          @keyframes spin {
-            to { transform: rotate(360deg); }
-          }
-        </style>
-      `;
-      
-      document.body.appendChild(loadingOverlay);
-    }
-    loadingOverlay.style.display = 'flex';
-  } else {
-    // Hide the overlay
-    const loadingOverlay = document.getElementById('wl-loading-overlay');
-    if (loadingOverlay) {
-      loadingOverlay.style.display = 'none';
-      // Optionally remove it completely
-      loadingOverlay.remove();
-    }
-  }
-  
-  console.log(`📊 Loading state: ${show ? 'SHOWING' : 'HIDDEN'}`);
-};
 
 
 // Override createForm483Content to show disabled message
