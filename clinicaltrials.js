@@ -303,7 +303,248 @@ function generateSearchId() {
 }
 
 // Add these endpoints to your clinicaltrials.js file - BACKWARD COMPATIBLE VERSION
+// Add these endpoints to your clinicaltrials.js file
 
+// Get user's saved searches
+app.get('/api/user/:userId/saved-searches', async (req, res) => {
+  try {
+    const { userId } = req.params;
+    
+    const user = await User.findById(userId).select('savedSearches subscriptionStatus');
+    
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    
+    // Check if user can access saved searches
+    if (user.subscriptionStatus === 'free-trial' || user.subscriptionStatus === 'free') {
+      return res.json({ 
+        savedSearches: [], 
+        canSave: false,
+        limit: 0,
+        message: 'Upgrade to save searches' 
+      });
+    }
+    
+    // Get limit based on subscription
+    const limit = user.subscriptionStatus === 'single-search' ? 5 : 50;
+    
+    res.json({
+      savedSearches: user.savedSearches || [],
+      canSave: true,
+      limit: limit,
+      remaining: limit - (user.savedSearches?.length || 0)
+    });
+    
+  } catch (error) {
+    console.error('Error fetching saved searches:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Save a new search
+app.post('/api/user/:userId/saved-searches', async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { name, searchConfig } = req.body;
+    
+    if (!name || !searchConfig) {
+      return res.status(400).json({ message: 'Name and search configuration required' });
+    }
+    
+    const user = await User.findById(userId);
+    
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    
+    // Check subscription
+    if (user.subscriptionStatus === 'free-trial' || user.subscriptionStatus === 'free') {
+      return res.status(403).json({ 
+        message: 'Upgrade to Professional to save searches',
+        requiresUpgrade: true 
+      });
+    }
+    
+    // Check limits
+    const limit = user.subscriptionStatus === 'single-search' ? 5 : 50;
+    if (user.savedSearches && user.savedSearches.length >= limit) {
+      return res.status(403).json({ 
+        message: `You've reached the limit of ${limit} saved searches for your plan`,
+        limitReached: true 
+      });
+    }
+    
+    // Create new saved search
+    const newSearch = {
+      searchId: new mongoose.Types.ObjectId().toString(),
+      name: name.trim(),
+      searchConfig: {
+        drugName: searchConfig.drugName || '',
+        activeIngredient: searchConfig.activeIngredient || '',
+        company: searchConfig.company || '',
+        indication: searchConfig.indication || '',
+        yearRange: searchConfig.yearRange || { start: null, end: null },
+        sources: searchConfig.sources || {
+          fda: true,
+          ema: true,
+          clinicalTrials: true,
+          pubmed: true,
+          dailyMed: false
+        },
+        filters: searchConfig.filters || {
+          hasResults: false,
+          trdFocus: false
+        }
+      },
+      createdAt: new Date(),
+      lastUsed: null,
+      useCount: 0
+    };
+    
+    // Add to user's saved searches
+    if (!user.savedSearches) {
+      user.savedSearches = [];
+    }
+    user.savedSearches.push(newSearch);
+    
+    // Log activity
+    user.activityLog.push({
+      timestamp: new Date(),
+      activity: 'saved_search_created',
+      details: { searchName: name }
+    });
+    
+    await user.save();
+    
+    res.json({ 
+      success: true, 
+      savedSearch: newSearch,
+      totalSaved: user.savedSearches.length,
+      remaining: limit - user.savedSearches.length
+    });
+    
+  } catch (error) {
+    console.error('Error saving search:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Update saved search usage stats
+app.put('/api/user/:userId/saved-searches/:searchId/use', async (req, res) => {
+  try {
+    const { userId, searchId } = req.params;
+    
+    const user = await User.findById(userId);
+    
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    
+    // Find and update the saved search
+    const searchIndex = user.savedSearches.findIndex(s => s.searchId === searchId);
+    
+    if (searchIndex === -1) {
+      return res.status(404).json({ message: 'Saved search not found' });
+    }
+    
+    // Update usage stats
+    user.savedSearches[searchIndex].lastUsed = new Date();
+    user.savedSearches[searchIndex].useCount += 1;
+    
+    await user.save();
+    
+    res.json({ 
+      success: true,
+      savedSearch: user.savedSearches[searchIndex]
+    });
+    
+  } catch (error) {
+    console.error('Error updating search usage:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Delete a saved search
+app.delete('/api/user/:userId/saved-searches/:searchId', async (req, res) => {
+  try {
+    const { userId, searchId } = req.params;
+    
+    const user = await User.findById(userId);
+    
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    
+    // Remove the saved search
+    const originalLength = user.savedSearches?.length || 0;
+    user.savedSearches = user.savedSearches.filter(s => s.searchId !== searchId);
+    
+    if (user.savedSearches.length === originalLength) {
+      return res.status(404).json({ message: 'Saved search not found' });
+    }
+    
+    // Log activity
+    user.activityLog.push({
+      timestamp: new Date(),
+      activity: 'saved_search_deleted',
+      details: { searchId }
+    });
+    
+    await user.save();
+    
+    const limit = user.subscriptionStatus === 'single-search' ? 5 : 50;
+    
+    res.json({ 
+      success: true,
+      totalSaved: user.savedSearches.length,
+      remaining: limit - user.savedSearches.length
+    });
+    
+  } catch (error) {
+    console.error('Error deleting saved search:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Update a saved search name
+app.put('/api/user/:userId/saved-searches/:searchId', async (req, res) => {
+  try {
+    const { userId, searchId } = req.params;
+    const { name } = req.body;
+    
+    if (!name) {
+      return res.status(400).json({ message: 'Name is required' });
+    }
+    
+    const user = await User.findById(userId);
+    
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    
+    // Find and update the saved search
+    const searchIndex = user.savedSearches.findIndex(s => s.searchId === searchId);
+    
+    if (searchIndex === -1) {
+      return res.status(404).json({ message: 'Saved search not found' });
+    }
+    
+    // Update name
+    user.savedSearches[searchIndex].name = name.trim();
+    
+    await user.save();
+    
+    res.json({ 
+      success: true,
+      savedSearch: user.savedSearches[searchIndex]
+    });
+    
+  } catch (error) {
+    console.error('Error updating saved search:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
 // Get user subscription status endpoint - COMPATIBLE VERSION
 app.get('/api/user/:userId/subscription-status', async (req, res) => {
   try {

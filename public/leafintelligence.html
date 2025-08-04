@@ -935,6 +935,136 @@ tailwind.config = {
         color: #f3f4f6;
     }
 </style>
+<!-- Add these styles to your leafintelligence.html file in the <style> section -->
+<style>
+/* Saved Searches Styles */
+#savedSearchesSection {
+    border-top: 1px solid #e5e7eb;
+    padding-top: 1rem;
+    margin-top: 1rem;
+}
+
+#savedSearchesSection .max-h-48 {
+    max-height: 12rem;
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 #f3f4f6;
+}
+
+#savedSearchesSection .max-h-48::-webkit-scrollbar {
+    width: 6px;
+}
+
+#savedSearchesSection .max-h-48::-webkit-scrollbar-track {
+    background: #f3f4f6;
+    border-radius: 3px;
+}
+
+#savedSearchesSection .max-h-48::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+}
+
+#savedSearchesSection .max-h-48::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* Save button animation */
+#saveSearchButton {
+    position: relative;
+    overflow: hidden;
+}
+
+#saveSearchButton:not(.hidden) {
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Saved search item hover effects */
+#savedSearchesSection .group:hover {
+    background-color: #f9fafb;
+}
+
+#savedSearchesSection .group .opacity-0 {
+    transition: opacity 0.2s ease-in-out;
+}
+
+/* Notification styles */
+.notification-enter {
+    animation: notificationSlideIn 0.3s ease-out;
+}
+
+@keyframes notificationSlideIn {
+    from {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Upgrade prompt modal */
+.upgrade-modal {
+    animation: modalFadeIn 0.2s ease-out;
+}
+
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* Premium indicator for saved searches */
+.saved-search-premium-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.125rem 0.5rem;
+    background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
+    color: white;
+    font-size: 0.625rem;
+    font-weight: 500;
+    border-radius: 9999px;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+}
+
+/* Search config preview */
+.search-config-preview {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-top: 0.25rem;
+}
+
+.search-config-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.125rem 0.375rem;
+    background-color: #f3f4f6;
+    color: #4b5563;
+    font-size: 0.625rem;
+    border-radius: 0.25rem;
+}
+
+.search-config-tag i {
+    margin-right: 0.25rem;
+    font-size: 0.5rem;
+}
+</style>
 <body class="bg-gray-50 font-sans text-gray-800" >
 
   <!-- <header class="bg-dark text-white shadow-md">
@@ -119673,7 +119803,465 @@ if (!document.getElementById('enhanced-timeline-styles')) {
   enhancedTimelineStyles.id = 'enhanced-timeline-styles';
   document.head.appendChild(enhancedTimelineStyles);
 }
+class SavedSearchesManager {
+    constructor() {
+        this.savedSearches = [];
+        this.canSave = false;
+        this.limit = 0;
+        this.remaining = 0;
+        this.init();
+    }
+    
+    async init() {
+        // Wait for login system to be ready
+        if (!window.loginSystem || !window.loginSystem.getCurrentUserId()) {
+            setTimeout(() => this.init(), 500);
+            return;
+        }
+        
+        // Load saved searches
+        await this.loadSavedSearches();
+        
+        // Add save button to search interface
+        this.addSaveSearchButton();
+        
+        // Add saved searches section to profile popup
+        this.addSavedSearchesToProfile();
+    }
+    
+    getCurrentUserId() {
+        return window.loginSystem?.getCurrentUserId() || null;
+    }
+    
+    async loadSavedSearches() {
+        try {
+            const userId = this.getCurrentUserId();
+            if (!userId) return;
+            
+            const response = await fetch(`/api/user/${userId}/saved-searches`);
+            const data = await response.json();
+            
+            if (response.ok) {
+                this.savedSearches = data.savedSearches || [];
+                this.canSave = data.canSave || false;
+                this.limit = data.limit || 0;
+                this.remaining = data.remaining || 0;
+                
+                // Update UI
+                this.updateSavedSearchesUI();
+            }
+        } catch (error) {
+            console.error('Error loading saved searches:', error);
+        }
+    }
+    
+    addSaveSearchButton() {
+        // Find the search button
+        const searchButton = document.getElementById('searchButton');
+        if (!searchButton) return;
+        
+        // Check if save button already exists
+        if (document.getElementById('saveSearchButton')) return;
+        
+        // Create save search button
+        const saveButton = document.createElement('button');
+        saveButton.id = 'saveSearchButton';
+        saveButton.className = 'px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors ml-2 hidden';
+        saveButton.innerHTML = `
+            <i class="fas fa-bookmark mr-2"></i>
+            Save Search
+        `;
+        
+        // Insert after search button
+        searchButton.parentNode.insertBefore(saveButton, searchButton.nextSibling);
+        
+        // Add click handler
+        saveButton.addEventListener('click', () => this.saveCurrentSearch());
+        
+        // Show/hide based on subscription
+        this.updateSaveButtonVisibility();
+    }
+    
+    updateSaveButtonVisibility() {
+        const saveButton = document.getElementById('saveSearchButton');
+        if (!saveButton) return;
+        
+        const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
+        const isPremium = user.subscriptionStatus === 'active' || 
+                         user.subscriptionStatus === 'paid' || 
+                         user.subscriptionStatus === 'single-search';
+        
+        if (isPremium && this.canSave) {
+            saveButton.classList.remove('hidden');
+        } else {
+            saveButton.classList.add('hidden');
+        }
+    }
+    
+    async saveCurrentSearch() {
+        try {
+            // Get current search configuration
+            const searchConfig = this.getCurrentSearchConfig();
+            
+            if (!searchConfig.drugName && !searchConfig.activeIngredient && 
+                !searchConfig.company && !searchConfig.indication) {
+                alert('Please enter at least one search criterion');
+                return;
+            }
+            
+            // Check if we've reached the limit
+            if (this.remaining <= 0) {
+                alert(`You've reached the limit of ${this.limit} saved searches for your plan`);
+                return;
+            }
+            
+            // Prompt for name
+            const name = prompt('Enter a name for this saved search:', 
+                               searchConfig.drugName || searchConfig.company || 'New Search');
+            
+            if (!name) return;
+            
+            // Show loading state
+            const saveButton = document.getElementById('saveSearchButton');
+            const originalText = saveButton.innerHTML;
+            saveButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Saving...';
+            saveButton.disabled = true;
+            
+            // Save to backend
+            const userId = this.getCurrentUserId();
+            const response = await fetch(`/api/user/${userId}/saved-searches`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ name, searchConfig })
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok) {
+                // Reload saved searches
+                await this.loadSavedSearches();
+                
+                // Show success message
+                this.showNotification('Search saved successfully!', 'success');
+            } else {
+                if (data.requiresUpgrade) {
+                    this.showUpgradePrompt();
+                } else {
+                    alert(data.message || 'Failed to save search');
+                }
+            }
+            
+            // Restore button
+            saveButton.innerHTML = originalText;
+            saveButton.disabled = false;
+            
+        } catch (error) {
+            console.error('Error saving search:', error);
+            alert('Failed to save search. Please try again.');
+        }
+    }
+    
+    getCurrentSearchConfig() {
+        // Get values from your search form
+        return {
+            drugName: document.getElementById('drugSearch')?.value || '',
+            activeIngredient: document.getElementById('activeIngredient')?.value || '',
+            company: document.getElementById('company')?.value || '',
+            indication: document.getElementById('indication')?.value || '',
+            yearRange: {
+                start: document.getElementById('yearStart')?.value || null,
+                end: document.getElementById('yearEnd')?.value || null
+            },
+            sources: {
+                fda: document.getElementById('fdaSource')?.checked ?? true,
+                ema: document.getElementById('emaSource')?.checked ?? true,
+                clinicalTrials: document.getElementById('ctSource')?.checked ?? true,
+                pubmed: document.getElementById('pubmedSource')?.checked ?? true,
+                dailyMed: document.getElementById('dailymedSource')?.checked ?? false
+            },
+            filters: {
+                hasResults: document.getElementById('hasResultsFilter')?.checked ?? false,
+                trdFocus: document.getElementById('trdFocusFilter')?.checked ?? false
+            }
+        };
+    }
+    
+    addSavedSearchesToProfile() {
+        // Find profile popup content area
+        const profilePopup = document.getElementById('profilePopup');
+        if (!profilePopup) return;
+        
+        // Find or create saved searches section
+        let savedSearchesSection = document.getElementById('savedSearchesSection');
+        if (!savedSearchesSection) {
+            savedSearchesSection = document.createElement('div');
+            savedSearchesSection.id = 'savedSearchesSection';
+            savedSearchesSection.className = 'border-t pt-4 mt-4';
+            
+            // Find the dark mode toggle container and insert after it
+            const darkModeContainer = profilePopup.querySelector('.flex.items-center.justify-between').parentElement;
+            darkModeContainer.parentNode.insertBefore(savedSearchesSection, darkModeContainer.nextSibling);
+        }
+        
+        // Update content
+        this.updateSavedSearchesUI();
+    }
+    
+    updateSavedSearchesUI() {
+        const section = document.getElementById('savedSearchesSection');
+        if (!section) return;
+        
+        const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
+        const isPremium = user.subscriptionStatus === 'active' || 
+                         user.subscriptionStatus === 'paid' || 
+                         user.subscriptionStatus === 'single-search';
+        
+        if (!isPremium) {
+            section.innerHTML = `
+                <div class="text-sm text-gray-600">
+                    <i class="fas fa-bookmark mr-2"></i>
+                    <span>Upgrade to save searches</span>
+                </div>
+            `;
+            return;
+        }
+        
+        let html = `
+            <div class="mb-3">
+                <div class="flex items-center justify-between mb-2">
+                    <h4 class="text-sm font-semibold text-gray-700">
+                        <i class="fas fa-bookmark mr-2"></i>Saved Searches
+                    </h4>
+                    <span class="text-xs text-gray-500">${this.savedSearches.length}/${this.limit}</span>
+                </div>
+        `;
+        
+        if (this.savedSearches.length === 0) {
+            html += `
+                <p class="text-xs text-gray-500 italic">No saved searches yet</p>
+            `;
+        } else {
+            html += `
+                <div class="max-h-48 overflow-y-auto space-y-1">
+            `;
+            
+            // Sort by last used or created date
+            const sortedSearches = [...this.savedSearches].sort((a, b) => {
+                const dateA = new Date(a.lastUsed || a.createdAt);
+                const dateB = new Date(b.lastUsed || b.createdAt);
+                return dateB - dateA;
+            });
+            
+            sortedSearches.forEach(search => {
+                const config = search.searchConfig;
+                const preview = config.drugName || config.company || config.indication || 'Custom Search';
+                
+                html += `
+                    <div class="group flex items-center justify-between p-2 hover:bg-gray-50 rounded cursor-pointer"
+                         onclick="window.savedSearchesManager.loadAndRunSearch('${search.searchId}')">
+                        <div class="flex-1 min-w-0">
+                            <div class="text-sm font-medium text-gray-900 truncate">${search.name}</div>
+                            <div class="text-xs text-gray-500 truncate">${preview}</div>
+                        </div>
+                        <div class="flex items-center ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button onclick="event.stopPropagation(); window.savedSearchesManager.editSearch('${search.searchId}')"
+                                    class="p-1 text-gray-400 hover:text-gray-600">
+                                <i class="fas fa-edit text-xs"></i>
+                            </button>
+                            <button onclick="event.stopPropagation(); window.savedSearchesManager.deleteSearch('${search.searchId}')"
+                                    class="p-1 text-gray-400 hover:text-red-600 ml-1">
+                                <i class="fas fa-trash text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += `</div>`;
+        }
+        
+        html += `</div>`;
+        section.innerHTML = html;
+    }
+    
+    async loadAndRunSearch(searchId) {
+        try {
+            const search = this.savedSearches.find(s => s.searchId === searchId);
+            if (!search) return;
+            
+            // Update usage stats
+            const userId = this.getCurrentUserId();
+            await fetch(`/api/user/${userId}/saved-searches/${searchId}/use`, {
+                method: 'PUT'
+            });
+            
+            // Close profile popup
+            window.loginSystem?.hideProfilePopup();
+            
+            // Populate search fields
+            const config = search.searchConfig;
+            
+            if (document.getElementById('drugSearch')) {
+                document.getElementById('drugSearch').value = config.drugName || '';
+            }
+            if (document.getElementById('activeIngredient')) {
+                document.getElementById('activeIngredient').value = config.activeIngredient || '';
+            }
+            if (document.getElementById('company')) {
+                document.getElementById('company').value = config.company || '';
+            }
+            if (document.getElementById('indication')) {
+                document.getElementById('indication').value = config.indication || '';
+            }
+            
+            // Set year range
+            if (document.getElementById('yearStart') && config.yearRange?.start) {
+                document.getElementById('yearStart').value = config.yearRange.start;
+            }
+            if (document.getElementById('yearEnd') && config.yearRange?.end) {
+                document.getElementById('yearEnd').value = config.yearRange.end;
+            }
+            
+            // Set sources
+            Object.keys(config.sources || {}).forEach(source => {
+                const checkbox = document.getElementById(`${source}Source`);
+                if (checkbox) {
+                    checkbox.checked = config.sources[source];
+                }
+            });
+            
+            // Set filters
+            if (config.filters) {
+                if (document.getElementById('hasResultsFilter')) {
+                    document.getElementById('hasResultsFilter').checked = config.filters.hasResults;
+                }
+                if (document.getElementById('trdFocusFilter')) {
+                    document.getElementById('trdFocusFilter').checked = config.filters.trdFocus;
+                }
+            }
+            
+            // Run the search
+            if (typeof handleSearch === 'function') {
+                handleSearch();
+            } else if (document.getElementById('searchButton')) {
+                document.getElementById('searchButton').click();
+            }
+            
+            // Show notification
+            this.showNotification(`Loading saved search: ${search.name}`, 'info');
+            
+        } catch (error) {
+            console.error('Error loading saved search:', error);
+            alert('Failed to load saved search');
+        }
+    }
+    
+    async editSearch(searchId) {
+        const search = this.savedSearches.find(s => s.searchId === searchId);
+        if (!search) return;
+        
+        const newName = prompt('Edit search name:', search.name);
+        if (!newName || newName === search.name) return;
+        
+        try {
+            const userId = this.getCurrentUserId();
+            const response = await fetch(`/api/user/${userId}/saved-searches/${searchId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ name: newName })
+            });
+            
+            if (response.ok) {
+                await this.loadSavedSearches();
+                this.showNotification('Search name updated', 'success');
+            }
+        } catch (error) {
+            console.error('Error updating search:', error);
+            alert('Failed to update search name');
+        }
+    }
+    
+    async deleteSearch(searchId) {
+        const search = this.savedSearches.find(s => s.searchId === searchId);
+        if (!search) return;
+        
+        if (!confirm(`Delete saved search "${search.name}"?`)) return;
+        
+        try {
+            const userId = this.getCurrentUserId();
+            const response = await fetch(`/api/user/${userId}/saved-searches/${searchId}`, {
+                method: 'DELETE'
+            });
+            
+            if (response.ok) {
+                await this.loadSavedSearches();
+                this.showNotification('Search deleted', 'success');
+            }
+        } catch (error) {
+            console.error('Error deleting search:', error);
+            alert('Failed to delete search');
+        }
+    }
+    
+    showNotification(message, type = 'info') {
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.className = `fixed bottom-4 right-4 px-6 py-3 rounded-lg shadow-lg transform transition-all duration-300 z-50`;
+        
+        // Set color based on type
+        const colors = {
+            info: 'bg-blue-500 text-white',
+            success: 'bg-green-500 text-white',
+            error: 'bg-red-500 text-white'
+        };
+        notification.className += ' ' + (colors[type] || colors.info);
+        
+        notification.innerHTML = message;
+        document.body.appendChild(notification);
+        
+        // Animate in
+        setTimeout(() => {
+            notification.classList.add('translate-y-0', 'opacity-100');
+        }, 10);
+        
+        // Remove after 3 seconds
+        setTimeout(() => {
+            notification.classList.add('translate-y-2', 'opacity-0');
+            setTimeout(() => notification.remove(), 300);
+        }, 3000);
+    }
+    
+    showUpgradePrompt() {
+        const modal = document.createElement('div');
+        modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+        modal.innerHTML = `
+            <div class="bg-white rounded-lg p-6 max-w-md mx-4">
+                <h3 class="text-lg font-semibold mb-3">Upgrade to Save Searches</h3>
+                <p class="text-gray-600 mb-4">
+                    Save your searches and access them anytime with a Professional subscription.
+                </p>
+                <div class="flex justify-end space-x-3">
+                    <button onclick="this.closest('.fixed').remove()" 
+                            class="px-4 py-2 text-gray-600 hover:text-gray-800">
+                        Cancel
+                    </button>
+                    <button onclick="window.stripeIntegration?.showPricingModal(); this.closest('.fixed').remove();" 
+                            class="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700">
+                        View Plans
+                    </button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+    }
+}
 
+// Initialize saved searches manager
+window.savedSearchesManager = new SavedSearchesManager();
 
 // Add the EMA data module to window for debugging
 // window.EmaDataModule = EmaDataModule;
