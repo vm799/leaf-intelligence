@@ -2259,7 +2259,7 @@ window.enhancedWarningLettersFixed.calculateRiskScore = function(data) {
 // Loading modal functions
 window.enhancedWarningLettersFixed.showLoadingModal = function() {
   const loadingHtml = `
-    <div id="loadingModal" class="fixed inset-0 z-50 overflow-y-auto">
+    <div id="loadingModal" class="hidden fixed inset-0 z-50 overflow-y-auto">
       <div class="fixed inset-0 bg-black bg-opacity-50"></div>
       <div class="flex min-h-screen items-center justify-center p-4">
         <div class="bg-white rounded-lg p-6 shadow-xl">
