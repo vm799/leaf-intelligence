@@ -1,0 +1,58 @@
+[
+  {
+    "recordId": "68837a98c16d6329954344ba",
+    "pdfUrl": "https://www.fda.gov/media/187479/download",
+    "reason": "HIGH_COMPLEXITY",
+    "size": "6204 chars/obs",
+    "skippedAt": "2025-08-04T01:47:43.505Z"
+  },
+  {
+    "recordId": "68837a98c16d6329954344bb",
+    "pdfUrl": "https://www.fda.gov/media/69976/download",
+    "reason": "HIGH_COMPLEXITY",
+    "size": "2047 chars/obs",
+    "skippedAt": "2025-08-04T01:47:43.642Z"
+  },
+  {
+    "recordId": "68837a98c16d6329954344bf",
+    "pdfUrl": "https://www.fda.gov/media/101132/download",
+    "reason": "HIGH_COMPLEXITY",
+    "size": "2739 chars/obs",
+    "skippedAt": "2025-08-04T01:47:43.791Z"
+  },
+  {
+    "recordId": "68837a98c16d6329954344c0",
+    "pdfUrl": "https://www.fda.gov/media/77353/download",
+    "reason": "HIGH_COMPLEXITY",
+    "size": "1582 chars/obs",
+    "skippedAt": "2025-08-04T01:47:43.923Z"
+  },
+  {
+    "recordId": "68837a98c16d6329954344c3",
+    "pdfUrl": "https://www.fda.gov/media/78776/download",
+    "reason": "HIGH_COMPLEXITY",
+    "size": "1631 chars/obs",
+    "skippedAt": "2025-08-04T01:47:44.061Z"
+  },
+  {
+    "recordId": "68837a98c16d6329954344c4",
+    "pdfUrl": "https://www.fda.gov/media/85303/download",
+    "reason": "HIGH_COMPLEXITY",
+    "size": "2571 chars/obs",
+    "skippedAt": "2025-08-04T01:47:44.269Z"
+  },
+  {
+    "recordId": "68837a98c16d6329954344ca",
+    "pdfUrl": "https://www.fda.gov/media/185235/download",
+    "reason": "HIGH_COMPLEXITY",
+    "size": "1272 chars/obs",
+    "skippedAt": "2025-08-04T01:47:46.387Z"
+  },
+  {
+    "recordId": "68837a98c16d6329954344d9",
+    "pdfUrl": "https://www.fda.gov/media/186635/download",
+    "reason": "HIGH_COMPLEXITY",
+    "size": "3937 chars/obs",
+    "skippedAt": "2025-08-04T01:47:50.677Z"
+  }
+]

@@ -458,84 +458,192 @@ class ImprovedFDA483Parser {
   }
 
   // Extract Observations with simplified approach - just first sentence
-  extractObservations() {
-    const observations = [];
+  // extractObservations() {
+  //   const observations = [];
     
-    if (this.observationStart === -1) {
-      console.log('DEBUG: No observation start found');
-      this.confidence.fields.observations = 0;
-      return observations;
-    }
+  //   if (this.observationStart === -1) {
+  //     console.log('DEBUG: No observation start found');
+  //     this.confidence.fields.observations = 0;
+  //     return observations;
+  //   }
 
-    console.log(`DEBUG: Starting observation extraction from line ${this.observationStart}`);
+  //   console.log(`DEBUG: Starting observation extraction from line ${this.observationStart}`);
     
-    // Look for pattern: "OBSERVATION N" at start of line
-    for (let i = this.observationStart; i < this.lines.length; i++) {
-      // More flexible pattern to catch variations
-      const obsMatch = this.lines[i].match(/^\s*OBSERVATION\s+(\d+)\s*(.*)$/i);
+  //   // Look for pattern: "OBSERVATION N" at start of line
+  //   for (let i = this.observationStart; i < this.lines.length; i++) {
+  //     // More flexible pattern to catch variations
+  //     const obsMatch = this.lines[i].match(/^\s*OBSERVATION\s+(\d+)\s*(.*)$/i);
       
-      if (obsMatch) {
-        const obsNumber = parseInt(obsMatch[1]);
-        console.log(`DEBUG: Found OBSERVATION ${obsNumber} at line ${i}`);
+  //     if (obsMatch) {
+  //       const obsNumber = parseInt(obsMatch[1]);
+  //       console.log(`DEBUG: Found OBSERVATION ${obsNumber} at line ${i}`);
         
-        let firstSentence = obsMatch[2].trim(); // Text on same line as OBSERVATION N
+  //       let firstSentence = obsMatch[2].trim(); // Text on same line as OBSERVATION N
         
-        // If no text on same line, get the next non-empty line
-        if (!firstSentence) {
-          let j = i + 1;
-          while (j < this.lines.length && !this.lines[j].trim()) {
-            j++;
-          }
+  //       // If no text on same line, get the next non-empty line
+  //       if (!firstSentence) {
+  //         let j = i + 1;
+  //         while (j < this.lines.length && !this.lines[j].trim()) {
+  //           j++;
+  //         }
           
-          if (j < this.lines.length) {
-            firstSentence = this.lines[j].trim();
-          }
-        }
+  //         if (j < this.lines.length) {
+  //           firstSentence = this.lines[j].trim();
+  //         }
+  //       }
         
-        // Skip if we still don't have a first sentence
-        if (!firstSentence) {
-          console.log(`DEBUG: No text found for OBSERVATION ${obsNumber}, skipping`);
-          continue;
-        }
+  //       // Skip if we still don't have a first sentence
+  //       if (!firstSentence) {
+  //         console.log(`DEBUG: No text found for OBSERVATION ${obsNumber}, skipping`);
+  //         continue;
+  //       }
         
-        // Collect all text until the next observation or end marker
-        let fullText = firstSentence + '\n';
-        let k = i + 1;
+  //       // Collect all text until the next observation or end marker
+  //       let fullText = firstSentence + '\n';
+  //       let k = i + 1;
         
-        // Skip to start of full text if we already grabbed first sentence
-        if (!obsMatch[2].trim() && k < this.lines.length && this.lines[k].trim() === firstSentence) {
-          k++;
-        }
+  //       // Skip to start of full text if we already grabbed first sentence
+  //       if (!obsMatch[2].trim() && k < this.lines.length && this.lines[k].trim() === firstSentence) {
+  //         k++;
+  //       }
         
-        while (k < this.lines.length) {
-          // Stop if we hit another observation
-          if (/^\s*OBSERVATION\s+\d+/i.test(this.lines[k])) {
-            break;
-          }
-          // Stop if we hit common end markers
-          if (/^(EMPLOYEE|INVESTIGATOR|FDA\s+EMPLOYEE|DATE\s+ISSUED)/i.test(this.lines[k])) {
-            break;
-          }
-          fullText += this.lines[k] + '\n';
-          k++;
-        }
+  //       while (k < this.lines.length) {
+  //         // Stop if we hit another observation
+  //         if (/^\s*OBSERVATION\s+\d+/i.test(this.lines[k])) {
+  //           break;
+  //         }
+  //         // Stop if we hit common end markers
+  //         if (/^(EMPLOYEE|INVESTIGATOR|FDA\s+EMPLOYEE|DATE\s+ISSUED)/i.test(this.lines[k])) {
+  //           break;
+  //         }
+  //         fullText += this.lines[k] + '\n';
+  //         k++;
+  //       }
         
-        observations.push({
-          number: obsNumber,
-          title: firstSentence,
-          fullText: fullText.replace(/\(b\)\s*\(\d+\)/g, '[REDACTED]').trim()
-        });
-      }
-    }
+  //       observations.push({
+  //         number: obsNumber,
+  //         title: firstSentence,
+  //         fullText: fullText.replace(/\(b\)\s*\(\d+\)/g, '[REDACTED]').trim()
+  //       });
+  //     }
+  //   }
 
-    console.log(`DEBUG: Found ${observations.length} observations`);
+  //   console.log(`DEBUG: Found ${observations.length} observations`);
     
-    // Sort by observation number
-    observations.sort((a, b) => a.number - b.number);
+  //   // Sort by observation number
+  //   observations.sort((a, b) => a.number - b.number);
     
-    this.confidence.fields.observations = observations.length > 0 ? 1.0 : 0;
+  //   this.confidence.fields.observations = observations.length > 0 ? 1.0 : 0;
+  //   return observations;
+  // }
+
+  extractObservations() {
+  const observations = [];
+  
+  if (this.observationStart === -1) {
+    console.log('DEBUG: No observation start found');
+    this.confidence.fields.observations = 0;
     return observations;
   }
+
+  console.log(`DEBUG: Starting memory-safe observation extraction from line ${this.observationStart}`);
+  
+  // Pre-check: if text is very long, limit how much we process
+  const MAX_TOTAL_OBSERVATION_CHARS = 20000; // 20KB total limit for all observations
+  let totalCharsProcessed = 0;
+  
+  // Look for pattern: "OBSERVATION N" at start of line
+  for (let i = this.observationStart; i < this.lines.length && totalCharsProcessed < MAX_TOTAL_OBSERVATION_CHARS; i++) {
+    // More flexible pattern to catch variations
+    const obsMatch = this.lines[i].match(/^\s*OBSERVATION\s+(\d+)\s*(.*)$/i);
+    
+    if (obsMatch) {
+      const obsNumber = parseInt(obsMatch[1]);
+      console.log(`DEBUG: Found OBSERVATION ${obsNumber} at line ${i}`);
+      
+      let firstSentence = obsMatch[2].trim(); // Text on same line as OBSERVATION N
+      
+      // If no text on same line, get the next non-empty line
+      if (!firstSentence) {
+        let j = i + 1;
+        while (j < this.lines.length && !this.lines[j].trim()) {
+          j++;
+        }
+        
+        if (j < this.lines.length) {
+          firstSentence = this.lines[j].trim();
+        }
+      }
+      
+      // Skip if we still don't have a first sentence
+      if (!firstSentence) {
+        console.log(`DEBUG: No text found for OBSERVATION ${obsNumber}, skipping`);
+        continue;
+      }
+      
+      // MEMORY-SAFE: Limit each observation's full text collection
+      const MAX_CHARS_PER_OBSERVATION = 2000; // 2KB per observation max
+      let fullText = firstSentence + '\n';
+      let charCount = firstSentence.length + 1;
+      let k = i + 1;
+      
+      // Skip to start of full text if we already grabbed first sentence
+      if (!obsMatch[2].trim() && k < this.lines.length && this.lines[k].trim() === firstSentence) {
+        k++;
+      }
+      
+      // Collect text with strict limits
+      while (k < this.lines.length && charCount < MAX_CHARS_PER_OBSERVATION) {
+        // Stop if we hit another observation
+        if (/^\s*OBSERVATION\s+\d+/i.test(this.lines[k])) {
+          break;
+        }
+        // Stop if we hit common end markers
+        if (/^(EMPLOYEE|INVESTIGATOR|FDA\s+EMPLOYEE|DATE\s+ISSUED)/i.test(this.lines[k])) {
+          break;
+        }
+        
+        const lineLength = this.lines[k].length + 1;
+        
+        // Check if adding this line would exceed the limit
+        if (charCount + lineLength > MAX_CHARS_PER_OBSERVATION) {
+          fullText += '[TRUNCATED - Text too long]\n';
+          break;
+        }
+        
+        fullText += this.lines[k] + '\n';
+        charCount += lineLength;
+        k++;
+      }
+      
+      // Track total characters processed
+      totalCharsProcessed += charCount;
+      
+      observations.push({
+        number: obsNumber,
+        title: firstSentence,
+        fullText: fullText.replace(/\(b\)\s*\(\d+\)/g, '[REDACTED]').trim()
+      });
+      
+      // Safety check: if we've processed too many observations, stop
+      if (observations.length >= 25) {
+        console.log('⚠️ Memory Safety: Limiting to 25 observations to prevent memory issues');
+        break;
+      }
+      
+      console.log(`DEBUG: Processed observation ${obsNumber} (${charCount} chars, ${totalCharsProcessed} total)`);
+    }
+  }
+
+  console.log(`DEBUG: Found ${observations.length} observations (${totalCharsProcessed} total chars)`);
+  
+  // Sort by observation number
+  observations.sort((a, b) => a.number - b.number);
+  
+  this.confidence.fields.observations = observations.length > 0 ? 1.0 : 0;
+  return observations;
+}
+
 
   // Update deduplicateObservations to work with new structure
   deduplicateObservations(observations) {
@@ -806,25 +914,56 @@ async function processFDA483RecordWithSizeCheck(record, useImprovedParser = true
       return { skipped: true, reason: 'TOO_MANY_OBSERVATIONS', size: observationCount };
     }
     
-    // Proceed with normal parsing if all checks pass
+    // CHECK 4: ENHANCED - Check if this is a problematic record pattern
+    // Skip records that are likely to cause memory issues based on patterns
+    const avgCharsPerObservation = extractedText.length / Math.max(observationCount, 1);
+    if (avgCharsPerObservation > 1000 && observationCount > 5) {
+      console.log(`⚠️  SKIPPING: High complexity document (${avgCharsPerObservation.toFixed(0)} avg chars/observation)`);
+      await logSkippedRecord(record, 'HIGH_COMPLEXITY', `${avgCharsPerObservation.toFixed(0)} chars/obs`);
+      return { skipped: true, reason: 'HIGH_COMPLEXITY', size: avgCharsPerObservation };
+    }
+    
+    // CHECK 5: Skip the specific problematic record ID temporarily
+    if (record._id === '68837a98c16d6329954344ca') {
+      console.log(`⚠️  SKIPPING: Known problematic record (causes memory issues)`);
+      await logSkippedRecord(record, 'KNOWN_PROBLEMATIC', 'Memory intensive');
+      return { skipped: true, reason: 'KNOWN_PROBLEMATIC', size: 'memory intensive' };
+    }
+    
+    // Proceed with memory-safe parsing if all checks pass
+    console.log(`✅ Passed all size checks, proceeding with memory-safe parsing...`);
+    
     const parser = new ImprovedFDA483Parser(extractedText);
     const parsedData = parser.parse();
+    
+    // Clean up immediately after parsing
+    parser.originalText = null;
+    parser.text = null;
+    parser.lines = null;
+    
+    // Force garbage collection if available
+    if (global.gc) {
+      global.gc();
+    }
     
     // Create result object
     const result = {
       _id: record._id,
       originalRecord: record,
-      parsedText: extractedText,
+      parsedText: extractedText.length > 100000 ? 
+        extractedText.substring(0, 100000) + '\n[TRUNCATED]' : 
+        extractedText,
       parsedData: parsedData,
       skipped: false
     };
     
     // Enhanced output
     console.log('\n📊 PARSING RESULTS:');
-    console.log(`├─ Parser Version: Improved (With Size Checks)`);
+    console.log(`├─ Parser Version: Memory-Safe Enhanced`);
     console.log(`├─ PDF Size: ${pdfSizeMB.toFixed(2)}MB`);
     console.log(`├─ Text Length: ${extractedText.length} characters`);
     console.log(`├─ Observation Count: ${observationCount}`);
+    console.log(`├─ Avg Chars/Observation: ${avgCharsPerObservation.toFixed(0)}`);
     console.log(`├─ Confidence Score: ${parsedData.parsingConfidence.overall.toFixed(1)}%`);
     console.log(`├─ Firm Name: ${parsedData.firmName || '❌ Not found'}`);
     console.log(`├─ FEI Number: ${parsedData.feiNumber || '❌ Not found'}`);
@@ -847,6 +986,7 @@ async function processFDA483RecordWithSizeCheck(record, useImprovedParser = true
 }
 
 // Modified batch processing with skip handling
+// Update the batch processing to use the enhanced version
 async function startBatchProcessingWithSkips(options = {}) {
   const {
     limit = 10,
@@ -855,9 +995,10 @@ async function startBatchProcessingWithSkips(options = {}) {
   } = options;
 
   try {
-    console.log('\n🤖 Starting batch processing with size checks...');
+    console.log('\n🤖 Starting batch processing with enhanced size checks...');
     console.log(`📊 Parameters: limit=${limit}, saveToDb=${saveToDb}, minConfidence=${minConfidence}%`);
     console.log(`📏 Size Limits: PDF=${SIZE_LIMITS.PDF_SIZE_MB}MB, Text=${SIZE_LIMITS.TEXT_LENGTH} chars, Obs=${SIZE_LIMITS.OBSERVATION_COUNT}`);
+    console.log(`🧠 Memory Safety: 2KB/observation, 20KB total, 25 obs max`);
     console.log(`📝 Skipped records will be logged to: ${SKIPPED_RECORDS_FILE}\n`);
     
     const records = await FDA483.find({ parsedText: { $exists: false } }).limit(limit);
@@ -932,6 +1073,14 @@ async function startBatchProcessingWithSkips(options = {}) {
         saved: saveToDb && confidence >= minConfidence,
         skipped: false
       });
+      
+      // Force garbage collection between records
+      if (global.gc) {
+        global.gc();
+      }
+      
+      // Add small delay to let memory settle
+      await new Promise(resolve => setTimeout(resolve, 500));
     }
     
     // Calculate average confidence
@@ -941,7 +1090,7 @@ async function startBatchProcessingWithSkips(options = {}) {
     
     // Print summary
     console.log('\n' + '='.repeat(60));
-    console.log('📊 BATCH PROCESSING SUMMARY:');
+    console.log('📊 ENHANCED BATCH PROCESSING SUMMARY:');
     console.log('='.repeat(60));
     console.log(`Total Records Processed: ${results.processed}`);
     console.log(`✅ Successful: ${results.successful}`);

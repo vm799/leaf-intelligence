@@ -108817,6 +108817,23 @@ async init() {
     }
 }
 
+// 2. Add method to verify stored session
+async verifyStoredSession(user) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/verify-session`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ userId: user._id })
+        });
+        
+        return response.ok;
+    } catch (error) {
+        console.error('Session verification failed:', error);
+        return false;
+    }
+}
 
 // 3. Fix the subscription data fetching
 async fetchAndUpdateSubscriptionData(user) {
@@ -108845,24 +108862,7 @@ async fetchAndUpdateSubscriptionData(user) {
 }
 
 
-// 2. Add method to verify stored session
-async verifyStoredSession(user) {
-    try {
-        const response = await fetch(`${API_BASE_URL}/verify-session`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ userId: user._id })
-        });
-        
-        return response.ok;
-    } catch (error) {
-        console.error('Session verification failed:', error);
-        return false;
-    }
-}
-    // Add a method to get the current user ID
+// Add a method to get the current user ID
      getCurrentUserId() {
         try {
             const userData = JSON.parse(localStorage.getItem('currentUser') || '{}');
@@ -108919,7 +108919,8 @@ updateManageButton(user) {
     const manageBtn = document.getElementById('manageSubscriptionBtn');
     if (!manageBtn) return;
     
-    if (user.stripeCustomerId && user.subscriptionTier !== 'free') {
+    // Show manage button if user has Stripe customer ID and is not on free-trial
+    if (user.stripeCustomerId && user.subscriptionStatus !== 'free-trial' && user.subscriptionStatus !== 'free') {
         manageBtn.style.display = 'block';
         manageBtn.onclick = () => this.openCustomerPortal();
     } else {
@@ -109194,6 +109195,7 @@ showMainContent(user) {
     //     }
     // }
 // 4. Fix the updateProfilePopup method
+// 4. Fix the updateProfilePopup method - COMPATIBLE VERSION
 updateProfilePopup(user) {
     // Update basic info
     this.popupUsername.textContent = user.username || 'User';
@@ -109209,26 +109211,33 @@ updateProfilePopup(user) {
         this.userInitials.textContent = initials;
     }
     
-    // Calculate usage based on subscription tier
-    const usageInfo = this.calculateUsage(user);
+    // Use the ORIGINAL usage field directly
+    const usage = user.usage || 0;
     if (this.usageBar) {
-        this.usageBar.style.width = `${usageInfo.percentage}%`;
+        this.usageBar.style.width = `${usage}%`;
     }
     if (this.usagePercent) {
-        this.usagePercent.textContent = usageInfo.percentage;
+        this.usagePercent.textContent = usage;
     }
     
-    // Update billing period
-    const billingPeriod = this.generateBillingPeriod(user);
+    // Use the ORIGINAL billingPeriod field or generate based on trial
+    let billingPeriod = user.billingPeriod;
+    if (!billingPeriod && user.trial) {
+        if (user.trial.isInTrial) {
+            billingPeriod = `Free trial - ${user.trial.daysLeft} days remaining`;
+        } else {
+            billingPeriod = 'Free trial expired';
+        }
+    }
     if (this.billingPeriod) {
-        this.billingPeriod.textContent = billingPeriod;
+        this.billingPeriod.textContent = billingPeriod || 'No active billing period';
     }
     
-    // Update subscription status - handle undefined gracefully
-    const status = user.subscriptionStatus || user.subscriptionTier || 'free';
+    // Update subscription status using ORIGINAL field
+    const status = user.subscriptionStatus || 'free-trial';
     this.updateSubscriptionStatus(status);
     
-    // Update manage button visibility
+    // Update manage button based on Stripe customer ID
     this.updateManageButton(user);
     
     // Update dark mode toggle
@@ -109352,9 +109361,10 @@ generateBillingPeriod(user) {
 
 updateSubscriptionStatus(status) {
     const statusMap = {
+        'free-trial': { name: 'Free Trial', color: 'bg-blue-100 text-blue-800' },
         'free': { name: 'Free Tier', color: 'bg-gray-100 text-gray-800' },
-        'trialing': { name: 'Free Trial', color: 'bg-blue-100 text-blue-800' },
         'active': { name: 'Active', color: 'bg-green-100 text-green-800' },
+        'paid': { name: 'Professional', color: 'bg-green-100 text-green-800' },
         'single-search': { name: 'Pay Per Search', color: 'bg-purple-100 text-purple-800' },
         'monthly': { name: 'Monthly', color: 'bg-green-100 text-green-800' },
         'team': { name: 'Team', color: 'bg-indigo-100 text-indigo-800' },
@@ -109362,7 +109372,7 @@ updateSubscriptionStatus(status) {
         'past_due': { name: 'Past Due', color: 'bg-red-100 text-red-800' }
     };
     
-    const planInfo = statusMap[status] || statusMap['free'];
+    const planInfo = statusMap[status] || statusMap['free-trial'];
     
     if (this.subscriptionStatus) {
         this.subscriptionStatus.textContent = planInfo.name;
