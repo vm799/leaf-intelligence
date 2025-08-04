@@ -3762,10 +3762,39 @@ window.enhancedWarningLettersFixed.updateDrugMentions = function() {
 };
 
 // View company details
-window.enhancedWarningLettersFixed.viewCompanyDetails = function(companyName) {
-  console.log('Viewing details for:', companyName);
-  // This would open a modal or navigate to details
-  alert(`Detailed view for ${companyName} - Feature coming soon!`);
+// View company details - calls the modal
+window.enhancedWarningLettersFixed.viewCompanyDetails = async function(companyName) {
+  console.log(`🔍 Loading details for: ${companyName}`);
+  
+  // Show loading modal
+  this.showLoadingModal();
+  
+  try {
+    // Get filtered data for this company
+    const companyData = {
+      warningLetters: this.state.warningLetters.filter(wl => 
+        wl.sourceCompany === companyName || this.isRelatedCompany(wl.companyName, companyName)
+      ),
+      form483s: this.state.form483s.filter(f => 
+        f.sourceCompany === companyName || this.isRelatedCompany(f.companyName || f.legalName, companyName)
+      ),
+      citations: this.state.citations.filter(c => 
+        c.sourceCompany === companyName || this.isRelatedCompany(c["Legal Name"], companyName)
+      ),
+      inspections: this.state.inspections.filter(i => 
+        i.sourceCompany === companyName || this.isRelatedCompany(i["Legal Name"] || i["Firm Name"], companyName)
+      )
+    };
+
+    // Hide loading and show modal
+    this.hideLoadingModal();
+    this.showCompanyDetailsModal(companyName, companyData);
+
+  } catch (error) {
+    console.error('❌ Error loading company details:', error);
+    this.hideLoadingModal();
+    this.showError(`Failed to load details for ${companyName}`);
+  }
 };
 
 // Override createForm483Content to show disabled message
