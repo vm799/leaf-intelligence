@@ -714,172 +714,172 @@ window.enhancedWarningLettersFixed = {
     }
   },
 
-  // Show modern company details modal
-  showCompanyDetailsModal: function(companyName, data) {
-    const { warningLetters, form483s, citations, inspections } = data;
+  // // Show modern company details modal
+  // showCompanyDetailsModal: function(companyName, data) {
+  //   const { warningLetters, form483s, citations, inspections } = data;
     
-    // Calculate risk assessment
-    const riskScore = this.calculateRiskScore(data);
+  //   // Calculate risk assessment
+  //   const riskScore = this.calculateRiskScore(data);
     
-    // Create modal HTML with modern design
-    const modalHtml = `
-      <div class="fixed inset-0 z-50 overflow-y-auto" id="companyDetailsModal">
-        <!-- Backdrop with blur -->
-        <div class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm transition-opacity"></div>
+  //   // Create modal HTML with modern design
+  //   const modalHtml = `
+  //     <div class="fixed inset-0 z-50 overflow-y-auto" id="companyDetailsModal">
+  //       <!-- Backdrop with blur -->
+  //       <div class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm transition-opacity"></div>
         
-        <!-- Modal Container -->
-        <div class="flex min-h-screen items-center justify-center p-4">
-          <div class="relative w-full max-w-6xl transform overflow-hidden rounded-2xl bg-white shadow-2xl transition-all">
+  //       <!-- Modal Container -->
+  //       <div class="flex min-h-screen items-center justify-center p-4">
+  //         <div class="relative w-full max-w-6xl transform overflow-hidden rounded-2xl bg-white shadow-2xl transition-all">
             
-            <!-- Modal Header with Gradient -->
-            <div class="bg-gradient-to-r from-indigo-600 via-blue-600 to-purple-600 px-8 py-6 text-white">
-              <div class="flex items-start justify-between">
-                <div>
-                  <h2 class="text-3xl font-bold">${companyName}</h2>
-                  <p class="mt-2 text-indigo-100">Comprehensive Regulatory Profile</p>
-                </div>
-                <button onclick="window.enhancedWarningLettersFixed.closeModal('companyDetailsModal')" 
-                        class="rounded-lg bg-white bg-opacity-20 p-2 hover:bg-opacity-30 transition-colors">
-                  <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                  </svg>
-                </button>
-              </div>
-            </div>
+  //           <!-- Modal Header with Gradient -->
+  //           <div class="bg-gradient-to-r from-indigo-600 via-blue-600 to-purple-600 px-8 py-6 text-white">
+  //             <div class="flex items-start justify-between">
+  //               <div>
+  //                 <h2 class="text-3xl font-bold">${companyName}</h2>
+  //                 <p class="mt-2 text-indigo-100">Comprehensive Regulatory Profile</p>
+  //               </div>
+  //               <button onclick="window.enhancedWarningLettersFixed.closeModal('companyDetailsModal')" 
+  //                       class="rounded-lg bg-white bg-opacity-20 p-2 hover:bg-opacity-30 transition-colors">
+  //                 <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+  //                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+  //                 </svg>
+  //               </button>
+  //             </div>
+  //           </div>
             
-            <!-- Risk Assessment Bar -->
-            <div class="bg-gradient-to-r from-gray-50 to-gray-100 px-8 py-4">
-              <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-4">
-                  <span class="text-sm font-medium text-gray-700">Risk Assessment:</span>
-                  <div class="flex items-center space-x-2">
-                    ${this.getRiskIndicators(riskScore)}
-                  </div>
-                </div>
-                <span class="text-sm text-gray-600">Based on ${warningLetters.length + form483s.length + citations.length + inspections.length} regulatory records</span>
-              </div>
-            </div>
+  //           <!-- Risk Assessment Bar -->
+  //           <div class="bg-gradient-to-r from-gray-50 to-gray-100 px-8 py-4">
+  //             <div class="flex items-center justify-between">
+  //               <div class="flex items-center space-x-4">
+  //                 <span class="text-sm font-medium text-gray-700">Risk Assessment:</span>
+  //                 <div class="flex items-center space-x-2">
+  //                   ${this.getRiskIndicators(riskScore)}
+  //                 </div>
+  //               </div>
+  //               <span class="text-sm text-gray-600">Based on ${warningLetters.length + form483s.length + citations.length + inspections.length} regulatory records</span>
+  //             </div>
+  //           </div>
             
-            <!-- Statistics Cards -->
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 p-8 bg-gray-50">
-              <div class="bg-white rounded-xl p-4 text-center shadow-sm">
-                <div class="text-3xl font-bold text-red-600">${warningLetters.length}</div>
-                <div class="text-sm text-gray-600 mt-1">Warning Letters</div>
-              </div>
-              <div class="bg-white rounded-xl p-4 text-center shadow-sm">
-                <div class="text-3xl font-bold text-yellow-600">${form483s.length}</div>
-                <div class="text-sm text-gray-600 mt-1">Form 483s</div>
-              </div>
-              <div class="bg-white rounded-xl p-4 text-center shadow-sm">
-                <div class="text-3xl font-bold text-blue-600">${citations.length}</div>
-                <div class="text-sm text-gray-600 mt-1">Citations</div>
-              </div>
-              <div class="bg-white rounded-xl p-4 text-center shadow-sm">
-                <div class="text-3xl font-bold text-purple-600">${inspections.length}</div>
-                <div class="text-sm text-gray-600 mt-1">Inspections</div>
-              </div>
-            </div>
+  //           <!-- Statistics Cards -->
+  //           <div class="grid grid-cols-2 md:grid-cols-4 gap-4 p-8 bg-gray-50">
+  //             <div class="bg-white rounded-xl p-4 text-center shadow-sm">
+  //               <div class="text-3xl font-bold text-red-600">${warningLetters.length}</div>
+  //               <div class="text-sm text-gray-600 mt-1">Warning Letters</div>
+  //             </div>
+  //             <div class="bg-white rounded-xl p-4 text-center shadow-sm">
+  //               <div class="text-3xl font-bold text-yellow-600">${form483s.length}</div>
+  //               <div class="text-sm text-gray-600 mt-1">Form 483s</div>
+  //             </div>
+  //             <div class="bg-white rounded-xl p-4 text-center shadow-sm">
+  //               <div class="text-3xl font-bold text-blue-600">${citations.length}</div>
+  //               <div class="text-sm text-gray-600 mt-1">Citations</div>
+  //             </div>
+  //             <div class="bg-white rounded-xl p-4 text-center shadow-sm">
+  //               <div class="text-3xl font-bold text-purple-600">${inspections.length}</div>
+  //               <div class="text-sm text-gray-600 mt-1">Inspections</div>
+  //             </div>
+  //           </div>
             
-            <!-- Tabbed Content -->
-            <div class="bg-white">
-              <!-- Tab Navigation -->
-              <div class="border-b border-gray-200">
-                <nav class="flex space-x-8 px-8" aria-label="Tabs">
-                  <button onclick="window.enhancedWarningLettersFixed.switchTab('warningLetters')" 
-                          class="tab-btn border-b-2 border-indigo-500 text-indigo-600 py-4 px-1 text-sm font-medium"
-                          data-tab="warningLetters">
-                    Warning Letters
-                  </button>
-                  <button onclick="window.enhancedWarningLettersFixed.switchTab('form483s')" 
-                          class="tab-btn border-b-2 border-transparent text-gray-500 hover:text-gray-700 py-4 px-1 text-sm font-medium"
-                          data-tab="form483s">
-                    Form 483s
-                  </button>
-                  <button onclick="window.enhancedWarningLettersFixed.switchTab('citations')" 
-                          class="tab-btn border-b-2 border-transparent text-gray-500 hover:text-gray-700 py-4 px-1 text-sm font-medium"
-                          data-tab="citations">
-                    Citations
-                  </button>
-                  <button onclick="window.enhancedWarningLettersFixed.switchTab('inspections')" 
-                          class="tab-btn border-b-2 border-transparent text-gray-500 hover:text-gray-700 py-4 px-1 text-sm font-medium"
-                          data-tab="inspections">
-                    Inspections
-                  </button>
-                  <button onclick="window.enhancedWarningLettersFixed.switchTab('timeline')" 
-                          class="tab-btn border-b-2 border-transparent text-gray-500 hover:text-gray-700 py-4 px-1 text-sm font-medium"
-                          data-tab="timeline">
-                    Timeline
-                  </button>
-                </nav>
-              </div>
+  //           <!-- Tabbed Content -->
+  //           <div class="bg-white">
+  //             <!-- Tab Navigation -->
+  //             <div class="border-b border-gray-200">
+  //               <nav class="flex space-x-8 px-8" aria-label="Tabs">
+  //                 <button onclick="window.enhancedWarningLettersFixed.switchTab('warningLetters')" 
+  //                         class="tab-btn border-b-2 border-indigo-500 text-indigo-600 py-4 px-1 text-sm font-medium"
+  //                         data-tab="warningLetters">
+  //                   Warning Letters
+  //                 </button>
+  //                 <button onclick="window.enhancedWarningLettersFixed.switchTab('form483s')" 
+  //                         class="tab-btn border-b-2 border-transparent text-gray-500 hover:text-gray-700 py-4 px-1 text-sm font-medium"
+  //                         data-tab="form483s">
+  //                   Form 483s
+  //                 </button>
+  //                 <button onclick="window.enhancedWarningLettersFixed.switchTab('citations')" 
+  //                         class="tab-btn border-b-2 border-transparent text-gray-500 hover:text-gray-700 py-4 px-1 text-sm font-medium"
+  //                         data-tab="citations">
+  //                   Citations
+  //                 </button>
+  //                 <button onclick="window.enhancedWarningLettersFixed.switchTab('inspections')" 
+  //                         class="tab-btn border-b-2 border-transparent text-gray-500 hover:text-gray-700 py-4 px-1 text-sm font-medium"
+  //                         data-tab="inspections">
+  //                   Inspections
+  //                 </button>
+  //                 <button onclick="window.enhancedWarningLettersFixed.switchTab('timeline')" 
+  //                         class="tab-btn border-b-2 border-transparent text-gray-500 hover:text-gray-700 py-4 px-1 text-sm font-medium"
+  //                         data-tab="timeline">
+  //                   Timeline
+  //                 </button>
+  //               </nav>
+  //             </div>
               
-              <!-- Tab Content -->
-              <div class="p-8" style="max-height: 600px; overflow-y: auto;">
-                <!-- Warning Letters Tab -->
-                <div id="warningLetters-content" class="tab-content">
-                  ${this.createWarningLettersContent(warningLetters)}
-                </div>
+  //             <!-- Tab Content -->
+  //             <div class="p-8" style="max-height: 600px; overflow-y: auto;">
+  //               <!-- Warning Letters Tab -->
+  //               <div id="warningLetters-content" class="tab-content">
+  //                 ${this.createWarningLettersContent(warningLetters)}
+  //               </div>
                 
-                <!-- Form 483s Tab -->
-                <div id="form483s-content" class="tab-content hidden">
-                  ${this.createForm483sContent(form483s)}
-                </div>
+  //               <!-- Form 483s Tab -->
+  //               <div id="form483s-content" class="tab-content hidden">
+  //                 ${this.createForm483sContent(form483s)}
+  //               </div>
                 
-                <!-- Citations Tab -->
-                <div id="citations-content" class="tab-content hidden">
-                  ${this.createCitationsContent(citations)}
-                </div>
+  //               <!-- Citations Tab -->
+  //               <div id="citations-content" class="tab-content hidden">
+  //                 ${this.createCitationsContent(citations)}
+  //               </div>
                 
-                <!-- Inspections Tab -->
-                <div id="inspections-content" class="tab-content hidden">
-                  ${this.createInspectionsContent(inspections)}
-                </div>
+  //               <!-- Inspections Tab -->
+  //               <div id="inspections-content" class="tab-content hidden">
+  //                 ${this.createInspectionsContent(inspections)}
+  //               </div>
                 
-                <!-- Timeline Tab -->
-                <div id="timeline-content" class="tab-content hidden">
-                  ${this.createTimelineContent(warningLetters, form483s, citations, inspections)}
-                </div>
-              </div>
-            </div>
+  //               <!-- Timeline Tab -->
+  //               <div id="timeline-content" class="tab-content hidden">
+  //                 ${this.createTimelineContent(warningLetters, form483s, citations, inspections)}
+  //               </div>
+  //             </div>
+  //           </div>
             
-            <!-- Modal Footer -->
-            <div class="bg-gray-50 px-8 py-4 border-t flex justify-between items-center">
-              <div class="text-sm text-gray-500">
-                Last updated: ${new Date().toLocaleDateString()}
-              </div>
-              <div class="flex space-x-3">
-                <button onclick="window.enhancedWarningLettersFixed.exportCompanyData('${companyName}')" 
-                        class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm font-medium">
-                  Export Report
-                </button>
-                <button onclick="window.enhancedWarningLettersFixed.closeModal('companyDetailsModal')" 
-                        class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors text-sm font-medium">
-                  Close
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    `;
+  //           <!-- Modal Footer -->
+  //           <div class="bg-gray-50 px-8 py-4 border-t flex justify-between items-center">
+  //             <div class="text-sm text-gray-500">
+  //               Last updated: ${new Date().toLocaleDateString()}
+  //             </div>
+  //             <div class="flex space-x-3">
+  //               <button onclick="window.enhancedWarningLettersFixed.exportCompanyData('${companyName}')" 
+  //                       class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm font-medium">
+  //                 Export Report
+  //               </button>
+  //               <button onclick="window.enhancedWarningLettersFixed.closeModal('companyDetailsModal')" 
+  //                       class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors text-sm font-medium">
+  //                 Close
+  //               </button>
+  //             </div>
+  //           </div>
+  //         </div>
+  //       </div>
+  //     </div>
+  //   `;
 
-    // Add modal to page
-    document.body.insertAdjacentHTML('beforeend', modalHtml);
+  //   // Add modal to page
+  //   document.body.insertAdjacentHTML('beforeend', modalHtml);
 
-    // Add click outside to close
-    document.getElementById('companyDetailsModal').addEventListener('click', function(e) {
-      if (e.target === this) {
-        window.enhancedWarningLettersFixed.closeModal('companyDetailsModal');
-      }
-    });
+  //   // Add click outside to close
+  //   document.getElementById('companyDetailsModal').addEventListener('click', function(e) {
+  //     if (e.target === this) {
+  //       window.enhancedWarningLettersFixed.closeModal('companyDetailsModal');
+  //     }
+  //   });
 
-    // Add escape key to close
-    document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape') {
-        window.enhancedWarningLettersFixed.closeModal('companyDetailsModal');
-      }
-    });
-  },
+  //   // Add escape key to close
+  //   document.addEventListener('keydown', function(e) {
+  //     if (e.key === 'Escape') {
+  //       window.enhancedWarningLettersFixed.closeModal('companyDetailsModal');
+  //     }
+  //   });
+  // },
 
   // Calculate risk score
   calculateRiskScore: function(data) {
@@ -1796,157 +1796,157 @@ window.enhancedWarningLettersFixed.isRelaxedMatch = function(companyName, record
   // Require at least 1 significant word match
   return matchingWords > 0 && matchingWords >= Math.min(companyWords.length * 0.5, 2);
 };
-window.enhancedWarningLettersFixed.showCompanyDetailsModal = function(companyName, data) {
-  const { warningLetters, form483s, citations, inspections } = data;
+// window.enhancedWarningLettersFixed.showCompanyDetailsModal = function(companyName, data) {
+//   const { warningLetters, form483s, citations, inspections } = data;
   
-  // Calculate risk assessment
-  const riskScore = this.calculateRiskScore(data);
+//   // Calculate risk assessment
+//   const riskScore = this.calculateRiskScore(data);
   
-  // Create modal HTML with modern design
-  const modalHtml = `
-    <div class="fixed inset-0 z-50 overflow-y-auto" id="companyDetailsModal">
-      <!-- Backdrop with blur -->
-      <div class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm transition-opacity"></div>
+//   // Create modal HTML with modern design
+//   const modalHtml = `
+//     <div class="fixed inset-0 z-50 overflow-y-auto" id="companyDetailsModal">
+//       <!-- Backdrop with blur -->
+//       <div class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm transition-opacity"></div>
       
-      <!-- Modal Container -->
-      <div class="flex min-h-screen items-center justify-center p-4">
-        <div class="relative w-full max-w-6xl transform overflow-hidden rounded-2xl bg-white shadow-2xl transition-all">
+//       <!-- Modal Container -->
+//       <div class="flex min-h-screen items-center justify-center p-4">
+//         <div class="relative w-full max-w-6xl transform overflow-hidden rounded-2xl bg-white shadow-2xl transition-all">
           
-          <!-- Modal Header with Gradient -->
-          <div class="bg-gradient-to-r from-indigo-600 via-blue-600 to-purple-600 px-8 py-6 text-white">
-            <div class="flex items-start justify-between">
-              <div>
-                <h2 class="text-3xl font-bold">${companyName}</h2>
-                <p class="mt-2 text-indigo-100">Comprehensive Regulatory Profile</p>
-              </div>
-              <button onclick="window.enhancedWarningLettersFixed.closeModal('companyDetailsModal')" 
-                      class="rounded-lg bg-white bg-opacity-20 p-2 hover:bg-opacity-30 transition-colors">
-                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                </svg>
-              </button>
-            </div>
-          </div>
+//           <!-- Modal Header with Gradient -->
+//           <div class="bg-gradient-to-r from-indigo-600 via-blue-600 to-purple-600 px-8 py-6 text-white">
+//             <div class="flex items-start justify-between">
+//               <div>
+//                 <h2 class="text-3xl font-bold">${companyName}</h2>
+//                 <p class="mt-2 text-indigo-100">Comprehensive Regulatory Profile</p>
+//               </div>
+//               <button onclick="window.enhancedWarningLettersFixed.closeModal('companyDetailsModal')" 
+//                       class="rounded-lg bg-white bg-opacity-20 p-2 hover:bg-opacity-30 transition-colors">
+//                 <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+//                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+//                 </svg>
+//               </button>
+//             </div>
+//           </div>
           
-          <!-- Risk Assessment Bar -->
-          <div class="bg-gradient-to-r from-gray-50 to-gray-100 px-8 py-4">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center space-x-4">
-                <span class="text-sm font-medium text-gray-700">Risk Assessment:</span>
-                <div class="flex items-center space-x-2">
-                  ${this.getRiskIndicators(riskScore)}
-                </div>
-              </div>
-              <span class="text-sm text-gray-600">Based on ${warningLetters.length + citations.length + inspections.length} regulatory records</span>
-            </div>
-          </div>
+//           <!-- Risk Assessment Bar -->
+//           <div class="bg-gradient-to-r from-gray-50 to-gray-100 px-8 py-4">
+//             <div class="flex items-center justify-between">
+//               <div class="flex items-center space-x-4">
+//                 <span class="text-sm font-medium text-gray-700">Risk Assessment:</span>
+//                 <div class="flex items-center space-x-2">
+//                   ${this.getRiskIndicators(riskScore)}
+//                 </div>
+//               </div>
+//               <span class="text-sm text-gray-600">Based on ${warningLetters.length + citations.length + inspections.length} regulatory records</span>
+//             </div>
+//           </div>
           
-          <!-- Statistics Cards -->
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-4 p-8 bg-gray-50">
-            <div class="bg-white rounded-xl p-4 text-center shadow-sm">
-              <div class="text-3xl font-bold text-red-600">${warningLetters.length}</div>
-              <p class="text-sm text-gray-600 mt-1">Warning Letters</p>
-            </div>
-            <div class="bg-white rounded-xl p-4 text-center shadow-sm">
-              <div class="text-3xl font-bold text-gray-400">—</div>
-              <p class="text-sm text-gray-600 mt-1">Form 483s</p>
-              <p class="text-xs text-gray-400">Temporarily Disabled</p>
-            </div>
-            <div class="bg-white rounded-xl p-4 text-center shadow-sm">
-              <div class="text-3xl font-bold text-yellow-600">${citations.length}</div>
-              <p class="text-sm text-gray-600 mt-1">Citations</p>
-            </div>
-            <div class="bg-white rounded-xl p-4 text-center shadow-sm">
-              <div class="text-3xl font-bold text-blue-600">${inspections.length}</div>
-              <p class="text-sm text-gray-600 mt-1">Inspections</p>
-            </div>
-          </div>
+//           <!-- Statistics Cards -->
+//           <div class="grid grid-cols-2 md:grid-cols-4 gap-4 p-8 bg-gray-50">
+//             <div class="bg-white rounded-xl p-4 text-center shadow-sm">
+//               <div class="text-3xl font-bold text-red-600">${warningLetters.length}</div>
+//               <p class="text-sm text-gray-600 mt-1">Warning Letters</p>
+//             </div>
+//             <div class="bg-white rounded-xl p-4 text-center shadow-sm">
+//               <div class="text-3xl font-bold text-gray-400">—</div>
+//               <p class="text-sm text-gray-600 mt-1">Form 483s</p>
+//               <p class="text-xs text-gray-400">Temporarily Disabled</p>
+//             </div>
+//             <div class="bg-white rounded-xl p-4 text-center shadow-sm">
+//               <div class="text-3xl font-bold text-yellow-600">${citations.length}</div>
+//               <p class="text-sm text-gray-600 mt-1">Citations</p>
+//             </div>
+//             <div class="bg-white rounded-xl p-4 text-center shadow-sm">
+//               <div class="text-3xl font-bold text-blue-600">${inspections.length}</div>
+//               <p class="text-sm text-gray-600 mt-1">Inspections</p>
+//             </div>
+//           </div>
           
-          <!-- Modal Body with Tabs -->
-          <div class="p-8">
-            <!-- Tab Navigation -->
-            <div class="border-b border-gray-200 mb-6">
-              <nav class="-mb-px flex space-x-8">
-                <button onclick="window.enhancedWarningLettersFixed.switchModalTab('details')" 
-                        data-modal-tab="details" 
-                        class="modal-tab-btn border-indigo-500 text-indigo-600 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
-                  Detailed Records
-                </button>
-                <button onclick="window.enhancedWarningLettersFixed.switchModalTab('timeline')" 
-                        data-modal-tab="timeline" 
-                        class="modal-tab-btn border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
-                  Timeline View
-                </button>
-                <button onclick="window.enhancedWarningLettersFixed.switchModalTab('analytics')" 
-                        data-modal-tab="analytics" 
-                        class="modal-tab-btn border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
-                  Analytics
-                </button>
-              </nav>
-            </div>
+//           <!-- Modal Body with Tabs -->
+//           <div class="p-8">
+//             <!-- Tab Navigation -->
+//             <div class="border-b border-gray-200 mb-6">
+//               <nav class="-mb-px flex space-x-8">
+//                 <button onclick="window.enhancedWarningLettersFixed.switchModalTab('details')" 
+//                         data-modal-tab="details" 
+//                         class="modal-tab-btn border-indigo-500 text-indigo-600 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+//                   Detailed Records
+//                 </button>
+//                 <button onclick="window.enhancedWarningLettersFixed.switchModalTab('timeline')" 
+//                         data-modal-tab="timeline" 
+//                         class="modal-tab-btn border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+//                   Timeline View
+//                 </button>
+//                 <button onclick="window.enhancedWarningLettersFixed.switchModalTab('analytics')" 
+//                         data-modal-tab="analytics" 
+//                         class="modal-tab-btn border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+//                   Analytics
+//                 </button>
+//               </nav>
+//             </div>
             
-            <!-- Tab Content -->
-            <div class="modal-tab-content">
-              <!-- Details Tab -->
-              <div id="modal-details-content" class="modal-tab-pane">
-                ${this.createDetailedRecordsContent(warningLetters, citations, inspections)}
-              </div>
+//             <!-- Tab Content -->
+//             <div class="modal-tab-content">
+//               <!-- Details Tab -->
+//               <div id="modal-details-content" class="modal-tab-pane">
+//                 ${this.createDetailedRecordsContent(warningLetters, citations, inspections)}
+//               </div>
               
-              <!-- Timeline Tab -->
-              <div id="modal-timeline-content" class="modal-tab-pane hidden">
-                ${this.createTimelineContent(warningLetters, citations, inspections)}
-              </div>
+//               <!-- Timeline Tab -->
+//               <div id="modal-timeline-content" class="modal-tab-pane hidden">
+//                 ${this.createTimelineContent(warningLetters, citations, inspections)}
+//               </div>
               
-              <!-- Analytics Tab -->
-              <div id="modal-analytics-content" class="modal-tab-pane hidden">
-                ${this.createAnalyticsContent(warningLetters, citations, inspections)}
-              </div>
-            </div>
-          </div>
+//               <!-- Analytics Tab -->
+//               <div id="modal-analytics-content" class="modal-tab-pane hidden">
+//                 ${this.createAnalyticsContent(warningLetters, citations, inspections)}
+//               </div>
+//             </div>
+//           </div>
           
-          <!-- Modal Footer -->
-          <div class="bg-gray-50 px-8 py-4 border-t border-gray-200">
-            <div class="flex justify-end space-x-3">
-              <button onclick="window.enhancedWarningLettersFixed.exportCompanyData('${companyName}')" 
-                      class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm font-medium">
-                Export Report
-              </button>
-              <button onclick="window.enhancedWarningLettersFixed.closeModal('companyDetailsModal')" 
-                      class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors text-sm font-medium">
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  `;
+//           <!-- Modal Footer -->
+//           <div class="bg-gray-50 px-8 py-4 border-t border-gray-200">
+//             <div class="flex justify-end space-x-3">
+//               <button onclick="window.enhancedWarningLettersFixed.exportCompanyData('${companyName}')" 
+//                       class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm font-medium">
+//                 Export Report
+//               </button>
+//               <button onclick="window.enhancedWarningLettersFixed.closeModal('companyDetailsModal')" 
+//                       class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors text-sm font-medium">
+//                 Close
+//               </button>
+//             </div>
+//           </div>
+//         </div>
+//       </div>
+//     </div>
+//   `;
 
-  // Remove any existing modal
-  this.closeModal('companyDetailsModal');
+//   // Remove any existing modal
+//   this.closeModal('companyDetailsModal');
   
-  // Add modal to page
-  document.body.insertAdjacentHTML('beforeend', modalHtml);
+//   // Add modal to page
+//   document.body.insertAdjacentHTML('beforeend', modalHtml);
 
-  // Add event listeners
-  const modal = document.getElementById('companyDetailsModal');
+//   // Add event listeners
+//   const modal = document.getElementById('companyDetailsModal');
   
-  // Click outside to close
-  modal.addEventListener('click', function(e) {
-    if (e.target === this || e.target.classList.contains('fixed')) {
-      window.enhancedWarningLettersFixed.closeModal('companyDetailsModal');
-    }
-  });
+//   // Click outside to close
+//   modal.addEventListener('click', function(e) {
+//     if (e.target === this || e.target.classList.contains('fixed')) {
+//       window.enhancedWarningLettersFixed.closeModal('companyDetailsModal');
+//     }
+//   });
 
-  // Escape key to close
-  const escapeHandler = function(e) {
-    if (e.key === 'Escape') {
-      window.enhancedWarningLettersFixed.closeModal('companyDetailsModal');
-      document.removeEventListener('keydown', escapeHandler);
-    }
-  };
-  document.addEventListener('keydown', escapeHandler);
-};
+//   // Escape key to close
+//   const escapeHandler = function(e) {
+//     if (e.key === 'Escape') {
+//       window.enhancedWarningLettersFixed.closeModal('companyDetailsModal');
+//       document.removeEventListener('keydown', escapeHandler);
+//     }
+//   };
+//   document.addEventListener('keydown', escapeHandler);
+// };
 
 // Create detailed records content for modal
 window.enhancedWarningLettersFixed.createDetailedRecordsContent = function(warningLetters, citations, inspections) {
@@ -2672,6 +2672,88 @@ window.enhancedWarningLettersFixed.performSearch = async function(companies) {
     this.showLoading(false);
   }
 };
+window.enhancedWarningLettersFixed.searchInspectionsWithVariations = async function(company, variations) {
+  const results = { citations: [], inspections: [] };
+  
+  console.log(`🏭 Enhanced Inspections Search for: ${company}`);
+  console.log(`  Variations to try:`, variations);
+  
+  // Try each variation until we find results
+  for (const variation of variations) {
+    try {
+      console.log(`  🔍 Trying variation: "${variation}"`);
+      
+      // Use the variation in the API call
+      const response = await fetch(`/api/inspection-data?company=${encodeURIComponent(variation)}`);
+      
+      if (!response.ok) {
+        console.warn(`    ⚠️ API error for "${variation}": ${response.status}`);
+        continue;
+      }
+      
+      const data = await response.json();
+      
+      if (data.recentInspections && data.recentInspections.length > 0) {
+        console.log(`    ✅ Found ${data.recentInspections.length} records for "${variation}"`);
+        
+        // Process records - separate by actual type
+        for (const record of data.recentInspections) {
+          // Add metadata
+          record.sourceCompany = company;
+          record.matchedVariation = variation;
+          
+          // Check if it's a citation based on various indicators
+          const isCitation = 
+            record["CitationID"] || 
+            record["ShortDescription"] || 
+            record["LongDescription"] ||
+            (record["Record Type"] && record["Record Type"].toLowerCase().includes('citation'));
+          
+          // Check if it's a Form 483 (should be skipped for now)
+          const isForm483 = 
+            (record["Record Type"] && record["Record Type"].toLowerCase().includes('form 483')) ||
+            record["Form483ID"];
+          
+          if (isForm483) {
+            // Skip Form 483s as they're disabled
+            continue;
+          } else if (isCitation) {
+            // It's a citation
+            results.citations.push(record);
+          } else {
+            // It's a regular inspection
+            results.inspections.push(record);
+          }
+        }
+        
+        // If we found results, we can stop trying variations
+        if (results.citations.length > 0 || results.inspections.length > 0) {
+          break;
+        }
+      }
+      
+      // Also check historical inspections
+      if (data.historicalInspections && data.historicalInspections.length > 0) {
+        console.log(`    📋 Found ${data.historicalInspections.length} historical inspections`);
+        
+        data.historicalInspections.forEach(inspection => {
+          inspection.sourceCompany = company;
+          inspection.matchedVariation = variation;
+          results.inspections.push(inspection);
+        });
+      }
+      
+    } catch (error) {
+      console.error(`  ❌ Search failed for variation "${variation}":`, error.message);
+    }
+    
+    // Small delay between API calls
+    await new Promise(resolve => setTimeout(resolve, 100));
+  }
+  
+  console.log(`  📊 Final results for ${company}: ${results.citations.length} citations, ${results.inspections.length} inspections`);
+  return results;
+};
 
 
 // Fix the showLoading function to use overlay instead of replacing content
@@ -3026,63 +3108,7 @@ window.enhancedWarningLettersFixed.searchWarningLettersWithVariations = async fu
   
   return results;
 };
-window.enhancedWarningLettersFixed.searchInspectionsWithVariations = async function(company, variations) {
-  const results = { citations: [], inspections: [] };
-  
-  console.log(`🏭 Enhanced Inspections Search for: ${company}`);
-  
-  try {
-    const response = await fetch(`/api/inspection-data?company=${encodeURIComponent(company)}`);
-    
-    if (!response.ok) {
-      throw new Error(`Inspection API error: ${response.status}`);
-    }
-    
-    const data = await response.json();
-    console.log(`  📊 Retrieved ${data.recentInspections?.length || 0} inspection records for ${company}`);
-    
-    if (!data.recentInspections || data.recentInspections.length === 0) {
-      console.log(`  ℹ️ No inspection data found for ${company}`);
-      return results;
-    }
-    
-    // Process records - separate by actual type
-    for (const record of data.recentInspections) {
-      // Add metadata
-      record.sourceCompany = company;
-      
-      // Check if it's a citation based on various indicators
-      const isCitation = 
-        record["CitationID"] || 
-        record["ShortDescription"] || 
-        record["LongDescription"] ||
-        (record["Record Type"] && record["Record Type"].toLowerCase().includes('citation'));
-      
-      // Check if it's a Form 483 (should be skipped for now)
-      const isForm483 = 
-        (record["Record Type"] && record["Record Type"].toLowerCase().includes('form 483')) ||
-        record["Form483ID"];
-      
-      if (isForm483) {
-        // Skip Form 483s as they're disabled
-        continue;
-      } else if (isCitation) {
-        // It's a citation
-        results.citations.push(record);
-      } else {
-        // It's a regular inspection
-        results.inspections.push(record);
-      }
-    }
-    
-    console.log(`  ✅ Found ${results.citations.length} citations and ${results.inspections.length} inspections for ${company}`);
-    return results;
-    
-  } catch (error) {
-    console.error(`Inspection search failed for ${company}:`, error);
-    return results;
-  }
-};
+
 
 // 4. Main search function with new matching logic
 window.enhancedWarningLettersFixed.performEnhancedSearch = async function(companies) {
@@ -3805,6 +3831,601 @@ window.enhancedWarningLettersFixed.createForm483Content = function(form483s) {
     </div>
   `;
 };
+
+window.enhancedWarningLettersFixed.showCompanyDetailsModal = function(companyName, data) {
+  const { warningLetters, form483s, citations, inspections } = data;
+  
+  // Calculate risk assessment
+  const riskScore = this.calculateRiskScore(data);
+  
+  // Create modal HTML with enhanced details
+  const modalHtml = `
+    <div class="fixed inset-0 z-50 overflow-y-auto" id="companyDetailsModal">
+      <!-- Backdrop with blur -->
+      <div class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm transition-opacity"></div>
+      
+      <!-- Modal Container -->
+      <div class="flex min-h-screen items-center justify-center p-4">
+        <div class="relative w-full max-w-7xl transform overflow-hidden rounded-2xl bg-white shadow-2xl transition-all">
+          
+          <!-- Modal Header with Gradient -->
+          <div class="bg-gradient-to-r from-indigo-600 via-blue-600 to-purple-600 px-8 py-6 text-white">
+            <div class="flex items-start justify-between">
+              <div>
+                <h2 class="text-3xl font-bold">${companyName}</h2>
+                <p class="mt-2 text-indigo-100">Comprehensive Regulatory Profile</p>
+              </div>
+              <button onclick="window.enhancedWarningLettersFixed.closeModal('companyDetailsModal')" 
+                      class="rounded-lg bg-white bg-opacity-20 p-2 hover:bg-opacity-30 transition-colors">
+                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+          
+          <!-- Risk Assessment Bar -->
+          <div class="bg-gradient-to-r from-gray-50 to-gray-100 px-8 py-4">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center space-x-4">
+                <span class="text-sm font-medium text-gray-700">Risk Assessment:</span>
+                <div class="flex items-center space-x-2">
+                  ${this.getRiskIndicators(riskScore)}
+                </div>
+              </div>
+              <span class="text-sm text-gray-600">Based on ${warningLetters.length + form483s.length + citations.length + inspections.length} regulatory records</span>
+            </div>
+          </div>
+          
+          <!-- Statistics Cards -->
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4 p-8 bg-gray-50">
+            <div class="bg-white rounded-xl p-4 text-center shadow-sm">
+              <div class="text-3xl font-bold text-red-600">${warningLetters.length}</div>
+              <div class="text-sm text-gray-600 mt-1">Warning Letters</div>
+            </div>
+            <div class="bg-white rounded-xl p-4 text-center shadow-sm">
+              <div class="text-3xl font-bold text-yellow-600">${form483s.length}</div>
+              <div class="text-sm text-gray-600 mt-1">Form 483s</div>
+            </div>
+            <div class="bg-white rounded-xl p-4 text-center shadow-sm">
+              <div class="text-3xl font-bold text-blue-600">${citations.length}</div>
+              <div class="text-sm text-gray-600 mt-1">Citations</div>
+            </div>
+            <div class="bg-white rounded-xl p-4 text-center shadow-sm">
+              <div class="text-3xl font-bold text-purple-600">${inspections.length}</div>
+              <div class="text-sm text-gray-600 mt-1">Inspections</div>
+            </div>
+          </div>
+          
+          <!-- Tabbed Content -->
+          <div class="bg-white">
+            <!-- Tab Navigation -->
+            <div class="border-b border-gray-200">
+              <nav class="flex space-x-8 px-8" aria-label="Tabs">
+                <button onclick="window.enhancedWarningLettersFixed.switchTab('warningLetters')" 
+                        class="tab-btn border-b-2 border-indigo-500 text-indigo-600 py-4 px-1 text-sm font-medium"
+                        data-tab="warningLetters">
+                  Warning Letters
+                </button>
+                <button onclick="window.enhancedWarningLettersFixed.switchTab('form483s')" 
+                        class="tab-btn border-b-2 border-transparent text-gray-500 hover:text-gray-700 py-4 px-1 text-sm font-medium"
+                        data-tab="form483s">
+                  Form 483s
+                </button>
+                <button onclick="window.enhancedWarningLettersFixed.switchTab('citations')" 
+                        class="tab-btn border-b-2 border-transparent text-gray-500 hover:text-gray-700 py-4 px-1 text-sm font-medium"
+                        data-tab="citations">
+                  Citations
+                </button>
+                <button onclick="window.enhancedWarningLettersFixed.switchTab('inspections')" 
+                        class="tab-btn border-b-2 border-transparent text-gray-500 hover:text-gray-700 py-4 px-1 text-sm font-medium"
+                        data-tab="inspections">
+                  Inspections
+                </button>
+                <button onclick="window.enhancedWarningLettersFixed.switchTab('timeline')" 
+                        class="tab-btn border-b-2 border-transparent text-gray-500 hover:text-gray-700 py-4 px-1 text-sm font-medium"
+                        data-tab="timeline">
+                  Timeline
+                </button>
+              </nav>
+            </div>
+            
+            <!-- Tab Content -->
+            <div class="p-8" style="max-height: 600px; overflow-y: auto;">
+              <!-- Warning Letters Tab -->
+              <div id="warningLetters-content" class="tab-content">
+                ${this.createDetailedWarningLettersContent(warningLetters)}
+              </div>
+              
+              <!-- Form 483s Tab -->
+              <div id="form483s-content" class="tab-content hidden">
+                ${this.createDetailedForm483sContent(form483s)}
+              </div>
+              
+              <!-- Citations Tab -->
+              <div id="citations-content" class="tab-content hidden">
+                ${this.createDetailedCitationsContent(citations)}
+              </div>
+              
+              <!-- Inspections Tab -->
+              <div id="inspections-content" class="tab-content hidden">
+                ${this.createDetailedInspectionsContent(inspections)}
+              </div>
+              
+              <!-- Timeline Tab -->
+              <div id="timeline-content" class="tab-content hidden">
+                ${this.createTimelineContent(warningLetters, form483s, citations, inspections)}
+              </div>
+            </div>
+          </div>
+          
+          <!-- Modal Footer -->
+          <div class="bg-gray-50 px-8 py-4 border-t flex justify-between items-center">
+            <div class="text-sm text-gray-500">
+              Last updated: ${new Date().toLocaleDateString()}
+            </div>
+            <div class="flex space-x-3">
+              <button onclick="window.enhancedWarningLettersFixed.exportCompanyData('${companyName}')" 
+                      class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm font-medium">
+                Export Report
+              </button>
+              <button onclick="window.enhancedWarningLettersFixed.closeModal('companyDetailsModal')" 
+                      class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors text-sm font-medium">
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  // Add modal to page
+  document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+  // Add event listeners
+  document.getElementById('companyDetailsModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+      window.enhancedWarningLettersFixed.closeModal('companyDetailsModal');
+    }
+  });
+
+  // Add escape key handler
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      window.enhancedWarningLettersFixed.closeModal('companyDetailsModal');
+    }
+  });
+};
+
+// 3. DETAILED WARNING LETTERS CONTENT WITH EXPANDABLE SECTIONS
+window.enhancedWarningLettersFixed.createDetailedWarningLettersContent = function(warningLetters) {
+  if (warningLetters.length === 0) {
+    return this.createEmptyState('Warning Letters', 'No warning letters found for this company');
+  }
+
+  return `
+    <div class="space-y-6">
+      ${warningLetters.map((letter, index) => `
+        <div class="border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow">
+          <!-- Letter Header -->
+          <div class="bg-red-50 px-6 py-4 border-b border-red-100">
+            <div class="flex justify-between items-start">
+              <div class="flex-1">
+                <h4 class="text-lg font-semibold text-gray-900">${letter.subject || 'Warning Letter'}</h4>
+                <div class="mt-2 grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                  <div>
+                    <span class="text-gray-500">Date:</span>
+                    <span class="ml-2 font-medium">${this.formatDate(letter.letterIssueDate)}</span>
+                  </div>
+                  <div>
+                    <span class="text-gray-500">Office:</span>
+                    <span class="ml-2 font-medium">${letter.issuingOffice || 'FDA'}</span>
+                  </div>
+                  <div>
+                    <span class="text-gray-500">Letter ID:</span>
+                    <span class="ml-2 font-medium">${letter.letterId || 'N/A'}</span>
+                  </div>
+                  <div>
+                    <span class="text-gray-500">Response Due:</span>
+                    <span class="ml-2 font-medium">${letter.responseDeadline ? this.formatDate(letter.responseDeadline) : 'N/A'}</span>
+                  </div>
+                </div>
+              </div>
+              <div class="flex items-center space-x-2 ml-4">
+                ${letter.pdfUrl ? `
+                  <a href="${letter.pdfUrl}" target="_blank" 
+                     class="inline-flex items-center px-3 py-1 bg-white text-red-600 border border-red-300 rounded-lg hover:bg-red-50 text-sm">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                    </svg>
+                    View PDF
+                  </a>
+                ` : ''}
+                <button onclick="window.enhancedWarningLettersFixed.toggleLetterDetails('wl-detail-${index}')" 
+                        class="inline-flex items-center px-3 py-1 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 text-sm">
+                  <svg class="w-4 h-4 mr-1 transform transition-transform" id="wl-arrow-${index}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                  </svg>
+                  View Details
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Expandable Content -->
+          <div id="wl-detail-${index}" class="hidden">
+            <div class="px-6 py-4 bg-gray-50">
+              <!-- Key Information -->
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div>
+                  <h5 class="font-semibold text-gray-900 mb-2">Company Information</h5>
+                  <div class="space-y-1 text-sm">
+                    <div><span class="text-gray-500">Company Name:</span> <span class="font-medium">${letter.companyName || 'N/A'}</span></div>
+                    <div><span class="text-gray-500">Address:</span> <span class="font-medium">${letter.address || 'N/A'}</span></div>
+                    <div><span class="text-gray-500">FEI Number:</span> <span class="font-medium">${letter.feiNumber || 'N/A'}</span></div>
+                  </div>
+                </div>
+                <div>
+                  <h5 class="font-semibold text-gray-900 mb-2">Letter Details</h5>
+                  <div class="space-y-1 text-sm">
+                    <div><span class="text-gray-500">Posted Date:</span> <span class="font-medium">${letter.postedDate ? this.formatDate(letter.postedDate) : 'N/A'}</span></div>
+                    <div><span class="text-gray-500">Status:</span> <span class="font-medium">${letter.status || 'Active'}</span></div>
+                    <div><span class="text-gray-500">Type:</span> <span class="font-medium">${letter.type || 'Warning Letter'}</span></div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Full Content -->
+              <div class="border-t pt-4">
+                <h5 class="font-semibold text-gray-900 mb-3">Letter Content</h5>
+                <div class="bg-white rounded-lg border border-gray-200 p-6">
+                  <div class="prose max-w-none text-sm text-gray-700 whitespace-pre-wrap">
+                    ${letter.fullContent || letter.content || letter.excerpt || 'No content available'}
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Violations if available -->
+              ${letter.violations && letter.violations.length > 0 ? `
+                <div class="border-t pt-4 mt-4">
+                  <h5 class="font-semibold text-gray-900 mb-3">Identified Violations</h5>
+                  <div class="space-y-2">
+                    ${letter.violations.map(violation => `
+                      <div class="bg-white rounded-lg border border-gray-200 p-3">
+                        <div class="text-sm text-gray-700">${violation}</div>
+                      </div>
+                    `).join('')}
+                  </div>
+                </div>
+              ` : ''}
+            </div>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+};
+
+// 4. DETAILED CITATIONS CONTENT
+window.enhancedWarningLettersFixed.createDetailedCitationsContent = function(citations) {
+  if (citations.length === 0) {
+    return this.createEmptyState('Citations', 'No citations found for this company');
+  }
+
+  return `
+    <div class="space-y-4">
+      ${citations.map((citation, index) => `
+        <div class="border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow">
+          <div class="bg-yellow-50 px-6 py-4 border-b border-yellow-100">
+            <div class="flex justify-between items-start">
+              <div class="flex-1">
+                <h4 class="font-semibold text-gray-900">${citation['ShortDescription'] || 'FDA Citation'}</h4>
+                <div class="mt-2 flex flex-wrap gap-4 text-sm text-gray-600">
+                  <span>📅 ${this.formatDate(citation['Record Date'] || citation['InspectionEndDate'])}</span>
+                  <span>🏢 ${citation['Legal Name'] || 'N/A'}</span>
+                  <span>📍 ${citation['City'] || 'N/A'}, ${citation['State'] || 'N/A'}</span>
+                  ${citation['CitationID'] ? `<span>🔖 ID: ${citation['CitationID']}</span>` : ''}
+                </div>
+              </div>
+              <button onclick="window.enhancedWarningLettersFixed.toggleCitationDetails('citation-detail-${index}')" 
+                      class="px-3 py-1 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 text-sm">
+                <svg class="w-4 h-4 inline-block mr-1 transform transition-transform" id="citation-arrow-${index}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+                Details
+              </button>
+            </div>
+          </div>
+          
+          <!-- Expandable Details -->
+          <div id="citation-detail-${index}" class="hidden">
+            <div class="px-6 py-4 bg-white">
+              ${citation['LongDescription'] ? `
+                <div class="mb-4">
+                  <h5 class="font-semibold text-gray-900 mb-2">Full Description</h5>
+                  <div class="bg-gray-50 rounded-lg p-4 text-sm text-gray-700 whitespace-pre-wrap">
+                    ${citation['LongDescription']}
+                  </div>
+                </div>
+              ` : ''}
+              
+              <div class="grid grid-cols-2 gap-4 text-sm">
+                ${citation['FEI Number'] ? `
+                  <div>
+                    <span class="text-gray-500">FEI Number:</span>
+                    <span class="ml-2 font-medium">${citation['FEI Number']}</span>
+                  </div>
+                ` : ''}
+                ${citation['Inspection ID'] ? `
+                  <div>
+                    <span class="text-gray-500">Inspection ID:</span>
+                    <span class="ml-2 font-medium">${citation['Inspection ID']}</span>
+                  </div>
+                ` : ''}
+                ${citation['Program Area'] ? `
+                  <div>
+                    <span class="text-gray-500">Program Area:</span>
+                    <span class="ml-2 font-medium">${citation['Program Area']}</span>
+                  </div>
+                ` : ''}
+                ${citation['Product Type'] ? `
+                  <div>
+                    <span class="text-gray-500">Product Type:</span>
+                    <span class="ml-2 font-medium">${citation['Product Type']}</span>
+                  </div>
+                ` : ''}
+              </div>
+            </div>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+};
+
+// 5. DETAILED INSPECTIONS CONTENT
+window.enhancedWarningLettersFixed.createDetailedInspectionsContent = function(inspections) {
+  if (inspections.length === 0) {
+    return this.createEmptyState('Inspections', 'No historical inspections found for this company');
+  }
+
+  // Group inspections by year
+  const inspectionsByYear = {};
+  inspections.forEach(inspection => {
+    const year = new Date(inspection['Inspection End Date']).getFullYear();
+    if (!inspectionsByYear[year]) {
+      inspectionsByYear[year] = [];
+    }
+    inspectionsByYear[year].push(inspection);
+  });
+
+  const sortedYears = Object.keys(inspectionsByYear).sort((a, b) => b - a);
+
+  return `
+    <div class="space-y-6">
+      ${sortedYears.map(year => `
+        <div>
+          <h3 class="text-lg font-semibold text-gray-900 mb-3">${year}</h3>
+          <div class="space-y-3">
+            ${inspectionsByYear[year].map((inspection, index) => `
+              <div class="border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow">
+                <div class="px-6 py-4 bg-white">
+                  <div class="flex justify-between items-start">
+                    <div class="flex-1">
+                      <div class="flex items-center space-x-3 mb-2">
+                        <h4 class="font-medium text-gray-900">${inspection['Project Area'] || 'General Inspection'}</h4>
+                        ${this.getClassificationBadge(inspection['Inspection Classification'])}
+                      </div>
+                      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-gray-600">
+                        <div>
+                          <span class="text-gray-500">End Date:</span>
+                          <span class="ml-2 font-medium">${this.formatDate(inspection['Inspection End Date'])}</span>
+                        </div>
+                        <div>
+                          <span class="text-gray-500">Location:</span>
+                          <span class="ml-2 font-medium">${inspection['City'] || 'N/A'}, ${inspection['State'] || 'N/A'}</span>
+                        </div>
+                        <div>
+                          <span class="text-gray-500">FEI:</span>
+                          <span class="ml-2 font-medium">${inspection['FEI Number'] || 'N/A'}</span>
+                        </div>
+                        <div>
+                          <span class="text-gray-500">Product Type:</span>
+                          <span class="ml-2 font-medium">${inspection['Product Type'] || 'N/A'}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+};
+
+// 6. TOGGLE FUNCTIONS FOR EXPANDABLE CONTENT
+window.enhancedWarningLettersFixed.toggleLetterDetails = function(detailId) {
+  const detailElement = document.getElementById(detailId);
+  const index = detailId.split('-').pop();
+  const arrowElement = document.getElementById(`wl-arrow-${index}`);
+  
+  if (detailElement) {
+    detailElement.classList.toggle('hidden');
+    if (arrowElement) {
+      arrowElement.classList.toggle('rotate-180');
+    }
+  }
+};
+
+window.enhancedWarningLettersFixed.toggleCitationDetails = function(detailId) {
+  const detailElement = document.getElementById(detailId);
+  const index = detailId.split('-').pop();
+  const arrowElement = document.getElementById(`citation-arrow-${index}`);
+  
+  if (detailElement) {
+    detailElement.classList.toggle('hidden');
+    if (arrowElement) {
+      arrowElement.classList.toggle('rotate-180');
+    }
+  }
+};
+
+// 7. ENHANCED TIMELINE CONTENT
+window.enhancedWarningLettersFixed.createTimelineContent = function(warningLetters, form483s, citations, inspections) {
+  // Combine all records with dates
+  const allRecords = [
+    ...warningLetters.map(wl => ({
+      type: 'warning',
+      date: wl.letterIssueDate,
+      title: 'Warning Letter',
+      description: wl.subject || 'FDA Warning Letter',
+      details: {
+        office: wl.issuingOffice,
+        id: wl.letterId,
+        pdfUrl: wl.pdfUrl
+      },
+      severity: 'high',
+      fullContent: wl.fullContent || wl.content || wl.excerpt
+    })),
+    ...form483s.map(f => ({
+      type: 'form483',
+      date: f.recordDate || f["Record Date"],
+      title: 'Form 483',
+      description: f.legalName || f["Legal Name"] || 'Form 483 Observation',
+      details: {
+        fei: f.feiNumber || f["FEI Number"],
+        office: f.issuingOffice
+      },
+      severity: 'medium'
+    })),
+    ...citations.map(c => ({
+      type: 'citation',
+      date: c['Record Date'] || c['InspectionEndDate'],
+      title: 'Citation',
+      description: c['ShortDescription'] || 'FDA Citation',
+      details: {
+        id: c['CitationID'],
+        location: `${c['City'] || 'N/A'}, ${c['State'] || 'N/A'}`
+      },
+      severity: 'medium',
+      fullDescription: c['LongDescription']
+    })),
+    ...inspections.map(i => ({
+      type: 'inspection',
+      date: i['Inspection End Date'],
+      title: `Inspection - ${i['Inspection Classification'] || 'N/A'}`,
+      description: i['Project Area'] || 'General Inspection',
+      details: {
+        location: `${i['City'] || 'N/A'}, ${i['State'] || 'N/A'}`,
+        fei: i['FEI Number'],
+        productType: i['Product Type']
+      },
+      severity: i['Inspection Classification'] === 'OAI' ? 'high' : 
+               i['Inspection Classification'] === 'VAI' ? 'medium' : 'low'
+    }))
+  ].filter(r => r.date).sort((a, b) => new Date(b.date) - new Date(a.date));
+
+  if (allRecords.length === 0) {
+    return '<p class="text-center text-gray-500 py-8">No timeline data available.</p>';
+  }
+
+  return `
+    <div class="relative">
+      <div class="absolute left-8 top-0 bottom-0 w-0.5 bg-gray-300"></div>
+      <div class="space-y-8">
+        ${allRecords.map((record, index) => `
+          <div class="relative flex items-start">
+            <div class="absolute left-8 w-0.5 ${index === allRecords.length - 1 ? 'h-8' : 'h-full'} bg-gray-300"></div>
+            <div class="relative z-10 flex items-center justify-center w-16 h-16 bg-white rounded-full shadow-md">
+              <div class="w-8 h-8 rounded-full ${
+                record.severity === 'high' ? 'bg-red-500' :
+                record.severity === 'medium' ? 'bg-yellow-500' :
+                'bg-green-500'
+              }"></div>
+            </div>
+            <div class="ml-6 flex-1">
+              <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                <div class="flex items-center justify-between mb-2">
+                  <h4 class="font-medium text-gray-900">${record.title}</h4>
+                  <span class="text-sm text-gray-500">${this.formatDate(record.date)}</span>
+                </div>
+                <p class="text-sm text-gray-600 mb-2">${record.description}</p>
+                
+                <!-- Additional Details -->
+                <div class="text-xs text-gray-500 space-y-1">
+                  ${record.details.office ? `<div>Office: ${record.details.office}</div>` : ''}
+                  ${record.details.location ? `<div>Location: ${record.details.location}</div>` : ''}
+                  ${record.details.fei ? `<div>FEI: ${record.details.fei}</div>` : ''}
+                  ${record.details.id ? `<div>ID: ${record.details.id}</div>` : ''}
+                  ${record.details.productType ? `<div>Product Type: ${record.details.productType}</div>` : ''}
+                </div>
+                
+                ${record.details.pdfUrl ? `
+                  <a href="${record.details.pdfUrl}" target="_blank" 
+                     class="inline-flex items-center mt-2 text-xs text-indigo-600 hover:text-indigo-800">
+                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                    View PDF
+                  </a>
+                ` : ''}
+              </div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+};
+
+// 8. ADD REQUIRED STYLES
+if (!document.getElementById('enhanced-modal-styles')) {
+  const style = document.createElement('style');
+  style.id = 'enhanced-modal-styles';
+  style.textContent = `
+    .rotate-180 {
+      transform: rotate(180deg);
+    }
+    
+    .prose {
+      max-width: none;
+    }
+    
+    .prose pre {
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+    
+    /* Smooth transitions for expandable content */
+    .hidden {
+      display: none;
+    }
+    
+    /* Custom scrollbar for modal content */
+    .tab-content::-webkit-scrollbar {
+      width: 8px;
+    }
+    
+    .tab-content::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 4px;
+    }
+    
+    .tab-content::-webkit-scrollbar-thumb {
+      background: #888;
+      border-radius: 4px;
+    }
+    
+    .tab-content::-webkit-scrollbar-thumb:hover {
+      background: #555;
+    }
+  `;
+  document.head.appendChild(style);
+}
 
 console.log('✅ Minimal fix applied - Form 483s disabled');
 
