@@ -1122,94 +1122,7 @@ window.enhancedWarningLettersFixed = {
     `;
   },
 
-  // Create timeline content
-  createTimelineContent: function(warningLetters, form483s, citations, inspections) {
-    // Combine all events
-    const events = [];
-    
-    warningLetters.forEach(wl => {
-      events.push({
-        date: new Date(wl.letterIssueDate),
-        type: 'warning-letter',
-        title: 'Warning Letter',
-        description: wl.subject || 'Warning Letter Issued',
-        icon: '⚠️',
-        color: 'red'
-      });
-    });
-    
-    form483s.forEach(f483 => {
-      events.push({
-        date: new Date(f483.issueDate || f483.recordDate || f483["Record Date"]),
-        type: 'form-483',
-        title: 'Form 483',
-        description: `FEI: ${f483.feiNumber || f483["FEI Number"] || 'N/A'}`,
-        icon: '📋',
-        color: 'yellow'
-      });
-    });
-    
-    citations.forEach(citation => {
-      events.push({
-        date: new Date(citation["Record Date"]),
-        type: 'citation',
-        title: 'Citation',
-        description: citation["Description"] || 'Citation Issued',
-        icon: '📄',
-        color: 'blue'
-      });
-    });
-    
-    inspections.slice(0, 20).forEach(inspection => {
-      events.push({
-        date: new Date(inspection["Inspection End Date"]),
-        type: 'inspection',
-        title: `Inspection - ${inspection["Inspection Classification"] || 'N/A'}`,
-        description: inspection["Project Area"] || 'Inspection Completed',
-        icon: '🔍',
-        color: this.getClassificationColor(inspection["Inspection Classification"])
-      });
-    });
-    
-    // Sort by date (newest first)
-    events.sort((a, b) => b.date - a.date);
-    
-    if (events.length === 0) {
-      return this.createEmptyState('Timeline', 'No regulatory events found for this company');
-    }
-    
-    return `
-      <div class="flow-root">
-        <ul class="-mb-8">
-          ${events.map((event, index) => `
-            <li>
-              <div class="relative pb-8">
-                ${index < events.length - 1 ? `
-                  <span class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200"></span>
-                ` : ''}
-                <div class="relative flex space-x-3">
-                  <div>
-                    <span class="h-8 w-8 rounded-full bg-${event.color}-100 flex items-center justify-center ring-8 ring-white">
-                      <span class="text-lg">${event.icon}</span>
-                    </span>
-                  </div>
-                  <div class="min-w-0 flex-1 pt-1.5 flex justify-between space-x-4">
-                    <div>
-                      <p class="text-sm font-medium text-gray-900">${event.title}</p>
-                      <p class="text-sm text-gray-500">${event.description}</p>
-                    </div>
-                    <div class="text-right text-sm whitespace-nowrap text-gray-500">
-                      ${this.formatDate(event.date)}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </li>
-          `).join('')}
-        </ul>
-      </div>
-    `;
-  },
+
 
   // Get classification color
   getClassificationColor: function(classification) {
@@ -1883,7 +1796,529 @@ window.enhancedWarningLettersFixed.isRelaxedMatch = function(companyName, record
   // Require at least 1 significant word match
   return matchingWords > 0 && matchingWords >= Math.min(companyWords.length * 0.5, 2);
 };
+window.enhancedWarningLettersFixed.showCompanyDetailsModal = function(companyName, data) {
+  const { warningLetters, form483s, citations, inspections } = data;
+  
+  // Calculate risk assessment
+  const riskScore = this.calculateRiskScore(data);
+  
+  // Create modal HTML with modern design
+  const modalHtml = `
+    <div class="fixed inset-0 z-50 overflow-y-auto" id="companyDetailsModal">
+      <!-- Backdrop with blur -->
+      <div class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm transition-opacity"></div>
+      
+      <!-- Modal Container -->
+      <div class="flex min-h-screen items-center justify-center p-4">
+        <div class="relative w-full max-w-6xl transform overflow-hidden rounded-2xl bg-white shadow-2xl transition-all">
+          
+          <!-- Modal Header with Gradient -->
+          <div class="bg-gradient-to-r from-indigo-600 via-blue-600 to-purple-600 px-8 py-6 text-white">
+            <div class="flex items-start justify-between">
+              <div>
+                <h2 class="text-3xl font-bold">${companyName}</h2>
+                <p class="mt-2 text-indigo-100">Comprehensive Regulatory Profile</p>
+              </div>
+              <button onclick="window.enhancedWarningLettersFixed.closeModal('companyDetailsModal')" 
+                      class="rounded-lg bg-white bg-opacity-20 p-2 hover:bg-opacity-30 transition-colors">
+                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+          
+          <!-- Risk Assessment Bar -->
+          <div class="bg-gradient-to-r from-gray-50 to-gray-100 px-8 py-4">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center space-x-4">
+                <span class="text-sm font-medium text-gray-700">Risk Assessment:</span>
+                <div class="flex items-center space-x-2">
+                  ${this.getRiskIndicators(riskScore)}
+                </div>
+              </div>
+              <span class="text-sm text-gray-600">Based on ${warningLetters.length + citations.length + inspections.length} regulatory records</span>
+            </div>
+          </div>
+          
+          <!-- Statistics Cards -->
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4 p-8 bg-gray-50">
+            <div class="bg-white rounded-xl p-4 text-center shadow-sm">
+              <div class="text-3xl font-bold text-red-600">${warningLetters.length}</div>
+              <p class="text-sm text-gray-600 mt-1">Warning Letters</p>
+            </div>
+            <div class="bg-white rounded-xl p-4 text-center shadow-sm">
+              <div class="text-3xl font-bold text-gray-400">—</div>
+              <p class="text-sm text-gray-600 mt-1">Form 483s</p>
+              <p class="text-xs text-gray-400">Temporarily Disabled</p>
+            </div>
+            <div class="bg-white rounded-xl p-4 text-center shadow-sm">
+              <div class="text-3xl font-bold text-yellow-600">${citations.length}</div>
+              <p class="text-sm text-gray-600 mt-1">Citations</p>
+            </div>
+            <div class="bg-white rounded-xl p-4 text-center shadow-sm">
+              <div class="text-3xl font-bold text-blue-600">${inspections.length}</div>
+              <p class="text-sm text-gray-600 mt-1">Inspections</p>
+            </div>
+          </div>
+          
+          <!-- Modal Body with Tabs -->
+          <div class="p-8">
+            <!-- Tab Navigation -->
+            <div class="border-b border-gray-200 mb-6">
+              <nav class="-mb-px flex space-x-8">
+                <button onclick="window.enhancedWarningLettersFixed.switchModalTab('details')" 
+                        data-modal-tab="details" 
+                        class="modal-tab-btn border-indigo-500 text-indigo-600 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+                  Detailed Records
+                </button>
+                <button onclick="window.enhancedWarningLettersFixed.switchModalTab('timeline')" 
+                        data-modal-tab="timeline" 
+                        class="modal-tab-btn border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+                  Timeline View
+                </button>
+                <button onclick="window.enhancedWarningLettersFixed.switchModalTab('analytics')" 
+                        data-modal-tab="analytics" 
+                        class="modal-tab-btn border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+                  Analytics
+                </button>
+              </nav>
+            </div>
+            
+            <!-- Tab Content -->
+            <div class="modal-tab-content">
+              <!-- Details Tab -->
+              <div id="modal-details-content" class="modal-tab-pane">
+                ${this.createDetailedRecordsContent(warningLetters, citations, inspections)}
+              </div>
+              
+              <!-- Timeline Tab -->
+              <div id="modal-timeline-content" class="modal-tab-pane hidden">
+                ${this.createTimelineContent(warningLetters, citations, inspections)}
+              </div>
+              
+              <!-- Analytics Tab -->
+              <div id="modal-analytics-content" class="modal-tab-pane hidden">
+                ${this.createAnalyticsContent(warningLetters, citations, inspections)}
+              </div>
+            </div>
+          </div>
+          
+          <!-- Modal Footer -->
+          <div class="bg-gray-50 px-8 py-4 border-t border-gray-200">
+            <div class="flex justify-end space-x-3">
+              <button onclick="window.enhancedWarningLettersFixed.exportCompanyData('${companyName}')" 
+                      class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm font-medium">
+                Export Report
+              </button>
+              <button onclick="window.enhancedWarningLettersFixed.closeModal('companyDetailsModal')" 
+                      class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors text-sm font-medium">
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
 
+  // Remove any existing modal
+  this.closeModal('companyDetailsModal');
+  
+  // Add modal to page
+  document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+  // Add event listeners
+  const modal = document.getElementById('companyDetailsModal');
+  
+  // Click outside to close
+  modal.addEventListener('click', function(e) {
+    if (e.target === this || e.target.classList.contains('fixed')) {
+      window.enhancedWarningLettersFixed.closeModal('companyDetailsModal');
+    }
+  });
+
+  // Escape key to close
+  const escapeHandler = function(e) {
+    if (e.key === 'Escape') {
+      window.enhancedWarningLettersFixed.closeModal('companyDetailsModal');
+      document.removeEventListener('keydown', escapeHandler);
+    }
+  };
+  document.addEventListener('keydown', escapeHandler);
+};
+
+// Create detailed records content for modal
+window.enhancedWarningLettersFixed.createDetailedRecordsContent = function(warningLetters, citations, inspections) {
+  let html = '<div class="space-y-6">';
+  
+  // Warning Letters Section
+  if (warningLetters.length > 0) {
+    html += `
+      <div>
+        <h3 class="text-lg font-semibold text-gray-900 mb-3">Warning Letters (${warningLetters.length})</h3>
+        <div class="space-y-3">
+          ${warningLetters.map(letter => `
+            <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+              <div class="flex justify-between items-start">
+                <div class="flex-1">
+                  <p class="font-medium text-gray-900">${letter.subject || 'Warning Letter'}</p>
+                  <p class="text-sm text-gray-600 mt-1">Issued: ${this.formatDate(letter.letterIssueDate)}</p>
+                  <p class="text-sm text-gray-600">Office: ${letter.issuingOffice || 'FDA'}</p>
+                </div>
+                ${letter.pdfUrl ? `
+                  <a href="${letter.pdfUrl}" target="_blank" 
+                     class="ml-4 text-red-600 hover:text-red-800">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                  </a>
+                ` : ''}
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  }
+  
+  // Citations Section
+  if (citations.length > 0) {
+    html += `
+      <div>
+        <h3 class="text-lg font-semibold text-gray-900 mb-3">Citations (${citations.length})</h3>
+        <div class="space-y-3">
+          ${citations.slice(0, 10).map(citation => `
+            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+              <p class="font-medium text-gray-900">${citation['ShortDescription'] || 'FDA Citation'}</p>
+              <p class="text-sm text-gray-600 mt-1">Date: ${this.formatDate(citation['Record Date'] || citation['InspectionEndDate'])}</p>
+              ${citation['LongDescription'] ? `
+                <p class="text-sm text-gray-700 mt-2">${citation['LongDescription'].substring(0, 200)}${citation['LongDescription'].length > 200 ? '...' : ''}</p>
+              ` : ''}
+            </div>
+          `).join('')}
+          ${citations.length > 10 ? `
+            <p class="text-sm text-gray-500 text-center">... and ${citations.length - 10} more citations</p>
+          ` : ''}
+        </div>
+      </div>
+    `;
+  }
+  
+  // Inspections Section
+  if (inspections.length > 0) {
+    html += `
+      <div>
+        <h3 class="text-lg font-semibold text-gray-900 mb-3">Inspections (${inspections.length})</h3>
+        <div class="space-y-3">
+          ${inspections.slice(0, 10).map(inspection => `
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <div class="flex justify-between items-start">
+                <div>
+                  <p class="font-medium text-gray-900">${inspection['Project Area'] || 'General Inspection'}</p>
+                  <p class="text-sm text-gray-600 mt-1">Date: ${this.formatDate(inspection['Inspection End Date'])}</p>
+                  <p class="text-sm text-gray-600">Location: ${inspection['City'] || 'N/A'}, ${inspection['State'] || 'N/A'}</p>
+                </div>
+                <span class="px-2 py-1 text-xs font-medium rounded-full ${
+                  inspection['Inspection Classification'] === 'NAI' ? 'bg-green-100 text-green-800' :
+                  inspection['Inspection Classification'] === 'VAI' ? 'bg-yellow-100 text-yellow-800' :
+                  inspection['Inspection Classification'] === 'OAI' ? 'bg-red-100 text-red-800' :
+                  'bg-gray-100 text-gray-800'
+                }">
+                  ${inspection['Inspection Classification'] || 'Pending'}
+                </span>
+              </div>
+            </div>
+          `).join('')}
+          ${inspections.length > 10 ? `
+            <p class="text-sm text-gray-500 text-center">... and ${inspections.length - 10} more inspections</p>
+          ` : ''}
+        </div>
+      </div>
+    `;
+  }
+  
+  if (warningLetters.length === 0 && citations.length === 0 && inspections.length === 0) {
+    html += '<p class="text-center text-gray-500 py-8">No regulatory records found for this company.</p>';
+  }
+  
+  html += '</div>';
+  return html;
+};
+
+// Create timeline content
+window.enhancedWarningLettersFixed.createTimelineContent = function(warningLetters, citations, inspections) {
+  // Combine all records with dates
+  const allRecords = [
+    ...warningLetters.map(wl => ({
+      type: 'warning',
+      date: wl.letterIssueDate,
+      title: 'Warning Letter',
+      description: wl.subject || 'FDA Warning Letter',
+      severity: 'high'
+    })),
+    ...citations.map(c => ({
+      type: 'citation',
+      date: c['Record Date'] || c['InspectionEndDate'],
+      title: 'Citation',
+      description: c['ShortDescription'] || 'FDA Citation',
+      severity: 'medium'
+    })),
+    ...inspections.map(i => ({
+      type: 'inspection',
+      date: i['Inspection End Date'],
+      title: `Inspection - ${i['Inspection Classification'] || 'N/A'}`,
+      description: i['Project Area'] || 'General Inspection',
+      severity: i['Inspection Classification'] === 'OAI' ? 'high' : 
+               i['Inspection Classification'] === 'VAI' ? 'medium' : 'low'
+    }))
+  ].filter(r => r.date).sort((a, b) => new Date(b.date) - new Date(a.date));
+  
+  if (allRecords.length === 0) {
+    return '<p class="text-center text-gray-500 py-8">No timeline data available.</p>';
+  }
+  
+  return `
+    <div class="relative">
+      <div class="absolute left-8 top-0 bottom-0 w-0.5 bg-gray-300"></div>
+      <div class="space-y-6">
+        ${allRecords.map((record, index) => `
+          <div class="relative flex items-start">
+            <div class="absolute left-8 w-0.5 ${index === allRecords.length - 1 ? 'h-8' : 'h-full'} bg-gray-300"></div>
+            <div class="relative z-10 flex items-center justify-center w-16 h-16 bg-white rounded-full shadow-md">
+              <div class="w-8 h-8 rounded-full ${
+                record.severity === 'high' ? 'bg-red-500' :
+                record.severity === 'medium' ? 'bg-yellow-500' :
+                'bg-green-500'
+              }"></div>
+            </div>
+            <div class="ml-6 flex-1">
+              <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                <div class="flex items-center justify-between">
+                  <h4 class="font-medium text-gray-900">${record.title}</h4>
+                  <span class="text-sm text-gray-500">${this.formatDate(record.date)}</span>
+                </div>
+                <p class="text-sm text-gray-600 mt-1">${record.description}</p>
+              </div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+};
+
+// Create analytics content
+window.enhancedWarningLettersFixed.createAnalyticsContent = function(warningLetters, citations, inspections) {
+  // Calculate analytics
+  const totalRecords = warningLetters.length + citations.length + inspections.length;
+  
+  // Group by year
+  const recordsByYear = {};
+  const allRecords = [
+    ...warningLetters.map(w => ({ date: w.letterIssueDate, type: 'warning' })),
+    ...citations.map(c => ({ date: c['Record Date'] || c['InspectionEndDate'], type: 'citation' })),
+    ...inspections.map(i => ({ date: i['Inspection End Date'], type: 'inspection' }))
+  ];
+  
+  allRecords.forEach(record => {
+    if (record.date) {
+      const year = new Date(record.date).getFullYear();
+      if (!recordsByYear[year]) {
+        recordsByYear[year] = { warning: 0, citation: 0, inspection: 0 };
+      }
+      recordsByYear[year][record.type]++;
+    }
+  });
+  
+  // Inspection classifications
+  const classificationCounts = {};
+  inspections.forEach(i => {
+    const classification = i['Inspection Classification'] || 'Unknown';
+    classificationCounts[classification] = (classificationCounts[classification] || 0) + 1;
+  });
+  
+  return `
+    <div class="space-y-6">
+      <!-- Summary Stats -->
+      <div class="bg-gray-50 rounded-lg p-6">
+        <h4 class="font-semibold text-gray-900 mb-4">Summary Statistics</h4>
+        <div class="grid grid-cols-3 gap-4 text-center">
+          <div>
+            <p class="text-2xl font-bold text-gray-900">${totalRecords}</p>
+            <p class="text-sm text-gray-600">Total Records</p>
+          </div>
+          <div>
+            <p class="text-2xl font-bold text-gray-900">${Object.keys(recordsByYear).length}</p>
+            <p class="text-sm text-gray-600">Years Covered</p>
+          </div>
+          <div>
+            <p class="text-2xl font-bold text-gray-900">${Math.round(totalRecords / Object.keys(recordsByYear).length) || 0}</p>
+            <p class="text-sm text-gray-600">Avg Records/Year</p>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Records by Year -->
+      <div>
+        <h4 class="font-semibold text-gray-900 mb-4">Records by Year</h4>
+        <div class="space-y-2">
+          ${Object.entries(recordsByYear).sort((a, b) => b[0] - a[0]).map(([year, counts]) => `
+            <div class="flex items-center justify-between bg-white rounded-lg border border-gray-200 p-3">
+              <span class="font-medium text-gray-900">${year}</span>
+              <div class="flex items-center space-x-4">
+                <span class="text-sm text-red-600">WL: ${counts.warning}</span>
+                <span class="text-sm text-yellow-600">Citations: ${counts.citation}</span>
+                <span class="text-sm text-blue-600">Inspections: ${counts.inspection}</span>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+      
+      <!-- Inspection Classifications -->
+      ${Object.keys(classificationCounts).length > 0 ? `
+        <div>
+          <h4 class="font-semibold text-gray-900 mb-4">Inspection Classifications</h4>
+          <div class="space-y-2">
+            ${Object.entries(classificationCounts).map(([classification, count]) => `
+              <div class="flex items-center justify-between">
+                <span class="text-sm text-gray-700">${classification}</span>
+                <div class="flex items-center space-x-2">
+                  <div class="w-32 bg-gray-200 rounded-full h-2">
+                    <div class="h-2 rounded-full ${
+                      classification === 'NAI' ? 'bg-green-500' :
+                      classification === 'VAI' ? 'bg-yellow-500' :
+                      classification === 'OAI' ? 'bg-red-500' :
+                      'bg-gray-500'
+                    }" style="width: ${(count / inspections.length) * 100}%"></div>
+                  </div>
+                  <span class="text-sm font-medium text-gray-900 w-12 text-right">${count}</span>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      ` : ''}
+    </div>
+  `;
+};
+
+// Switch modal tabs
+window.enhancedWarningLettersFixed.switchModalTab = function(tabName) {
+  // Update tab buttons
+  document.querySelectorAll('.modal-tab-btn').forEach(btn => {
+    btn.classList.remove('border-indigo-500', 'text-indigo-600');
+    btn.classList.add('border-transparent', 'text-gray-500');
+  });
+  
+  const activeTab = document.querySelector(`[data-modal-tab="${tabName}"]`);
+  if (activeTab) {
+    activeTab.classList.remove('border-transparent', 'text-gray-500');
+    activeTab.classList.add('border-indigo-500', 'text-indigo-600');
+  }
+  
+  // Update content
+  document.querySelectorAll('.modal-tab-pane').forEach(pane => {
+    pane.classList.add('hidden');
+  });
+  
+  const activePane = document.getElementById(`modal-${tabName}-content`);
+  if (activePane) {
+    activePane.classList.remove('hidden');
+  }
+};
+
+// Risk score calculation with proper weighting
+window.enhancedWarningLettersFixed.calculateRiskScore = function(data) {
+  const { warningLetters, citations, inspections } = data;
+  
+  // Count OAI inspections (Official Action Indicated - highest risk)
+  const oaiCount = inspections.filter(i => 
+    i['Inspection Classification'] === 'OAI'
+  ).length;
+  
+  // Count VAI inspections (Voluntary Action Indicated - medium risk)
+  const vaiCount = inspections.filter(i => 
+    i['Inspection Classification'] === 'VAI'
+  ).length;
+  
+  // Weight different factors
+  const score = 
+    (warningLetters.length * 10) +    // Warning letters are highest risk
+    (oaiCount * 8) +                   // OAI inspections are very high risk
+    (citations.length * 3) +           // Citations are medium risk
+    (vaiCount * 2) +                   // VAI inspections are lower risk
+    (inspections.length * 0.5);        // General inspections are lowest risk
+  
+  if (score >= 50) return 'high';
+  if (score >= 20) return 'medium';
+  return 'low';
+};
+
+// Loading modal functions
+window.enhancedWarningLettersFixed.showLoadingModal = function() {
+  const loadingHtml = `
+    <div id="loadingModal" class="fixed inset-0 z-50 overflow-y-auto">
+      <div class="fixed inset-0 bg-black bg-opacity-50"></div>
+      <div class="flex min-h-screen items-center justify-center p-4">
+        <div class="bg-white rounded-lg p-6 shadow-xl">
+          <div class="flex flex-col items-center">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+            <p class="mt-4 text-gray-600">Loading company details...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+  document.body.insertAdjacentHTML('beforeend', loadingHtml);
+};
+
+window.enhancedWarningLettersFixed.hideLoadingModal = function() {
+  const modal = document.getElementById('loadingModal');
+  if (modal) modal.remove();
+};
+
+// Close modal function
+window.enhancedWarningLettersFixed.closeModal = function(modalId) {
+  const modal = document.getElementById(modalId);
+  if (modal) {
+    modal.remove();
+  }
+};
+
+// Export data function
+window.enhancedWarningLettersFixed.exportCompanyData = function(companyName) {
+  const data = {
+    company: companyName,
+    exportDate: new Date().toISOString(),
+    warningLetters: this.state.warningLetters.filter(wl => 
+      wl.sourceCompany === companyName || this.isRelatedCompany(wl.companyName, companyName)
+    ),
+    citations: this.state.citations.filter(c => 
+      c.sourceCompany === companyName || this.isRelatedCompany(c["Legal Name"], companyName)
+    ),
+    inspections: this.state.inspections.filter(i => 
+      i.sourceCompany === companyName || this.isRelatedCompany(i["Legal Name"] || i["Firm Name"], companyName)
+    )
+  };
+  
+  // Convert to CSV
+  const csv = this.convertToCSV(data);
+  
+  // Download
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${companyName.replace(/[^a-z0-9]/gi, '_')}_FDA_Report_${new Date().toISOString().split('T')[0]}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  window.URL.revokeObjectURL(url);
+  
+  this.showSuccess('Report exported successfully!');
+};
 window.enhancedWarningLettersFixed.calculateMatchScore = function(companyName, recordName) {
   if (!recordName) return 0;
   
@@ -2591,14 +3026,12 @@ window.enhancedWarningLettersFixed.searchWarningLettersWithVariations = async fu
   
   return results;
 };
-
 window.enhancedWarningLettersFixed.searchInspectionsWithVariations = async function(company, variations) {
   const results = { citations: [], inspections: [] };
   
   console.log(`🏭 Enhanced Inspections Search for: ${company}`);
   
   try {
-    // FIX: Use the company parameter your backend already supports!
     const response = await fetch(`/api/inspection-data?company=${encodeURIComponent(company)}`);
     
     if (!response.ok) {
@@ -2613,38 +3046,32 @@ window.enhancedWarningLettersFixed.searchInspectionsWithVariations = async funct
       return results;
     }
     
-    // Process the already-filtered results from backend
-    const matchedRecords = [];
-    
+    // Process records - separate by actual type
     for (const record of data.recentInspections) {
       // Add metadata
       record.sourceCompany = company;
-      record.matchedAgainst = record["Legal Name"] || record["Firm Name"] || record.company;
-      matchedRecords.push(record);
-    }
-    
-    console.log(`  🎯 Processing ${matchedRecords.length} inspection records`);
-    
-    // Separate into citations and inspections
-    const MAX_CITATIONS = 20;
-    const MAX_INSPECTIONS = 50;
-    
-    let citationCount = 0;
-    let inspectionCount = 0;
-    
-    for (const record of matchedRecords) {
-      const recordType = (record["Record Type"] || record.recordType || '').toLowerCase();
       
-      if (recordType.includes('form 483') || recordType.includes('citation')) {
-        if (citationCount < MAX_CITATIONS) {
-          results.citations.push(record);
-          citationCount++;
-        }
+      // Check if it's a citation based on various indicators
+      const isCitation = 
+        record["CitationID"] || 
+        record["ShortDescription"] || 
+        record["LongDescription"] ||
+        (record["Record Type"] && record["Record Type"].toLowerCase().includes('citation'));
+      
+      // Check if it's a Form 483 (should be skipped for now)
+      const isForm483 = 
+        (record["Record Type"] && record["Record Type"].toLowerCase().includes('form 483')) ||
+        record["Form483ID"];
+      
+      if (isForm483) {
+        // Skip Form 483s as they're disabled
+        continue;
+      } else if (isCitation) {
+        // It's a citation
+        results.citations.push(record);
       } else {
-        if (inspectionCount < MAX_INSPECTIONS) {
-          results.inspections.push(record);
-          inspectionCount++;
-        }
+        // It's a regular inspection
+        results.inspections.push(record);
       }
     }
     
