@@ -302,6 +302,384 @@ function generateSearchId() {
   return 'search_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
 }
 
+app.get('/api/user/:userId/subscription-status', async (req, res) => {
+  try {
+    const { userId } = req.params;
+    
+    // Find user with all subscription fields
+    const user = await User.findById(userId).select('-passwordHash -salt');
+    
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    
+    // Calculate trial status if applicable
+    let trialStatus = null;
+    if (user.subscriptionTier === 'free' || !user.subscriptionTier) {
+      const accountAge = Date.now() - new Date(user.createdAt).getTime();
+      const thirtyDays = 30 * 24 * 60 * 60 * 1000;
+      const daysLeft = Math.max(0, Math.ceil((thirtyDays - accountAge) / (1000 * 60 * 60 * 24)));
+      
+      trialStatus = {
+        isInTrial: daysLeft > 0,
+        daysLeft: daysLeft,
+        trialEndDate: new Date(new Date(user.createdAt).getTime() + thirtyDays)
+      };
+    }
+    
+    // If user has Stripe subscription, fetch latest status
+    let stripeStatus = null;
+    if (user.stripeSubscriptionId && stripe) {
+      try {
+        const subscription = await stripe.subscriptions.retrieve(user.stripeSubscriptionId);
+        stripeStatus = {
+          status: subscription.status,
+          currentPeriodEnd: new Date(subscription.current_period_end * 1000),
+          cancelAtPeriodEnd: subscription.cancel_at_period_end
+        };
+        
+        // Update user record if status changed
+        if (user.subscriptionStatus !== subscription.status) {
+          user.subscriptionStatus = subscription.status;
+          await user.save();
+        }
+      } catch (stripeError) {
+        console.error('Error fetching Stripe subscription:', stripeError);
+      }
+    }
+    
+    // Calculate usage percentage
+    const calculateUsagePercentage = (user) => {
+      if (!user.subscriptionTier || user.subscriptionTier === 'free') {
+        // For free tier, show search credit usage (5 free searches)
+        const freeSearchLimit = 5;
+        const used = user.usage || 0;
+        return Math.min(Math.round((used / freeSearchLimit) * 100), 100);
+      } else if (user.subscriptionTier === 'single-search') {
+        // For pay-per-search, show credits remaining
+        return user.searchCredits > 0 ? 100 : 0;
+      } else {
+        // For monthly/team subscriptions, no usage limit
+        return 0;
+      }
+    };
+    
+    // Generate billing period text
+    const generateBillingPeriodText = (user, stripeStatus, trialStatus) => {
+      if (!user.subscriptionTier || user.subscriptionTier === 'free') {
+        if (trialStatus && trialStatus.isInTrial) {
+          return `Free trial - ${trialStatus.daysLeft} days remaining`;
+        }
+        return 'Free tier - Limited access';
+      } else if (user.subscriptionTier === 'single-search') {
+        return `${user.searchCredits || 0} search credits available`;
+      } else if (stripeStatus && stripeStatus.currentPeriodEnd) {
+        const endDate = stripeStatus.currentPeriodEnd;
+        if (stripeStatus.cancelAtPeriodEnd) {
+          return `Cancels on ${endDate.toLocaleDateString('en-US', { 
+            month: 'short', 
+            day: 'numeric', 
+            year: 'numeric' 
+          })}`;
+        }
+        return `Renews ${endDate.toLocaleDateString('en-US', { 
+          month: 'short', 
+          day: 'numeric', 
+          year: 'numeric' 
+        })}`;
+      } else if (user.subscriptionEndDate) {
+        const endDate = new Date(user.subscriptionEndDate);
+        return `Renews ${endDate.toLocaleDateString('en-US', { 
+          month: 'short', 
+          day: 'numeric', 
+          year: 'numeric' 
+        })}`;
+      }
+      
+      return 'Active subscription';
+    };
+    
+    // Prepare response with all subscription data
+    const subscriptionData = {
+      _id: user._id,
+      username: user.username,
+      email: user.email,
+      role: user.role,
+      darkModeEnabled: user.darkModeEnabled,
+      
+      // Subscription info
+      subscriptionTier: user.subscriptionTier || 'free',
+      subscriptionStatus: user.subscriptionStatus || 'free',
+      searchCredits: user.searchCredits || 0,
+      
+      // Feature access with defaults
+      featureAccess: user.featureAccess || {
+        clinicalTrials: {
+          topConditions: 3,
+          trialAnalysis: true,
+          viewAllTrials: true
+        },
+        fdaData: {
+          viewAllNDAs: false,
+          timelineAccess: 'single',
+          enforcementsAccess: false,
+          adverseEventsAccess: false,
+          labelingAccess: false
+        },
+        responseLetters: false,
+        warningLetters: false,
+        labeling: {
+          latestChanges: 3,
+          emaAccess: false
+        },
+        pubmed: {
+          advancedSearch: false
+        }
+      },
+      
+      // Dates
+      subscriptionStartDate: user.subscriptionStartDate,
+      subscriptionEndDate: user.subscriptionEndDate || stripeStatus?.currentPeriodEnd,
+      trialEndDate: user.trialEndDate || trialStatus?.trialEndDate,
+      
+      // Trial info
+      trial: trialStatus,
+      
+      // Stripe info (if applicable)
+      stripeCustomerId: user.stripeCustomerId,
+      hasPaymentMethod: !!user.stripePaymentMethodId,
+      stripeStatus: stripeStatus,
+      
+      // Usage for current period
+      usage: calculateUsagePercentage(user),
+      billingPeriod: generateBillingPeriodText(user, stripeStatus, trialStatus)
+    };
+    
+    res.json(subscriptionData);
+    
+  } catch (error) {
+    console.error('Error fetching subscription status:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+// Add these endpoints to your clinicaltrials.js file after your existing login/signup endpoints
+
+// Get user subscription status endpoint
+app.get('/api/user/:userId/subscription-status', async (req, res) => {
+  try {
+    const { userId } = req.params;
+    
+    // Find user with all subscription fields
+    const user = await User.findById(userId).select('-passwordHash -salt');
+    
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    
+    // Calculate trial status if applicable
+    let trialStatus = null;
+    if (user.subscriptionTier === 'free' || !user.subscriptionTier) {
+      const accountAge = Date.now() - new Date(user.createdAt).getTime();
+      const thirtyDays = 30 * 24 * 60 * 60 * 1000;
+      const daysLeft = Math.max(0, Math.ceil((thirtyDays - accountAge) / (1000 * 60 * 60 * 24)));
+      
+      trialStatus = {
+        isInTrial: daysLeft > 0,
+        daysLeft: daysLeft,
+        trialEndDate: new Date(new Date(user.createdAt).getTime() + thirtyDays)
+      };
+    }
+    
+    // If user has Stripe subscription, fetch latest status
+    let stripeStatus = null;
+    if (user.stripeSubscriptionId && stripe) {
+      try {
+        const subscription = await stripe.subscriptions.retrieve(user.stripeSubscriptionId);
+        stripeStatus = {
+          status: subscription.status,
+          currentPeriodEnd: new Date(subscription.current_period_end * 1000),
+          cancelAtPeriodEnd: subscription.cancel_at_period_end
+        };
+        
+        // Update user record if status changed
+        if (user.subscriptionStatus !== subscription.status) {
+          user.subscriptionStatus = subscription.status;
+          await user.save();
+        }
+      } catch (stripeError) {
+        console.error('Error fetching Stripe subscription:', stripeError);
+      }
+    }
+    
+    // Calculate usage percentage
+    const calculateUsagePercentage = (user) => {
+      if (!user.subscriptionTier || user.subscriptionTier === 'free') {
+        // For free tier, show search credit usage (5 free searches)
+        const freeSearchLimit = 5;
+        const used = user.usage || 0;
+        return Math.min(Math.round((used / freeSearchLimit) * 100), 100);
+      } else if (user.subscriptionTier === 'single-search') {
+        // For pay-per-search, show credits remaining
+        return user.searchCredits > 0 ? 100 : 0;
+      } else {
+        // For monthly/team subscriptions, no usage limit
+        return 0;
+      }
+    };
+    
+    // Generate billing period text
+    const generateBillingPeriodText = (user, stripeStatus, trialStatus) => {
+      if (!user.subscriptionTier || user.subscriptionTier === 'free') {
+        if (trialStatus && trialStatus.isInTrial) {
+          return `Free trial - ${trialStatus.daysLeft} days remaining`;
+        }
+        return 'Free tier - Limited access';
+      } else if (user.subscriptionTier === 'single-search') {
+        return `${user.searchCredits || 0} search credits available`;
+      } else if (stripeStatus && stripeStatus.currentPeriodEnd) {
+        const endDate = stripeStatus.currentPeriodEnd;
+        if (stripeStatus.cancelAtPeriodEnd) {
+          return `Cancels on ${endDate.toLocaleDateString('en-US', { 
+            month: 'short', 
+            day: 'numeric', 
+            year: 'numeric' 
+          })}`;
+        }
+        return `Renews ${endDate.toLocaleDateString('en-US', { 
+          month: 'short', 
+          day: 'numeric', 
+          year: 'numeric' 
+        })}`;
+      } else if (user.subscriptionEndDate) {
+        const endDate = new Date(user.subscriptionEndDate);
+        return `Renews ${endDate.toLocaleDateString('en-US', { 
+          month: 'short', 
+          day: 'numeric', 
+          year: 'numeric' 
+        })}`;
+      }
+      
+      return 'Active subscription';
+    };
+    
+    // Prepare response with all subscription data
+    const subscriptionData = {
+      _id: user._id,
+      username: user.username,
+      email: user.email,
+      role: user.role,
+      darkModeEnabled: user.darkModeEnabled,
+      
+      // Subscription info
+      subscriptionTier: user.subscriptionTier || 'free',
+      subscriptionStatus: user.subscriptionStatus || 'free',
+      searchCredits: user.searchCredits || 0,
+      
+      // Feature access with defaults
+      featureAccess: user.featureAccess || {
+        clinicalTrials: {
+          topConditions: 3,
+          trialAnalysis: true,
+          viewAllTrials: true
+        },
+        fdaData: {
+          viewAllNDAs: false,
+          timelineAccess: 'single',
+          enforcementsAccess: false,
+          adverseEventsAccess: false,
+          labelingAccess: false
+        },
+        responseLetters: false,
+        warningLetters: false,
+        labeling: {
+          latestChanges: 3,
+          emaAccess: false
+        },
+        pubmed: {
+          advancedSearch: false
+        }
+      },
+      
+      // Dates
+      subscriptionStartDate: user.subscriptionStartDate,
+      subscriptionEndDate: user.subscriptionEndDate || stripeStatus?.currentPeriodEnd,
+      trialEndDate: user.trialEndDate || trialStatus?.trialEndDate,
+      
+      // Trial info
+      trial: trialStatus,
+      
+      // Stripe info (if applicable)
+      stripeCustomerId: user.stripeCustomerId,
+      hasPaymentMethod: !!user.stripePaymentMethodId,
+      stripeStatus: stripeStatus,
+      
+      // Usage for current period
+      usage: calculateUsagePercentage(user),
+      billingPeriod: generateBillingPeriodText(user, stripeStatus, trialStatus)
+    };
+    
+    res.json(subscriptionData);
+    
+  } catch (error) {
+    console.error('Error fetching subscription status:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Session verification endpoint
+app.post('/api/verify-session', async (req, res) => {
+  try {
+    const { userId } = req.body;
+    
+    if (!userId) {
+      return res.status(400).json({ message: 'User ID required' });
+    }
+    
+    // Check if user exists and is active
+    const user = await User.findById(userId).select('_id username subscriptionStatus');
+    
+    if (!user) {
+      return res.status(401).json({ message: 'Invalid session' });
+    }
+    
+    // You could add additional checks here like:
+    // - Session token validation (if you implement JWT)
+    // - Last activity timestamp
+    // - IP address verification
+    
+    res.json({ valid: true, userId: user._id });
+    
+  } catch (error) {
+    console.error('Session verification error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+
+
+// Add endpoint to update user preferences (like dark mode)
+app.put('/api/user/:userId/preferences', async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { darkModeEnabled } = req.body;
+    
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { darkModeEnabled },
+      { new: true }
+    ).select('-passwordHash -salt');
+    
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    
+    res.json({ success: true, user });
+    
+  } catch (error) {
+    console.error('Error updating preferences:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
 // // Add these routes near your other static file serving routes
 // app.get('/checkout-success', (req, res) => {
 //   // Make sure the file exists in the correct location
@@ -5675,6 +6053,135 @@ app.get('/api/admin/stats/leads', async (req, res) => {
 
 
 // Login endpoint with tracking
+// app.post('/api/login', async (req, res) => {
+//   try {
+//     const { username, password } = req.body;
+    
+//     // Find user by username
+//     const user = await User.findOne({ username });
+    
+//     if (!user) {
+//       return res.status(401).json({ message: 'Invalid username or password' });
+//     }
+    
+//     // Verify password
+//     const isPasswordValid = User.verifyPassword(password, user.passwordHash, user.salt);
+    
+//     if (!isPasswordValid) {
+//       return res.status(401).json({ message: 'Invalid username or password' });
+//     }
+    
+//     // Get current date info for tracking
+//     const now = new Date();
+//     const today = now.toISOString().split('T')[0]; // YYYY-MM-DD
+//     const thisMonth = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}`;
+    
+//     // Update login tracking info
+//     const updates = {
+//       lastLogin: now,
+//       $inc: {} // For incrementing counters
+//     };
+    
+//     // Initialize tracking arrays if they don't exist
+//     if (!user.loginDates) {
+//       updates.loginDates = [];
+//     }
+//     if (!user.dailyLogins) {
+//       updates.dailyLogins = {};
+//     }
+//     if (!user.monthlyLogins) {
+//       updates.monthlyLogins = {};
+//     }
+    
+//     // Increment login counters
+//     updates.$inc[`dailyLogins.${today}`] = 1;
+//     updates.$inc[`monthlyLogins.${thisMonth}`] = 1;
+    
+//     // Add login timestamp to history (limit to 100 most recent)
+//     updates.$push = {
+//       loginDates: {
+//         $each: [now],
+//         $slice: -100 // Keep only last 100 logins
+//       }
+//     };
+    
+//     // Update user with new tracking data
+//     await User.findByIdAndUpdate(user._id, updates, { new: true });
+    
+//     // Convert to plain object and remove sensitive data
+//     const userObj = user.toObject();
+//     const { passwordHash, salt, ...safeUser } = userObj;
+    
+//     res.json({ user: safeUser });
+//   } catch (error) {
+//     console.error('Login error:', error);
+//     res.status(500).json({ message: 'Server error' });
+//   }
+// });
+
+// // Signup endpoint with tracking initialization
+// app.post('/api/signup', async (req, res) => {
+//   try {
+//     const { username, email, password } = req.body;
+    
+//     // Check if username or email already exists
+//     const existingUsername = await User.findOne({ username });
+//     if (existingUsername) {
+//       return res.status(400).json({ message: 'Username already exists' });
+//     }
+    
+//     const existingEmail = await User.findOne({ email });
+//     if (existingEmail) {
+//       return res.status(400).json({ message: 'Email already exists' });
+//     }
+    
+//     // Hash password
+//     const { hash: passwordHash, salt } = User.hashPassword(password);
+    
+//     // Current date for tracking initialization
+//     const now = new Date();
+//     const today = now.toISOString().split('T')[0];
+//     const thisMonth = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}`;
+    
+//     // Create new user with tracking fields
+//     const newUser = new User({
+//       username,
+//       email,
+//       passwordHash,
+//       salt,
+//       role: 'user',
+//       usage: 0,
+//       billingPeriod: `${new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} - ${new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`,
+//       subscriptionStatus: 'trialing',
+//       darkModeEnabled: false,
+//       // New tracking fields
+//       lastLogin: now,
+//       loginDates: [now],
+//       dailyLogins: { [today]: 1 },
+//       monthlyLogins: { [thisMonth]: 1 },
+//       activityLog: []
+//     });
+    
+//     // Save user to database
+//     await newUser.save();
+    
+//     // Send welcome email
+//     const emailSent = await sendWelcomeEmail(newUser);
+    
+//     // Convert to plain object and remove sensitive data
+//     const userObj = newUser.toObject();
+//     const { passwordHash: ph, salt: s, ...safeUser } = userObj;
+    
+//     res.json({ user: safeUser });
+//   } catch (error) {
+//     console.error('Signup error:', error);
+//     res.status(500).json({ message: 'Server error' });
+//   }
+// });
+
+
+// Update the existing login endpoint to include full subscription data
+// (Replace your current login endpoint with this enhanced version)
 app.post('/api/login', async (req, res) => {
   try {
     const { username, password } = req.body;
@@ -5730,18 +6237,110 @@ app.post('/api/login', async (req, res) => {
     // Update user with new tracking data
     await User.findByIdAndUpdate(user._id, updates, { new: true });
     
-    // Convert to plain object and remove sensitive data
-    const userObj = user.toObject();
-    const { passwordHash, salt, ...safeUser } = userObj;
+    // Calculate trial status for free users
+    let trialInfo = null;
+    if (!user.subscriptionTier || user.subscriptionTier === 'free') {
+      const accountAge = Date.now() - new Date(user.createdAt).getTime();
+      const thirtyDays = 30 * 24 * 60 * 60 * 1000;
+      const daysLeft = Math.max(0, Math.ceil((thirtyDays - accountAge) / (1000 * 60 * 60 * 24)));
+      
+      trialInfo = {
+        isInTrial: daysLeft > 0,
+        daysLeft: daysLeft,
+        trialEndDate: new Date(new Date(user.createdAt).getTime() + thirtyDays)
+      };
+    }
     
-    res.json({ user: safeUser });
+    // Calculate usage percentage
+    const calculateUsage = () => {
+      if (!user.subscriptionTier || user.subscriptionTier === 'free') {
+        const freeSearchLimit = 5;
+        const used = user.usage || 0;
+        return Math.min(Math.round((used / freeSearchLimit) * 100), 100);
+      } else if (user.subscriptionTier === 'single-search') {
+        return user.searchCredits > 0 ? 100 : 0;
+      }
+      return 0;
+    };
+    
+    // Generate billing period
+    const generateBillingPeriod = () => {
+      if (!user.subscriptionTier || user.subscriptionTier === 'free') {
+        if (trialInfo && trialInfo.isInTrial) {
+          return `Free trial - ${trialInfo.daysLeft} days remaining`;
+        }
+        return 'Free tier - Limited access';
+      } else if (user.subscriptionTier === 'single-search') {
+        return `${user.searchCredits || 0} search credits available`;
+      } else if (user.subscriptionEndDate) {
+        const endDate = new Date(user.subscriptionEndDate);
+        return `Renews ${endDate.toLocaleDateString('en-US', { 
+          month: 'short', 
+          day: 'numeric', 
+          year: 'numeric' 
+        })}`;
+      }
+      return 'Active subscription';
+    };
+    
+    // Prepare user data for response
+    const userData = {
+      _id: user._id,
+      username: user.username,
+      email: user.email,
+      role: user.role,
+      darkModeEnabled: user.darkModeEnabled,
+      
+      // Include subscription data
+      subscriptionTier: user.subscriptionTier || 'free',
+      subscriptionStatus: user.subscriptionStatus || 'free',
+      searchCredits: user.searchCredits || 0,
+      stripeCustomerId: user.stripeCustomerId,
+      
+      // Feature access with defaults
+      featureAccess: user.featureAccess || {
+        clinicalTrials: {
+          topConditions: 3,
+          trialAnalysis: true,
+          viewAllTrials: true
+        },
+        fdaData: {
+          viewAllNDAs: false,
+          timelineAccess: 'single',
+          enforcementsAccess: false,
+          adverseEventsAccess: false,
+          labelingAccess: false
+        },
+        responseLetters: false,
+        warningLetters: false,
+        labeling: {
+          latestChanges: 3,
+          emaAccess: false
+        },
+        pubmed: {
+          advancedSearch: false
+        }
+      },
+      
+      // Trial info
+      trialEndDate: user.trialEndDate || trialInfo?.trialEndDate,
+      trial: trialInfo,
+      
+      // Usage and billing
+      usage: calculateUsage(),
+      billingPeriod: generateBillingPeriod()
+    };
+    
+    res.json({ user: userData });
+    
   } catch (error) {
     console.error('Login error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 });
 
-// Signup endpoint with tracking initialization
+// Update the existing signup endpoint to include subscription defaults
+// (Replace your current signup endpoint with this enhanced version)
 app.post('/api/signup', async (req, res) => {
   try {
     const { username, email, password } = req.body;
@@ -5764,8 +6363,9 @@ app.post('/api/signup', async (req, res) => {
     const now = new Date();
     const today = now.toISOString().split('T')[0];
     const thisMonth = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}`;
+    const trialEndDate = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000); // 30 days from now
     
-    // Create new user with tracking fields
+    // Create new user with all fields including subscription defaults
     const newUser = new User({
       username,
       email,
@@ -5773,28 +6373,84 @@ app.post('/api/signup', async (req, res) => {
       salt,
       role: 'user',
       usage: 0,
-      billingPeriod: `${new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} - ${new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`,
+      
+      // Subscription fields
+      subscriptionTier: 'free',
       subscriptionStatus: 'trialing',
+      searchCredits: 0,
+      trialEndDate: trialEndDate,
+      
+      // Feature access defaults for free tier
+      featureAccess: {
+        clinicalTrials: {
+          topConditions: 3,
+          trialAnalysis: true,
+          viewAllTrials: true
+        },
+        fdaData: {
+          viewAllNDAs: false,
+          timelineAccess: 'single',
+          enforcementsAccess: false,
+          adverseEventsAccess: false,
+          labelingAccess: false
+        },
+        responseLetters: false,
+        warningLetters: false,
+        labeling: {
+          latestChanges: 3,
+          emaAccess: false
+        },
+        pubmed: {
+          advancedSearch: false
+        }
+      },
+      
+      // UI preferences
       darkModeEnabled: false,
-      // New tracking fields
+      
+      // Tracking fields
       lastLogin: now,
       loginDates: [now],
       dailyLogins: { [today]: 1 },
       monthlyLogins: { [thisMonth]: 1 },
-      activityLog: []
+      activityLog: [{
+        timestamp: now,
+        activity: 'account_created',
+        details: { method: 'signup_form' }
+      }]
     });
     
     // Save user to database
     await newUser.save();
     
-    // Send welcome email
-    const emailSent = await sendWelcomeEmail(newUser);
+    // Send welcome email (if you have this function)
+    if (typeof sendWelcomeEmail === 'function') {
+      await sendWelcomeEmail(newUser);
+    }
     
-    // Convert to plain object and remove sensitive data
-    const userObj = newUser.toObject();
-    const { passwordHash: ph, salt: s, ...safeUser } = userObj;
+    // Prepare response data
+    const userData = {
+      _id: newUser._id,
+      username: newUser.username,
+      email: newUser.email,
+      role: newUser.role,
+      darkModeEnabled: newUser.darkModeEnabled,
+      subscriptionTier: newUser.subscriptionTier,
+      subscriptionStatus: newUser.subscriptionStatus,
+      searchCredits: newUser.searchCredits,
+      featureAccess: newUser.featureAccess,
+      trialEndDate: newUser.trialEndDate,
+      trial: {
+        isInTrial: true,
+        daysLeft: 30,
+        trialEndDate: trialEndDate
+      },
+      usage: 0,
+      billingPeriod: 'Free trial - 30 days remaining'
+    };
     
-    res.json({ user: safeUser });
+    res.json({ user: userData });
+    
   } catch (error) {
     console.error('Signup error:', error);
     res.status(500).json({ message: 'Server error' });

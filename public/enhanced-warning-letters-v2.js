@@ -2111,6 +2111,7 @@ window.enhancedWarningLettersFixed.SEARCH_CONFIG = {
 //     this.showLoading(false);
 //   }
 // };
+// Override the performSearch function to skip Form 483s
 window.enhancedWarningLettersFixed.performSearch = async function(companies) {
   console.log('🔍 Starting search for:', companies);
   
@@ -2238,6 +2239,60 @@ window.enhancedWarningLettersFixed.performSearch = async function(companies) {
 };
 
 
+// Fix the showLoading function to use overlay instead of replacing content
+window.enhancedWarningLettersFixed.showLoading = function(show) {
+  const container = document.getElementById('enhancedWLContainer');
+  if (!container) return;
+
+  if (show) {
+    // Create overlay instead of replacing content
+    let loadingOverlay = document.getElementById('wl-loading-overlay');
+    if (!loadingOverlay) {
+      loadingOverlay = document.createElement('div');
+      loadingOverlay.id = 'wl-loading-overlay';
+      loadingOverlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+      `;
+      
+      loadingOverlay.innerHTML = `
+        <div style="background: white; padding: 2rem; border-radius: 0.5rem; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
+          <div style="text-align: center;">
+            <div style="width: 50px; height: 50px; border: 3px solid #e5e7eb; border-top-color: #4f46e5; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto;"></div>
+            <h3 style="margin-top: 1rem; font-size: 1.125rem; font-weight: 600;">Searching FDA Databases...</h3>
+            <p style="margin-top: 0.5rem; color: #6b7280;">This may take a moment</p>
+          </div>
+        </div>
+        <style>
+          @keyframes spin {
+            to { transform: rotate(360deg); }
+          }
+        </style>
+      `;
+      
+      document.body.appendChild(loadingOverlay);
+    }
+    loadingOverlay.style.display = 'flex';
+  } else {
+    // Hide the overlay
+    const loadingOverlay = document.getElementById('wl-loading-overlay');
+    if (loadingOverlay) {
+      loadingOverlay.style.display = 'none';
+      // Optionally remove it completely
+      loadingOverlay.remove();
+    }
+  }
+  
+  console.log(`📊 Loading state: ${show ? 'SHOWING' : 'HIDDEN'}`);
+};
 
 
 // Override createForm483Content to show disabled message
@@ -2705,171 +2760,7 @@ window.enhancedWarningLettersFixed.performEnhancedSearch = async function(compan
 // Clean, minimal, and enterprise-grade loading experience
 // ===================================================================
 
-window.enhancedWarningLettersFixed.showLoading = function(show) {
-  const container = document.getElementById('enhancedWLContainer');
-  if (!container) return;
 
-  if (show) {
-    container.innerHTML = `
-      <!-- Professional Header -->
-      <div class="mb-8">
-        <div class="bg-gradient-to-r from-slate-900 to-slate-700 rounded-xl shadow-xl p-8">
-          <div class="flex items-center justify-between">
-            <div>
-              <h1 class="text-3xl font-bold text-white mb-2">FDA Regulatory Intelligence</h1>
-              <p class="text-slate-300 text-lg">Analyzing regulatory data across multiple FDA databases</p>
-            </div>
-            <div class="hidden md:block">
-              <div class="flex items-center space-x-2 text-slate-300">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                </svg>
-                <span class="text-sm font-medium">Secure Connection</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Professional Loading Interface -->
-      <div class="bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden">
-        
-        <!-- Progress Header -->
-        <div class="bg-gradient-to-r from-slate-50 to-white px-8 py-6 border-b border-slate-200">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center space-x-4">
-              <div class="relative">
-                <div class="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center">
-                  <div class="w-6 h-6 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
-                </div>
-                <div class="absolute inset-0 flex items-center justify-center">
-                  <div class="w-2 h-2 bg-indigo-600 rounded-full"></div>
-                </div>
-              </div>
-              <div>
-                <h2 class="text-xl font-semibold text-slate-900">Processing Search Request</h2>
-                <p class="text-slate-600 text-sm" id="loadingStatus">Initializing FDA database connections...</p>
-              </div>
-            </div>
-            <div class="text-right">
-              <div class="text-2xl font-bold text-indigo-600" id="loadingProgress">0%</div>
-              <div class="text-xs text-slate-500 uppercase tracking-wide">Complete</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Search Progress Steps -->
-        <div class="px-8 py-8">
-          <div class="space-y-6">
-            
-            <!-- Warning Letters Step -->
-            <div class="flex items-center space-x-4 group" id="step-wl">
-              <div class="flex-shrink-0">
-                <div class="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center step-indicator">
-                  <div class="w-4 h-4 border-2 border-slate-400 rounded-full animate-pulse"></div>
-                </div>
-              </div>
-              <div class="flex-1 min-w-0">
-                <div class="flex items-center justify-between">
-                  <div>
-                    <h3 class="text-base font-medium text-slate-900">Warning Letters Database</h3>
-                    <p class="text-sm text-slate-500">Searching FDA enforcement records</p>
-                  </div>
-                  <div class="text-sm text-slate-400 step-status">Pending</div>
-                </div>
-                <div class="mt-2 w-full bg-slate-200 rounded-full h-1.5">
-                  <div class="bg-slate-400 h-1.5 rounded-full transition-all duration-300 step-progress" style="width: 0%"></div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Form 483s Step -->
-            <div class="flex items-center space-x-4 group" id="step-483">
-              <div class="flex-shrink-0">
-                <div class="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center step-indicator">
-                  <div class="w-4 h-4 border-2 border-slate-400 rounded-full animate-pulse"></div>
-                </div>
-              </div>
-              <div class="flex-1 min-w-0">
-                <div class="flex items-center justify-between">
-                  <div>
-                    <h3 class="text-base font-medium text-slate-900">Form 483 Observations</h3>
-                    <p class="text-sm text-slate-500">Analyzing inspection observations</p>
-                  </div>
-                  <div class="text-sm text-slate-400 step-status">Pending</div>
-                </div>
-                <div class="mt-2 w-full bg-slate-200 rounded-full h-1.5">
-                  <div class="bg-slate-400 h-1.5 rounded-full transition-all duration-300 step-progress" style="width: 0%"></div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Inspections Step -->
-            <div class="flex items-center space-x-4 group" id="step-insp">
-              <div class="flex-shrink-0">
-                <div class="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center step-indicator">
-                  <div class="w-4 h-4 border-2 border-slate-400 rounded-full animate-pulse"></div>
-                </div>
-              </div>
-              <div class="flex-1 min-w-0">
-                <div class="flex items-center justify-between">
-                  <div>
-                    <h3 class="text-base font-medium text-slate-900">Inspection Records</h3>
-                    <p class="text-sm text-slate-500">Processing historical inspection data</p>
-                  </div>
-                  <div class="text-sm text-slate-400 step-status">Pending</div>
-                </div>
-                <div class="mt-2 w-full bg-slate-200 rounded-full h-1.5">
-                  <div class="bg-slate-400 h-1.5 rounded-full transition-all duration-300 step-progress" style="width: 0%"></div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Analytics Step -->
-            <div class="flex items-center space-x-4 group" id="step-analytics">
-              <div class="flex-shrink-0">
-                <div class="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center step-indicator">
-                  <div class="w-4 h-4 border-2 border-slate-400 rounded-full animate-pulse"></div>
-                </div>
-              </div>
-              <div class="flex-1 min-w-0">
-                <div class="flex items-center justify-between">
-                  <div>
-                    <h3 class="text-base font-medium text-slate-900">Risk Analytics</h3>
-                    <p class="text-sm text-slate-500">Generating compliance insights</p>
-                  </div>
-                  <div class="text-sm text-slate-400 step-status">Pending</div>
-                </div>
-                <div class="mt-2 w-full bg-slate-200 rounded-full h-1.5">
-                  <div class="bg-slate-400 h-1.5 rounded-full transition-all duration-300 step-progress" style="width: 0%"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Professional Footer -->
-        <div class="bg-slate-50 px-8 py-4 border-t border-slate-200">
-          <div class="flex items-center justify-between text-sm">
-            <div class="flex items-center space-x-2 text-slate-500">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-              </svg>
-              <span>Secure FDA API Connection</span>
-            </div>
-            <div class="text-slate-500">
-              <span id="searchTime">Search initiated at ${new Date().toLocaleTimeString()}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    `;
-    
-    this.startProfessionalLoadingAnimation();
-  } else {
-    this.stopProfessionalLoadingAnimation();
-  }
-};
 
 // Professional loading animation with realistic progress
 window.enhancedWarningLettersFixed.startProfessionalLoadingAnimation = function() {
@@ -3177,89 +3068,277 @@ window.enhancedWarningLettersFixed.searchForm483sWithVariations = async function
 
 
 
-// Fix the showLoading function to properly hide loading states
-window.enhancedWarningLettersFixed.showLoading = function(show) {
-  // Try multiple loading indicators that might exist
-  const loadingSelectors = [
-    '#wl-loading',
-    '.loading-indicator',
-    '.loading-spinner',
-    '#loading-overlay',
-    '.enhanced-loading'
-  ];
-  
-  loadingSelectors.forEach(selector => {
-    const element = document.querySelector(selector);
-    if (element) {
-      element.style.display = show ? 'flex' : 'none';
-      if (!show) {
-        // Extra insurance - remove any loading classes
-        element.classList.remove('show', 'active', 'visible');
-      }
-    }
-  });
-  
-  // Also check for any inline loading elements in the container
-  const container = document.getElementById('enhancedWLContainer');
-  if (container) {
-    const inlineLoading = container.querySelector('.loading, .spinner, [class*="loading"]');
-    if (inlineLoading) {
-      inlineLoading.style.display = show ? 'block' : 'none';
-    }
-  }
-  
-  // Update body class if it exists
-  if (!show) {
-    document.body.classList.remove('loading', 'searching');
-  }
-  
-  console.log(`📊 Loading state: ${show ? 'SHOWING' : 'HIDDEN'}`);
+
+
+// Override createForm483Content to show disabled message
+window.enhancedWarningLettersFixed.createForm483Content = function(form483s) {
+  return `
+    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-center">
+      <p class="text-yellow-800">Form 483 search is temporarily disabled to improve loading performance.</p>
+    </div>
+  `;
 };
+
 
 // Also update the dashboard to hide Form 483 UI elements
 window.enhancedWarningLettersFixed.updateDashboard = function() {
-  // Safely update metrics - check if elements exist first
-  const updateElement = (id, value) => {
-    const element = document.getElementById(id);
-    if (element) {
-      element.textContent = value;
-    }
+  console.log('🖥️ Updating dashboard with data...');
+  console.log('Current state:', {
+    warningLetters: this.state.warningLetters.length,
+    citations: this.state.citations.length,
+    inspections: this.state.inspections.length
+  });
+
+  // Update the metric cards in the dashboard
+  const updateMetric = (selector, value) => {
+    const elements = document.querySelectorAll(selector);
+    elements.forEach(el => {
+      if (el) el.textContent = value;
+    });
   };
 
-  updateElement('wl-metric-count', this.state.warningLetters.length);
-  updateElement('f483-metric-count', '—'); // Show dash instead of 0
-  updateElement('citation-metric-count', this.state.citations.length);
-  updateElement('inspection-metric-count', this.state.inspections.length);
+  // Update metrics - look for multiple possible selectors
+  updateMetric('#totalWarningLetters, #wl-count, [data-metric="warning-letters"]', this.state.warningLetters.length);
+  updateMetric('#totalForm483s, #f483-count, [data-metric="form-483s"]', '—');
+  updateMetric('#totalCitations, [data-metric="citations"]', this.state.citations.length);
+  updateMetric('#totalInspections, [data-metric="inspections"]', this.state.inspections.length);
+
+  // Update company table if it exists
+  const tbody = document.querySelector('#companyTableBody, tbody[data-table="companies"]');
+  if (tbody) {
+    // Build company metrics first
+    this.buildCompanyMetrics();
+    
+    if (this.state.companies && this.state.companies.length > 0) {
+      tbody.innerHTML = this.state.companies.map(company => `
+        <tr class="hover:bg-gray-50 transition-colors">
+          <td class="px-6 py-4 whitespace-nowrap">
+            <div class="text-sm font-medium text-gray-900">${company.name}</div>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-center">
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+              company.warningLetterCount > 0 ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800'
+            }">
+              ${company.warningLetterCount}
+            </span>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-center">
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+              —
+            </span>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-center">
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+              company.citationCount > 0 ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-100 text-gray-800'
+            }">
+              ${company.citationCount}
+            </span>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-center">
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+              company.inspectionCount > 0 ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'
+            }">
+              ${company.inspectionCount}
+            </span>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-center">
+            ${this.getRiskIndicator(company.riskLevel)}
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+            <button onclick="window.enhancedWarningLettersFixed.viewCompanyDetails('${company.name}')" 
+                    class="text-indigo-600 hover:text-indigo-900">
+              View Details
+            </button>
+          </td>
+        </tr>
+      `).join('');
+    } else {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="7" class="px-6 py-8 text-center text-gray-500">
+            No data to display. Data fetched but no matching companies found in results.
+          </td>
+        </tr>
+      `;
+    }
+  }
+
+  // Update violations if the element exists
+  this.updateViolations();
   
-  // Hide Form 483 card if it exists
-  const f483Card = document.querySelector('.form-483-card');
-  if (f483Card) {
-    f483Card.style.display = 'none';
-  }
+  // Update drug mentions if the element exists
+  this.updateDrugMentions();
+};
+
+
+// Build company metrics from the fetched data
+window.enhancedWarningLettersFixed.buildCompanyMetrics = function() {
+  console.log('📊 Building company metrics...');
   
-  // Update risk score if the method exists
-  if (typeof this.updateRiskScore === 'function') {
-    this.updateRiskScore();
-  }
+  // Create a map of companies with their data
+  const companyMap = new Map();
   
-  // Update tab content if methods exist
-  if (typeof this.updateDetailedRecords === 'function') {
-    this.updateDetailedRecords();
-  }
-  if (typeof this.updateTimelineView === 'function') {
-    this.updateTimelineView();
-  }
-  if (typeof this.updateViolationsAnalysis === 'function') {
-    this.updateViolationsAnalysis();
-  }
+  // Process warning letters
+  this.state.warningLetters.forEach(wl => {
+    const companyName = wl.companyName || wl.company || 'Unknown';
+    if (!companyMap.has(companyName)) {
+      companyMap.set(companyName, {
+        name: companyName,
+        warningLetters: [],
+        form483s: [],
+        citations: [],
+        inspections: []
+      });
+    }
+    companyMap.get(companyName).warningLetters.push(wl);
+  });
   
-  // If no specific dashboard exists, try to update the main results container
-  const resultsContainer = document.getElementById('wl-results-container') || 
-                          document.getElementById('enhancedWLContainer');
+  // Process citations
+  this.state.citations.forEach(citation => {
+    const companyName = citation['Legal Name'] || citation.legalName || 'Unknown';
+    if (!companyMap.has(companyName)) {
+      companyMap.set(companyName, {
+        name: companyName,
+        warningLetters: [],
+        form483s: [],
+        citations: [],
+        inspections: []
+      });
+    }
+    companyMap.get(companyName).citations.push(citation);
+  });
   
-  if (resultsContainer && typeof this.renderResults === 'function') {
-    this.renderResults();
+  // Process inspections
+  this.state.inspections.forEach(inspection => {
+    const companyName = inspection['Legal Name'] || inspection['Firm Name'] || 'Unknown';
+    if (!companyMap.has(companyName)) {
+      companyMap.set(companyName, {
+        name: companyName,
+        warningLetters: [],
+        form483s: [],
+        citations: [],
+        inspections: []
+      });
+    }
+    companyMap.get(companyName).inspections.push(inspection);
+  });
+  
+  // Convert to array and calculate risk levels
+  this.state.companies = Array.from(companyMap.values()).map(company => {
+    const warningLetterCount = company.warningLetters.length;
+    const citationCount = company.citations.length;
+    const inspectionCount = company.inspections.length;
+    
+    // Calculate risk level
+    let riskLevel = 'low';
+    if (warningLetterCount > 2 || (warningLetterCount > 0 && citationCount > 5)) {
+      riskLevel = 'high';
+    } else if (warningLetterCount > 0 || citationCount > 3) {
+      riskLevel = 'medium';
+    }
+    
+    return {
+      ...company,
+      warningLetterCount,
+      form483Count: 0, // Disabled
+      citationCount,
+      inspectionCount,
+      riskLevel
+    };
+  });
+  
+  // Update metrics
+  this.state.metrics = {
+    totalWarningLetters: this.state.warningLetters.length,
+    totalForm483s: 0,
+    totalCitations: this.state.citations.length,
+    totalInspections: this.state.inspections.length,
+    companiesAffected: this.state.companies.length
+  };
+  
+  console.log('📊 Company metrics built:', this.state.companies);
+};
+
+// Get risk indicator HTML
+window.enhancedWarningLettersFixed.getRiskIndicator = function(riskLevel) {
+  const indicators = {
+    low: `
+      <div class="flex items-center justify-center space-x-1">
+        <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+        <span class="text-xs font-medium text-green-700">Low Risk</span>
+      </div>
+    `,
+    medium: `
+      <div class="flex items-center justify-center space-x-1">
+        <div class="w-2 h-2 bg-yellow-500 rounded-full"></div>
+        <span class="text-xs font-medium text-yellow-700">Medium Risk</span>
+      </div>
+    `,
+    high: `
+      <div class="flex items-center justify-center space-x-1">
+        <div class="w-2 h-2 bg-red-500 rounded-full"></div>
+        <span class="text-xs font-medium text-red-700">High Risk</span>
+      </div>
+    `
+  };
+  
+  return indicators[riskLevel] || indicators.low;
+};
+
+// Update violations display
+window.enhancedWarningLettersFixed.updateViolations = function() {
+  const container = document.querySelector('#violationsContainer, [data-section="violations"]');
+  if (!container) return;
+  
+  // Process violations from warning letters
+  const violationCounts = {};
+  
+  this.state.warningLetters.forEach(wl => {
+    // Extract violations from content
+    const content = wl.fullContent || wl.content || wl.subject || '';
+    const commonViolations = [
+      'CGMP', 'GMP', 'adulterated', 'misbranded', 'quality system', 
+      'validation', 'contamination', 'sterility', 'documentation'
+    ];
+    
+    commonViolations.forEach(violation => {
+      if (content.toLowerCase().includes(violation.toLowerCase())) {
+        violationCounts[violation] = (violationCounts[violation] || 0) + 1;
+      }
+    });
+  });
+  
+  const sortedViolations = Object.entries(violationCounts)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5);
+  
+  if (sortedViolations.length > 0) {
+    container.innerHTML = sortedViolations.map(([violation, count]) => `
+      <div class="flex items-center justify-between py-2">
+        <span class="text-sm text-gray-700">${violation}</span>
+        <span class="text-sm font-medium text-gray-900">${count}</span>
+      </div>
+    `).join('');
+  } else {
+    container.innerHTML = '<p class="text-sm text-gray-500">No violations found</p>';
   }
+};
+
+// Update drug mentions display
+window.enhancedWarningLettersFixed.updateDrugMentions = function() {
+  const container = document.querySelector('#drugMentionsContainer, [data-section="drugs"]');
+  if (!container) return;
+  
+  // This would require more complex drug name extraction
+  // For now, just show a placeholder
+  container.innerHTML = '<p class="text-sm text-gray-500">Drug analysis not available</p>';
+};
+
+// View company details
+window.enhancedWarningLettersFixed.viewCompanyDetails = function(companyName) {
+  console.log('Viewing details for:', companyName);
+  // This would open a modal or navigate to details
+  alert(`Detailed view for ${companyName} - Feature coming soon!`);
 };
 
 // Override createForm483Content to show disabled message
@@ -3271,6 +3350,7 @@ window.enhancedWarningLettersFixed.createForm483Content = function(form483s) {
   `;
 };
 
+console.log('✅ Minimal fix applied - Form 483s disabled');
 
 // Override the main performSearch
 // window.enhancedWarningLettersFixed.performSearch = window.enhancedWarningLettersFixed.performEnhancedSearch;

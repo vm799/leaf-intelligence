@@ -108760,23 +108760,108 @@ function truncateText(text, maxLength) {
             'past_due': { name: 'Past Due', color: 'bg-orange-100 text-orange-800' }
         };
             }
-            init() {
-        const storedUser = localStorage.getItem('currentUser');
-        if (storedUser) {
-            try {
-                const user = JSON.parse(storedUser);
-                this.currentUserId = user._id; // Store the user ID
+    //         init() {
+    //     const storedUser = localStorage.getItem('currentUser');
+    //     if (storedUser) {
+    //         try {
+    //             const user = JSON.parse(storedUser);
+    //             this.currentUserId = user._id; // Store the user ID
+    //             this.showMainContent(user);
+    //             this.showNotification(user.username);
+    //         } catch (error) {
+    //             console.error('Failed to parse stored user:', error);
+    //             this.showLoginOverlay();
+    //         }
+    //     } else {
+    //         this.showLoginOverlay();
+    //     }
+    // }
+async init() {
+    // Check for stored user first
+    const storedUser = localStorage.getItem('currentUser');
+    
+    if (storedUser) {
+        try {
+            const user = JSON.parse(storedUser);
+            console.log('Found stored user:', user);
+            
+            // Verify the stored session is still valid (optional but recommended)
+            const isValid = await this.verifyStoredSession(user);
+            
+            if (isValid) {
+                // Hide login overlay BEFORE showing main content
+                this.hideLoginOverlay();
+                this.hideSignupOverlay();
+                
+                // Set current user ID
+                this.currentUserId = user._id;
+                
+                // Show main content
                 this.showMainContent(user);
-                this.showNotification(user.username);
-            } catch (error) {
-                console.error('Failed to parse stored user:', error);
+                
+                // Fetch fresh subscription data
+                await this.fetchAndUpdateSubscriptionData(user);
+            } else {
+                // Invalid session, clear and show login
+                localStorage.removeItem('currentUser');
                 this.showLoginOverlay();
             }
-        } else {
+        } catch (error) {
+            console.error('Failed to parse stored user:', error);
+            localStorage.removeItem('currentUser');
             this.showLoginOverlay();
         }
+    } else {
+        // No stored user, show login
+        this.showLoginOverlay();
     }
+}
 
+
+// 3. Fix the subscription data fetching
+async fetchAndUpdateSubscriptionData(user) {
+    try {
+        // Fetch fresh user data including subscription info
+        const response = await fetch(`${API_BASE_URL}/user/${user._id}/subscription-status`);
+        
+        if (response.ok) {
+            const subscriptionData = await response.json();
+            
+            // Merge with existing user data
+            const updatedUser = {
+                ...user,
+                ...subscriptionData
+            };
+            
+            // Update localStorage
+            localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+            
+            // Update profile popup
+            this.updateProfilePopup(updatedUser);
+        }
+    } catch (error) {
+        console.error('Error fetching subscription data:', error);
+    }
+}
+
+
+// 2. Add method to verify stored session
+async verifyStoredSession(user) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/verify-session`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ userId: user._id })
+        });
+        
+        return response.ok;
+    } catch (error) {
+        console.error('Session verification failed:', error);
+        return false;
+    }
+}
     // Add a method to get the current user ID
      getCurrentUserId() {
         try {
@@ -108787,50 +108872,60 @@ function truncateText(text, maxLength) {
         }
     }
 
-    updateManageButton(user) {
-        // Remove existing manage button if any
-        const existingButton = document.getElementById('manageSubscriptionBtn');
-        if (existingButton) {
-            existingButton.remove();
-        }
+    // updateManageButton(user) {
+    //     // Remove existing manage button if any
+    //     const existingButton = document.getElementById('manageSubscriptionBtn');
+    //     if (existingButton) {
+    //         existingButton.remove();
+    //     }
 
-        // Add manage button based on subscription status
-        const buttonContainer = this.profilePopup.querySelector('.p-5');
+    //     // Add manage button based on subscription status
+    //     const buttonContainer = this.profilePopup.querySelector('.p-5');
         
-        if (user.subscriptionTier === 'monthly' || user.subscriptionStatus === 'active') {
-            // Add manage subscription button for paid users
-            this.addButton(buttonContainer, {
-                id: 'manageSubscriptionBtn',
-                text: 'Manage Subscription',
-                class: 'w-full bg-blue-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-blue-700 transition-colors mt-4',
-                onclick: () => this.openCustomerPortal()
-            });
-        } else if (user.subscriptionTier === 'free' || !user.subscriptionTier) {
-            // Add upgrade button for free users
-            this.addButton(buttonContainer, {
-                id: 'upgradeBtn',
-                text: 'Upgrade to Professional',
-                class: 'w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white py-2 px-4 rounded-lg font-medium hover:opacity-90 transition-opacity mt-4',
-                onclick: () => {
-                    this.hideProfilePopup();
-                    window.stripeIntegration?.showPricingModal();
-                }
-            });
-        }
+    //     if (user.subscriptionTier === 'monthly' || user.subscriptionStatus === 'active') {
+    //         // Add manage subscription button for paid users
+    //         this.addButton(buttonContainer, {
+    //             id: 'manageSubscriptionBtn',
+    //             text: 'Manage Subscription',
+    //             class: 'w-full bg-blue-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-blue-700 transition-colors mt-4',
+    //             onclick: () => this.openCustomerPortal()
+    //         });
+    //     } else if (user.subscriptionTier === 'free' || !user.subscriptionTier) {
+    //         // Add upgrade button for free users
+    //         this.addButton(buttonContainer, {
+    //             id: 'upgradeBtn',
+    //             text: 'Upgrade to Professional',
+    //             class: 'w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white py-2 px-4 rounded-lg font-medium hover:opacity-90 transition-opacity mt-4',
+    //             onclick: () => {
+    //                 this.hideProfilePopup();
+    //                 window.stripeIntegration?.showPricingModal();
+    //             }
+    //         });
+    //     }
 
-        // Add account settings button
-        if (!document.getElementById('accountSettingsBtn')) {
-            this.addButton(buttonContainer, {
-                id: 'accountSettingsBtn',
-                text: 'Account Settings',
-                class: 'w-full bg-gray-100 text-gray-700 py-2 px-4 rounded-lg font-medium hover:bg-gray-200 transition-colors mt-2',
-                onclick: () => {
-                    window.location.href = '/account';
-                }
-            });
-        }
+    //     // Add account settings button
+    //     if (!document.getElementById('accountSettingsBtn')) {
+    //         this.addButton(buttonContainer, {
+    //             id: 'accountSettingsBtn',
+    //             text: 'Account Settings',
+    //             class: 'w-full bg-gray-100 text-gray-700 py-2 px-4 rounded-lg font-medium hover:bg-gray-200 transition-colors mt-2',
+    //             onclick: () => {
+    //                 window.location.href = '/account';
+    //             }
+    //         });
+    //     }
+    // }
+updateManageButton(user) {
+    const manageBtn = document.getElementById('manageSubscriptionBtn');
+    if (!manageBtn) return;
+    
+    if (user.stripeCustomerId && user.subscriptionTier !== 'free') {
+        manageBtn.style.display = 'block';
+        manageBtn.onclick = () => this.openCustomerPortal();
+    } else {
+        manageBtn.style.display = 'none';
     }
-
+}
     addButton(container, options) {
         const button = document.createElement('button');
         button.id = options.id;
@@ -108969,33 +109064,57 @@ function truncateText(text, maxLength) {
                 document.body.style.overflow = '';
             }
 
-            showMainContent(user) {
-              if(user.username == "TEG6S"){
-                console.log("hi ro ")
-                // handleSearch(user.username)
-                // handleSearch();
-                   setTimeout(() => {
-      const searchButton = document.getElementById('searchButton');
-      if (searchButton) {
-        searchButton.click();
-        console.log("Search button clicked");
-      } else {
-        console.error("Search button not found");
-      }
-    }, 500); // 500ms delay to ensure DOM is ready
-  }
-                this.hideLoginOverlay();
-                this.hideSignupOverlay();
-                // this.existingPageContent.classList.remove('hidden');
-                this.userInfo?.classList.remove('hidden');
-                this.usernameDisplay.textContent = user.username;
-                this.userProfileButton.classList.remove('hidden');
-                const initials = user.username.charAt(0).toUpperCase();
-                this.userInitials.textContent = initials;
-                this.popupUserInitials.textContent = initials;
-                this.welcomeText.textContent = `Welcome, ${user.username}`;
-                this.updateProfilePopup(user);
+
+// 9. Fix the showMainContent method
+showMainContent(user) {
+    // Hide overlays first
+    this.hideLoginOverlay();
+    this.hideSignupOverlay();
+    
+    // Show user interface elements
+    if (this.existingPageContent) {
+        this.existingPageContent.classList.remove('hidden');
+    }
+    if (this.userInfo) {
+        this.userInfo.classList.remove('hidden');
+    }
+    if (this.userProfileButton) {
+        this.userProfileButton.classList.remove('hidden');
+    }
+    
+    // Update user display
+    if (this.usernameDisplay) {
+        this.usernameDisplay.textContent = user.username;
+    }
+    
+    const initials = (user.username || 'U').charAt(0).toUpperCase();
+    if (this.userInitials) {
+        this.userInitials.textContent = initials;
+    }
+    if (this.popupUserInitials) {
+        this.popupUserInitials.textContent = initials;
+    }
+    
+    if (this.welcomeText) {
+        this.welcomeText.textContent = `Welcome, ${user.username}`;
+    }
+    
+    // Update profile popup with all user data
+    this.updateProfilePopup(user);
+    
+    // Special handling for specific users
+    if (user.username === "TEG6S") {
+        console.log("hi ro");
+        setTimeout(() => {
+            const searchButton = document.getElementById('searchButton');
+            if (searchButton) {
+                searchButton.click();
+                console.log("Search button clicked");
             }
+        }, 500);
+    }
+}
+            
             async updateProfileData() {
         try {
             // Get current user data
@@ -109044,36 +109163,136 @@ function truncateText(text, maxLength) {
             //     }
             // }
 
-            updateProfilePopup(user) {
-        // Update basic info
-        this.popupUsername.textContent = user.username || 'User';
-        this.popupEmail.textContent = user.email || 'No email provided';
-        this.popupRole.textContent = this.capitalizeFirstLetter(user.role || 'user');
+    //         updateProfilePopup(user) {
+    //     // Update basic info
+    //     this.popupUsername.textContent = user.username || 'User';
+    //     this.popupEmail.textContent = user.email || 'No email provided';
+    //     this.popupRole.textContent = this.capitalizeFirstLetter(user.role || 'user');
         
-        // Update initials
-        const initials = this.getInitials(user.username || 'U');
+    //     // Update initials
+    //     const initials = this.getInitials(user.username || 'U');
+    //     this.popupUserInitials.textContent = initials;
+        
+    //     // Update usage bar
+    //     const usage = user.usage || 0;
+    //     this.usageBar.style.width = `${usage}%`;
+    //     this.usagePercent.textContent = usage;
+        
+    //     // Update billing period
+    //     const billingPeriod = this.generateBillingPeriod(user);
+    //     this.billingPeriod.textContent = billingPeriod;
+        
+    //     // Update subscription status
+    //     this.updateSubscriptionStatus(user.subscriptionStatus || user.subscriptionTier || 'free');
+        
+    //     // Add manage subscription button if needed
+    //     this.updateManageButton(user);
+        
+    //     // Update dark mode toggle
+    //     if (this.darkModeToggle) {
+    //         this.darkModeToggle.checked = user.darkModeEnabled || false;
+    //     }
+    // }
+// 4. Fix the updateProfilePopup method
+updateProfilePopup(user) {
+    // Update basic info
+    this.popupUsername.textContent = user.username || 'User';
+    this.popupEmail.textContent = user.email || 'No email provided';
+    this.popupRole.textContent = this.capitalizeFirstLetter(user.role || 'user');
+    
+    // Update initials
+    const initials = (user.username || 'U').charAt(0).toUpperCase();
+    if (this.popupUserInitials) {
         this.popupUserInitials.textContent = initials;
-        
-        // Update usage bar
-        const usage = user.usage || 0;
-        this.usageBar.style.width = `${usage}%`;
-        this.usagePercent.textContent = usage;
-        
-        // Update billing period
-        const billingPeriod = this.generateBillingPeriod(user);
-        this.billingPeriod.textContent = billingPeriod;
-        
-        // Update subscription status
-        this.updateSubscriptionStatus(user.subscriptionStatus || user.subscriptionTier || 'free');
-        
-        // Add manage subscription button if needed
-        this.updateManageButton(user);
-        
-        // Update dark mode toggle
-        if (this.darkModeToggle) {
-            this.darkModeToggle.checked = user.darkModeEnabled || false;
-        }
     }
+    if (this.userInitials) {
+        this.userInitials.textContent = initials;
+    }
+    
+    // Calculate usage based on subscription tier
+    const usageInfo = this.calculateUsage(user);
+    if (this.usageBar) {
+        this.usageBar.style.width = `${usageInfo.percentage}%`;
+    }
+    if (this.usagePercent) {
+        this.usagePercent.textContent = usageInfo.percentage;
+    }
+    
+    // Update billing period
+    const billingPeriod = this.generateBillingPeriod(user);
+    if (this.billingPeriod) {
+        this.billingPeriod.textContent = billingPeriod;
+    }
+    
+    // Update subscription status - handle undefined gracefully
+    const status = user.subscriptionStatus || user.subscriptionTier || 'free';
+    this.updateSubscriptionStatus(status);
+    
+    // Update manage button visibility
+    this.updateManageButton(user);
+    
+    // Update dark mode toggle
+    if (this.darkModeToggle) {
+        this.darkModeToggle.checked = user.darkModeEnabled || false;
+    }
+}
+
+// 5. Add usage calculation method
+calculateUsage(user) {
+    // Default values
+    let used = 0;
+    let limit = 100;
+    let percentage = 0;
+    
+    if (user.subscriptionTier === 'free') {
+        // Free tier gets limited searches
+        used = user.searchCredits || 0;
+        limit = 5; // Free tier limit
+        percentage = Math.min((used / limit) * 100, 100);
+    } else if (user.subscriptionTier === 'single-search') {
+        // Pay per search
+        used = user.searchCredits || 0;
+        limit = used; // No real limit, show credits
+        percentage = 100; // Always show full bar
+    } else if (user.subscriptionTier === 'monthly' || user.subscriptionTier === 'team') {
+        // Unlimited for monthly/team
+        percentage = 0; // Show empty bar for unlimited
+    }
+    
+    return {
+        used,
+        limit,
+        percentage: Math.round(percentage)
+    };
+}
+
+// 6. Add billing period generation
+generateBillingPeriod(user) {
+    if (user.subscriptionTier === 'free') {
+        if (user.trialEndDate) {
+            const trialEnd = new Date(user.trialEndDate);
+            const daysLeft = Math.ceil((trialEnd - new Date()) / (1000 * 60 * 60 * 24));
+            if (daysLeft > 0) {
+                return `Free trial - ${daysLeft} days left`;
+            }
+        }
+        return 'Free tier - Limited access';
+    } else if (user.subscriptionTier === 'single-search') {
+        return `${user.searchCredits || 0} search credits remaining`;
+    } else if (user.subscriptionTier === 'monthly' || user.subscriptionTier === 'team') {
+        if (user.subscriptionEndDate) {
+            const endDate = new Date(user.subscriptionEndDate);
+            return `Renews ${endDate.toLocaleDateString('en-US', { 
+                month: 'short', 
+                day: 'numeric', 
+                year: 'numeric' 
+            })}`;
+        }
+        return 'Active subscription';
+    }
+    
+    return 'No active subscription';
+}
 
             // updateSubscriptionStatus(status) {
             //     let text, bgColor;
@@ -109131,12 +109350,25 @@ function truncateText(text, maxLength) {
             .slice(0, 2);
     }
 
-    updateSubscriptionStatus(status) {
-        const planInfo = this.subscriptionPlans[status] || this.subscriptionPlans['free'];
-        
+updateSubscriptionStatus(status) {
+    const statusMap = {
+        'free': { name: 'Free Tier', color: 'bg-gray-100 text-gray-800' },
+        'trialing': { name: 'Free Trial', color: 'bg-blue-100 text-blue-800' },
+        'active': { name: 'Active', color: 'bg-green-100 text-green-800' },
+        'single-search': { name: 'Pay Per Search', color: 'bg-purple-100 text-purple-800' },
+        'monthly': { name: 'Monthly', color: 'bg-green-100 text-green-800' },
+        'team': { name: 'Team', color: 'bg-indigo-100 text-indigo-800' },
+        'canceled': { name: 'Canceled', color: 'bg-red-100 text-red-800' },
+        'past_due': { name: 'Past Due', color: 'bg-red-100 text-red-800' }
+    };
+    
+    const planInfo = statusMap[status] || statusMap['free'];
+    
+    if (this.subscriptionStatus) {
         this.subscriptionStatus.textContent = planInfo.name;
         this.subscriptionStatus.className = `inline-block px-2 py-0.5 rounded text-xs font-medium ${planInfo.color}`;
     }
+}
 
             capitalizeFirstLetter(string) {
                 return string.charAt(0).toUpperCase() + string.slice(1);
