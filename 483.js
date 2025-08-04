@@ -3,6 +3,9 @@ const mongoose = require('mongoose');
 const pdf = require('pdf-parse');
 const axios = require('axios');
 const puppeteer = require('puppeteer');
+// Add this at the top of your file after other requires
+const fs = require('fs').promises;
+const path = require('path');
 
 const app = express();
 app.use(express.json());
@@ -54,6 +57,19 @@ const fda483Schema = new mongoose.Schema({
 });
 
 const FDA483 = mongoose.connection.useDb('fda_database').model('483s', fda483Schema);
+
+
+
+// Configuration for size limits
+const SIZE_LIMITS = {
+  PDF_SIZE_MB: 5,        // Skip PDFs larger than 5MB
+  TEXT_LENGTH: 50000,    // Skip if extracted text > 50,000 characters
+  OBSERVATION_COUNT: 20  // Skip if more than 20 observations detected
+};
+
+// File to log skipped records
+const SKIPPED_RECORDS_FILE = 'skipped_large_records.json';
+
 
 // Improved FDA 483 Parser
 class ImprovedFDA483Parser {
@@ -713,6 +729,365 @@ class ImprovedFDA483Parser {
     parsedData.parsingConfidence.overall = this.calculateConfidence();
 
     return parsedData;
+  }
+}
+// Function to log skipped records
+async function logSkippedRecord(record, reason, size = null) {
+  const skippedEntry = {
+    recordId: record._id,
+    legalName: record.Legal_Name,
+    feiNumber: record.FEI_Number,
+    recordDate: record.Record_Date,
+    pdfUrl: record.Download,
+    reason: reason,
+    size: size,
+    skippedAt: new Date().toISOString()
+  };
+
+  try {
+    let existingSkipped = [];
+    try {
+      const fileContent = await fs.readFile(SKIPPED_RECORDS_FILE, 'utf8');
+      existingSkipped = JSON.parse(fileContent);
+    } catch (err) {
+      // File doesn't exist yet, start with empty array
+    }
+
+    // Check if already logged
+    const alreadyLogged = existingSkipped.find(entry => entry.recordId === record._id);
+    if (!alreadyLogged) {
+      existingSkipped.push(skippedEntry);
+      await fs.writeFile(SKIPPED_RECORDS_FILE, JSON.stringify(existingSkipped, null, 2));
+      console.log(`📝 Logged skipped record to ${SKIPPED_RECORDS_FILE}`);
+    }
+  } catch (error) {
+    console.error('❌ Error logging skipped record:', error);
+  }
+}
+
+// Modified processFDA483Record with size checks
+async function processFDA483RecordWithSizeCheck(record, useImprovedParser = true) {
+  try {
+    console.log(`\n${'='.repeat(60)}`);
+    console.log(`Processing record: ${record._id}`);
+    console.log(`Legal Name: ${record.Legal_Name}`);
+    console.log(`PDF URL: ${record.Download}`);
+    
+    // Download PDF
+    const pdfBuffer = await downloadPDF(record.Download);
+    const pdfSizeMB = pdfBuffer.length / (1024 * 1024);
+    console.log(`PDF downloaded successfully (${pdfBuffer.length} bytes = ${pdfSizeMB.toFixed(2)}MB)`);
+    
+    // CHECK 1: PDF Size limit
+    if (pdfSizeMB > SIZE_LIMITS.PDF_SIZE_MB) {
+      console.log(`⚠️  SKIPPING: PDF too large (${pdfSizeMB.toFixed(2)}MB > ${SIZE_LIMITS.PDF_SIZE_MB}MB limit)`);
+      await logSkippedRecord(record, 'PDF_TOO_LARGE', `${pdfSizeMB.toFixed(2)}MB`);
+      return { skipped: true, reason: 'PDF_TOO_LARGE', size: pdfSizeMB };
+    }
+    
+    // Extract text
+    const extractedText = await extractTextFromPDF(pdfBuffer);
+    console.log(`Text extracted successfully (${extractedText.length} characters)`);
+    
+    // CHECK 2: Text length limit
+    if (extractedText.length > SIZE_LIMITS.TEXT_LENGTH) {
+      console.log(`⚠️  SKIPPING: Text too long (${extractedText.length} chars > ${SIZE_LIMITS.TEXT_LENGTH} limit)`);
+      await logSkippedRecord(record, 'TEXT_TOO_LONG', `${extractedText.length} characters`);
+      return { skipped: true, reason: 'TEXT_TOO_LONG', size: extractedText.length };
+    }
+    
+    // CHECK 3: Quick observation count check (before full parsing)
+    const observationMatches = extractedText.match(/OBSERVATION\s+\d+/gi);
+    const observationCount = observationMatches ? observationMatches.length : 0;
+    
+    if (observationCount > SIZE_LIMITS.OBSERVATION_COUNT) {
+      console.log(`⚠️  SKIPPING: Too many observations (${observationCount} > ${SIZE_LIMITS.OBSERVATION_COUNT} limit)`);
+      await logSkippedRecord(record, 'TOO_MANY_OBSERVATIONS', `${observationCount} observations`);
+      return { skipped: true, reason: 'TOO_MANY_OBSERVATIONS', size: observationCount };
+    }
+    
+    // Proceed with normal parsing if all checks pass
+    const parser = new ImprovedFDA483Parser(extractedText);
+    const parsedData = parser.parse();
+    
+    // Create result object
+    const result = {
+      _id: record._id,
+      originalRecord: record,
+      parsedText: extractedText,
+      parsedData: parsedData,
+      skipped: false
+    };
+    
+    // Enhanced output
+    console.log('\n📊 PARSING RESULTS:');
+    console.log(`├─ Parser Version: Improved (With Size Checks)`);
+    console.log(`├─ PDF Size: ${pdfSizeMB.toFixed(2)}MB`);
+    console.log(`├─ Text Length: ${extractedText.length} characters`);
+    console.log(`├─ Observation Count: ${observationCount}`);
+    console.log(`├─ Confidence Score: ${parsedData.parsingConfidence.overall.toFixed(1)}%`);
+    console.log(`├─ Firm Name: ${parsedData.firmName || '❌ Not found'}`);
+    console.log(`├─ FEI Number: ${parsedData.feiNumber || '❌ Not found'}`);
+    console.log(`├─ Inspection Dates: ${parsedData.inspectionDates || '❌ Not found'}`);
+    console.log(`├─ Date Issued: ${parsedData.dateIssued || '❌ Not found'}`);
+    console.log(`├─ Total Pages: ${parsedData.totalPages || '❌ Not found'}`);
+    console.log(`├─ Observations Found: ${parsedData.observations.length}`);
+    console.log(`└─ Investigators Found: ${parsedData.investigators.length}`);
+    
+    console.log(`\n${'='.repeat(60)}\n`);
+    
+    return result;
+  } catch (error) {
+    console.error(`❌ Error processing record ${record._id}:`, error);
+    
+    // Log as skipped due to error
+    await logSkippedRecord(record, 'PROCESSING_ERROR', error.message);
+    return { skipped: true, reason: 'PROCESSING_ERROR', error: error.message };
+  }
+}
+
+// Modified batch processing with skip handling
+async function startBatchProcessingWithSkips(options = {}) {
+  const {
+    limit = 10,
+    saveToDb = false,
+    minConfidence = 70
+  } = options;
+
+  try {
+    console.log('\n🤖 Starting batch processing with size checks...');
+    console.log(`📊 Parameters: limit=${limit}, saveToDb=${saveToDb}, minConfidence=${minConfidence}%`);
+    console.log(`📏 Size Limits: PDF=${SIZE_LIMITS.PDF_SIZE_MB}MB, Text=${SIZE_LIMITS.TEXT_LENGTH} chars, Obs=${SIZE_LIMITS.OBSERVATION_COUNT}`);
+    console.log(`📝 Skipped records will be logged to: ${SKIPPED_RECORDS_FILE}\n`);
+    
+    const records = await FDA483.find({ parsedText: { $exists: false } }).limit(limit);
+    console.log(`📁 Found ${records.length} unprocessed records\n`);
+    
+    const results = {
+      processed: 0,
+      successful: 0,
+      saved: 0,
+      skipped: 0,
+      lowConfidence: 0,
+      failed: 0,
+      avgConfidence: 0,
+      skipReasons: {},
+      details: []
+    };
+    
+    for (const record of records) {
+      const result = await processFDA483RecordWithSizeCheck(record, true);
+      results.processed++;
+      
+      if (result.skipped) {
+        results.skipped++;
+        
+        // Count skip reasons
+        if (!results.skipReasons[result.reason]) {
+          results.skipReasons[result.reason] = 0;
+        }
+        results.skipReasons[result.reason]++;
+        
+        console.log(`⏭️  Skipped record ${record._id}: ${result.reason}`);
+        
+        results.details.push({
+          recordId: record._id,
+          skipped: true,
+          reason: result.reason,
+          size: result.size
+        });
+        
+        continue;
+      }
+      
+      // Handle successful processing
+      results.successful++;
+      const confidence = result.parsedData.parsingConfidence.overall;
+      results.avgConfidence += confidence;
+      
+      if (confidence >= minConfidence) {
+        if (saveToDb) {
+          await FDA483.updateOne(
+            { _id: record._id },
+            { 
+              $set: { 
+                parsedText: result.parsedText,
+                parsedData: result.parsedData
+              }
+            }
+          );
+          results.saved++;
+          console.log(`✅ Saved record ${record._id} with ${confidence.toFixed(1)}% confidence`);
+        }
+      } else {
+        results.lowConfidence++;
+        console.log(`⚠️  Low confidence (${confidence.toFixed(1)}%) for record ${record._id}`);
+      }
+      
+      results.details.push({
+        recordId: record._id,
+        firmName: result.parsedData.firmName,
+        confidence: confidence,
+        observations: result.parsedData.observations.length,
+        saved: saveToDb && confidence >= minConfidence,
+        skipped: false
+      });
+    }
+    
+    // Calculate average confidence
+    if (results.successful > 0) {
+      results.avgConfidence = results.avgConfidence / results.successful;
+    }
+    
+    // Print summary
+    console.log('\n' + '='.repeat(60));
+    console.log('📊 BATCH PROCESSING SUMMARY:');
+    console.log('='.repeat(60));
+    console.log(`Total Records Processed: ${results.processed}`);
+    console.log(`✅ Successful: ${results.successful}`);
+    console.log(`💾 Saved to DB: ${results.saved}`);
+    console.log(`⏭️  Skipped: ${results.skipped}`);
+    console.log(`⚠️  Low Confidence: ${results.lowConfidence}`);
+    console.log(`❌ Failed: ${results.failed}`);
+    console.log(`📈 Average Confidence: ${results.avgConfidence.toFixed(1)}%`);
+    
+    if (results.skipped > 0) {
+      console.log('\n📋 Skip Reasons:');
+      Object.entries(results.skipReasons).forEach(([reason, count]) => {
+        console.log(`  ${reason}: ${count} records`);
+      });
+      console.log(`\n📝 All skipped records logged to: ${SKIPPED_RECORDS_FILE}`);
+    }
+    
+    console.log('='.repeat(60) + '\n');
+    
+    return results;
+    
+  } catch (error) {
+    console.error('❌ Batch processing error:', error);
+    throw error;
+  }
+}
+
+// Function to process only skipped records (for later)
+async function processSkippedRecords(options = {}) {
+  const {
+    saveToDb = false,
+    minConfidence = 70,
+    memoryLimit = 8192 // Assumes you'll run with --max-old-space-size=8192
+  } = options;
+
+  try {
+    console.log('\n🔄 Processing previously skipped records...');
+    console.log(`⚠️  Make sure to run with: node --max-old-space-size=${memoryLimit} script.js\n`);
+    
+    // Read skipped records
+    const fileContent = await fs.readFile(SKIPPED_RECORDS_FILE, 'utf8');
+    const skippedRecords = JSON.parse(fileContent);
+    
+    console.log(`📁 Found ${skippedRecords.length} skipped records to process\n`);
+    
+    const results = {
+      processed: 0,
+      successful: 0,
+      saved: 0,
+      stillFailed: 0,
+      avgConfidence: 0
+    };
+    
+    for (const skippedEntry of skippedRecords) {
+      try {
+        console.log(`\n🔄 Retrying ${skippedEntry.recordId} (was skipped for: ${skippedEntry.reason})`);
+        
+        const record = await FDA483.findById(skippedEntry.recordId);
+        if (!record) {
+          console.log(`❌ Record not found: ${skippedEntry.recordId}`);
+          continue;
+        }
+        
+        // Process without size checks (assuming you have more memory now)
+        const result = await processFDA483Record(record, true);
+        results.processed++;
+        results.successful++;
+        
+        const confidence = result.parsedData.parsingConfidence.overall;
+        results.avgConfidence += confidence;
+        
+        if (confidence >= minConfidence && saveToDb) {
+          await FDA483.updateOne(
+            { _id: record._id },
+            { 
+              $set: { 
+                parsedText: result.parsedText,
+                parsedData: result.parsedData
+              }
+            }
+          );
+          results.saved++;
+          console.log(`✅ Saved previously skipped record with ${confidence.toFixed(1)}% confidence`);
+        }
+        
+      } catch (error) {
+        results.stillFailed++;
+        console.error(`❌ Still failed: ${skippedEntry.recordId} - ${error.message}`);
+      }
+    }
+    
+    if (results.successful > 0) {
+      results.avgConfidence = results.avgConfidence / results.successful;
+    }
+    
+    console.log('\n' + '='.repeat(60));
+    console.log('📊 SKIPPED RECORDS PROCESSING SUMMARY:');
+    console.log('='.repeat(60));
+    console.log(`Total Attempted: ${results.processed}`);
+    console.log(`✅ Successful: ${results.successful}`);
+    console.log(`💾 Saved: ${results.saved}`);
+    console.log(`❌ Still Failed: ${results.stillFailed}`);
+    console.log(`📈 Average Confidence: ${results.avgConfidence.toFixed(1)}%`);
+    console.log('='.repeat(60) + '\n');
+    
+    return results;
+    
+  } catch (error) {
+    console.error('❌ Error processing skipped records:', error);
+    throw error;
+  }
+}
+
+// Function to show skipped records summary
+async function showSkippedSummary() {
+  try {
+    const fileContent = await fs.readFile(SKIPPED_RECORDS_FILE, 'utf8');
+    const skippedRecords = JSON.parse(fileContent);
+    
+    console.log('\n📋 SKIPPED RECORDS SUMMARY:');
+    console.log('='.repeat(50));
+    console.log(`Total Skipped: ${skippedRecords.length}`);
+    
+    // Group by reason
+    const byReason = {};
+    skippedRecords.forEach(record => {
+      if (!byReason[record.reason]) {
+        byReason[record.reason] = [];
+      }
+      byReason[record.reason].push(record);
+    });
+    
+    Object.entries(byReason).forEach(([reason, records]) => {
+      console.log(`\n${reason}: ${records.length} records`);
+      records.slice(0, 5).forEach(record => {
+        console.log(`  - ${record.recordId} (${record.legalName}) - ${record.size}`);
+      });
+      if (records.length > 5) {
+        console.log(`  ... and ${records.length - 5} more`);
+      }
+    });
+    
+    console.log('='.repeat(50) + '\n');
+    
+  } catch (error) {
+    console.log('📝 No skipped records file found or error reading it');
   }
 }
 

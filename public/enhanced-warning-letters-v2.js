@@ -1,6 +1,5 @@
 // ===================================================================
-// COMPLETE ENHANCED WARNING LETTERS V2 - Full System with Modern UI
-// Replace your entire enhanced-warning-letters-v2.js with this complete version
+// FIXED ENHANCED WARNING LETTERS V2 - Complete Working Version
 // ===================================================================
 
 window.enhancedWarningLettersFixed = {
@@ -9,7 +8,7 @@ window.enhancedWarningLettersFixed = {
     warningLetters: [],
     form483s: [],
     inspections: [],
-    citations: [],  // Added for recent citations
+    citations: [],
     companies: [],
     metrics: {},
     commonViolations: [],
@@ -27,7 +26,7 @@ window.enhancedWarningLettersFixed = {
     }
   },
 
-  // Setup UI (ensures dashboard exists)
+  // Setup UI
   setupUI: function() {
     let container = document.getElementById('enhancedWLContainer');
     if (!container) {
@@ -35,210 +34,223 @@ window.enhancedWarningLettersFixed = {
       container.id = 'enhancedWLContainer';
       container.className = 'mt-6';
       
-      // Try multiple insertion strategies
-      const targets = [
-        () => document.getElementById('warningLetters'),
-        () => document.querySelector('.fda-data-section'),
-        () => document.querySelector('#companySummarySection'),
-        () => document.body
-      ];
-      
-      for (const getTarget of targets) {
-        const target = getTarget();
-        if (target) {
-          if (target.id === 'warningLetters') {
-            target.innerHTML = '';
-            target.appendChild(container);
-          } else {
-            target.appendChild(container);
-          }
-          break;
-        }
+      const warningLettersDiv = document.getElementById('warningLetters');
+      if (warningLettersDiv) {
+        warningLettersDiv.innerHTML = '';
+        warningLettersDiv.appendChild(container);
+      } else {
+        document.body.appendChild(container);
       }
     }
     
     this.renderDashboard();
   },
 
-  // Render complete dashboard with modern UI
+  // Show loading state
+  showLoading: function(show) {
+    const loadingDiv = document.getElementById('wl-loading');
+    if (loadingDiv) {
+      loadingDiv.style.display = show ? 'flex' : 'none';
+    }
+  },
+
+  // Render dashboard
   renderDashboard: function() {
     const container = document.getElementById('enhancedWLContainer');
     if (!container) return;
 
     container.innerHTML = `
-      <!-- Modern Dashboard Header -->
+      <!-- Dashboard Header -->
       <div class="mb-8">
-        <div class="bg-gradient-to-r from-indigo-600 to-blue-600 rounded-lg shadow-lg p-6 text-white">
-          <h2 class="text-2xl font-bold mb-2">FDA Regulatory Intelligence Dashboard</h2>
-          <p class="text-indigo-100">Comprehensive analysis of Warning Letters, Form 483s, and Inspections</p>
-        </div>
-      </div>
-      
-      <!-- Metrics Cards with Modern Design -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <div class="bg-white rounded-lg shadow-md p-6 border-t-4 border-red-500 transform hover:scale-105 transition-transform">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-sm font-medium text-gray-600">Warning Letters</p>
-              <p class="text-3xl font-bold text-gray-900 mt-1" id="totalWarningLetters">0</p>
-            </div>
-            <div class="p-3 bg-red-100 rounded-full">
-              <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-              </svg>
-            </div>
-          </div>
-        </div>
-        
-        <div class="bg-white rounded-lg shadow-md p-6 border-t-4 border-yellow-500 transform hover:scale-105 transition-transform">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-sm font-medium text-gray-600">Form 483s</p>
-              <p class="text-3xl font-bold text-gray-900 mt-1" id="totalForm483s">0</p>
-            </div>
-            <div class="p-3 bg-yellow-100 rounded-full">
-              <svg class="w-8 h-8 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-              </svg>
-            </div>
-          </div>
-        </div>
-        
-        <div class="bg-white rounded-lg shadow-md p-6 border-t-4 border-blue-500 transform hover:scale-105 transition-transform">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-sm font-medium text-gray-600">Citations</p>
-              <p class="text-3xl font-bold text-gray-900 mt-1" id="totalCitations">0</p>
-            </div>
-            <div class="p-3 bg-blue-100 rounded-full">
-              <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
-              </svg>
-            </div>
-          </div>
-        </div>
-        
-        <div class="bg-white rounded-lg shadow-md p-6 border-t-4 border-purple-500 transform hover:scale-105 transition-transform">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-sm font-medium text-gray-600">Total Inspections</p>
-              <p class="text-3xl font-bold text-gray-900 mt-1" id="totalInspections">0</p>
-            </div>
-            <div class="p-3 bg-purple-100 rounded-full">
-              <svg class="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-              </svg>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Company Analysis Table with Modern Design -->
-      <div class="bg-white rounded-lg shadow-lg mb-6 overflow-hidden">
-        <div class="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 border-b">
+        <div class="bg-gradient-to-r from-indigo-600 to-blue-600 text-white p-6 rounded-lg shadow-lg">
           <div class="flex justify-between items-center">
-            <h3 class="text-lg font-semibold text-gray-800">Company Regulatory Analysis</h3>
+            <div>
+              <h2 class="text-2xl font-bold mb-2">FDA Regulatory Intelligence Dashboard</h2>
+              <p class="text-indigo-100">Comprehensive Warning Letters & Form 483 Analysis</p>
+            </div>
             <button onclick="window.enhancedWarningLettersFixed.refreshData()" 
-                    class="px-4 py-2 text-sm bg-white text-indigo-600 border border-indigo-300 rounded-lg hover:bg-indigo-50 transition-colors flex items-center">
-              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    class="bg-white text-indigo-600 px-4 py-2 rounded-lg hover:bg-indigo-50 transition-colors flex items-center gap-2">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
               </svg>
               Refresh Data
             </button>
           </div>
         </div>
-        <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
-              <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Company</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Warning Letters</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Form 483s</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Citations</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Inspections</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Risk Status</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-              </tr>
-            </thead>
-            <tbody id="companyTableBody" class="bg-white divide-y divide-gray-200">
-              <!-- Dynamic content -->
-            </tbody>
-          </table>
+      </div>
+
+      <!-- Loading State -->
+      <div id="wl-loading" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+          <div class="mt-3 text-center">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
+            <h3 class="text-lg leading-6 font-medium text-gray-900 mt-4">Analyzing FDA Data...</h3>
+            <p class="text-sm text-gray-500 mt-2">This may take a moment</p>
+          </div>
         </div>
       </div>
 
-      <!-- Analytics Section -->
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <!-- Common Violations Card -->
-        <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-          <div class="bg-gradient-to-r from-orange-50 to-orange-100 px-6 py-4 border-b">
-            <h3 class="text-lg font-semibold text-gray-800">Most Common Violations</h3>
-          </div>
-          <div class="p-6">
-            <div id="commonViolations" class="space-y-3">
-              <!-- Dynamic content -->
+      <!-- Metrics Overview -->
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-red-500">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm font-medium text-gray-600">Warning Letters</p>
+              <p class="text-2xl font-bold text-gray-900" id="wl-count">0</p>
+            </div>
+            <div class="text-red-500">
+              <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+              </svg>
             </div>
           </div>
         </div>
-        
-        <!-- Drug Mentions Card -->
-        <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-          <div class="bg-gradient-to-r from-green-50 to-green-100 px-6 py-4 border-b">
-            <h3 class="text-lg font-semibold text-gray-800">Drug/Compound Mentions</h3>
-          </div>
-          <div class="p-6">
-            <div id="drugMentions" class="space-y-3">
-              <!-- Dynamic content -->
+
+        <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-yellow-500">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm font-medium text-gray-600">Form 483s</p>
+              <p class="text-2xl font-bold text-gray-900" id="f483-count">0</p>
+            </div>
+            <div class="text-yellow-500">
+              <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+              </svg>
             </div>
           </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-blue-500">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm font-medium text-gray-600">Inspections</p>
+              <p class="text-2xl font-bold text-gray-900" id="inspection-count">0</p>
+            </div>
+            <div class="text-blue-500">
+              <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-green-500">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm font-medium text-gray-600">Risk Score</p>
+              <p class="text-2xl font-bold text-gray-900" id="risk-score">Low</p>
+            </div>
+            <div class="text-green-500">
+              <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab Navigation -->
+      <div class="border-b border-gray-200 mb-6">
+        <nav class="-mb-px flex space-x-8">
+          <button onclick="window.enhancedWarningLettersFixed.switchTab('timeline')" 
+                  data-tab="timeline" 
+                  class="tab-btn border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+            Timeline View
+          </button>
+          <button onclick="window.enhancedWarningLettersFixed.switchTab('violations')" 
+                  data-tab="violations" 
+                  class="tab-btn border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+            Violations Analysis
+          </button>
+          <button onclick="window.enhancedWarningLettersFixed.switchTab('details')" 
+                  data-tab="details" 
+                  class="tab-btn border-indigo-500 text-indigo-600 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+            Detailed Records
+          </button>
+        </nav>
+      </div>
+
+      <!-- Tab Content -->
+      <div id="timeline-content" class="tab-content hidden"></div>
+      <div id="violations-content" class="tab-content hidden"></div>
+      <div id="details-content" class="tab-content">
+        <div id="wl-results-container">
+          <p class="text-gray-500 text-center py-8">No data loaded yet. Search for companies to view results.</p>
         </div>
       </div>
     `;
   },
 
-  // Perform comprehensive search using proper backend endpoints
+  // Perform search with proper async handling
   performSearch: async function(companies) {
-    console.log('🔍 Performing comprehensive search for:', companies);
-    
+    console.log('🔍 Starting search for:', companies);
     this.state.loading = true;
-    this.state.selectedCompanies = companies;
     this.showLoading(true);
 
     try {
-      // Fetch all data types in parallel using proper endpoints
-      const [warningLettersData, form483Data, inspectionData] = await Promise.all([
-        this.fetchWarningLetters(companies),
-        // this.fetchForm483s(companies),
-        this.fetchInspections(companies)
-      ]);
+      // Clear previous results
+      this.state.warningLetters = [];
+      this.state.form483s = [];
+      this.state.inspections = [];
+      this.state.citations = [];
 
-      // Process and store results
-      this.state.warningLetters = warningLettersData || [];
-      this.state.form483s = form483Data || [];
-      this.state.citations = inspectionData.recentInspections || [];
-      this.state.inspections = inspectionData.historicalInspections || [];
+      // Search Warning Letters
+      console.log('📋 Searching Warning Letters...');
+      for (const company of companies) {
+        try {
+          const wlResponse = await fetch(`/api/wl/search?term=${encodeURIComponent(company)}&field=company&page=1&perPage=100`);
+          if (wlResponse.ok) {
+            const wlData = await wlResponse.json();
+            if (wlData.results && Array.isArray(wlData.results)) {
+              this.state.warningLetters.push(...wlData.results);
+            }
+          }
+        } catch (error) {
+          console.error(`Error fetching warning letters for ${company}:`, error);
+        }
+      }
 
-      // Process analytics
-      this.processViolations();
-      this.processDrugMentions();
-      this.buildCompanyMetrics();
+      // Search Form 483s
+      console.log('📄 Searching Form 483s...');
+      for (const company of companies) {
+        try {
+          const f483Response = await fetch(`/api/form483/search?term=${encodeURIComponent(company)}&field=company&page=1&perPage=100`);
+          if (f483Response.ok) {
+            const f483Data = await f483Response.json();
+            if (f483Data.results && Array.isArray(f483Data.results)) {
+              this.state.form483s.push(...f483Data.results);
+            }
+          }
+        } catch (error) {
+          console.error(`Error fetching Form 483s for ${company}:`, error);
+        }
+      }
+
+      // Search Inspections
+      console.log('🔍 Searching Inspections...');
+      for (const company of companies) {
+        try {
+          const inspResponse = await fetch(`/api/inspection-data?company=${encodeURIComponent(company)}`);
+          if (inspResponse.ok) {
+            const inspData = await inspResponse.json();
+            if (inspData.recentInspections && Array.isArray(inspData.recentInspections)) {
+              this.state.inspections.push(...inspData.recentInspections);
+            }
+          }
+        } catch (error) {
+          console.error(`Error fetching inspections for ${company}:`, error);
+        }
+      }
+
+      console.log('✅ Search complete:', {
+        warningLetters: this.state.warningLetters.length,
+        form483s: this.state.form483s.length,
+        inspections: this.state.inspections.length
+      });
 
       // Update UI
-      this.updateDashboard();
-      
-      // Show results summary
-      const totalRecords = this.state.warningLetters.length + 
-                          this.state.form483s.length + 
-                          this.state.citations.length + 
-                          this.state.inspections.length;
-      
-      console.log(`✅ Search completed: ${totalRecords} total records found`);
-      
-      if (totalRecords > 0) {
-        this.showSuccess(`Found ${totalRecords} regulatory records for ${companies.length} companies`);
-      } else {
-        this.showInfo('No regulatory records found. Try using different company name variations.');
-      }
+      this.updateMetrics();
+      this.renderResults();
 
     } catch (error) {
       console.error('❌ Search failed:', error);
@@ -249,683 +261,156 @@ window.enhancedWarningLettersFixed = {
     }
   },
 
-  // Fetch warning letters using backend endpoint
-  fetchWarningLetters: async function(companies) {
-    try {
-      console.log('📄 Fetching warning letters...');
-      const allLetters = [];
-      
-      // Search for each company
-      for (const company of companies) {
-        const response = await fetch('/api/search-wl', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            query: company,
-            limit: 100
-          })
-        });
-        
-        if (response.ok) {
-          const data = await response.json();
-          if (data.results && Array.isArray(data.results)) {
-            // Add source company for tracking
-            data.results.forEach(letter => {
-              letter.sourceCompany = company;
-            });
-            allLetters.push(...data.results);
-          }
-        }
-      }
-      
-      console.log(`Found ${allLetters.length} warning letters`);
-      return allLetters;
-    } catch (error) {
-      console.error('Error fetching warning letters:', error);
-      return [];
-    }
+  // Update metrics
+  updateMetrics: function() {
+    document.getElementById('wl-count').textContent = this.state.warningLetters.length;
+    document.getElementById('f483-count').textContent = this.state.form483s.length;
+    document.getElementById('inspection-count').textContent = this.state.inspections.length;
+    
+    // Calculate risk score
+    const totalIssues = this.state.warningLetters.length + this.state.form483s.length;
+    let riskLevel = 'Low';
+    if (totalIssues > 10) riskLevel = 'High';
+    else if (totalIssues > 5) riskLevel = 'Medium';
+    
+    document.getElementById('risk-score').textContent = riskLevel;
   },
 
-  // Fetch Form 483s using backend endpoint
-  fetchForm483s: async function(companies) {
-    try {
-      console.log('📋 Fetching Form 483s...');
-      const allForm483s = [];
-      
-      // Search for each company using multiple search strategies
-      for (const company of companies) {
-        // Try different search fields
-        const searchFields = ['company', 'legalName'];
-        
-        for (const field of searchFields) {
-          const params = new URLSearchParams({
-            term: company,
-            field: field,
-            page: 1,
-            perPage: 200
-          });
-          
-          const response = await fetch(`/api/form483/search?${params}`);
-          
-          if (response.ok) {
-            const data = await response.json();
-            if (data.results && Array.isArray(data.results)) {
-              // Add source company for tracking
-              data.results.forEach(form483 => {
-                form483.sourceCompany = company;
-              });
-              allForm483s.push(...data.results);
-            }
-          }
-        }
-      }
-      
-      // Remove duplicates based on ID
-      const uniqueForm483s = Array.from(
-        new Map(allForm483s.map(item => [item._id || item.id, item])).values()
-      );
-      
-      console.log(`Found ${uniqueForm483s.length} Form 483s`);
-      return uniqueForm483s;
-    } catch (error) {
-      console.error('Error fetching Form 483s:', error);
-      return [];
-    }
-  },
+  // Render results
+  renderResults: function() {
+    const container = document.getElementById('wl-results-container');
+    if (!container) return;
 
-  // Fetch inspections using backend endpoint
-  fetchInspections: async function(companies) {
-  try {
-    console.log('🏭 Fetching inspections for companies:', companies);
-    const allInspections = {
-      recentInspections: [],
-      historicalInspections: []
-    };
-    
-    // FIX: Use company parameter for each company
-    for (const company of companies) {
-      console.log(`  🔍 Fetching inspections for: ${company}`);
-      
-      // Use the company parameter your backend supports
-      const response = await fetch(`/api/inspection-data?company=${encodeURIComponent(company)}`);
-      
-      if (response.ok) {
-        const data = await response.json();
-        
-        // Add source company for tracking
-        if (data.recentInspections) {
-          data.recentInspections.forEach(inspection => {
-            inspection.sourceCompany = company;
-          });
-          allInspections.recentInspections.push(...data.recentInspections);
-        }
-        
-        if (data.historicalInspections) {
-          data.historicalInspections.forEach(inspection => {
-            inspection.sourceCompany = company;
-          });
-          allInspections.historicalInspections.push(...data.historicalInspections);
-        }
-        
-        console.log(`    ✅ Found ${data.recentInspections?.length || 0} recent + ${data.historicalInspections?.length || 0} historical for ${company}`);
-      } else {
-        console.warn(`    ⚠️ Failed to fetch inspections for ${company}: ${response.status}`);
-      }
-    }
-    
-    console.log(`🎯 Total: ${allInspections.recentInspections.length} citations and ${allInspections.historicalInspections.length} historical inspections`);
-    return allInspections;
-  } catch (error) {
-    console.error('Error fetching inspections:', error);
-    return { recentInspections: [], historicalInspections: [] };
-  }
-},
+    let html = '';
 
-  // Process violations from all data
-  processViolations: function() {
-    const violationCounts = {};
-    const violationPatterns = [
-      { regex: /data\s+integrity/gi, name: 'Data Integrity' },
-      { regex: /contamination/gi, name: 'Contamination Control' },
-      { regex: /quality\s+control/gi, name: 'Quality Control' },
-      { regex: /validation/gi, name: 'Process Validation' },
-      { regex: /documentation/gi, name: 'Documentation' },
-      { regex: /manufacturing\s+practice/gi, name: 'Manufacturing Practices' },
-      { regex: /sterility/gi, name: 'Sterility Assurance' },
-      { regex: /labeling|labelling/gi, name: 'Labeling' },
-      { regex: /cgmp|gmp/gi, name: 'CGMP Compliance' },
-      { regex: /investigation/gi, name: 'Investigation Procedures' },
-      { regex: /capa/gi, name: 'CAPA System' },
-      { regex: /deviation/gi, name: 'Deviation Handling' }
-    ];
-
-    // Process all documents
-    const allDocuments = [
-      ...this.state.warningLetters,
-      ...this.state.form483s
-    ];
-
-    allDocuments.forEach(doc => {
-      const textContent = [
-        doc.fullContent,
-        doc.subject,
-        doc.content,
-        doc.excerpt,
-        doc.description,
-        doc.ShortDescription,
-        doc.LongDescription
-      ].filter(text => text && typeof text === 'string').join(' ');
-      
-      violationPatterns.forEach(({ regex, name }) => {
-        const matches = textContent.match(regex);
-        if (matches) {
-          violationCounts[name] = (violationCounts[name] || 0) + matches.length;
-        }
-      });
-    });
-
-    this.state.commonViolations = Object.entries(violationCounts)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 10)
-      .map(([type, count]) => ({ type, count }));
-  },
-
-  // Process drug mentions from all data
-  processDrugMentions: function() {
-    const drugCounts = {};
-    const commonDrugs = [
-      'ketamine', 'esketamine', 'fentanyl', 'morphine', 'oxycodone',
-      'insulin', 'metformin', 'lisinopril', 'atorvastatin', 'amlodipine',
-      'amoxicillin', 'azithromycin', 'ciprofloxacin', 'doxycycline',
-      'ibuprofen', 'acetaminophen', 'aspirin', 'omeprazole', 'pantoprazole',
-      'sertraline', 'fluoxetine', 'warfarin', 'rivaroxaban', 'gabapentin'
-    ];
-
-    const allDocuments = [
-      ...this.state.warningLetters,
-      ...this.state.form483s
-    ];
-
-    allDocuments.forEach(doc => {
-      const textContent = [
-        doc.fullContent,
-        doc.subject,
-        doc.content,
-        doc.excerpt
-      ].filter(text => text && typeof text === 'string').join(' ').toLowerCase();
-      
-      commonDrugs.forEach(drug => {
-        const drugRegex = new RegExp(`\\b${drug}\\b`, 'gi');
-        const matches = textContent.match(drugRegex);
-        if (matches) {
-          drugCounts[drug] = (drugCounts[drug] || 0) + matches.length;
-        }
-      });
-    });
-
-    this.state.drugMentions = Object.entries(drugCounts)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 15)
-      .map(([name, mentions]) => ({ name, mentions, category: 'Pharmaceutical' }));
-  },
-
-  // Build company metrics
-  buildCompanyMetrics: function() {
-    this.state.companies = this.state.selectedCompanies.map(company => {
-      const warningLetters = this.state.warningLetters.filter(wl => 
-        wl.sourceCompany === company || this.isRelatedCompany(wl.companyName, company)
-      );
-      
-      const form483s = this.state.form483s.filter(f => 
-        f.sourceCompany === company || this.isRelatedCompany(f.companyName || f.legalName, company)
-      );
-      
-      const citations = this.state.citations.filter(c => 
-        c.sourceCompany === company || this.isRelatedCompany(c["Legal Name"], company)
-      );
-      
-      const inspections = this.state.inspections.filter(i => 
-        i.sourceCompany === company || this.isRelatedCompany(i["Firm Name"], company)
-      );
-      
-      // Calculate risk level
-      const totalIssues = warningLetters.length + form483s.length + citations.length;
-      let riskLevel = 'low';
-      
-      if (warningLetters.length > 2 || totalIssues > 10) {
-        riskLevel = 'high';
-      } else if (warningLetters.length > 0 || totalIssues > 5) {
-        riskLevel = 'medium';
-      }
-      
-      return {
-        name: company,
-        warningLetterCount: warningLetters.length,
-        form483Count: form483s.length,
-        citationCount: citations.length,
-        inspectionCount: inspections.length,
-        riskLevel
-      };
-    });
-
-    // Update metrics
-    this.state.metrics = {
-      totalWarningLetters: this.state.warningLetters.length,
-      totalForm483s: this.state.form483s.length,
-      totalCitations: this.state.citations.length,
-      totalInspections: this.state.inspections.length,
-      companiesAffected: this.state.selectedCompanies.length
-    };
-  },
-
-  // Check if company names are related
-  isRelatedCompany: function(name1, name2) {
-    if (!name1 || !name2) return false;
-    
-    const normalize = (str) => str.toLowerCase()
-      .replace(/[,.\s]+/g, ' ')
-      .replace(/\b(inc|llc|ltd|corp|corporation|company|co|pharma|pharmaceuticals)\b/gi, '')
-      .trim();
-    
-    const normalized1 = normalize(name1);
-    const normalized2 = normalize(name2);
-    
-    return normalized1.includes(normalized2) || normalized2.includes(normalized1);
-  },
-
-  // Update dashboard display
-  updateDashboard: function() {
-    console.log('🖥️ Updating dashboard display...');
-    
-    // Update metrics
-    this.safeSetText('totalWarningLetters', this.state.metrics.totalWarningLetters || 0);
-    this.safeSetText('totalForm483s', this.state.metrics.totalForm483s || 0);
-    this.safeSetText('totalCitations', this.state.metrics.totalCitations || 0);
-    this.safeSetText('totalInspections', this.state.metrics.totalInspections || 0);
-
-    // Update company table
-    this.updateCompanyTable();
-    
-    // Update violations
-    this.updateViolations();
-    
-    // Update drug mentions
-    this.updateDrugMentions();
-  },
-
-  // Safe text setting
-  safeSetText: function(id, value) {
-    const element = document.getElementById(id);
-    if (element) {
-      element.textContent = value;
-    }
-  },
-
-  // Update company table
-  updateCompanyTable: function() {
-    const tbody = document.getElementById('companyTableBody');
-    if (!tbody) return;
-
-    if (this.state.companies.length === 0) {
-      tbody.innerHTML = `
-        <tr>
-          <td colspan="7" class="px-6 py-8 text-center text-gray-500">
-            No companies found. Try different search terms.
-          </td>
-        </tr>
+    // Warning Letters Section
+    if (this.state.warningLetters.length > 0) {
+      html += `
+        <div class="mb-8">
+          <h3 class="text-xl font-bold mb-4 text-gray-800">Warning Letters (${this.state.warningLetters.length})</h3>
+          <div class="space-y-4">
+            ${this.state.warningLetters.map(letter => this.createWarningLetterCard(letter)).join('')}
+          </div>
+        </div>
       `;
-      return;
     }
 
-    tbody.innerHTML = this.state.companies.map(company => `
-      <tr class="hover:bg-gray-50 transition-colors">
-        <td class="px-6 py-4 whitespace-nowrap">
-          <div class="text-sm font-medium text-gray-900">${company.name}</div>
-        </td>
-        <td class="px-6 py-4 whitespace-nowrap">
-          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-            company.warningLetterCount > 0 ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800'
-          }">
-            ${company.warningLetterCount}
-          </span>
-        </td>
-        <td class="px-6 py-4 whitespace-nowrap">
-          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-            company.form483Count > 0 ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-100 text-gray-800'
-          }">
-            ${company.form483Count}
-          </span>
-        </td>
-        <td class="px-6 py-4 whitespace-nowrap">
-          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-            company.citationCount > 0 ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'
-          }">
-            ${company.citationCount}
-          </span>
-        </td>
-        <td class="px-6 py-4 whitespace-nowrap">
-          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-            company.inspectionCount > 0 ? 'bg-purple-100 text-purple-800' : 'bg-gray-100 text-gray-800'
-          }">
-            ${company.inspectionCount}
-          </span>
-        </td>
-        <td class="px-6 py-4 whitespace-nowrap">
-          ${this.getRiskBadge(company.riskLevel)}
-        </td>
-        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-          <button onclick="window.enhancedWarningLettersFixed.viewCompanyDetails('${company.name}')" 
-                  class="text-indigo-600 hover:text-indigo-900 font-medium">
-            View Details
-          </button>
-        </td>
-      </tr>
-    `).join('');
+    // Form 483s Section
+    if (this.state.form483s.length > 0) {
+      html += `
+        <div class="mb-8">
+          <h3 class="text-xl font-bold mb-4 text-gray-800">Form 483s (${this.state.form483s.length})</h3>
+          <div class="space-y-4">
+            ${this.state.form483s.map(form => this.createForm483Card(form)).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    // Inspections Section
+    if (this.state.inspections.length > 0) {
+      html += `
+        <div class="mb-8">
+          <h3 class="text-xl font-bold mb-4 text-gray-800">Inspections (${this.state.inspections.length})</h3>
+          <div class="space-y-4">
+            ${this.state.inspections.map(inspection => this.createInspectionCard(inspection)).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    if (html === '') {
+      html = '<p class="text-gray-500 text-center py-8">No FDA regulatory data found for the selected companies.</p>';
+    }
+
+    container.innerHTML = html;
   },
 
-  // Get risk badge
-  getRiskBadge: function(riskLevel) {
-    const badges = {
-      'low': '<span class="px-3 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">Low Risk</span>',
-      'medium': '<span class="px-3 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800">Medium Risk</span>',
-      'high': '<span class="px-3 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800">High Risk</span>'
+  // Create warning letter card
+  createWarningLetterCard: function(letter) {
+    return `
+      <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow bg-red-50">
+        <div class="flex justify-between items-start">
+          <div class="flex-1">
+            <h4 class="font-semibold text-gray-900">${letter.companyName || 'Unknown Company'}</h4>
+            <p class="text-sm text-gray-600 mt-1">${letter.subject || 'No subject'}</p>
+            <div class="flex gap-4 mt-2 text-sm text-gray-500">
+              <span>📅 ${this.formatDate(letter.letterIssueDate)}</span>
+              <span>🏢 ${letter.issuingOffice || 'FDA'}</span>
+            </div>
+          </div>
+          ${letter.pdfUrl ? `
+            <a href="${letter.pdfUrl}" target="_blank" class="text-blue-600 hover:text-blue-800">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+              </svg>
+            </a>
+          ` : ''}
+        </div>
+      </div>
+    `;
+  },
+
+  // Create Form 483 card
+  createForm483Card: function(form) {
+    return `
+      <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow bg-yellow-50">
+        <div class="flex justify-between items-start">
+          <div class="flex-1">
+            <h4 class="font-semibold text-gray-900">${form.legalName || 'Unknown Company'}</h4>
+            <p class="text-sm text-gray-600 mt-1">Form 483 Observations</p>
+            <div class="flex gap-4 mt-2 text-sm text-gray-500">
+              <span>📅 ${this.formatDate(form.recordDate)}</span>
+              <span>📍 ${form.city || 'Unknown'}, ${form.state || ''}</span>
+            </div>
+          </div>
+          ${form.downloadUrl ? `
+            <a href="${form.downloadUrl}" target="_blank" class="text-blue-600 hover:text-blue-800">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+              </svg>
+            </a>
+          ` : ''}
+        </div>
+      </div>
+    `;
+  },
+
+  // Create inspection card
+  createInspectionCard: function(inspection) {
+    const classificationColor = {
+      'NAI': 'text-green-600',
+      'VAI': 'text-yellow-600',
+      'OAI': 'text-red-600'
     };
-    return badges[riskLevel] || '<span class="px-3 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-800">Unknown</span>';
-  },
 
-  // Update violations display
-  updateViolations: function() {
-    const container = document.getElementById('commonViolations');
-    if (!container) return;
-
-    if (!this.state.commonViolations || this.state.commonViolations.length === 0) {
-      container.innerHTML = '<p class="text-gray-500 text-sm">No violation data available</p>';
-      return;
-    }
-
-    container.innerHTML = this.state.commonViolations.map((violation, index) => `
-      <div class="flex items-center justify-between py-3 ${index < this.state.commonViolations.length - 1 ? 'border-b border-gray-100' : ''}">
-        <div class="flex items-center">
-          <div class="w-2 h-2 bg-orange-400 rounded-full mr-3"></div>
-          <span class="text-sm text-gray-700">${violation.type}</span>
-        </div>
-        <span class="text-sm font-semibold text-gray-900">${violation.count}</span>
-      </div>
-    `).join('');
-  },
-
-  // Update drug mentions display
-  updateDrugMentions: function() {
-    const container = document.getElementById('drugMentions');
-    if (!container) return;
-
-    if (!this.state.drugMentions || this.state.drugMentions.length === 0) {
-      container.innerHTML = '<p class="text-gray-500 text-sm">No drug mention data available</p>';
-      return;
-    }
-
-    container.innerHTML = this.state.drugMentions.map((drug, index) => `
-      <div class="flex items-center justify-between py-3 ${index < this.state.drugMentions.length - 1 ? 'border-b border-gray-100' : ''}">
-        <div class="flex items-center">
-          <div class="w-2 h-2 bg-green-400 rounded-full mr-3"></div>
-          <span class="text-sm font-medium text-gray-900 capitalize">${drug.name}</span>
-        </div>
-        <span class="text-sm font-semibold text-gray-900">${drug.mentions}</span>
-      </div>
-    `).join('');
-  },
-
-  // ===================================================================
-  // VIEW DETAILS MODAL - Modern Design
-  // ===================================================================
-
-  // View company details with modern modal
-  viewCompanyDetails: async function(companyName) {
-    console.log(`🔍 Loading details for: ${companyName}`);
-    
-    // Show loading modal
-    this.showLoadingModal();
-    
-    try {
-      // Get filtered data for this company
-      const companyData = {
-        warningLetters: this.state.warningLetters.filter(wl => 
-          wl.sourceCompany === companyName || this.isRelatedCompany(wl.companyName, companyName)
-        ),
-        form483s: this.state.form483s.filter(f => 
-          f.sourceCompany === companyName || this.isRelatedCompany(f.companyName || f.legalName, companyName)
-        ),
-        citations: this.state.citations.filter(c => 
-          c.sourceCompany === companyName || this.isRelatedCompany(c["Legal Name"], companyName)
-        ),
-        inspections: this.state.inspections.filter(i => 
-          i.sourceCompany === companyName || this.isRelatedCompany(i["Firm Name"], companyName)
-        )
-      };
-
-      // Hide loading and show modal
-      this.hideLoadingModal();
-      this.showCompanyDetailsModal(companyName, companyData);
-
-    } catch (error) {
-      console.error('❌ Error loading company details:', error);
-      this.hideLoadingModal();
-      this.showError(`Failed to load details for ${companyName}`);
-    }
-  },
-
-  // Show modern company details modal
-  showCompanyDetailsModal: function(companyName, data) {
-    const { warningLetters, form483s, citations, inspections } = data;
-    
-    // Calculate risk assessment
-    const riskScore = this.calculateRiskScore(data);
-    
-    // Create modal HTML with modern design
-    const modalHtml = `
-      <div class="fixed inset-0 z-50 overflow-y-auto" id="companyDetailsModal">
-        <!-- Backdrop with blur -->
-        <div class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm transition-opacity"></div>
-        
-        <!-- Modal Container -->
-        <div class="flex min-h-screen items-center justify-center p-4">
-          <div class="relative w-full max-w-6xl transform overflow-hidden rounded-2xl bg-white shadow-2xl transition-all">
-            
-            <!-- Modal Header with Gradient -->
-            <div class="bg-gradient-to-r from-indigo-600 via-blue-600 to-purple-600 px-8 py-6 text-white">
-              <div class="flex items-start justify-between">
-                <div>
-                  <h2 class="text-3xl font-bold">${companyName}</h2>
-                  <p class="mt-2 text-indigo-100">Comprehensive Regulatory Profile</p>
-                </div>
-                <button onclick="window.enhancedWarningLettersFixed.closeModal('companyDetailsModal')" 
-                        class="rounded-lg bg-white bg-opacity-20 p-2 hover:bg-opacity-30 transition-colors">
-                  <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                  </svg>
-                </button>
-              </div>
-            </div>
-            
-            <!-- Risk Assessment Bar -->
-            <div class="bg-gradient-to-r from-gray-50 to-gray-100 px-8 py-4">
-              <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-4">
-                  <span class="text-sm font-medium text-gray-700">Risk Assessment:</span>
-                  <div class="flex items-center space-x-2">
-                    ${this.getRiskIndicators(riskScore)}
-                  </div>
-                </div>
-                <span class="text-sm text-gray-600">Based on ${warningLetters.length + form483s.length + citations.length + inspections.length} regulatory records</span>
-              </div>
-            </div>
-            
-            <!-- Statistics Cards -->
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 p-8 bg-gray-50">
-              <div class="bg-white rounded-xl p-4 text-center shadow-sm">
-                <div class="text-3xl font-bold text-red-600">${warningLetters.length}</div>
-                <div class="text-sm text-gray-600 mt-1">Warning Letters</div>
-              </div>
-              <div class="bg-white rounded-xl p-4 text-center shadow-sm">
-                <div class="text-3xl font-bold text-yellow-600">${form483s.length}</div>
-                <div class="text-sm text-gray-600 mt-1">Form 483s</div>
-              </div>
-              <div class="bg-white rounded-xl p-4 text-center shadow-sm">
-                <div class="text-3xl font-bold text-blue-600">${citations.length}</div>
-                <div class="text-sm text-gray-600 mt-1">Citations</div>
-              </div>
-              <div class="bg-white rounded-xl p-4 text-center shadow-sm">
-                <div class="text-3xl font-bold text-purple-600">${inspections.length}</div>
-                <div class="text-sm text-gray-600 mt-1">Inspections</div>
-              </div>
-            </div>
-            
-            <!-- Tabbed Content -->
-            <div class="bg-white">
-              <!-- Tab Navigation -->
-              <div class="border-b border-gray-200">
-                <nav class="flex space-x-8 px-8" aria-label="Tabs">
-                  <button onclick="window.enhancedWarningLettersFixed.switchTab('warningLetters')" 
-                          class="tab-btn border-b-2 border-indigo-500 text-indigo-600 py-4 px-1 text-sm font-medium"
-                          data-tab="warningLetters">
-                    Warning Letters
-                  </button>
-                  <button onclick="window.enhancedWarningLettersFixed.switchTab('form483s')" 
-                          class="tab-btn border-b-2 border-transparent text-gray-500 hover:text-gray-700 py-4 px-1 text-sm font-medium"
-                          data-tab="form483s">
-                    Form 483s
-                  </button>
-                  <button onclick="window.enhancedWarningLettersFixed.switchTab('citations')" 
-                          class="tab-btn border-b-2 border-transparent text-gray-500 hover:text-gray-700 py-4 px-1 text-sm font-medium"
-                          data-tab="citations">
-                    Citations
-                  </button>
-                  <button onclick="window.enhancedWarningLettersFixed.switchTab('inspections')" 
-                          class="tab-btn border-b-2 border-transparent text-gray-500 hover:text-gray-700 py-4 px-1 text-sm font-medium"
-                          data-tab="inspections">
-                    Inspections
-                  </button>
-                  <button onclick="window.enhancedWarningLettersFixed.switchTab('timeline')" 
-                          class="tab-btn border-b-2 border-transparent text-gray-500 hover:text-gray-700 py-4 px-1 text-sm font-medium"
-                          data-tab="timeline">
-                    Timeline
-                  </button>
-                </nav>
-              </div>
-              
-              <!-- Tab Content -->
-              <div class="p-8" style="max-height: 600px; overflow-y: auto;">
-                <!-- Warning Letters Tab -->
-                <div id="warningLetters-content" class="tab-content">
-                  ${this.createWarningLettersContent(warningLetters)}
-                </div>
-                
-                <!-- Form 483s Tab -->
-                <div id="form483s-content" class="tab-content hidden">
-                  ${this.createForm483sContent(form483s)}
-                </div>
-                
-                <!-- Citations Tab -->
-                <div id="citations-content" class="tab-content hidden">
-                  ${this.createCitationsContent(citations)}
-                </div>
-                
-                <!-- Inspections Tab -->
-                <div id="inspections-content" class="tab-content hidden">
-                  ${this.createInspectionsContent(inspections)}
-                </div>
-                
-                <!-- Timeline Tab -->
-                <div id="timeline-content" class="tab-content hidden">
-                  ${this.createTimelineContent(warningLetters, form483s, citations, inspections)}
-                </div>
-              </div>
-            </div>
-            
-            <!-- Modal Footer -->
-            <div class="bg-gray-50 px-8 py-4 border-t flex justify-between items-center">
-              <div class="text-sm text-gray-500">
-                Last updated: ${new Date().toLocaleDateString()}
-              </div>
-              <div class="flex space-x-3">
-                <button onclick="window.enhancedWarningLettersFixed.exportCompanyData('${companyName}')" 
-                        class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm font-medium">
-                  Export Report
-                </button>
-                <button onclick="window.enhancedWarningLettersFixed.closeModal('companyDetailsModal')" 
-                        class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors text-sm font-medium">
-                  Close
-                </button>
-              </div>
+    return `
+      <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+        <div class="flex justify-between items-start">
+          <div class="flex-1">
+            <h4 class="font-semibold text-gray-900">${inspection['Legal Name'] || inspection['Firm Name'] || 'Unknown Company'}</h4>
+            <p class="text-sm text-gray-600 mt-1">${inspection['Project Area'] || 'General Inspection'}</p>
+            <div class="flex gap-4 mt-2 text-sm text-gray-500">
+              <span>📅 ${this.formatDate(inspection['Inspection End Date'])}</span>
+              <span class="${classificationColor[inspection['Inspection Classification']] || 'text-gray-600'}">
+                ${inspection['Inspection Classification'] || 'Pending'}
+              </span>
             </div>
           </div>
         </div>
       </div>
     `;
-
-    // Add modal to page
-    document.body.insertAdjacentHTML('beforeend', modalHtml);
-
-    // Add click outside to close
-    document.getElementById('companyDetailsModal').addEventListener('click', function(e) {
-      if (e.target === this) {
-        window.enhancedWarningLettersFixed.closeModal('companyDetailsModal');
-      }
-    });
-
-    // Add escape key to close
-    document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape') {
-        window.enhancedWarningLettersFixed.closeModal('companyDetailsModal');
-      }
-    });
   },
 
-  // Calculate risk score
-  calculateRiskScore: function(data) {
-    const { warningLetters, form483s, citations, inspections } = data;
-    
-    // Weight different factors
-    const score = (warningLetters.length * 10) + 
-                 (form483s.length * 5) + 
-                 (citations.length * 3) + 
-                 (inspections.length * 1);
-    
-    if (score >= 50) return 'high';
-    if (score >= 20) return 'medium';
-    return 'low';
-  },
-
-  // Get risk indicators
-  getRiskIndicators: function(riskScore) {
-    const indicators = {
-      low: `
-        <div class="flex items-center space-x-1">
-          <div class="w-3 h-3 bg-green-500 rounded-full"></div>
-          <div class="w-3 h-3 bg-gray-300 rounded-full"></div>
-          <div class="w-3 h-3 bg-gray-300 rounded-full"></div>
-          <span class="ml-2 text-sm font-medium text-green-700">Low Risk</span>
-        </div>
-      `,
-      medium: `
-        <div class="flex items-center space-x-1">
-          <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
-          <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
-          <div class="w-3 h-3 bg-gray-300 rounded-full"></div>
-          <span class="ml-2 text-sm font-medium text-yellow-700">Medium Risk</span>
-        </div>
-      `,
-      high: `
-        <div class="flex items-center space-x-1">
-          <div class="w-3 h-3 bg-red-500 rounded-full"></div>
-          <div class="w-3 h-3 bg-red-500 rounded-full"></div>
-          <div class="w-3 h-3 bg-red-500 rounded-full"></div>
-          <span class="ml-2 text-sm font-medium text-red-700">High Risk</span>
-        </div>
-      `
-    };
-    
-    return indicators[riskScore] || indicators.low;
+  // Format date
+  formatDate: function(dateString) {
+    if (!dateString) return 'Unknown';
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+    } catch (error) {
+      return dateString;
+    }
   },
 
   // Switch tabs
@@ -937,463 +422,20 @@ window.enhancedWarningLettersFixed = {
     });
     
     const activeTab = document.querySelector(`[data-tab="${tabName}"]`);
-    activeTab.classList.remove('border-transparent', 'text-gray-500');
-    activeTab.classList.add('border-indigo-500', 'text-indigo-600');
+    if (activeTab) {
+      activeTab.classList.remove('border-transparent', 'text-gray-500');
+      activeTab.classList.add('border-indigo-500', 'text-indigo-600');
+    }
 
     // Update content
     document.querySelectorAll('.tab-content').forEach(content => {
       content.classList.add('hidden');
     });
     
-    document.getElementById(`${tabName}-content`).classList.remove('hidden');
-  },
-
-  // Create warning letters content
-  createWarningLettersContent: function(warningLetters) {
-    if (warningLetters.length === 0) {
-      return this.createEmptyState('Warning Letters', 'No warning letters found for this company');
+    const activeContent = document.getElementById(`${tabName}-content`);
+    if (activeContent) {
+      activeContent.classList.remove('hidden');
     }
-
-    return `
-      <div class="space-y-4">
-        ${warningLetters.map(letter => `
-          <div class="border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow">
-            <div class="bg-red-50 px-6 py-4 border-b border-red-100">
-              <div class="flex justify-between items-start">
-                <div>
-                  <h4 class="text-lg font-semibold text-gray-900">${letter.subject || 'Warning Letter'}</h4>
-                  <div class="mt-2 flex flex-wrap gap-4 text-sm text-gray-600">
-                    <span>📅 ${this.formatDate(letter.letterIssueDate)}</span>
-                    <span>🏢 ${letter.issuingOffice || 'FDA Office'}</span>
-                    <span>📄 ${letter.letterId || 'No ID'}</span>
-                  </div>
-                </div>
-                ${letter.pdfUrl ? `
-                  <a href="${letter.pdfUrl}" target="_blank" 
-                     class="inline-flex items-center px-3 py-1 bg-white text-red-600 border border-red-300 rounded-lg hover:bg-red-50 text-sm">
-                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
-                    </svg>
-                    View PDF
-                  </a>
-                ` : ''}
-              </div>
-            </div>
-            <div class="px-6 py-4">
-              <div class="text-sm text-gray-700 line-clamp-4">
-                ${letter.excerpt || letter.fullContent || 'No content available'}
-              </div>
-            </div>
-          </div>
-        `).join('')}
-      </div>
-    `;
-  },
-
-  // Create Form 483s content
-  createForm483sContent: function(form483s) {
-    if (form483s.length === 0) {
-      return this.createEmptyState('Form 483s', 'No Form 483s found for this company');
-    }
-
-    return `
-      <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200">
-          <thead class="bg-gray-50">
-            <tr>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Issue Date</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">FEI Number</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Issuing Office</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-            </tr>
-          </thead>
-          <tbody class="bg-white divide-y divide-gray-200">
-            ${form483s.map(form483 => `
-              <tr class="hover:bg-gray-50">
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                  ${this.formatDate(form483.issueDate || form483.recordDate || form483["Record Date"])}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  ${form483.feiNumber || form483["FEI Number"] || 'N/A'}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  ${form483.issuingOffice || 'N/A'}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm">
-                  ${form483.pdfUrl ? `
-                    <a href="${form483.pdfUrl}" target="_blank" 
-                       class="text-indigo-600 hover:text-indigo-900 font-medium">
-                      View PDF
-                    </a>
-                  ` : '<span class="text-gray-400">No PDF</span>'}
-                </td>
-              </tr>
-            `).join('')}
-          </tbody>
-        </table>
-      </div>
-    `;
-  },
-
-  // Create citations content
-  createCitationsContent: function(citations) {
-    if (citations.length === 0) {
-      return this.createEmptyState('Citations', 'No citations found for this company');
-    }
-
-    return `
-      <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200">
-          <thead class="bg-gray-50">
-            <tr>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Legal Name</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
-            </tr>
-          </thead>
-          <tbody class="bg-white divide-y divide-gray-200">
-            ${citations.map(citation => `
-              <tr class="hover:bg-gray-50">
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                  ${this.formatDate(citation["Record Date"])}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  ${citation["Legal Name"] || 'N/A'}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <span class="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
-                    ${citation["Record Type"] || 'Citation'}
-                  </span>
-                </td>
-                <td class="px-6 py-4 text-sm text-gray-500">
-                  ${citation["Description"] || citation["ShortDescription"] || 'N/A'}
-                </td>
-              </tr>
-            `).join('')}
-          </tbody>
-        </table>
-      </div>
-    `;
-  },
-
-  // Create inspections content
-  createInspectionsContent: function(inspections) {
-    if (inspections.length === 0) {
-      return this.createEmptyState('Inspections', 'No historical inspections found for this company');
-    }
-
-    return `
-      <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200">
-          <thead class="bg-gray-50">
-            <tr>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Project Area</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Classification</th>
-            </tr>
-          </thead>
-          <tbody class="bg-white divide-y divide-gray-200">
-            ${inspections.slice(0, 50).map(inspection => `
-              <tr class="hover:bg-gray-50">
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                  ${this.formatDate(inspection["Inspection End Date"])}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  ${[inspection["City"], inspection["State"]].filter(Boolean).join(', ') || 'N/A'}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  ${inspection["Project Area"] || 'Unknown'}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  ${this.getClassificationBadge(inspection["Inspection Classification"])}
-                </td>
-              </tr>
-            `).join('')}
-          </tbody>
-        </table>
-        ${inspections.length > 50 ? `
-          <div class="text-center py-4 text-sm text-gray-500">
-            Showing 50 of ${inspections.length} inspections
-          </div>
-        ` : ''}
-      </div>
-    `;
-  },
-
-  // Create timeline content
-  createTimelineContent: function(warningLetters, form483s, citations, inspections) {
-    // Combine all events
-    const events = [];
-    
-    warningLetters.forEach(wl => {
-      events.push({
-        date: new Date(wl.letterIssueDate),
-        type: 'warning-letter',
-        title: 'Warning Letter',
-        description: wl.subject || 'Warning Letter Issued',
-        icon: '⚠️',
-        color: 'red'
-      });
-    });
-    
-    form483s.forEach(f483 => {
-      events.push({
-        date: new Date(f483.issueDate || f483.recordDate || f483["Record Date"]),
-        type: 'form-483',
-        title: 'Form 483',
-        description: `FEI: ${f483.feiNumber || f483["FEI Number"] || 'N/A'}`,
-        icon: '📋',
-        color: 'yellow'
-      });
-    });
-    
-    citations.forEach(citation => {
-      events.push({
-        date: new Date(citation["Record Date"]),
-        type: 'citation',
-        title: 'Citation',
-        description: citation["Description"] || 'Citation Issued',
-        icon: '📄',
-        color: 'blue'
-      });
-    });
-    
-    inspections.slice(0, 20).forEach(inspection => {
-      events.push({
-        date: new Date(inspection["Inspection End Date"]),
-        type: 'inspection',
-        title: `Inspection - ${inspection["Inspection Classification"] || 'N/A'}`,
-        description: inspection["Project Area"] || 'Inspection Completed',
-        icon: '🔍',
-        color: this.getClassificationColor(inspection["Inspection Classification"])
-      });
-    });
-    
-    // Sort by date (newest first)
-    events.sort((a, b) => b.date - a.date);
-    
-    if (events.length === 0) {
-      return this.createEmptyState('Timeline', 'No regulatory events found for this company');
-    }
-    
-    return `
-      <div class="flow-root">
-        <ul class="-mb-8">
-          ${events.map((event, index) => `
-            <li>
-              <div class="relative pb-8">
-                ${index < events.length - 1 ? `
-                  <span class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200"></span>
-                ` : ''}
-                <div class="relative flex space-x-3">
-                  <div>
-                    <span class="h-8 w-8 rounded-full bg-${event.color}-100 flex items-center justify-center ring-8 ring-white">
-                      <span class="text-lg">${event.icon}</span>
-                    </span>
-                  </div>
-                  <div class="min-w-0 flex-1 pt-1.5 flex justify-between space-x-4">
-                    <div>
-                      <p class="text-sm font-medium text-gray-900">${event.title}</p>
-                      <p class="text-sm text-gray-500">${event.description}</p>
-                    </div>
-                    <div class="text-right text-sm whitespace-nowrap text-gray-500">
-                      ${this.formatDate(event.date)}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </li>
-          `).join('')}
-        </ul>
-      </div>
-    `;
-  },
-
-  // Get classification color
-  getClassificationColor: function(classification) {
-    switch (classification?.toUpperCase()) {
-      case 'OAI': return 'red';
-      case 'VAI': return 'yellow';
-      case 'NAI': return 'green';
-      default: return 'gray';
-    }
-  },
-
-  // Get classification badge
-  getClassificationBadge: function(classification) {
-    const colors = {
-      'OAI': 'bg-red-100 text-red-800',
-      'VAI': 'bg-yellow-100 text-yellow-800',
-      'NAI': 'bg-green-100 text-green-800'
-    };
-    
-    const color = colors[classification?.toUpperCase()] || 'bg-gray-100 text-gray-800';
-    
-    return `
-      <span class="px-2 py-1 text-xs font-medium rounded-full ${color}">
-        ${classification || 'N/A'}
-      </span>
-    `;
-  },
-
-  // Create empty state
-  createEmptyState: function(title, message) {
-    return `
-      <div class="text-center py-12">
-        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-        </svg>
-        <h3 class="mt-2 text-sm font-medium text-gray-900">${title}</h3>
-        <p class="mt-1 text-sm text-gray-500">${message}</p>
-      </div>
-    `;
-  },
-
-  // ===================================================================
-  // UTILITY FUNCTIONS
-  // ===================================================================
-
-  // Format date
-  formatDate: function(dateString) {
-    if (!dateString) return 'N/A';
-    
-    try {
-      const date = new Date(dateString);
-      return date.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric'
-      });
-    } catch (error) {
-      return dateString;
-    }
-  },
-
-  // Show loading modal
-  showLoadingModal: function() {
-    // const loadingHtml = `
-    //   <div class="fixed inset-0 z-50 flex items-center justify-center" id="loadingModal">
-    //     <div class="fixed inset-0 bg-black bg-opacity-50"></div>
-    //     <div class="relative bg-white rounded-lg p-8 text-center">
-    //       <div class="loading-spinner mx-auto mb-4"></div>
-    //       <p class="text-gray-600">Loading regulatory data...</p>
-    //     </div>
-    //   </div>
-    // `;
-    // document.body.insertAdjacentHTML('beforeend', loadingHtml);
-  },
-
-// Hide loading modal
-  hideLoadingModal: function() {
-    // const modal = document.getElementById('loadingModal');
-    // if (modal) {
-    //   modal.remove();
-    // }
-  },
-
-
-
-  // Close modal
-  closeModal: function(modalId) {
-    const modal = document.getElementById(modalId);
-    if (modal) {
-      modal.remove();
-    }
-  },
-
-  // Export company data
-  exportCompanyData: function(companyName) {
-    console.log(`Exporting data for ${companyName}`);
-    
-    // Gather data for export
-    const exportData = {
-      company: companyName,
-      exportDate: new Date().toISOString(),
-      warningLetters: this.state.warningLetters.filter(wl => 
-        wl.sourceCompany === companyName || this.isRelatedCompany(wl.companyName, companyName)
-      ),
-      form483s: this.state.form483s.filter(f => 
-        f.sourceCompany === companyName || this.isRelatedCompany(f.companyName || f.legalName, companyName)
-      ),
-      citations: this.state.citations.filter(c => 
-        c.sourceCompany === companyName || this.isRelatedCompany(c["Legal Name"], companyName)
-      ),
-      inspections: this.state.inspections.filter(i => 
-        i.sourceCompany === companyName || this.isRelatedCompany(i["Firm Name"], companyName)
-      )
-    };
-
-    // Create CSV content
-    let csvContent = this.createCSVReport(exportData);
-    
-    // Download CSV
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-    
-    link.setAttribute('href', url);
-    link.setAttribute('download', `${companyName.replace(/[^a-z0-9]/gi, '_')}_regulatory_report_${new Date().toISOString().split('T')[0]}.csv`);
-    link.style.visibility = 'hidden';
-    
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    
-    this.showSuccess(`Report exported for ${companyName}`);
-  },
-
-  // Create CSV report
-  createCSVReport: function(data) {
-    let csv = [];
-    
-    // Header
-    csv.push(`Regulatory Report for ${data.company}`);
-    csv.push(`Generated on: ${new Date().toLocaleDateString()}`);
-    csv.push('');
-    
-    // Summary
-    csv.push('SUMMARY');
-    csv.push(`Total Warning Letters,${data.warningLetters.length}`);
-    csv.push(`Total Form 483s,${data.form483s.length}`);
-    csv.push(`Total Citations,${data.citations.length}`);
-    csv.push(`Total Inspections,${data.inspections.length}`);
-    csv.push('');
-    
-    // Warning Letters
-    csv.push('WARNING LETTERS');
-    csv.push('Issue Date,Subject,Issuing Office,Letter ID');
-    data.warningLetters.forEach(wl => {
-      csv.push(`${wl.letterIssueDate},"${wl.subject || 'N/A'}","${wl.issuingOffice || 'N/A'}","${wl.letterId || 'N/A'}"`);
-    });
-    csv.push('');
-    
-    // Form 483s
-    csv.push('FORM 483s');
-    csv.push('Issue Date,FEI Number,Issuing Office');
-    data.form483s.forEach(f483 => {
-      csv.push(`${f483.issueDate || f483.recordDate || 'N/A'},"${f483.feiNumber || f483["FEI Number"] || 'N/A'}","${f483.issuingOffice || 'N/A'}"`);
-    });
-    csv.push('');
-    
-    // Citations
-    csv.push('CITATIONS');
-    csv.push('Date,Legal Name,Type,Description');
-    data.citations.forEach(citation => {
-      csv.push(`${citation["Record Date"]},"${citation["Legal Name"] || 'N/A'}","${citation["Record Type"] || 'Citation'}","${citation["Description"] || 'N/A'}"`);
-    });
-    csv.push('');
-    
-    // Inspections
-    csv.push('INSPECTIONS');
-    csv.push('End Date,Location,Project Area,Classification');
-    data.inspections.forEach(inspection => {
-      const location = [inspection["City"], inspection["State"]].filter(Boolean).join(', ') || 'N/A';
-      csv.push(`${inspection["Inspection End Date"]},"${location}","${inspection["Project Area"] || 'N/A'}","${inspection["Inspection Classification"] || 'N/A'}"`);
-    });
-    
-    return csv.join('\n');
   },
 
   // Refresh data
@@ -1406,110 +448,26 @@ window.enhancedWarningLettersFixed = {
     }
   },
 
-  // Show success message
-  showSuccess: function(message) {
-    console.log('✅', message);
-    this.showNotification(message, 'success');
+  // Show error message
+  showError: function(message) {
+    console.error('❌', message);
+    alert('Error: ' + message);
   },
 
   // Show info message
   showInfo: function(message) {
     console.log('ℹ️', message);
-    this.showNotification(message, 'info');
-  },
-
-  // Show error message
-  showError: function(message) {
-    console.error('❌', message);
-    this.showNotification(message, 'error');
-  },
-
-  // Show notification with modern design
-  showNotification: function(message, type = 'info') {
-    // Remove any existing notifications
-    const existingNotification = document.getElementById('notification');
-    if (existingNotification) {
-      existingNotification.remove();
-    }
-    
-    const icons = {
-      success: `
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-        </svg>
-      `,
-      error: `
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-        </svg>
-      `,
-      info: `
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-        </svg>
-      `
-    };
-    
-    const colors = {
-      success: 'bg-green-50 text-green-800 border-green-200',
-      error: 'bg-red-50 text-red-800 border-red-200',
-      info: 'bg-blue-50 text-blue-800 border-blue-200'
-    };
-    
-    const notification = document.createElement('div');
-    notification.id = 'notification';
-    notification.className = `fixed top-4 right-4 max-w-md p-4 rounded-lg shadow-lg border transform transition-all duration-300 z-50 ${colors[type]}`;
-    notification.style.transform = 'translateX(400px)';
-    
-    notification.innerHTML = `
-      <div class="flex items-start">
-        <div class="flex-shrink-0">
-          ${icons[type]}
-        </div>
-        <div class="ml-3 flex-1">
-          <p class="text-sm font-medium">${message}</p>
-        </div>
-        <div class="ml-4 flex-shrink-0">
-          <button onclick="document.getElementById('notification').remove()" 
-                  class="inline-flex text-current opacity-70 hover:opacity-100">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-            </svg>
-          </button>
-        </div>
-      </div>
-    `;
-    
-    document.body.appendChild(notification);
-    
-    // Animate in
-    setTimeout(() => {
-      notification.style.transform = 'translateX(0)';
-    }, 10);
-    
-    // Auto remove after 5 seconds
-    setTimeout(() => {
-      notification.style.transform = 'translateX(400px)';
-      setTimeout(() => {
-        if (notification.parentNode) {
-          notification.remove();
-        }
-      }, 300);
-    }, 5000);
+    alert('Info: ' + message);
   }
 };
 
-// ===================================================================
-// GLOBAL INTEGRATION AND INITIALIZATION
-// ===================================================================
-
-// Create global aliases for backward compatibility
+// Create aliases for backward compatibility
 window.enhancedWarningLetters = window.enhancedWarningLettersFixed;
 window.enhancedWL = window.enhancedWarningLettersFixed;
 
 // Auto-initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
-  console.log('🎯 Enhanced Warning Letters v2 system loaded and ready');
+  console.log('🎯 Enhanced Warning Letters v2 FIXED system loaded and ready');
   
   // Check for existing search functionality integration
   if (typeof window.searchWarningLetters === 'function') {
@@ -1528,1526 +486,10 @@ document.addEventListener('DOMContentLoaded', function() {
     };
   }
   
-  // Check for existing searchCompanies function
-  if (typeof window.searchCompanies === 'function') {
-    console.log('✅ Found existing searchCompanies function - enhancing...');
-    
-    const originalSearchCompanies = window.searchCompanies;
-    window.searchCompanies = async function() {
-      // Call original function first
-      await originalSearchCompanies();
-      
-      // Then enhance with our system
-      const searchInput = document.getElementById('search-input');
-      if (searchInput && searchInput.value.trim()) {
-        const companies = searchInput.value.split(',')
-          .map(company => company.trim())
-          .filter(company => company.length > 0);
-        
-        if (companies.length > 0) {
-          console.log('🔄 Enhancing search results with advanced warning letters system');
-          window.enhancedWarningLettersFixed.init(companies);
-        }
-      }
-    };
-  }
-  
-  // Also integrate with the checkbox-based company selection if it exists
-  if (typeof window.getSelectedCompanies === 'function') {
-    console.log('✅ Found getSelectedCompanies function - ready for integration');
-  }
-  
-  console.log('🎉 Enhanced Warning Letters v2 integration complete!');
-  console.log('📝 Features:');
-  console.log('   ✅ Modern UI with gradient headers and smooth animations');
-  console.log('   ✅ Proper backend endpoint integration');
-  console.log('   ✅ Comprehensive company details modal');
-  console.log('   ✅ Citations properly separated from Form 483s');
-  console.log('   ✅ Risk assessment and analytics');
-  console.log('   ✅ Timeline view of all regulatory events');
-  console.log('   ✅ Export functionality');
-  console.log('   ✅ Real-time data refresh');
+  console.log('🎉 Enhanced Warning Letters v2 FIXED integration complete!');
+  console.log('💡 To use: window.enhancedWarningLettersFixed.init(["Company Name"])');
 });
 
-// Export for module systems
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = window.enhancedWarningLettersFixed;
-}
-
-// Add required styles if not already present
-if (!document.getElementById('enhanced-wl-styles')) {
-  const style = document.createElement('style');
-  style.id = 'enhanced-wl-styles';
-  style.textContent = `
-    .loading-spinner {
-      border: 3px solid #f3f3f3;
-      border-top: 3px solid #3b82f6;
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      animation: spin 1s linear infinite;
-    }
-    
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-    
-    .line-clamp-4 {
-      display: -webkit-box;
-      -webkit-line-clamp: 4;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-    
-    /* Modern scrollbar styles */
-    .overflow-y-auto::-webkit-scrollbar {
-      width: 8px;
-    }
-    
-    .overflow-y-auto::-webkit-scrollbar-track {
-      background: #f1f1f1;
-      border-radius: 4px;
-    }
-    
-    .overflow-y-auto::-webkit-scrollbar-thumb {
-      background: #888;
-      border-radius: 4px;
-    }
-    
-    .overflow-y-auto::-webkit-scrollbar-thumb:hover {
-      background: #555;
-    }
-  `;
-  document.head.appendChild(style);
-}
-
-// Enhanced dynamic search function for the frontend
-// Add this to your enhanced-warning-letters-v2.js
-// 4. ENHANCED: Main search function with better error handling
-window.enhancedWarningLettersFixed.performEnhancedSearch = async function(companies) {
-  console.log('🔍 Starting enhanced search for:', companies);
-  
-  this.state.loading = true;
-  this.state.selectedCompanies = companies;
-  this.showLoading(true);
-
-  // Generate smart variations for any company name
-  const generateSmartVariations = (company) => {
-    const variations = new Set();
-    const base = company.trim();
-    
-    // Always include original
-    variations.add(base);
-    
-    // Clean version without common suffixes
-    const cleanName = base
-      .replace(/\s+(INC\.?|LLC|LTD|CORP\.?|CORPORATION|COMPANY|CO\.?|PHARMA|PHARMACEUTICALS?|PHARMS?|USA|INTERNATIONAL|GLOBAL|GROUP|HOLDINGS|LABS?|LABORATORIES)\.?$/gi, '')
-      .trim();
-    
-    if (cleanName !== base && cleanName.length > 2) {
-      variations.add(cleanName);
-    }
-    
-    // First word (often the main identifier)
-    const words = cleanName.split(/\s+/).filter(w => w.length > 2);
-    if (words.length > 0) {
-      variations.add(words[0]);
-    }
-    
-    // Handle common abbreviations
-    if (base.includes('PHARMS')) {
-      variations.add(base.replace(/PHARMS/gi, 'PHARMACEUTICALS'));
-    }
-    
-    return Array.from(variations).slice(0, 5); // Limit variations
-  };
-
-  try {
-    const allResults = {
-      warningLetters: [],
-      form483s: [],
-      citations: [],
-      inspections: []
-    };
-
-    // Track which endpoints are available
-    const endpointStatus = {
-      warningLetters: true,
-      form483s: true,
-      inspections: true
-    };
-
-    // Search for each company
-    for (const company of companies) {
-      const variations = generateSmartVariations(company);
-      console.log(`Searching variations for "${company}":`, variations);
-
-      // 1. Search Warning Letters (if endpoint is available)
-      if (endpointStatus.warningLetters) {
-        try {
-          const wlResults = await this.searchWarningLettersWithVariations(company, variations);
-          allResults.warningLetters.push(...wlResults);
-        } catch (error) {
-          console.error('Warning Letters search failed:', error);
-          endpointStatus.warningLetters = false;
-        }
-      }
-
-      // 2. Search Form 483s (if endpoint is available)
-      if (endpointStatus.form483s) {
-        try {
-          const form483Results = await this.searchForm483sWithVariations(company, variations);
-          allResults.form483s.push(...form483Results);
-        } catch (error) {
-          console.error('Form 483s search failed:', error);
-          endpointStatus.form483s = false;
-        }
-      }
-
-      // 3. Search Inspections (including citations)
-      if (endpointStatus.inspections) {
-        try {
-          const inspectionResults = await this.searchInspectionsWithVariations(company, variations);
-          allResults.citations.push(...(inspectionResults.citations || []));
-          allResults.inspections.push(...(inspectionResults.inspections || []));
-        } catch (error) {
-          console.error('Inspections search failed:', error);
-          endpointStatus.inspections = false;
-        }
-      }
-    }
-
-    // Remove duplicates and update state - with error handling
-    try {
-      this.state.warningLetters = this.deduplicateResults(allResults.warningLetters, 'letterId') || [];
-      this.state.form483s = this.deduplicateResults(allResults.form483s, '_id') || [];
-      this.state.citations = this.deduplicateResults(allResults.citations, 'CitationID') || [];
-      this.state.inspections = this.deduplicateResults(allResults.inspections, 'InspectionID') || [];
-    } catch (dedupeError) {
-      console.error('Deduplication error:', dedupeError);
-      // Use raw results if deduplication fails
-      this.state.warningLetters = allResults.warningLetters || [];
-      this.state.form483s = allResults.form483s || [];
-      this.state.citations = allResults.citations || [];
-      this.state.inspections = allResults.inspections || [];
-    }
-
-    // Process analytics (with error handling)
-    try {
-      this.processViolations();
-      this.processDrugMentions();
-      this.buildCompanyMetrics();
-    } catch (analyticsError) {
-      console.error('Analytics processing error:', analyticsError);
-    }
-
-    // Update UI
-    this.updateDashboard();
-    
-    // Show results
-    const totalRecords = this.state.warningLetters.length + 
-                        this.state.form483s.length + 
-                        this.state.citations.length + 
-                        this.state.inspections.length;
-    
-    console.log(`✅ Search completed: ${totalRecords} total records found`);
-    
-    // Check endpoint availability
-    const unavailableEndpoints = [];
-    if (!endpointStatus.warningLetters) unavailableEndpoints.push('Warning Letters');
-    if (!endpointStatus.form483s) unavailableEndpoints.push('Form 483s');
-    if (!endpointStatus.inspections) unavailableEndpoints.push('Inspections');
-    
-    if (unavailableEndpoints.length > 0) {
-      console.warn(`⚠️ Some endpoints were unavailable: ${unavailableEndpoints.join(', ')}`);
-    }
-    
-    if (totalRecords > 0) {
-      this.showSuccess(`Found ${totalRecords} regulatory records`);
-    } else {
-      this.showInfo('No records found. This could mean:\n- The company has a clean record\n- The company uses different naming in FDA databases\n- Some search endpoints may be unavailable');
-    }
-
-  } catch (error) {
-    console.error('❌ Search failed:', error);
-    this.showError('Search failed: ' + error.message);
-  } finally {
-    this.state.loading = false;
-    this.showLoading(false);
-  }
-};
-
-window.enhancedWarningLettersFixed.searchWarningLettersWithVariations = async function(company, variations) {
-  const results = [];
-  
-  for (const variation of variations) {
-    try {
-      // CORRECT ENDPOINT: /api/wl/search with GET method and query params
-      const params = new URLSearchParams({
-        term: variation,
-        field: 'company',
-        page: 1,
-        perPage: 100
-      });
-      
-      const response = await fetch(`/api/wl/search?${params}`, {
-        method: 'GET' // Changed from POST to GET
-      });
-      
-      if (response.ok) {
-        const contentType = response.headers.get('content-type');
-        
-        if (contentType && contentType.includes('application/json')) {
-          const data = await response.json();
-          
-          // The response structure includes results array
-          if (data.results && data.results.length > 0) {
-            console.log(`  ✅ Found ${data.results.length} warning letters for "${variation}"`);
-            data.results.forEach(letter => {
-              letter.sourceCompany = company;
-              letter.matchedVariation = variation;
-            });
-            results.push(...data.results);
-            break; // Found results, no need to try other variations
-          }
-        }
-      } else if (response.status === 404) {
-        console.error('Warning Letters endpoint not found. Check if /api/wl/search exists in your backend.');
-        break;
-      }
-    } catch (error) {
-      console.warn(`Warning letter search failed for ${variation}:`, error.message);
-    }
-  }
-  
-  return results;
-};
-
-
-
-
-
-
-// Deduplicate results
-window.enhancedWarningLettersFixed.deduplicateResults = function(array, key) {
-  const seen = new Set(); // This was correct, but let's make it more robust
-  
-  if (!Array.isArray(array)) {
-    console.warn('deduplicateResults: Input is not an array', array);
-    return [];
-  }
-  
-  return array.filter(item => {
-    if (!item) return false;
-    
-    // Get the unique identifier
-    const value = key && item[key] ? item[key] : JSON.stringify(item);
-    
-    if (!seen.has(value)) {
-      seen.add(value);
-      return true;
-    }
-    return false;
-  });
-};
-
-
-// 3. Enhanced Matching Helper Functions
-window.enhancedWarningLettersFixed.isRelaxedMatch = function(companyName, recordName, searchTerm) {
-  if (!recordName) return false;
-  
-  const company = companyName.toLowerCase();
-  const record = recordName.toLowerCase();
-  const term = searchTerm.toLowerCase();
-  
-  // Direct matches
-  if (record.includes(company) || company.includes(record)) return true;
-  if (record.includes(term) || term.includes(record)) return true;
-  
-  // Word-based matching
-  const companyWords = company.split(/\s+/).filter(w => w.length > 2);
-  const recordWords = record.split(/\s+/).filter(w => w.length > 2);
-  
-  // Check if major words match
-  let matchingWords = 0;
-  for (const cWord of companyWords) {
-    for (const rWord of recordWords) {
-      if (cWord.includes(rWord) || rWord.includes(cWord)) {
-        matchingWords++;
-        break;
-      }
-    }
-  }
-  
-  // Require at least 1 significant word match
-  return matchingWords > 0 && matchingWords >= Math.min(companyWords.length * 0.5, 2);
-};
-
-window.enhancedWarningLettersFixed.calculateMatchScore = function(companyName, recordName) {
-  if (!recordName) return 0;
-  
-  const company = companyName.toLowerCase();
-  const record = recordName.toLowerCase();
-  
-  // Exact match = 1.0
-  if (company === record) return 1.0;
-  
-  // Substring matches
-  if (record.includes(company)) return 0.9;
-  if (company.includes(record)) return 0.8;
-  
-  // Word-based scoring
-  const companyWords = company.split(/\s+/).filter(w => w.length > 2);
-  const recordWords = record.split(/\s+/).filter(w => w.length > 2);
-  
-  let totalScore = 0;
-  let matches = 0;
-  
-  for (const cWord of companyWords) {
-    let bestMatch = 0;
-    for (const rWord of recordWords) {
-      if (cWord === rWord) bestMatch = Math.max(bestMatch, 1.0);
-      else if (cWord.includes(rWord) || rWord.includes(cWord)) bestMatch = Math.max(bestMatch, 0.7);
-    }
-    if (bestMatch > 0) {
-      totalScore += bestMatch;
-      matches++;
-    }
-  }
-  
-  return matches > 0 ? (totalScore / companyWords.length) * 0.7 : 0;
-};
-
-window.enhancedWarningLettersFixed.generatePartialMatches = function(company) {
-  const partials = [];
-  const cleaned = company.replace(/\s+(INC|LLC|LTD|CORP|CORPORATION|CO|USA|INTERNATIONAL|PHARMACEUTICALS?|PHARMA)\.?$/gi, '').trim();
-  
-  if (cleaned !== company) partials.push(cleaned.toLowerCase());
-  
-  const words = cleaned.split(/\s+/).filter(w => w.length > 3);
-  
-  // Add first word if significant
-  if (words.length > 0) partials.push(words[0].toLowerCase());
-  
-  // Add first two words if available
-  if (words.length > 1) partials.push(`${words[0]} ${words[1]}`.toLowerCase());
-  
-  return partials;
-};
-
-window.enhancedWarningLettersFixed.calculateInspectionMatchScore = function(searchTerms, recordFields, originalCompany) {
-  let maxScore = 0;
-  
-  for (const term of searchTerms) {
-    for (const field of recordFields) {
-      if (!field) continue;
-      
-      let score = 0;
-      
-      // Exact match
-      if (field === term) score = 1.0;
-      // Contains term
-      else if (field.includes(term)) score = 0.8;
-      // Term contains field (shorter company name in field)
-      else if (term.includes(field) && field.length > 3) score = 0.6;
-      // Word overlap
-      else {
-        const termWords = term.split(/\s+/);
-        const fieldWords = field.split(/\s+/);
-        const overlap = termWords.filter(tw => fieldWords.some(fw => fw.includes(tw) || tw.includes(fw)));
-        if (overlap.length > 0) score = (overlap.length / termWords.length) * 0.5;
-      }
-      
-      maxScore = Math.max(maxScore, score);
-    }
-  }
-  
-  return maxScore;
-};
-
-// 4. Configuration Override for Search Parameters
-window.enhancedWarningLettersFixed.SEARCH_CONFIG = {
-  form483: {
-    maxResults: 50,
-    minTermLength: 3, // Reduced from default
-    strictFiltering: false,
-    relevanceThreshold: 0.3
-  },
-  inspections: {
-    maxCitations: 20, // Limit citations
-    maxInspections: 50, // Limit inspections  
-    relevanceThreshold: 0.3,
-    enableScoring: true
-  },
-  warningLetters: {
-    maxResults: 100,
-    relevanceThreshold: 0.4
-  }
-};
-
-
-// 3. Override the main performSearch to use correct endpoints
-window.enhancedWarningLettersFixed.performSearch = async function(companies) {
-  console.log('🔍 Starting search for:', companies);
-  
-  this.state.loading = true;
-  this.state.selectedCompanies = companies;
-  this.showLoading(true);
-
-  try {
-    const allResults = {
-      warningLetters: [],
-      form483s: [],
-      citations: [],
-      inspections: []
-    };
-
-    // Generate smart variations for any company name
-    const generateSmartVariations = (company) => {
-      const variations = new Set();
-      const base = company.trim();
-      
-      variations.add(base);
-      
-      // Clean version without common suffixes
-      const cleanName = base
-        .replace(/\s+(INC\.?|LLC|LTD|CORP\.?|CORPORATION|COMPANY|CO\.?|PHARMA|PHARMACEUTICALS?|PHARMS?|USA|INTERNATIONAL|GLOBAL|GROUP|HOLDINGS|LABS?|LABORATORIES)\.?$/gi, '')
-        .trim();
-      
-      if (cleanName !== base && cleanName.length > 2) {
-        variations.add(cleanName);
-      }
-      
-      // First word (often the main identifier)
-      const words = cleanName.split(/\s+/).filter(w => w.length > 2);
-      if (words.length > 0) {
-        variations.add(words[0]);
-      }
-      
-      // Handle common pharma abbreviations
-      if (base.includes('PHARMS')) {
-        variations.add(base.replace(/PHARMS/gi, 'PHARMACEUTICALS'));
-      }
-      if (base.includes('PHARMA')) {
-        variations.add(base.replace(/PHARMA/gi, 'PHARMACEUTICALS'));
-      }
-      
-      return Array.from(variations).slice(0, 5);
-    };
-
-    // Search for each company
-    for (const company of companies) {
-      const variations = generateSmartVariations(company);
-      console.log(`Searching variations for "${company}":`, variations);
-
-      // 1. Search Warning Letters
-      try {
-        const wlResults = await this.searchWarningLettersWithVariations(company, variations);
-        allResults.warningLetters.push(...wlResults);
-      } catch (error) {
-        console.error('Warning Letters search failed:', error);
-      }
-
-      // 2. Search Form 483s
-      try {
-        const form483Results = await this.searchForm483sWithVariations(company, variations);
-        allResults.form483s.push(...form483Results);
-      } catch (error) {
-        console.error('Form 483s search failed:', error);
-      }
-
-      // 3. Search Inspections (this is working based on your logs)
-      try {
-        const inspectionResults = await this.searchInspectionsWithVariations(company, variations);
-        allResults.citations.push(...(inspectionResults.citations || []));
-        allResults.inspections.push(...(inspectionResults.inspections || []));
-      } catch (error) {
-        console.error('Inspections search failed:', error);
-      }
-    }
-
-    // Remove duplicates and update state
-    this.state.warningLetters = this.deduplicateResults(allResults.warningLetters, 'letterId') || [];
-    this.state.form483s = this.deduplicateResults(allResults.form483s, '_id') || [];
-    this.state.citations = this.deduplicateResults(allResults.citations, 'CitationID') || [];
-    this.state.inspections = this.deduplicateResults(allResults.inspections, 'InspectionID') || [];
-
-    // Process analytics
-    try {
-      this.processViolations();
-      this.processDrugMentions();
-      this.buildCompanyMetrics();
-    } catch (analyticsError) {
-      console.error('Analytics processing error:', analyticsError);
-    }
-
-    // Update UI
-    this.updateDashboard();
-    
-    // Show results
-    const totalRecords = this.state.warningLetters.length + 
-                        this.state.form483s.length + 
-                        this.state.citations.length + 
-                        this.state.inspections.length;
-    
-    console.log(`✅ Search completed: ${totalRecords} total records found`);
-    console.log(`  - Warning Letters: ${this.state.warningLetters.length}`);
-    console.log(`  - Form 483s: ${this.state.form483s.length}`);
-    console.log(`  - Citations: ${this.state.citations.length}`);
-    console.log(`  - Inspections: ${this.state.inspections.length}`);
-    
-    if (totalRecords > 0) {
-      this.showSuccess(`Found ${totalRecords} regulatory records`);
-    } else {
-      this.showInfo('No records found. This could mean the company has a clean record or uses different naming in FDA databases.');
-    }
-
-  } catch (error) {
-    console.error('❌ Search failed:', error);
-    this.showError('Search failed: ' + error.message);
-  } finally {
-    this.state.loading = false;
-    this.showLoading(false);
-  }
-};
-
-// 4. OPTIONAL: Test function to verify endpoints
-window.testFDAEndpoints = async function() {
-  console.log('🧪 Testing FDA endpoints...');
-  
-  // Test Warning Letters
-  try {
-    const wlResponse = await fetch('/api/wl/search?term=test&field=company&page=1&perPage=1');
-    console.log('✅ Warning Letters endpoint:', wlResponse.ok ? `Working (${wlResponse.status})` : `Error ${wlResponse.status}`);
-    if (wlResponse.ok) {
-      const data = await wlResponse.json();
-      console.log('   Sample response:', data);
-    }
-  } catch (error) {
-    console.log('❌ Warning Letters endpoint: Failed -', error.message);
-  }
-  
-  // Test Form 483
-  try {
-    const f483Response = await fetch('/api/form483/search?term=test&field=company&page=1&perPage=1');
-    console.log('✅ Form 483 endpoint:', f483Response.ok ? `Working (${f483Response.status})` : `Error ${f483Response.status}`);
-    if (f483Response.ok) {
-      const data = await f483Response.json();
-      console.log('   Sample response:', data);
-    }
-  } catch (error) {
-    console.log('❌ Form 483 endpoint: Failed -', error.message);
-  }
-  
-  // Test Inspection
-  try {
-    const inspResponse = await fetch('/api/inspection-data?company=test');
-    console.log('✅ Inspection endpoint:', inspResponse.ok ? `Working (${inspResponse.status})` : `Error ${inspResponse.status}`);
-    if (inspResponse.ok) {
-      const data = await inspResponse.json();
-      console.log('   Sample response:', data);
-    }
-  } catch (error) {
-    console.log('❌ Inspection endpoint: Failed -', error.message);
-  }
-  
-  console.log('\n💡 Run window.testFDAEndpoints() to test your endpoints');
-};
-
-
-// Enhanced Company Matching Logic with Intelligent Search Strategies
-// This replaces the existing matching functions in enhanced-warning-letters-v2.js
-
-// 1. Smart Company Matcher with configurable strictness
-window.enhancedWarningLettersFixed.createSmartCompanyMatcher = function(searchTerm, options = {}) {
-  const {
-    strictness = 'balanced', // 'strict', 'balanced', 'loose'
-    requireWordBoundary = true,
-    minWordLength = 3
-  } = options;
-  
-  // Normalize the search term
-  const normalizedSearch = searchTerm.trim().toLowerCase()
-    .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, ' ')
-    .replace(/\s+/g, ' ');
-  
-  // Extract significant words (excluding common suffixes)
-  const commonSuffixes = ['inc', 'llc', 'ltd', 'corp', 'corporation', 'company', 'co', 
-                         'pharma', 'pharmaceutical', 'pharmaceuticals', 'pharms', 
-                         'usa', 'international', 'global', 'group', 'holdings', 
-                         'labs', 'lab', 'laboratories', 'laboratory'];
-  
-  const searchWords = normalizedSearch.split(' ')
-    .filter(word => word.length >= minWordLength && !commonSuffixes.includes(word));
-  
-  return function(targetString) {
-    if (!targetString) return false;
-    
-    const normalizedTarget = targetString.toLowerCase()
-      .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, ' ')
-      .replace(/\s+/g, ' ');
-    
-    const targetWords = normalizedTarget.split(' ')
-      .filter(word => word.length >= minWordLength);
-    
-    // Strict mode: Exact match or all significant words must match
-    if (strictness === 'strict') {
-      // Check for exact match first
-      if (normalizedTarget === normalizedSearch) return true;
-      
-      // All search words must be present as whole words
-      return searchWords.every(searchWord => {
-        if (requireWordBoundary) {
-          const regex = new RegExp(`\\b${searchWord}\\b`, 'i');
-          return regex.test(normalizedTarget);
-        }
-        return targetWords.some(targetWord => targetWord === searchWord);
-      });
-    }
-    
-    // Balanced mode: Smart matching with word boundaries
-    if (strictness === 'balanced') {
-      // If search term is a single word, require it to be a whole word match
-      if (searchWords.length === 1) {
-        const searchWord = searchWords[0];
-        if (requireWordBoundary) {
-          // For single words, match as whole word or at the beginning of a word
-          const regex = new RegExp(`\\b${searchWord}(?:\\b|\\w*)`, 'i');
-          return regex.test(normalizedTarget);
-        }
-        return targetWords.some(targetWord => 
-          targetWord === searchWord || targetWord.startsWith(searchWord)
-        );
-      }
-      
-      // For multi-word searches, require majority of words to match
-      const matchThreshold = Math.ceil(searchWords.length * 0.6);
-      let matchCount = 0;
-      
-      for (const searchWord of searchWords) {
-        if (targetWords.some(targetWord => 
-          targetWord === searchWord || 
-          (targetWord.startsWith(searchWord) && searchWord.length >= 4)
-        )) {
-          matchCount++;
-        }
-      }
-      
-      return matchCount >= matchThreshold;
-    }
-    
-    // Loose mode: Any significant word match
-    if (strictness === 'loose') {
-      return searchWords.some(searchWord => {
-        return targetWords.some(targetWord => 
-          targetWord.includes(searchWord) || searchWord.includes(targetWord)
-        );
-      });
-    }
-    
-    return false;
-  };
-};
-
-// 2. Enhanced variation generator with better logic
-window.enhancedWarningLettersFixed.generateIntelligentVariations = function(company, options = {}) {
-  const {
-    maxVariations = 8,
-    includeAbbreviations = true,
-    includeAcronyms = true
-  } = options;
-  
-  const variations = new Set();
-  const original = company.trim();
-  
-  // Always include original
-  variations.add(original);
-  
-  // Common pharma abbreviation mappings
-  const abbreviationMap = {
-    'PHARMACEUTICAL': ['PHARMA', 'PHARM'],
-    'PHARMACEUTICALS': ['PHARMA', 'PHARMS'],
-    'LABORATORIES': ['LABS', 'LAB'],
-    'LABORATORY': ['LAB'],
-    'CORPORATION': ['CORP'],
-    'INCORPORATED': ['INC'],
-    'LIMITED': ['LTD'],
-    'COMPANY': ['CO']
-  };
-  
-  // Remove common suffixes to get base name
-  const suffixPattern = /\s+(INC\.?|LLC|LTD|CORP\.?|CORPORATION|COMPANY|CO\.?|PHARMA|PHARMACEUTICALS?|PHARMS?|USA|INTERNATIONAL|GLOBAL|GROUP|HOLDINGS|LABS?|LABORATORIES?|LABORATORY|MEDICAL|HEALTHCARE|THERAPEUTICS|OPERATIONS?|MANUFACTURING|MFG)\.?$/gi;
-  
-  const baseName = original.replace(suffixPattern, '').trim();
-  if (baseName !== original && baseName.length > 2) {
-    variations.add(baseName);
-  }
-  
-  // Extract meaningful words
-  const words = baseName.split(/\s+/).filter(word => 
-    word.length >= 3 && 
-    !['THE', 'AND', 'OF', 'FOR', 'IN', 'AT', 'BY'].includes(word.toUpperCase())
-  );
-  
-  // Add individual significant words (but not common ones)
-  if (words.length > 1) {
-    // First word (often the primary identifier)
-    variations.add(words[0]);
-    
-    // Last meaningful word if different from first
-    const lastWord = words[words.length - 1];
-    if (lastWord !== words[0] && lastWord.length >= 4) {
-      variations.add(lastWord);
-    }
-    
-    // First two words combined
-    if (words.length >= 2) {
-      variations.add(words.slice(0, 2).join(' '));
-    }
-  }
-  
-  // Generate abbreviation variations
-  if (includeAbbreviations) {
-    const currentVariations = Array.from(variations);
-    for (const variation of currentVariations) {
-      // Expand abbreviations
-      for (const [full, abbrevs] of Object.entries(abbreviationMap)) {
-        if (variation.toUpperCase().includes(full)) {
-          for (const abbrev of abbrevs) {
-            const abbreviated = variation.replace(new RegExp(full, 'gi'), abbrev);
-            if (abbreviated !== variation) {
-              variations.add(abbreviated);
-            }
-          }
-        }
-      }
-      
-      // Contract to abbreviations
-      for (const [full, abbrevs] of Object.entries(abbreviationMap)) {
-        for (const abbrev of abbrevs) {
-          if (variation.toUpperCase().includes(abbrev) && !variation.toUpperCase().includes(full)) {
-            const expanded = variation.replace(new RegExp(abbrev, 'gi'), full);
-            if (expanded !== variation) {
-              variations.add(expanded);
-            }
-          }
-        }
-      }
-    }
-  }
-  
-  // Generate acronym if multi-word
-  if (includeAcronyms && words.length > 1) {
-    const acronym = words.map(w => w[0]).join('').toUpperCase();
-    if (acronym.length >= 2 && acronym.length <= 5) {
-      variations.add(acronym);
-    }
-  }
-  
-  // Remove duplicates and limit
-  return Array.from(variations)
-    .filter(v => v.length >= 2)
-    .slice(0, maxVariations);
-};
-
-// 3. Updated search functions with intelligent matching
-window.enhancedWarningLettersFixed.searchWarningLettersWithVariations = async function(company, variations) {
-  const results = [];
-  const searchedTerms = new Set();
-  
-  // Use balanced matching for warning letters
-  const matcher = this.createSmartCompanyMatcher(company, { strictness: 'balanced' });
-  
-  for (const variation of variations) {
-    if (searchedTerms.has(variation.toLowerCase())) continue;
-    searchedTerms.add(variation.toLowerCase());
-    
-    try {
-      const params = new URLSearchParams({
-        term: variation,
-        field: 'company',
-        page: 1,
-        perPage: 100,
-        _t: Date.now()
-      });
-      
-      const response = await fetch(`/api/wl/search?${params}`);
-      
-      if (response.ok) {
-        const data = await response.json();
-        
-        if (data.results && data.results.length > 0) {
-          // Filter results using smart matcher
-          const filteredResults = data.results.filter(wl => 
-            matcher(wl.companyName) || matcher(wl.company)
-          );
-          
-          if (filteredResults.length > 0) {
-            console.log(`✅ Found ${filteredResults.length} relevant Warning Letters for "${variation}"`);
-            filteredResults.forEach(wl => {
-              wl.sourceCompany = company;
-              wl.matchedVariation = variation;
-            });
-            results.push(...filteredResults);
-          }
-        }
-      }
-    } catch (error) {
-      console.warn(`Warning letter search failed for ${variation}:`, error.message);
-    }
-  }
-  
-  return results;
-};
-
-window.enhancedWarningLettersFixed.searchInspectionsWithVariations = async function(company, variations) {
-  const results = { citations: [], inspections: [] };
-  
-  console.log(`🏭 Enhanced Inspections Search for: ${company}`);
-  
-  try {
-    // FIX: Use the company parameter your backend already supports!
-    const response = await fetch(`/api/inspection-data?company=${encodeURIComponent(company)}`);
-    
-    if (!response.ok) {
-      throw new Error(`Inspection API error: ${response.status}`);
-    }
-    
-    const data = await response.json();
-    console.log(`  📊 Retrieved ${data.recentInspections?.length || 0} inspection records for ${company}`);
-    
-    if (!data.recentInspections || data.recentInspections.length === 0) {
-      console.log(`  ℹ️ No inspection data found for ${company}`);
-      return results;
-    }
-    
-    // Process the already-filtered results from backend
-    const matchedRecords = [];
-    
-    for (const record of data.recentInspections) {
-      // Add metadata
-      record.sourceCompany = company;
-      record.matchedAgainst = record["Legal Name"] || record["Firm Name"] || record.company;
-      matchedRecords.push(record);
-    }
-    
-    console.log(`  🎯 Processing ${matchedRecords.length} inspection records`);
-    
-    // Separate into citations and inspections
-    const MAX_CITATIONS = 20;
-    const MAX_INSPECTIONS = 50;
-    
-    let citationCount = 0;
-    let inspectionCount = 0;
-    
-    for (const record of matchedRecords) {
-      const recordType = (record["Record Type"] || record.recordType || '').toLowerCase();
-      
-      if (recordType.includes('form 483') || recordType.includes('citation')) {
-        if (citationCount < MAX_CITATIONS) {
-          results.citations.push(record);
-          citationCount++;
-        }
-      } else {
-        if (inspectionCount < MAX_INSPECTIONS) {
-          results.inspections.push(record);
-          inspectionCount++;
-        }
-      }
-    }
-    
-    console.log(`  ✅ Found ${results.citations.length} citations and ${results.inspections.length} inspections for ${company}`);
-    return results;
-    
-  } catch (error) {
-    console.error(`Inspection search failed for ${company}:`, error);
-    return results;
-  }
-};
-
-// 4. Main search function with new matching logic
-window.enhancedWarningLettersFixed.performEnhancedSearch = async function(companies) {
-  console.log('🔍 Starting enhanced search with intelligent matching for:', companies);
-  
-  this.state.loading = true;
-  this.state.selectedCompanies = companies;
-  this.showLoading(true);
-
-  try {
-    const allResults = {
-      warningLetters: [],
-      form483s: [],
-      citations: [],
-      inspections: []
-    };
-
-    // Search for each company
-    for (const company of companies) {
-      const variations = this.generateIntelligentVariations(company, {
-        maxVariations: 8,
-        includeAbbreviations: true,
-        includeAcronyms: true
-      });
-      
-      console.log(`Generated intelligent variations for "${company}":`, variations);
-
-      // 1. Search Warning Letters with smart matching
-      try {
-        const wlResults = await this.searchWarningLettersWithVariations(company, variations);
-        allResults.warningLetters.push(...wlResults);
-      } catch (error) {
-        console.error('Warning Letters search failed:', error);
-      }
-
-      // 2. Search Form 483s with flexible matching
-      try {
-        const form483Results = await this.searchForm483sWithVariations(company, variations);
-        allResults.form483s.push(...form483Results);
-      } catch (error) {
-        console.error('Form 483s search failed:', error);
-      }
-
-      // 3. Search Inspections
-      try {
-        const inspectionResults = await this.searchInspectionsWithVariations(company, variations);
-        allResults.citations.push(...(inspectionResults.citations || []));
-        allResults.inspections.push(...(inspectionResults.inspections || []));
-      } catch (error) {
-        console.error('Inspections search failed:', error);
-      }
-    }
-
-    // Remove duplicates
-    this.state.warningLetters = this.deduplicateResults(allResults.warningLetters, 'letterId');
-    this.state.form483s = this.deduplicateResults(allResults.form483s, '_id');
-    this.state.citations = this.deduplicateResults(allResults.citations, 'CitationID');
-    this.state.inspections = this.deduplicateResults(allResults.inspections, 'InspectionID');
-
-    // Process analytics
-    try {
-      this.processViolations();
-      this.processDrugMentions();
-      this.buildCompanyMetrics();
-    } catch (analyticsError) {
-      console.error('Analytics processing error:', analyticsError);
-    }
-
-    // Update UI
-    this.updateDashboard();
-    
-    // Show results summary
-    const totalRecords = this.state.warningLetters.length + 
-                        this.state.form483s.length + 
-                        this.state.citations.length + 
-                        this.state.inspections.length;
-    
-    console.log(`✅ Search completed: ${totalRecords} total records found`);
-    console.log(`  - Warning Letters: ${this.state.warningLetters.length}`);
-    console.log(`  - Form 483s: ${this.state.form483s.length}`);
-    console.log(`  - Citations: ${this.state.citations.length}`);
-    console.log(`  - Inspections: ${this.state.inspections.length}`);
-    
-    if (totalRecords > 0) {
-      this.showSuccess(`Found ${totalRecords} regulatory records`);
-    } else {
-      this.showInfo('No records found. Try adjusting the company name or check for alternative names.');
-    }
-
-  } catch (error) {
-    console.error('❌ Search failed:', error);
-    this.showError('Search failed: ' + error.message);
-  } finally {
-    this.state.loading = false;
-    this.showLoading(false);
-  }
-};
-
-
-// ===================================================================
-// PROFESSIONAL INLINE LOADING SYSTEM - Enhanced Warning Letters
-// Clean, minimal, and enterprise-grade loading experience
-// ===================================================================
-
-window.enhancedWarningLettersFixed.showLoading = function(show) {
-  const container = document.getElementById('enhancedWLContainer');
-  if (!container) return;
-
-  if (show) {
-    container.innerHTML = `
-      <!-- Professional Header -->
-      <div class="mb-8">
-        <div class="bg-gradient-to-r from-slate-900 to-slate-700 rounded-xl shadow-xl p-8">
-          <div class="flex items-center justify-between">
-            <div>
-              <h1 class="text-3xl font-bold text-white mb-2">FDA Regulatory Intelligence</h1>
-              <p class="text-slate-300 text-lg">Analyzing regulatory data across multiple FDA databases</p>
-            </div>
-            <div class="hidden md:block">
-              <div class="flex items-center space-x-2 text-slate-300">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                </svg>
-                <span class="text-sm font-medium">Secure Connection</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Professional Loading Interface -->
-      <div class="bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden">
-        
-        <!-- Progress Header -->
-        <div class="bg-gradient-to-r from-slate-50 to-white px-8 py-6 border-b border-slate-200">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center space-x-4">
-              <div class="relative">
-                <div class="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center">
-                  <div class="w-6 h-6 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
-                </div>
-                <div class="absolute inset-0 flex items-center justify-center">
-                  <div class="w-2 h-2 bg-indigo-600 rounded-full"></div>
-                </div>
-              </div>
-              <div>
-                <h2 class="text-xl font-semibold text-slate-900">Processing Search Request</h2>
-                <p class="text-slate-600 text-sm" id="loadingStatus">Initializing FDA database connections...</p>
-              </div>
-            </div>
-            <div class="text-right">
-              <div class="text-2xl font-bold text-indigo-600" id="loadingProgress">0%</div>
-              <div class="text-xs text-slate-500 uppercase tracking-wide">Complete</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Search Progress Steps -->
-        <div class="px-8 py-8">
-          <div class="space-y-6">
-            
-            <!-- Warning Letters Step -->
-            <div class="flex items-center space-x-4 group" id="step-wl">
-              <div class="flex-shrink-0">
-                <div class="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center step-indicator">
-                  <div class="w-4 h-4 border-2 border-slate-400 rounded-full animate-pulse"></div>
-                </div>
-              </div>
-              <div class="flex-1 min-w-0">
-                <div class="flex items-center justify-between">
-                  <div>
-                    <h3 class="text-base font-medium text-slate-900">Warning Letters Database</h3>
-                    <p class="text-sm text-slate-500">Searching FDA enforcement records</p>
-                  </div>
-                  <div class="text-sm text-slate-400 step-status">Pending</div>
-                </div>
-                <div class="mt-2 w-full bg-slate-200 rounded-full h-1.5">
-                  <div class="bg-slate-400 h-1.5 rounded-full transition-all duration-300 step-progress" style="width: 0%"></div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Form 483s Step -->
-            <div class="flex items-center space-x-4 group" id="step-483">
-              <div class="flex-shrink-0">
-                <div class="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center step-indicator">
-                  <div class="w-4 h-4 border-2 border-slate-400 rounded-full animate-pulse"></div>
-                </div>
-              </div>
-              <div class="flex-1 min-w-0">
-                <div class="flex items-center justify-between">
-                  <div>
-                    <h3 class="text-base font-medium text-slate-900">Form 483 Observations</h3>
-                    <p class="text-sm text-slate-500">Analyzing inspection observations</p>
-                  </div>
-                  <div class="text-sm text-slate-400 step-status">Pending</div>
-                </div>
-                <div class="mt-2 w-full bg-slate-200 rounded-full h-1.5">
-                  <div class="bg-slate-400 h-1.5 rounded-full transition-all duration-300 step-progress" style="width: 0%"></div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Inspections Step -->
-            <div class="flex items-center space-x-4 group" id="step-insp">
-              <div class="flex-shrink-0">
-                <div class="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center step-indicator">
-                  <div class="w-4 h-4 border-2 border-slate-400 rounded-full animate-pulse"></div>
-                </div>
-              </div>
-              <div class="flex-1 min-w-0">
-                <div class="flex items-center justify-between">
-                  <div>
-                    <h3 class="text-base font-medium text-slate-900">Inspection Records</h3>
-                    <p class="text-sm text-slate-500">Processing historical inspection data</p>
-                  </div>
-                  <div class="text-sm text-slate-400 step-status">Pending</div>
-                </div>
-                <div class="mt-2 w-full bg-slate-200 rounded-full h-1.5">
-                  <div class="bg-slate-400 h-1.5 rounded-full transition-all duration-300 step-progress" style="width: 0%"></div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Analytics Step -->
-            <div class="flex items-center space-x-4 group" id="step-analytics">
-              <div class="flex-shrink-0">
-                <div class="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center step-indicator">
-                  <div class="w-4 h-4 border-2 border-slate-400 rounded-full animate-pulse"></div>
-                </div>
-              </div>
-              <div class="flex-1 min-w-0">
-                <div class="flex items-center justify-between">
-                  <div>
-                    <h3 class="text-base font-medium text-slate-900">Risk Analytics</h3>
-                    <p class="text-sm text-slate-500">Generating compliance insights</p>
-                  </div>
-                  <div class="text-sm text-slate-400 step-status">Pending</div>
-                </div>
-                <div class="mt-2 w-full bg-slate-200 rounded-full h-1.5">
-                  <div class="bg-slate-400 h-1.5 rounded-full transition-all duration-300 step-progress" style="width: 0%"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Professional Footer -->
-        <div class="bg-slate-50 px-8 py-4 border-t border-slate-200">
-          <div class="flex items-center justify-between text-sm">
-            <div class="flex items-center space-x-2 text-slate-500">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-              </svg>
-              <span>Secure FDA API Connection</span>
-            </div>
-            <div class="text-slate-500">
-              <span id="searchTime">Search initiated at ${new Date().toLocaleTimeString()}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    `;
-    
-    this.startProfessionalLoadingAnimation();
-  } else {
-    this.stopProfessionalLoadingAnimation();
-  }
-};
-
-// Professional loading animation with realistic progress
-window.enhancedWarningLettersFixed.startProfessionalLoadingAnimation = function() {
-  const statusMessages = [
-    "Establishing secure connection to FDA databases...",
-    "Authenticating API credentials...",
-    "Querying Warning Letters database...",
-    "Processing enforcement actions...",
-    "Analyzing Form 483 observations...",
-    "Cross-referencing inspection records...",
-    "Extracting violation patterns...",
-    "Calculating compliance metrics...",
-    "Generating risk assessment...",
-    "Finalizing regulatory intelligence report..."
-  ];
-  
-  const steps = [
-    { id: 'step-wl', duration: 3000, name: 'Warning Letters' },
-    { id: 'step-483', duration: 3500, name: 'Form 483s' },
-    { id: 'step-insp', duration: 2500, name: 'Inspections' },
-    { id: 'step-analytics', duration: 2000, name: 'Analytics' }
-  ];
-  
-  let currentStep = 0;
-  let messageIndex = 0;
-  let totalProgress = 0;
-  
-  // Update status message
-  const updateStatus = () => {
-    const statusElement = document.getElementById('loadingStatus');
-    const progressElement = document.getElementById('loadingProgress');
-    
-    if (statusElement && messageIndex < statusMessages.length) {
-      statusElement.textContent = statusMessages[messageIndex];
-      messageIndex++;
-      
-      totalProgress = Math.min(95, (messageIndex / statusMessages.length) * 100);
-      if (progressElement) {
-        progressElement.textContent = Math.round(totalProgress) + '%';
-      }
-    }
-  };
-  
-  // Process each step
-  const processStep = (stepIndex) => {
-    if (stepIndex >= steps.length || !this.state.loading) return;
-    
-    const step = steps[stepIndex];
-    const stepElement = document.getElementById(step.id);
-    
-    if (stepElement) {
-      // Start step
-      const indicator = stepElement.querySelector('.step-indicator');
-      const status = stepElement.querySelector('.step-status');
-      const progress = stepElement.querySelector('.step-progress');
-      
-      // Update to processing state
-      indicator.innerHTML = `
-        <div class="w-4 h-4 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
-      `;
-      indicator.className = 'w-10 h-10 rounded-lg bg-indigo-100 flex items-center justify-center step-indicator';
-      status.textContent = 'Processing...';
-      status.className = 'text-sm text-indigo-600 step-status font-medium';
-      
-      // Animate progress bar
-      let stepProgress = 0;
-      const progressInterval = setInterval(() => {
-        stepProgress += 2;
-        if (progress) {
-          progress.style.width = Math.min(stepProgress, 100) + '%';
-          progress.className = 'bg-indigo-600 h-1.5 rounded-full transition-all duration-300 step-progress';
-        }
-        
-        if (stepProgress >= 100) {
-          clearInterval(progressInterval);
-          
-          // Complete step
-          indicator.innerHTML = `
-            <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-            </svg>
-          `;
-          indicator.className = 'w-10 h-10 rounded-lg bg-green-500 flex items-center justify-center step-indicator';
-          status.textContent = 'Complete';
-          status.className = 'text-sm text-green-600 step-status font-medium';
-          
-          // Move to next step
-          setTimeout(() => processStep(stepIndex + 1), 300);
-        }
-      }, step.duration / 50);
-    }
-  };
-  
-  // Start animations
-  this.statusInterval = setInterval(updateStatus, 1000);
-  setTimeout(() => processStep(0), 500);
-  
-  updateStatus(); // Initial status
-};
-
-// Stop professional loading animation
-window.enhancedWarningLettersFixed.stopProfessionalLoadingAnimation = function() {
-  if (this.statusInterval) {
-    clearInterval(this.statusInterval);
-    this.statusInterval = null;
-  }
-};
-
-// Clean up old loading functions
-window.enhancedWarningLettersFixed.showLoadingModal = function() {
-  console.log('Using professional inline loading');
-};
-
-window.enhancedWarningLettersFixed.hideLoadingModal = function() {
-  console.log('Professional loading complete');
-};
-
-// Enhanced CSS for professional loading
-if (!document.getElementById('professional-loading-styles')) {
-  const style = document.createElement('style');
-  style.id = 'professional-loading-styles';
-  style.textContent = `
-    /* Professional loading animations */
-    .step-indicator {
-      transition: all 0.3s ease-in-out;
-    }
-    
-    .step-progress {
-      transition: width 0.3s ease-in-out;
-    }
-    
-    .group:hover .step-indicator {
-      transform: translateX(2px);
-    }
-    
-    /* Smooth progress transitions */
-    @keyframes slideInRight {
-      from {
-        opacity: 0;
-        transform: translateX(20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateX(0);
-      }
-    }
-    
-    .animate-slide-in {
-      animation: slideInRight 0.3s ease-out;
-    }
-    
-    /* Enhanced spinner */
-    @keyframes professional-spin {
-      from {
-        transform: rotate(0deg);
-      }
-      to {
-        transform: rotate(360deg);
-      }
-    }
-    
-    /* Pulse effect for pending states */
-    .animate-pulse-professional {
-      animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-    }
-    
-    @keyframes pulse {
-      0%, 100% {
-        opacity: 1;
-      }
-      50% {
-        opacity: .7;
-      }
-    }
-  `;
-  document.head.appendChild(style);
-}
-
-console.log('✅ Professional Loading System initialized');
-console.log('📋 Features:');
-console.log('   • Clean, enterprise-grade design');
-console.log('   • Step-by-step progress visualization');
-console.log('   • Realistic status messaging');
-console.log('   • Professional color scheme');
-console.log('   • Smooth animations and transitions');
-
-
-window.enhancedWarningLettersFixed.searchForm483sWithVariations = async function(company, variations) {
-  const results = [];
-  const searchedTerms = new Set();
-  
-  console.log(`🔍 Enhanced Form 483 Search for: ${company}`);
-  
-  // RELAXED search strategies - try multiple approaches
-  const searchStrategies = [
-    // Strategy 1: Exact company name with multiple fields
-    {
-      terms: [company],
-      fields: ['legalName', 'Legal_Name', 'company', 'companyName', 'firm_name'],
-      description: 'Exact match - multiple fields',
-      strict: false
-    },
-    // Strategy 2: Partial matches without common suffixes
-    {
-      terms: [
-        company.replace(/\s+(INC|LLC|LTD|CORP|CORPORATION|CO|USA|INTERNATIONAL|PHARMACEUTICALS?|PHARMA)\.?$/gi, '').trim()
-      ].filter(term => term && term.length > 3),
-      fields: ['legalName', 'Legal_Name'],
-      description: 'Without business suffixes',
-      strict: false
-    },
-    // Strategy 3: First significant word (often brand name)
-    {
-      terms: (() => {
-        const words = company.split(/\s+/).filter(w => 
-          w.length > 3 && !['INC', 'LLC', 'LTD', 'CORP', 'USA', 'THE', 'AND'].includes(w.toUpperCase())
-        );
-        return words.slice(0, 2); // Try first 1-2 significant words
-      })(),
-      fields: ['legalName', 'Legal_Name'],
-      description: 'Key word search',
-      strict: false
-    },
-    // Strategy 4: Fuzzy matching with shorter terms
-    {
-      terms: variations.filter(v => v.length >= 4), // Accept shorter terms
-      fields: ['legalName', 'Legal_Name', 'company'],
-      description: 'All variations - relaxed',
-      strict: false
-    }
-  ];
-
-  // Try each strategy
-  for (const strategy of searchStrategies) {
-    console.log(`  📋 Strategy: ${strategy.description}`);
-    
-    for (const searchTerm of strategy.terms) {
-      if (!searchTerm || searchedTerms.has(searchTerm.toLowerCase())) continue;
-      searchedTerms.add(searchTerm.toLowerCase());
-      
-      for (const field of strategy.fields) {
-        try {
-          const params = new URLSearchParams({
-            term: searchTerm,
-            field: field,
-            page: 1,
-            perPage: 50, // Smaller batches for faster processing
-            _t: Date.now()
-          });
-          
-          const response = await fetch(`/api/form483/search?${params}`);
-          
-          if (response.ok) {
-            const data = await response.json();
-            
-            if (data.results && data.results.length > 0) {
-              console.log(`    ✅ Found ${data.results.length} Form 483s for "${searchTerm}" in ${field}`);
-              
-              // RELAXED relevance filtering
-              data.results.forEach(f483 => {
-                const recordCompanyName = (
-                  f483.legalName || 
-                  f483.Legal_Name || 
-                  f483.companyName || 
-                  f483.company || 
-                  ''
-                ).trim().toLowerCase();
-                
-                // More lenient matching - check for partial matches
-                const isRelevant = this.isRelaxedMatch(company.toLowerCase(), recordCompanyName, searchTerm.toLowerCase());
-                
-                if (isRelevant) {
-                  f483.sourceCompany = company;
-                  f483.matchedVariation = searchTerm;
-                  f483.matchStrategy = strategy.description;
-                  f483.matchField = field;
-                  f483.normalizedCompanyName = recordCompanyName;
-                  f483.relevanceScore = this.calculateMatchScore(company, recordCompanyName);
-                  results.push(f483);
-                } else {
-                  console.log(`    ⚠️ Weak match filtered: "${recordCompanyName}"`);
-                }
-              });
-              
-              // Don't break on first success - collect from all strategies
-            }
-          }
-        } catch (error) {
-          console.warn(`    ❌ Form 483 search error for ${searchTerm}:`, error.message);
-        }
-        
-        // Small delay to avoid overwhelming the API
-        await new Promise(resolve => setTimeout(resolve, 100));
-      }
-    }
-  }
-  
-  // Remove duplicates and sort by relevance
-  const uniqueResults = this.deduplicateResults(results, '_id');
-  const sortedResults = uniqueResults.sort((a, b) => (b.relevanceScore || 0) - (a.relevanceScore || 0));
-  
-  console.log(`  📋 Form 483 Final: ${sortedResults.length} relevant results for ${company}`);
-  return sortedResults;
-};
-
-// Override the main performSearch
-window.enhancedWarningLettersFixed.performSearch = window.enhancedWarningLettersFixed.performEnhancedSearch;
-
-console.log('✅ Enhanced Company Matching Logic loaded successfully!');
-
-// Override the main performSearch to use enhanced version
-window.enhancedWarningLettersFixed.performSearch = window.enhancedWarningLettersFixed.performEnhancedSearch;
-
-console.log('✅ Enhanced Warning Letters System v2 - Complete version loaded successfully!');
 
 // window.enhancedWarningLettersFixed = {
 //   state: {
