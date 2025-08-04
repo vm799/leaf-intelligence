@@ -1722,41 +1722,256 @@ if (require.main === module) {
   
   const printUsage = () => {
     console.log(`
-FDA 483 Parser - With Size Limits CLI Usage:
-===========================================
+FDA 483 Parser - With Progress Tracking CLI Usage:
+================================================
 
-Commands:
+Processing Commands:
   batch [options]           Process multiple records (original)
   batch-skip [options]      Process records with size checks (skip large ones)
+  batch-enhanced [options]  Process with enhanced memory safety
   single <recordId>         Process a single record
   test-real [recordId]      Test with real record (no save)
   process-skipped [options] Process previously skipped records
-  skipped-summary           Show summary of skipped records
-  stats                     Show database statistics
 
-Options for 'batch' and 'batch-skip':
+Progress & Status Commands:
+  progress                  Show detailed processing progress
+  progress-detailed         Show detailed progress with confidence breakdown
+  status                    Quick status summary
+  stats                     Show database statistics (existing)
+  skipped-summary           Show summary of skipped records
+
+Options for processing commands:
   --limit <n>          Number of records to process (default: 10)
   --save               Save results to MongoDB
   --min-conf <n>       Minimum confidence to save (default: 70)
 
-Options for 'process-skipped':
-  --save               Save results to MongoDB
-  --min-conf <n>       Minimum confidence to save (default: 70)
-
 Examples:
-  node fda483-parser.js batch-skip --limit 20 --save
+  node fda483-parser.js progress
+  node fda483-parser.js status
+  node fda483-parser.js progress-detailed
+  node fda483-parser.js batch-enhanced --limit 50 --save
   node fda483-parser.js process-skipped --save
-  node fda483-parser.js skipped-summary
-  node fda483-parser.js test-real 669c4a1eccc11f227ba6be49
-  node fda483-parser.js stats
 
 Size Limits (configurable at top of file):
   PDF Size: ${SIZE_LIMITS.PDF_SIZE_MB}MB
   Text Length: ${SIZE_LIMITS.TEXT_LENGTH} characters
   Observation Count: ${SIZE_LIMITS.OBSERVATION_COUNT} observations
-    `);
-  };
+  `);
+};
   
+
+  
+// Add this function to your code (after your other functions)
+
+// Progress checker function
+async function checkProcessingProgress() {
+  try {
+    console.log('\n📊 PROCESSING PROGRESS REPORT');
+    console.log('='.repeat(50));
+    
+    // Get counts
+    const totalCount = await FDA483.countDocuments();
+    const processedCount = await FDA483.countDocuments({ parsedText: { $exists: true } });
+    const unprocessedCount = totalCount - processedCount;
+    
+    // Get high confidence count
+    const highConfidenceCount = await FDA483.countDocuments({ 
+      'parsedData.parsingConfidence.overall': { $gte: 70 } 
+    });
+    
+    // Get low confidence count
+    const lowConfidenceCount = await FDA483.countDocuments({ 
+      'parsedData.parsingConfidence.overall': { $lt: 70, $exists: true } 
+    });
+    
+    // Calculate percentages
+    const processedPercent = ((processedCount / totalCount) * 100).toFixed(1);
+    const unprocessedPercent = ((unprocessedCount / totalCount) * 100).toFixed(1);
+    const highConfPercent = totalCount > 0 ? ((highConfidenceCount / totalCount) * 100).toFixed(1) : 0;
+    
+    // Progress bar
+    const progressBarLength = 40;
+    const filledLength = Math.floor((processedCount / totalCount) * progressBarLength);
+    const progressBar = '█'.repeat(filledLength) + '░'.repeat(progressBarLength - filledLength);
+    
+    // Display results
+    console.log('📈 OVERALL PROGRESS:');
+    console.log(`[${progressBar}] ${processedPercent}%`);
+    console.log('');
+    console.log(`📊 Total Records: ${totalCount.toLocaleString()}`);
+    console.log(`✅ Processed: ${processedCount.toLocaleString()} (${processedPercent}%)`);
+    console.log(`⏳ Remaining: ${unprocessedCount.toLocaleString()} (${unprocessedPercent}%)`);
+    console.log('');
+    console.log('🎯 QUALITY BREAKDOWN:');
+    console.log(`✅ High Confidence (≥70%): ${highConfidenceCount.toLocaleString()} (${highConfPercent}% of total)`);
+    console.log(`⚠️  Low Confidence (<70%): ${lowConfidenceCount.toLocaleString()}`);
+    
+    // Estimate remaining time (if we have processing history)
+    const estimateTime = await estimateRemainingTime(unprocessedCount);
+    if (estimateTime) {
+      console.log('');
+      console.log('⏰ TIME ESTIMATES:');
+      console.log(estimateTime);
+    }
+    
+    // Check for skipped records
+    await checkSkippedRecords();
+    
+    console.log('='.repeat(50));
+    
+    return {
+      total: totalCount,
+      processed: processedCount,
+      remaining: unprocessedCount,
+      processedPercent: parseFloat(processedPercent),
+      highConfidence: highConfidenceCount,
+      lowConfidence: lowConfidenceCount
+    };
+    
+  } catch (error) {
+    console.error('❌ Error checking progress:', error);
+    throw error;
+  }
+}
+
+// Estimate remaining processing time
+async function estimateRemainingTime(remainingCount) {
+  try {
+    // Get some recent processing times (if available)
+    // This is a simple estimate - you could make it more sophisticated
+    const avgProcessingTime = 15; // seconds per record (rough estimate)
+    
+    if (remainingCount === 0) return null;
+    
+    const totalSeconds = remainingCount * avgProcessingTime;
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    
+    let estimate = '';
+    if (hours > 0) {
+      estimate += `~${hours}h ${minutes}m`;
+    } else if (minutes > 0) {
+      estimate += `~${minutes}m`;
+    } else {
+      estimate += `~${Math.ceil(totalSeconds)}s`;
+    }
+    
+    return `At ~15sec/record: ${estimate} remaining`;
+    
+  } catch (error) {
+    return null;
+  }
+}
+
+// Check skipped records if file exists
+async function checkSkippedRecords() {
+  try {
+    const fileContent = await fs.readFile(SKIPPED_RECORDS_FILE, 'utf8');
+    const skippedRecords = JSON.parse(fileContent);
+    
+    if (skippedRecords.length > 0) {
+      console.log('');
+      console.log('⏭️  SKIPPED RECORDS:');
+      
+      // Group by reason
+      const byReason = {};
+      skippedRecords.forEach(record => {
+        if (!byReason[record.reason]) {
+          byReason[record.reason] = 0;
+        }
+        byReason[record.reason]++;
+      });
+      
+      Object.entries(byReason).forEach(([reason, count]) => {
+        console.log(`   ${reason}: ${count} records`);
+      });
+      
+      console.log(`   Total Skipped: ${skippedRecords.length}`);
+    }
+    
+  } catch (error) {
+    // No skipped records file or error reading it - that's fine
+  }
+}
+
+// Detailed progress with breakdown by confidence ranges
+async function checkDetailedProgress() {
+  try {
+    console.log('\n📊 DETAILED PROCESSING PROGRESS');
+    console.log('='.repeat(60));
+    
+    // Get counts
+    const totalCount = await FDA483.countDocuments();
+    const processedCount = await FDA483.countDocuments({ parsedText: { $exists: true } });
+    const unprocessedCount = totalCount - processedCount;
+    
+    // Confidence breakdowns
+    const confidenceRanges = [
+      { label: '90-100%', min: 90, max: 100 },
+      { label: '80-89%', min: 80, max: 89 },
+      { label: '70-79%', min: 70, max: 79 },
+      { label: '60-69%', min: 60, max: 69 },
+      { label: '50-59%', min: 50, max: 59 },
+      { label: '0-49%', min: 0, max: 49 }
+    ];
+    
+    console.log('📈 OVERALL SUMMARY:');
+    console.log(`Total FDA 483 Records: ${totalCount.toLocaleString()}`);
+    console.log(`Processed: ${processedCount.toLocaleString()}`);
+    console.log(`Remaining: ${unprocessedCount.toLocaleString()}`);
+    console.log(`Progress: ${((processedCount/totalCount)*100).toFixed(1)}%`);
+    
+    console.log('\n🎯 CONFIDENCE DISTRIBUTION:');
+    
+    for (const range of confidenceRanges) {
+      const count = await FDA483.countDocuments({
+        'parsedData.parsingConfidence.overall': { 
+          $gte: range.min, 
+          $lte: range.max 
+        }
+      });
+      
+      if (count > 0) {
+        const percent = ((count / totalCount) * 100).toFixed(1);
+        const bar = '█'.repeat(Math.floor(count / totalCount * 20));
+        console.log(`${range.label.padEnd(8)} │${bar.padEnd(20)}│ ${count.toLocaleString()} (${percent}%)`);
+      }
+    }
+    
+    // Recent processing rate
+    console.log('\n📅 RECENT ACTIVITY:');
+    const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    const recentlyProcessed = await FDA483.countDocuments({
+      'parsedData': { $exists: true },
+      // Add a timestamp field if you want to track when records were processed
+    });
+    
+    console.log('='.repeat(60));
+    
+  } catch (error) {
+    console.error('❌ Error checking detailed progress:', error);
+    throw error;
+  }
+}
+
+// Quick status function - just the essentials
+async function quickStatus() {
+  try {
+    const total = await FDA483.countDocuments();
+    const processed = await FDA483.countDocuments({ parsedText: { $exists: true } });
+    const remaining = total - processed;
+    const percent = ((processed/total)*100).toFixed(1);
+    
+    console.log(`📊 Quick Status: ${processed.toLocaleString()}/${total.toLocaleString()} (${percent}%) | ${remaining.toLocaleString()} remaining`);
+    
+    return { total, processed, remaining, percent: parseFloat(percent) };
+    
+  } catch (error) {
+    console.error('❌ Error getting quick status:', error);
+    return null;
+  }
+}
+
   const runCLI = async () => {
     try {
       await mongoose.connect(MONGO_URI);
@@ -1773,7 +1988,21 @@ Size Limits (configurable at top of file):
           await startBatchProcessing({ limit, saveToDb, minConfidence });
           break;
         }
-        
+        case 'progress': {
+  await checkProcessingProgress();
+  break;
+}
+
+case 'progress-detailed': {
+  await checkDetailedProgress();
+  break;
+}
+
+case 'status': {
+  await quickStatus();
+  break;
+}
+
         case 'batch-skip': {
           const limitIndex = args.indexOf('--limit');
           const limit = limitIndex > -1 ? parseInt(args[limitIndex + 1]) : 10;
