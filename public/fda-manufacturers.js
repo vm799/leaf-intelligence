@@ -136,7 +136,7 @@ const FDAManufacturers = (function() {
 
     // Display results
     const resultsHtml = `
-      <div class="mb-6">
+      <div class="hidden mb-6">
         <h2 class="text-2xl font-bold text-gray-900">
           Search Results for "${data.compound}"
         </h2>

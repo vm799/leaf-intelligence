@@ -5337,7 +5337,7 @@ tailwind.config = {
             <p class="text-gray-600 mt-1">FDA Complete Response Letters for regulatory review and compliance</p>
         </div>
 
-        <div class="p-6">
+        <div class="p-6" id='responseLettersSectionTAB'>
             <!-- Loading State -->
             <div id="response-letters-loading" class="text-center py-8 hidden">
                 <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-4"></div>
@@ -8342,7 +8342,7 @@ tailwind.config = {
 <div id="fda-manufacturers-tab" class="hidden tab-content">
  
   <!-- Search Section -->
-  <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-8 mb-8">
+  <div class="hidden bg-white rounded-xl shadow-sm border border-gray-200 p-8 mb-8">
     <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
       <div class="lg:col-span-2">
         <label for="fda-compound" class="block text-sm font-semibold text-gray-900 mb-2">
@@ -102732,7 +102732,7 @@ function initializeComprehensiveDrugAnalysis() {
       </div>
     </div>
     
-    <div class=" flex items-center space-x-4">
+    <div class="pro-feature flex items-center space-x-4" id='pubmedsearchpro' >
       <input 
         type="text" 
         id="comprehensiveDrugName" 
@@ -115650,7 +115650,7 @@ class LeafIntelligenceFeatureBlocker {
                             setTimeout(() => this.blockRecentEvents(), 100);
                         }
                         if (node.id === 'recent-events-section' || 
-                            (node.querySelector && node.querySelector('#responseLettersSection'))) {
+                            (node.querySelector && node.querySelector('#responseLettersSectionTAB'))) {
                             setTimeout(() => this.blockResponseLetters(), 100);
                         }
                     }
@@ -115741,12 +115741,13 @@ if (document.readyState === 'loading') {
           '#advanced-analytics',
           '.premium-reports',
           '[data-feature="export-tools"]',
-        '#responseLettersSection',
+        '#responseLettersSectionTAB',
+      
         ],
         buttons: [
           'button[onclick*="exportPDF"]',
           '#startComprehensiveAnalysis',
-          '#view-all-applications',
+         
           'button[onclick*="downloadReport"]',
           '.advanced-action-btn',
           '#crltabp'
@@ -115773,7 +115774,8 @@ if (document.readyState === 'loading') {
         '#advanced-analytics',
         '.premium-reports',
         '[data-feature="export-tools"]',
-        '#responseLettersSection',
+        '#responseLettersSectionTAB',
+   
       ],
       buttons: [
         'button[onclick*="exportPDF"]',
@@ -115781,7 +115783,7 @@ if (document.readyState === 'loading') {
         '#view-all-applications',
         'button[onclick*="downloadReport"]',
         '.advanced-action-btn',
-        '#crltabp'
+        
       ],
       customSelectors: [
         {
