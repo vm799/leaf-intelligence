@@ -19416,7 +19416,7 @@ function showLoadingIndicator(targetElementId) {
     // Create array of items sorted by number of studies (most studied first)
     const sortedItems = Object.keys(data[dataField])
         .map(item => ({
-            name: item,
+            name: item, 
             ...data[dataField][item]
         }))
         .sort((a, b) => b.count - a.count)
@@ -30353,194 +30353,194 @@ function ensureTimelineVisibility() {
 
 // Add this modification to your renderImprovedTimelineListWithExistingModals function
 // This will show only top 3 conditions for free users and block the rest
-
-async function renderImprovedTimelineListWithExistingModals(data, entityName, entityType = 'drug') {
-    const timelineElement = document.getElementById('usage-timeline');
+//ISPRO
+// async function renderImprovedTimelineListWithExistingModals(data, entityName, entityType = 'drug') {
+//     const timelineElement = document.getElementById('usage-timeline');
     
-    // Check if user is Pro
-    // const isPro = window.leafIntelligenceFeatureBlocker ? window.leafIntelligenceFeatureBlocker.isPro : false;
-    const currentAccess = await window.subscriptionManager.refresh();
-    const isPro = currentAccess.isPro
-    // Determine which data field to use based on entity type
-    const dataField = entityType === 'drug' ? 'byCondition' : 'byDrug';
-    const itemType = entityType === 'drug' ? 'conditions' : 'treatments';
-    const itemLabel = entityType === 'drug' ? 'Condition' : 'Treatment';
+//     // Check if user is Pro
+//     // const isPro = window.leafIntelligenceFeatureBlocker ? window.leafIntelligenceFeatureBlocker.isPro : false;
+//     const currentAccess = await window.subscriptionManager.refresh();
+//     const isPro = currentAccess.isPro
+//     // Determine which data field to use based on entity type
+//     const dataField = entityType === 'drug' ? 'byCondition' : 'byDrug';
+//     const itemType = entityType === 'drug' ? 'conditions' : 'treatments';
+//     const itemLabel = entityType === 'drug' ? 'Condition' : 'Treatment';
     
-    // Create array of all items sorted by number of studies
-    const allItems = Object.keys(data[dataField])
-        .map(item => ({
-            name: item,
-            ...data[dataField][item]
-        }))
-        .sort((a, b) => b.count - a.count);
+//     // Create array of all items sorted by number of studies
+//     const allItems = Object.keys(data[dataField])
+//         .map(item => ({
+//             name: item,
+//             ...data[dataField][item]
+//         }))
+//         .sort((a, b) => b.count - a.count);
     
-    // For free users, only show top 3
-    const visibleItems = isPro ? allItems : allItems.slice(0, 3);
-    const blockedItems = isPro ? [] : allItems.slice(3);
-    const totalItems = allItems.length;
+//     // For free users, only show top 3
+//     const visibleItems = isPro ? allItems : allItems.slice(0, 3);
+//     const blockedItems = isPro ? [] : allItems.slice(3);
+//     const totalItems = allItems.length;
     
-    // Generate insights
-    const insights = generateInsights(data, entityName, allItems, entityType);
-        //     <!-- Timeline Summary -->
-        // <div class="mb-6 bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-xl border border-blue-200">
-        //     <div class="mb-4">
-        //         <h3 class="text-lg font-semibold text-gray-900 mb-2">
-        //             <i class="fas fa-lightbulb text-yellow-500 mr-2"></i>
-        //             Key Insights
-        //         </h3>
-        //         <div class="space-y-2 text-sm text-gray-700">
-        //             ${insights.map(insight => `<p>• ${insight}</p>`).join('')}
-        //         </div>
-        //     </div>
+//     // Generate insights
+//     const insights = generateInsights(data, entityName, allItems, entityType);
+//         //     <!-- Timeline Summary -->
+//         // <div class="mb-6 bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-xl border border-blue-200">
+//         //     <div class="mb-4">
+//         //         <h3 class="text-lg font-semibold text-gray-900 mb-2">
+//         //             <i class="fas fa-lightbulb text-yellow-500 mr-2"></i>
+//         //             Key Insights
+//         //         </h3>
+//         //         <div class="space-y-2 text-sm text-gray-700">
+//         //             ${insights.map(insight => `<p>• ${insight}</p>`).join('')}
+//         //         </div>
+//         //     </div>
             
-        //     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
-        //         <div class="text-center">
-        //             <div class="text-2xl font-bold text-blue-600">${data.totalStudies}</div>
-        //             <div class="text-xs text-gray-600">Total Studies</div>
-        //         </div>
-        //         <div class="text-center">
-        //             <div class="text-2xl font-bold text-green-600">${totalItems}</div>
-        //             <div class="text-xs text-gray-600">${itemType}</div>
-        //         </div>
-        //         <div class="text-center">
-        //             <div class="text-2xl font-bold text-purple-600">${data.latestStudyYear - data.earliestStudyYear + 1}</div>
-        //             <div class="text-xs text-gray-600">Years of Research</div>
-        //         </div>
-        //         <div class="text-center">
-        //             <div class="text-2xl font-bold text-orange-600">${data.earliestStudyYear}-${data.latestStudyYear}</div>
-        //             <div class="text-xs text-gray-600">Study Period</div>
-        //         </div>
-        //     </div>
-        // </div>
-    // Build the HTML
-    let listHTML = `
+//         //     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+//         //         <div class="text-center">
+//         //             <div class="text-2xl font-bold text-blue-600">${data.totalStudies}</div>
+//         //             <div class="text-xs text-gray-600">Total Studies</div>
+//         //         </div>
+//         //         <div class="text-center">
+//         //             <div class="text-2xl font-bold text-green-600">${totalItems}</div>
+//         //             <div class="text-xs text-gray-600">${itemType}</div>
+//         //         </div>
+//         //         <div class="text-center">
+//         //             <div class="text-2xl font-bold text-purple-600">${data.latestStudyYear - data.earliestStudyYear + 1}</div>
+//         //             <div class="text-xs text-gray-600">Years of Research</div>
+//         //         </div>
+//         //         <div class="text-center">
+//         //             <div class="text-2xl font-bold text-orange-600">${data.earliestStudyYear}-${data.latestStudyYear}</div>
+//         //             <div class="text-xs text-gray-600">Study Period</div>
+//         //         </div>
+//         //     </div>
+//         // </div>
+//     // Build the HTML
+//     let listHTML = `
 
         
-        <!-- Timeline Table -->
-        <div class="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gradient-to-r from-gray-50 to-gray-100">
-                        <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">${itemLabel}</th>
-                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Studies</th>
-                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Year Range</th>
-                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Peak Activity</th>
-                            ${entityType === 'condition' ? '<th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Success Status</th>' : ''}
-                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-    `;
+//         <!-- Timeline Table -->
+//         <div class="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
+//             <div class="overflow-x-auto">
+//                 <table class="min-w-full divide-y divide-gray-200">
+//                     <thead class="bg-gradient-to-r from-gray-50 to-gray-100">
+//                         <tr>
+//                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">${itemLabel}</th>
+//                             <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Studies</th>
+//                             <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Year Range</th>
+//                             <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Peak Activity</th>
+//                             ${entityType === 'condition' ? '<th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Success Status</th>' : ''}
+//                             <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+//                         </tr>
+//                     </thead>
+//                     <tbody class="bg-white divide-y divide-gray-200">
+//     `;
     
-    // Generate rows for visible items
-    visibleItems.forEach((item, index) => {
-        listHTML += generateTimelineRowWithExistingModal(item, entityType, index, data, dataField);
-    });
+//     // Generate rows for visible items
+//     visibleItems.forEach((item, index) => {
+//         listHTML += generateTimelineRowWithExistingModal(item, entityType, index, data, dataField);
+//     });
     
-    // If there are blocked items (free user), add a pro feature blocker row
-    if (blockedItems.length > 0) {
-        listHTML += `
-            <tr>
-                <td colspan="${entityType === 'condition' ? '7' : '6'}" class="px-6 py-8">
-                    <div class="relative">
-                        <div class="absolute inset-0 bg-gradient-to-b from-transparent to-gray-100 pointer-events-none"></div>
-                        <div class="text-center">
-                            <div class="inline-flex items-center justify-center w-16 h-16 bg-purple-100 rounded-full mb-4">
-                                <svg class="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
-                                </svg>
-                            </div>
-                            <h3 class="text-lg font-semibold text-gray-900 mb-2">View All ${totalItems} ${itemType}</h3>
-                            <p class="text-sm text-gray-600 mb-4">Unlock access to ${blockedItems.length} more ${itemType} with historical data</p>
-                            <button onclick="window.leafIntelligenceFeatureBlocker ? window.leafIntelligenceFeatureBlocker.showUpgradeModal() : alert('Upgrade to Pro')" 
-                                    class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-full hover:from-purple-700 hover:to-pink-700 transform hover:scale-105 transition-all duration-200 shadow-lg">
-                                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
-                                </svg>
-                                Upgrade to Pro
-                            </button>
-                            <div class="mt-4 text-xs text-gray-500">
-                                <span class="inline-flex items-center">
-                                    <svg class="w-4 h-4 mr-1 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                                    </svg>
-                                    Full historical analysis
-                                </span>
-                                <span class="inline-flex items-center ml-4">
-                                    <svg class="w-4 h-4 mr-1 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                                    </svg>
-                                    Detailed timeline data
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </td>
-            </tr>
-        `;
+//     // If there are blocked items (free user), add a pro feature blocker row
+//     if (blockedItems.length > 0) {
+//         listHTML += `
+//             <tr>
+//                 <td colspan="${entityType === 'condition' ? '7' : '6'}" class="px-6 py-8">
+//                     <div class="relative">
+//                         <div class="absolute inset-0 bg-gradient-to-b from-transparent to-gray-100 pointer-events-none"></div>
+//                         <div class="text-center">
+//                             <div class="inline-flex items-center justify-center w-16 h-16 bg-purple-100 rounded-full mb-4">
+//                                 <svg class="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+//                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+//                                 </svg>
+//                             </div>
+//                             <h3 class="text-lg font-semibold text-gray-900 mb-2">View All ${totalItems} ${itemType}</h3>
+//                             <p class="text-sm text-gray-600 mb-4">Unlock access to ${blockedItems.length} more ${itemType} with historical data</p>
+//                             <button onclick="window.leafIntelligenceFeatureBlocker ? window.leafIntelligenceFeatureBlocker.showUpgradeModal() : alert('Upgrade to Pro')" 
+//                                     class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-full hover:from-purple-700 hover:to-pink-700 transform hover:scale-105 transition-all duration-200 shadow-lg">
+//                                 <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+//                                     <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
+//                                 </svg>
+//                                 Upgrade to Pro
+//                             </button>
+//                             <div class="mt-4 text-xs text-gray-500">
+//                                 <span class="inline-flex items-center">
+//                                     <svg class="w-4 h-4 mr-1 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+//                                         <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+//                                     </svg>
+//                                     Full historical analysis
+//                                 </span>
+//                                 <span class="inline-flex items-center ml-4">
+//                                     <svg class="w-4 h-4 mr-1 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+//                                         <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+//                                     </svg>
+//                                     Detailed timeline data
+//                                 </span>
+//                             </div>
+//                         </div>
+//                     </div>
+//                 </td>
+//             </tr>
+//         `;
         
-        // Optionally, show a blurred preview of the next few items
-        if (blockedItems.length > 0) {
-            const previewItems = blockedItems.slice(0, 2);
-            previewItems.forEach((item, index) => {
-                listHTML += `
-                    <tr class="opacity-30 pointer-events-none">
-                        <td class="px-6 py-4 text-sm text-gray-500">${visibleItems.length + index + 1}</td>
-                        <td class="px-6 py-4">
-                            <div class="text-sm font-medium text-gray-900 blur-sm">${item.name}</div>
-                        </td>
-                        <td class="px-6 py-4 text-center">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 blur-sm">
-                                ${item.count} studies
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 text-center text-sm text-gray-500 blur-sm">
-                            ${item.earliestYear} - ${item.latestYear}
-                        </td>
-                        <td class="px-6 py-4 text-center text-sm text-gray-500 blur-sm">
-                            ${Object.keys(item.years).reduce((max, year) => item.years[year] > item.years[max] ? year : max, Object.keys(item.years)[0])}
-                        </td>
-                        ${entityType === 'condition' ? '<td class="px-6 py-4 text-center blur-sm">-</td>' : ''}
-                        <td class="px-6 py-4 text-center">
-                            <button class="inline-flex items-center px-3 py-1 bg-gray-100 text-gray-400 text-xs font-medium rounded-lg cursor-not-allowed">
-                                <i class="fas fa-lock mr-1"></i>
-                                Pro Only
-                            </button>
-                        </td>
-                    </tr>
-                `;
-            });
-        }
-    }
+//         // Optionally, show a blurred preview of the next few items
+//         if (blockedItems.length > 0) {
+//             const previewItems = blockedItems.slice(0, 2);
+//             previewItems.forEach((item, index) => {
+//                 listHTML += `
+//                     <tr class="opacity-30 pointer-events-none">
+//                         <td class="px-6 py-4 text-sm text-gray-500">${visibleItems.length + index + 1}</td>
+//                         <td class="px-6 py-4">
+//                             <div class="text-sm font-medium text-gray-900 blur-sm">${item.name}</div>
+//                         </td>
+//                         <td class="px-6 py-4 text-center">
+//                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 blur-sm">
+//                                 ${item.count} studies
+//                             </span>
+//                         </td>
+//                         <td class="px-6 py-4 text-center text-sm text-gray-500 blur-sm">
+//                             ${item.earliestYear} - ${item.latestYear}
+//                         </td>
+//                         <td class="px-6 py-4 text-center text-sm text-gray-500 blur-sm">
+//                             ${Object.keys(item.years).reduce((max, year) => item.years[year] > item.years[max] ? year : max, Object.keys(item.years)[0])}
+//                         </td>
+//                         ${entityType === 'condition' ? '<td class="px-6 py-4 text-center blur-sm">-</td>' : ''}
+//                         <td class="px-6 py-4 text-center">
+//                             <button class="inline-flex items-center px-3 py-1 bg-gray-100 text-gray-400 text-xs font-medium rounded-lg cursor-not-allowed">
+//                                 <i class="fas fa-lock mr-1"></i>
+//                                 Pro Only
+//                             </button>
+//                         </td>
+//                     </tr>
+//                 `;
+//             });
+//         }
+//     }
     
-    listHTML += `
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    `;
+//     listHTML += `
+//                     </tbody>
+//                 </table>
+//             </div>
+//         </div>
+//     `;
     
-    // Add footer with summary
-    if (!isPro && blockedItems.length > 0) {
-        listHTML += `
-            <div class="mt-4 text-center text-sm text-gray-600">
-                <p>Showing <strong>${visibleItems.length}</strong> of <strong>${totalItems}</strong> ${itemType} • 
-                <a href="#" onclick="window.leafIntelligenceFeatureBlocker ? window.leafIntelligenceFeatureBlocker.showUpgradeModal() : alert('Upgrade to Pro'); return false;" 
-                   class="text-purple-600 hover:text-purple-800 font-medium">
-                    View all ${totalItems} ${itemType} →
-                </a>
-                </p>
-            </div>
-        `;
-    }
+//     // Add footer with summary
+//     if (!isPro && blockedItems.length > 0) {
+//         listHTML += `
+//             <div class="mt-4 text-center text-sm text-gray-600">
+//                 <p>Showing <strong>${visibleItems.length}</strong> of <strong>${totalItems}</strong> ${itemType} • 
+//                 <a href="#" onclick="window.leafIntelligenceFeatureBlocker ? window.leafIntelligenceFeatureBlocker.showUpgradeModal() : alert('Upgrade to Pro'); return false;" 
+//                    class="text-purple-600 hover:text-purple-800 font-medium">
+//                     View all ${totalItems} ${itemType} →
+//                 </a>
+//                 </p>
+//             </div>
+//         `;
+//     }
     
-    // Update the timeline element
-    timelineElement.innerHTML = listHTML;
+//     // Update the timeline element
+//     timelineElement.innerHTML = listHTML;
     
-    // Add event listeners only for visible items
-    setupTimelineEventListenersWithExistingModals(visibleItems, entityType, data, dataField);
-}
+//     // Add event listeners only for visible items
+//     setupTimelineEventListenersWithExistingModals(visibleItems, entityType, data, dataField);
+// }
 
 // Helper function to check if user is Pro (add this if you don't have it)
 function isUserPro() {
@@ -30571,9 +30571,12 @@ const timelineBlockerStyles = `
 </style>
 `;
 
+
+// pGANTTION
 // function renderImprovedTimelineListWithExistingModals(data, entityName, entityType = 'drug') {
 //     const timelineElement = document.getElementById('usage-timeline');
-    
+//         const currentAccess = await window.subscriptionManager.refresh();
+//     const isPro = currentAccess.isPro
 //     // Determine which data field to use based on entity type
 //     const dataField = entityType === 'drug' ? 'byCondition' : 'byDrug';
 //     const itemType = entityType === 'drug' ? 'conditions' : 'treatments';
@@ -30699,6 +30702,279 @@ const timelineBlockerStyles = `
 //     // Setup event listeners
 //     setupTimelinePaginationEventListeners(allItems, entityType, data, dataField);
 // }
+
+async function renderImprovedTimelineListWithExistingModals(data, entityName, entityType = 'drug') {
+    const timelineElement = document.getElementById('usage-timeline');
+    
+    // Check if user is Pro
+    const currentAccess = await window.subscriptionManager.refresh();
+    const isPro = currentAccess.isPro;
+    
+    // Determine which data field to use based on entity type
+    const dataField = entityType === 'drug' ? 'byCondition' : 'byDrug';
+    const itemType = entityType === 'drug' ? 'conditions' : 'treatments';
+    const itemLabel = entityType === 'drug' ? 'Condition' : 'Treatment';
+    
+    // Create array of all items sorted by number of studies
+    const allItems = Object.keys(data[dataField])
+        .map(item => ({
+            name: item,
+            ...data[dataField][item]
+        }))
+        .sort((a, b) => b.count - a.count);
+    
+    const totalItems = allItems.length;
+    
+    // If Pro user, render with pagination
+    if (isPro) {
+        // Initialize pagination state
+        if (!window.timelinePagination) {
+            window.timelinePagination = {
+                currentPage: 1,
+                pageSize: 10,
+                filteredItems: [...allItems],
+                searchTerm: ''
+            };
+        }
+        
+        // Generate the Pro version with pagination
+        const listHTML = `
+            <div class="mb-6">
+                <p class="text-sm text-gray-600">
+                    Based on analysis of ${data.totalStudies} clinical trials from ${data.earliestStudyYear} to ${data.latestStudyYear}
+                </p>
+            </div>
+            
+            <!-- Search and Controls -->
+            <div class="mb-6 bg-gray-50 p-4 rounded-lg">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="relative">
+                        <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                        <input type="text" 
+                               id="timeline-list-search" 
+                               placeholder="Search ${itemType}..." 
+                               value="${window.timelinePagination.searchTerm}"
+                               class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    <select id="timeline-page-size" 
+                            class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        <option value="10" ${window.timelinePagination.pageSize === 10 ? 'selected' : ''}>Show 10 per page</option>
+                        <option value="25" ${window.timelinePagination.pageSize === 25 ? 'selected' : ''}>Show 25 per page</option>
+                        <option value="50" ${window.timelinePagination.pageSize === 50 ? 'selected' : ''}>Show 50 per page</option>
+                        <option value="100" ${window.timelinePagination.pageSize === 100 ? 'selected' : ''}>Show 100 per page</option>
+                        <option value="200" ${window.timelinePagination.pageSize === 200 ? 'selected' : ''}>Show 200 per page</option>
+                    </select>
+                    <div class="text-sm text-gray-600 flex items-center">
+                        <i class="fas fa-info-circle mr-2"></i>
+                        <span id="timeline-stats">
+                            Showing ${Math.min(window.timelinePagination.pageSize, window.timelinePagination.filteredItems.length)} of ${window.timelinePagination.filteredItems.length} ${itemType}
+                        </span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Results Table -->
+            <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-50 border-b border-gray-200">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    ${itemLabel}
+                                </th>
+                                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Studies
+                                </th>
+                                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Year Range
+                                </th>
+                                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Peak Activity
+                                </th>
+                                ${entityType === 'condition' ? `
+                                    <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Success Rate
+                                    </th>
+                                ` : ''}
+                                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Actions
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody id="timeline-table-body" class="bg-white divide-y divide-gray-200">
+                            <!-- Content will be populated by renderTimelinePageContent -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Loading indicator -->
+                <div id="timeline-loading" class="hidden p-8 text-center">
+                    <div class="inline-flex items-center">
+                        <i class="fas fa-spinner fa-spin mr-2"></i>
+                        <span class="text-gray-600">Loading...</span>
+                    </div>
+                </div>
+                
+                <!-- No results message -->
+                <div id="timeline-no-results" class="hidden p-8 text-center text-gray-500">
+                    <i class="fas fa-search text-2xl mb-2"></i>
+                    <p>No ${itemType} found matching your search.</p>
+                </div>
+            </div>
+            
+            <!-- Pagination Controls -->
+            <div id="timeline-pagination-container" class="mt-6">
+                <!-- Pagination will be populated by renderPaginationControls -->
+            </div>
+        `;
+        
+        // Update the timeline element
+        timelineElement.innerHTML = listHTML;
+        
+        // Render the current page content
+        renderTimelinePageContent(allItems, entityType, data, dataField);
+        
+        // Setup event listeners for pagination
+        setupTimelinePaginationEventListeners(allItems, entityType, data, dataField);
+        
+    } else {
+        // Free user - show limited items with Pro blocker
+        const visibleItems = allItems.slice(0, 3);
+        const blockedItems = allItems.slice(3);
+        
+        // Generate insights if you have that function
+        // const insights = generateInsights(data, entityName, allItems, entityType);
+        
+        let listHTML = `
+            <!-- Timeline Table -->
+            <div class="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gradient-to-r from-gray-50 to-gray-100">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">${itemLabel}</th>
+                                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Studies</th>
+                                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Year Range</th>
+                                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Peak Activity</th>
+                                ${entityType === 'condition' ? '<th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Success Status</th>' : ''}
+                                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+        `;
+        
+        // Generate rows for visible items
+        visibleItems.forEach((item, index) => {
+            listHTML += generateTimelineRowWithExistingModal(item, entityType, index, data, dataField);
+        });
+        
+        // Add Pro blocker section if there are blocked items
+        if (blockedItems.length > 0) {
+            listHTML += `
+                <tr>
+                    <td colspan="${entityType === 'condition' ? '6' : '5'}" class="px-6 py-8">
+                        <div class="relative">
+                            <div class="absolute inset-0 bg-gradient-to-b from-transparent to-gray-100 pointer-events-none"></div>
+                            <div class="text-center">
+                                <div class="inline-flex items-center justify-center w-16 h-16 bg-purple-100 rounded-full mb-4">
+                                    <svg class="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                                    </svg>
+                                </div>
+                                <h3 class="text-lg font-semibold text-gray-900 mb-2">View All ${totalItems} ${itemType}</h3>
+                                <p class="text-sm text-gray-600 mb-4">Unlock access to ${blockedItems.length} more ${itemType} with historical data</p>
+                                <button onclick="window.leafIntelligenceFeatureBlocker ? window.leafIntelligenceFeatureBlocker.showUpgradeModal() : alert('Upgrade to Pro')" 
+                                        class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-full hover:from-purple-700 hover:to-pink-700 transform hover:scale-105 transition-all duration-200 shadow-lg">
+                                    <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
+                                    </svg>
+                                    Upgrade to Pro
+                                </button>
+                                <div class="mt-4 text-xs text-gray-500">
+                                    <span class="inline-flex items-center">
+                                        <svg class="w-4 h-4 mr-1 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                        </svg>
+                                        Full historical analysis
+                                    </span>
+                                    <span class="inline-flex items-center ml-4">
+                                        <svg class="w-4 h-4 mr-1 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                        </svg>
+                                        Detailed timeline data
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            `;
+            
+            // Show blurred preview of next few items
+            if (blockedItems.length > 0) {
+                const previewItems = blockedItems.slice(0, 2);
+                previewItems.forEach((item, index) => {
+                    const peakYear = Object.keys(item.years).reduce((max, year) => 
+                        item.years[year] > item.years[max] ? year : max, Object.keys(item.years)[0]
+                    );
+                    
+                    listHTML += `
+                        <tr class="opacity-30 pointer-events-none">
+                            <td class="px-6 py-4">
+                                <div class="text-sm font-medium text-gray-900 blur-sm">${item.name}</div>
+                            </td>
+                            <td class="px-6 py-4 text-center">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 blur-sm">
+                                    ${item.count} studies
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 text-center text-sm text-gray-500 blur-sm">
+                                ${item.earliestYear} - ${item.latestYear}
+                            </td>
+                            <td class="px-6 py-4 text-center text-sm text-gray-500 blur-sm">
+                                ${peakYear}
+                            </td>
+                            ${entityType === 'condition' ? '<td class="px-6 py-4 text-center blur-sm">-</td>' : ''}
+                            <td class="px-6 py-4 text-center">
+                                <button class="inline-flex items-center px-3 py-1 bg-gray-100 text-gray-400 text-xs font-medium rounded-lg cursor-not-allowed">
+                                    <i class="fas fa-lock mr-1"></i>
+                                    Pro Only
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+        }
+        
+        listHTML += `
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        `;
+        
+        // Add footer with summary
+        if (blockedItems.length > 0) {
+            listHTML += `
+                <div class="mt-4 text-center text-sm text-gray-600">
+                    <p>Showing <strong>${visibleItems.length}</strong> of <strong>${totalItems}</strong> ${itemType} • 
+                    <a href="#" onclick="window.leafIntelligenceFeatureBlocker ? window.leafIntelligenceFeatureBlocker.showUpgradeModal() : alert('Upgrade to Pro'); return false;" 
+                       class="text-purple-600 hover:text-purple-800 font-medium">
+                        View all ${totalItems} ${itemType} →
+                    </a>
+                    </p>
+                </div>
+            `;
+        }
+        
+        // Update the timeline element
+        timelineElement.innerHTML = listHTML;
+        
+        // Add event listeners only for visible items
+        setupTimelineEventListenersWithExistingModals(visibleItems, entityType, data, dataField);
+    }
+}
 
 // Render the current page content
 function renderTimelinePageContent(allItems, entityType, data, dataField) {
@@ -80753,10 +81029,10 @@ if (showEMA && drug) {
                         
                         if (PubMedModule.performPubMedSearch) {
                             pubmedResults = await PubMedModule.performPubMedSearch(combinedTerm, pubmedOptions);
-                            // autostartComprehensiveAnalysis(drug, false)
+                            autostartComprehensiveAnalysis(drug, true)
                         } else if (PubMedModule.searchPubMed) {
                             pubmedResults = await PubMedModule.searchPubMed(combinedTerm, pubmedOptions);
-// autostartComprehensiveAnalysis(drug, false)
+autostartComprehensiveAnalysis(drug, true)
                         }
                         
                     } else if (drug) {
@@ -80764,13 +81040,13 @@ if (showEMA && drug) {
                         
                         if (PubMedModule.performPubMedSearch) {
                             pubmedResults = await PubMedModule.performPubMedSearch(drug, pubmedOptions);
-// autostartComprehensiveAnalysis(drug, false)
+autostartComprehensiveAnalysis(drug, true)
                         } else if (PubMedModule.searchPubMedByDrug) {
                             pubmedResults = await PubMedModule.searchPubMedByDrug(drug, pubmedOptions);
-// autostartComprehensiveAnalysis(drug, false)
+autostartComprehensiveAnalysis(drug, true)
                         } else if (PubMedModule.searchPubMed) {
                             pubmedResults = await PubMedModule.searchPubMed(drug, pubmedOptions);
-// autostartComprehensiveAnalysis(drug, false)
+autostartComprehensiveAnalysis(drug, true)
                         }
                         
                     } else if (condition) {
