@@ -2911,6 +2911,10 @@ tailwind.config = {
 .tab-content.hidden {
     display: none;
 }
+
+.hidden {
+    display: none !important;
+}
         .search-transition {
             transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
@@ -8445,6 +8449,7 @@ tailwind.config = {
 
   <!-- Results Section -->
   <div id="fda-results" class="space-y-6"></div>
+
 </div>
 
 <!-- Enhanced Modal -->
@@ -111726,22 +111731,79 @@ class EnhancedStripeIntegration {
     this.loadUserAccess();
   }
 
-  async loadUserAccess() {
-    try {
-      const userId = this.getCurrentUserId();
-      if (!userId) return;
+//   async loadUserAccess() {
+//     try {
+//       const userId = this.getCurrentUserId();
+//       if (!userId) return;
 
-      const response = await fetch(`/api/check-access?userId=${userId}`);
-      const data = await response.json();
-      this.userAccess = data;
+//       const response = await fetch(`/api/check-access?userId=${userId}`);
+//       const data = await response.json();
+//       this.userAccess = data;
       
-      // Update UI based on access
-      this.updateSubscriptionUI();
-    } catch (error) {
-      console.error('Error loading user access:', error);
-    }
-  }
+//       // Update UI based on access
+//       this.updateSubscriptionUI();
+//     } catch (error) {
+//       console.error('Error loading user access:', error);
+//     }
+//   }
+async loadUserAccess() {
+  try {
+    const userId = this.getCurrentUserId();
+    if (!userId) return;
 
+    const response = await fetch(`/api/user/${userId}/subscription-status`);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    
+    // Map the subscription data to your existing userAccess structure
+    // Adjust this mapping based on what your updateSubscriptionUI() expects
+    this.userAccess = {
+      // Core fields from the new endpoint
+      _id: data._id,
+      username: data.username,
+      email: data.email,
+      role: data.role,
+      darkModeEnabled: data.darkModeEnabled,
+      
+      // Subscription-related fields
+      subscriptionStatus: data.subscriptionStatus,
+      usage: data.usage,
+      billingPeriod: data.billingPeriod,
+      
+      // Trial information if available
+      trial: data.trial,
+      
+      // Additional fields
+      searchCredits: data.searchCredits,
+      hasPaymentMethod: data.hasPaymentMethod,
+      subscriptionTier: data.subscriptionTier,
+      featureAccess: data.featureAccess,
+      
+      // If your UI needs specific access flags, you might want to compute them:
+      hasAccess: data.subscriptionStatus === 'active' || 
+                 data.subscriptionStatus === 'paid' ||
+                 (data.subscriptionStatus === 'free-trial' && data.trial?.isInTrial),
+      isFreeTier: data.subscriptionStatus === 'free' || 
+                  (data.subscriptionStatus === 'free-trial' && !data.trial?.isInTrial),
+      isPaid: data.subscriptionStatus === 'active' || data.subscriptionStatus === 'paid'
+    };
+    
+    // Update UI based on access
+    this.updateSubscriptionUI();
+  } catch (error) {
+    console.error('Error loading user access:', error);
+    // Optionally set default access state on error
+    this.userAccess = {
+      hasAccess: false,
+      isFreeTier: true,
+      subscriptionStatus: 'free'
+    };
+    this.updateSubscriptionUI();
+  }
+}
   getCurrentUserId() {
     // Your existing method
     if (window.loginSystem && typeof window.loginSystem.getCurrentUserId === 'function') {
@@ -112203,19 +112265,61 @@ class LeafIntelligenceFeatureBlocker {
     this.setupMutationObserver();
   }
   
-  async checkUserSubscription() {
-    try {
-      const currentUser = localStorage.getItem('currentUser');
-      if (currentUser) {
-        const user = JSON.parse(currentUser);
-        this.isPro = user.subscriptionTier === 'monthly' || user.subscriptionStatus === 'active';
-        this.userAccess = user;
-      }
-    } catch (error) {
-      console.error('Error checking subscription:', error);
+//   async checkUserSubscription() {
+//     try {
+//       const currentUser = localStorage.getItem('currentUser');
+//       if (currentUser) {
+//         const user = JSON.parse(currentUser);
+//         this.isPro = user.subscriptionTier === 'monthly' || user.subscriptionStatus === 'active';
+//         this.userAccess = user;
+//       }
+//     } catch (error) {
+//       console.error('Error checking subscription:', error);
+//       this.isPro = false;
+//     }
+//   }
+
+async checkUserSubscription() {
+  try {
+    // const currentUser = localStorage.getItem('currentUser');
+    const userId = this.getCurrentUserId();
+    if (!currentUser) {
       this.isPro = false;
+      this.userAccess = null;
+      return;
     }
+
+    const user = JSON.parse(currentUser);
+    
+    // Fetch fresh subscription data from API
+    const response = await fetch(`/api/user/${user._id}/subscription-status`);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const subscriptionData = await response.json();
+    
+    // Update local storage with fresh data (optional, but keeps it in sync)
+    const updatedUser = {
+      ...user,
+      ...subscriptionData
+    };
+    localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+    
+    // Check if user is Pro based on the API response
+    this.isPro = subscriptionData.subscriptionStatus === 'active' || 
+                 subscriptionData.subscriptionStatus === 'paid' ||
+                 subscriptionData.subscriptionTier === 'monthly';
+    
+    this.userAccess = subscriptionData;
+    
+  } catch (error) {
+    console.error('Error checking subscription:', error);
+    this.isPro = false;
+    this.userAccess = null;
   }
+}
   
   // Create glass overlay for sections
   createSectionBlocker(element, customMessage = null) {
@@ -114157,7 +114261,7 @@ function showOnlySection(sectionName) {
             'fdaDataSection': elements.fdaDataSection,
             'emaDataSection': elements.ema,
             'tabpubmedSection': elements.pubmedSection ,
-            'warningLetters': document.getElementById('fda-manufacturers-tab'),
+            'fda-manufacturers-tab': document.getElementById('fda-manufacturers-tab'),
             'OrangeBookSection' : document.getElementById('OrangeBookSection'),
             'LabellingSection' : document.getElementById('LabellingSection'),
             'responseLettersSection' : document.getElementById('responseLettersSection')
