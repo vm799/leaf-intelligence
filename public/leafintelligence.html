@@ -112283,16 +112283,16 @@ async checkUserSubscription() {
   try {
     // const currentUser = localStorage.getItem('currentUser');
     const userId = this.getCurrentUserId();
-    if (!currentUser) {
+    if (!userId) {
       this.isPro = false;
       this.userAccess = null;
       return;
     }
 
-    const user = JSON.parse(currentUser);
+    // const user = JSON.parse(currentUser);
     
     // Fetch fresh subscription data from API
-    const response = await fetch(`/api/user/${user._id}/subscription-status`);
+    const response = await fetch(`/api/user/${userId}/subscription-status`);
     
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -112305,7 +112305,7 @@ async checkUserSubscription() {
       ...user,
       ...subscriptionData
     };
-    localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+    // localStorage.setItem('currentUser', JSON.stringify(updatedUser));
     
     // Check if user is Pro based on the API response
     this.isPro = subscriptionData.subscriptionStatus === 'active' || 
