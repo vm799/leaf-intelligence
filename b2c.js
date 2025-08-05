@@ -750,7 +750,7 @@ const cache = new NodeCache({ stdTTL: 3600 });
 // Middleware
 app.use(cors());
 app.use(express.json());
-app.use(express.static('public'));
+app.use(express.static('b2cpublic'));
 
 // Rate limiting
 const limiter = rateLimit({
@@ -884,7 +884,6 @@ async function fetchFDAAdverseEvents(drugName) {
         return null;
     }
 }
-
 async function fetchFDAEnforcement(drugName) {
     try {
         const response = await axios.get('https://api.fda.gov/drug/enforcement.json', {
@@ -942,30 +941,26 @@ async function fetchMolecularStructure(cid) {
     if (!cid) return null;
     
     try {
-        // Try to get 3D structure first
-        const conformerResponse = await axios.get(
-            `https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/${cid}/conformers/JSON`,
-            { params: { record_type: '3d' } }
-        ).catch(() => null);
+        // Check if 3D conformer exists
+        const has3D = await axios.get(
+            `https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/${cid}/conformers/JSON?record_type=3d`
+        ).then(() => true).catch(() => false);
         
-        if (conformerResponse?.data) {
-            return {
-                type: '3d',
-                conformer: conformerResponse.data,
-                imageUrl: `https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/${cid}/PNG`,
-                image3DUrl: `https://pubchem.ncbi.nlm.nih.gov/image/img3d.cgi?cid=${cid}&t=l`
-            };
-        }
-        
-        // Fallback to 2D
         return {
-            type: '2d',
+            type: has3D ? '3d' : '2d',
+            cid: cid,
             imageUrl: `https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/${cid}/PNG`,
-            sdfUrl: `https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/${cid}/SDF`
+            image3DUrl: has3D ? `https://pubchem.ncbi.nlm.nih.gov/image/img3d.cgi?cid=${cid}&t=l` : null,
+            sdfUrl: `https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/${cid}/record/SDF/?record_type=${has3D ? '3d' : '2d'}&response_type=display`
         };
     } catch (error) {
         console.error('Molecular structure error:', error.message);
-        return null;
+        return {
+            type: '2d',
+            cid: cid,
+            imageUrl: `https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/${cid}/PNG`,
+            sdfUrl: null
+        };
     }
 }
 
@@ -1490,8 +1485,8 @@ app.use((err, req, res, next) => {
 });
 
 // Start server
-app.listen(PORT, () => {
-    console.log(`PHARMA-SCAN Backend running on port ${PORT}`);
+app.listen(3000, () => {
+    console.log(`PHARMA-SCAN Backend running on port ${3000}`);
     console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
-    console.log(`Access the API at: http://localhost:${PORT}`);
+    console.log(`Access the API at: http://localhost:${3000}`);
 });

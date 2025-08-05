@@ -835,6 +835,590 @@ app.put('/api/user/:userId/preferences', async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 });
+
+
+
+// FDA Data Dashboard API Configuration
+const FDA_DASHBOARD_API = {
+  baseUrl: 'https://api-datadashboard.fda.gov/v1',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization-User': process.env.FDA_API_USER || '', // Set in environment
+    'Authorization-Key': process.env.FDA_API_KEY || ''    // Set in environment
+  }
+};
+
+
+// Cache to reduce API calls
+const cache = new Map();
+const CACHE_DURATION = 3600000; // 1 hour
+
+// Helper function to get from cache or fetch
+async function cachedFetch(key, fetchFunction) {
+  const cached = cache.get(key);
+  if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
+    return cached.data;
+  }
+  
+  const data = await fetchFunction();
+  cache.set(key, { data, timestamp: Date.now() });
+  return data;
+}
+
+// Main endpoint: Find all manufacturers for a drug compound
+app.get('/api/fei/drug-compound/manufacturers', async (req, res) => {
+  try {
+    const { compound, includeGeneric = true, includeBrand = true, fetchCompliance = true } = req.query;
+    
+    if (!compound) {
+      return res.status(400).json({ error: 'Drug compound name is required' });
+    }
+
+    console.log(`Searching for manufacturers of: ${compound}`);
+    
+    // Check if Dashboard API is configured
+    const dashboardAvailable = FDA_DASHBOARD_API.headers['Authorization-User'] !== '';
+    
+    // Collect all potential manufacturer names and product info
+    const potentialManufacturers = new Map();
+    
+    // Step 1: Get manufacturer names from NDC database (always available)
+    const ndcResults = await searchNDCByCompound(compound);
+    console.log(`Found ${ndcResults.length} NDC products`);
+    
+    for (const ndcProduct of ndcResults) {
+      const manufacturerName = ndcProduct.labeler_name;
+      if (!manufacturerName) continue;
+      
+      const key = manufacturerName.toLowerCase().trim();
+      
+      if (!potentialManufacturers.has(key)) {
+        potentialManufacturers.set(key, {
+          manufacturer_name: manufacturerName,
+          normalized_name: key,
+          fei_establishments: [], // Array to hold multiple FEI numbers and their details
+          duns_number: null,
+          products: [],
+          ndc_products: [],
+          dashboard_searched: false
+        });
+      }
+      
+      potentialManufacturers.get(key).ndc_products.push({
+        product_ndc: ndcProduct.product_ndc,
+        proprietary_name: ndcProduct.brand_name || ndcProduct.proprietary_name,
+        nonproprietary_name: ndcProduct.generic_name || ndcProduct.nonproprietary_name,
+        dosage_form: ndcProduct.dosage_form,
+        route: ndcProduct.route?.join(', '),
+        active_ingredients: ndcProduct.active_ingredients,
+        marketing_start_date: ndcProduct.marketing_start_date
+      });
+    }
+    
+    // Step 2: Get manufacturer names from drugsfda (may have some FEI numbers)
+    const drugs = await searchDrugsByCompound(compound, includeGeneric, includeBrand);
+    console.log(`Found ${drugs.length} drug applications`);
+    
+    for (const drug of drugs) {
+      if (drug.openfda?.manufacturer_name) {
+        for (let i = 0; i < drug.openfda.manufacturer_name.length; i++) {
+          const manufacturerName = drug.openfda.manufacturer_name[i];
+          const feiNumber = drug.openfda.fei_number?.[i];
+          const dunsNumber = drug.openfda.duns_number?.[i];
+          
+          const key = manufacturerName.toLowerCase().trim();
+          
+          if (!potentialManufacturers.has(key)) {
+            potentialManufacturers.set(key, {
+              manufacturer_name: manufacturerName,
+              normalized_name: key,
+              fei_establishments: [],
+              duns_number: dunsNumber,
+              products: [],
+              ndc_products: [],
+              dashboard_searched: false
+            });
+          } else if (dunsNumber && !potentialManufacturers.get(key).duns_number) {
+            potentialManufacturers.get(key).duns_number = dunsNumber;
+          }
+          
+          // Add FEI if found and not already in list
+          if (feiNumber) {
+            const existingFei = potentialManufacturers.get(key).fei_establishments.find(
+              est => est.fei_number === feiNumber
+            );
+            if (!existingFei) {
+              potentialManufacturers.get(key).fei_establishments.push({
+                fei_number: feiNumber,
+                firm_name: manufacturerName,
+                source: 'OpenFDA Drug Applications',
+                compliance_data: {
+                  inspections_classifications: [],
+                  inspections_citations: [],
+                  compliance_actions: [],
+                  import_refusals: []
+                }
+              });
+            }
+          }
+          
+          potentialManufacturers.get(key).products.push({
+            brand_name: drug.openfda.brand_name?.[0],
+            generic_name: drug.openfda.generic_name?.[0],
+            dosage_form: drug.products?.[0]?.dosage_form,
+            strength: drug.products?.[0]?.active_ingredients?.[0]?.strength,
+            application_number: drug.application_number
+          });
+        }
+      }
+    }
+    
+    // Step 3: If Dashboard API is available, search for each manufacturer
+    if (dashboardAvailable) {
+      console.log(`Searching FDA Dashboard for ${potentialManufacturers.size} manufacturers`);
+      
+      // Search each manufacturer name in the Dashboard
+      for (const [key, manufacturer] of potentialManufacturers) {
+        // Try different name variations
+        const nameVariations = generateNameVariations(manufacturer.manufacturer_name);
+        
+        for (const variation of nameVariations) {
+          try {
+            // Search inspections - may return multiple facilities
+            const inspectionResults = await searchFDADashboardByName('inspections_citations', variation);
+            
+            for (const result of inspectionResults) {
+              const existingFei = manufacturer.fei_establishments.find(
+                est => est.fei_number === result.FEINumber.toString()
+              );
+              
+              if (!existingFei) {
+                manufacturer.fei_establishments.push({
+                  fei_number: result.FEINumber.toString(),
+                  firm_name: result.FirmName,
+                  address: result.AddressLine1,
+                  city: result.City,
+                  state: result.State,
+                  zip: result.ZipCode,
+                  country: result.CountryCode,
+                  source: 'FDA Dashboard - Inspections',
+                  compliance_data: {
+                    inspections_classifications: [],
+                    inspections_citations: [],
+                    compliance_actions: [],
+                    import_refusals: []
+                  }
+                });
+                console.log(`Found FEI ${result.FEINumber} for ${manufacturer.manufacturer_name}`);
+              }
+            }
+            
+            // Search compliance actions
+            const complianceResults = await searchFDADashboardByName('compliance_actions', variation);
+            
+            for (const result of complianceResults) {
+              const existingFei = manufacturer.fei_establishments.find(
+                est => est.fei_number === result.FEINumber.toString()
+              );
+              
+              if (!existingFei) {
+                manufacturer.fei_establishments.push({
+                  fei_number: result.FEINumber.toString(),
+                  firm_name: result.FirmName,
+                  address: result.AddressLine1,
+                  city: result.City,
+                  state: result.State,
+                  zip: result.ZipCode,
+                  country: result.CountryCode,
+                  source: 'FDA Dashboard - Compliance Actions',
+                  compliance_data: {
+                    inspections_classifications: [],
+                    inspections_citations: [],
+                    compliance_actions: [],
+                    import_refusals: []
+                  }
+                });
+                console.log(`Found FEI ${result.FEINumber} for ${manufacturer.manufacturer_name}`);
+              }
+            }
+            
+            // Search import refusals
+            const importResults = await searchFDADashboardByName('import_refusals', variation);
+            
+            for (const result of importResults) {
+              const existingFei = manufacturer.fei_establishments.find(
+                est => est.fei_number === result.FEINumber.toString()
+              );
+              
+              if (!existingFei) {
+                manufacturer.fei_establishments.push({
+                  fei_number: result.FEINumber.toString(),
+                  firm_name: result.FirmName,
+                  address: result.AddressLine1,
+                  city: result.City,
+                  state: result.State,
+                  zip: result.ZipCode,
+                  country: result.CountryCode,
+                  source: 'FDA Dashboard - Import Refusals',
+                  compliance_data: {
+                    inspections_classifications: [],
+                    inspections_citations: [],
+                    compliance_actions: [],
+                    import_refusals: []
+                  }
+                });
+                console.log(`Found FEI ${result.FEINumber} for ${manufacturer.manufacturer_name}`);
+              }
+            }
+            
+            manufacturer.dashboard_searched = true;
+            
+            // If we found results, no need to try other name variations
+            if (inspectionResults.length > 0 || complianceResults.length > 0 || importResults.length > 0) {
+              break;
+            }
+          } catch (error) {
+            console.error(`Error searching dashboard for ${variation}:`, error.message);
+          }
+        }
+      }
+      
+      // Step 4: Fetch compliance data for all FEI numbers found
+      if (fetchCompliance === 'true') {
+        console.log('Fetching compliance data for all FEI numbers...');
+        
+        for (const [key, manufacturer] of potentialManufacturers) {
+          for (const establishment of manufacturer.fei_establishments) {
+            if (establishment.fei_number) {
+              console.log(`Fetching compliance data for FEI: ${establishment.fei_number}`);
+              
+              // Fetch all compliance data types
+              const complianceData = await fetchAllComplianceData(establishment.fei_number);
+              establishment.compliance_data = complianceData;
+            }
+          }
+        }
+      }
+    }
+    
+    // Convert to array and sort
+    const manufacturersArray = Array.from(potentialManufacturers.values());
+    
+    // Sort by whether they have FEI numbers
+    manufacturersArray.sort((a, b) => {
+      const aHasFei = a.fei_establishments.length > 0;
+      const bHasFei = b.fei_establishments.length > 0;
+      if (aHasFei && !bHasFei) return -1;
+      if (!aHasFei && bHasFei) return 1;
+      // Secondary sort by number of FEI establishments
+      return b.fei_establishments.length - a.fei_establishments.length;
+    });
+
+    // Calculate totals
+    const totalFeiNumbers = manufacturersArray.reduce((sum, m) => sum + m.fei_establishments.length, 0);
+
+    res.json({
+      compound: compound,
+      total_manufacturers: manufacturersArray.length,
+      manufacturers_with_fei: manufacturersArray.filter(m => m.fei_establishments.length > 0).length,
+      total_fei_numbers: totalFeiNumbers,
+      manufacturers: manufacturersArray,
+      dashboard_api_available: dashboardAvailable,
+      compliance_data_fetched: fetchCompliance === 'true'
+    });
+
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ 
+      error: 'Failed to fetch manufacturer data',
+      message: error.response?.data?.error?.message || error.message 
+    });
+  }
+});
+
+// New function to fetch all compliance data for a FEI
+async function fetchAllComplianceData(feiNumber) {
+  const complianceData = {
+    inspections_classifications: [],
+    inspections_citations: [],
+    compliance_actions: [],
+    import_refusals: []
+  };
+  
+  try {
+    // Fetch inspections classifications
+    const classificationsUrl = `${FDA_DASHBOARD_API.baseUrl}/inspections_classifications`;
+    const classificationsBody = {
+      sort: "InspectionEndDate",
+      sortorder: "DESC",
+      filters: {
+        FEINumber: [parseInt(feiNumber)]
+      },
+      columns: [],
+      rows: 1000
+    };
+    
+    const classificationsResponse = await axios.post(classificationsUrl, classificationsBody, {
+      headers: FDA_DASHBOARD_API.headers,
+      timeout: 10000
+    });
+    
+    if (classificationsResponse.data.statuscode === 400) {
+      complianceData.inspections_classifications = classificationsResponse.data.result || [];
+    }
+  } catch (error) {
+    console.error(`Error fetching classifications for FEI ${feiNumber}:`, error.message);
+  }
+  
+  try {
+    // Fetch inspections citations
+    const citationsUrl = `${FDA_DASHBOARD_API.baseUrl}/inspections_citations`;
+    const citationsBody = {
+      sort: "InspectionEndDate",
+      sortorder: "DESC",
+      filters: {
+        FEINumber: [parseInt(feiNumber)]
+      },
+      columns: [],
+      rows: 1000
+    };
+    
+    const citationsResponse = await axios.post(citationsUrl, citationsBody, {
+      headers: FDA_DASHBOARD_API.headers,
+      timeout: 10000
+    });
+    
+    if (citationsResponse.data.statuscode === 400) {
+      complianceData.inspections_citations = citationsResponse.data.result || [];
+    }
+  } catch (error) {
+    console.error(`Error fetching citations for FEI ${feiNumber}:`, error.message);
+  }
+  
+  try {
+    // Fetch compliance actions
+    const complianceUrl = `${FDA_DASHBOARD_API.baseUrl}/compliance_actions`;
+    const complianceBody = {
+      sort: "ActionTakenDate",
+      sortorder: "DESC",
+      filters: {
+        FEINumber: [parseInt(feiNumber)]
+      },
+      columns: [],
+      rows: 1000
+    };
+    
+    const complianceResponse = await axios.post(complianceUrl, complianceBody, {
+      headers: FDA_DASHBOARD_API.headers,
+      timeout: 10000
+    });
+    
+    if (complianceResponse.data.statuscode === 400) {
+      complianceData.compliance_actions = complianceResponse.data.result || [];
+    }
+  } catch (error) {
+    console.error(`Error fetching compliance actions for FEI ${feiNumber}:`, error.message);
+  }
+  
+  try {
+    // Fetch import refusals
+    const refusalsUrl = `${FDA_DASHBOARD_API.baseUrl}/import_refusals`;
+    const refusalsBody = {
+      sort: "RefusalDate",
+      sortorder: "DESC",
+      filters: {
+        FEINumber: [parseInt(feiNumber)]
+      },
+      columns: [],
+      rows: 1000
+    };
+    
+    const refusalsResponse = await axios.post(refusalsUrl, refusalsBody, {
+      headers: FDA_DASHBOARD_API.headers,
+      timeout: 10000
+    });
+    
+    if (refusalsResponse.data.statuscode === 400) {
+      complianceData.import_refusals = refusalsResponse.data.result || [];
+    }
+  } catch (error) {
+    console.error(`Error fetching import refusals for FEI ${feiNumber}:`, error.message);
+  }
+  
+  return complianceData;
+}
+
+// Helper function to search FDA Data Dashboard by firm name
+async function searchFDADashboardByName(endpoint, firmName) {
+  const url = `${FDA_DASHBOARD_API.baseUrl}/${endpoint}`;
+  
+  const requestBody = {
+    sort: "FEINumber",
+    sortorder: "ASC",
+    filters: {
+      FirmName: [firmName]
+    },
+    columns: ["FEINumber", "FirmName", "AddressLine1", "City", "State", "ZipCode", "CountryCode"],
+    rows: 1000 // Get all facilities for this manufacturer
+  };
+
+  try {
+    const response = await axios.post(url, requestBody, {
+      headers: FDA_DASHBOARD_API.headers,
+      timeout: 10000 // 10 second timeout
+    });
+    
+    if (response.data.statuscode === 400) { // Success code is 400
+      return response.data.result || [];
+    }
+    return [];
+  } catch (error) {
+    // Don't throw, just return empty array
+    return [];
+  }
+}
+
+// Generate name variations for better matching
+function generateNameVariations(name) {
+  const variations = new Set([name]);
+  
+  // Original name without modifications
+  variations.add(name);
+  
+  // Remove common suffixes
+  const baseVariations = [
+    name.replace(/[,\.\s]+(inc|incorporated|llc|ltd|limited|corp|corporation|company|co|usa|us|pharma|pharmaceuticals|pharmaceutical|labs|laboratories|gmbh|ag|sa|plc|pvt|private)\.?$/gi, '').trim(),
+    name.replace(/[,\.\s]+(inc|llc|ltd|corp)\.?$/gi, '').trim(),
+    name.replace(/\s+(usa|us)$/gi, '').trim()
+  ];
+  
+  baseVariations.forEach(base => {
+    if (base && base !== name) {
+      variations.add(base);
+      // Try with common suffixes
+      variations.add(`${base} Inc`);
+      variations.add(`${base} LLC`);
+      variations.add(`${base} Inc.`);
+      variations.add(`${base}, Inc.`);
+      variations.add(`${base} USA`);
+    }
+  });
+  
+  // Handle special cases
+  if (name.includes('&')) {
+    variations.add(name.replace(/&/g, 'and'));
+  }
+  if (name.includes(' and ')) {
+    variations.add(name.replace(/ and /g, ' & '));
+  }
+  
+  // Remove duplicates and empty strings
+  return Array.from(variations).filter(v => v.length > 0);
+}
+
+// Helper function: Search drugs by compound name
+async function searchDrugsByCompound(compound, includeGeneric, includeBrand) {
+  const cacheKey = `drugs_${compound}_${includeGeneric}_${includeBrand}`;
+  
+  return cachedFetch(cacheKey, async () => {
+    const apiUrl = 'https://api.fda.gov/drug/drugsfda.json';
+    
+    let searchParts = [];
+    
+    if (includeGeneric) {
+      searchParts.push(`openfda.generic_name:"${compound}"`);
+      searchParts.push(`products.active_ingredients.name:"${compound}"`);
+    }
+    
+    if (includeBrand) {
+      searchParts.push(`openfda.brand_name:"${compound}"`);
+    }
+    
+    searchParts.push(`openfda.substance_name:"${compound}"`);
+    
+    const params = {
+      search: searchParts.join(' OR '),
+      limit: 1000
+    };
+
+    try {
+      const response = await axios.get(apiUrl, { params });
+      return response.data.results || [];
+    } catch (error) {
+      if (error.response?.status === 404) {
+        return [];
+      }
+      throw error;
+    }
+  });
+}
+
+// Helper function: Search NDC database by compound
+async function searchNDCByCompound(compound) {
+  const cacheKey = `ndc_${compound}`;
+  
+  return cachedFetch(cacheKey, async () => {
+    const apiUrl = 'https://api.fda.gov/drug/ndc.json';
+    
+    const params = {
+      search: `(generic_name:"${compound}" OR nonproprietary_name:"${compound}" OR active_ingredients.name:"${compound}")`,
+      limit: 1000
+    };
+
+    try {
+      const response = await axios.get(apiUrl, { params });
+      const results = response.data.results || [];
+      
+      return results.map(product => {
+        let activeIngredients = [];
+        if (product.active_ingredients) {
+          activeIngredients = product.active_ingredients.map(ing => ({
+            name: ing.name,
+            strength: ing.strength
+          }));
+        }
+        
+        return {
+          ...product,
+          brand_name: product.brand_name || product.proprietary_name,
+          generic_name: product.generic_name || product.nonproprietary_name,
+          active_ingredients: activeIngredients
+        };
+      });
+    } catch (error) {
+      if (error.response?.status === 404) {
+        return [];
+      }
+      throw error;
+    }
+  });
+}
+
+// New endpoint to test FDA Dashboard connection
+app.get('/api/fei/test-dashboard', async (req, res) => {
+  try {
+    const testResults = await searchFDADashboardByName('inspections_citations', 'Pfizer');
+    res.json({
+      connected: testResults.length > 0,
+      sample_result: testResults[0] || null,
+      total_results: testResults.length,
+      credentials_configured: FDA_DASHBOARD_API.headers['Authorization-User'] !== ''
+    });
+  } catch (error) {
+    res.json({
+      connected: false,
+      error: error.message,
+      credentials_configured: FDA_DASHBOARD_API.headers['Authorization-User'] !== ''
+    });
+  }
+});
+
+// Clear cache endpoint
+app.post('/api/fei/cache/clear', (req, res) => {
+  cache.clear();
+  res.json({ message: 'Cache cleared successfully' });
+});
+
 // // Add these routes near your other static file serving routes
 // app.get('/checkout-success', (req, res) => {
 //   // Make sure the file exists in the correct location
@@ -14176,6 +14760,7 @@ searchQuery = `search=${variation}`;
               break;
             case "event":
               searchQuery = `search=patient.drug.medicinalproduct:"${variation}"+OR+patient.drug.openfda.brand_name:"${variation}"+OR+patient.drug.openfda.generic_name:"${variation}"`;
+            // searchQuery = `search=(patient.drug.medicinalproduct:"${variation}"+OR+patient.drug.openfda.brand_name:"${variation}"+OR+patient.drug.openfda.generic_name:"${variation}")+AND+serious:1&sort=receiptdate:desc`;
               break;
             default:
               searchQuery = `search=${variation}`;

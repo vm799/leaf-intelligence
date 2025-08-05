@@ -764,8 +764,15 @@
             `;
 
             // Initialize molecular viewer if structure available
-            if (data.molecularStructure) {
-                setTimeout(() => initMoleculeViewer(data.molecularStructure), 100);
+          // Initialize molecular viewer if structure available
+            if (data.molecularStructure && data.chemicalData?.cid) {
+                setTimeout(() => {
+                    const structureWithCid = {
+                        ...data.molecularStructure,
+                        cid: data.chemicalData.cid
+                    };
+                    initMoleculeViewer(structureWithCid);
+                }, 500);
             }
 
             // Initialize charts
@@ -850,7 +857,7 @@
             return html;
         }
 
-        function renderEfficacyData(efficacy) {
+function renderEfficacyData(efficacy) {
             let html = '<div class="data-section">';
             html += '<h3 class="section-title">EFFICACY ANALYSIS</h3>';
             
@@ -876,8 +883,6 @@
                     </div>
                 `;
                 
-               // Continuation of the frontend JavaScript code
-
                 if (efficacy.successRate) {
                     html += `
                         <div class="progress-container" style="margin-top: 30px;">
@@ -922,12 +927,20 @@
                     
                     html += '</div>';
                 }
+                
+                // Add publication count if available
+                if (efficacy.publicationCount) {
+                    html += `
+                        <div style="margin-top: 30px; padding: 15px; background: rgba(0, 255, 255, 0.05); border: 1px solid var(--primary-cyan);">
+                            <strong>Scientific Publications:</strong> ${efficacy.publicationCount.toLocaleString()} research papers published
+                        </div>
+                    `;
+                }
             }
             
             html += '</div>';
             return html;
         }
-
         function renderSafetyData(safety, charts) {
             let html = '<div class="data-section">';
             html += '<h3 class="section-title">SAFETY PROFILE</h3>';
@@ -1188,42 +1201,93 @@
             document.getElementById(tabName).classList.add('active');
         }
 
-        // Initialize 3D molecule viewer
+// Initialize 3D molecule viewer
         function initMoleculeViewer(structure) {
-            if (!structure || !window.$3Dmol) return;
+            if (!structure) return;
             
-            const viewer = $3Dmol.createViewer('mol3d-viewer', {
-                backgroundColor: 'black'
-            });
-            
-            if (structure.type === '3d' && structure.sdfUrl) {
-                // Load 3D structure
-                $.get(structure.sdfUrl, function(data) {
-                    viewer.addModel(data, 'sdf');
-                    viewer.setStyle({}, {stick: {color: 'spectrum'}});
-                    viewer.zoomTo();
-                    viewer.render();
-                    viewer.rotate(90, {x: 1, y: 0, z: 0}, 1);
-                });
-            } else if (structure.sdfUrl) {
-                // Load 2D structure as SDF
-                $.get(structure.sdfUrl, function(data) {
-                    viewer.addModel(data, 'sdf');
-                    viewer.setStyle({}, {stick: {color: 'cyan'}});
-                    viewer.zoomTo();
-                    viewer.render();
-                });
+            // Wait for 3Dmol to be available
+            if (typeof $3Dmol === 'undefined') {
+                console.error('3Dmol.js not loaded yet');
+                setTimeout(() => initMoleculeViewer(structure), 500);
+                return;
             }
             
-            // Add rotation animation
-            let rotation = 0;
-            setInterval(() => {
-                rotation += 1;
-                viewer.rotate(1, {y: 1}, 1);
-                viewer.render();
-            }, 50);
+            const container = document.getElementById('mol3d-viewer');
+            if (!container) {
+                console.error('Molecule viewer container not found');
+                return;
+            }
+            
+            // Clear any existing viewer
+            container.innerHTML = '';
+            
+            const viewer = $3Dmol.createViewer(container, {
+                backgroundColor: 'black',
+                antialias: true
+            });
+            
+            if (structure.cid) {
+                // Load structure from PubChem
+                const pubchemUrl = `https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/${structure.cid}/record/SDF/?record_type=3d&response_type=display`;
+                
+                fetch(pubchemUrl)
+                    .then(response => {
+                        if (!response.ok) {
+                            // Try 2D structure if 3D fails
+                            return fetch(`https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/${structure.cid}/record/SDF/?record_type=2d&response_type=display`);
+                        }
+                        return response;
+                    })
+                    .then(response => response.text())
+                    .then(data => {
+                        viewer.addModel(data, 'sdf');
+                        viewer.setStyle({}, {
+                            stick: {
+                                colorscheme: 'cyanCarbon',
+                                radius: 0.15
+                            },
+                            sphere: {
+                                colorscheme: 'cyanCarbon',
+                                radius: 0.3,
+                                hidden: false
+                            }
+                        });
+                        viewer.addSurface($3Dmol.SurfaceType.VDW, {
+                            opacity: 0.8,
+                            color: 'cyan'
+                        });
+                        viewer.zoomTo();
+                        viewer.render();
+                        
+                        // Add rotation animation
+                        let rotation = 0;
+                        const animate = () => {
+                            rotation += 1;
+                            viewer.rotate(1, {y: 1});
+                            viewer.render();
+                            requestAnimationFrame(animate);
+                        };
+                        animate();
+                    })
+                    .catch(error => {
+                        console.error('Error loading molecular structure:', error);
+                        container.innerHTML = '<div style="color: #ff3333; text-align: center; padding: 50px;">Failed to load 3D structure</div>';
+                    });
+            } else if (structure.sdfUrl) {
+                // Load from provided SDF URL
+                fetch(structure.sdfUrl)
+                    .then(response => response.text())
+                    .then(data => {
+                        viewer.addModel(data, 'sdf');
+                        viewer.setStyle({}, {stick: {color: 'cyan'}});
+                        viewer.zoomTo();
+                        viewer.render();
+                    })
+                    .catch(error => {
+                        console.error('Error loading SDF:', error);
+                    });
+            }
         }
-
         // Initialize charts
         function initCharts(chartsData) {
             if (!chartsData) return;
