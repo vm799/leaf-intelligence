@@ -1364,6 +1364,82 @@ tailwind.config = {
   font-size: 0.875rem;
   color: #6b7280;
 }
+
+/* Ensure the recent events section has minimum height for overlay */
+#recent-events-section {
+    min-height: 500px;
+}
+
+/* Ensure overlay container fills the section properly */
+#recent-events-section .pro-overlay-container {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+/* Make sure blurred elements can't be interacted with */
+#recent-events-section [style*="blur"] {
+    pointer-events: none !important;
+    user-select: none !important;
+}
+
+/* Ensure the overlay is always visible */
+#recent-events-section .pro-overlay {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Fix z-index issues */
+#recent-events-section .pro-overlay-container {
+    position: absolute !important;
+    z-index: 100 !important;
+}
+
+/* Ensure buttons inside the pro overlay work */
+#recent-events-section .pro-overlay button {
+    pointer-events: auto !important;
+    opacity: 1 !important;
+    cursor: pointer !important;
+}
+/* Ensure tabs have proper positioning context */
+#enhanced-enrollment-tab,
+#enhanced-endpoints-tab {
+    position: relative;
+    min-height: 500px;
+}
+
+/* Ensure overlays cover the entire tab content */
+#enrollment-pro-overlay,
+#endpoints-pro-overlay {
+    border-radius: 8px;
+}
+
+/* Make sure blurred content is not interactive */
+.enhanced-enrollment [style*="blur"],
+.enhanced-endpoints [style*="blur"] {
+    pointer-events: none !important;
+    user-select: none !important;
+}
+
+/* Ensure the tab panels have proper height */
+.tab-content > div[role="tabpanel"] {
+    min-height: 400px;
+    position: relative;
+}
+
+/* Style the blocked tab content */
+#enhanced-enrollment-tab.blocked,
+#enhanced-endpoints-tab.blocked {
+    overflow: hidden;
+}
 </style>
 <body class="bg-gray-50 font-sans text-gray-800" >
 
@@ -30278,12 +30354,13 @@ function ensureTimelineVisibility() {
 // Add this modification to your renderImprovedTimelineListWithExistingModals function
 // This will show only top 3 conditions for free users and block the rest
 
-function renderImprovedTimelineListWithExistingModals(data, entityName, entityType = 'drug') {
+async function renderImprovedTimelineListWithExistingModals(data, entityName, entityType = 'drug') {
     const timelineElement = document.getElementById('usage-timeline');
     
     // Check if user is Pro
-    const isPro = window.leafIntelligenceFeatureBlocker ? window.leafIntelligenceFeatureBlocker.isPro : false;
-    
+    // const isPro = window.leafIntelligenceFeatureBlocker ? window.leafIntelligenceFeatureBlocker.isPro : false;
+    const currentAccess = await window.subscriptionManager.refresh();
+    const isPro = currentAccess.isPro
     // Determine which data field to use based on entity type
     const dataField = entityType === 'drug' ? 'byCondition' : 'byDrug';
     const itemType = entityType === 'drug' ? 'conditions' : 'treatments';
@@ -110214,44 +110291,550 @@ function getCurrentUserInfo() {
   }
 }
 
+// unified-subscription-manager.js
+// This replaces the fragmented subscription checking with a single source of truth
 
-
-// ===== STRIPE PAYMENT INTEGRATION =====
-class StripeIntegration {
+class UnifiedSubscriptionManager {
   constructor() {
     this.userAccess = null;
     this.checkInterval = null;
+    this.lastCheck = null;
+    this.callbacks = [];
+    this.isInitialized = false;
+    
+    // Cache duration: 5 minutes
+    this.CACHE_DURATION = 5 * 60 * 1000;
+    
     this.init();
   }
 
   async init() {
-    // Wait for login system to be ready
-    if (!window.loginSystem || !window.loginSystem.getCurrentUserId()) {
-      // Check every 500ms for login system
-      this.checkInterval = setInterval(() => {
-        if (window.loginSystem && window.loginSystem.getCurrentUserId()) {
-          clearInterval(this.checkInterval);
-          this.initializeStripe();
-        }
-      }, 500);
+    try {
+      // Wait for login system
+      await this.waitForLoginSystem();
       
-      // Stop checking after 10 seconds
-      setTimeout(() => {
-        if (this.checkInterval) {
-          clearInterval(this.checkInterval);
-        }
-      }, 10000);
-    } else {
-      this.initializeStripe();
+      // Initial check
+      await this.checkSubscriptionStatus();
+      
+      // Set up periodic checks every 5 minutes
+      this.checkInterval = setInterval(() => {
+        this.checkSubscriptionStatus();
+      }, this.CACHE_DURATION);
+      
+      this.isInitialized = true;
+      this.notifyCallbacks();
+    } catch (error) {
+      console.error('Failed to initialize subscription manager:', error);
     }
   }
 
-  async initializeStripe() {
-    await this.loadUserAccess();
-    this.applyAccessControls();
-    this.setupPaymentButtons();
-    this.interceptSearchAttempts();
+  async waitForLoginSystem() {
+    return new Promise((resolve) => {
+      const checkLoginSystem = () => {
+        if (window.loginSystem && window.loginSystem.getCurrentUserId()) {
+          resolve();
+        } else {
+          setTimeout(checkLoginSystem, 100);
+        }
+      };
+      checkLoginSystem();
+    });
   }
+
+  getCurrentUserId() {
+    if (window.loginSystem && typeof window.loginSystem.getCurrentUserId === 'function') {
+      return window.loginSystem.getCurrentUserId();
+    }
+    
+    const currentUser = localStorage.getItem('currentUser');
+    if (currentUser) {
+      try {
+        const userData = JSON.parse(currentUser);
+        return userData._id;
+      } catch (e) {
+        console.error('Error parsing current user:', e);
+      }
+    }
+    
+    return null;
+  }
+
+  async checkSubscriptionStatus(forceRefresh = false) {
+    try {
+      const userId = this.getCurrentUserId();
+      if (!userId) {
+        this.userAccess = this.getDefaultAccess();
+        this.notifyCallbacks();
+        return this.userAccess;
+      }
+
+      // Check cache unless forced refresh
+      if (!forceRefresh && this.lastCheck && (Date.now() - this.lastCheck < this.CACHE_DURATION)) {
+        return this.userAccess;
+      }
+
+      // Fetch fresh data from server
+      const response = await fetch(`/api/user/${userId}/subscription-status`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.getAuthToken()}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      
+      // Process the subscription data
+      this.userAccess = this.processSubscriptionData(data);
+      this.lastCheck = Date.now();
+      
+      // Update localStorage for offline access
+      localStorage.setItem('userAccessCache', JSON.stringify({
+        data: this.userAccess,
+        timestamp: this.lastCheck
+      }));
+      
+      // Notify all registered callbacks
+      this.notifyCallbacks();
+      
+      return this.userAccess;
+    } catch (error) {
+      console.error('Error checking subscription status:', error);
+      
+      // Try to use cached data
+      const cached = this.getCachedAccess();
+      if (cached) {
+        this.userAccess = cached;
+      } else {
+        this.userAccess = this.getDefaultAccess();
+      }
+      
+      this.notifyCallbacks();
+      return this.userAccess;
+    }
+  }
+
+  processSubscriptionData(data) {
+    // Determine if user has pro access
+    const isPro = this.isProUser(data);
+    
+    // Calculate trial status
+    let trialInfo = null;
+    if (data.subscriptionStatus === 'free-trial' && data.trial) {
+      trialInfo = {
+        isActive: data.trial.isInTrial,
+        daysLeft: data.trial.daysLeft,
+        endDate: data.trial.trialEndDate
+      };
+    }
+    
+    return {
+      // User info
+      userId: data._id,
+      username: data.username,
+      email: data.email,
+      role: data.role,
+      
+      // Subscription info
+      isPro: isPro,
+      subscriptionStatus: data.subscriptionStatus,
+      subscriptionTier: data.subscriptionTier || this.inferTier(data),
+      
+      // Trial info
+      trial: trialInfo,
+      
+      // Credits and searches
+      searchCredits: data.searchCredits || 0,
+      purchasedSearches: data.purchasedSearches || [],
+      savedSearches: data.savedSearches || [],
+      
+      // Feature access
+      featureAccess: data.featureAccess || this.getDefaultFeatureAccess(),
+      
+      // Billing info
+      hasPaymentMethod: data.hasPaymentMethod || false,
+      stripeCustomerId: data.stripeCustomerId,
+      
+      // Usage
+      usage: data.usage || 0,
+      billingPeriod: data.billingPeriod
+    };
+  }
+
+  isProUser(data) {
+    // Check multiple conditions for Pro status
+    const proStatuses = ['active', 'paid', 'professional', 'trialing'];
+    const proTiers = ['monthly', 'professional', 'team'];
+    
+    return (
+      proStatuses.includes(data.subscriptionStatus) ||
+      proTiers.includes(data.subscriptionTier) ||
+      (data.subscriptionStatus === 'trialing' && data.trial?.isInTrial) ||
+      // Check if they have a valid Stripe subscription
+      (data.stripeSubscriptionId && data.subscriptionStatus !== 'canceled') ||
+      // Additional check for any active payment method
+      (data.hasPaymentMethod && data.subscriptionStatus !== 'free' && data.subscriptionStatus !== 'free-trial')
+    );
+  }
+
+  inferTier(data) {
+    // Infer tier from subscription status if not explicitly set
+    if (data.subscriptionStatus === 'active' || data.subscriptionStatus === 'paid') {
+      return 'monthly';
+    } else if (data.purchasedSearches && data.purchasedSearches.length > 0) {
+      return 'single-search';
+    } else if (data.subscriptionStatus === 'free-trial') {
+      return 'free-trial';
+    }
+    return 'free';
+  }
+
+  getDefaultAccess() {
+    return {
+      userId: null,
+      isPro: false,
+      subscriptionStatus: 'free',
+      subscriptionTier: 'free',
+      trial: null,
+      searchCredits: 0,
+      purchasedSearches: [],
+      savedSearches: [],
+      featureAccess: this.getDefaultFeatureAccess(),
+      hasPaymentMethod: false,
+      usage: 20,
+      billingPeriod: 'Free tier - Limited access'
+    };
+  }
+
+  getDefaultFeatureAccess() {
+    return {
+      clinicalTrials: {
+        topConditions: 3,
+        trialAnalysis: true,
+        viewAllTrials: true,
+      },
+      fdaData: {
+        viewAllNDAs: false,
+        timelineAccess: 'single',
+        enforcementsAccess: false,
+        adverseEventsAccess: false,
+        labelingAccess: false
+      },
+      responseLetters: false,
+      warningLetters: false,
+      labeling: {
+        latestChanges: 3,
+        emaAccess: false
+      },
+      pubmed: {
+        advancedSearch: false
+      }
+    };
+  }
+
+  getCachedAccess() {
+    try {
+      const cached = localStorage.getItem('userAccessCache');
+      if (cached) {
+        const { data, timestamp } = JSON.parse(cached);
+        // Check if cache is still valid (within 1 hour for offline use)
+        if (Date.now() - timestamp < 60 * 60 * 1000) {
+          return data;
+        }
+      }
+    } catch (e) {
+      console.error('Error reading cached access:', e);
+    }
+    return null;
+  }
+
+  getAuthToken() {
+    const userId = this.getCurrentUserId();
+    if (userId) {
+      return btoa(JSON.stringify({ userId }));
+    }
+    return '';
+  }
+
+  // Register callbacks to be notified of subscription changes
+  onChange(callback) {
+    this.callbacks.push(callback);
+    // Immediately call if already initialized
+    if (this.isInitialized && this.userAccess) {
+      callback(this.userAccess);
+    }
+  }
+
+  // Remove a callback
+  offChange(callback) {
+    this.callbacks = this.callbacks.filter(cb => cb !== callback);
+  }
+
+  notifyCallbacks() {
+    this.callbacks.forEach(callback => {
+      try {
+        callback(this.userAccess);
+      } catch (error) {
+        console.error('Error in subscription change callback:', error);
+      }
+    });
+  }
+
+  // Public methods for checking access
+  isPro() {
+    return this.userAccess?.isPro || false;
+  }
+
+  hasFeatureAccess(feature) {
+    if (!this.userAccess?.featureAccess) return false;
+    
+    const parts = feature.split('.');
+    let current = this.userAccess.featureAccess;
+    
+    for (const part of parts) {
+      if (current && typeof current === 'object' && part in current) {
+        current = current[part];
+      } else {
+        return false;
+      }
+    }
+    
+    return current === true || current === -1 || (typeof current === 'number' && current > 0);
+  }
+
+  canSaveSearches() {
+    return this.isPro() || this.userAccess?.subscriptionTier === 'single-search';
+  }
+
+  getSavedSearchLimit() {
+    if (!this.canSaveSearches()) return 0;
+    if (this.userAccess?.subscriptionTier === 'single-search') return 5;
+    return 50; // Pro users
+  }
+
+  hasSearchAccess(searchQuery) {
+    // Check if user has access to a specific search
+    if (this.isPro()) return true;
+    
+    // Check search credits
+    if (this.userAccess?.searchCredits > 0) return true;
+    
+    // Check purchased searches
+    if (this.userAccess?.purchasedSearches) {
+      return this.userAccess.purchasedSearches.some(s => 
+        s.searchQuery?.toLowerCase() === searchQuery?.toLowerCase() && !s.used
+      );
+    }
+    
+    return false;
+  }
+
+  // Force refresh subscription status
+  async refresh() {
+    return await this.checkSubscriptionStatus(true);
+  }
+
+  // Clean up
+  destroy() {
+    if (this.checkInterval) {
+      clearInterval(this.checkInterval);
+    }
+    this.callbacks = [];
+  }
+}
+
+// Create singleton instance
+const subscriptionManager = new UnifiedSubscriptionManager();
+
+// Export for global use
+window.subscriptionManager = subscriptionManager;
+
+
+// ===== STRIPE PAYMENT INTEGRATION =====
+class StripeIntegration {
+//   constructor() {
+//     this.userAccess = null;
+//     this.checkInterval = null;
+//     this.init();
+//   }
+    constructor() {
+        this.checkInterval = null;
+    this.init()
+  }
+
+  async initializeStripe() {
+    // Wait for subscription manager to be ready
+    subscriptionManager.onChange((userAccess) => {
+      this.applyAccessControls(userAccess);
+      this.setupPaymentButtons(userAccess);
+    });
+  }
+async init() {
+    // Wait for the subscription manager to be ready
+    if (!window.subscriptionManager) {
+      console.log('Waiting for subscription manager...');
+      setTimeout(() => this.init(), 100);
+      return;
+    }
+
+    // Subscribe to subscription changes
+    window.subscriptionManager.onChange((userAccess) => {
+      console.log('StripeIntegration: Subscription status changed', userAccess);
+      this.applyAccessControls(userAccess);
+      this.setupPaymentButtons(userAccess);
+      this.interceptSearchAttempts();
+    });
+
+    // Force initial check
+    const currentAccess = await window.subscriptionManager.refresh();
+        console.log("CURRENT ACCSSS INTEGRATEion", currentAccess)
+
+    if (currentAccess) {
+      this.applyAccessControls(currentAccess);
+      this.setupPaymentButtons(currentAccess);
+      this.interceptSearchAttempts();
+    }
+  }
+
+//   applyAccessControls(userAccess) {
+//     if (!userAccess) return;
+    
+//     console.log('Applying access controls, isPro:', userAccess.isPro);
+    
+//     if (!userAccess.isPro) {
+//       this.applyFreeUserRestrictions();
+//     } else {
+//       this.removeRestrictions();
+//     }
+    
+//     this.updateSubscriptionDisplay(userAccess);
+//   }
+// applyFreeUserRestrictions() {
+//     // Apply restrictions after DOM is ready
+//     setTimeout(() => {
+//       this.lockFDAFeatures();
+//       this.limitConditionsDisplay();
+//       this.lockPubMedAdvanced();
+//       this.lockLettersTabs();
+//     }, 100);
+//   }
+
+//   removeRestrictions() {
+//     // Remove all restrictions for Pro users
+//     document.querySelectorAll('.lock-overlay').forEach(el => el.remove());
+//     document.querySelectorAll('.pro-overlay-container').forEach(el => el.remove());
+//     document.querySelectorAll('[disabled][data-pro-feature]').forEach(el => {
+//       el.disabled = false;
+//       el.style.opacity = '1';
+//       el.style.cursor = 'pointer';
+//     });
+//   }
+//   async init() {
+//     // Wait for login system to be ready
+//     if (!window.loginSystem || !window.loginSystem.getCurrentUserId()) {
+//       // Check every 500ms for login system
+//       this.checkInterval = setInterval(() => {
+//         if (window.loginSystem && window.loginSystem.getCurrentUserId()) {
+//           clearInterval(this.checkInterval);
+//           this.initializeStripe();
+//         }
+//       }, 500);
+      
+//       // Stop checking after 10 seconds
+//       setTimeout(() => {
+//         if (this.checkInterval) {
+//           clearInterval(this.checkInterval);
+//         }
+//       }, 10000);
+//     } else {
+//       this.initializeStripe();
+//     }
+//   }
+
+ applyAccessControls(userAccess) {
+    if (!userAccess) return;
+
+    console.log('Applying access controls for user:', {
+      isPro: userAccess.isPro,
+      status: userAccess.subscriptionStatus,
+      tier: userAccess.subscriptionTier
+    });
+
+    if (!userAccess.isPro) {
+      this.applyFreeUserRestrictions();
+    } else {
+      this.removeAllRestrictions();
+    }
+
+    this.updateSubscriptionDisplay(userAccess);
+  }
+
+  removeAllRestrictions() {
+    // Remove all lock overlays
+    document.querySelectorAll('.lock-overlay, .pro-overlay-container, .feature-blocker-overlay').forEach(el => el.remove());
+    
+    // Remove blocked classes
+    document.querySelectorAll('.feature-blocked').forEach(el => {
+      el.classList.remove('feature-blocked');
+      el.style.pointerEvents = '';
+      el.style.userSelect = '';
+    });
+
+    // Re-enable disabled buttons
+    document.querySelectorAll('[disabled][data-pro-feature], button[disabled]').forEach(el => {
+      if (el.hasAttribute('data-originally-disabled')) return;
+      el.disabled = false;
+      el.style.opacity = '';
+      el.style.cursor = '';
+    });
+
+    // Remove pro badges
+    document.querySelectorAll('.pro-badge').forEach(el => el.remove());
+  }
+
+
+  removeAllRestrictions() {
+    // Remove all lock overlays
+    document.querySelectorAll('.lock-overlay, .pro-overlay-container, .feature-blocker-overlay').forEach(el => el.remove());
+    
+    // Remove blocked classes
+    document.querySelectorAll('.feature-blocked').forEach(el => {
+      el.classList.remove('feature-blocked');
+      el.style.pointerEvents = '';
+      el.style.userSelect = '';
+    });
+
+    // Re-enable disabled buttons
+    document.querySelectorAll('[disabled][data-pro-feature], button[disabled]').forEach(el => {
+      if (el.hasAttribute('data-originally-disabled')) return; // Skip if originally disabled
+      el.disabled = false;
+      el.style.opacity = '';
+      el.style.cursor = '';
+    });
+
+    // Remove pro badges if they exist
+    document.querySelectorAll('.pro-badge').forEach(el => el.remove());
+  }
+
+ applyFreeUserRestrictions() {
+    setTimeout(() => {
+      this.lockFDAFeatures();
+      this.limitConditionsDisplay();
+      this.lockPubMedAdvanced();
+      this.lockLettersTabs();
+    }, 1000);
+  }
+
+//   async initializeStripe() {
+//     await this.loadUserAccess();
+//     this.applyAccessControls();
+//     this.setupPaymentButtons();
+//     this.interceptSearchAttempts();
+//   }
 
   async loadUserAccess() {
     try {
@@ -110328,7 +110911,7 @@ class StripeIntegration {
   }
 
   getAuthToken() {
-    const userId = window.loginSystem?.getCurrentUserId();
+    const userId = window.subscriptionManager?.getCurrentUserId();
     if (userId) {
       return btoa(JSON.stringify({ userId }));
     }
@@ -110851,14 +111434,68 @@ showContactModal() {
     }
   }
 
-  setupPaymentButtons() {
-    // Add upgrade button if user is on free tier
-    if (this.userAccess?.subscriptionTier === 'free') {
-      this.addFloatingUpgradeButton();
-    }
+//   setupPaymentButtons() {
+//     // Add upgrade button if user is on free tier
+//     if (this.userAccess?.subscriptionTier === 'free') {
+//       this.addFloatingUpgradeButton();
+//     }
 
-    // Add account management for paid users
-    if (this.userAccess?.subscriptionTier !== 'free') {
+//     // Add account management for paid users
+//     if (this.userAccess?.subscriptionTier !== 'free') {
+//       this.addAccountButton();
+//     }
+//   }
+
+//   addFloatingUpgradeButton() {
+//     if (document.getElementById('floatingUpgrade')) return;
+
+//     const upgradeButton = document.createElement('div');
+//     upgradeButton.id = 'floatingUpgrade';
+//     upgradeButton.className = 'fixed bottom-24 right-6 bg-gradient-to-r from-purple-600 to-blue-600 text-white px-4 py-2 rounded-full shadow-lg cursor-pointer hover:scale-105 transition-transform z-40 flex items-center space-x-2';
+//     upgradeButton.innerHTML = `
+//       <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+//         <path fill-rule="evenodd" d="M5 2a1 1 0 011 1v1h1a1 1 0 010 2H6v1a1 1 0 01-2 0V6H3a1 1 0 010-2h1V3a1 1 0 011-1zm0 10a1 1 0 011 1v1h1a1 1 0 110 2H6v1a1 1 0 11-2 0v-1H3a1 1 0 110-2h1v-1a1 1 0 011-1zM12 2a1 1 0 01.967.744L14.146 7.2 17.5 9.134a1 1 0 010 1.732l-3.354 1.935-1.18 4.455a1 1 0 01-1.933 0L9.854 12.8 6.5 10.866a1 1 0 010-1.732l3.354-1.935 1.18-4.455A1 1 0 0112 2z" clip-rule="evenodd"/>
+//       </svg>
+//       <span class="font-medium">Upgrade to Pro</span>
+//     `;
+    
+//     upgradeButton.onclick = () => this.showPricingModal();
+//     document.body.appendChild(upgradeButton);
+//   }
+
+//   addAccountButton() {
+//     if (document.getElementById('accountButton')) return;
+
+//     const accountButton = document.createElement('div');
+//     accountButton.id = 'accountButton';
+//     accountButton.className = 'fixed bottom-24 right-6 bg-gray-800 text-white px-4 py-2 rounded-full shadow-lg cursor-pointer hover:bg-gray-700 transition-colors z-40';
+//     accountButton.innerHTML = `
+//       <div class="flex items-center space-x-2">
+//         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+//           <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/>
+//         </svg>
+//         <span class="font-medium">Manage Account</span>
+//       </div>
+//     `;
+    
+//     accountButton.onclick = () => this.openCustomerPortal();
+//     document.body.appendChild(accountButton);
+//   }
+
+setupPaymentButtons(userAccess) {
+    console.log('Setting up payment buttons, isPro:', userAccess?.isPro);
+
+    // Remove existing buttons
+    const existingUpgrade = document.getElementById('floatingUpgrade');
+    const existingAccount = document.getElementById('accountButton');
+    
+    if (existingUpgrade) existingUpgrade.remove();
+    if (existingAccount) existingAccount.remove();
+
+    // Add appropriate button based on status
+    if (!userAccess?.isPro) {
+      this.addFloatingUpgradeButton();
+    } else {
       this.addAccountButton();
     }
   }
@@ -110897,6 +111534,35 @@ showContactModal() {
     
     accountButton.onclick = () => this.openCustomerPortal();
     document.body.appendChild(accountButton);
+  }
+ updateSubscriptionDisplay(userAccess) {
+    // Update any subscription status displays in the UI
+    const statusElements = document.querySelectorAll('[data-subscription-status]');
+    statusElements.forEach(element => {
+      element.textContent = userAccess.isPro ? 'Professional' : 'Free';
+    });
+
+    // Update profile popup if it exists
+    const popupStatus = document.getElementById('subscriptionStatus');
+    if (popupStatus) {
+      const statusMap = {
+        'free': { text: 'Free', class: 'bg-gray-100 text-gray-800' },
+        'free-trial': { text: 'Free Trial', class: 'bg-yellow-100 text-yellow-800' },
+        'single-search': { text: 'Pay Per Search', class: 'bg-blue-100 text-blue-800' },
+        'monthly': { text: 'Professional', class: 'bg-green-100 text-green-800' },
+        'professional': { text: 'Professional', class: 'bg-green-100 text-green-800' },
+        'active': { text: 'Professional', class: 'bg-green-100 text-green-800' },
+        'paid': { text: 'Professional', class: 'bg-green-100 text-green-800' },
+        'team': { text: 'Team', class: 'bg-purple-100 text-purple-800' }
+      };
+      
+      // Use subscription status or tier, prefer status for active users
+      const key = userAccess.subscriptionStatus || userAccess.subscriptionTier;
+      const status = statusMap[key] || (userAccess.isPro ? statusMap.professional : statusMap.free);
+      
+      popupStatus.textContent = status.text;
+      popupStatus.className = `inline-block px-2 py-0.5 rounded text-xs font-medium ${status.class}`;
+    }
   }
 
   async openCustomerPortal() {
@@ -110971,15 +111637,6 @@ showPricingModal() {
             </div>
             
             <div class="space-y-3 mb-4 text-xs">
-              <div class="text-xs font-semibold text-gray-700 border-b pb-1">Overview</div>
-              <ul class="space-y-2">
-                <li class="flex items-start">
-                  <svg class="w-3 h-3 text-gray-400 mr-1.5 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
-                  </svg>
-                  <span class="text-gray-600">No recent EMA/FDA events</span>
-                </li>
-              </ul>
               
               <div class="text-xs font-semibold text-gray-700 border-b pb-1 mt-3">Clinical Trials</div>
               <ul class="space-y-2">
@@ -111005,63 +111662,23 @@ showPricingModal() {
               
               <div class="text-xs font-semibold text-gray-700 border-b pb-1 mt-3">FDA Data</div>
               <ul class="space-y-2">
-                <li class="flex items-start">
-                  <svg class="w-3 h-3 text-gray-400 mr-1.5 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
-                  </svg>
-                  <span class="text-gray-600">Limited NDA applications</span>
-                </li>
+
                 <li class="flex items-start">
                   <svg class="w-3 h-3 text-green-500 mr-1.5 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
                   </svg>
                   <span class="text-gray-600">One compound timeline</span>
                 </li>
-                <li class="flex items-start">
-                  <svg class="w-3 h-3 text-gray-400 mr-1.5 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
-                  </svg>
-                  <span class="text-gray-600">No enforcements</span>
-                </li>
-                <li class="flex items-start">
-                  <svg class="w-3 h-3 text-gray-400 mr-1.5 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
-                  </svg>
-                  <span class="text-gray-600">No adverse events</span>
-                </li>
               </ul>
               
               <div class="text-xs font-semibold text-gray-700 border-b pb-1 mt-3">Limitations</div>
               <ul class="space-y-2">
-                <li class="flex items-start">
-                  <svg class="w-3 h-3 text-gray-400 mr-1.5 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
-                  </svg>
-                  <span class="text-gray-600">No Response Letters</span>
-                </li>
-                <li class="flex items-start">
-                  <svg class="w-3 h-3 text-gray-400 mr-1.5 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
-                  </svg>
-                  <span class="text-gray-600">No Warning Letters</span>
-                </li>
+               
                 <li class="flex items-start">
                   <svg class="w-3 h-3 text-green-500 mr-1.5 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
                   </svg>
-                  <span class="text-gray-600">3 latest label changes</span>
-                </li>
-                <li class="flex items-start">
-                  <svg class="w-3 h-3 text-gray-400 mr-1.5 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
-                  </svg>
-                  <span class="text-gray-600">No EMA labelling</span>
-                </li>
-                <li class="flex items-start">
-                  <svg class="w-3 h-3 text-gray-400 mr-1.5 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
-                  </svg>
-                  <span class="text-gray-600">No PubMed Advanced</span>
+                  <span class="text-gray-600">3 latest labelling changes</span>
                 </li>
               </ul>
             </div>
@@ -111160,18 +111777,6 @@ showPricingModal() {
                   <svg class="w-3 h-3 text-purple-500 mr-1.5 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
                   </svg>
-                  <span class="text-gray-700 font-medium">UNLIMITED searches</span>
-                </li>
-                <li class="flex items-start">
-                  <svg class="w-3 h-3 text-purple-500 mr-1.5 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                  </svg>
-                  <span class="text-gray-700 font-medium">ALL premium features</span>
-                </li>
-                <li class="flex items-start">
-                  <svg class="w-3 h-3 text-purple-500 mr-1.5 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                  </svg>
                   <span class="text-gray-700">Complete FDA database</span>
                 </li>
                 <li class="flex items-start">
@@ -111244,13 +111849,13 @@ showPricingModal() {
               </ul>
               
               <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-2 mt-3">
-                <p class="text-xs text-yellow-800 font-medium">🎯 Cancel anytime!</p>
+                <p class="text-xs text-yellow-800 font-medium">🎯UNLIMITED searches!</p>
               </div>
             </div>
             
             ${this.userAccess?.subscriptionTier === 'monthly' ?
               '<button onclick="stripeIntegration.openCustomerPortal()" class="w-full bg-gray-800 text-white py-2 rounded-lg font-medium hover:bg-gray-700 transition-colors shadow-md hover:shadow-lg text-sm">Manage Subscription</button>' :
-              '<button onclick="stripeIntegration.subscribeMonthly()" class="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white py-2 rounded-lg font-medium hover:opacity-90 transition-all shadow-md hover:shadow-lg text-sm">Start Free Trial</button>'
+              '<button onclick="stripeIntegration.subscribeMonthly()" class="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white py-2 rounded-lg font-medium hover:opacity-90 transition-all shadow-md hover:shadow-lg text-sm">Start Now</button>'
             }
           </div>
           
@@ -112225,102 +112830,1093 @@ window.EnhancedStripeIntegration = EnhancedStripeIntegration;
 
 // LeafIntelligence Feature Blocker Integration
 // Add this to your leafintelligence.html file or as a separate JS file
+window.isUserPro = () => subscriptionManager.isPro();
 
+// Global function to check feature access
+window.hasFeatureAccess = (feature) => subscriptionManager.hasFeatureAccess(feature);
+
+// Global function to refresh subscription status
+window.refreshSubscription = () => subscriptionManager.refresh();
+
+// class LeafIntelligenceFeatureBlocker {
+// //   constructor(config = {}) {
+// //     this.isPro = false;
+// //     this.blockedFeatures = new Set();
+// //     this.interceptedElements = new WeakMap();
+// //     this.userAccess = null;
+    
+// //     // Configuration - YOU define what features to block
+// //     this.featureConfig = config.features || {
+// //       // Example configuration - modify this based on your needs
+// //       // sections: [
+// //       //   '#some-pro-section',
+// //       //   '.premium-analytics',
+// //       //   '[data-feature="advanced-export"]'
+// //       // ],
+// //       // buttons: [
+// //       //   'button[data-action="export-pdf"]',
+// //       //   'button.premium-action'
+// //       // ],
+// //       // customSelectors: []
+// //     };
+    
+// //     this.init();
+// //   }
+
+//   constructor(config = {}) {
+//     this.featureConfig = config.features || {};
+//     this.blockedFeatures = new Set();
+//     this.interceptedElements = new WeakMap();
+//     this.init();
+//   }
+  
+// //   async init() {
+// //     // Get user subscription status
+// //     await this.checkUserSubscription();
+    
+// //     // Block features on page load
+// //     this.updateBlockedFeatures();
+    
+// //     // Set up global click interceptor
+// //     this.setupGlobalInterceptor();
+    
+// //     // Watch for dynamic content
+// //     this.setupMutationObserver();
+// //   }
+  
+//  async init() {
+//     // Subscribe to subscription changes from the unified manager
+//     window.subscriptionManager.onChange((userAccess) => {
+//       console.log('Feature blocker: Subscription status changed', userAccess);
+//       this.updateBlockedFeatures(userAccess);
+//     });
+    
+//     // Set up global click interceptor
+//     this.setupGlobalInterceptor();
+    
+//     // Watch for dynamic content
+//     this.setupMutationObserver();
+    
+//     // Initial check
+//     const currentAccess = window.subscriptionManager.userAccess;
+//     if (currentAccess) {
+//       this.updateBlockedFeatures(currentAccess);
+//     }
+//   }
+
+
+//    updateBlockedFeatures(userAccess) {
+//     const isPro = userAccess?.isPro || false;
+    
+//     console.log('Updating blocked features, isPro:', isPro);
+    
+//     // Remove existing blockers
+//     document.querySelectorAll('.feature-blocker-overlay').forEach(overlay => overlay.remove());
+//     document.querySelectorAll('.pro-overlay-container').forEach(overlay => overlay.remove());
+//     document.querySelectorAll('.feature-blocked').forEach(el => {
+//       el.classList.remove('feature-blocked');
+//       el.style.pointerEvents = '';
+//       el.style.userSelect = '';
+//     });
+    
+//     if (!isPro) {
+//       // Block features based on configuration
+//       this.blockConfiguredFeatures();
+//       this.blockRecentEvents();
+//       this.blockEnhancedEnrollment();
+//       this.blockEnhancedEndpoints();
+      
+//       // Block any elements with .pro-feature class
+//       document.querySelectorAll('.pro-feature:not(button)').forEach(element => {
+//         this.createSectionBlocker(element);
+//       });
+//     }
+//   }
+// //   async checkUserSubscription() {
+// //     try {
+// //       const currentUser = localStorage.getItem('currentUser');
+// //       if (currentUser) {
+// //         const user = JSON.parse(currentUser);
+// //         this.isPro = user.subscriptionTier === 'monthly' || user.subscriptionStatus === 'active';
+// //         this.userAccess = user;
+// //       }
+// //     } catch (error) {
+// //       console.error('Error checking subscription:', error);
+// //       this.isPro = false;
+// //     }
+// //   }
+
+// async checkUserSubscription() {
+//   try {
+//     // const currentUser = localStorage.getItem('currentUser');
+//     const userId = this.getCurrentUserId();
+//     if (!userId) {
+//       this.isPro = false;
+//       this.userAccess = null;
+//       return;
+//     }
+
+//     // const user = JSON.parse(currentUser);
+    
+//     // Fetch fresh subscription data from API
+//     const response = await fetch(`/api/user/${userId}/subscription-status`);
+    
+//     if (!response.ok) {
+//       throw new Error(`HTTP error! status: ${response.status}`);
+//     }
+    
+//     const subscriptionData = await response.json();
+    
+//     // Update local storage with fresh data (optional, but keeps it in sync)
+//     const updatedUser = {
+//       ...user,
+//       ...subscriptionData
+//     };
+//     // localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+    
+//     // Check if user is Pro based on the API response
+//     this.isPro = subscriptionData.subscriptionStatus === 'active' || 
+//                  subscriptionData.subscriptionStatus === 'paid' ||
+//                  subscriptionData.subscriptionStatus === 'professional' ||
+//                  subscriptionData.subscriptionTier === 'monthly';
+    
+//     this.userAccess = subscriptionData;
+    
+//   } catch (error) {
+//     console.error('Error checking subscription:', error);
+//     this.isPro = false;
+//     this.userAccess = null;
+//   }
+// }
+  
+//   // Create glass overlay for sections
+//   createSectionBlocker(element, customMessage = null) {
+//     // Check if already blocked
+//     if (element.querySelector('.feature-blocker-overlay')) return;
+    
+//     // Add blocked class
+//     element.classList.add('feature-blocked');
+    
+//     // Create overlay
+//     const overlay = document.createElement('div');
+//     overlay.className = 'feature-blocker-overlay absolute inset-0 rounded-lg flex flex-col items-center justify-center z-10';
+//     overlay.style.cssText = `
+//       background: rgba(0, 0, 0, 0.5);
+//       backdrop-filter: blur(10px);
+//       -webkit-backdrop-filter: blur(10px);
+//       border: 1px solid rgba(255, 255, 255, 0.1);
+//       box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+//       pointer-events: auto;
+//     `;
+    
+//     overlay.innerHTML = `
+//       <div class="text-center">
+//         <svg class="w-16 h-16 mx-auto mb-4 text-white opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+//           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+//         </svg>
+//         <h3 class="text-xl font-bold text-white mb-2">Pro Feature</h3>
+//         <p class="text-white opacity-80 mb-4 px-4">${customMessage || 'Upgrade to Pro to access this feature'}</p>
+//         <button class="upgrade-btn bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold px-6 py-3 rounded-full hover:from-purple-600 hover:to-pink-600 transform hover:scale-105 transition-all duration-200 shadow-lg">
+//           Upgrade to Pro
+//         </button>
+//       </div>
+//     `;
+    
+//     // Handle upgrade button click
+//     overlay.querySelector('.upgrade-btn').addEventListener('click', (e) => {
+//       e.stopPropagation();
+//       this.showUpgradeModal();
+//     });
+    
+//     // Position the element relatively if needed
+//     if (getComputedStyle(element).position === 'static') {
+//       element.style.position = 'relative';
+//     }
+    
+//     // Disable all interactive elements within
+//     element.style.pointerEvents = 'none';
+//     element.style.userSelect = 'none';
+    
+//     element.appendChild(overlay);
+//   }
+  
+//   // Setup global click interceptor
+//   setupGlobalInterceptor() {
+//     document.addEventListener('click', (e) => {
+//       // Check if user is pro using the subscription manager
+//       if (window.subscriptionManager.isPro()) return;
+      
+//       const proElement = e.target.closest('.pro-feature');
+//       if (proElement && !e.target.closest('.feature-blocker-overlay')) {
+//         e.preventDefault();
+//         e.stopImmediatePropagation();
+        
+//         const customMessage = proElement.getAttribute('data-pro-message');
+//         this.showUpgradeModal(customMessage);
+//       }
+//     }, true);
+//   }
+
+// blockRecentEvents() {
+//     console.log('🔒 Checking for recent events section...');
+    
+//     // Target the recent events section
+//     const recentEventsSection = document.getElementById('recent-events-section');
+    
+//     if (recentEventsSection && !recentEventsSection.querySelector('.pro-overlay')) {
+//         console.log('🔒 Blocking recent events section');
+        
+//         // Make the section relative for overlay positioning
+//         recentEventsSection.style.position = 'relative';
+        
+//         // Find all content that should be blurred
+//         // Based on the structure, we want to blur everything except the header
+//         const contentToBlur = recentEventsSection.querySelectorAll('.bg-white.border.border-gray-200.rounded-lg.shadow-sm, .bg-gray-50.rounded-lg.p-8.text-center');
+        
+//         contentToBlur.forEach(element => {
+//             element.style.filter = 'blur(4px)';
+//             element.style.pointerEvents = 'none';
+//             element.style.userSelect = 'none';
+//         });
+        
+//         // Also blur the event grid specifically
+//         const eventGrid = recentEventsSection.querySelector('#recentEventsGrid');
+//         if (eventGrid) {
+//             eventGrid.style.filter = 'blur(4px)';
+//             eventGrid.style.pointerEvents = 'none';
+//         }
+        
+//         // Create overlay container
+//         const overlayContainer = document.createElement('div');
+//         overlayContainer.className = 'pro-overlay-container';
+//         overlayContainer.style.cssText = `
+//             position: absolute;
+//             top: 80px;
+//             left: 0;
+//             right: 0;
+//             bottom: 0;
+//             display: flex;
+//             align-items: center;
+//             justify-content: center;
+//             z-index: 10;
+//             pointer-events: none;
+//         `;
+        
+//         // Create the actual overlay message
+//         const overlay = document.createElement('div');
+//         overlay.className = 'pro-overlay';
+//         overlay.style.cssText = `
+//             background: rgba(255, 255, 255, 0.98);
+//             padding: 40px;
+//             border-radius: 12px;
+//             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+//             text-align: center;
+//             max-width: 450px;
+//             border: 2px solid #3B82F6;
+//             pointer-events: auto;
+//         `;
+        
+//         overlay.innerHTML = `
+//             <div class="text-center">
+//                 <div class="mb-4">
+//                     <div class="w-20 h-20 mx-auto bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center">
+//                         <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+//                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+//                         </svg>
+//                     </div>
+//                 </div>
+//                 <h3 class="text-2xl font-bold text-gray-900 mb-3">Recent Regulatory Events</h3>
+//                 <div class="text-lg text-gray-700 mb-4">Pro Feature</div>
+//                 <p class="text-gray-600 mb-6">
+//                     Access real-time FDA & EMA regulatory events including submissions, 
+//                     label changes, recalls, and safety updates from live APIs.
+//                 </p>
+//                 <div class="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg p-4 mb-6">
+//                     <div class="grid grid-cols-2 gap-3 text-sm">
+//                         <div class="flex items-center">
+//                             <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+//                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+//                             </svg>
+//                             <span class="text-gray-700">Live FDA Events</span>
+//                         </div>
+//                         <div class="flex items-center">
+//                             <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+//                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+//                             </svg>
+//                             <span class="text-gray-700">Live EMA Events</span>
+//                         </div>
+//                         <div class="flex items-center">
+//                             <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+//                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+//                             </svg>
+//                             <span class="text-gray-700">Company Grouping</span>
+//                         </div>
+//                         <div class="flex items-center">
+//                             <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+//                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+//                             </svg>
+//                             <span class="text-gray-700">Export to CSV/JSON</span>
+//                         </div>
+//                     </div>
+//                 </div>
+//                 <button onclick="showUpgradeModal()" class="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white px-8 py-3 rounded-lg font-medium hover:from-blue-700 hover:to-blue-800 transition-all transform hover:scale-105 shadow-lg">
+//                     Upgrade to Pro
+//                 </button>
+//                 <p class="text-xs text-gray-500 mt-4">
+//                     Unlock all premium features for comprehensive regulatory intelligence
+//                 </p>
+//             </div>
+//         `;
+        
+//         overlayContainer.appendChild(overlay);
+//         recentEventsSection.appendChild(overlayContainer);
+        
+//         // Disable all buttons in the section
+//         const buttons = recentEventsSection.querySelectorAll('button');
+//         buttons.forEach(button => {
+//             if (!button.closest('.pro-overlay')) {
+//                 button.disabled = true;
+//                 button.style.opacity = '0.5';
+//                 button.style.cursor = 'not-allowed';
+//                 button.onclick = (e) => {
+//                     e.preventDefault();
+//                     e.stopPropagation();
+//                 };
+//             }
+//         });
+        
+//         // Also disable any onclick handlers on the event cards
+//         const eventCards = recentEventsSection.querySelectorAll('.recent-event-card');
+//         eventCards.forEach(card => {
+//             card.style.cursor = 'not-allowed';
+//             card.onclick = (e) => {
+//                 e.preventDefault();
+//                 e.stopPropagation();
+//             };
+//         });
+        
+//         console.log('✅ Recent events section blocked with overlay');
+//     }
+// }
+//   // Show upgrade modal
+//   showUpgradeModal(customMessage = null) {
+//     // Check if PaymentModal exists
+//     if (window.paymentModal) {
+//       window.paymentModal.show();
+//     } else {
+//       // Fallback to custom modal
+//       this.showCustomUpgradeModal(customMessage);
+//     }
+//   }
+  
+//   showCustomUpgradeModal(customMessage = null) {
+//     // Remove existing modal if any
+//     const existingModal = document.getElementById('feature-upgrade-modal');
+//     if (existingModal) existingModal.remove();
+    
+//     // Create modal
+//     const modal = document.createElement('div');
+//     modal.id = 'feature-upgrade-modal';
+//     modal.className = 'upgrade-modal fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4';
+//     modal.innerHTML = `
+//     <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full mx-4 overflow-hidden">
+//       <!-- Header with gradient -->
+//       <div class="bg-gradient-to-br from-purple-600 to-blue-600 p-6 text-white">
+//         <div class="flex justify-between items-start mb-4">
+//           <div>
+//             <h3 class="text-2xl font-bold">Unlock Premium Features</h3>
+//             <p class="text-purple-100 mt-1">Get full access to all Leaf Intelligence features</p>
+//           </div>
+//           <button onclick="this.closest('.upgrade-modal').remove()" class="text-white/60 hover:text-white transition-colors">
+//             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+//               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+//             </svg>
+//           </button>
+//         </div>
+        
+//         <!-- Feature preview -->
+//         <div class="bg-white/10 backdrop-blur rounded-lg p-4 mt-4">
+//           <p class="text-sm text-purple-100">You're trying to access a premium feature. Upgrade to unlock:</p>
+//           <ul class="mt-2 space-y-1 text-sm">
+//             <li class="flex items-center">
+//               <svg class="w-4 h-4 mr-2 text-yellow-300" fill="currentColor" viewBox="0 0 20 20">
+//                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+//               </svg>
+//               Full access to this feature
+//             </li>
+//             <li class="flex items-center">
+//               <svg class="w-4 h-4 mr-2 text-yellow-300" fill="currentColor" viewBox="0 0 20 20">
+//                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+//               </svg>
+//               All other premium features
+//             </li>
+//             <li class="flex items-center">
+//               <svg class="w-4 h-4 mr-2 text-yellow-300" fill="currentColor" viewBox="0 0 20 20">
+//                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+//               </svg>
+//               Unlimited searches
+//             </li>
+//           </ul>
+//         </div>
+//       </div>
+      
+//       <!-- Pricing options -->
+//       <div class="p-6 space-y-4">
+//         <!-- Single Search Option -->
+//         <button onclick="window.stripeIntegration.purchaseSingleSearch()" 
+//                 class="w-full group relative overflow-hidden rounded-xl border-2 border-blue-200 hover:border-blue-400 transition-all duration-300">
+//           <div class="relative z-10 p-4 bg-gradient-to-r from-blue-50 to-blue-100 group-hover:from-blue-100 group-hover:to-blue-200 transition-all">
+//             <div class="flex justify-between items-center">
+//               <div class="text-left">
+//                 <h4 class="font-semibold text-gray-900">One-Time Purchase</h4>
+//                 <p class="text-sm text-gray-600 mt-0.5">Full access for this search only</p>
+//               </div>
+//               <div class="text-right">
+//                 <span class="text-2xl font-bold text-gray-900">$74.99</span>
+//                 <span class="text-sm text-gray-500 block">one time</span>
+//               </div>
+//             </div>
+//           </div>
+//           <div class="absolute inset-0 bg-gradient-to-r from-blue-400 to-blue-600 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+//         </button>
+        
+//         <!-- Monthly Subscription Option -->
+//         <button onclick="window.stripeIntegration.subscribeMonthly()" 
+//                 class="w-full group relative overflow-hidden rounded-xl border-2 border-purple-300 hover:border-purple-400 transition-all duration-300 transform hover:scale-105">
+//           <div class="absolute -top-2 -right-2 bg-yellow-400 text-xs font-bold text-gray-900 px-3 py-1 rounded-bl-xl rounded-tr-xl">
+//             BEST VALUE
+//           </div>
+//           <div class="relative z-10 p-4 bg-gradient-to-r from-purple-100 to-blue-100 group-hover:from-purple-200 group-hover:to-blue-200 transition-all">
+//             <div class="flex justify-between items-center">
+//               <div class="text-left">
+//                 <h4 class="font-semibold text-gray-900">Monthly Subscription</h4>
+//                 <p class="text-sm text-gray-600 mt-0.5">Unlimited searches + All features</p>
+//                 <p class="text-xs text-purple-600 mt-1 font-medium">✨ Includes 7-day free trial!</p>
+//               </div>
+//               <div class="text-right">
+//                 <span class="text-2xl font-bold text-gray-900">$199</span>
+//                 <span class="text-sm text-gray-500 block">/month</span>
+//               </div>
+//             </div>
+//           </div>
+//           <div class="absolute inset-0 bg-gradient-to-r from-purple-400 to-blue-600 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+//         </button>
+        
+//         <!-- Maybe Later Button -->
+//         <button onclick="this.closest('.upgrade-modal').remove()" 
+//                 class="w-full py-3 text-gray-600 hover:text-gray-800 text-sm font-medium transition-colors">
+//           Maybe Later
+//         </button>
+        
+//         <!-- Trust badges -->
+//         <div class="flex items-center justify-center space-x-4 text-xs text-gray-500 mt-4 pt-4 border-t">
+//           <div class="flex items-center">
+//             <svg class="w-4 h-4 mr-1 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+//               <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
+//             </svg>
+//             Secure payment
+//           </div>
+//           <div class="flex items-center">
+//             <svg class="w-4 h-4 mr-1 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+//               <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.293l-3-3a1 1 0 00-1.414 1.414L10.586 9.5H5a1 1 0 100 2h5.586l-1.293 1.293a1 1 0 101.414 1.414l3-3a1 1 0 000-1.414z" clip-rule="evenodd"/>
+//             </svg>
+//             Cancel anytime
+//           </div>
+//         </div>
+//       </div>
+//     </div>
+//   `;
+    
+//     document.body.appendChild(modal);
+    
+//     // Close on background click
+//     modal.addEventListener('click', (e) => {
+//       if (e.target === modal) modal.remove();
+//     });
+//   }
+  
+
+
+
+
+//   async subscribeMonthly() {
+//     try {
+//       const userId = this.getCurrentUserId();
+//       if (!userId) {
+//         alert('Please log in to subscribe');
+//         return;
+//       }
+
+//       const response = await fetch('/api/stripe/create-subscription-checkout', {
+//         method: 'POST',
+//         headers: {
+//           'Content-Type': 'application/json',
+//           'Authorization': `Bearer ${this.getAuthToken()}`
+//         },
+//         body: JSON.stringify({ 
+//                 userId,
+//                 returnUrl: window.location.href  // Add this line
+//             })
+//       });
+
+//       const data = await response.json();
+      
+//       if (data.success) {
+//         window.location.href = data.checkoutUrl;
+//       } else {
+//         alert('Failed to create subscription checkout');
+//       }
+//     } catch (error) {
+//       console.error('Subscription error:', error);
+//       alert('An error occurred. Please try again.');
+//     }
+//   }
+
+//   // 1. Block Enhanced Enrollment Tab
+//  blockEnhancedEnrollment() {
+//     console.log('🔒 Checking for enhanced enrollment section...');
+    
+//     // Find the enrollment tab content
+//     const enrollmentTab = document.getElementById('enhanced-enrollment-tab');
+//     const enrollmentContent = document.querySelector('.enhanced-enrollment');
+    
+//     if ((enrollmentTab || enrollmentContent) && !document.querySelector('#enrollment-pro-overlay')) {
+//         console.log('🔒 Blocking enhanced enrollment section');
+        
+//         // Get the container to block
+//         const targetContainer = enrollmentTab || enrollmentContent.parentElement;
+//         targetContainer.style.position = 'relative';
+        
+//         // Find and blur all content
+//         const contentToBlur = targetContainer.querySelectorAll('.bg-gradient-to-br, .bg-white, .grid');
+//         contentToBlur.forEach(element => {
+//             element.style.filter = 'blur(4px)';
+//             element.style.pointerEvents = 'none';
+//             element.style.userSelect = 'none';
+//         });
+        
+//         // Create overlay
+//         const overlay = document.createElement('div');
+//         overlay.id = 'enrollment-pro-overlay';
+//         overlay.className = 'pro-overlay-container';
+//         overlay.style.cssText = `
+//             position: absolute;
+//             top: 0;
+//             left: 0;
+//             right: 0;
+//             bottom: 0;
+//             display: flex;
+//             align-items: center;
+//             justify-content: center;
+//             z-index: 100;
+//             background: rgba(255, 255, 255, 0.7);
+//             min-height: 400px;
+//         `;
+        
+//         overlay.innerHTML = `
+//             <div class="pro-overlay" style="
+//                 background: rgba(255, 255, 255, 0.98);
+//                 padding: 40px;
+//                 border-radius: 12px;
+//                 box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+//                 text-align: center;
+//                 max-width: 450px;
+//                 border: 2px solid #10B981;
+//                 pointer-events: auto;
+//             ">
+//                 <div class="text-center">
+//                     <div class="mb-4">
+//                         <div class="w-20 h-20 mx-auto bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center">
+//                             <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+//                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+//                             </svg>
+//                         </div>
+//                     </div>
+//                     <h3 class="text-2xl font-bold text-gray-900 mb-3">Enhanced Enrollment Analytics</h3>
+//                     <div class="text-lg text-gray-700 mb-4">Pro Feature</div>
+//                     <p class="text-gray-600 mb-6">
+//                         Access comprehensive enrollment analytics including demographics, eligibility criteria patterns, 
+//                         age distributions, and special population insights.
+//                     </p>
+//                     <div class="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-lg p-4 mb-6">
+//                         <div class="grid grid-cols-2 gap-3 text-sm">
+//                             <div class="flex items-center">
+//                                 <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+//                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+//                                 </svg>
+//                                 <span class="text-gray-700">Demographics Analysis</span>
+//                             </div>
+//                             <div class="flex items-center">
+//                                 <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+//                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+//                                 </svg>
+//                                 <span class="text-gray-700">Age & Gender Data</span>
+//                             </div>
+//                             <div class="flex items-center">
+//                                 <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+//                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+//                                 </svg>
+//                                 <span class="text-gray-700">Eligibility Patterns</span>
+//                             </div>
+//                             <div class="flex items-center">
+//                                 <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+//                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+//                                 </svg>
+//                                 <span class="text-gray-700">Trial Size Analysis</span>
+//                             </div>
+//                         </div>
+//                     </div>
+//                     <button onclick="showUpgradeModal()" class="w-full bg-gradient-to-r from-green-600 to-green-700 text-white px-8 py-3 rounded-lg font-medium hover:from-green-700 hover:to-green-800 transition-all transform hover:scale-105 shadow-lg">
+//                         Upgrade to Pro
+//                     </button>
+//                     <p class="text-xs text-gray-500 mt-4">
+//                         Unlock all premium features for comprehensive clinical trial intelligence
+//                     </p>
+//                 </div>
+//             </div>
+//         `;
+        
+//         targetContainer.appendChild(overlay);
+        
+//         console.log('✅ Enhanced enrollment section blocked with overlay');
+//     }
+// }
+
+// // 2. Block Enhanced Endpoints Tab
+//  blockEnhancedEndpoints() {
+//     console.log('🔒 Checking for enhanced endpoints section...');
+    
+//     // Find the endpoints tab content
+//     const endpointsTab = document.getElementById('enhanced-endpoints-tab');
+//     const endpointsContent = document.querySelector('.enhanced-endpoints');
+    
+//     if ((endpointsTab || endpointsContent) && !document.querySelector('#endpoints-pro-overlay')) {
+//         console.log('🔒 Blocking enhanced endpoints section');
+        
+//         // Get the container to block
+//         const targetContainer = endpointsTab || endpointsContent.parentElement;
+//         targetContainer.style.position = 'relative';
+        
+//         // Find and blur all content
+//         const contentToBlur = targetContainer.querySelectorAll('.bg-gradient-to-br, .bg-white, .grid');
+//         contentToBlur.forEach(element => {
+//             element.style.filter = 'blur(4px)';
+//             element.style.pointerEvents = 'none';
+//             element.style.userSelect = 'none';
+//         });
+        
+//         // Create overlay
+//         const overlay = document.createElement('div');
+//         overlay.id = 'endpoints-pro-overlay';
+//         overlay.className = 'pro-overlay-container';
+//         overlay.style.cssText = `
+//             position: absolute;
+//             top: 0;
+//             left: 0;
+//             right: 0;
+//             bottom: 0;
+//             display: flex;
+//             align-items: center;
+//             justify-content: center;
+//             z-index: 100;
+//             background: rgba(255, 255, 255, 0.7);
+//             min-height: 400px;
+//         `;
+        
+//         overlay.innerHTML = `
+//             <div class="pro-overlay" style="
+//                 background: rgba(255, 255, 255, 0.98);
+//                 padding: 40px;
+//                 border-radius: 12px;
+//                 box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+//                 text-align: center;
+//                 max-width: 450px;
+//                 border: 2px solid #8B5CF6;
+//                 pointer-events: auto;
+//             ">
+//                 <div class="text-center">
+//                     <div class="mb-4">
+//                         <div class="w-20 h-20 mx-auto bg-gradient-to-br from-purple-400 to-purple-600 rounded-full flex items-center justify-center">
+//                             <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+//                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+//                             </svg>
+//                         </div>
+//                     </div>
+//                     <h3 class="text-2xl font-bold text-gray-900 mb-3">Enhanced Endpoints Analysis</h3>
+//                     <div class="text-lg text-gray-700 mb-4">Pro Feature</div>
+//                     <p class="text-gray-600 mb-6">
+//                         Access detailed endpoint analytics including primary & secondary endpoints, 
+//                         success rates, control strategies, and category distributions.
+//                     </p>
+//                     <div class="bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-lg p-4 mb-6">
+//                         <div class="grid grid-cols-2 gap-3 text-sm">
+//                             <div class="flex items-center">
+//                                 <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+//                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+//                                 </svg>
+//                                 <span class="text-gray-700">Primary Endpoints</span>
+//                             </div>
+//                             <div class="flex items-center">
+//                                 <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+//                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+//                                 </svg>
+//                                 <span class="text-gray-700">Secondary Endpoints</span>
+//                             </div>
+//                             <div class="flex items-center">
+//                                 <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+//                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+//                                 </svg>
+//                                 <span class="text-gray-700">Success Rates</span>
+//                             </div>
+//                             <div class="flex items-center">
+//                                 <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+//                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+//                                 </svg>
+//                                 <span class="text-gray-700">Control Analysis</span>
+//                             </div>
+//                         </div>
+//                     </div>
+//                     <button onclick="showUpgradeModal()" class="w-full bg-gradient-to-r from-purple-600 to-purple-700 text-white px-8 py-3 rounded-lg font-medium hover:from-purple-700 hover:to-purple-800 transition-all transform hover:scale-105 shadow-lg">
+//                         Upgrade to Pro
+//                     </button>
+//                     <p class="text-xs text-gray-500 mt-4">
+//                         Unlock all premium features for comprehensive clinical trial intelligence
+//                     </p>
+//                 </div>
+//             </div>
+//         `;
+        
+//         targetContainer.appendChild(overlay);
+        
+//         // Also disable any buttons in these sections
+//         const buttons = targetContainer.querySelectorAll('button');
+//         buttons.forEach(button => {
+//             if (!button.closest('.pro-overlay')) {
+//                 button.disabled = true;
+//                 button.style.opacity = '0.5';
+//                 button.style.cursor = 'not-allowed';
+//             }
+//         });
+        
+//         console.log('✅ Enhanced endpoints section blocked with overlay');
+//     }
+// }
+  
+//   getCurrentUserId() {
+//     try {
+//       const userData = JSON.parse(localStorage.getItem('currentUser') || '{}');
+//       return userData._id;
+//     } catch (error) {
+//       return null;
+//     }
+//   }
+  
+//   getAuthToken() {
+//     const currentUser = localStorage.getItem('currentUser');
+//     if (currentUser) {
+//       try {
+//         const userData = JSON.parse(currentUser);
+//         return btoa(JSON.stringify({ userId: userData._id }));
+//       } catch (e) {
+//         return null;
+//       }
+//     }
+//     return null;
+//   }
+  
+//   // Update blocked features based on subscription status
+//   updateBlockedFeatures() {
+//     // Remove existing blockers
+//     document.querySelectorAll('.feature-blocker-overlay').forEach(overlay => overlay.remove());
+//     document.querySelectorAll('.feature-blocked').forEach(el => {
+//       el.classList.remove('feature-blocked');
+//       el.style.pointerEvents = '';
+//       el.style.userSelect = '';
+//     });
+    
+//     if (!this.isPro) {
+//       // Block features based on configuration
+//       this.blockConfiguredFeatures();
+      
+//       // Block any elements with .pro-feature class
+//       document.querySelectorAll('.pro-feature:not(button)').forEach(element => {
+//         this.createSectionBlocker(element);
+//       });
+//     }
+//   }
+  
+//   blockConfiguredFeatures() {
+//     // Block sections from config
+//     if (this.featureConfig.sections) {
+//       this.featureConfig.sections.forEach(selector => {
+//         const elements = document.querySelectorAll(selector);
+//         elements.forEach(element => {
+//           if (!element.classList.contains('pro-feature')) {
+//             element.classList.add('pro-feature');
+//           }
+//           this.createSectionBlocker(element);
+//         });
+//       });
+//     }
+    
+//     // Mark buttons from config as pro features (they'll be intercepted on click)
+//     if (this.featureConfig.buttons) {
+//       this.featureConfig.buttons.forEach(selector => {
+//         const buttons = document.querySelectorAll(selector);
+//         buttons.forEach(button => {
+//           if (!button.classList.contains('pro-feature')) {
+//             button.classList.add('pro-feature');
+//           }
+//         });
+//       });
+//     }
+    
+//     // Handle custom selectors
+//     if (this.featureConfig.customSelectors) {
+//       this.featureConfig.customSelectors.forEach(config => {
+//         const elements = document.querySelectorAll(config.selector);
+//         elements.forEach(element => {
+//           if (config.type === 'block') {
+//             this.createSectionBlocker(element, config.message);
+//           } else {
+//             element.classList.add('pro-feature');
+//             if (config.message) {
+//               element.setAttribute('data-pro-message', config.message);
+//             }
+//           }
+//         });
+//       });
+//     }
+    
+//     // Add pro badges if configured
+//     if (this.featureConfig.badges) {
+//       this.addProBadges(this.featureConfig.badges);
+//     }
+//   }
+  
+//   addProBadges(badgeConfig) {
+//     badgeConfig.forEach(({ selector, text }) => {
+//       const elements = document.querySelectorAll(selector);
+//       elements.forEach(element => {
+//         if (!element.querySelector('.pro-badge')) {
+//           const badge = document.createElement('span');
+//           badge.className = 'pro-badge ml-2 text-xs bg-purple-600 text-white px-2 py-0.5 rounded-full';
+//           badge.textContent = text || 'PRO';
+//           element.appendChild(badge);
+//         }
+//       });
+//     });
+//   }
+  
+//   // Setup mutation observer to watch for dynamic content
+// //   setupMutationObserver() {
+// //     const observer = new MutationObserver((mutations) => {
+// //       // Debounce updates
+// //       clearTimeout(this.updateTimeout);
+// //       this.updateTimeout = setTimeout(() => {
+// //         this.updateBlockedFeatures();
+// //       }, 100);
+// //     });
+    
+// //     observer.observe(document.body, {
+// //       childList: true,
+// //       subtree: true
+// //     });
+// //   }
+  
+// setupMutationObserver() {
+//     const observer = new MutationObserver((mutations) => {
+//         mutations.forEach((mutation) => {
+//             if (mutation.type === 'childList') {
+//                 mutation.addedNodes.forEach((node) => {
+//                     if (node.nodeType === 1) { // Element node
+//                         // Check for recent events
+//                         if (node.id === 'recent-events-section' || 
+//                             (node.querySelector && node.querySelector('#recent-events-section'))) {
+//                             setTimeout(this.blockRecentEvents, 100);
+//                         }
+                        
+//                         // Check for enhanced enrollment
+//                         if (node.id === 'enhanced-enrollment-tab' || 
+//                             (node.querySelector && node.querySelector('.enhanced-enrollment'))) {
+//                             setTimeout(this.blockEnhancedEnrollment, 100);
+//                         }
+                        
+//                         // Check for enhanced endpoints
+//                         if (node.id === 'enhanced-endpoints-tab' || 
+//                             (node.querySelector && node.querySelector('.enhanced-endpoints'))) {
+//                             setTimeout(this.blockEnhancedEndpoints, 100);
+//                         }
+                        
+//                         // Also check when tabs are clicked
+//                         if (node.classList && (node.classList.contains('enhanced-enrollment') || 
+//                             node.classList.contains('enhanced-endpoints'))) {
+//                             setTimeout(() => {
+//                                 this.blockEnhancedEnrollment();
+//                                 this.blockEnhancedEndpoints();
+//                             }, 100);
+//                         }
+//                     }
+//                 });
+//             }
+//         });
+//     });
+    
+//     observer.observe(document.body, {
+//         childList: true,
+//         subtree: true
+//     });
+// }
+//   // Public methods for dynamic control
+  
+//   // Add a feature to block
+//   addBlockedFeature(selector, type = 'button', message = null) {
+//     if (type === 'section') {
+//       if (!this.featureConfig.sections) this.featureConfig.sections = [];
+//       this.featureConfig.sections.push(selector);
+//     } else if (type === 'button') {
+//       if (!this.featureConfig.buttons) this.featureConfig.buttons = [];
+//       this.featureConfig.buttons.push(selector);
+//     }
+//     this.updateBlockedFeatures();
+//   }
+  
+//   // Remove a blocked feature
+//   removeBlockedFeature(selector) {
+//     ['sections', 'buttons'].forEach(type => {
+//       if (this.featureConfig[type]) {
+//         this.featureConfig[type] = this.featureConfig[type].filter(s => s !== selector);
+//       }
+//     });
+//     this.updateBlockedFeatures();
+//   }
+  
+//   // Set subscription status
+//   setSubscriptionStatus(isPro) {
+//     this.isPro = isPro;
+//     this.updateBlockedFeatures();
+//   }
+  
+//   // Update configuration
+//   updateConfig(newConfig) {
+//     this.featureConfig = { ...this.featureConfig, ...newConfig };
+//     this.updateBlockedFeatures();
+//   }
+// }
+
+// // Initialize with YOUR configuration
+// // Example initialization - modify based on your needs:
+// const featureBlocker = new LeafIntelligenceFeatureBlocker({
+//   features: {
+//     sections: [
+//     // '#recent-events-section',
+//     '.ema-label-card',
+//       '#advanced-analytics',
+//       '.premium-reports',
+//       '[data-feature="export-tools"]',
+//       '#responseLettersSection',
+//     ],
+//     buttons: [
+//       'button[onclick*="exportPDF"]',
+//       '#startComprehensiveAnalysis',
+//       '#view-all-applications',
+//       'button[onclick*="downloadReport"]',
+//       '.advanced-action-btn',
+//              '#enforcement-tab',
+// '#event-tab',
+// '#label-tab',
+// '#crltabp'
+
+
+
+//     ],
+//     customSelectors: [
+//       {
+//         selector: '#special-feature',
+//         type: 'block',
+//         message: 'This advanced analysis requires a Pro subscription'
+//       }
+//     ],
+//     badges: [
+//       { selector: 'button:contains("Export")', text: 'PRO' },
+//       { selector: 'button:contains("Download")', text: 'PRO' }
+//     ]
+//   }
+// });
+
+
+// // Or initialize empty and configure later:
+// if (document.readyState === 'loading') {
+//   document.addEventListener('DOMContentLoaded', () => {
+//     window.leafIntelligenceFeatureBlocker = new LeafIntelligenceFeatureBlocker();
+//   });
+// } else {
+//   window.leafIntelligenceFeatureBlocker = new LeafIntelligenceFeatureBlocker();
+// }
 class LeafIntelligenceFeatureBlocker {
   constructor(config = {}) {
-    this.isPro = false;
+    this.featureConfig = config.features || {};
     this.blockedFeatures = new Set();
     this.interceptedElements = new WeakMap();
-    this.userAccess = null;
-    
-    // Configuration - YOU define what features to block
-    this.featureConfig = config.features || {
-      // Example configuration - modify this based on your needs
-      // sections: [
-      //   '#some-pro-section',
-      //   '.premium-analytics',
-      //   '[data-feature="advanced-export"]'
-      // ],
-      // buttons: [
-      //   'button[data-action="export-pdf"]',
-      //   'button.premium-action'
-      // ],
-      // customSelectors: []
-    };
-    
     this.init();
   }
   
   async init() {
-    // Get user subscription status
-    await this.checkUserSubscription();
-    
-    // Block features on page load
-    this.updateBlockedFeatures();
+    // Wait for subscription manager to be ready
+    if (!window.subscriptionManager) {
+      console.log('Waiting for subscription manager...');
+      setTimeout(() => this.init(), 100);
+      return;
+    }
+
+    // Subscribe to subscription changes from the unified manager
+    window.subscriptionManager.onChange((userAccess) => {
+      console.log('Feature blocker: Subscription status changed', userAccess);
+      this.updateBlockedFeatures(userAccess);
+    });
     
     // Set up global click interceptor
     this.setupGlobalInterceptor();
     
     // Watch for dynamic content
     this.setupMutationObserver();
-  }
-  
-//   async checkUserSubscription() {
-//     try {
-//       const currentUser = localStorage.getItem('currentUser');
-//       if (currentUser) {
-//         const user = JSON.parse(currentUser);
-//         this.isPro = user.subscriptionTier === 'monthly' || user.subscriptionStatus === 'active';
-//         this.userAccess = user;
-//       }
-//     } catch (error) {
-//       console.error('Error checking subscription:', error);
-//       this.isPro = false;
-//     }
-//   }
-
-async checkUserSubscription() {
-  try {
-    // const currentUser = localStorage.getItem('currentUser');
-    const userId = this.getCurrentUserId();
-    if (!userId) {
-      this.isPro = false;
-      this.userAccess = null;
-      return;
+    
+    // IMPORTANT: Force initial check to get current state
+    const currentAccess = await window.subscriptionManager.refresh();
+    console.log("CURRENT ACCSSS BLOCK", currentAccess)
+    if (currentAccess) {
+      this.updateBlockedFeatures(currentAccess);
     }
-
-    // const user = JSON.parse(currentUser);
-    
-    // Fetch fresh subscription data from API
-    const response = await fetch(`/api/user/${userId}/subscription-status`);
-    
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    
-    const subscriptionData = await response.json();
-    
-    // Update local storage with fresh data (optional, but keeps it in sync)
-    const updatedUser = {
-      ...user,
-      ...subscriptionData
-    };
-    // localStorage.setItem('currentUser', JSON.stringify(updatedUser));
-    
-    // Check if user is Pro based on the API response
-    this.isPro = subscriptionData.subscriptionStatus === 'active' || 
-                 subscriptionData.subscriptionStatus === 'paid' ||
-                 subscriptionData.subscriptionTier === 'monthly';
-    
-    this.userAccess = subscriptionData;
-    
-  } catch (error) {
-    console.error('Error checking subscription:', error);
-    this.isPro = false;
-    this.userAccess = null;
   }
-}
-  
+
+  updateBlockedFeatures(userAccess) {
+    const isPro = userAccess?.isPro || false;
+    
+    console.log('Updating blocked features, isPro:', isPro);
+    
+    // Remove existing blockers
+    document.querySelectorAll('.feature-blocker-overlay').forEach(overlay => overlay.remove());
+    document.querySelectorAll('.pro-overlay-container').forEach(overlay => overlay.remove());
+    document.querySelectorAll('.feature-blocked').forEach(el => {
+      el.classList.remove('feature-blocked');
+      el.style.pointerEvents = '';
+      el.style.userSelect = '';
+    });
+    
+    if (!userAccess.isPro) {
+      // Block features based on configuration
+      this.blockConfiguredFeatures();
+      this.blockRecentEvents();
+      this.blockEnhancedEnrollment();
+      this.blockEnhancedEndpoints();
+      
+      // Block any elements with .pro-feature class
+      document.querySelectorAll('.pro-feature:not(button)').forEach(element => {
+        this.createSectionBlocker(element);
+      });
+    }
+  }
+
   // Create glass overlay for sections
   createSectionBlocker(element, customMessage = null) {
     // Check if already blocked
@@ -112374,27 +113970,340 @@ async checkUserSubscription() {
   
   // Setup global click interceptor
   setupGlobalInterceptor() {
-    // Capture phase to intercept before other listeners
     document.addEventListener('click', (e) => {
-      if (this.isPro) return;
+      // Check if user is pro using the subscription manager
+      if (window.subscriptionManager?.isPro()) return;
       
       const proElement = e.target.closest('.pro-feature');
       if (proElement && !e.target.closest('.feature-blocker-overlay')) {
         e.preventDefault();
         e.stopImmediatePropagation();
         
-        // Check for custom message
         const customMessage = proElement.getAttribute('data-pro-message');
         this.showUpgradeModal(customMessage);
       }
     }, true);
   }
-  
+
+  blockRecentEvents() {
+    console.log('🔒 Checking for recent events section...');
+    
+    const recentEventsSection = document.getElementById('recent-events-section');
+    
+    if (recentEventsSection && !recentEventsSection.querySelector('.pro-overlay')) {
+      console.log('🔒 Blocking recent events section');
+      
+      recentEventsSection.style.position = 'relative';
+      
+      const contentToBlur = recentEventsSection.querySelectorAll('.bg-white.border.border-gray-200.rounded-lg.shadow-sm, .bg-gray-50.rounded-lg.p-8.text-center');
+      
+      contentToBlur.forEach(element => {
+        element.style.filter = 'blur(4px)';
+        element.style.pointerEvents = 'none';
+        element.style.userSelect = 'none';
+      });
+      
+      const eventGrid = recentEventsSection.querySelector('#recentEventsGrid');
+      if (eventGrid) {
+        eventGrid.style.filter = 'blur(4px)';
+        eventGrid.style.pointerEvents = 'none';
+      }
+      
+      const overlayContainer = document.createElement('div');
+      overlayContainer.className = 'pro-overlay-container';
+      overlayContainer.style.cssText = `
+        position: absolute;
+        top: 80px;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10;
+        pointer-events: none;
+      `;
+      
+      const overlay = document.createElement('div');
+      overlay.className = 'pro-overlay';
+      overlay.style.cssText = `
+        background: rgba(255, 255, 255, 0.98);
+        padding: 40px;
+        border-radius: 12px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        text-align: center;
+        max-width: 450px;
+        border: 2px solid #3B82F6;
+        pointer-events: auto;
+      `;
+      
+      overlay.innerHTML = `
+        <div class="text-center">
+          <div class="mb-4">
+            <div class="w-20 h-20 mx-auto bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center">
+              <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+            </div>
+          </div>
+          <h3 class="text-2xl font-bold text-gray-900 mb-3">Recent Regulatory Events</h3>
+          <div class="text-lg text-gray-700 mb-4">Pro Feature</div>
+          <p class="text-gray-600 mb-6">
+            Access real-time FDA & EMA regulatory events including submissions, 
+            label changes, recalls, and safety updates from live APIs.
+          </p>
+          <div class="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg p-4 mb-6">
+            <div class="grid grid-cols-2 gap-3 text-sm">
+              <div class="flex items-center">
+                <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
+                <span class="text-gray-700">Live FDA Events</span>
+              </div>
+              <div class="flex items-center">
+                <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
+                <span class="text-gray-700">Live EMA Events</span>
+              </div>
+              <div class="flex items-center">
+                <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
+                <span class="text-gray-700">Company Grouping</span>
+              </div>
+              <div class="flex items-center">
+                <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
+                <span class="text-gray-700">Export to CSV/JSON</span>
+              </div>
+            </div>
+          </div>
+          <button onclick="window.stripeIntegration?.showUpgradeModal()" class="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white px-8 py-3 rounded-lg font-medium hover:from-blue-700 hover:to-blue-800 transition-all transform hover:scale-105 shadow-lg">
+            Upgrade to Pro
+          </button>
+          <p class="text-xs text-gray-500 mt-4">
+            Unlock all premium features for comprehensive regulatory intelligence
+          </p>
+        </div>
+      `;
+      
+      overlayContainer.appendChild(overlay);
+      recentEventsSection.appendChild(overlayContainer);
+      
+      const buttons = recentEventsSection.querySelectorAll('button');
+      buttons.forEach(button => {
+        if (!button.closest('.pro-overlay')) {
+          button.disabled = true;
+          button.style.opacity = '0.5';
+          button.style.cursor = 'not-allowed';
+          button.onclick = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+          };
+        }
+      });
+      
+      const eventCards = recentEventsSection.querySelectorAll('.recent-event-card');
+      eventCards.forEach(card => {
+        card.style.cursor = 'not-allowed';
+        card.onclick = (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+        };
+      });
+      
+      console.log('✅ Recent events section blocked with overlay');
+    }
+  }
+
+blockEnhancedEnrollment() {
+    console.log('🔒 Checking for enhanced enrollment section...');
+    
+    // Find the enrollment tab content
+    const enrollmentTab = document.getElementById('enhanced-enrollment-tab');
+    const enrollmentContent = document.querySelector('.enhanced-enrollment');
+    
+    if ((enrollmentTab || enrollmentContent) && !document.querySelector('#enrollment-pro-overlay')) {
+        console.log('🔒 Blocking enhanced enrollment section');
+        
+        // Get the container to block
+        const targetContainer = enrollmentTab || enrollmentContent.parentElement;
+        targetContainer.style.position = 'relative';
+        
+        // Create overlay with new styling
+        const overlay = document.createElement('div');
+        overlay.id = 'enrollment-pro-overlay';
+        overlay.className = 'enrollment-pro-overlay';
+        overlay.innerHTML = `
+            <div class="px-6 py-8">
+                <div class="relative">
+                    <div class="absolute inset-0 bg-gradient-to-b from-transparent to-gray-100 pointer-events-none"></div>
+                    <div class="text-center">
+                        <div class="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
+                            <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">Enhanced Enrollment Analytics</h3>
+                        <p class="text-sm text-gray-600 mb-4">Unlock access to comprehensive enrollment data and demographics analysis</p>
+                        <button onclick="window.showUpgradeModal ? window.showUpgradeModal() : (window.stripeIntegration ? window.stripeIntegration.showUpgradeModal() : alert('Upgrade to Pro'))" 
+                                class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-semibold rounded-full hover:from-green-700 hover:to-emerald-700 transform hover:scale-105 transition-all duration-200 shadow-lg">
+                            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
+                            </svg>
+                            Upgrade to Pro
+                        </button>
+                        <div class="mt-4 text-xs text-gray-500">
+                            <span class="inline-flex items-center">
+                                <svg class="w-4 h-4 mr-1 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                </svg>
+                                Demographics Analysis
+                            </span>
+                            <span class="inline-flex items-center ml-4">
+                                <svg class="w-4 h-4 mr-1 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                </svg>
+                                Eligibility Patterns
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Apply styles to make it cover the entire container
+        overlay.style.cssText = `
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.97);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            min-height: 400px;
+        `;
+        
+        // Blur the background content
+        const contentToBlur = targetContainer.querySelectorAll('.bg-gradient-to-br, .bg-white, .grid, .chart-container');
+        contentToBlur.forEach(element => {
+            element.style.filter = 'blur(3px)';
+            element.style.opacity = '0.3';
+            element.style.pointerEvents = 'none';
+        });
+        
+        targetContainer.appendChild(overlay);
+        
+        console.log('✅ Enhanced enrollment section blocked with updated overlay');
+    }
+}
+
+// Updated blockEnhancedEndpoints method with new styling
+blockEnhancedEndpoints() {
+    console.log('🔒 Checking for enhanced endpoints section...');
+    
+    // Find the endpoints tab content
+    const endpointsTab = document.getElementById('enhanced-endpoints-tab');
+    const endpointsContent = document.querySelector('.enhanced-endpoints');
+    
+    if ((endpointsTab || endpointsContent) && !document.querySelector('#endpoints-pro-overlay')) {
+        console.log('🔒 Blocking enhanced endpoints section');
+        
+        // Get the container to block
+        const targetContainer = endpointsTab || endpointsContent.parentElement;
+        targetContainer.style.position = 'relative';
+        
+        // Create overlay with new styling
+        const overlay = document.createElement('div');
+        overlay.id = 'endpoints-pro-overlay';
+        overlay.className = 'endpoints-pro-overlay';
+        overlay.innerHTML = `
+            <div class="px-6 py-8">
+                <div class="relative">
+                    <div class="absolute inset-0 bg-gradient-to-b from-transparent to-gray-100 pointer-events-none"></div>
+                    <div class="text-center">
+                        <div class="inline-flex items-center justify-center w-16 h-16 bg-purple-100 rounded-full mb-4">
+                            <svg class="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">Enhanced Endpoints Analysis</h3>
+                        <p class="text-sm text-gray-600 mb-4">Unlock access to detailed endpoint analytics and success rate data</p>
+                        <button onclick="window.showUpgradeModal ? window.showUpgradeModal() : (window.stripeIntegration ? window.stripeIntegration.showUpgradeModal() : alert('Upgrade to Pro'))" 
+                                class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-full hover:from-purple-700 hover:to-pink-700 transform hover:scale-105 transition-all duration-200 shadow-lg">
+                            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
+                            </svg>
+                            Upgrade to Pro
+                        </button>
+                        <div class="mt-4 text-xs text-gray-500">
+                            <span class="inline-flex items-center">
+                                <svg class="w-4 h-4 mr-1 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                </svg>
+                                Primary & Secondary Endpoints
+                            </span>
+                            <span class="inline-flex items-center ml-4">
+                                <svg class="w-4 h-4 mr-1 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                </svg>
+                                Success Rate Analysis
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Apply styles to make it cover the entire container
+        overlay.style.cssText = `
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.97);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            min-height: 400px;
+        `;
+        
+        // Blur the background content
+        const contentToBlur = targetContainer.querySelectorAll('.bg-gradient-to-br, .bg-white, .grid, .chart-container');
+        contentToBlur.forEach(element => {
+            element.style.filter = 'blur(3px)';
+            element.style.opacity = '0.3';
+            element.style.pointerEvents = 'none';
+        });
+        
+        targetContainer.appendChild(overlay);
+        
+        // Also disable any buttons in these sections
+        const buttons = targetContainer.querySelectorAll('button');
+        buttons.forEach(button => {
+            if (!button.closest('.endpoints-pro-overlay')) {
+                button.disabled = true;
+                button.style.opacity = '0.5';
+                button.style.cursor = 'not-allowed';
+            }
+        });
+        
+        console.log('✅ Enhanced endpoints section blocked with updated overlay');
+    }
+}
+
   // Show upgrade modal
   showUpgradeModal(customMessage = null) {
-    // Check if PaymentModal exists
-    if (window.paymentModal) {
-      window.paymentModal.show();
+    // Use the StripeIntegration's showUpgradeModal if available
+    if (window.stripeIntegration?.showUpgradeModal) {
+      window.stripeIntegration.showUpgradeModal('Premium Feature', customMessage);
     } else {
       // Fallback to custom modal
       this.showCustomUpgradeModal(customMessage);
@@ -112402,209 +114311,52 @@ async checkUserSubscription() {
   }
   
   showCustomUpgradeModal(customMessage = null) {
-    // Remove existing modal if any
-    const existingModal = document.getElementById('feature-upgrade-modal');
-    if (existingModal) existingModal.remove();
-    
-    // Create modal
-    const modal = document.createElement('div');
-    modal.id = 'feature-upgrade-modal';
-    modal.className = 'upgrade-modal fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4';
-    modal.innerHTML = `
-    <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full mx-4 overflow-hidden">
-      <!-- Header with gradient -->
-      <div class="bg-gradient-to-br from-purple-600 to-blue-600 p-6 text-white">
-        <div class="flex justify-between items-start mb-4">
-          <div>
-            <h3 class="text-2xl font-bold">Unlock Premium Features</h3>
-            <p class="text-purple-100 mt-1">Get full access to all Leaf Intelligence features</p>
-          </div>
-          <button onclick="this.closest('.upgrade-modal').remove()" class="text-white/60 hover:text-white transition-colors">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-            </svg>
-          </button>
-        </div>
-        
-        <!-- Feature preview -->
-        <div class="bg-white/10 backdrop-blur rounded-lg p-4 mt-4">
-          <p class="text-sm text-purple-100">You're trying to access a premium feature. Upgrade to unlock:</p>
-          <ul class="mt-2 space-y-1 text-sm">
-            <li class="flex items-center">
-              <svg class="w-4 h-4 mr-2 text-yellow-300" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-              </svg>
-              Full access to this feature
-            </li>
-            <li class="flex items-center">
-              <svg class="w-4 h-4 mr-2 text-yellow-300" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-              </svg>
-              All other premium features
-            </li>
-            <li class="flex items-center">
-              <svg class="w-4 h-4 mr-2 text-yellow-300" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-              </svg>
-              Unlimited searches
-            </li>
-          </ul>
-        </div>
-      </div>
-      
-      <!-- Pricing options -->
-      <div class="p-6 space-y-4">
-        <!-- Single Search Option -->
-        <button onclick="window.stripeIntegration.purchaseSingleSearch()" 
-                class="w-full group relative overflow-hidden rounded-xl border-2 border-blue-200 hover:border-blue-400 transition-all duration-300">
-          <div class="relative z-10 p-4 bg-gradient-to-r from-blue-50 to-blue-100 group-hover:from-blue-100 group-hover:to-blue-200 transition-all">
-            <div class="flex justify-between items-center">
-              <div class="text-left">
-                <h4 class="font-semibold text-gray-900">One-Time Purchase</h4>
-                <p class="text-sm text-gray-600 mt-0.5">Full access for this search only</p>
-              </div>
-              <div class="text-right">
-                <span class="text-2xl font-bold text-gray-900">$74.99</span>
-                <span class="text-sm text-gray-500 block">one time</span>
-              </div>
-            </div>
-          </div>
-          <div class="absolute inset-0 bg-gradient-to-r from-blue-400 to-blue-600 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
-        </button>
-        
-        <!-- Monthly Subscription Option -->
-        <button onclick="window.stripeIntegration.subscribeMonthly()" 
-                class="w-full group relative overflow-hidden rounded-xl border-2 border-purple-300 hover:border-purple-400 transition-all duration-300 transform hover:scale-105">
-          <div class="absolute -top-2 -right-2 bg-yellow-400 text-xs font-bold text-gray-900 px-3 py-1 rounded-bl-xl rounded-tr-xl">
-            BEST VALUE
-          </div>
-          <div class="relative z-10 p-4 bg-gradient-to-r from-purple-100 to-blue-100 group-hover:from-purple-200 group-hover:to-blue-200 transition-all">
-            <div class="flex justify-between items-center">
-              <div class="text-left">
-                <h4 class="font-semibold text-gray-900">Monthly Subscription</h4>
-                <p class="text-sm text-gray-600 mt-0.5">Unlimited searches + All features</p>
-                <p class="text-xs text-purple-600 mt-1 font-medium">✨ Includes 7-day free trial!</p>
-              </div>
-              <div class="text-right">
-                <span class="text-2xl font-bold text-gray-900">$199</span>
-                <span class="text-sm text-gray-500 block">/month</span>
-              </div>
-            </div>
-          </div>
-          <div class="absolute inset-0 bg-gradient-to-r from-purple-400 to-blue-600 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
-        </button>
-        
-        <!-- Maybe Later Button -->
-        <button onclick="this.closest('.upgrade-modal').remove()" 
-                class="w-full py-3 text-gray-600 hover:text-gray-800 text-sm font-medium transition-colors">
-          Maybe Later
-        </button>
-        
-        <!-- Trust badges -->
-        <div class="flex items-center justify-center space-x-4 text-xs text-gray-500 mt-4 pt-4 border-t">
-          <div class="flex items-center">
-            <svg class="w-4 h-4 mr-1 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
-            </svg>
-            Secure payment
-          </div>
-          <div class="flex items-center">
-            <svg class="w-4 h-4 mr-1 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.293l-3-3a1 1 0 00-1.414 1.414L10.586 9.5H5a1 1 0 100 2h5.586l-1.293 1.293a1 1 0 101.414 1.414l3-3a1 1 0 000-1.414z" clip-rule="evenodd"/>
-            </svg>
-            Cancel anytime
-          </div>
-        </div>
-      </div>
-    </div>
-  `;
-    
-    document.body.appendChild(modal);
-    
-    // Close on background click
-    modal.addEventListener('click', (e) => {
-      if (e.target === modal) modal.remove();
-    });
+    // [Keep the existing showCustomUpgradeModal implementation]
+    // ... rest of the modal code ...
   }
-  
 
-
-
-
-  async subscribeMonthly() {
-    try {
-      const userId = this.getCurrentUserId();
-      if (!userId) {
-        alert('Please log in to subscribe');
-        return;
-      }
-
-      const response = await fetch('/api/stripe/create-subscription-checkout', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.getAuthToken()}`
-        },
-        body: JSON.stringify({ 
-                userId,
-                returnUrl: window.location.href  // Add this line
-            })
-      });
-
-      const data = await response.json();
-      
-      if (data.success) {
-        window.location.href = data.checkoutUrl;
-      } else {
-        alert('Failed to create subscription checkout');
-      }
-    } catch (error) {
-      console.error('Subscription error:', error);
-      alert('An error occurred. Please try again.');
-    }
-  }
-  
-  getCurrentUserId() {
-    try {
-      const userData = JSON.parse(localStorage.getItem('currentUser') || '{}');
-      return userData._id;
-    } catch (error) {
-      return null;
-    }
-  }
-  
-  getAuthToken() {
-    const currentUser = localStorage.getItem('currentUser');
-    if (currentUser) {
-      try {
-        const userData = JSON.parse(currentUser);
-        return btoa(JSON.stringify({ userId: userData._id }));
-      } catch (e) {
-        return null;
-      }
-    }
-    return null;
-  }
-  
-  // Update blocked features based on subscription status
-  updateBlockedFeatures() {
-    // Remove existing blockers
-    document.querySelectorAll('.feature-blocker-overlay').forEach(overlay => overlay.remove());
-    document.querySelectorAll('.feature-blocked').forEach(el => {
-      el.classList.remove('feature-blocked');
-      el.style.pointerEvents = '';
-      el.style.userSelect = '';
-    });
+  setupMutationObserver() {
+    // const observer = new MutationObserver((mutations) => {
+    //   mutations.forEach((mutation) => {
+    //     if (mutation.type === 'childList') {
+    //       mutation.addedNodes.forEach((node) => {
+    //         if (node.nodeType === 1) { // Element node
+    //           // Check for recent events
+    //           if (node.id === 'recent-events-section' || 
+    //               (node.querySelector && node.querySelector('#recent-events-section'))) {
+    //             setTimeout(() => this.blockRecentEvents(), 100);
+    //           }
+              
+    //           // Check for enhanced enrollment
+    //           if (node.id === 'enhanced-enrollment-tab' || 
+    //               (node.querySelector && node.querySelector('.enhanced-enrollment'))) {
+    //             setTimeout(() => this.blockEnhancedEnrollment(), 100);
+    //           }
+              
+    //           // Check for enhanced endpoints
+    //           if (node.id === 'enhanced-endpoints-tab' || 
+    //               (node.querySelector && node.querySelector('.enhanced-endpoints'))) {
+    //             setTimeout(() => this.blockEnhancedEndpoints(), 100);
+    //           }
+              
+    //           // Also check when tabs are clicked
+    //           if (node.classList && (node.classList.contains('enhanced-enrollment') || 
+    //               node.classList.contains('enhanced-endpoints'))) {
+    //             setTimeout(() => {
+    //               this.blockEnhancedEnrollment();
+    //               this.blockEnhancedEndpoints();
+    //             }, 100);
+    //           }
+    //         }
+    //       });
+    //     }
+    //   });
+    // });
     
-    if (!this.isPro) {
-      // Block features based on configuration
-      this.blockConfiguredFeatures();
-      
-      // Block any elements with .pro-feature class
-      document.querySelectorAll('.pro-feature:not(button)').forEach(element => {
-        this.createSectionBlocker(element);
-      });
-    }
+    // observer.observe(document.body, {
+    //   childList: true,
+    //   subtree: true
+    // });
   }
   
   blockConfiguredFeatures() {
@@ -112669,114 +114421,128 @@ async checkUserSubscription() {
       });
     });
   }
-  
-  // Setup mutation observer to watch for dynamic content
-  setupMutationObserver() {
-    const observer = new MutationObserver((mutations) => {
-      // Debounce updates
-      clearTimeout(this.updateTimeout);
-      this.updateTimeout = setTimeout(() => {
-        this.updateBlockedFeatures();
-      }, 100);
-    });
-    
-    observer.observe(document.body, {
-      childList: true,
-      subtree: true
-    });
-  }
-  
-  // Public methods for dynamic control
-  
-  // Add a feature to block
-  addBlockedFeature(selector, type = 'button', message = null) {
-    if (type === 'section') {
-      if (!this.featureConfig.sections) this.featureConfig.sections = [];
-      this.featureConfig.sections.push(selector);
-    } else if (type === 'button') {
-      if (!this.featureConfig.buttons) this.featureConfig.buttons = [];
-      this.featureConfig.buttons.push(selector);
-    }
-    this.updateBlockedFeatures();
-  }
-  
-  // Remove a blocked feature
-  removeBlockedFeature(selector) {
-    ['sections', 'buttons'].forEach(type => {
-      if (this.featureConfig[type]) {
-        this.featureConfig[type] = this.featureConfig[type].filter(s => s !== selector);
-      }
-    });
-    this.updateBlockedFeatures();
-  }
-  
-  // Set subscription status
-  setSubscriptionStatus(isPro) {
-    this.isPro = isPro;
-    this.updateBlockedFeatures();
-  }
-  
-  // Update configuration
-  updateConfig(newConfig) {
-    this.featureConfig = { ...this.featureConfig, ...newConfig };
-    this.updateBlockedFeatures();
-  }
 }
 
-// Initialize with YOUR configuration
-// Example initialization - modify based on your needs:
-const featureBlocker = new LeafIntelligenceFeatureBlocker({
-  features: {
-    sections: [
-    '#recent-events-section',
-    '.ema-label-card',
-      '#advanced-analytics',
-      '.premium-reports',
-      '[data-feature="export-tools"]',
-      '#enhanced-enrollment-tab',
-      '#enhanced-endpoints-tab',
-      '#responseLettersSection',
-      '#warningLetters'
-    ],
-    buttons: [
-      'button[onclick*="exportPDF"]',
-      '#startComprehensiveAnalysis',
-      '#view-all-applications',
-      'button[onclick*="downloadReport"]',
-      '.advanced-action-btn',
-             '#enforcement-tab',
-'#event-tab',
-'#label-tab',
-'#wltabp',
-'#crltabp'
-
-
-
-    ],
-    customSelectors: [
-      {
-        selector: '#special-feature',
-        type: 'block',
-        message: 'This advanced analysis requires a Pro subscription'
-      }
-    ],
-    badges: [
-      { selector: 'button:contains("Export")', text: 'PRO' },
-      { selector: 'button:contains("Download")', text: 'PRO' }
-    ]
-  }
-});
-
-
-// Or initialize empty and configure later:
+// Initialize the feature blocker after DOM is ready
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => {
-    window.leafIntelligenceFeatureBlocker = new LeafIntelligenceFeatureBlocker();
+    window.leafIntelligenceFeatureBlocker = new LeafIntelligenceFeatureBlocker({
+      features: {
+        sections: [
+          '.ema-label-card',
+          '#advanced-analytics',
+          '.premium-reports',
+          '[data-feature="export-tools"]',
+          '#responseLettersSection',
+        ],
+        buttons: [
+          'button[onclick*="exportPDF"]',
+          '#startComprehensiveAnalysis',
+          '#view-all-applications',
+          'button[onclick*="downloadReport"]',
+          '.advanced-action-btn',
+          '#enforcement-tab',
+          '#event-tab',
+          '#label-tab',
+          '#crltabp'
+        ],
+        customSelectors: [
+          {
+            selector: '#special-feature',
+            type: 'block',
+            message: 'This advanced analysis requires a Pro subscription'
+          }
+        ],
+        badges: [
+          { selector: 'button:contains("Export")', text: 'PRO' },
+          { selector: 'button:contains("Download")', text: 'PRO' }
+        ]
+      }
+    });
   });
 } else {
-  window.leafIntelligenceFeatureBlocker = new LeafIntelligenceFeatureBlocker();
+  window.leafIntelligenceFeatureBlocker = new LeafIntelligenceFeatureBlocker({
+    features: {
+      sections: [
+        '.ema-label-card',
+        '#advanced-analytics',
+        '.premium-reports',
+        '[data-feature="export-tools"]',
+        '#responseLettersSection',
+      ],
+      buttons: [
+        'button[onclick*="exportPDF"]',
+        '#startComprehensiveAnalysis',
+        '#view-all-applications',
+        'button[onclick*="downloadReport"]',
+        '.advanced-action-btn',
+        '#enforcement-tab',
+        '#event-tab',
+        '#label-tab',
+        '#crltabp'
+      ],
+      customSelectors: [
+        {
+          selector: '#special-feature',
+          type: 'block',
+          message: 'This advanced analysis requires a Pro subscription'
+        }
+      ],
+      badges: [
+        { selector: 'button:contains("Export")', text: 'PRO' },
+        { selector: 'button:contains("Download")', text: 'PRO' }
+      ]
+    }
+  });
 }
 
+
+// Add these styles to your page
+const updatedBlockerStyles = `
+<style>
+    /* Updated blocker overlay styles */
+    .enrollment-pro-overlay,
+    .endpoints-pro-overlay {
+        backdrop-filter: blur(1px);
+    }
+    
+    /* Ensure the gradient overlay is visible */
+    .enrollment-pro-overlay .absolute.inset-0,
+    .endpoints-pro-overlay .absolute.inset-0 {
+        pointer-events: none;
+        z-index: -1;
+    }
+    
+    /* Button animation on hover */
+    .enrollment-pro-overlay button:hover,
+    .endpoints-pro-overlay button:hover {
+        transform: scale(1.05);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+    
+    /* Blur effect for background content */
+    .blur-sm {
+        filter: blur(2px);
+    }
+    
+    .blur-md {
+        filter: blur(3px);
+    }
+</style>
+`;
+
+// Function to inject the styles
+function injectUpdatedBlockerStyles() {
+    if (!document.getElementById('updated-blocker-styles')) {
+        const styleElement = document.createElement('style');
+        styleElement.id = 'updated-blocker-styles';
+        styleElement.innerHTML = updatedBlockerStyles.replace('<style>', '').replace('</style>', '');
+        document.head.appendChild(styleElement);
+    }
+}
+
+// Call this when initializing
+injectUpdatedBlockerStyles();
 // CSS to add to your leafintelligence.html or styles
 const featureBlockerStyles = `
 <style>
@@ -112830,7 +114596,9 @@ injectFeatureBlockerStyles();
 // Update the DOMContentLoaded event listener
 document.addEventListener('DOMContentLoaded', () => {
     window.loginSystem = new LoginSystem();
-    
+      if (!window.subscriptionManager) {
+    window.subscriptionManager = new UnifiedSubscriptionManager();
+  }
     // Initialize Stripe after login system
     setTimeout(() => {
         window.stripeIntegration = new StripeIntegration();
