@@ -1397,49 +1397,6 @@ tailwind.config = {
     }
 }
 
-/* Fix z-index issues */
-#recent-events-section .pro-overlay-container {
-    position: absolute !important;
-    z-index: 100 !important;
-}
-
-/* Ensure buttons inside the pro overlay work */
-#recent-events-section .pro-overlay button {
-    pointer-events: auto !important;
-    opacity: 1 !important;
-    cursor: pointer !important;
-}
-/* Ensure tabs have proper positioning context */
-#enhanced-enrollment-tab,
-#enhanced-endpoints-tab {
-    position: relative;
-    min-height: 500px;
-}
-
-/* Ensure overlays cover the entire tab content */
-#enrollment-pro-overlay,
-#endpoints-pro-overlay {
-    border-radius: 8px;
-}
-
-/* Make sure blurred content is not interactive */
-.enhanced-enrollment [style*="blur"],
-.enhanced-endpoints [style*="blur"] {
-    pointer-events: none !important;
-    user-select: none !important;
-}
-
-/* Ensure the tab panels have proper height */
-.tab-content > div[role="tabpanel"] {
-    min-height: 400px;
-    position: relative;
-}
-
-/* Style the blocked tab content */
-#enhanced-enrollment-tab.blocked,
-#enhanced-endpoints-tab.blocked {
-    overflow: hidden;
-}
 </style>
 <body class="bg-gray-50 font-sans text-gray-800" >
 
@@ -1999,7 +1956,7 @@ tailwind.config = {
                 <p class="text-xs text-gray-500 mb-1">Access Level</p>
                 <p id="popupRole" class="font-medium text-gray-800"></p>
             </div>
-            <div class="mb-3 pb-3 border-b border-gray-100">
+            <div class="hidden mb-3 pb-3 border-b border-gray-100">
                 <p class="text-xs text-gray-500 mb-1">Usage</p>
                 <div class="w-full bg-gray-100 rounded-full h-2">
                     <div id="usageBar" class="bg-blue-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
@@ -2014,7 +1971,7 @@ tailwind.config = {
                 <p class="text-xs text-gray-500 mb-1">Subscription Status</p>
                 <p id="subscriptionStatus" class="inline-block px-2 py-0.5 rounded text-xs font-medium"></p>
             </div>
-            <div class="mb-3 pb-3 border-b border-gray-100">
+            <div class="hidden mb-3 pb-3 border-b border-gray-100">
                 <label class="flex items-center justify-between cursor-pointer">
                     <span class="text-sm text-gray-700">Dark Mode</span>
                     <input type="checkbox" id="darkModeToggle" class="sr-only peer">
@@ -12743,7 +12700,7 @@ window.advancedsearchtoggle = function() {
 //     elements.mainSearch =  document.getElementById("mainSearch");
 // elements.advancedsearch =  document.getElementById("advancedSearch");
 }
-let API_BASE_URL = null;
+let API_BASE_URL = 'https://www.syneticx.com/api';
 
 // Fetch config on page load
 window.onload = async () => {
@@ -28743,7 +28700,7 @@ console.log('✅ Simplified Pivotal Trial Analysis System Loaded');
 
 let enhancedPivotalInitialized = false;
 
-function displayPivotalTrialAnalysisComponent(studiesData, drugName, conditionName) {
+async function displayPivotalTrialAnalysisComponent(studiesData, drugName, conditionName) {
     console.log('🎯 Displaying enhanced pivotal trial analysis component...');
     
     try {
@@ -28766,7 +28723,7 @@ function displayPivotalTrialAnalysisComponent(studiesData, drugName, conditionNa
         container.innerHTML = '<div class="loading text-center py-8">Analyzing pivotal trials...</div>';
 
         // Generate the enhanced analysis
-        const enhancedHTML = analyzePivotalTrialsFromExistingData(studiesData, drugName, conditionName);
+        const enhancedHTML = await analyzePivotalTrialsFromExistingData(studiesData, drugName, conditionName);
         
         // Display the enhanced analysis
         container.innerHTML = enhancedHTML;
@@ -35023,13 +34980,95 @@ function generateEnhancedTrialCard(study) {
 /**
  * Main function to generate enhanced pivotal trial analysis
  */
-function generateEnhancedPivotalTrialAnalysis(studies, drugName, conditionName) {
+// function generateEnhancedPivotalTrialAnalysis(studies, drugName, conditionName) {
+//     console.log('🚀 Generating enhanced pivotal trial analysis...');
+    
+//     // Extract enhanced data using the 20x better functions
+//     const designData = extractEnhancedTrialDesignData(studies);
+//     // const demographicsData = extractEnhancedDemographicsData(studies);
+//     const demographicsData = extractEnhancedDemographicsDataWithValidation(studies)
+//     const endpointData = extractEnhancedEndpointData(studies);
+    
+//     // Generate comprehensive analysis HTML
+//     return `
+//         <div class="enhanced-pivotal-analysis bg-gray-50 min-h-screen">
+//             <!-- Header -->
+//             <div class="bg-white border-b border-gray-200 px-6 py-4">
+//                 <div class="flex justify-between items-center">
+//                     <div>
+//                         <h2 class="text-2xl font-bold text-gray-900">Trial Analysis</h2>
+//                         <p class="text-sm text-gray-600 mt-1">
+//                             ${drugName ? `Drug: ${drugName}` : ''} 
+//                             ${conditionName ? `• Condition: ${conditionName}` : ''} 
+//                             • ${studies.length} trials analyzed
+//                         </p>
+//                     </div>
+//                     <div class="hidden flex space-x-3">
+//                         <button onclick="exportEnhancedAnalysis()" 
+//                                 class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+//                             Export Analysis
+//                         </button>
+//                         <button onclick="generateRegulatoryReport()" 
+//                                 class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+//                             Regulatory Report
+//                         </button>
+//                     </div>
+//                 </div>
+//             </div>
+
+//             <!-- Enhanced Tab Navigation -->
+//             <div class="bg-white border-b border-gray-200 px-6">
+//                 <nav class="flex space-x-8">
+//                     <button onclick="switchEnhancedTab('design')" 
+//                             class="enhanced-tab-btn active py-4 px-1 border-b-2 border-blue-500 font-medium text-sm text-blue-600">
+//                         Trial Design
+//                     </button>
+//                     <button id='enrollmentandoutcomes' class='' onclick="switchEnhancedTab('enrollment')" 
+//                             class="enhanced-tab-btn py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700">
+//                         Enrollment & Demographics
+//                     </button>
+//                     <button id='endpointsandoutcomes' class='' onclick="switchEnhancedTab('endpoints')" 
+//                             class="enhanced-tab-btn py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700">
+//                         Endpoints & Outcomes
+//                     </button>
+
+//                 </nav>
+//             </div>
+
+//             <!-- Tab Content -->
+//             <div class="p-6">
+//                 <!-- Trial Design Tab -->
+//                 <div id="enhanced-design-tab" class="enhanced-tab-content">
+//                     ${generateEnhancedTrialDesignSection(designData)}
+//                 </div>
+
+//                 <!-- Enrollment Tab -->
+//                 <div id="enhanced-enrollment-tab" class="pro-feature enhanced-tab-content hidden">
+//                     ${generateEnhancedEnrollmentSection(demographicsData)}
+//                 </div>
+
+//                 <!-- Endpoints Tab -->
+//                 <div id="enhanced-endpoints-tab" class="pro-feature enhanced-tab-content hidden">
+//                     ${generateEnhancedEndpointsSection(endpointData)}
+//                 </div>
+
+
+//             </div>
+//         </div>
+//     `;
+   
+// }
+
+async function generateEnhancedPivotalTrialAnalysis(studies, drugName, conditionName) {
     console.log('🚀 Generating enhanced pivotal trial analysis...');
+    
+    // Check if user is Pro
+    const currentAccess = await window.subscriptionManager.refresh();
+    const isPro = currentAccess.isPro;
     
     // Extract enhanced data using the 20x better functions
     const designData = extractEnhancedTrialDesignData(studies);
-    // const demographicsData = extractEnhancedDemographicsData(studies);
-    const demographicsData = extractEnhancedDemographicsDataWithValidation(studies)
+    const demographicsData = extractEnhancedDemographicsDataWithValidation(studies);
     const endpointData = extractEnhancedEndpointData(studies);
     
     // Generate comprehensive analysis HTML
@@ -35066,15 +35105,18 @@ function generateEnhancedPivotalTrialAnalysis(studies, drugName, conditionName) 
                             class="enhanced-tab-btn active py-4 px-1 border-b-2 border-blue-500 font-medium text-sm text-blue-600">
                         Trial Design
                     </button>
-                    <button id='enrollmentandoutcomes' class='' onclick="switchEnhancedTab('enrollment')" 
-                            class="enhanced-tab-btn py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700">
+                    <button id='enrollmentandoutcomes' 
+                            onclick="${isPro ? 'switchEnhancedTab(\'enrollment\')' : 'showProUpgradeModal()'}" 
+                            class="enhanced-tab-btn py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 relative">
                         Enrollment & Demographics
+                        ${!isPro ? '<span class="absolute -top-1 -right-2 bg-purple-600 text-white text-xs px-2 py-0.5 rounded-full font-bold">PRO</span>' : ''}
                     </button>
-                    <button id='endpointsandoutcomes' class='' onclick="switchEnhancedTab('endpoints')" 
-                            class="enhanced-tab-btn py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700">
+                    <button id='endpointsandoutcomes' 
+                            onclick="${isPro ? 'switchEnhancedTab(\'endpoints\')' : 'showProUpgradeModal()'}" 
+                            class="enhanced-tab-btn py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 relative">
                         Endpoints & Outcomes
+                        ${!isPro ? '<span class="absolute -top-1 -right-2 bg-purple-600 text-white text-xs px-2 py-0.5 rounded-full font-bold">PRO</span>' : ''}
                     </button>
-
                 </nav>
             </div>
 
@@ -35086,23 +35128,127 @@ function generateEnhancedPivotalTrialAnalysis(studies, drugName, conditionName) 
                 </div>
 
                 <!-- Enrollment Tab -->
-                <div id="enhanced-enrollment-tab" class="pro-feature enhanced-tab-content hidden">
-                    ${generateEnhancedEnrollmentSection(demographicsData)}
+                <div id="enhanced-enrollment-tab" class="enhanced-tab-content hidden">
+                    ${isPro ? 
+                        generateEnhancedEnrollmentSection(demographicsData) :
+                        generateProBlockerContent('Enrollment & Demographics', [
+                            'Complete patient demographics breakdown',
+                            'Enrollment timelines and milestones',
+                            'Geographic distribution analysis',
+                            'Patient retention and dropout analysis',
+                            'Site performance metrics'
+                        ])
+                    }
                 </div>
 
                 <!-- Endpoints Tab -->
-                <div id="enhanced-endpoints-tab" class="pro-feature enhanced-tab-content hidden">
-                    ${generateEnhancedEndpointsSection(endpointData)}
+                <div id="enhanced-endpoints-tab" class="enhanced-tab-content hidden">
+                    ${isPro ? 
+                        generateEnhancedEndpointsSection(endpointData) :
+                        generateProBlockerContent('Endpoints & Outcomes', [
+                            'Primary and secondary endpoint results',
+                            'Efficacy measurements and p-values',
+                            'Safety profile and adverse events',
+                            'Statistical significance analysis',
+                            'Subgroup analysis results'
+                        ])
+                    }
                 </div>
-
-
             </div>
         </div>
     `;
-   
 }
 
+// Helper function to generate Pro blocker content
+function generateProBlockerContent(sectionName, features) {
+    return `
+        <div class="relative min-h-[600px] overflow-hidden">
+            <!-- Blurred preview background -->
+            <div class="absolute inset-0 overflow-hidden">
+                <div class="filter blur-lg opacity-40 pointer-events-none select-none">
+                    <!-- Simulated content -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 p-6">
+                        <div class="bg-white rounded-lg p-6 shadow-sm">
+                            <div class="h-4 bg-gray-300 rounded w-3/4 mb-4"></div>
+                            <div class="space-y-2">
+                                <div class="h-3 bg-gray-200 rounded w-full"></div>
+                                <div class="h-3 bg-gray-200 rounded w-5/6"></div>
+                                <div class="h-3 bg-gray-200 rounded w-4/5"></div>
+                            </div>
+                            <div class="mt-6 h-32 bg-gray-300 rounded"></div>
+                        </div>
+                        <div class="bg-white rounded-lg p-6 shadow-sm">
+                            <div class="h-4 bg-gray-300 rounded w-2/3 mb-4"></div>
+                            <div class="h-48 bg-gray-200 rounded"></div>
+                        </div>
+                    </div>
+                    <div class="px-6">
+                        <div class="bg-white rounded-lg p-6 shadow-sm">
+                            <div class="h-64 bg-gray-300 rounded"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
+            <!-- Pro upgrade overlay -->
+            <div class="absolute inset-0 bg-white bg-opacity-95 flex items-center justify-center">
+                <div class="text-center max-w-md mx-auto p-8">
+                    <!-- Lock icon -->
+                    <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-purple-100 to-pink-100 rounded-full mb-6">
+                        <svg class="w-10 h-10 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                        </svg>
+                    </div>
+
+                    <h3 class="text-2xl font-bold text-gray-900 mb-3">
+                        Unlock ${sectionName}
+                    </h3>
+
+                    <p class="text-gray-600 mb-6">
+                        Get access to comprehensive clinical trial insights with a Pro subscription
+                    </p>
+
+                    <!-- Features list -->
+                    <div class="bg-gray-50 rounded-lg p-4 mb-6 text-left">
+                        <p class="text-sm font-semibold text-gray-700 mb-3">This section includes:</p>
+                        <ul class="space-y-2">
+                            ${features.map(feature => `
+                                <li class="flex items-start text-sm text-gray-600">
+                                    <svg class="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                    </svg>
+                                    <span>${feature}</span>
+                                </li>
+                            `).join('')}
+                        </ul>
+                    </div>
+
+                    <!-- Upgrade button -->
+                    <button onclick="showProUpgradeModal()" 
+                            class="inline-flex items-center px-8 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-full hover:from-purple-700 hover:to-pink-700 transform hover:scale-105 transition-all duration-200 shadow-lg">
+                        <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10 2a5 5 0 00-5 5v2a2 2 0 00-2 2v5a2 2 0 002 2h10a2 2 0 002-2v-5a2 2 0 00-2-2V7a5 5 0 00-5-5zm0 2a3 3 0 013 3v2H7V7a3 3 0 013-3z"/>
+                        </svg>
+                        Upgrade to Pro
+                    </button>
+
+                    <p class="mt-4 text-xs text-gray-500">
+                        Instant access • Cancel anytime
+                    </p>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// Helper function to show upgrade modal
+function showProUpgradeModal() {
+    if (window.leafIntelligenceFeatureBlocker) {
+        window.leafIntelligenceFeatureBlocker.showUpgradeModal();
+    } else {
+        alert('Upgrade to Pro to unlock this feature');
+    }
+}
                     // <button onclick="switchEnhancedTab('trials')" 
                     //         class="enhanced-tab-btn py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700">
                     //     Individual Trials
@@ -36484,7 +36630,7 @@ async function integratePivotalAnalysisWithExistingData() {
         //     displayPivotalTrialAnalysisComponent(analysis);
         //     console.log('✅ Pivotal trial analysis integration completed successfully');
 
-            const success = displayPivotalTrialAnalysisComponent(currentStudies, drugName, conditionName);
+            const success = await displayPivotalTrialAnalysisComponent(currentStudies, drugName, conditionName);
 if (success) {
     console.log('✅ Phase III analysis integration completed successfully');
 
@@ -43828,7 +43974,7 @@ function findPivotalTrialsWithFallback(studies, randomvar) {
 /**
  * ENHANCED: Analyze pivotal trials with regulatory intelligence
  */
-function analyzePivotalTrialsFromExistingData(studiesData, drugName, conditionName) {
+async function analyzePivotalTrialsFromExistingData(studiesData, drugName, conditionName) {
     console.log('🔄 Running ENHANCED pivotal trial analysis...');
     
     try {
@@ -43867,7 +44013,7 @@ function analyzePivotalTrialsFromExistingData(studiesData, drugName, conditionNa
         }
 
         // 🚀 NEW: Generate the enhanced analysis using our 20x better system
-        const enhancedAnalysisHTML = generateEnhancedPivotalTrialAnalysis(
+        const enhancedAnalysisHTML = await generateEnhancedPivotalTrialAnalysis(
             pivotalTrials, 
             drugName, 
             conditionName
@@ -80663,7 +80809,9 @@ async function enhancedHandleSearch(isAISearch = false, aiQuery = '') {
     ['trials', 'fda', 'ema', 'pubmed'].forEach(section => {
         updateSectionStatus(section, 'idle', '-', 0);
     });
-
+    const currentAccess = await window.subscriptionManager.refresh();
+    const isPro = currentAccess.isPro;
+    
     // Clear previous search results and hide sections
     // elements.drugSearch.value = '';
     // elements.conditionSearch.value = '';
@@ -80679,6 +80827,12 @@ async function enhancedHandleSearch(isAISearch = false, aiQuery = '') {
     showSection(elements.sectionNavigationBar, true);
     showSection(elements.summarySection, true)
     
+   
+            // Create container if it doesn't exist
+           const pivotalcontainer = document.getElementById('pivotal-analysis-container');
+            if(pivotalcontainer){
+            pivotalcontainer.innerHTML= ``;
+            }
     // Hide any other sections that might be visible
     document.querySelectorAll('.results-section').forEach(section => {
         section.style.display = 'none';
@@ -81016,6 +81170,7 @@ if (showEMA && drug) {
         // }
 
         // PUBMED SEARCH
+        if(isPro){
         if (showPubMed && (drug || condition)) {
             try {
                 updateSectionStatus('pubmed', 'loading', '-', 25);
@@ -81090,6 +81245,87 @@ autostartComprehensiveAnalysis(drug, true)
             updateSectionStatus('pubmed', 'idle', '-', 0);
         }
 
+
+
+    }else{
+
+
+
+                if (showPubMed && (drug || condition)) {
+            try {
+                updateSectionStatus('pubmed', 'loading', '-', 25);
+                
+                if (typeof PubMedModule !== 'undefined') {
+                    let pubmedResults = null;
+                    
+                    if (drug && condition) {
+                        console.log("Searching PubMed for drug and condition:", drug, condition);
+                        const combinedTerm = `${drug} AND ${condition}`;
+                        
+                        if (PubMedModule.performPubMedSearch) {
+                            pubmedResults = await PubMedModule.performPubMedSearch(combinedTerm, pubmedOptions);
+                            autostartComprehensiveAnalysis(drug, true)
+                        } else if (PubMedModule.searchPubMed) {
+                            pubmedResults = await PubMedModule.searchPubMed(combinedTerm, pubmedOptions);
+// autostartComprehensiveAnalysis(drug, true)
+                        }
+                        
+                    } else if (drug) {
+                        console.log("Searching PubMed for drug:", drug);
+                        
+                        if (PubMedModule.performPubMedSearch) {
+                            pubmedResults = await PubMedModule.performPubMedSearch(drug, pubmedOptions);
+// autostartComprehensiveAnalysis(drug, true)
+                        } else if (PubMedModule.searchPubMedByDrug) {
+                            pubmedResults = await PubMedModule.searchPubMedByDrug(drug, pubmedOptions);
+// autostartComprehensiveAnalysis(drug, true)
+                        } else if (PubMedModule.searchPubMed) {
+                            pubmedResults = await PubMedModule.searchPubMed(drug, pubmedOptions);
+// autostartComprehensiveAnalysis(drug, true)
+                        }
+                        
+                    } else if (condition) {
+                        console.log("Searching PubMed for condition:", condition);
+                        
+                        if (PubMedModule.searchPubMedByCondition) {
+                            pubmedResults = await PubMedModule.searchPubMedByCondition(condition, pubmedOptions);
+                        } else if (PubMedModule.searchPubMed) {
+                            pubmedResults = await PubMedModule.searchPubMed(condition, pubmedOptions);
+                        }
+                    }
+                    
+                    // NEW: Store results in app state for summary
+  if (pubmedResults) {
+    // Store the full result object
+    window.appState.pubmedData = pubmedResults;
+    
+    const pubmedCount = calculatePubMedCount(pubmedResults);
+    updateSectionStatus('pubmed', 'success', pubmedCount, 100);
+  } else {
+    // Try to get data from PubMed module state as fallback
+    const moduleState = PubMedModule.state || {};
+    const fallbackData = {
+      articles: moduleState.articles || [],
+      totalResults: moduleState.totalResults || 0
+    };
+    
+    window.appState.pubmedData = fallbackData;
+    const count = calculatePubMedCount(fallbackData);
+    updateSectionStatus('pubmed', 'success', count, 100);
+  }
+                    
+                    // showSection(elements.pubmedSection, true);
+                }
+                
+            } catch (error) {
+                console.error('PubMed search error:', error);
+                updateSectionStatus('pubmed', 'error', 0, 100);
+            }
+        } else if (showPubMed) {
+            updateSectionStatus('pubmed', 'idle', '-', 0);
+        }
+    }
+
         // Special handling for TEG6S user (if this is still needed)
         if (typeof getCurrentUserInfo === 'function') {
             const userInfo = getCurrentUserInfo();
@@ -81119,7 +81355,7 @@ autostartComprehensiveAnalysis(drug, true)
         if (hasSomeData) {
             const summarySection = document.getElementById('summarySection');
             if (summarySection) {
-                showSection(summarySection, true);
+                // showSection(summarySection, true);
                 
                 // Auto-generate summary after a short delay
                 // setTimeout(() => {
@@ -81631,7 +81867,7 @@ if (showPubMed && searchConfig.pubmed && searchConfig.pubmed.enabled) {
         if (hasSomeData) {
             const summarySection = document.getElementById('summarySection');
             if (summarySection) {
-                showSection(summarySection, true);
+                // showSection(summarySection, true);
                 
                 // Auto-generate summary after a short delay
                 // setTimeout(() => {
@@ -81674,20 +81910,190 @@ if (showPubMed && searchConfig.pubmed && searchConfig.pubmed.enabled) {
 
 
 
+// async function handleSearch() {
+//   console.log("hsifhaios fhasf")
+//     // Get search parameters from form inputs (your existing way)
+//     const drug = elements.drugSearch.value.trim();
+//     const condition = elements.conditionSearch.value.trim();
+//     const hasResultsOnly = elements.hasResultsOnly?.checked || false;
+//     const trdFocusOnly = elements.trdFocusOnly?.checked || false;
+//     const yearsBack = parseInt(document.getElementById('timelineSlider')?.value || 10);
+
+//     // Call the enhanced function with manual search flag
+//     return await enhancedHandleSearch(false, '');
+// }
+
 async function handleSearch() {
-  console.log("hsifhaios fhasf")
-    // Get search parameters from form inputs (your existing way)
+    console.log("Starting search validation...");
+    
+    // Get search parameters from form inputs
     const drug = elements.drugSearch.value.trim();
     const condition = elements.conditionSearch.value.trim();
     const hasResultsOnly = elements.hasResultsOnly?.checked || false;
     const trdFocusOnly = elements.trdFocusOnly?.checked || false;
     const yearsBack = parseInt(document.getElementById('timelineSlider')?.value || 10);
-
-    // Call the enhanced function with manual search flag
+    
+    // Check if both fields are empty
+    if (!drug && !condition) {
+        showEmptySearchPopup();
+        return; // Exit early, don't run the search
+    }
+    
+    // At least one field has a value, proceed with search
     return await enhancedHandleSearch(false, '');
 }
 
+function showEmptySearchPopup() {
+    // Create popup overlay
+    const popupOverlay = document.createElement('div');
+    popupOverlay.id = 'empty-search-popup';
+    popupOverlay.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+    
+    popupOverlay.innerHTML = `
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 transform transition-all">
+            <div class="p-6">
+                <!-- Icon -->
+                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-yellow-100 mb-4">
+                    <svg class="h-6 w-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                    </svg>
+                </div>
+                
+                <!-- Title -->
+                <h3 class="text-lg font-semibold text-gray-900 text-center mb-2">
+                    Search Fields Empty
+                </h3>
+                
+                <!-- Message -->
+                <p class="text-sm text-gray-600 text-center mb-6">
+                    Please enter a drug name, condition, or both to start your search.
+                </p>
+                
+                <!-- Buttons -->
+                <div class="flex justify-center">
+                    <button onclick="closeEmptySearchPopup()" 
+                            class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
+                        Got it
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Add click outside to close
+    popupOverlay.addEventListener('click', function(e) {
+        if (e.target === popupOverlay) {
+            closeEmptySearchPopup();
+        }
+    });
+    
+    // Add to body
+    document.body.appendChild(popupOverlay);
+    
+    // Focus the button for accessibility
+    setTimeout(() => {
+        popupOverlay.querySelector('button').focus();
+    }, 100);
+}
 
+function closeEmptySearchPopup() {
+    const popup = document.getElementById('empty-search-popup');
+    if (popup) {
+        popup.remove();
+    }
+    
+    // Focus back on the first empty input
+    if (!elements.drugSearch.value.trim()) {
+        elements.drugSearch.focus();
+    } else if (!elements.conditionSearch.value.trim()) {
+        elements.conditionSearch.focus();
+    }
+}
+
+// Alternative: More sophisticated popup with suggestions
+function showEmptySearchPopupWithSuggestions() {
+    // Create popup overlay
+    const popupOverlay = document.createElement('div');
+    popupOverlay.id = 'empty-search-popup';
+    popupOverlay.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+    
+    popupOverlay.innerHTML = `
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 transform transition-all">
+            <div class="p-6">
+                <!-- Icon -->
+                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 mb-4">
+                    <svg class="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                    </svg>
+                </div>
+                
+                <!-- Title -->
+                <h3 class="text-lg font-semibold text-gray-900 text-center mb-2">
+                    What would you like to search?
+                </h3>
+                
+                <!-- Message -->
+                <p class="text-sm text-gray-600 text-center mb-6">
+                    Enter at least one search criteria to find clinical trials
+                </p>
+                
+                <!-- Search tips -->
+                <div class="bg-gray-50 rounded-lg p-4 mb-6">
+                    <p class="text-xs font-semibold text-gray-700 mb-2">Search tips:</p>
+                    <ul class="text-xs text-gray-600 space-y-1">
+                        <li class="flex items-start">
+                            <span class="text-blue-500 mr-1">•</span>
+                            <span><strong>Drug:</strong> Enter a medication name (e.g., "Prozac", "fluoxetine")</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-blue-500 mr-1">•</span>
+                            <span><strong>Condition:</strong> Enter a medical condition (e.g., "depression", "diabetes")</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-blue-500 mr-1">•</span>
+                            <span><strong>Both:</strong> Search for specific drug-condition combinations</span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <!-- Buttons -->
+                <div class="flex gap-3 justify-center">
+                    <button onclick="closeEmptySearchPopup(); elements.drugSearch.focus();" 
+                            class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
+                        Enter Drug Name
+                    </button>
+                    <button onclick="closeEmptySearchPopup(); elements.conditionSearch.focus();" 
+                            class="px-4 py-2 bg-white border border-gray-300 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
+                        Enter Condition
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Add click outside to close
+    popupOverlay.addEventListener('click', function(e) {
+        if (e.target === popupOverlay) {
+            closeEmptySearchPopup();
+        }
+    });
+    
+    // Add ESC key to close
+    document.addEventListener('keydown', function escHandler(e) {
+        if (e.key === 'Escape') {
+            closeEmptySearchPopup();
+            document.removeEventListener('keydown', escHandler);
+        }
+    });
+    
+    // Add to body
+    document.body.appendChild(popupOverlay);
+    
+    // Add entrance animation
+    requestAnimationFrame(() => {
+        popupOverlay.querySelector('.bg-white').style.transform = 'scale(1)';
+    });
+}
 
 
 
@@ -109688,9 +110094,547 @@ function truncateText(text, maxLength) {
 //   };
 // })();
 
+    // Enhanced LoginSystem class with auto-detection of cached users
+// class LoginSystem {
+//     constructor() {
+//         // Initialize properties
+//         this.currentUserId = null;
         
+//         // Cache DOM elements
+//         this.loginOverlay = document.getElementById('loginOverlay');
+//         this.signupOverlay = document.getElementById('signupOverlay');
+//         this.existingPageContent = document.getElementById('existingPageContent');
+//         this.userInfo = document.getElementById('userInfo');
+//         this.userProfileButton = document.getElementById('userProfileButton');
+//         this.loginForm = document.getElementById('loginForm');
+//         this.signupForm = document.getElementById('signupForm');
+//         this.loginError = document.getElementById('loginError');
+//         this.signupError = document.getElementById('signupError');
+//         this.loginButtonText = document.getElementById('loginButtonText');
+//         this.signupButtonText = document.getElementById('signupButtonText');
+//         this.loginSpinner = document.getElementById('loginSpinner');
+//         this.signupSpinner = document.getElementById('signupSpinner');
+//         this.switchToSignup = document.getElementById('switchToSignup');
+//         this.switchToLogin = document.getElementById('switchToLogin');
+//         this.profilePopup = document.getElementById('profilePopup');
+//         this.userInitials = document.getElementById('userInitials');
+//         this.popupUserInitials = document.getElementById('popupUserInitials');
+//         this.welcomeText = document.getElementById('welcomeText');
+//         this.usernameDisplay = document.getElementById('usernameDisplay');
+//         this.closePopup = document.getElementById('closePopup');
+//         this.popupLogoutBtn = document.getElementById('popupLogoutBtn');
+//         this.logoutBtn = document.getElementById('logoutBtn');
+//         this.darkModeToggle = document.getElementById('darkModeToggle');
+//         this.notification = document.getElementById('notification');
+//         this.notificationUsername = document.getElementById('notificationUsername');
+        
+//         // Bind event listeners
+//         this.setupEventListeners();
+        
+//         // Initialize auto-login
+//         this.init();
+//     }
+
+//     // Enhanced init method with auto-detection of cached users
+//     async init() {
+//         console.log('Initializing login system...');
+        
+//         // Check for stored user first
+//         const storedUser = localStorage.getItem('currentUser');
+        
+//         if (storedUser) {
+//             try {
+//                 const user = JSON.parse(storedUser);
+//                 console.log('Found cached user:', user.username);
+                
+//                 // Optional: Verify the stored session is still valid
+//                 const isValid = await this.verifyStoredSession(user);
+                
+//                 if (isValid) {
+//                     console.log('Session verified, auto-logging in...');
+                    
+//                     // Hide login/signup overlays immediately
+//                     this.hideLoginOverlay();
+//                     this.hideSignupOverlay();
+                    
+//                     // Set current user ID
+//                     this.currentUserId = user._id;
+                    
+//                     // Show main content with cached user data
+//                     this.showMainContent(user);
+                    
+//                     // Show success notification
+//                     this.showNotification(user.username);
+                    
+//                     // Fetch fresh subscription data in background
+//                     this.fetchAndUpdateSubscriptionData(user).catch(error => {
+//                         console.error('Failed to update subscription data:', error);
+//                     });
+//                 } else {
+//                     console.log('Session invalid, clearing cache...');
+//                     // Invalid session, clear and show login
+//                     localStorage.removeItem('currentUser');
+//                     this.showLoginOverlay();
+//                 }
+//             } catch (error) {
+//                 console.error('Failed to parse stored user:', error);
+//                 localStorage.removeItem('currentUser');
+//                 this.showLoginOverlay();
+//             }
+//         } else {
+//             console.log('No cached user found, showing login...');
+//             // No stored user, show login
+//             this.showLoginOverlay();
+//         }
+//     }
+
+//     // Verify stored session with backend
+//     async verifyStoredSession(user) {
+//         try {
+//             const response = await fetch(`${API_BASE_URL}/verify-session`, {
+//                 method: 'POST',
+//                 headers: {
+//                     'Content-Type': 'application/json'
+//                 },
+//                 body: JSON.stringify({ userId: user._id })
+//             });
+            
+//             if (response.ok) {
+//                 console.log('Session is valid');
+//                 return true;
+//             } else {
+//                 console.log('Session is invalid');
+//                 return false;
+//             }
+//         } catch (error) {
+//             console.error('Session verification failed:', error);
+//             // If verification fails, assume session is invalid for security
+//             return false;
+//         }
+//     }
+
+//     // Fetch and update subscription data
+//     async fetchAndUpdateSubscriptionData(user) {
+//         try {
+//             const response = await fetch(`${API_BASE_URL}/user/${user._id}/subscription-status`, {
+//                 method: 'GET',
+//                 headers: {
+//                     'Content-Type': 'application/json'
+//                 }
+//             });
+            
+//             if (response.ok) {
+//                 const subscriptionData = await response.json();
+                
+//                 // Update local storage with fresh data
+//                 const updatedUser = { ...user, ...subscriptionData };
+//                 localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+                
+//                 // Update UI if needed
+//                 this.updateProfilePopup(updatedUser);
+                
+//                 console.log('Subscription data updated');
+//             }
+//         } catch (error) {
+//             console.error('Failed to fetch subscription data:', error);
+//         }
+//     }
+
+//     // Show main content after successful login
+//     showMainContent(user) {
+//         // Hide overlays first
+//         this.hideLoginOverlay();
+//         this.hideSignupOverlay();
+        
+//         // Show user interface elements
+//         if (this.existingPageContent) {
+//             this.existingPageContent.classList.remove('hidden');
+//         }
+//         if (this.userInfo) {
+//             this.userInfo.classList.remove('hidden');
+//         }
+//         if (this.userProfileButton) {
+//             this.userProfileButton.classList.remove('hidden');
+//         }
+        
+//         // Update user display
+//         if (this.usernameDisplay) {
+//             this.usernameDisplay.textContent = user.username;
+//         }
+        
+//         const initials = (user.username || 'U').charAt(0).toUpperCase();
+//         if (this.userInitials) {
+//             this.userInitials.textContent = initials;
+//         }
+//         if (this.popupUserInitials) {
+//             this.popupUserInitials.textContent = initials;
+//         }
+        
+//         if (this.welcomeText) {
+//             this.welcomeText.textContent = `Welcome, ${user.username}`;
+//         }
+        
+//         // Update profile popup with user data
+//         this.updateProfilePopup(user);
+        
+//         // Special handling for specific users (if needed)
+//         if (user.username === "TEG6S") {
+//             console.log("Special user logged in");
+//             setTimeout(() => {
+//                 const searchButton = document.getElementById('searchButton');
+//                 if (searchButton) {
+//                     searchButton.click();
+//                     console.log("Search button auto-clicked");
+//                 }
+//             }, 500);
+//         }
+//     }
+// // Helper methods you might need:
+// capitalizeFirstLetter(string) {
+//     return string.charAt(0).toUpperCase() + string.slice(1);
+// }
+
+// generateBillingPeriod(user) {
+//     if (user.billingPeriod) {
+//         return user.billingPeriod;
+//     }
+    
+//     if (user.subscriptionStatus === 'free-trial') {
+//         const trialEnd = new Date(user.trialEndDate);
+//         return `Trial ends ${trialEnd.toLocaleDateString()}`;
+//     }
+    
+//     if (user.subscriptionTier === 'monthly') {
+//         return 'Monthly billing';
+//     }
+    
+//     return 'No active billing';
+// }
+
+// updateSubscriptionStatus(status) {
+//     const statusInfo = this.subscriptionPlans[status] || this.subscriptionPlans['free'];
+    
+//     if (this.subscriptionStatus) {
+//         this.subscriptionStatus.textContent = statusInfo.name;
+//         this.subscriptionStatus.className = `inline-block px-2 py-0.5 rounded text-xs font-medium ${statusInfo.color}`;
+//     }
+// }
+
+// updateManageButton(user) {
+//     const manageBtn = document.getElementById('manageSubscriptionBtn');
+//     if (manageBtn) {
+//         const showButton = user.subscriptionStatus && 
+//                          user.subscriptionStatus !== 'free-trial' && 
+//                          user.subscriptionStatus !== 'free';
+//         manageBtn.style.display = showButton ? 'block' : 'none';
+        
+//         if (showButton) {
+//             manageBtn.onclick = () => this.openCustomerPortal();
+//         }
+//     }
+// }
+
+//     // Update profile popup with user data
+// updateProfilePopup(user) {
+//     // Update username
+//     if (this.popupUsername) {
+//         this.popupUsername.textContent = user.username || 'User';
+//     }
+    
+//     // Update email
+//     if (this.popupEmail) {
+//         this.popupEmail.textContent = user.email || 'No email provided';
+//     }
+    
+//     // Update role
+//     if (this.popupRole) {
+//         this.popupRole.textContent = this.capitalizeFirstLetter(user.role || 'user');
+//     }
+    
+//     // Update initials
+//     const initials = (user.username || 'U').charAt(0).toUpperCase();
+//     if (this.popupUserInitials) {
+//         this.popupUserInitials.textContent = initials;
+//     }
+    
+//     // Update usage bar
+//     const usage = user.usage || 0;
+//     if (this.usageBar) {
+//         this.usageBar.style.width = `${usage}%`;
+//     }
+//     if (this.usagePercent) {
+//         this.usagePercent.textContent = usage;
+//     }
+    
+//     // Update billing period
+//     if (this.billingPeriod) {
+//         this.billingPeriod.textContent = this.generateBillingPeriod(user);
+//     }
+    
+//     // Update subscription status
+//     if (this.subscriptionStatus) {
+//         this.updateSubscriptionStatus(user.subscriptionStatus || user.subscriptionTier || 'free');
+//     }
+    
+//     // Update manage subscription button
+//     this.updateManageButton(user);
+    
+//     // Update dark mode toggle
+//     if (this.darkModeToggle) {
+//         this.darkModeToggle.checked = user.darkModeEnabled || false;
+//     }
+// }
+
+//     // Show notification banner
+//     showNotification(username) {
+//         if (this.notification && this.notificationUsername) {
+//             this.notificationUsername.textContent = username;
+//             this.notification.classList.add('show');
+//             setTimeout(() => {
+//                 this.notification.classList.remove('show');
+//             }, 5000);
+//         }
+//     }
+
+//     // Show/hide overlay methods
+//     showLoginOverlay() {
+//         this.loginOverlay.classList.remove('hidden');
+//         this.signupOverlay.classList.add('hidden');
+//         document.body.style.overflow = 'hidden';
+//     }
+
+//     hideLoginOverlay() {
+//         this.loginOverlay.classList.add('hidden');
+//         document.body.style.overflow = '';
+//     }
+
+//     showSignupOverlay() {
+//         this.signupOverlay.classList.remove('hidden');
+//         this.loginOverlay.classList.add('hidden');
+//         document.body.style.overflow = 'hidden';
+//     }
+
+//     hideSignupOverlay() {
+//         this.signupOverlay.classList.add('hidden');
+//         document.body.style.overflow = '';
+//     }
+
+//     // Handle login
+//     async handleLogin() {
+//         this.loginButtonText.textContent = 'Signing In...';
+//         this.loginSpinner.style.display = 'block';
+//         this.loginError.classList.add('hidden');
+
+//         const username = document.getElementById('loginUsername').value;
+//         const password = document.getElementById('loginPassword').value;
+        
+//         try {
+//             const response = await fetch(`${API_BASE_URL}/login`, {
+//                 method: 'POST',
+//                 headers: {
+//                     'Content-Type': 'application/json'
+//                 },
+//                 body: JSON.stringify({ username, password })
+//             });
+            
+//             const data = await response.json();
+            
+//             if (response.ok) {
+//                 // Store user data in localStorage for auto-login
+//                 localStorage.setItem('currentUser', JSON.stringify(data.user));
+//                 this.currentUserId = data.user._id;
+                
+//                 // Show main content
+//                 this.showMainContent(data.user);
+//                 this.showNotification(data.user.username);
+                
+//                 // Clear form
+//                 this.loginForm.reset();
+//             } else {
+//                 this.loginError.textContent = data.message || 'Login failed. Please try again.';
+//                 this.loginError.classList.remove('hidden');
+//             }
+//         } catch (error) {
+//             console.error('Login error:', error);
+//             this.loginError.textContent = 'An error occurred. Please try again later.';
+//             this.loginError.classList.remove('hidden');
+//         } finally {
+//             this.loginButtonText.textContent = 'Sign In';
+//             this.loginSpinner.style.display = 'none';
+//         }
+//     }
+
+//     // Handle logout
+//     handleLogout() {
+//         // Clear all user data
+//         localStorage.removeItem('currentUser');
+//         localStorage.removeItem('userAccess');
+//         localStorage.removeItem('token');
+        
+//         // Clear session storage
+//         sessionStorage.clear();
+        
+//         // Clear current user ID
+//         this.currentUserId = null;
+        
+//         // Hide user elements
+//         if (this.userInfo) {
+//             this.userInfo.classList.add('hidden');
+//         }
+//         if (this.userProfileButton) {
+//             this.userProfileButton.classList.add('hidden');
+//         }
+        
+//         // Hide profile popup
+//         this.hideProfilePopup();
+        
+//         // Show login overlay
+//         this.showLoginOverlay();
+        
+//         console.log('User logged out successfully');
+//     }
+
+//     // Get current user ID
+//     getCurrentUserId() {
+//         return this.currentUserId;
+//     }
+
+//     // Setup event listeners
+//     setupEventListeners() {
+//     this.loginForm.addEventListener('submit', (e) => {
+//         e.preventDefault();
+//         this.handleLogin();
+//     });
+
+//     this.signupForm.addEventListener('submit', (e) => {
+//         e.preventDefault();
+//         this.handleSignup();
+//     });
+
+//     this.logoutBtn?.addEventListener('click', () => {
+//         this.handleLogout();
+//     });
+
+//     this.popupLogoutBtn.addEventListener('click', () => {
+//         this.handleLogout();
+//     });
+
+//     // FIX: Uncomment and complete this event listener
+//     this.userProfileButton.addEventListener('click', (e) => {
+//         e.stopPropagation();
+//         this.toggleProfilePopup();
+//     });
+
+//     this.closePopup.addEventListener('click', () => {
+//         this.hideProfilePopup();
+//     });
+
+//     this.switchToSignup.addEventListener('click', () => {
+//         this.hideLoginOverlay();
+//         this.showSignupOverlay();
+//     });
+
+//     this.switchToLogin.addEventListener('click', () => {
+//         this.hideSignupOverlay();
+//         this.showLoginOverlay();
+//     });
+
+//     // Click outside to close popup
+//     document.addEventListener('click', (e) => {
+//         if (!this.profilePopup.contains(e.target) && 
+//             !this.userProfileButton.contains(e.target) && 
+//             this.isProfilePopupVisible()) {
+//             this.hideProfilePopup();
+//         }
+//     });
+
+//     this.darkModeToggle.addEventListener('change', () => {
+//         this.toggleDarkMode();
+//     });
+
+//     // this.addManageSubscriptionButton();
+// }
+//     // Profile popup methods
+//     showProfilePopup() {
+//         this.profilePopup.classList.remove('hidden', 'scale-0');
+//         setTimeout(() => {
+//             this.profilePopup.classList.add('scale-100');
+//         }, 10);
+//     }
+
+//     hideProfilePopup() {
+//         this.profilePopup.classList.remove('scale-100');
+//         this.profilePopup.classList.add('scale-0');
+//         setTimeout(() => {
+//             this.profilePopup.classList.add('hidden');
+//         }, 300);
+//     }
+
+//     // Dark mode methods
+//     applyDarkMode() {
+//         document.body.classList.add('dark-theme');
+//         // Add other dark mode styling as needed
+//     }
+
+//     removeDarkMode() {
+//         document.body.classList.remove('dark-theme');
+//         // Remove 
+//         // other dark mode styling as needed
+//     }
+//     isProfilePopupVisible() {
+//     return this.profilePopup && !this.profilePopup.classList.contains('scale-0');
+// }
+
+//       toggleProfilePopup() {
+//         if (this.isProfilePopupVisible()) {
+//             this.hideProfilePopup();
+//         } else {
+//             this.showProfilePopup();
+//         }
+//     }
+
+// }
+// // Initialize the login system when DOM is ready
+// document.addEventListener('DOMContentLoaded', () => {
+//     window.loginSystem = new LoginSystem();
+//     console.log('Login system initialized with auto-detection');
+// });
       
-        // Login system
+// // Helper function to get current user ID
+// function getCurrentUserId() {
+//     return window.loginSystem ? window.loginSystem.getCurrentUserId() : null;
+// }
+
+// // Helper function to get current user info
+// function getCurrentUserInfo() {
+//     const storedUser = localStorage.getItem('currentUser');
+    
+//     const userInfo = {
+//         username: null,
+//         email: null,
+//         isLoggedIn: false
+//     };
+    
+//     if (storedUser) {
+//         try {
+//             const userData = JSON.parse(storedUser);
+//             userInfo.username = userData.username;
+//             userInfo.email = userData.email || 'No email provided';
+//             userInfo.isLoggedIn = true;
+            
+//             console.log('Current user:', userInfo);
+//             return userInfo;
+//         } catch (error) {
+//             console.error('Failed to parse stored user data:', error);
+//             return userInfo;
+//         }
+//     } else {
+//         console.log('No user currently logged in');
+//         return userInfo;
+//     }
+// }    
+      
+//         // Login system
         class LoginSystem {
             constructor() {
                 this.loginOverlay = document.getElementById('loginOverlay');
@@ -111464,7 +112408,7 @@ showUpgradeModal(feature = '', description = '') {
               <div class="text-left">
                 <h4 class="font-semibold text-gray-900">Monthly Subscription</h4>
                 <p class="text-sm text-gray-600 mt-0.5">Unlimited searches + All features</p>
-                <p class="text-xs text-purple-600 mt-1 font-medium">✨ Includes 7-day free trial!</p>
+       
               </div>
               <div class="text-right">
                 <span class="text-2xl font-bold text-gray-900">$199</span>
@@ -112571,7 +113515,7 @@ updateSubscriptionDisplay() {
       // Get search query
       const drugSearch = document.getElementById('drugSearch')?.value;
       if (!drugSearch) {
-        alert('Please enter a drug name to search');
+        // alert('Please enter a drug name to search');
         return;
       }
 
@@ -114183,8 +115127,9 @@ class LeafIntelligenceFeatureBlocker {
       // Block features based on configuration
       this.blockConfiguredFeatures();
       this.blockRecentEvents();
-      this.blockEnhancedEnrollment();
-      this.blockEnhancedEndpoints();
+       this.blockResponseLetters();
+    //   this.blockEnhancedEnrollment();
+    //   this.blockEnhancedEndpoints();
       
       // Block any elements with .pro-feature class
       document.querySelectorAll('.pro-feature:not(button)').forEach(element => {
@@ -114194,6 +115139,56 @@ class LeafIntelligenceFeatureBlocker {
   }
 
   // Create glass overlay for sections
+//   createSectionBlocker(element, customMessage = null) {
+//     // Check if already blocked
+//     if (element.querySelector('.feature-blocker-overlay')) return;
+    
+//     // Add blocked class
+//     element.classList.add('feature-blocked');
+    
+//     // Create overlay
+//     const overlay = document.createElement('div');
+//     overlay.className = 'feature-blocker-overlay absolute inset-0 rounded-lg flex flex-col items-center justify-center z-10';
+//     overlay.style.cssText = `
+//       background: rgba(0, 0, 0, 0.5);
+//       backdrop-filter: blur(10px);
+//       -webkit-backdrop-filter: blur(10px);
+//       border: 1px solid rgba(255, 255, 255, 0.1);
+//       box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+//       pointer-events: auto;
+//     `;
+    
+//     overlay.innerHTML = `
+//       <div class="text-center">
+//         <svg class="w-16 h-16 mx-auto mb-4 text-white opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+//           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+//         </svg>
+//         <h3 class="text-xl font-bold text-white mb-2">Pro Feature</h3>
+//         <p class="text-white opacity-80 mb-4 px-4">${customMessage || 'Upgrade to Pro to access this feature'}</p>
+//         <button class="upgrade-btn bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold px-6 py-3 rounded-full hover:from-purple-600 hover:to-pink-600 transform hover:scale-105 transition-all duration-200 shadow-lg">
+//           Upgrade to Pro
+//         </button>
+//       </div>
+//     `;
+    
+//     // Handle upgrade button click
+//     overlay.querySelector('.upgrade-btn').addEventListener('click', (e) => {
+//       e.stopPropagation();
+//       this.showUpgradeModal();
+//     });
+    
+//     // Position the element relatively if needed
+//     if (getComputedStyle(element).position === 'static') {
+//       element.style.position = 'relative';
+//     }
+    
+//     // Disable all interactive elements within
+//     element.style.pointerEvents = 'none';
+//     element.style.userSelect = 'none';
+    
+//     element.appendChild(overlay);
+//   }
+    // Fixed createSectionBlocker method
   createSectionBlocker(element, customMessage = null) {
     // Check if already blocked
     if (element.querySelector('.feature-blocker-overlay')) return;
@@ -114201,18 +115196,37 @@ class LeafIntelligenceFeatureBlocker {
     // Add blocked class
     element.classList.add('feature-blocked');
     
+    // Ensure parent has relative positioning
+    const computedStyle = window.getComputedStyle(element);
+    if (computedStyle.position === 'static') {
+        element.style.position = 'relative';
+    }
+    
     // Create overlay
     const overlay = document.createElement('div');
-    overlay.className = 'feature-blocker-overlay absolute inset-0 rounded-lg flex flex-col items-center justify-center z-10';
+    overlay.className = 'feature-blocker-overlay absolute inset-0 rounded-lg flex flex-col items-center justify-center z-50';
+    
+    // Apply inline styles with !important to ensure visibility
     overlay.style.cssText = `
-      background: rgba(0, 0, 0, 0.5);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
-      pointer-events: auto;
+        position: absolute !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        background: rgba(0, 0, 0, 0.5) !important;
+        backdrop-filter: blur(10px) !important;
+        -webkit-backdrop-filter: blur(10px) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5) !important;
+        pointer-events: auto !important;
+        z-index: 50 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        border-radius: 0.5rem !important;
     `;
     
+    // Add the actual HTML content
     overlay.innerHTML = `
       <div class="text-center">
         <svg class="w-16 h-16 mx-auto mb-4 text-white opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -114232,45 +115246,32 @@ class LeafIntelligenceFeatureBlocker {
       this.showUpgradeModal();
     });
     
-    // Position the element relatively if needed
-    if (getComputedStyle(element).position === 'static') {
-      element.style.position = 'relative';
-    }
-    
     // Disable all interactive elements within
     element.style.pointerEvents = 'none';
     element.style.userSelect = 'none';
     
     element.appendChild(overlay);
+    
+    // Force a reflow to ensure styles are applied
+    overlay.offsetHeight;
+    
+    console.log('✅ Feature blocker overlay created with proper HTML');
   }
-  
-  // Setup global click interceptor
-  setupGlobalInterceptor() {
-    document.addEventListener('click', (e) => {
-      // Check if user is pro using the subscription manager
-      if (window.subscriptionManager?.isPro()) return;
-      
-      const proElement = e.target.closest('.pro-feature');
-      if (proElement && !e.target.closest('.feature-blocker-overlay')) {
-        e.preventDefault();
-        e.stopImmediatePropagation();
-        
-        const customMessage = proElement.getAttribute('data-pro-message');
-        this.showUpgradeModal(customMessage);
-      }
-    }, true);
-  }
+  // Updated createSectionBlocker with glass blur and purple gradient
 
+  // Updated blockRecentEvents with glass blur and purple gradient
   blockRecentEvents() {
     console.log('🔒 Checking for recent events section...');
     
     const recentEventsSection = document.getElementById('recent-events-section');
     
-    if (recentEventsSection && !recentEventsSection.querySelector('.pro-overlay')) {
+    if (recentEventsSection && !recentEventsSection.querySelector('.pro-overlay-container')) {
       console.log('🔒 Blocking recent events section');
       
+      // Ensure the section has relative positioning
       recentEventsSection.style.position = 'relative';
       
+      // Blur the content
       const contentToBlur = recentEventsSection.querySelectorAll('.bg-white.border.border-gray-200.rounded-lg.shadow-sm, .bg-gray-50.rounded-lg.p-8.text-center');
       
       contentToBlur.forEach(element => {
@@ -114285,6 +115286,7 @@ class LeafIntelligenceFeatureBlocker {
         eventGrid.style.pointerEvents = 'none';
       }
       
+      // Create overlay container
       const overlayContainer = document.createElement('div');
       overlayContainer.className = 'pro-overlay-container';
       overlayContainer.style.cssText = `
@@ -114300,6 +115302,7 @@ class LeafIntelligenceFeatureBlocker {
         pointer-events: none;
       `;
       
+      // Create the actual overlay
       const overlay = document.createElement('div');
       overlay.className = 'pro-overlay';
       overlay.style.cssText = `
@@ -114368,6 +115371,7 @@ class LeafIntelligenceFeatureBlocker {
       overlayContainer.appendChild(overlay);
       recentEventsSection.appendChild(overlayContainer);
       
+      // Disable buttons
       const buttons = recentEventsSection.querySelectorAll('button');
       buttons.forEach(button => {
         if (!button.closest('.pro-overlay')) {
@@ -114381,6 +115385,7 @@ class LeafIntelligenceFeatureBlocker {
         }
       });
       
+      // Disable event cards
       const eventCards = recentEventsSection.querySelectorAll('.recent-event-card');
       eventCards.forEach(card => {
         card.style.cursor = 'not-allowed';
@@ -114394,186 +115399,303 @@ class LeafIntelligenceFeatureBlocker {
     }
   }
 
-blockEnhancedEnrollment() {
-    console.log('🔒 Checking for enhanced enrollment section...');
+  blockResponseLetters() {
+    console.log('🔒 Checking for response letters section...');
     
-    // Find the enrollment tab content
-    const enrollmentTab = document.getElementById('enhanced-enrollment-tab');
-    const enrollmentContent = document.querySelector('.enhanced-enrollment');
+    const responseLettersSection = document.getElementById('responseLettersSection');
     
-    if ((enrollmentTab || enrollmentContent) && !document.querySelector('#enrollment-pro-overlay')) {
-        console.log('🔒 Blocking enhanced enrollment section');
-        
-        // Get the container to block
-        const targetContainer = enrollmentTab || enrollmentContent.parentElement;
-        targetContainer.style.position = 'relative';
-        
-        // Create overlay with new styling
-        const overlay = document.createElement('div');
-        overlay.id = 'enrollment-pro-overlay';
-        overlay.className = 'enrollment-pro-overlay';
-        overlay.innerHTML = `
-            <div class="px-6 py-8">
-                <div class="relative">
-                    <div class="absolute inset-0 bg-gradient-to-b from-transparent to-gray-100 pointer-events-none"></div>
-                    <div class="text-center">
-                        <div class="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
-                            <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
-                            </svg>
-                        </div>
-                        <h3 class="text-lg font-semibold text-gray-900 mb-2">Enhanced Enrollment Analytics</h3>
-                        <p class="text-sm text-gray-600 mb-4">Unlock access to comprehensive enrollment data and demographics analysis</p>
-                        <button onclick="window.showUpgradeModal ? window.showUpgradeModal() : (window.stripeIntegration ? window.stripeIntegration.showUpgradeModal() : alert('Upgrade to Pro'))" 
-                                class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-semibold rounded-full hover:from-green-700 hover:to-emerald-700 transform hover:scale-105 transition-all duration-200 shadow-lg">
-                            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
-                            </svg>
-                            Upgrade to Pro
-                        </button>
-                        <div class="mt-4 text-xs text-gray-500">
-                            <span class="inline-flex items-center">
-                                <svg class="w-4 h-4 mr-1 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                                </svg>
-                                Demographics Analysis
-                            </span>
-                            <span class="inline-flex items-center ml-4">
-                                <svg class="w-4 h-4 mr-1 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                                </svg>
-                                Eligibility Patterns
-                            </span>
-                        </div>
-                    </div>
-                </div>
+    if (responseLettersSection && !responseLettersSection.querySelector('.pro-overlay-container')) {
+      console.log('🔒 Blocking response letters section');
+      
+      // Ensure the section has relative positioning
+      responseLettersSection.style.position = 'relative';
+      
+      // Create overlay container
+      const overlayContainer = document.createElement('div');
+      overlayContainer.className = 'pro-overlay-container';
+      overlayContainer.style.cssText = `
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10;
+        background: rgba(255, 255, 255, 0.95);
+        pointer-events: auto;
+      `;
+      
+      // Create the actual overlay
+      const overlay = document.createElement('div');
+      overlay.className = 'pro-overlay';
+      overlay.style.cssText = `
+        background: rgba(255, 255, 255, 1);
+        padding: 40px;
+        border-radius: 12px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+        text-align: center;
+        max-width: 450px;
+        border: 2px solid #8B5CF6;
+      `;
+      
+      overlay.innerHTML = `
+        <div class="text-center">
+          <div class="mb-4">
+            <div class="w-20 h-20 mx-auto bg-gradient-to-br from-purple-400 to-purple-600 rounded-full flex items-center justify-center">
+              <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+              </svg>
             </div>
-        `;
-        
-        // Apply styles to make it cover the entire container
-        overlay.style.cssText = `
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(255, 255, 255, 0.97);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 100;
-            min-height: 400px;
-        `;
-        
-        // Blur the background content
-        const contentToBlur = targetContainer.querySelectorAll('.bg-gradient-to-br, .bg-white, .grid, .chart-container');
-        contentToBlur.forEach(element => {
-            element.style.filter = 'blur(3px)';
-            element.style.opacity = '0.3';
-            element.style.pointerEvents = 'none';
-        });
-        
-        targetContainer.appendChild(overlay);
-        
-        console.log('✅ Enhanced enrollment section blocked with updated overlay');
+          </div>
+          <h3 class="text-2xl font-bold text-gray-900 mb-3">FDA Response Letters</h3>
+          <div class="text-lg text-gray-700 mb-4">Pro Feature</div>
+          <p class="text-gray-600 mb-6">
+            Access comprehensive FDA response letters including approval letters, 
+            complete response letters, and discipline review letters.
+          </p>
+          <div class="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-lg p-4 mb-6">
+            <div class="grid grid-cols-2 gap-3 text-sm">
+              <div class="flex items-center">
+                <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
+                <span class="text-gray-700">Approval Letters</span>
+              </div>
+              <div class="flex items-center">
+                <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
+                <span class="text-gray-700">Complete Response</span>
+              </div>
+              <div class="flex items-center">
+                <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
+                <span class="text-gray-700">Review Letters</span>
+              </div>
+              <div class="flex items-center">
+                <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
+                <span class="text-gray-700">Full Text Access</span>
+              </div>
+            </div>
+          </div>
+          <button onclick="window.stripeIntegration?.showUpgradeModal()" class="w-full bg-gradient-to-r from-purple-600 to-purple-700 text-white px-8 py-3 rounded-lg font-medium hover:from-purple-700 hover:to-purple-800 transition-all transform hover:scale-105 shadow-lg">
+            Upgrade to Pro
+          </button>
+          <p class="text-xs text-gray-500 mt-4">
+            Get instant access to all FDA correspondence and regulatory documents
+          </p>
+        </div>
+      `;
+      
+      overlayContainer.appendChild(overlay);
+      responseLettersSection.appendChild(overlayContainer);
+      
+      console.log('✅ Response letters section blocked with overlay');
     }
-}
+  }
+// Setup global click interceptor
+  setupGlobalInterceptor() {
+    document.addEventListener('click', (e) => {
+      // Check if user is pro using the subscription manager
+      if (window.subscriptionManager?.isPro()) return;
+      
+      const proElement = e.target.closest('.pro-feature');
+      if (proElement && !e.target.closest('.feature-blocker-overlay')) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        
+        const customMessage = proElement.getAttribute('data-pro-message');
+        this.showUpgradeModal(customMessage);
+      }
+    }, true);
+  }
 
-// Updated blockEnhancedEndpoints method with new styling
-blockEnhancedEndpoints() {
-    console.log('🔒 Checking for enhanced endpoints section...');
+
+// blockEnhancedEnrollment() {
+//     console.log('🔒 Checking for enhanced enrollment section...');
     
-    // Find the endpoints tab content
-    const endpointsTab = document.getElementById('enhanced-endpoints-tab');
-    const endpointsContent = document.querySelector('.enhanced-endpoints');
+//     // Find the enrollment tab content
+//     const enrollmentTab = document.getElementById('enhanced-enrollment-tab');
+//     const enrollmentContent = document.querySelector('.enhanced-enrollment');
     
-    if ((endpointsTab || endpointsContent) && !document.querySelector('#endpoints-pro-overlay')) {
-        console.log('🔒 Blocking enhanced endpoints section');
+//     if ((enrollmentTab || enrollmentContent) && !document.querySelector('#enrollment-pro-overlay')) {
+//         console.log('🔒 Blocking enhanced enrollment section');
         
-        // Get the container to block
-        const targetContainer = endpointsTab || endpointsContent.parentElement;
-        targetContainer.style.position = 'relative';
+//         // Get the container to block
+//         const targetContainer = enrollmentTab || enrollmentContent.parentElement;
+//         targetContainer.style.position = 'relative';
         
-        // Create overlay with new styling
-        const overlay = document.createElement('div');
-        overlay.id = 'endpoints-pro-overlay';
-        overlay.className = 'endpoints-pro-overlay';
-        overlay.innerHTML = `
-            <div class="px-6 py-8">
-                <div class="relative">
-                    <div class="absolute inset-0 bg-gradient-to-b from-transparent to-gray-100 pointer-events-none"></div>
-                    <div class="text-center">
-                        <div class="inline-flex items-center justify-center w-16 h-16 bg-purple-100 rounded-full mb-4">
-                            <svg class="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-                            </svg>
-                        </div>
-                        <h3 class="text-lg font-semibold text-gray-900 mb-2">Enhanced Endpoints Analysis</h3>
-                        <p class="text-sm text-gray-600 mb-4">Unlock access to detailed endpoint analytics and success rate data</p>
-                        <button onclick="window.showUpgradeModal ? window.showUpgradeModal() : (window.stripeIntegration ? window.stripeIntegration.showUpgradeModal() : alert('Upgrade to Pro'))" 
-                                class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-full hover:from-purple-700 hover:to-pink-700 transform hover:scale-105 transition-all duration-200 shadow-lg">
-                            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
-                            </svg>
-                            Upgrade to Pro
-                        </button>
-                        <div class="mt-4 text-xs text-gray-500">
-                            <span class="inline-flex items-center">
-                                <svg class="w-4 h-4 mr-1 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                                </svg>
-                                Primary & Secondary Endpoints
-                            </span>
-                            <span class="inline-flex items-center ml-4">
-                                <svg class="w-4 h-4 mr-1 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                                </svg>
-                                Success Rate Analysis
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
+//         // Create overlay with new styling
+//         const overlay = document.createElement('div');
+//         overlay.id = 'enrollment-pro-overlay';
+//         overlay.className = 'enrollment-pro-overlay';
+//         overlay.innerHTML = `
+//             <div class="px-6 py-8">
+//                 <div class="relative">
+//                     <div class="absolute inset-0 bg-gradient-to-b from-transparent to-gray-100 pointer-events-none"></div>
+//                     <div class="text-center">
+//                         <div class="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
+//                             <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+//                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+//                             </svg>
+//                         </div>
+//                         <h3 class="text-lg font-semibold text-gray-900 mb-2">Enhanced Enrollment Analytics</h3>
+//                         <p class="text-sm text-gray-600 mb-4">Unlock access to comprehensive enrollment data and demographics analysis</p>
+//                         <button onclick="window.showUpgradeModal ? window.showUpgradeModal() : (window.stripeIntegration ? window.stripeIntegration.showUpgradeModal() : alert('Upgrade to Pro'))" 
+//                                 class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-semibold rounded-full hover:from-green-700 hover:to-emerald-700 transform hover:scale-105 transition-all duration-200 shadow-lg">
+//                             <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+//                                 <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
+//                             </svg>
+//                             Upgrade to Pro
+//                         </button>
+//                         <div class="mt-4 text-xs text-gray-500">
+//                             <span class="inline-flex items-center">
+//                                 <svg class="w-4 h-4 mr-1 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+//                                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+//                                 </svg>
+//                                 Demographics Analysis
+//                             </span>
+//                             <span class="inline-flex items-center ml-4">
+//                                 <svg class="w-4 h-4 mr-1 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+//                                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+//                                 </svg>
+//                                 Eligibility Patterns
+//                             </span>
+//                         </div>
+//                     </div>
+//                 </div>
+//             </div>
+//         `;
         
-        // Apply styles to make it cover the entire container
-        overlay.style.cssText = `
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(255, 255, 255, 0.97);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 100;
-            min-height: 400px;
-        `;
+//         // Apply styles to make it cover the entire container
+//         overlay.style.cssText = `
+//             position: absolute;
+//             top: 0;
+//             left: 0;
+//             right: 0;
+//             bottom: 0;
+//             background: rgba(255, 255, 255, 0.97);
+//             display: flex;
+//             align-items: center;
+//             justify-content: center;
+//             z-index: 100;
+//             min-height: 400px;
+//         `;
         
-        // Blur the background content
-        const contentToBlur = targetContainer.querySelectorAll('.bg-gradient-to-br, .bg-white, .grid, .chart-container');
-        contentToBlur.forEach(element => {
-            element.style.filter = 'blur(3px)';
-            element.style.opacity = '0.3';
-            element.style.pointerEvents = 'none';
-        });
+//         // Blur the background content
+//         const contentToBlur = targetContainer.querySelectorAll('.bg-gradient-to-br, .bg-white, .grid, .chart-container');
+//         contentToBlur.forEach(element => {
+//             element.style.filter = 'blur(3px)';
+//             element.style.opacity = '0.3';
+//             element.style.pointerEvents = 'none';
+//         });
         
-        targetContainer.appendChild(overlay);
+//         targetContainer.appendChild(overlay);
         
-        // Also disable any buttons in these sections
-        const buttons = targetContainer.querySelectorAll('button');
-        buttons.forEach(button => {
-            if (!button.closest('.endpoints-pro-overlay')) {
-                button.disabled = true;
-                button.style.opacity = '0.5';
-                button.style.cursor = 'not-allowed';
-            }
-        });
+//         console.log('✅ Enhanced enrollment section blocked with updated overlay');
+//     }
+// }
+
+// // Updated blockEnhancedEndpoints method with new styling
+// blockEnhancedEndpoints() {
+//     console.log('🔒 Checking for enhanced endpoints section...');
+    
+//     // Find the endpoints tab content
+//     const endpointsTab = document.getElementById('enhanced-endpoints-tab');
+//     const endpointsContent = document.querySelector('.enhanced-endpoints');
+    
+//     if ((endpointsTab || endpointsContent) && !document.querySelector('#endpoints-pro-overlay')) {
+//         console.log('🔒 Blocking enhanced endpoints section');
         
-        console.log('✅ Enhanced endpoints section blocked with updated overlay');
-    }
-}
+//         // Get the container to block
+//         const targetContainer = endpointsTab || endpointsContent.parentElement;
+//         targetContainer.style.position = 'relative';
+        
+//         // Create overlay with new styling
+//         const overlay = document.createElement('div');
+//         overlay.id = 'endpoints-pro-overlay';
+//         overlay.className = 'endpoints-pro-overlay';
+//         overlay.innerHTML = `
+//             <div class="px-6 py-8">
+//                 <div class="relative">
+//                     <div class="absolute inset-0 bg-gradient-to-b from-transparent to-gray-100 pointer-events-none"></div>
+//                     <div class="text-center">
+//                         <div class="inline-flex items-center justify-center w-16 h-16 bg-purple-100 rounded-full mb-4">
+//                             <svg class="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+//                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+//                             </svg>
+//                         </div>
+//                         <h3 class="text-lg font-semibold text-gray-900 mb-2">Enhanced Endpoints Analysis</h3>
+//                         <p class="text-sm text-gray-600 mb-4">Unlock access to detailed endpoint analytics and success rate data</p>
+//                         <button onclick="window.showUpgradeModal ? window.showUpgradeModal() : (window.stripeIntegration ? window.stripeIntegration.showUpgradeModal() : alert('Upgrade to Pro'))" 
+//                                 class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-full hover:from-purple-700 hover:to-pink-700 transform hover:scale-105 transition-all duration-200 shadow-lg">
+//                             <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+//                                 <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
+//                             </svg>
+//                             Upgrade to Pro
+//                         </button>
+//                         <div class="mt-4 text-xs text-gray-500">
+//                             <span class="inline-flex items-center">
+//                                 <svg class="w-4 h-4 mr-1 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+//                                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+//                                 </svg>
+//                                 Primary & Secondary Endpoints
+//                             </span>
+//                             <span class="inline-flex items-center ml-4">
+//                                 <svg class="w-4 h-4 mr-1 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+//                                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+//                                 </svg>
+//                                 Success Rate Analysis
+//                             </span>
+//                         </div>
+//                     </div>
+//                 </div>
+//             </div>
+//         `;
+        
+//         // Apply styles to make it cover the entire container
+//         overlay.style.cssText = `
+//             position: absolute;
+//             top: 0;
+//             left: 0;
+//             right: 0;
+//             bottom: 0;
+//             background: rgba(255, 255, 255, 0.97);
+//             display: flex;
+//             align-items: center;
+//             justify-content: center;
+//             z-index: 100;
+//             min-height: 400px;
+//         `;
+        
+//         // Blur the background content
+//         const contentToBlur = targetContainer.querySelectorAll('.bg-gradient-to-br, .bg-white, .grid, .chart-container');
+//         contentToBlur.forEach(element => {
+//             element.style.filter = 'blur(3px)';
+//             element.style.opacity = '0.3';
+//             element.style.pointerEvents = 'none';
+//         });
+        
+//         targetContainer.appendChild(overlay);
+        
+//         // Also disable any buttons in these sections
+//         const buttons = targetContainer.querySelectorAll('button');
+//         buttons.forEach(button => {
+//             if (!button.closest('.endpoints-pro-overlay')) {
+//                 button.disabled = true;
+//                 button.style.opacity = '0.5';
+//                 button.style.cursor = 'not-allowed';
+//             }
+//         });
+        
+//         console.log('✅ Enhanced endpoints section blocked with updated overlay');
+//     }
+// }
 
   // Show upgrade modal
   showUpgradeModal(customMessage = null) {
@@ -114582,59 +115704,70 @@ blockEnhancedEndpoints() {
       window.stripeIntegration.showUpgradeModal('Premium Feature', customMessage);
     } else {
       // Fallback to custom modal
-      this.showCustomUpgradeModal(customMessage);
+       alert(customMessage || 'Please upgrade to Pro to access this feature');
+    //   this.showCustomUpgradeModal(customMessage);
     }
   }
   
-  showCustomUpgradeModal(customMessage = null) {
-    // [Keep the existing showCustomUpgradeModal implementation]
-    // ... rest of the modal code ...
-  }
 
-  setupMutationObserver() {
-    // const observer = new MutationObserver((mutations) => {
-    //   mutations.forEach((mutation) => {
-    //     if (mutation.type === 'childList') {
-    //       mutation.addedNodes.forEach((node) => {
-    //         if (node.nodeType === 1) { // Element node
-    //           // Check for recent events
-    //           if (node.id === 'recent-events-section' || 
-    //               (node.querySelector && node.querySelector('#recent-events-section'))) {
-    //             setTimeout(() => this.blockRecentEvents(), 100);
-    //           }
+
+//   setupMutationObserver() {
+//     const observer = new MutationObserver((mutations) => {
+//       mutations.forEach((mutation) => {
+//         if (mutation.type === 'childList') {
+//           mutation.addedNodes.forEach((node) => {
+//             if (node.nodeType === 1) { // Element node
+//               // Check for recent events
+//               if (node.id === 'recent-events-section' || 
+//                   (node.querySelector && node.querySelector('#recent-events-section'))) {
+//                 setTimeout(() => this.blockRecentEvents(), 100);
+//               }
               
-    //           // Check for enhanced enrollment
-    //           if (node.id === 'enhanced-enrollment-tab' || 
-    //               (node.querySelector && node.querySelector('.enhanced-enrollment'))) {
-    //             setTimeout(() => this.blockEnhancedEnrollment(), 100);
-    //           }
-              
-    //           // Check for enhanced endpoints
-    //           if (node.id === 'enhanced-endpoints-tab' || 
-    //               (node.querySelector && node.querySelector('.enhanced-endpoints'))) {
-    //             setTimeout(() => this.blockEnhancedEndpoints(), 100);
-    //           }
-              
-    //           // Also check when tabs are clicked
-    //           if (node.classList && (node.classList.contains('enhanced-enrollment') || 
-    //               node.classList.contains('enhanced-endpoints'))) {
-    //             setTimeout(() => {
-    //               this.blockEnhancedEnrollment();
-    //               this.blockEnhancedEndpoints();
-    //             }, 100);
-    //           }
-    //         }
-    //       });
-    //     }
-    //   });
-    // });
+//             }
+//           });
+//         }
+//       });
+//     });
     
-    // observer.observe(document.body, {
-    //   childList: true,
-    //   subtree: true
-    // });
-  }
-  
+//     observer.observe(document.body, {
+//       childList: true,
+//       subtree: true
+//     });
+//   }
+  setupMutationObserver() {
+    const observer = new MutationObserver((mutations) => {
+        // Check if user is Pro before processing mutations
+        if (window.subscriptionManager?.isPro()) {
+            return; // Don't process mutations for Pro users
+        }
+        
+        mutations.forEach((mutation) => {
+            if (mutation.type === 'childList') {
+                mutation.addedNodes.forEach((node) => {
+                    if (node.nodeType === 1) { // Element node
+                        // Check for recent events
+                        if (node.id === 'recent-events-section' || 
+                            (node.querySelector && node.querySelector('#recent-events-section'))) {
+                            setTimeout(() => this.blockRecentEvents(), 100);
+                        }
+                        if (node.id === 'recent-events-section' || 
+                            (node.querySelector && node.querySelector('#responseLettersSection'))) {
+                            setTimeout(() => this.blockResponseLetters(), 100);
+                        }
+                    }
+                });
+            }
+        });
+    });
+    
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true
+    });
+    
+    // Store observer reference for cleanup
+    this.mutationObserver = observer;
+}
   blockConfiguredFeatures() {
     // Block sections from config
     if (this.featureConfig.sections) {
@@ -114709,7 +115842,7 @@ if (document.readyState === 'loading') {
           '#advanced-analytics',
           '.premium-reports',
           '[data-feature="export-tools"]',
-          '#responseLettersSection',
+        '#responseLettersSection',
         ],
         buttons: [
           'button[onclick*="exportPDF"]',
@@ -114771,54 +115904,170 @@ if (document.readyState === 'loading') {
     }
   });
 }
-
-
-// Add these styles to your page
-const updatedBlockerStyles = `
+const criticalFeatureBlockerStyles = `
 <style>
-    /* Updated blocker overlay styles */
-    .enrollment-pro-overlay,
-    .endpoints-pro-overlay {
-        backdrop-filter: blur(1px);
-    }
-    
-    /* Ensure the gradient overlay is visible */
-    .enrollment-pro-overlay .absolute.inset-0,
-    .endpoints-pro-overlay .absolute.inset-0 {
-        pointer-events: none;
-        z-index: -1;
-    }
-    
-    /* Button animation on hover */
-    .enrollment-pro-overlay button:hover,
-    .endpoints-pro-overlay button:hover {
-        transform: scale(1.05);
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-    }
-    
-    /* Blur effect for background content */
-    .blur-sm {
-        filter: blur(2px);
-    }
-    
-    .blur-md {
-        filter: blur(3px);
-    }
+  /* Critical styles for feature blocker overlays */
+  .feature-blocked {
+    position: relative !important;
+    user-select: none !important;
+    pointer-events: none !important;
+  }
+  
+  .feature-blocker-overlay {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    background: rgba(0, 0, 0, 0.5) !important;
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5) !important;
+    pointer-events: auto !important;
+    z-index: 50 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 0.5rem !important;
+  }
+  
+  /* Styles for Recent Events overlay */
+  .pro-overlay-container {
+    position: absolute !important;
+    top: 80px !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    z-index: 10 !important;
+    pointer-events: none !important;
+  }
+  
+  .pro-overlay {
+    background: rgba(255, 255, 255, 0.98) !important;
+    padding: 40px !important;
+    border-radius: 12px !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2) !important;
+    text-align: center !important;
+    max-width: 450px !important;
+    border: 2px solid #3B82F6 !important;
+    pointer-events: auto !important;
+  }
+  
+  /* Pro badge styles */
+  .pro-badge {
+    font-size: 0.75rem;
+    vertical-align: middle;
+  }
+  
+  /* Disabled state for pro features */
+  .pro-feature:not(.feature-blocked) {
+    position: relative;
+  }
+  
+  .pro-feature:not(.feature-blocked)::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  
+  /* Button hover state override for free users */
+  body:not(.user-is-pro) .pro-feature:hover {
+    cursor: not-allowed !important;
+  }
+  
+  /* Updated blocker overlay styles */
+  .enrollment-pro-overlay,
+  .endpoints-pro-overlay {
+    backdrop-filter: blur(1px);
+  }
+  
+  /* Ensure the gradient overlay is visible */
+  .enrollment-pro-overlay .absolute.inset-0,
+  .endpoints-pro-overlay .absolute.inset-0 {
+    pointer-events: none;
+    z-index: -1;
+  }
+  
+  /* Button animation on hover */
+  .enrollment-pro-overlay button:hover,
+  .endpoints-pro-overlay button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  }
+  
+  /* Blur effect for background content */
+  .blur-sm {
+    filter: blur(2px);
+  }
+  
+  .blur-md {
+    filter: blur(3px);
+  }
 </style>
 `;
 
-// Function to inject the styles
-function injectUpdatedBlockerStyles() {
-    if (!document.getElementById('updated-blocker-styles')) {
-        const styleElement = document.createElement('style');
-        styleElement.id = 'updated-blocker-styles';
-        styleElement.innerHTML = updatedBlockerStyles.replace('<style>', '').replace('</style>', '');
-        document.head.appendChild(styleElement);
-    }
+// Function to inject critical styles
+function injectCriticalFeatureBlockerStyles() {
+  if (!document.getElementById('critical-feature-blocker-styles')) {
+    const styleElement = document.createElement('style');
+    styleElement.id = 'critical-feature-blocker-styles';
+    styleElement.innerHTML = criticalFeatureBlockerStyles.replace(/<\/?style>/g, '');
+    document.head.appendChild(styleElement);
+  }
 }
 
-// Call this when initializing
-injectUpdatedBlockerStyles();
+
+// // Add these styles to your page
+// const updatedBlockerStyles = `
+// <style>
+//     /* Updated blocker overlay styles */
+//     .enrollment-pro-overlay,
+//     .endpoints-pro-overlay {
+//         backdrop-filter: blur(1px);
+//     }
+    
+//     /* Ensure the gradient overlay is visible */
+//     .enrollment-pro-overlay .absolute.inset-0,
+//     .endpoints-pro-overlay .absolute.inset-0 {
+//         pointer-events: none;
+//         z-index: -1;
+//     }
+    
+//     /* Button animation on hover */
+//     .enrollment-pro-overlay button:hover,
+//     .endpoints-pro-overlay button:hover {
+//         transform: scale(1.05);
+//         box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+//     }
+    
+//     /* Blur effect for background content */
+//     .blur-sm {
+//         filter: blur(2px);
+//     }
+    
+//     .blur-md {
+//         filter: blur(3px);
+//     }
+// </style>
+// `;
+
+// // Function to inject the styles
+// function injectUpdatedBlockerStyles() {
+//     if (!document.getElementById('updated-blocker-styles')) {
+//         const styleElement = document.createElement('style');
+//         styleElement.id = 'updated-blocker-styles';
+//         styleElement.innerHTML = updatedBlockerStyles.replace('<style>', '').replace('</style>', '');
+//         document.head.appendChild(styleElement);
+//     }
+// }
+
+// // Call this when initializing
+// injectUpdatedBlockerStyles();
 // CSS to add to your leafintelligence.html or styles
 const featureBlockerStyles = `
 <style>
@@ -114875,6 +116124,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!window.subscriptionManager) {
     window.subscriptionManager = new UnifiedSubscriptionManager();
   }
+  injectCriticalFeatureBlockerStyles();
     // Initialize Stripe after login system
     setTimeout(() => {
         window.stripeIntegration = new StripeIntegration();

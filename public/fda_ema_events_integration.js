@@ -558,7 +558,7 @@ function addRealOnlyRecentEventsToSummary() {
     
     // Create the recent events section HTML with CARD LAYOUT
     const recentEventsHtml = `
-      <div id="recent-events-section" class="pro-feature mt-8 border-t pt-8">
+      <div id="" class="pro-feature mt-8 border-t pt-8">
         <div class="flex items-center justify-between mb-6">
           <div>
             <h3 class="text-xl font-bold text-gray-900 flex items-center">
@@ -585,7 +585,7 @@ function addRealOnlyRecentEventsToSummary() {
         
         ${recentEventsData.totalCompanies > 0 ? `
           <!-- Single Events Section with Cards -->
-          <div class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+          <div class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden" id='recent-events-section'>
             <!-- Header -->
             <div class="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 border-b border-gray-200">
               <div class="flex items-center justify-between">
