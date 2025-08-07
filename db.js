@@ -182,7 +182,7 @@ const WideoakUserSchema = new mongoose.Schema({
   },
   subscriptionStatus: {
     type: String,
-    enum: ['free', 'trialing', 'active', 'canceled', 'past_due', 'incomplete', 'incomplete_expired', 'unpaid', 'free-trial'],
+    enum: ['free', 'trialing', 'active', 'canceled', 'past_due', 'incomplete', 'incomplete_expired', 'unpaid', 'free-trial', 'single-search-active'],
     default: 'free',
     index: true
   },

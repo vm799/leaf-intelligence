@@ -66445,7 +66445,7 @@ function displayComprehensiveFdaData(fdaData, drugName) {
           </button>
         </li>
         <li class="mr-2" role="presentation">
-          <button class=" pro-featurefda-tab-button inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300" 
+          <button class=" pro-feature fda-tab-button inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300" 
                   id="ndc-tab" 
                   data-tab="ndc-content"
                   aria-selected="false">
@@ -67347,6 +67347,7 @@ function initializeFDATabsWithTimeline(drugName) {
           const refreshBtn = document.getElementById('refresh-timeline');
           if (refreshBtn) {
             refreshBtn.textContent = '🚀 Load Timeline Now';
+            
             refreshBtn.classList.add('animate-pulse');
           }
           
@@ -113767,74 +113768,165 @@ class SearchCreditManager {
     this.originalFeatureAccess = null;
   }
 
-  async confirmAndUseCredit(searchQuery) {
-    return new Promise((resolve) => {
-      // Get current credits
-      const credits = window.subscriptionManager?.userAccess?.searchCredits || 0;
+//   async confirmAndUseCredit(searchQuery) {
+//     return new Promise((resolve) => {
+//       // Get current credits
+//       const credits = window.subscriptionManager?.userAccess?.searchCredits || 0;
       
-      const modal = document.createElement('div');
-      modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 animate-fadeIn';
-      modal.id = 'credit-confirm-modal';
+//       const modal = document.createElement('div');
+//       modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 animate-fadeIn';
+//       modal.id = 'credit-confirm-modal';
       
-      modal.innerHTML = `
-        <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 p-6 animate-slideUp">
-          <div class="text-center mb-6">
-            <div class="mx-auto w-20 h-20 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center mb-4 shadow-lg">
-              <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                      d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-              </svg>
-            </div>
+//       modal.innerHTML = `
+//         <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 p-6 animate-slideUp">
+//           <div class="text-center mb-6">
+//             <div class="mx-auto w-20 h-20 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center mb-4 shadow-lg">
+//               <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+//                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+//                       d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+//               </svg>
+//             </div>
             
-            <h3 class="text-2xl font-bold mb-2">Use Search Credit?</h3>
+//             <h3 class="text-2xl font-bold mb-2">Use Search Credit?</h3>
             
-            <div class="mb-4 p-4 bg-blue-50 rounded-lg">
-              <p class="text-lg font-semibold text-blue-900">
-                ${credits} Credit${credits !== 1 ? 's' : ''} Available
-              </p>
-            </div>
+//             <div class="mb-4 p-4 bg-blue-50 rounded-lg">
+//               <p class="text-lg font-semibold text-blue-900">
+//                 ${credits} Credit${credits !== 1 ? 's' : ''} Available
+//               </p>
+//             </div>
             
-            <p class="text-gray-600 mb-2">
-              You're about to search for:
-            </p>
-            <p class="font-semibold text-lg text-gray-900 mb-4 p-3 bg-gray-100 rounded">
-              "${searchQuery}"
-            </p>
+//             <p class="text-gray-600 mb-2">
+//               You're about to search for:
+//             </p>
+//             <p class="font-semibold text-lg text-gray-900 mb-4 p-3 bg-gray-100 rounded">
+//               "${searchQuery}"
+//             </p>
             
-            <div class="text-sm text-gray-500 space-y-1 mb-6">
-              <p>✓ Full FDA regulatory data</p>
-              <p>✓ Clinical trials information</p>
-              <p>✓ Results will be saved automatically</p>
-            </div>
+//             <div class="text-sm text-gray-500 space-y-1 mb-6">
+//               <p>✓ Full FDA regulatory data</p>
+//               <p>✓ Clinical trials information</p>
+//               <p>✓ Results will be saved automatically</p>
+//             </div>
+//           </div>
+          
+//           <div class="flex space-x-3">
+//             <button onclick="document.getElementById('credit-confirm-modal').remove(); window.creditModalResolve(false);" 
+//                     class="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium">
+//               Cancel
+//             </button>
+//             <button onclick="document.getElementById('credit-confirm-modal').remove(); window.searchCreditManager.useSearchCredit('${searchQuery.replace(/'/g, "\\'")}'); window.creditModalResolve(true);"
+//                     class="flex-1 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium">
+//               Use 1 Credit & Search
+//             </button>
+//           </div>
+          
+//           <div class="mt-4 text-center">
+//             <a href="#" onclick="window.stripeIntegration?.purchaseSingleSearch(); return false;" 
+//                class="text-sm text-blue-600 hover:underline">
+//               Need more credits? Buy now →
+//             </a>
+//           </div>
+//         </div>
+//       `;
+      
+//       document.body.appendChild(modal);
+      
+//       // Store the resolve function globally - USE CONSISTENT NAME
+//       window.creditModalResolve = resolve;
+//     });
+//   }
+async confirmAndUseCredit(searchQuery) {
+  return new Promise((resolve) => {
+    // Get current credits
+    const credits = window.subscriptionManager?.userAccess?.searchCredits || 0;
+    
+    const modal = document.createElement('div');
+    modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 animate-fadeIn';
+    modal.id = 'credit-confirm-modal';
+    
+    // Escape HTML to prevent XSS
+    const escapeHtml = (str) => {
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    };
+    
+    modal.innerHTML = `
+      <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 p-6 animate-slideUp">
+        <div class="text-center mb-6">
+          <div class="mx-auto w-20 h-20 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center mb-4 shadow-lg">
+            <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
           </div>
           
-          <div class="flex space-x-3">
-            <button onclick="document.getElementById('credit-confirm-modal').remove(); window.creditModalResolve(false);" 
-                    class="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium">
-              Cancel
-            </button>
-            <button onclick="document.getElementById('credit-confirm-modal').remove(); window.creditModalResolve(true);" 
-                    class="flex-1 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium">
-              Use 1 Credit & Search
-            </button>
+          <h3 class="text-2xl font-bold mb-2">Use Search Credit?</h3>
+          
+          <div class="mb-4 p-4 bg-blue-50 rounded-lg">
+            <p class="text-lg font-semibold text-blue-900">
+              ${credits} Credit${credits !== 1 ? 's' : ''} Available
+            </p>
           </div>
           
-          <div class="mt-4 text-center">
-            <a href="#" onclick="window.stripeIntegration?.purchaseSingleSearch(); return false;" 
-               class="text-sm text-blue-600 hover:underline">
-              Need more credits? Buy now →
-            </a>
+          <p class="text-gray-600 mb-2">
+            You're about to search for:
+          </p>
+          <p class="font-semibold text-lg text-gray-900 mb-4 p-3 bg-gray-100 rounded">
+            "${escapeHtml(searchQuery)}"
+          </p>
+          
+          <div class="text-sm text-gray-500 space-y-1 mb-6">
+            <p>✓ Full FDA regulatory data</p>
+            <p>✓ Clinical trials information</p>
+            <p>✓ Results will be saved automatically</p>
           </div>
         </div>
-      `;
-      
-      document.body.appendChild(modal);
-      
-      // Store the resolve function globally - USE CONSISTENT NAME
-      window.creditModalResolve = resolve;
+        
+        <div class="flex space-x-3">
+          <button id="credit-cancel-btn" 
+                  class="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium">
+            Cancel
+          </button>
+          <button id="credit-use-btn" 
+                  class="flex-1 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium">
+            Use 1 Credit & Search
+          </button>
+        </div>
+        
+        <div class="mt-4 text-center">
+          <a href="#" id="credit-purchase-link" 
+             class="text-sm text-blue-600 hover:underline">
+            Need more credits? Buy now →
+          </a>
+        </div>
+      </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Use event listeners instead of inline onclick
+    const cancelBtn = modal.querySelector('#credit-cancel-btn');
+    const useBtn = modal.querySelector('#credit-use-btn');
+    const purchaseLink = modal.querySelector('#credit-purchase-link');
+    
+    cancelBtn.addEventListener('click', () => {
+      modal.remove();
+      resolve(false);
     });
-  }
-
+    
+    useBtn.addEventListener('click', async () => {
+      modal.remove();
+      const success = await this.useSearchCredit(searchQuery);
+      resolve(success);
+    });
+    
+    purchaseLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      window.stripeIntegration?.purchaseSingleSearch();
+    });
+  });
+}
   async useSearchCredit(searchQuery) {
     try {
       const userId = this.getCurrentUserId();
@@ -117768,7 +117860,7 @@ const criticalFeatureBlockerStyles = `
   .feature-blocked {
     position: relative !important;
     user-select: none !important;
-    pointer-events: none !important;
+   
   }
   
   .feature-blocker-overlay {
@@ -117801,7 +117893,7 @@ const criticalFeatureBlockerStyles = `
     align-items: center !important;
     justify-content: center !important;
     z-index: 10 !important;
-    pointer-events: none !important;
+   
   }
   
   .pro-overlay {
@@ -117812,7 +117904,7 @@ const criticalFeatureBlockerStyles = `
     text-align: center !important;
     max-width: 450px !important;
     border: 2px solid #3B82F6 !important;
-    pointer-events: auto !important;
+    
   }
   
   /* Pro badge styles */
@@ -117830,14 +117922,9 @@ const criticalFeatureBlockerStyles = `
     content: '';
     position: absolute;
     inset: 0;
-    pointer-events: none;
+    
   }
-  
-  /* Button hover state override for free users */
-  body:not(.user-is-pro) .pro-feature:hover {
-    cursor: not-allowed !important;
-  }
-  
+
   /* Updated blocker overlay styles */
   .enrollment-pro-overlay,
   .endpoints-pro-overlay {
@@ -117847,7 +117934,7 @@ const criticalFeatureBlockerStyles = `
   /* Ensure the gradient overlay is visible */
   .enrollment-pro-overlay .absolute.inset-0,
   .endpoints-pro-overlay .absolute.inset-0 {
-    pointer-events: none;
+    
     z-index: -1;
   }
   
@@ -117933,12 +118020,10 @@ const featureBlockerStyles = `
   .feature-blocked {
     position: relative !important;
     user-select: none !important;
-    pointer-events: none !important;
+    
   }
   
-  .feature-blocker-overlay {
-    pointer-events: auto !important;
-  }
+
   
   /* Pro badge styles */
   .pro-badge {
@@ -117955,7 +118040,7 @@ const featureBlockerStyles = `
     content: '';
     position: absolute;
     inset: 0;
-    pointer-events: none;
+    
   }
   
   /* Button hover state override for free users */
