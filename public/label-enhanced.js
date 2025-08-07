@@ -782,8 +782,8 @@ async function renderLabels() {
     // Check if user is Pro - using the exact same logic from the working recent events
     // const isPro = window.leafIntelligenceFeatureBlocker ? window.leafIntelligenceFeatureBlocker.isPro : false;
     
-    const currentAccess = await window.subscriptionManager;
-    console.log("CURRENT ACCSSS BLOCK", currentAccess)
+    const currentAccess = await window.subscriptionManager.refresh();
+    console.log("CURRENT ACCSSS BLOCK LABELLING", currentAccess)
 
     const isPro = currentAccess?.isPro || false;
 console.log(" LABBELLING IS PRO : ", isPro)

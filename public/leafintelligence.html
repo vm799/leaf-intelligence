@@ -103248,10 +103248,176 @@ async function startComprehensiveAnalysis() {
   }
 }
 
+function resetComprehensiveAnalysis() {
+  console.log('🔄 Resetting comprehensive analysis...');
+  
+  // Remove existing results container
+  const resultsContainer = document.getElementById('comprehensiveResults');
+  if (resultsContainer) {
+    resultsContainer.remove();
+  }
+  
+  // Remove analysis progress container
+  const progressContainer = document.getElementById('analysisProgress');
+  if (progressContainer) {
+    progressContainer.remove();
+  }
+  
+  // Reset search buttons visibility
+  const searchButtons = document.getElementById('pubmedsearchprobuttons');
+  if (searchButtons) {
+    searchButtons.style.display = 'flex';
+  }
+  
+  // Clear the input field
+  const drugNameInput = document.getElementById('comprehensiveDrugName');
+  if (drugNameInput) {
+    drugNameInput.value = '';
+  }
+  
+  // Reset AI analysis checkbox to checked
+  const aiCheckbox = document.getElementById('includeAIAnalysis');
+  if (aiCheckbox) {
+    aiCheckbox.checked = true;
+  }
+}
+
+/**
+ * Reset entire PubMed state and UI
+ */
+function resetPubMedModule() {
+  console.log('🔄 Resetting entire PubMed module...');
+  
+  // Reset state to initial values
+  state = {
+    term: '',
+    searchType: 'auto',
+    articles: [],
+    displayedArticles: [],
+    filteredArticles: [],
+    selectedArticles: new Set(),
+    currentPage: 1,
+    pageSize: 10,
+    totalResults: 0,
+    isLoading: false,
+    sortBy: 'relevance',
+    fullTextOnly: false,
+    yearFilter: '',
+    yearRange: 5,
+    journalFilter: '',
+    localSearchTerm: '',
+    maxPageButtons: 5,
+    expandedSearch: false,
+    expandedWithDrugs: [],
+    drugResultCounts: {},
+    drugData: null,
+    abstractViews: new Set(),
+    aiSummary: null,
+    aiSummaryLoading: false,
+    annotationsEnabled: true,
+    abstractSummaries: {},
+    collectionSummary: null,
+    thematicAnalysis: null
+  };
+  
+  // Reset comprehensive analysis
+  resetComprehensiveAnalysis();
+  
+  // Clear search inputs
+  if (elements.pubmedSearchBox) {
+    elements.pubmedSearchBox.value = '';
+  }
+  if (elements.pubmedLocalSearchBox) {
+    elements.pubmedLocalSearchBox.value = '';
+  }
+  
+  // Reset filters to defaults
+  if (elements.pubmedSort) {
+    elements.pubmedSort.value = 'relevance';
+  }
+  if (elements.pubmedFullTextOnly) {
+    elements.pubmedFullTextOnly.checked = false;
+  }
+  if (elements.pubmedYearRange) {
+    elements.pubmedYearRange.value = '5';
+  }
+  if (elements.pubmedJournalFilter) {
+    elements.pubmedJournalFilter.value = '';
+  }
+  if (elements.pubmedSearchType) {
+    elements.pubmedSearchType.value = 'auto';
+  }
+  
+  // Hide all sections
+  showComponent(elements.pubmedLoading, false);
+  showComponent(elements.pubmedError, false);
+  showComponent(elements.pubmedEmpty, false);
+  showComponent(elements.pubmedArticles, false);
+  showComponent(elements.pubmedTreatments, false);
+  showComponent(elements.pubmedDrugInfo, false);
+  showComponent(elements.pubmedSelectedArticles, false);
+  showComponent(elements.pubmedAISummarySection, false);
+  showComponent(elements.pubmedCollectionSummary, false);
+  showComponent(elements.pubmedThematicAnalysis, false);
+  showComponent(elements.pubmedExpandedInfo, false);
+  showComponent(elements.pubmedFilterStatus, false);
+  showComponent(elements.pubmedPagination, false);
+  
+  // Clear article list
+  if (elements.pubmedArticlesList) {
+    elements.pubmedArticlesList.innerHTML = '';
+  }
+  
+  // Clear AI summary content
+  if (elements.pubmedAISummaryContent) {
+    elements.pubmedAISummaryContent.innerHTML = '';
+  }
+  
+  // Clear collection summary
+  if (elements.pubmedCollectionSummary) {
+    elements.pubmedCollectionSummary.innerHTML = '';
+  }
+  
+  // Clear thematic analysis
+  if (elements.pubmedThematicAnalysis) {
+    elements.pubmedThematicAnalysis.innerHTML = '';
+  }
+  
+  // Reset result count
+  if (elements.pubmedResultCount) {
+    elements.pubmedResultCount.textContent = '0 articles found';
+  }
+  
+  // Reset selected count
+  updateSelectedCount();
+  
+  // Hide advanced options if visible
+  if (elements.pubmedAdvancedOptions && !elements.pubmedAdvancedOptions.classList.contains('hidden')) {
+    elements.pubmedAdvancedOptions.classList.add('hidden');
+    if (elements.pubmedAdvancedToggle) {
+      elements.pubmedAdvancedToggle.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+        </svg>
+        Advanced Options
+      `;
+    }
+  }
+  
+  console.log('✅ PubMed module reset complete');
+}
+
+
 
 // Define globally so it can be called from anywhere
 window.autostartComprehensiveAnalysis = async function(drugName, includeAI) {
   console.log('Starting comprehensive analysis for:', drugName);
+
+    // RESET EVERYTHING FIRST
+  resetComprehensiveAnalysis();
+  
+  // Clear any existing modals
+  document.querySelectorAll('.fixed.inset-0').forEach(modal => modal.remove());
   
     if (!drugName) {
     alert('Please enter a drug name');
