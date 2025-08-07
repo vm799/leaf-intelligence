@@ -120,11 +120,10 @@ async function handleCheckoutComplete(session) {
     // Add search credit
     user.searchCredits = (user.searchCredits || 0) + 1;
     
-    // IMPORTANT: Update the subscription tier to reflect they've made a purchase
-    // This helps the frontend recognize them as a paying user
+    // Update the subscription tier
     if (user.subscriptionTier === 'free' || user.subscriptionTier === 'free-trial') {
       user.subscriptionTier = 'single-search';
-      user.subscriptionStatus = 'single-search-active';
+      user.subscriptionStatus = 'active';  // ✅ Changed from 'single-search-active' to 'active'
     }
     
     // Store the purchased search
@@ -134,7 +133,7 @@ async function handleCheckoutComplete(session) {
       stripePaymentIntentId: session.payment_intent,
       searchQuery: session.metadata.searchQuery,
       expiresAt: null,
-      used: false  // Track if it's been used
+      used: false
     });
     
     // Add to billing history
@@ -146,16 +145,28 @@ async function handleCheckoutComplete(session) {
       status: 'completed'
     });
     
-    // Update feature access for single search buyers
+    // ✅ FIXED: Update feature access with the correct schema structure
     user.featureAccess = {
-      ...user.featureAccess,
-      search: {
-        enabled: true,
-        creditsRemaining: user.searchCredits
+      clinicalTrials: {
+        topConditions: 5,  // Give them 5 instead of 3
+        trialAnalysis: true,
+        viewAllTrials: true,
       },
-      savedSearches: {
-        enabled: true,
-        limit: 5  // Allow 5 saved searches for single purchase
+      fdaData: {
+        viewAllNDAs: true,  // Enable for single search buyers
+        timelineAccess: 'single',
+        enforcementsAccess: false,
+        adverseEventsAccess: false,
+        labelingAccess: true  // Enable labeling for single search
+      },
+      responseLetters: false,
+      warningLetters: false,
+      labeling: {
+        latestChanges: 5,  // Give them 5 instead of 3
+        emaAccess: true  // Enable EMA access for single search
+      },
+      pubmed: {
+        advancedSearch: true  // Enable advanced search
       }
     };
     
