@@ -558,7 +558,7 @@ function addRealOnlyRecentEventsToSummary() {
     
     // Create the recent events section HTML with CARD LAYOUT
     const recentEventsHtml = `
-      <div id="" class="pro-feature mt-8 border-t pt-8">
+      <div id="" class=" mt-8 border-t pt-8">
         <div class="flex items-center justify-between mb-6">
           <div>
             <h3 class="text-xl font-bold text-gray-900 flex items-center">
