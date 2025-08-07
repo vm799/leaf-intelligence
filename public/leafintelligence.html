@@ -104,7 +104,7 @@
     font-size: 0.75rem;
     white-space: nowrap;
     opacity: 0;
-    pointer-events: none;
+
     transition: opacity 0.2s ease;
 }
 
@@ -7425,7 +7425,7 @@ tailwind.config = {
 
 #LabellingSection .labelling-pagination button:disabled {
   opacity: 0.5;
-  cursor: not-allowed;
+
 }
 
 #LabellingSection .labelling-pagination button.active {
@@ -46029,7 +46029,7 @@ function setupPaginationControls(totalItems) {
             
             .page-btn:disabled {
                 opacity: 0.5;
-                cursor: not-allowed;
+          
             }
             
             .page-info {
@@ -73106,7 +73106,7 @@ function createEnhancedStyles() {
       .product-card.filtered-out {
         opacity: 0.3;
         transform: scale(0.95);
-        pointer-events: none;
+        
       }
       
       @keyframes fadeIn {
@@ -74626,7 +74626,7 @@ function createEnhancedStyles() {
       .product-card.filtered-out {
         opacity: 0.3;
         transform: scale(0.95);
-        pointer-events: none;
+      
       }
       
       @keyframes fadeIn {
@@ -117330,8 +117330,8 @@ class LeafIntelligenceFeatureBlocker {
       
       contentToBlur.forEach(element => {
         element.style.filter = 'blur(4px)';
-        element.style.pointerEvents = 'none';
-        element.style.userSelect = 'none';
+        // element.style.pointerEvents = 'none';
+        // element.style.userSelect = 'none';
       });
       
       const eventGrid = recentEventsSection.querySelector('#recentEventsGrid');
@@ -117429,9 +117429,9 @@ class LeafIntelligenceFeatureBlocker {
       const buttons = recentEventsSection.querySelectorAll('button');
       buttons.forEach(button => {
         if (!button.closest('.pro-overlay')) {
-          button.disabled = true;
+        //   button.disabled = true;
           button.style.opacity = '0.5';
-          button.style.cursor = 'not-allowed';
+        //   button.style.cursor = 'not-allowed';
           button.onclick = (e) => {
             e.preventDefault();
             e.stopPropagation();
@@ -117442,7 +117442,7 @@ class LeafIntelligenceFeatureBlocker {
       // Disable event cards
       const eventCards = recentEventsSection.querySelectorAll('.recent-event-card');
       eventCards.forEach(card => {
-        card.style.cursor = 'not-allowed';
+        // card.style.cursor = 'not-allowed';
         card.onclick = (e) => {
           e.preventDefault();
           e.stopPropagation();
@@ -125675,7 +125675,7 @@ enhancedTimelineStyles.textContent = `
   
   .timeline-nav-btn:disabled {
     opacity: 0.3;
-    cursor: not-allowed;
+
   }
   
   .line-clamp-2 {
@@ -125734,7 +125734,7 @@ enhancedTimelineStyles.textContent = `
     bottom: 0;
     border-radius: 0.5rem;
     background: linear-gradient(135deg, transparent 0%, rgba(255,255,255,0.1) 100%);
-    pointer-events: none;
+   
   }
 `;
 
