@@ -304,7 +304,52 @@ function generateSearchId() {
 
 // Add these endpoints to your clinicaltrials.js file - BACKWARD COMPATIBLE VERSION
 // Add these endpoints to your clinicaltrials.js file
-
+app.post('/api/user/:userId/use-search-credit',  async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { searchQuery } = req.body;
+    
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    if (user.searchCredits > 0) {
+      user.searchCredits -= 1;
+      
+      if (!user.searchUsageLog) user.searchUsageLog = [];
+      user.searchUsageLog.push({
+        query: searchQuery,
+        usedAt: new Date(),
+        creditsBefore: user.searchCredits + 1,
+        creditsAfter: user.searchCredits
+      });
+      
+      if (user.searchCredits === 0 && user.subscriptionTier === 'single-search') {
+        user.subscriptionTier = 'free';
+        user.subscriptionStatus = 'free';
+      }
+      
+      await user.save();
+      
+      return res.json({
+        success: true,
+        creditsRemaining: user.searchCredits,
+        message: `Search performed. ${user.searchCredits} credits remaining.`,
+        tierStatus: user.subscriptionTier
+      });
+    }
+    
+    return res.status(403).json({
+      error: 'No search credits available',
+      requiresPurchase: true,
+      creditsRemaining: 0
+    });
+  } catch (error) {
+    console.error('Error using search credit:', error);
+    res.status(500).json({ error: 'Failed to process search credit' });
+  }
+});
 // Get user's saved searches
 app.get('/api/user/:userId/saved-searches', async (req, res) => {
   try {
@@ -341,94 +386,152 @@ app.get('/api/user/:userId/saved-searches', async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 });
-
-// Save a new search
-app.post('/api/user/:userId/saved-searches', async (req, res) => {
+app.post('/api/user/:userId/saved-searches',  async (req, res) => {
   try {
     const { userId } = req.params;
-    const { name, searchConfig } = req.body;
-    
-    if (!name || !searchConfig) {
-      return res.status(400).json({ message: 'Name and search configuration required' });
-    }
+    const { name, searchConfig, autoSaved } = req.body;
     
     const user = await User.findById(userId);
-    
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ error: 'User not found' });
     }
     
-    // Check subscription
-    if (user.subscriptionStatus === 'free-trial' || user.subscriptionStatus === 'free') {
+    const canSave = user.searchCredits > 0 || 
+                   user.subscriptionTier === 'monthly' || 
+                   user.subscriptionTier === 'single-search' ||
+                   (user.savedSearches && user.savedSearches.length < 5);
+    
+    if (!canSave) {
       return res.status(403).json({ 
-        message: 'Upgrade to Professional to save searches',
+        error: 'Cannot save searches on free tier',
         requiresUpgrade: true 
       });
     }
     
-    // Check limits
-    const limit = user.subscriptionStatus === 'single-search' ? 5 : 50;
+    const limit = user.subscriptionTier === 'monthly' ? 50 : 5;
     if (user.savedSearches && user.savedSearches.length >= limit) {
       return res.status(403).json({ 
-        message: `You've reached the limit of ${limit} saved searches for your plan`,
-        limitReached: true 
+        error: `Saved search limit reached (${limit})`,
+        limit,
+        current: user.savedSearches.length 
       });
     }
     
-    // Create new saved search
-    const newSearch = {
-      searchId: new mongoose.Types.ObjectId().toString(),
-      name: name.trim(),
-      searchConfig: {
-        drugName: searchConfig.drugName || '',
-        activeIngredient: searchConfig.activeIngredient || '',
-        company: searchConfig.company || '',
-        indication: searchConfig.indication || '',
-        yearRange: searchConfig.yearRange || { start: null, end: null },
-        sources: searchConfig.sources || {
-          fda: true,
-          ema: true,
-          clinicalTrials: true,
-          pubmed: true,
-          dailyMed: false
-        },
-        filters: searchConfig.filters || {
-          hasResults: false,
-          trdFocus: false
-        }
-      },
-      createdAt: new Date(),
-      lastUsed: null,
-      useCount: 0
-    };
-    
-    // Add to user's saved searches
     if (!user.savedSearches) {
       user.savedSearches = [];
     }
-    user.savedSearches.push(newSearch);
     
-    // Log activity
-    user.activityLog.push({
-      timestamp: new Date(),
-      activity: 'saved_search_created',
-      details: { searchName: name }
-    });
+    const savedSearch = {
+      id: `saved_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      name,
+      searchConfig,
+      createdAt: new Date(),
+      autoSaved: autoSaved || false,
+      lastAccessed: new Date()
+    };
     
+    user.savedSearches.push(savedSearch);
     await user.save();
     
-    res.json({ 
-      success: true, 
-      savedSearch: newSearch,
+    res.json({
+      success: true,
+      savedSearch,
       totalSaved: user.savedSearches.length,
+      limit,
       remaining: limit - user.savedSearches.length
     });
-    
   } catch (error) {
     console.error('Error saving search:', error);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ error: 'Failed to save search' });
   }
 });
+// Save a new search
+// app.post('/api/user/:userId/saved-searches', async (req, res) => {
+//   try {
+//     const { userId } = req.params;
+//     const { name, searchConfig } = req.body;
+    
+//     if (!name || !searchConfig) {
+//       return res.status(400).json({ message: 'Name and search configuration required' });
+//     }
+    
+//     const user = await User.findById(userId);
+    
+//     if (!user) {
+//       return res.status(404).json({ message: 'User not found' });
+//     }
+    
+//     // Check subscription
+//     if (user.subscriptionStatus === 'free-trial' || user.subscriptionStatus === 'free') {
+//       return res.status(403).json({ 
+//         message: 'Upgrade to Professional to save searches',
+//         requiresUpgrade: true 
+//       });
+//     }
+    
+//     // Check limits
+//     const limit = user.subscriptionStatus === 'single-search' ? 5 : 50;
+//     if (user.savedSearches && user.savedSearches.length >= limit) {
+//       return res.status(403).json({ 
+//         message: `You've reached the limit of ${limit} saved searches for your plan`,
+//         limitReached: true 
+//       });
+//     }
+    
+//     // Create new saved search
+//     const newSearch = {
+//       searchId: new mongoose.Types.ObjectId().toString(),
+//       name: name.trim(),
+//       searchConfig: {
+//         drugName: searchConfig.drugName || '',
+//         activeIngredient: searchConfig.activeIngredient || '',
+//         company: searchConfig.company || '',
+//         indication: searchConfig.indication || '',
+//         yearRange: searchConfig.yearRange || { start: null, end: null },
+//         sources: searchConfig.sources || {
+//           fda: true,
+//           ema: true,
+//           clinicalTrials: true,
+//           pubmed: true,
+//           dailyMed: false
+//         },
+//         filters: searchConfig.filters || {
+//           hasResults: false,
+//           trdFocus: false
+//         }
+//       },
+//       createdAt: new Date(),
+//       lastUsed: null,
+//       useCount: 0
+//     };
+    
+//     // Add to user's saved searches
+//     if (!user.savedSearches) {
+//       user.savedSearches = [];
+//     }
+//     user.savedSearches.push(newSearch);
+    
+//     // Log activity
+//     user.activityLog.push({
+//       timestamp: new Date(),
+//       activity: 'saved_search_created',
+//       details: { searchName: name }
+//     });
+    
+//     await user.save();
+    
+//     res.json({ 
+//       success: true, 
+//       savedSearch: newSearch,
+//       totalSaved: user.savedSearches.length,
+//       remaining: limit - user.savedSearches.length
+//     });
+    
+//   } catch (error) {
+//     console.error('Error saving search:', error);
+//     res.status(500).json({ message: 'Server error' });
+//   }
+// });
 
 // Update saved search usage stats
 app.put('/api/user/:userId/saved-searches/:searchId/use', async (req, res) => {
@@ -637,7 +740,39 @@ app.get('/api/user/:userId/subscription-status', async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 });
-
+app.get('/api/user/:userId/access', async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const user = await User.findById(userId).select('-passwordHash -salt');
+    
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    const accessInfo = {
+      userId: user._id,
+      username: user.username,
+      email: user.email,
+      subscriptionTier: user.subscriptionTier,
+      subscriptionStatus: user.subscriptionStatus,
+      searchCredits: user.searchCredits || 0,
+      savedSearches: user.savedSearches || [],
+      purchasedSearches: user.purchasedSearches || [],
+      featureAccess: user.featureAccess || {},
+      hasPaymentMethod: !!user.stripePaymentMethodId,
+      canSaveSearches: user.searchCredits > 0 || 
+                       user.subscriptionTier === 'monthly' || 
+                       user.subscriptionTier === 'single-search',
+      savedSearchLimit: user.subscriptionTier === 'monthly' ? 50 : 
+                       (user.searchCredits > 0 || user.subscriptionTier === 'single-search' ? 5 : 0)
+    };
+    
+    res.json(accessInfo);
+  } catch (error) {
+    console.error('Error fetching user access:', error);
+    res.status(500).json({ error: 'Failed to fetch user access' });
+  }
+});
 // Session verification endpoint - SIMPLE VERSION
 app.post('/api/verify-session', async (req, res) => {
   try {

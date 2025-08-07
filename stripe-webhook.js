@@ -53,6 +53,59 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
   }
 });
 
+// async function handleCheckoutComplete(session) {
+//   const userId = session.metadata.userId;
+//   const type = session.metadata.type;
+  
+//   const user = await User.findById(userId);
+//   if (!user) {
+//     console.error('User not found for checkout session:', session.id);
+//     return;
+//   }
+
+//   if (type === 'single_search') {
+//     // Add search credit
+//     user.searchCredits = (user.searchCredits || 0) + 1;
+//     user.purchasedSearches.push({
+//       searchId: generateSearchId(),
+//       purchaseDate: new Date(),
+//       stripePaymentIntentId: session.payment_intent,
+//       searchQuery: session.metadata.searchQuery,
+//       expiresAt: null
+//     });
+    
+//     // Add to billing history
+//     user.billingHistory.push({
+//       date: new Date(),
+//       amount: session.amount_total / 100,
+//       description: 'Single Search Purchase',
+//       stripeInvoiceId: session.invoice,
+//       status: 'completed'
+//     });
+    
+//     // Log activity
+//     if (user.activityLog) {
+//       user.activityLog.push({
+//         activity: 'purchase',
+//         timestamp: new Date(),
+//         details: {
+//           type: 'single_search',
+//           amount: session.amount_total / 100,
+//           searchQuery: session.metadata.searchQuery
+//         }
+//       });
+//     }
+//   } else if (type === 'monthly_subscription') {
+//     // Subscription will be handled by subscription events
+//     user.stripeSubscriptionId = session.subscription;
+//   }
+  
+//   await user.save();
+// }
+
+
+// Update your stripe-webhook.js handleCheckoutComplete function
+
 async function handleCheckoutComplete(session) {
   const userId = session.metadata.userId;
   const type = session.metadata.type;
@@ -66,12 +119,22 @@ async function handleCheckoutComplete(session) {
   if (type === 'single_search') {
     // Add search credit
     user.searchCredits = (user.searchCredits || 0) + 1;
+    
+    // IMPORTANT: Update the subscription tier to reflect they've made a purchase
+    // This helps the frontend recognize them as a paying user
+    if (user.subscriptionTier === 'free' || user.subscriptionTier === 'free-trial') {
+      user.subscriptionTier = 'single-search';
+      user.subscriptionStatus = 'single-search-active';
+    }
+    
+    // Store the purchased search
     user.purchasedSearches.push({
       searchId: generateSearchId(),
       purchaseDate: new Date(),
       stripePaymentIntentId: session.payment_intent,
       searchQuery: session.metadata.searchQuery,
-      expiresAt: null
+      expiresAt: null,
+      used: false  // Track if it's been used
     });
     
     // Add to billing history
@@ -83,25 +146,48 @@ async function handleCheckoutComplete(session) {
       status: 'completed'
     });
     
+    // Update feature access for single search buyers
+    user.featureAccess = {
+      ...user.featureAccess,
+      search: {
+        enabled: true,
+        creditsRemaining: user.searchCredits
+      },
+      savedSearches: {
+        enabled: true,
+        limit: 5  // Allow 5 saved searches for single purchase
+      }
+    };
+    
     // Log activity
-    if (user.activityLog) {
-      user.activityLog.push({
-        activity: 'purchase',
-        timestamp: new Date(),
-        details: {
-          type: 'single_search',
-          amount: session.amount_total / 100,
-          searchQuery: session.metadata.searchQuery
-        }
-      });
-    }
+    if (!user.activityLog) user.activityLog = [];
+    user.activityLog.push({
+      activity: 'purchase',
+      timestamp: new Date(),
+      details: {
+        type: 'single_search',
+        amount: session.amount_total / 100,
+        searchQuery: session.metadata.searchQuery,
+        creditsAfterPurchase: user.searchCredits
+      }
+    });
+    
+    console.log(`✅ Single search purchase processed for user ${user.username}:`, {
+      searchCredits: user.searchCredits,
+      tier: user.subscriptionTier,
+      status: user.subscriptionStatus
+    });
   } else if (type === 'monthly_subscription') {
-    // Subscription will be handled by subscription events
+    // Handle subscription
     user.stripeSubscriptionId = session.subscription;
+    user.subscriptionTier = 'monthly';
+    user.subscriptionStatus = 'active';
   }
   
   await user.save();
 }
+
+
 
 async function handleSubscriptionUpdate(subscription) {
   const customerId = subscription.customer;

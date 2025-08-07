@@ -710,15 +710,89 @@ async function fetchEMAMedicines(searchTerm) {
 
 // Improved createCleanLabelCard function with better UI design
 
-function renderLabels() {
-    // Check if user is Pro
-    const isPro = window.leafIntelligenceFeatureBlocker ? window.leafIntelligenceFeatureBlocker.isPro : false;
+// function renderLabels() {
+//     // Check if user is Pro
+//     const isPro = window.leafIntelligenceFeatureBlocker ? window.leafIntelligenceFeatureBlocker.isPro : false;
     
+//     const filteredLabels = currentLabels.filter(label => {
+//         if (currentFilter === 'all') return true;
+//         if (currentFilter === 'fda') return label.type === 'FDA';
+//         if (currentFilter === 'ema') return label.type === 'EMA';
+        
+//         if (currentFilter === 'warnings') return label.boxedWarning;
+//         return true;
+//     });
+
+//     // Sort by date (most recent first)
+//     const sortedLabels = [...filteredLabels].sort((a, b) => {
+//         const dateA = new Date(a.lastUpdated || 0);
+//         const dateB = new Date(b.lastUpdated || 0);
+//         return dateB - dateA;
+//     });
+
+//     // For free users, limit to top 3 most recent
+//     // const visibleLabels = isPro ? sortedLabels : sortedLabels.slice(0, 3);
+//     // const visibleLabels = sortedLabels.filter(label => label.type === 'FDA');
+//      const fdaOnlyLabels = sortedLabels.filter(label => label.type === 'FDA');
+//         visibleLabels = fdaOnlyLabels.slice(0, 3);
+//     const blockedCount = sortedLabels.length - visibleLabels.length;
+    
+//     // For Pro users, use pagination normally
+//     let pageLabels = visibleLabels;
+//     if (isPro) {
+//         const totalPages = Math.ceil(visibleLabels.length / itemsPerPage);
+//         const startIndex = (currentPage - 1) * itemsPerPage;
+//         const endIndex = startIndex + itemsPerPage;
+//         pageLabels = visibleLabels.slice(startIndex, endIndex);
+        
+//         // Update pagination controls
+//         if (elements.currentPageSpan) elements.currentPageSpan.textContent = currentPage;
+//         if (elements.totalPagesSpan) elements.totalPagesSpan.textContent = totalPages;
+//         if (elements.prevPage) elements.prevPage.disabled = currentPage === 1;
+//         if (elements.nextPage) elements.nextPage.disabled = currentPage === totalPages;
+//     } else {
+//         // Hide pagination for free users
+//         const paginationContainer = document.querySelector('.pharma-pagination-container');
+//         if (paginationContainer) paginationContainer.style.display = 'none';
+//     }
+
+//     if (elements.labelsGrid) {
+//         // Render visible labels
+//         let gridHTML = pageLabels.map(label => createCleanLabelCard(label)).join('');
+        
+//         // Add blocker section for free users
+//         if (!isPro && blockedCount > 0) {
+//             gridHTML += createLabelsBlocker(blockedCount, sortedLabels.length);
+            
+//             // Add preview of next 2 blocked labels (blurred)
+//             if (sortedLabels.length > 3) {
+//                 const previewLabels = sortedLabels.slice(3, 5);
+//                 gridHTML += previewLabels.map(label => createBlurredLabelCard(label)).join('');
+//             }
+//         }
+        
+//         elements.labelsGrid.innerHTML = gridHTML;
+//     }
+    
+//     // Update the filter buttons to show counts
+//     updateFilterCounts(sortedLabels, isPro);
+// }
+
+async function renderLabels() {
+    // Check if user is Pro - using the exact same logic from the working recent events
+    // const isPro = window.leafIntelligenceFeatureBlocker ? window.leafIntelligenceFeatureBlocker.isPro : false;
+    
+    const currentAccess = await window.subscriptionManager;
+    console.log("CURRENT ACCSSS BLOCK", currentAccess)
+
+    const isPro = currentAccess?.isPro || false;
+console.log(" LABBELLING IS PRO : ", isPro)
+
+
     const filteredLabels = currentLabels.filter(label => {
         if (currentFilter === 'all') return true;
         if (currentFilter === 'fda') return label.type === 'FDA';
         if (currentFilter === 'ema') return label.type === 'EMA';
-        
         if (currentFilter === 'warnings') return label.boxedWarning;
         return true;
     });
@@ -730,16 +804,28 @@ function renderLabels() {
         return dateB - dateA;
     });
 
-    // For free users, limit to top 3 most recent
-    // const visibleLabels = isPro ? sortedLabels : sortedLabels.slice(0, 3);
-    // const visibleLabels = sortedLabels.filter(label => label.type === 'FDA');
-     const fdaOnlyLabels = sortedLabels.filter(label => label.type === 'FDA');
+    // For free users, limit to top 3 most recent FDA labels only
+    // For Pro users, show all labels
+    let visibleLabels;
+    if (isPro) {
+        // Pro users see all labels
+        visibleLabels = sortedLabels;
+    } else {
+        // Free users only see FDA labels, limited to 3
+        const fdaOnlyLabels = sortedLabels.filter(label => label.type === 'FDA');
         visibleLabels = fdaOnlyLabels.slice(0, 3);
+    }
+    
     const blockedCount = sortedLabels.length - visibleLabels.length;
     
-    // For Pro users, use pagination normally
+    // Handle pagination
     let pageLabels = visibleLabels;
+    const paginationContainer = document.querySelector('.pharma-pagination-container') || 
+                               document.querySelector('[id*="pagination"]') ||
+                               document.querySelector('.pagination');
+    
     if (isPro) {
+        // Pro users get pagination
         const totalPages = Math.ceil(visibleLabels.length / itemsPerPage);
         const startIndex = (currentPage - 1) * itemsPerPage;
         const endIndex = startIndex + itemsPerPage;
@@ -750,10 +836,16 @@ function renderLabels() {
         if (elements.totalPagesSpan) elements.totalPagesSpan.textContent = totalPages;
         if (elements.prevPage) elements.prevPage.disabled = currentPage === 1;
         if (elements.nextPage) elements.nextPage.disabled = currentPage === totalPages;
+        
+        // Show pagination for Pro users
+        if (paginationContainer) {
+            paginationContainer.style.display = '';
+        }
     } else {
         // Hide pagination for free users
-        const paginationContainer = document.querySelector('.pharma-pagination-container');
-        if (paginationContainer) paginationContainer.style.display = 'none';
+        if (paginationContainer) {
+            paginationContainer.style.display = 'none';
+        }
     }
 
     if (elements.labelsGrid) {
@@ -766,8 +858,9 @@ function renderLabels() {
             
             // Add preview of next 2 blocked labels (blurred)
             if (sortedLabels.length > 3) {
-                const previewLabels = sortedLabels.slice(3, 5);
-                gridHTML += previewLabels.map(label => createBlurredLabelCard(label)).join('');
+                // Get the next 2 labels after the visible ones
+                const nextLabels = sortedLabels.slice(visibleLabels.length, visibleLabels.length + 2);
+                gridHTML += nextLabels.map(label => createBlurredLabelCard(label)).join('');
             }
         }
         
@@ -776,6 +869,13 @@ function renderLabels() {
     
     // Update the filter buttons to show counts
     updateFilterCounts(sortedLabels, isPro);
+    
+    // Log the Pro status for debugging
+    console.log(`🔐 User Pro Status: ${isPro ? 'PRO' : 'FREE'}`);
+    console.log(`📊 Showing ${visibleLabels.length} of ${sortedLabels.length} labels`);
+    if (!isPro) {
+        console.log(`🚫 ${blockedCount} labels blocked for free users`);
+    }
 }
 function updateFilterCounts(allLabels, isPro) {
     const visibleLabels = isPro ? allLabels : allLabels.slice(0, 3);
