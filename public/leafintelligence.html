@@ -115058,7 +115058,7 @@ console.log(" ENHANCEDSEARCH IS PRO : ", isPro)
     // Remove blocked classes
     document.querySelectorAll('.feature-blocked').forEach(el => {
       el.classList.remove('feature-blocked');
-      el.style.pointerEvents = '';
+    //   el.style.pointerEvents = '';
       el.style.userSelect = '';
     });
 
@@ -115082,7 +115082,7 @@ console.log(" ENHANCEDSEARCH IS PRO : ", isPro)
     // Remove blocked classes
     document.querySelectorAll('.feature-blocked').forEach(el => {
       el.classList.remove('feature-blocked');
-      el.style.pointerEvents = '';
+    //   el.style.pointerEvents = '';
       el.style.userSelect = '';
     });
 
@@ -117174,7 +117174,7 @@ class LeafIntelligenceFeatureBlocker {
     document.querySelectorAll('.pro-overlay-container').forEach(overlay => overlay.remove());
     document.querySelectorAll('.feature-blocked').forEach(el => {
       el.classList.remove('feature-blocked');
-      el.style.pointerEvents = '';
+    //   el.style.pointerEvents = '';
       el.style.userSelect = '';
     });
     
@@ -117302,7 +117302,7 @@ class LeafIntelligenceFeatureBlocker {
     });
     
     // Disable all interactive elements within
-    element.style.pointerEvents = 'none';
+    // element.style.pointerEvents = 'none';
     element.style.userSelect = 'none';
     
     element.appendChild(overlay);
@@ -117337,7 +117337,7 @@ class LeafIntelligenceFeatureBlocker {
       const eventGrid = recentEventsSection.querySelector('#recentEventsGrid');
       if (eventGrid) {
         eventGrid.style.filter = 'blur(4px)';
-        eventGrid.style.pointerEvents = 'none';
+        // eventGrid.style.pointerEvents = 'none';
       }
       
       // Create overlay container
@@ -117353,7 +117353,7 @@ class LeafIntelligenceFeatureBlocker {
         align-items: center;
         justify-content: center;
         z-index: 10;
-        pointer-events: none;
+      
       `;
       
       // Create the actual overlay
@@ -117367,7 +117367,7 @@ class LeafIntelligenceFeatureBlocker {
         text-align: center;
         max-width: 450px;
         border: 2px solid #3B82F6;
-        pointer-events: auto;
+      
       `;
       
       overlay.innerHTML = `
