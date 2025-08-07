@@ -103371,12 +103371,18 @@ async function performPubMedSearchAdvanced(pubmedConfig, sectionId = 'tabpubmedS
 //     }
 //   });
 // }
-function initializeComprehensiveDrugAnalysis() {
+async function initializeComprehensiveDrugAnalysis() {
   // Check if it already exists
   if (document.getElementById('comprehensiveDrugAnalysis')) {
     console.log('Comprehensive drug analysis section already exists');
     return;
   }
+
+  const currentAccess = await window.subscriptionManager.refresh();
+  console.log("CURRENT ACCESS BLOCK PUBMED", currentAccess)
+
+  const isPro = currentAccess?.isPro || false;
+  console.log("LABELLING IS PUBMED : ", isPro)
   
   // Find where to insert it
   let targetLocation = document.getElementById('pubmedSearchInterface');
@@ -103402,6 +103408,66 @@ function initializeComprehensiveDrugAnalysis() {
   const comprehensiveSection = document.createElement('div');
   comprehensiveSection.id = 'comprehensiveDrugAnalysis';
   comprehensiveSection.className = 'bg-gradient-to-r from-blue-50 to-purple-50 p-6 rounded-lg border border-blue-200 mb-6';
+  
+  // Build the HTML content based on isPro status
+  let proFeatureContent = '';
+  
+  if (isPro) {
+    // Show the search bar and buttons for Pro users
+    proFeatureContent = `
+      <div class="flex items-center space-x-4 hidden " id='pubmedsearchprobuttons'>
+        <input 
+          type="text" 
+          id="comprehensiveDrugName" 
+          placeholder="Enter drug name (e.g., Keytruda, Humira, Ozempic)"
+          class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        />
+        <label class="flex items-center text-sm text-gray-600">
+          <input type="checkbox" id="includeAIAnalysis" checked class="mr-2">
+          Include AI Analysis
+        </label>
+        <button 
+          id="startComprehensiveAnalysis" 
+          class="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 flex items-center"
+        >
+          <span class="mr-2">🚀</span>
+          Start Analysis
+        </button>
+        <button 
+          id="resetComprehensiveBtn"
+          class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors flex items-center"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          Reset
+        </button>
+      </div>
+    `;
+  } else {
+    // Show upgrade message for non-Pro users
+    proFeatureContent = `
+      <div class="bg-gradient-to-r from-gray-100 to-gray-200 p-6 rounded-lg border-2 border-gray-300 text-center">
+        <div class="flex justify-center mb-4">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+          </svg>
+        </div>
+        <h3 class="text-xl font-bold text-gray-700 mb-2">🔒 Unlock AI Intelligence with Premium</h3>
+        <p class="text-gray-600 mb-4">
+          Get access to advanced drug analysis features including pivotal trials, approval pathways, 
+          real-world evidence, and AI-powered insights with our Premium Plan.
+        </p>
+        <button 
+            onclick="window.leafIntelligenceFeatureBlocker ? window.leafIntelligenceFeatureBlocker.showUpgradeModal() : alert('Upgrade to Pro')"
+          class="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-3 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 font-semibold shadow-lg"
+        >
+          Upgrade to Premium
+        </button>
+      </div>
+    `;
+  }
+  
   comprehensiveSection.innerHTML = `
     <div class="flex items-center justify-between mb-4">
       <div>
@@ -103438,34 +103504,7 @@ function initializeComprehensiveDrugAnalysis() {
       </div>
     </div>
     
-    <div class="pro-feature flex items-center space-x-4" id='pubmedsearchprobuttons'>
-      <input 
-        type="text" 
-        id="comprehensiveDrugName" 
-        placeholder="Enter drug name (e.g., Keytruda, Humira, Ozempic)"
-        class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-      />
-      <label class="flex items-center text-sm text-gray-600">
-        <input type="checkbox" id="includeAIAnalysis" checked class="mr-2">
-        Include AI Analysis
-      </label>
-      <button 
-        id="startComprehensiveAnalysis" 
-        class="pro-feature bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 flex items-center"
-      >
-        <span class="mr-2">🚀</span>
-        Start Analysis
-      </button>
-      <button 
-        id="resetComprehensiveBtn"
-        class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors flex items-center"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-        </svg>
-        Reset
-      </button>
-    </div>
+    ${proFeatureContent}
   `;
   
   // Insert at the beginning of the target location
@@ -103475,21 +103514,177 @@ function initializeComprehensiveDrugAnalysis() {
     targetLocation.insertBefore(comprehensiveSection, targetLocation.firstChild);
   }
   
-  // Add event listeners
-  document.getElementById('startComprehensiveAnalysis').addEventListener('click', startComprehensiveAnalysis);
-  document.getElementById('resetComprehensiveBtn').addEventListener('click', () => {
-    if (confirm('Are you sure you want to reset the analysis? This will clear all results.')) {
-      resetComprehensiveAnalysis();
-    }
-  });
-  document.getElementById('comprehensiveDrugName').addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') {
-      startComprehensiveAnalysis();
-    }
-  });
+  // Only add event listeners if user is Pro
+  if (isPro) {
+    document.getElementById('startComprehensiveAnalysis').addEventListener('click', startComprehensiveAnalysis);
+    document.getElementById('resetComprehensiveBtn').addEventListener('click', () => {
+      if (confirm('Are you sure you want to reset the analysis? This will clear all results.')) {
+        resetComprehensiveAnalysis();
+      }
+    });
+    document.getElementById('comprehensiveDrugName').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        startComprehensiveAnalysis();
+      }
+    });
+  }
   
-  console.log('✅ Comprehensive drug analysis section created');
+  console.log(`✅ Comprehensive drug analysis section created - Pro status: ${isPro}`);
 }
+
+
+
+
+// async function initializeComprehensiveDrugAnalysis() {
+//   // Check if it already exists
+//   if (document.getElementById('comprehensiveDrugAnalysis')) {
+//     console.log('Comprehensive drug analysis section already exists');
+//     return;
+//   }
+
+//       const currentAccess = await window.subscriptionManager.refresh();
+//     console.log("CURRENT ACCSSS BLOCK PUBMED", currentAccess)
+
+//     const isPro = currentAccess?.isPro || false;
+// console.log(" LABBELLING IS PUBMED : ", isPro)
+  
+//   // Find where to insert it
+//   let targetLocation = document.getElementById('pubmedSearchInterface');
+  
+//   // If pubmedSearchInterface doesn't exist, try to find tabpubmedSection
+//   if (!targetLocation) {
+//     targetLocation = document.getElementById('tabpubmedSection');
+//   }
+  
+//   // If still no target, create in body or main content area
+//   if (!targetLocation) {
+//     targetLocation = document.querySelector('.main-content') || 
+//                     document.querySelector('main') || 
+//                     document.body;
+//   }
+  
+//   if (!targetLocation) {
+//     console.error('No suitable location found for comprehensive drug analysis');
+//     return;
+//   }
+
+//       proFeatureContent = `
+//       <div class="bg-gradient-to-r from-gray-100 to-gray-200 p-6 rounded-lg border-2 border-gray-300 text-center">
+//         <div class="flex justify-center mb-4">
+//           <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+//           </svg>
+//         </div>
+//         <h3 class="text-xl font-bold text-gray-700 mb-2">🔒 Unlock AI Intelligence with Premium</h3>
+//         <p class="text-gray-600 mb-4">
+//           Get access to advanced drug analysis features including pivotal trials, approval pathways, 
+//           real-world evidence, and AI-powered insights with our Premium Plan.
+//         </p>
+//         <button 
+//           onclick="window.location.href='/upgrade'" 
+//           class="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-3 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 font-semibold shadow-lg"
+//         >
+//           Upgrade to Premium
+//         </button>
+//       </div>
+//     `;
+
+  
+//   // Create comprehensive analysis section
+//   const comprehensiveSection = document.createElement('div');
+//   comprehensiveSection.id = 'comprehensiveDrugAnalysis';
+//   comprehensiveSection.className = 'bg-gradient-to-r from-blue-50 to-purple-50 p-6 rounded-lg border border-blue-200 mb-6';
+//   comprehensiveSection.innerHTML = `
+//     <div class="flex items-center justify-between mb-4">
+//       <div>
+//         <h3 class="text-xl font-bold text-blue-800 flex items-center">
+//           <span class="mr-2">🔬</span>
+//           PubMed Comprehensive Drug Analysis
+//         </h3>
+//         <p class="text-blue-600 text-sm mt-1">
+//           Advanced multi-dimensional analysis covering pivotal trials, approval pathways, RWE, and more
+//         </p>
+//       </div>
+//       <div class="text-right">
+//         <div class="text-xs text-blue-500 mb-1">5 Analysis Categories</div>
+//         <div class="text-xs text-blue-500">AI-Powered Insights</div>
+//       </div>
+//     </div>
+    
+//     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+//       <div class="analysis-feature bg-white p-3 rounded shadow-sm">
+//         <h4 class="font-semibold text-gray-700 text-sm">🎯 Pivotal Trials</h4>
+//         <p class="text-xs text-gray-500 mt-1">Registration studies & regulatory endpoints</p>
+//       </div>
+//       <div class="analysis-feature bg-white p-3 rounded shadow-sm">
+//         <h4 class="font-semibold text-gray-700 text-sm">✅ Approval Pathways</h4>
+//         <p class="text-xs text-gray-500 mt-1">FDA designations & regulatory strategies</p>
+//       </div>
+//       <div class="analysis-feature bg-white p-3 rounded shadow-sm">
+//         <h4 class="font-semibold text-gray-700 text-sm">📊 Real-World Evidence</h4>
+//         <p class="text-xs text-gray-500 mt-1">Post-market studies & registry data</p>
+//       </div>
+//       <div class="analysis-feature bg-white p-3 rounded shadow-sm">
+//         <h4 class="font-semibold text-gray-700 text-sm">💡 Recovery Strategies</h4>
+//         <p class="text-xs text-gray-500 mt-1">Failed trial recovery & post-hoc analyses</p>
+//       </div>
+//     </div>
+    
+//     <div class="pro-feature flex items-center space-x-4" id='pubmedsearchprobuttons'>
+//       <input 
+//         type="text" 
+//         id="comprehensiveDrugName" 
+//         placeholder="Enter drug name (e.g., Keytruda, Humira, Ozempic)"
+//         class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+//       />
+//       <label class="flex items-center text-sm text-gray-600">
+//         <input type="checkbox" id="includeAIAnalysis" checked class="mr-2">
+//         Include AI Analysis
+//       </label>
+//       <button 
+//         id="startComprehensiveAnalysis" 
+//         class="pro-feature bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 flex items-center"
+//       >
+//         <span class="mr-2">🚀</span>
+//         Start Analysis
+//       </button>
+//       <button 
+//         id="resetComprehensiveBtn"
+//         class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors flex items-center"
+//       >
+//         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+//         </svg>
+//         Reset
+//       </button>
+//     </div>
+//   `;
+  
+//   // Insert at the beginning of the target location
+//   if (targetLocation.id === 'tabpubmedSection' || targetLocation.id === 'pubmedSearchInterface') {
+//     targetLocation.parentNode.insertBefore(comprehensiveSection, targetLocation);
+//   } else {
+//     targetLocation.insertBefore(comprehensiveSection, targetLocation.firstChild);
+//   }
+  
+//   // Add event listeners
+//   document.getElementById('startComprehensiveAnalysis').addEventListener('click', startComprehensiveAnalysis);
+//   document.getElementById('resetComprehensiveBtn').addEventListener('click', () => {
+//     if (confirm('Are you sure you want to reset the analysis? This will clear all results.')) {
+//       resetComprehensiveAnalysis();
+//     }
+//   });
+//   document.getElementById('comprehensiveDrugName').addEventListener('keypress', (e) => {
+//     if (e.key === 'Enter') {
+//       startComprehensiveAnalysis();
+//     }
+//   });
+  
+//   console.log('✅ Comprehensive drug analysis section created');
+// }
+
+
+
 /**
  * Start comprehensive drug analysis
  */
@@ -117506,7 +117701,7 @@ if (document.readyState === 'loading') {
       features: {
         sections: [
           '.ema-label-card',
-          '#advanced-analytics',
+        
           '.premium-reports',
           '[data-feature="export-tools"]',
         '#responseLettersSectionTAB',
@@ -117539,7 +117734,7 @@ if (document.readyState === 'loading') {
     features: {
       sections: [
         '.ema-label-card',
-        '#advanced-analytics',
+       
         '.premium-reports',
         '[data-feature="export-tools"]',
         '#responseLettersSectionTAB',
