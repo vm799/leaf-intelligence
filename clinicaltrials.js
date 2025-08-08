@@ -116,7 +116,10 @@ const securityMiddleware = (req, res, next) => {
 const app = express();
 // (after const app = express(); line)
 // app.use(securityMiddleware);
-const PORT = process.env.PORT || 3000;
+// const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8080;
+const HOST = '0.0.0.0'; // Cloud Run friendly
+
 connectDB();
 
 const allowedOrigins = [
@@ -23423,7 +23426,7 @@ app.get('*', (req, res) => {
 
 
 // Start the server
-app.listen(PORT, () => {
+app.listen(PORT, HOST,() => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`📝 Logs are being saved to ${logDirectory}`);
   console.log(`📄 API Documentation:`);
