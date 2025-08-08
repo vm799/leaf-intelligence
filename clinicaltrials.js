@@ -116,8 +116,8 @@ const securityMiddleware = (req, res, next) => {
 const app = express();
 // (after const app = express(); line)
 // app.use(securityMiddleware);
-// const PORT = process.env.PORT || 3000;
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT || 3000;
+// const PORT = process.env.PORT || 8080;
 const HOST = '0.0.0.0'; // Cloud Run friendly
 
 connectDB();
@@ -7761,9 +7761,39 @@ const validatePagination = (req, res, next) => {
 
 
 // Configure storage for uploaded PDF files
+// const storage = multer.diskStorage({
+//   destination: function (req, file, cb) {
+//     const uploadDir = path.join(__dirname, 'temp-uploads');
+//     if (!fs.existsSync(uploadDir)) {
+//       fs.mkdirSync(uploadDir, { recursive: true });
+//     }
+//     cb(null, uploadDir);
+//   },
+//   filename: function (req, file, cb) {
+//     cb(null, `${Date.now()}-${file.originalname}`);
+//   }
+// });
+
+// const upload = multer({ 
+//   storage: storage,
+//   limits: { fileSize: 25 * 1024 * 1024 }, // 25MB limit
+//   fileFilter: (req, file, cb) => {
+//     if (file.mimetype === 'application/pdf') {
+//       cb(null, true);
+//     } else {
+//       cb(new Error('Only PDF files are allowed'), false);
+//     }
+//   }
+// }).single('pdf');
+
+// Configure storage for uploaded PDF files
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    const uploadDir = path.join(__dirname, 'temp-uploads');
+    // Use /tmp for Cloud Run, local directory for development
+    const uploadDir = process.env.NODE_ENV === 'production' 
+      ? '/tmp/temp-uploads'  // Cloud Run writable directory
+      : path.join(__dirname, 'temp-uploads');  // Local development
+      
     if (!fs.existsSync(uploadDir)) {
       fs.mkdirSync(uploadDir, { recursive: true });
     }
@@ -7785,6 +7815,8 @@ const upload = multer({
     }
   }
 }).single('pdf');
+
+
 
 // Grok API configuration - in production use environment variables
 

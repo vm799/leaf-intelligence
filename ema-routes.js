@@ -14,12 +14,12 @@ const fs = require('fs');
 const emaProcessor = require('./ema-processor.js');
 
 // Configure multer for file uploads
-const upload = multer({
-  dest: path.join(__dirname, '../uploads/'),
-  limits: {
-    fileSize: 10 * 1024 * 1024 // 10MB max file size
-  }
-});
+// const upload = multer({
+//   dest: path.join(__dirname, '../uploads/'),
+//   limits: {
+//     fileSize: 10 * 1024 * 1024 // 10MB max file size
+//   }
+// });
 
 /**
  * @route GET /api/ema/status
@@ -283,30 +283,30 @@ router.get('/treatment-resistant-depression', async (req, res) => {
  * @desc Upload and process an EMA data file
  * @access Public
  */
-router.post('/upload/:fileType', upload.single('file'), async (req, res) => {
-  try {
-    const fileType = req.params.fileType;
-    const filePath = req.file?.path;
+// router.post('/upload/:fileType', upload.single('file'), async (req, res) => {
+//   try {
+//     const fileType = req.params.fileType;
+//     const filePath = req.file?.path;
     
-    if (!fileType) {
-      return res.status(400).json({ error: 'File type is required' });
-    }
+//     if (!fileType) {
+//       return res.status(400).json({ error: 'File type is required' });
+//     }
     
-    if (!filePath) {
-      return res.status(400).json({ error: 'No file uploaded' });
-    }
+//     if (!filePath) {
+//       return res.status(400).json({ error: 'No file uploaded' });
+//     }
     
-    const result = await emaProcessor.processUploadedEmaFile(fileType, filePath);
+//     const result = await emaProcessor.processUploadedEmaFile(fileType, filePath);
     
-    // Clean up uploaded file
-    fs.unlinkSync(filePath);
+//     // Clean up uploaded file
+//     fs.unlinkSync(filePath);
     
-    res.json(result);
-  } catch (error) {
-    console.error('Error processing uploaded file:', error);
-    res.status(500).json({ error: 'Error processing uploaded file', details: error.message });
-  }
-});
+//     res.json(result);
+//   } catch (error) {
+//     console.error('Error processing uploaded file:', error);
+//     res.status(500).json({ error: 'Error processing uploaded file', details: error.message });
+//   }
+// });
 
 /**
  * @route POST /api/ema/refresh
