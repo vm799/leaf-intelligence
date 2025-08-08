@@ -123,7 +123,7 @@ async function handleCheckoutComplete(session) {
     // Update the subscription tier
     if (user.subscriptionTier === 'free' || user.subscriptionTier === 'free-trial') {
       user.subscriptionTier = 'single-search';
-      user.subscriptionStatus = 'active';  // ✅ Changed from 'single-search-active' to 'active'
+      user.subscriptionStatus = 'single-search-active';  // ✅ Changed from 'single-search-active' to 'active'
     }
     
     // Store the purchased search

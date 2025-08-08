@@ -63100,29 +63100,29 @@ function generateApplicationsContentWithTags(fdaData, drugName, drugsCount) {
   return html;
 }
 // 4. Setup click handlers for detail buttons
-function setupApplicationDetailHandlers() {
-  // Use event delegation to handle clicks
-  document.querySelectorAll('.fda-app-details-btn').forEach(btn => {
-    btn.addEventListener('click', function(e) {
-      e.preventDefault();
-      const applicationNumber = this.getAttribute('data-application');
-      const brandName = this.getAttribute('data-brand');
-      const ingredient = this.getAttribute('data-ingredient');
+// function setupApplicationDetailHandlers() {
+//   // Use event delegation to handle clicks
+//   document.querySelectorAll('.fda-app-details-btn').forEach(btn => {
+//     btn.addEventListener('click', function(e) {
+//       e.preventDefault();
+//       const applicationNumber = this.getAttribute('data-application');
+//       const brandName = this.getAttribute('data-brand');
+//       const ingredient = this.getAttribute('data-ingredient');
       
-      // Check if openApplicationModal exists, if not use a fallback
-      if (typeof openApplicationModal === 'function') {
-        openApplicationModal(applicationNumber, brandName, ingredient);
-      } else {
-        console.warn('openApplicationModal not found, using fallback');
-        // Fallback: trigger the existing modal mechanism
-        const existingBtn = document.querySelector(`.view-details-btn[data-application="${applicationNumber}"]`);
-        if (existingBtn && existingBtn !== this) {
-          existingBtn.click();
-        }
-      }
-    });
-  });
-}
+//       // Check if openApplicationModal exists, if not use a fallback
+//       if (typeof openApplicationModal === 'function') {
+//         openApplicationModal(applicationNumber, brandName, ingredient);
+//       } else {
+//         console.warn('openApplicationModal not found, using fallback');
+//         // Fallback: trigger the existing modal mechanism
+//         const existingBtn = document.querySelector(`.view-details-btn[data-application="${applicationNumber}"]`);
+//         if (existingBtn && existingBtn !== this) {
+//           existingBtn.click();
+//         }
+//       }
+//     });
+//   });
+// }
 
 // 4. Add this new function to auto-load documents
 // async function autoLoadFDADocuments(products) {
@@ -66437,7 +66437,7 @@ function displayComprehensiveFdaData(fdaData, drugName) {
           </button>
         </li>
         <li class="mr-2" role="presentation">
-          <button class="pro-feature fda-tab-button inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300" 
+          <button class=" fda-tab-button inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300" 
                   id="label-tab" 
                   data-tab="label-content"
                   aria-selected="false">
@@ -66445,7 +66445,7 @@ function displayComprehensiveFdaData(fdaData, drugName) {
           </button>
         </li>
         <li class="mr-2" role="presentation">
-          <button class=" pro-feature fda-tab-button inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300" 
+          <button class=" fda-tab-button inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300" 
                   id="ndc-tab" 
                   data-tab="ndc-content"
                   aria-selected="false">
@@ -66453,7 +66453,7 @@ function displayComprehensiveFdaData(fdaData, drugName) {
           </button>
         </li>
         <li class="mr-2" role="presentation">
-          <button class=" pro-feature fda-tab-button inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300" 
+          <button class="fda-tab-button inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300" 
                   id="event-tab" 
                   data-tab="event-content"
                   aria-selected="false">
@@ -66461,7 +66461,7 @@ function displayComprehensiveFdaData(fdaData, drugName) {
           </button>
         </li>
         <li class="mr-2" role="presentation">
-          <button class=" pro-feature fda-tab-button inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300" 
+          <button class="fda-tab-button inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300" 
                   id="enforcement-tab" 
                   data-tab="enforcement-content"
                   aria-selected="false">
@@ -69113,6 +69113,807 @@ function openAllLabelsModal(labelData) {
 
 // Open all applications modal
 // Updated openAllApplicationsModal function with proper status handling and card UI
+// function openAllApplicationsModal(categorizedData, drugName) {
+//   if (!categorizedData || Object.keys(categorizedData).length === 0) return;
+  
+//   // Collect all products into a flat array
+//   let allProducts = [];
+//   Object.entries(categorizedData).forEach(([brandName, strengths]) => {
+//     Object.entries(strengths).forEach(([strength, products]) => {
+//       products.forEach(product => {
+//         allProducts.push({
+//           ...product,
+//           strength
+//         });
+//       });
+//     });
+//   });
+  
+//   // Sort by approval date (most recent first), with non-approved at the end
+//   allProducts.sort((a, b) => {
+//     if (a.approvalDate === 'Unknown' && b.approvalDate !== 'Unknown') return 1;
+//     if (a.approvalDate !== 'Unknown' && b.approvalDate === 'Unknown') return -1;
+//     if (a.approvalDate === 'Unknown' && b.approvalDate === 'Unknown') return 0;
+//     const dateA = new Date(a.approvalDate);
+//     const dateB = new Date(b.approvalDate);
+//     return dateB - dateA;
+//   });
+  
+//   // Create modal content
+//   let modalContent = `
+//     <div class="p-4">
+//       <div class="flex justify-between items-center mb-4">
+//         <div>
+//           <h2 class="text-xl font-semibold">All Applications for ${drugName}</h2>
+//           <p class="text-sm text-gray-600 mt-1">${allProducts.length} total applications found</p>
+//         </div>
+//       </div>
+      
+//       <!-- Filters and Search -->
+//       <div class="mb-4 flex flex-wrap gap-2">
+//         <input type="text" id="app-search" placeholder="Search applications..." 
+//                class="flex-grow px-3 py-2 border border-gray-300 rounded-md text-sm">
+        
+//         <select id="app-filter-status" class="px-3 py-2 border border-gray-300 rounded-md text-sm">
+//           <option value="">All Status Types</option>
+//           <option value="approved">Approved (Active)</option>
+//           <option value="crl">Complete Response Letter (CRL)</option>
+//           <option value="pending">Pending Review</option>
+//           <option value="withdrawn">Withdrawn</option>
+//           <option value="discontinued">Discontinued</option>
+//         </select>
+        
+//         <select id="app-filter-type" class="px-3 py-2 border border-gray-300 rounded-md text-sm">
+//           <option value="">All Application Types</option>
+//           <option value="NDA">NDA</option>
+//           <option value="ANDA">ANDA</option>
+//           <option value="BLA">BLA</option>
+//         </select>
+//       </div>
+      
+//       <!-- Status Summary -->
+//       <div class="mb-4 grid grid-cols-2 md:grid-cols-5 gap-2 text-xs">
+//         <div class="bg-green-50 border border-green-200 rounded p-2 text-center">
+//           <div class="font-semibold text-green-800">${allProducts.filter(p => p.hasApproval && (!p.marketingStatus || !p.marketingStatus.toLowerCase().includes('discontinued'))).length}</div>
+//           <div class="text-green-600">Approved</div>
+//         </div>
+//         <div class="bg-red-50 border border-red-200 rounded p-2 text-center">
+//           <div class="font-semibold text-red-800">${allProducts.filter(p => p.hasCRL).length}</div>
+//           <div class="text-red-600">CRL</div>
+//         </div>
+//         <div class="bg-yellow-50 border border-yellow-200 rounded p-2 text-center">
+//           <div class="font-semibold text-yellow-800">${allProducts.filter(p => p.isPending).length}</div>
+//           <div class="text-yellow-600">Pending</div>
+//         </div>
+//         <div class="bg-gray-50 border border-gray-200 rounded p-2 text-center">
+//           <div class="font-semibold text-gray-800">${allProducts.filter(p => p.hasWithdrawn).length}</div>
+//           <div class="text-gray-600">Withdrawn</div>
+//         </div>
+//         <div class="bg-gray-50 border border-gray-300 rounded p-2 text-center">
+//           <div class="font-semibold text-gray-700">${allProducts.filter(p => p.marketingStatus && p.marketingStatus.toLowerCase().includes('discontinued')).length}</div>
+//           <div class="text-gray-600">Discontinued</div>
+//         </div>
+//       </div>
+      
+//       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="applications-container">
+//   `;
+  
+//   // Add applications with proper status handling
+//   allProducts.forEach(product => {
+//     // Extract application type (NDA, ANDA, etc.)
+//     const appType = product.applicationNumber.match(/^[A-Z]+/)?.[0] || '';
+    
+//     // Determine the main status badge
+//     let statusBadge = '';
+//     let statusColor = '';
+//     let statusClass = '';
+    
+//     // Check discontinued status first
+//     if (product.marketingStatus && product.marketingStatus.toLowerCase().includes('discontinued')) {
+//       statusBadge = 'Discontinued';
+//       statusColor = 'bg-gray-100 text-gray-600';
+//       statusClass = 'discontinued';
+//     } else if (product.hasApproval) {
+//       statusBadge = 'Approved';
+//       statusColor = 'bg-green-100 text-green-800';
+//       statusClass = 'approved';
+//     } else if (product.hasCRL) {
+//       statusBadge = 'CRL';
+//       statusColor = 'bg-red-100 text-red-800';
+//       statusClass = 'crl';
+//     } else if (product.isPending) {
+//       statusBadge = 'Pending';
+//       statusColor = 'bg-yellow-100 text-yellow-800';
+//       statusClass = 'pending';
+//     } else if (product.hasWithdrawn) {
+//       statusBadge = 'Withdrawn';
+//       statusColor = 'bg-gray-100 text-gray-800';
+//       statusClass = 'withdrawn';
+//     } else {
+//       statusBadge = product.currentStatus || 'Unknown';
+//       statusColor = 'bg-gray-100 text-gray-800';
+//       statusClass = 'unknown';
+//     }
+    
+//     // Format dates appropriately
+//     const displayDate = product.approvalDate !== 'Unknown' 
+//       ? formatFDAApplicationDate(product.approvalDate)
+//       : (product.hasApproval ? 'Date Unknown' : 'Not Approved');
+    
+//     modalContent += `
+//       <div class="app-item bg-white border border-gray-200 rounded-md shadow-sm hover:shadow-md transition-shadow" 
+//            data-app-type="${appType}" data-status="${statusClass}">
+//         <div class="p-3">
+//           <div class="flex justify-between items-start">
+//             <div class="truncate pr-2 flex-1">
+//               <h4 class="text-sm font-semibold truncate app-brand">${product.brandName}</h4>
+//               <p class="text-xs text-gray-600">${product.strength}</p>
+//             </div>
+//             <span class="px-2 py-1 text-xs font-medium rounded-full ${statusColor} flex-shrink-0">
+//               ${statusBadge}
+//             </span>
+//           </div>
+          
+//           <div class="mt-2 space-y-1">
+//             <p class="text-xs text-gray-600">
+//               <span class="font-medium">App:</span> ${product.applicationNumber}
+//             </p>
+//             <p class="text-xs text-gray-600">
+//               <span class="font-medium">${product.hasApproval ? 'Approved:' : 'Status Date:'}</span> ${displayDate}
+//             </p>
+//             <p class="text-xs text-gray-600 truncate app-manufacturer">
+//               <span class="font-medium">Sponsor:</span> ${product.sponsorName || 'Unknown'}
+//             </p>
+//             ${product.marketingStatus ? `
+//               <p class="text-xs text-gray-600">
+//                 <span class="font-medium">Marketing:</span> ${product.marketingStatus}
+//               </p>
+//             ` : ''}
+//           </div>
+          
+//           ${product.submissions && product.submissions.length > 0 ? `
+//             <div class="mt-2 text-xs text-gray-500">
+//               <span class="font-medium">Submissions:</span> ${product.submissions.length}
+//               ${product.hasCRL ? ' (includes CRL)' : ''}
+//             </div>
+//           ` : ''}
+          
+//           <div class="mt-3 flex justify-between items-center">
+//             <a href="${product.fdaPage}" 
+//                target="_blank" 
+//                class="text-blue-600 hover:text-blue-800 text-xs font-medium">
+//               View FDA Page →
+//             </a>
+//             <button class="text-gray-600 hover:text-gray-800 text-xs modal-view-details-btn" 
+//                     data-application="${product.applicationNumber}"
+//                     data-brand="${product.brandName}"
+//                     data-ingredient="${product.activeIngredients?.[0]?.name || drugName}">
+//               Details
+//             </button>
+//           </div>
+//         </div>
+//       </div>
+//     `;
+//   });
+  
+//   modalContent += `
+//       </div>
+//     </div>
+//   `;
+  
+//   // Create and show modal
+//   showCustomModal(modalContent, 'xlarge');
+  
+//   // Initialize search functionality
+//   document.getElementById('app-search')?.addEventListener('input', function() {
+//     applyApplicationFilters();
+//   });
+  
+//   // Initialize status filter
+//   document.getElementById('app-filter-status')?.addEventListener('change', function() {
+//     applyApplicationFilters();
+//   });
+  
+//   // Initialize application type filter
+//   document.getElementById('app-filter-type')?.addEventListener('change', function() {
+//     applyApplicationFilters();
+//   });
+  
+//   // Function to apply all filters
+//   function applyApplicationFilters() {
+//     const searchTerm = document.getElementById('app-search').value.toLowerCase();
+//     const statusFilter = document.getElementById('app-filter-status').value;
+//     const typeFilter = document.getElementById('app-filter-type').value;
+    
+//     document.querySelectorAll('.app-item').forEach(item => {
+//       const brand = item.querySelector('.app-brand').textContent.toLowerCase();
+//       const manufacturer = item.querySelector('.app-manufacturer')?.textContent.toLowerCase() || '';
+//       const appType = item.getAttribute('data-app-type');
+//       const status = item.getAttribute('data-status');
+      
+//       const matchesSearch = brand.includes(searchTerm) || manufacturer.includes(searchTerm);
+//       const matchesStatus = !statusFilter || status === statusFilter || 
+//                            (statusFilter === 'discontinued' && item.querySelector('.app-item').textContent.includes('Discontinued'));
+//       const matchesType = !typeFilter || appType.includes(typeFilter);
+      
+//       if (matchesSearch && matchesStatus && matchesType) {
+//         item.style.display = 'block';
+//       } else {
+//         item.style.display = 'none';
+//       }
+//     });
+    
+//     // Update visible count
+//     const visibleCount = document.querySelectorAll('.app-item[style="display: block;"], .app-item:not([style])').length;
+//     const totalCount = document.querySelectorAll('.app-item').length;
+    
+//     // You can add a count display if needed
+//     console.log(`Showing ${visibleCount} of ${totalCount} applications`);
+//   }
+  
+//   // Add event listeners for detail buttons
+//   document.querySelectorAll('.modal-view-details-btn').forEach(button => {
+//     button.addEventListener('click', function() {
+//       const applicationNumber = this.getAttribute('data-application');
+//       const brandName = this.getAttribute('data-brand');
+//       const ingredient = this.getAttribute('data-ingredient');
+//       openDetailsModal(applicationNumber, brandName, ingredient);
+//     });
+//   });
+// }
+// ENHANCED RECENT EVENTS - REAL LIVE DATA ONLY // This version excludes all simulated data and uses only confirmed live FDA/EMA APIs console.log('🔍 Loading enhanced recent events (REAL DATA ONLY)...'); // Enhanced event extraction with company grouping - REAL DATA ONLY function extractAllR
+
+
+
+
+
+// function openAllApplicationsModal(categorizedData, drugName) {
+//   if (!categorizedData || Object.keys(categorizedData).length === 0) return;
+  
+//   // Collect all products into a flat array
+//   let allProducts = [];
+//   Object.entries(categorizedData).forEach(([brandName, strengths]) => {
+//     Object.entries(strengths).forEach(([strength, products]) => {
+//       products.forEach(product => {
+//         allProducts.push({
+//           ...product,
+//           strength
+//         });
+//       });
+//     });
+//   });
+  
+//   // Sort by approval date (most recent first), with non-approved at the end
+//   allProducts.sort((a, b) => {
+//     if (a.approvalDate === 'Unknown' && b.approvalDate !== 'Unknown') return 1;
+//     if (a.approvalDate !== 'Unknown' && b.approvalDate === 'Unknown') return -1;
+//     if (a.approvalDate === 'Unknown' && b.approvalDate === 'Unknown') return 0;
+//     const dateA = new Date(a.approvalDate);
+//     const dateB = new Date(b.approvalDate);
+//     return dateB - dateA;
+//   });
+  
+//   // Create modal content
+//   let modalContent = `
+//     <div class="p-4">
+//       <div class="flex justify-between items-center mb-4">
+//         <div>
+//           <h2 class="text-xl font-semibold">All Applications for ${drugName}</h2>
+//           <p class="text-sm text-gray-600 mt-1">${allProducts.length} total applications found</p>
+//         </div>
+//         <!-- Check Documents button -->
+//         <button id="check-all-docs-btn" 
+//                 class="px-4 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 transition-colors">
+//           📄 Check All for Documents
+//         </button>
+//       </div>
+      
+//       <!-- Document check progress bar -->
+//       <div id="doc-check-progress-container" class="hidden mb-4">
+//         <div class="bg-gray-200 rounded-full h-2">
+//           <div id="doc-check-progress-bar" class="bg-blue-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+//         </div>
+//         <p id="doc-check-status-text" class="text-xs text-gray-600 mt-1">Starting document check...</p>
+//       </div>
+      
+//       <!-- Document summary stats (hidden initially) -->
+//       <div id="doc-summary-stats" class="hidden mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+//         <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+//           <div class="text-center">
+//             <div id="total-checked" class="font-semibold text-blue-800">0</div>
+//             <div class="text-blue-600">Checked</div>
+//           </div>
+//           <div class="text-center">
+//             <div id="total-with-docs" class="font-semibold text-green-800">0</div>
+//             <div class="text-green-600">With Documents</div>
+//           </div>
+//           <div class="text-center">
+//             <div id="total-patents" class="font-semibold text-purple-800">0</div>
+//             <div class="text-purple-600">With Patents</div>
+//           </div>
+//           <div class="text-center">
+//             <div id="total-labeling" class="font-semibold text-orange-800">0</div>
+//             <div class="text-orange-600">With Labeling</div>
+//           </div>
+//         </div>
+//       </div>
+      
+//       <!-- Filters and Search -->
+//       <div class="mb-4 flex flex-wrap gap-2">
+//         <input type="text" id="app-search" placeholder="Search applications..." 
+//                class="flex-grow px-3 py-2 border border-gray-300 rounded-md text-sm">
+        
+//         <select id="app-filter-status" class="px-3 py-2 border border-gray-300 rounded-md text-sm">
+//           <option value="">All Status Types</option>
+//           <option value="approved">Approved (Active)</option>
+//           <option value="crl">Complete Response Letter (CRL)</option>
+//           <option value="pending">Pending Review</option>
+//           <option value="withdrawn">Withdrawn</option>
+//           <option value="discontinued">Discontinued</option>
+//         </select>
+        
+//         <select id="app-filter-type" class="px-3 py-2 border border-gray-300 rounded-md text-sm">
+//           <option value="">All Application Types</option>
+//           <option value="NDA">NDA</option>
+//           <option value="ANDA">ANDA</option>
+//           <option value="BLA">BLA</option>
+//         </select>
+        
+//         <!-- Document filter (hidden initially) -->
+//         <select id="app-filter-docs" class="hidden px-3 py-2 border border-gray-300 rounded-md text-sm">
+//           <option value="">All Documents Status</option>
+//           <option value="has-docs">Has Documents</option>
+//           <option value="no-docs">No Documents</option>
+//           <option value="has-patents">Has Patents</option>
+//           <option value="has-labeling">Has Labeling</option>
+//         </select>
+//       </div>
+      
+//       <!-- Status Summary -->
+//       <div class="mb-4 grid grid-cols-2 md:grid-cols-5 gap-2 text-xs">
+//         <div class="bg-green-50 border border-green-200 rounded p-2 text-center">
+//           <div class="font-semibold text-green-800">${allProducts.filter(p => p.hasApproval && (!p.marketingStatus || !p.marketingStatus.toLowerCase().includes('discontinued'))).length}</div>
+//           <div class="text-green-600">Approved</div>
+//         </div>
+//         <div class="bg-red-50 border border-red-200 rounded p-2 text-center">
+//           <div class="font-semibold text-red-800">${allProducts.filter(p => p.hasCRL).length}</div>
+//           <div class="text-red-600">CRL</div>
+//         </div>
+//         <div class="bg-yellow-50 border border-yellow-200 rounded p-2 text-center">
+//           <div class="font-semibold text-yellow-800">${allProducts.filter(p => p.isPending).length}</div>
+//           <div class="text-yellow-600">Pending</div>
+//         </div>
+//         <div class="bg-gray-50 border border-gray-200 rounded p-2 text-center">
+//           <div class="font-semibold text-gray-800">${allProducts.filter(p => p.hasWithdrawn).length}</div>
+//           <div class="text-gray-600">Withdrawn</div>
+//         </div>
+//         <div class="bg-gray-50 border border-gray-300 rounded p-2 text-center">
+//           <div class="font-semibold text-gray-700">${allProducts.filter(p => p.marketingStatus && p.marketingStatus.toLowerCase().includes('discontinued')).length}</div>
+//           <div class="text-gray-600">Discontinued</div>
+//         </div>
+//       </div>
+      
+//       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="applications-container">
+//   `;
+  
+//   // Add applications with proper status handling
+//   allProducts.forEach((product, index) => {
+//     // Extract application type (NDA, ANDA, etc.)
+//     const appType = product.applicationNumber.match(/^[A-Z]+/)?.[0] || '';
+    
+//     // Determine the main status badge
+//     let statusBadge = '';
+//     let statusColor = '';
+//     let statusClass = '';
+    
+//     // Check discontinued status first
+//     if (product.marketingStatus && product.marketingStatus.toLowerCase().includes('discontinued')) {
+//       statusBadge = 'Discontinued';
+//       statusColor = 'bg-gray-100 text-gray-600';
+//       statusClass = 'discontinued';
+//     } else if (product.hasApproval) {
+//       statusBadge = 'Approved';
+//       statusColor = 'bg-green-100 text-green-800';
+//       statusClass = 'approved';
+//     } else if (product.hasCRL) {
+//       statusBadge = 'CRL';
+//       statusColor = 'bg-red-100 text-red-800';
+//       statusClass = 'crl';
+//     } else if (product.isPending) {
+//       statusBadge = 'Pending';
+//       statusColor = 'bg-yellow-100 text-yellow-800';
+//       statusClass = 'pending';
+//     } else if (product.hasWithdrawn) {
+//       statusBadge = 'Withdrawn';
+//       statusColor = 'bg-gray-100 text-gray-800';
+//       statusClass = 'withdrawn';
+//     } else {
+//       statusBadge = product.currentStatus || 'Unknown';
+//       statusColor = 'bg-gray-100 text-gray-800';
+//       statusClass = 'unknown';
+//     }
+    
+//     // Format dates appropriately
+//     const displayDate = product.approvalDate !== 'Unknown' 
+//       ? formatFDAApplicationDate(product.approvalDate)
+//       : (product.hasApproval ? 'Date Unknown' : 'Not Approved');
+    
+//     modalContent += `
+//       <div class="app-item bg-white border border-gray-200 rounded-md shadow-sm hover:shadow-md transition-shadow" 
+//            data-app-type="${appType}" 
+//            data-status="${statusClass}"
+//            data-app-number="${product.applicationNumber}"
+//            data-index="${index}"
+//            id="app-item-${index}">
+//         <div class="p-3">
+//           <div class="flex justify-between items-start">
+//             <div class="truncate pr-2 flex-1">
+//               <h4 class="text-sm font-semibold truncate app-brand">${product.brandName}</h4>
+//               <p class="text-xs text-gray-600">${product.strength}</p>
+//             </div>
+//             <span class="px-2 py-1 text-xs font-medium rounded-full ${statusColor} flex-shrink-0">
+//               ${statusBadge}
+//             </span>
+//           </div>
+          
+//           <div class="mt-2 space-y-1">
+//             <p class="text-xs text-gray-600">
+//               <span class="font-medium">App:</span> ${product.applicationNumber}
+//             </p>
+//             <p class="text-xs text-gray-600">
+//               <span class="font-medium">${product.hasApproval ? 'Approved:' : 'Status Date:'}</span> ${displayDate}
+//             </p>
+//             <p class="text-xs text-gray-600 truncate app-manufacturer">
+//               <span class="font-medium">Sponsor:</span> ${product.sponsorName || 'Unknown'}
+//             </p>
+//             ${product.marketingStatus ? `
+//               <p class="text-xs text-gray-600">
+//                 <span class="font-medium">Marketing:</span> ${product.marketingStatus}
+//               </p>
+//             ` : ''}
+//           </div>
+          
+//           ${product.submissions && product.submissions.length > 0 ? `
+//             <div class="mt-2 text-xs text-gray-500">
+//               <span class="font-medium">Submissions:</span> ${product.submissions.length}
+//               ${product.hasCRL ? ' (includes CRL)' : ''}
+//             </div>
+//           ` : ''}
+          
+//           <!-- Document status indicator (hidden initially) -->
+//           <div id="doc-indicator-${index}" class="hidden mt-2 pt-2 border-t border-gray-200">
+//             <!-- Will be populated by document check -->
+//           </div>
+          
+//           <div class="mt-3 flex justify-between items-center">
+//             <a href="${product.fdaPage}" 
+//                target="_blank" 
+//                class="text-blue-600 hover:text-blue-800 text-xs font-medium">
+//               View FDA Page →
+//             </a>
+//             <button class="text-gray-600 hover:text-gray-800 text-xs modal-view-details-btn" 
+//                     data-application="${product.applicationNumber}"
+//                     data-brand="${product.brandName}"
+//                     data-ingredient="${product.activeIngredients?.[0]?.name || drugName}">
+//               Details
+//             </button>
+//           </div>
+//         </div>
+//       </div>
+//     `;
+//   });
+
+//     //   setTimeout(() => {
+//     //   autoLoadFDADocuments(allProducts);
+//     //   // Also set up click handlers after DOM is ready
+//     //   setupApplicationDetailHandlers();
+//     // }, 500);
+  
+//   modalContent += `
+//       </div>
+//     </div>
+//   `;
+  
+//   // Create and show modal
+//   showCustomModal(modalContent, 'xlarge');
+  
+//   // Store products data for document checking
+//   window.modalApplicationProducts = allProducts;
+  
+//   // Add event listener for Check All Documents button
+//   document.getElementById('check-all-docs-btn')?.addEventListener('click', function() {
+//     checkAllModalApplicationDocuments(allProducts);
+//   });
+  
+//   // Initialize search functionality
+//   document.getElementById('app-search')?.addEventListener('input', function() {
+//     applyApplicationFilters();
+//   });
+  
+//   // Initialize status filter
+//   document.getElementById('app-filter-status')?.addEventListener('change', function() {
+//     applyApplicationFilters();
+//   });
+  
+//   // Initialize application type filter
+//   document.getElementById('app-filter-type')?.addEventListener('change', function() {
+//     applyApplicationFilters();
+//   });
+  
+//   // Initialize document filter
+//   document.getElementById('app-filter-docs')?.addEventListener('change', function() {
+//     applyApplicationFilters();
+//   });
+  
+//   // Function to apply all filters
+//   function applyApplicationFilters() {
+//     const searchTerm = document.getElementById('app-search').value.toLowerCase();
+//     const statusFilter = document.getElementById('app-filter-status').value;
+//     const typeFilter = document.getElementById('app-filter-type').value;
+//     const docsFilter = document.getElementById('app-filter-docs').value;
+    
+//     document.querySelectorAll('.app-item').forEach(item => {
+//       const brand = item.querySelector('.app-brand').textContent.toLowerCase();
+//       const manufacturer = item.querySelector('.app-manufacturer')?.textContent.toLowerCase() || '';
+//       const appType = item.getAttribute('data-app-type');
+//       const status = item.getAttribute('data-status');
+//       const hasDocs = item.getAttribute('data-has-docs');
+//       const hasPatents = item.getAttribute('data-has-patents');
+//       const hasLabeling = item.getAttribute('data-has-labeling');
+      
+//       const matchesSearch = brand.includes(searchTerm) || manufacturer.includes(searchTerm);
+//       const matchesStatus = !statusFilter || status === statusFilter || 
+//                            (statusFilter === 'discontinued' && item.textContent.includes('Discontinued'));
+//       const matchesType = !typeFilter || appType.includes(typeFilter);
+      
+//       let matchesDocs = true;
+//       if (docsFilter) {
+//         if (docsFilter === 'has-docs') matchesDocs = hasDocs === 'true';
+//         else if (docsFilter === 'no-docs') matchesDocs = hasDocs === 'false';
+//         else if (docsFilter === 'has-patents') matchesDocs = hasPatents === 'true';
+//         else if (docsFilter === 'has-labeling') matchesDocs = hasLabeling === 'true';
+//       }
+      
+//       if (matchesSearch && matchesStatus && matchesType && matchesDocs) {
+//         item.style.display = 'block';
+//       } else {
+//         item.style.display = 'none';
+//       }
+//     });
+    
+//     // Update visible count
+//     const visibleCount = document.querySelectorAll('.app-item[style="display: block;"], .app-item:not([style])').length;
+//     const totalCount = document.querySelectorAll('.app-item').length;
+    
+//     // You can add a count display if needed
+//     console.log(`Showing ${visibleCount} of ${totalCount} applications`);
+//   }
+  
+//   // Add event listeners for detail buttons
+//   document.querySelectorAll('.modal-view-details-btn').forEach(button => {
+//     button.addEventListener('click', function() {
+//       const applicationNumber = this.getAttribute('data-application');
+//       const brandName = this.getAttribute('data-brand');
+//       const ingredient = this.getAttribute('data-ingredient');
+//       openDetailsModal(applicationNumber, brandName, ingredient);
+//     });
+//   });
+// }
+
+async function loadModalDocumentsOnly(allProducts) {
+  const checkBtn = document.getElementById('check-all-docs-btn');
+  
+  // Filter out invalid products
+  const validProducts = allProducts.filter(p => p.applicationNumber && p.applicationNumber !== 'UNKNOWN');
+  
+  if (validProducts.length === 0) {
+    console.log('No valid application numbers to load');
+    if (checkBtn) {
+      checkBtn.textContent = 'No valid applications';
+      setTimeout(() => {
+        checkBtn.textContent = '📄 Check All for Documents';
+      }, 2000);
+    }
+    return;
+  }
+  
+  // Disable button during loading
+  if (checkBtn) {
+    checkBtn.disabled = true;
+    checkBtn.innerHTML = `
+      <svg class="animate-spin h-4 w-4 inline mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+      </svg>
+      Checking ${validProducts.length} applications...
+    `;
+  }
+  
+  console.log(`Loading documents for ${validProducts.length} modal applications...`);
+  
+  let completed = 0;
+  const total = validProducts.length;
+  let withDocs = 0;
+  let withoutDocs = 0;
+  
+  // Update progress in button
+  const updateProgress = () => {
+    completed++;
+    if (checkBtn) {
+      if (completed === total) {
+        // All done
+        checkBtn.disabled = false;
+        checkBtn.innerHTML = `✅ Found docs in ${withDocs} of ${total} applications`;
+        
+        // Reset button text after 3 seconds
+        setTimeout(() => {
+          checkBtn.textContent = '📄 Check All for Documents';
+          checkBtn.disabled = false;
+        }, 3000);
+      } else {
+        // Still in progress
+        checkBtn.innerHTML = `
+          <svg class="animate-spin h-4 w-4 inline mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          Checking... (${completed}/${total})
+        `;
+      }
+    }
+  };
+  
+  // Process in small batches to avoid overwhelming the server
+  const batchSize = 2;
+  const delayBetweenBatches = 1500; // 1.5 seconds between batches
+  
+  for (let i = 0; i < validProducts.length; i += batchSize) {
+    const batch = validProducts.slice(i, Math.min(i + batchSize, validProducts.length));
+    
+    // Process each item in the batch
+    await Promise.all(batch.map(async (product) => {
+      const statusDiv = document.getElementById(`doc-status-${product.applicationNumber}`);
+      
+      if (!statusDiv) {
+        console.warn(`Status div not found for ${product.applicationNumber}`);
+        updateProgress();
+        return;
+      }
+      
+      const spinnerDiv = statusDiv.querySelector('.doc-spinner');
+      const resultDiv = statusDiv.querySelector('.doc-result');
+      
+      // Show spinner
+      if (spinnerDiv) {
+        spinnerDiv.classList.remove('hidden');
+      }
+      if (resultDiv) {
+        resultDiv.classList.add('hidden');
+      }
+      
+      try {
+        // Make the API call
+        const appNo = product.applicationNumber.replace(/[^0-9]/g, '');
+        const response = await fetch(`/api/fda-pdfs/${appNo}`, {
+          signal: AbortSignal.timeout(15000) // 15 second timeout
+        });
+        
+        // Hide spinner
+        if (spinnerDiv) {
+          spinnerDiv.classList.add('hidden');
+        }
+        
+        if (response.ok) {
+          const data = await response.json();
+          const documentLinks = data.results || data.documents || [];
+          
+          if (resultDiv) {
+            resultDiv.classList.remove('hidden');
+            
+            if (documentLinks.length > 0) {
+              withDocs++;
+              resultDiv.innerHTML = `
+                <span class="text-green-600 text-xs">
+                  <svg class="inline w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                  </svg>
+                  ${documentLinks.length} doc${documentLinks.length !== 1 ? 's' : ''}
+                </span>`;
+              
+              // Set data attribute for filtering
+              const appItem = statusDiv.closest('.app-item');
+              if (appItem) {
+                appItem.setAttribute('data-has-docs', 'true');
+              }
+            } else {
+              withoutDocs++;
+              resultDiv.innerHTML = `
+                <span class="text-gray-500 text-xs">
+                  <svg class="inline w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                  </svg>
+                  No documents
+                </span>`;
+              
+              const appItem = statusDiv.closest('.app-item');
+              if (appItem) {
+                appItem.setAttribute('data-has-docs', 'false');
+              }
+            }
+          }
+        } else if (response.status === 404) {
+          // 404 is normal - no documents available
+          withoutDocs++;
+          if (resultDiv) {
+            resultDiv.classList.remove('hidden');
+            resultDiv.innerHTML = `
+              <span class="text-gray-500 text-xs">
+                <svg class="inline w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+                No documents
+              </span>`;
+            
+            const appItem = statusDiv.closest('.app-item');
+            if (appItem) {
+              appItem.setAttribute('data-has-docs', 'false');
+            }
+          }
+        } else {
+          // Other error
+          console.error(`Error ${response.status} for ${product.applicationNumber}`);
+          if (resultDiv) {
+            resultDiv.classList.remove('hidden');
+            resultDiv.innerHTML = `<span class="text-red-500 text-xs">Error</span>`;
+          }
+        }
+        
+      } catch (error) {
+        console.error(`Error checking ${product.applicationNumber}:`, error.message);
+        
+        // Hide spinner on error
+        if (spinnerDiv) {
+          spinnerDiv.classList.add('hidden');
+        }
+        
+        if (resultDiv) {
+          resultDiv.classList.remove('hidden');
+          if (error.name === 'AbortError') {
+            resultDiv.innerHTML = `<span class="text-orange-500 text-xs">Timeout</span>`;
+          } else {
+            resultDiv.innerHTML = `<span class="text-red-500 text-xs">Failed</span>`;
+          }
+        }
+      }
+      
+      updateProgress();
+    }));
+    
+    // Add delay between batches to avoid rate limiting
+    if (i + batchSize < validProducts.length) {
+      await new Promise(resolve => setTimeout(resolve, delayBetweenBatches));
+    }
+  }
+  
+  // Update filter dropdown with counts
+  const docsFilter = document.getElementById('app-filter-docs');
+  if (docsFilter) {
+    Array.from(docsFilter.options).forEach(option => {
+      if (option.value === 'with-docs') {
+        option.text = `With Documents (${withDocs})`;
+      } else if (option.value === 'without-docs') {
+        option.text = `Without Documents (${withoutDocs})`;
+      }
+    });
+    
+    // Show the filter
+    docsFilter.classList.remove('hidden');
+  }
+  
+  console.log(`✅ Modal document check complete: ${withDocs} with docs, ${withoutDocs} without`);
+}
+
+// Updated openAllApplicationsModal function with the exclusive loader
 function openAllApplicationsModal(categorizedData, drugName) {
   if (!categorizedData || Object.keys(categorizedData).length === 0) return;
   
@@ -69129,7 +69930,7 @@ function openAllApplicationsModal(categorizedData, drugName) {
     });
   });
   
-  // Sort by approval date (most recent first), with non-approved at the end
+  // Sort by approval date (most recent first)
   allProducts.sort((a, b) => {
     if (a.approvalDate === 'Unknown' && b.approvalDate !== 'Unknown') return 1;
     if (a.approvalDate !== 'Unknown' && b.approvalDate === 'Unknown') return -1;
@@ -69139,7 +69940,7 @@ function openAllApplicationsModal(categorizedData, drugName) {
     return dateB - dateA;
   });
   
-  // Create modal content
+  // Create modal content [REST OF YOUR MODAL HTML - UNCHANGED]
   let modalContent = `
     <div class="p-4">
       <div class="flex justify-between items-center mb-4">
@@ -69147,9 +69948,12 @@ function openAllApplicationsModal(categorizedData, drugName) {
           <h2 class="text-xl font-semibold">All Applications for ${drugName}</h2>
           <p class="text-sm text-gray-600 mt-1">${allProducts.length} total applications found</p>
         </div>
+        <button id="check-all-docs-btn" 
+                class="px-4 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 transition-colors">
+          📄 Check All for Documents
+        </button>
       </div>
       
-      <!-- Filters and Search -->
       <div class="mb-4 flex flex-wrap gap-2">
         <input type="text" id="app-search" placeholder="Search applications..." 
                class="flex-grow px-3 py-2 border border-gray-300 rounded-md text-sm">
@@ -69169,46 +69973,25 @@ function openAllApplicationsModal(categorizedData, drugName) {
           <option value="ANDA">ANDA</option>
           <option value="BLA">BLA</option>
         </select>
-      </div>
-      
-      <!-- Status Summary -->
-      <div class="mb-4 grid grid-cols-2 md:grid-cols-5 gap-2 text-xs">
-        <div class="bg-green-50 border border-green-200 rounded p-2 text-center">
-          <div class="font-semibold text-green-800">${allProducts.filter(p => p.hasApproval && (!p.marketingStatus || !p.marketingStatus.toLowerCase().includes('discontinued'))).length}</div>
-          <div class="text-green-600">Approved</div>
-        </div>
-        <div class="bg-red-50 border border-red-200 rounded p-2 text-center">
-          <div class="font-semibold text-red-800">${allProducts.filter(p => p.hasCRL).length}</div>
-          <div class="text-red-600">CRL</div>
-        </div>
-        <div class="bg-yellow-50 border border-yellow-200 rounded p-2 text-center">
-          <div class="font-semibold text-yellow-800">${allProducts.filter(p => p.isPending).length}</div>
-          <div class="text-yellow-600">Pending</div>
-        </div>
-        <div class="bg-gray-50 border border-gray-200 rounded p-2 text-center">
-          <div class="font-semibold text-gray-800">${allProducts.filter(p => p.hasWithdrawn).length}</div>
-          <div class="text-gray-600">Withdrawn</div>
-        </div>
-        <div class="bg-gray-50 border border-gray-300 rounded p-2 text-center">
-          <div class="font-semibold text-gray-700">${allProducts.filter(p => p.marketingStatus && p.marketingStatus.toLowerCase().includes('discontinued')).length}</div>
-          <div class="text-gray-600">Discontinued</div>
-        </div>
+        
+        <select id="app-filter-docs" class="hidden px-3 py-2 border border-gray-300 rounded-md text-sm">
+          <option value="">All Documents Status</option>
+          <option value="with-docs">With Documents</option>
+          <option value="without-docs">Without Documents</option>
+        </select>
       </div>
       
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="applications-container">
   `;
   
-  // Add applications with proper status handling
-  allProducts.forEach(product => {
-    // Extract application type (NDA, ANDA, etc.)
+  // Add each application card with document status div
+  allProducts.forEach((product, index) => {
     const appType = product.applicationNumber.match(/^[A-Z]+/)?.[0] || '';
     
-    // Determine the main status badge
     let statusBadge = '';
     let statusColor = '';
     let statusClass = '';
     
-    // Check discontinued status first
     if (product.marketingStatus && product.marketingStatus.toLowerCase().includes('discontinued')) {
       statusBadge = 'Discontinued';
       statusColor = 'bg-gray-100 text-gray-600';
@@ -69235,59 +70018,57 @@ function openAllApplicationsModal(categorizedData, drugName) {
       statusClass = 'unknown';
     }
     
-    // Format dates appropriately
     const displayDate = product.approvalDate !== 'Unknown' 
-      ? formatFDAApplicationDate(product.approvalDate)
+      ? (typeof formatFDAApplicationDate === 'function' ? formatFDAApplicationDate(product.approvalDate) : product.approvalDate)
       : (product.hasApproval ? 'Date Unknown' : 'Not Approved');
     
     modalContent += `
-      <div class="app-item bg-white border border-gray-200 rounded-md shadow-sm hover:shadow-md transition-shadow" 
-           data-app-type="${appType}" data-status="${statusClass}">
-        <div class="p-3">
-          <div class="flex justify-between items-start">
+      <div class="app-item bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow" 
+           data-app-type="${appType}" 
+           data-status="${statusClass}"
+           data-app-number="${product.applicationNumber}"
+           id="app-item-${index}">
+        <div class="p-4">
+          <div class="flex justify-between items-start mb-3">
             <div class="truncate pr-2 flex-1">
               <h4 class="text-sm font-semibold truncate app-brand">${product.brandName}</h4>
-              <p class="text-xs text-gray-600">${product.strength}</p>
+              <p class="text-xs text-gray-600 mt-1">${product.strength}</p>
             </div>
             <span class="px-2 py-1 text-xs font-medium rounded-full ${statusColor} flex-shrink-0">
               ${statusBadge}
             </span>
           </div>
           
-          <div class="mt-2 space-y-1">
-            <p class="text-xs text-gray-600">
+          <div class="space-y-1">
+            <p class="text-xs text-gray-500">
               <span class="font-medium">App:</span> ${product.applicationNumber}
             </p>
-            <p class="text-xs text-gray-600">
+            <p class="text-xs text-gray-500">
               <span class="font-medium">${product.hasApproval ? 'Approved:' : 'Status Date:'}</span> ${displayDate}
             </p>
-            <p class="text-xs text-gray-600 truncate app-manufacturer">
+            <p class="text-xs text-gray-500 truncate app-manufacturer">
               <span class="font-medium">Sponsor:</span> ${product.sponsorName || 'Unknown'}
             </p>
-            ${product.marketingStatus ? `
-              <p class="text-xs text-gray-600">
-                <span class="font-medium">Marketing:</span> ${product.marketingStatus}
-              </p>
-            ` : ''}
           </div>
           
-          ${product.submissions && product.submissions.length > 0 ? `
-            <div class="mt-2 text-xs text-gray-500">
-              <span class="font-medium">Submissions:</span> ${product.submissions.length}
-              ${product.hasCRL ? ' (includes CRL)' : ''}
+          <!-- Document status div - ready for checking -->
+          <div id="doc-status-${product.applicationNumber}" class="mt-2 mb-1 text-xs">
+            <div class="doc-spinner hidden flex items-center">
+              <svg class="animate-spin h-3 w-3 text-blue-500 mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              <span class="text-gray-600">Loading docs...</span>
             </div>
-          ` : ''}
+            <div class="doc-result hidden"></div>
+          </div>
           
-          <div class="mt-3 flex justify-between items-center">
-            <a href="${product.fdaPage}" 
-               target="_blank" 
-               class="text-blue-600 hover:text-blue-800 text-xs font-medium">
-              View FDA Page →
-            </a>
-            <button class="text-gray-600 hover:text-gray-800 text-xs modal-view-details-btn" 
-                    data-application="${product.applicationNumber}"
-                    data-brand="${product.brandName}"
-                    data-ingredient="${product.activeIngredients?.[0]?.name || drugName}">
+          <div class="mt-2 flex justify-end">
+            <button
+              class="px-2 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition-colors view-details-btn fda-app-details-btn"
+              data-application="${product.applicationNumber}"
+              data-brand="${product.brandName}"
+              data-ingredient="${product.activeIngredients?.[0]?.name || drugName}">
               Details
             </button>
           </div>
@@ -69301,58 +70082,18 @@ function openAllApplicationsModal(categorizedData, drugName) {
     </div>
   `;
   
-  // Create and show modal
+  // Show modal
   showCustomModal(modalContent, 'xlarge');
   
-  // Initialize search functionality
-  document.getElementById('app-search')?.addEventListener('input', function() {
-    applyApplicationFilters();
+  // Store products for later use
+  window.modalApplicationProducts = allProducts;
+  
+  // IMPORTANT: Use the dedicated modal loader, NOT autoLoadFDADocuments
+  document.getElementById('check-all-docs-btn')?.addEventListener('click', async function() {
+    await loadModalDocumentsOnly(allProducts);
   });
   
-  // Initialize status filter
-  document.getElementById('app-filter-status')?.addEventListener('change', function() {
-    applyApplicationFilters();
-  });
-  
-  // Initialize application type filter
-  document.getElementById('app-filter-type')?.addEventListener('change', function() {
-    applyApplicationFilters();
-  });
-  
-  // Function to apply all filters
-  function applyApplicationFilters() {
-    const searchTerm = document.getElementById('app-search').value.toLowerCase();
-    const statusFilter = document.getElementById('app-filter-status').value;
-    const typeFilter = document.getElementById('app-filter-type').value;
-    
-    document.querySelectorAll('.app-item').forEach(item => {
-      const brand = item.querySelector('.app-brand').textContent.toLowerCase();
-      const manufacturer = item.querySelector('.app-manufacturer')?.textContent.toLowerCase() || '';
-      const appType = item.getAttribute('data-app-type');
-      const status = item.getAttribute('data-status');
-      
-      const matchesSearch = brand.includes(searchTerm) || manufacturer.includes(searchTerm);
-      const matchesStatus = !statusFilter || status === statusFilter || 
-                           (statusFilter === 'discontinued' && item.querySelector('.app-item').textContent.includes('Discontinued'));
-      const matchesType = !typeFilter || appType.includes(typeFilter);
-      
-      if (matchesSearch && matchesStatus && matchesType) {
-        item.style.display = 'block';
-      } else {
-        item.style.display = 'none';
-      }
-    });
-    
-    // Update visible count
-    const visibleCount = document.querySelectorAll('.app-item[style="display: block;"], .app-item:not([style])').length;
-    const totalCount = document.querySelectorAll('.app-item').length;
-    
-    // You can add a count display if needed
-    console.log(`Showing ${visibleCount} of ${totalCount} applications`);
-  }
-  
-  // Add event listeners for detail buttons
-  document.querySelectorAll('.modal-view-details-btn').forEach(button => {
+    document.querySelectorAll('.modal-view-details-btn').forEach(button => {
     button.addEventListener('click', function() {
       const applicationNumber = this.getAttribute('data-application');
       const brandName = this.getAttribute('data-brand');
@@ -69360,7 +70101,430 @@ function openAllApplicationsModal(categorizedData, drugName) {
       openDetailsModal(applicationNumber, brandName, ingredient);
     });
   });
+
+  // Setup other event listeners
+  if (typeof setupApplicationDetailHandlers === 'function') {
+    setTimeout(setupApplicationDetailHandlers, 100);
+  }
+  
+  // Filter event listeners
+  document.getElementById('app-search')?.addEventListener('input', applyApplicationFilters);
+  document.getElementById('app-filter-status')?.addEventListener('change', applyApplicationFilters);
+  document.getElementById('app-filter-type')?.addEventListener('change', applyApplicationFilters);
+  document.getElementById('app-filter-docs')?.addEventListener('change', applyApplicationFilters);
+  
+  function applyApplicationFilters() {
+    const searchTerm = document.getElementById('app-search').value.toLowerCase();
+    const statusFilter = document.getElementById('app-filter-status').value;
+    const typeFilter = document.getElementById('app-filter-type').value;
+    const docsFilter = document.getElementById('app-filter-docs').value;
+    
+    document.querySelectorAll('.app-item').forEach(item => {
+      const brand = item.querySelector('.app-brand').textContent.toLowerCase();
+      const manufacturer = item.querySelector('.app-manufacturer')?.textContent.toLowerCase() || '';
+      const appType = item.getAttribute('data-app-type');
+      const status = item.getAttribute('data-status');
+      const hasDocs = item.getAttribute('data-has-docs');
+      
+      const matchesSearch = brand.includes(searchTerm) || manufacturer.includes(searchTerm);
+      const matchesStatus = !statusFilter || status === statusFilter;
+      const matchesType = !typeFilter || appType.includes(typeFilter);
+      
+      let matchesDocs = true;
+      if (docsFilter) {
+        if (docsFilter === 'with-docs') matchesDocs = hasDocs === 'true';
+        else if (docsFilter === 'without-docs') matchesDocs = hasDocs === 'false';
+      }
+      
+      item.style.display = (matchesSearch && matchesStatus && matchesType && matchesDocs) ? 'block' : 'none';
+    });
+  }
 }
+async function checkAllModalApplicationDocuments(allProducts) {
+  const checkBtn = document.getElementById('check-all-docs-btn');
+  
+  // Filter out invalid products (same as in autoLoadFDADocuments)
+  const validProducts = allProducts.filter(p => p.applicationNumber && p.applicationNumber !== 'UNKNOWN');
+  
+  if (validProducts.length === 0) {
+    console.log('No valid application numbers to load');
+    if (checkBtn) {
+      checkBtn.textContent = 'No valid applications';
+      setTimeout(() => {
+        checkBtn.textContent = '📄 Check All for Documents';
+      }, 2000);
+    }
+    return;
+  }
+  
+  // Disable button during loading
+  if (checkBtn) {
+    checkBtn.disabled = true;
+    checkBtn.innerHTML = `
+      <svg class="animate-spin h-4 w-4 inline mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+      </svg>
+      Checking ${validProducts.length} applications...
+    `;
+  }
+  
+  // Create or update document status divs for all modal cards
+  validProducts.forEach((product, index) => {
+    // Multiple ways to find the app item in the modal
+    let appItem = null;
+    
+    // Method 1: Find by the details button with data-application attribute
+    const detailsBtn = document.querySelector(`.fda-app-details-btn[data-application="${product.applicationNumber}"]`);
+    if (detailsBtn) {
+      appItem = detailsBtn.closest('.app-item');
+    }
+    
+    // Method 2: If no app-item class, look for the card container
+    if (!appItem && detailsBtn) {
+      appItem = detailsBtn.closest('.bg-white.border.rounded-lg');
+    }
+    
+    // Method 3: Find by any element with the application number
+    if (!appItem) {
+      const appNumberElement = Array.from(document.querySelectorAll('.text-xs.text-gray-500'))
+        .find(el => el.textContent.includes(product.applicationNumber));
+      if (appNumberElement) {
+        appItem = appNumberElement.closest('.bg-white.border.rounded-lg') || 
+                  appNumberElement.closest('.app-item');
+      }
+    }
+    
+    if (appItem) {
+      // Check if document status div already exists
+      let statusDiv = document.getElementById(`doc-status-${product.applicationNumber}`);
+      
+      if (!statusDiv) {
+        // Create the document status div matching your existing structure
+        statusDiv = document.createElement('div');
+        statusDiv.id = `doc-status-${product.applicationNumber}`;
+        statusDiv.className = 'mt-2 mb-1 text-xs';
+        statusDiv.innerHTML = `
+          <div class="doc-spinner hidden flex items-center">
+            <svg class="animate-spin h-3 w-3 text-blue-500 mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <span class="text-gray-600">Loading docs...</span>
+          </div>
+          <div class="doc-result hidden"></div>
+        `;
+        
+        // Find the best place to insert it
+        const detailsBtnInCard = appItem.querySelector('.fda-app-details-btn');
+        
+        if (detailsBtnInCard) {
+          // Try to insert before the button container
+          const buttonContainer = detailsBtnInCard.closest('.flex.justify-end') || 
+                                 detailsBtnInCard.parentElement;
+          
+          if (buttonContainer && buttonContainer.parentElement) {
+            // Insert before the button container
+            buttonContainer.parentElement.insertBefore(statusDiv, buttonContainer);
+          } else {
+            // Fallback: insert before the button itself
+            detailsBtnInCard.parentElement.insertBefore(statusDiv, detailsBtnInCard);
+          }
+        } else {
+          // Fallback: append to the card
+          appItem.appendChild(statusDiv);
+        }
+        
+        // Also add the app-item class if it doesn't exist
+        if (!appItem.classList.contains('app-item')) {
+          appItem.classList.add('app-item');
+        }
+        
+        // Add an identifier to help with filtering later
+        appItem.setAttribute('data-app-number', product.applicationNumber);
+      }
+    } else {
+      console.warn(`Could not find card for application ${product.applicationNumber}`);
+    }
+  });
+  
+  console.log(`Loading documents for ${validProducts.length} modal applications...`);
+  
+  // Small delay to ensure DOM updates are complete
+  await new Promise(resolve => setTimeout(resolve, 100));
+  
+  // Use your existing autoLoadFDADocuments function with progress tracking
+  let completed = 0;
+  const total = validProducts.length;
+  
+  // Create a simple progress tracker
+  const updateProgress = () => {
+    completed++;
+    if (checkBtn) {
+      if (completed === total) {
+        // All done
+        checkBtn.disabled = false;
+        checkBtn.innerHTML = `✅ Checked ${total} applications`;
+        
+        // Reset button text after 3 seconds
+        setTimeout(() => {
+          checkBtn.textContent = '📄 Check All for Documents';
+          checkBtn.disabled = false;
+        }, 3000);
+      } else {
+        // Still in progress
+        checkBtn.innerHTML = `
+          <svg class="animate-spin h-4 w-4 inline mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          Checking... (${completed}/${total})
+        `;
+      }
+    }
+  };
+  
+  // Get configuration from window or use defaults
+  const FDA_DOC_LOADER_CONFIG = window.FDA_DOC_LOADER_CONFIG || {
+    batchSize: 2,
+    delayBetweenBatches: 1000
+  };
+  
+  // Process using your existing batch logic
+  for (let i = 0; i < validProducts.length; i += FDA_DOC_LOADER_CONFIG.batchSize) {
+    const batch = validProducts.slice(i, i + FDA_DOC_LOADER_CONFIG.batchSize);
+    
+    // Process batch using your existing loadDocumentsForProduct function
+    await Promise.all(batch.map(async (product) => {
+      try {
+        // Call your existing function that handles individual document loading
+        if (typeof loadDocumentsForProduct === 'function') {
+          await loadDocumentsForProduct(product.applicationNumber);
+        } else {
+          console.warn('loadDocumentsForProduct function not found, trying window.loadDocumentsForProduct');
+          if (typeof window.loadDocumentsForProduct === 'function') {
+            await window.loadDocumentsForProduct(product.applicationNumber);
+          }
+        }
+      } catch (error) {
+        console.error(`Error loading docs for ${product.applicationNumber}:`, error);
+      }
+      updateProgress();
+    }));
+    
+    // Delay between batches (same as your existing logic)
+    if (i + FDA_DOC_LOADER_CONFIG.batchSize < validProducts.length) {
+      await new Promise(r => setTimeout(r, FDA_DOC_LOADER_CONFIG.delayBetweenBatches));
+    }
+  }
+  
+  console.log('✅ Modal document loading complete');
+  
+  // After loading, update data attributes for filtering
+  setTimeout(() => {
+    let withDocs = 0;
+    let withoutDocs = 0;
+    
+    validProducts.forEach(product => {
+      const statusDiv = document.getElementById(`doc-status-${product.applicationNumber}`);
+      if (statusDiv) {
+        const resultDiv = statusDiv.querySelector('.doc-result');
+        if (resultDiv && !resultDiv.classList.contains('hidden')) {
+          // Check the actual content to determine if documents exist
+          const resultText = resultDiv.textContent || '';
+          const hasDocuments = resultText.includes('doc') && 
+                              !resultText.includes('No documents') && 
+                              !resultText.includes('—');
+          
+          // Find the app item and update its attribute
+          const appItem = statusDiv.closest('.app-item') || 
+                         statusDiv.closest('.bg-white.border.rounded-lg');
+          
+          if (appItem) {
+            appItem.setAttribute('data-has-docs', hasDocuments ? 'true' : 'false');
+            if (hasDocuments) {
+              withDocs++;
+            } else {
+              withoutDocs++;
+            }
+          }
+        }
+      }
+    });
+    
+    console.log(`Document check complete: ${withDocs} with docs, ${withoutDocs} without docs`);
+    
+    // Update filter if it exists
+    const docsFilter = document.getElementById('app-filter-docs');
+    if (docsFilter && docsFilter.options) {
+      // Update the option labels with counts
+      Array.from(docsFilter.options).forEach(option => {
+        if (option.value === 'with-docs') {
+          option.text = `With Documents (${withDocs})`;
+        } else if (option.value === 'without-docs') {
+          option.text = `Without Documents (${withoutDocs})`;
+        }
+      });
+      
+      // Make sure filter is visible
+      if (docsFilter.classList.contains('hidden')) {
+        docsFilter.classList.remove('hidden');
+      }
+    }
+  }, 500);
+}
+
+// Helper function to test if the setup is working
+function testModalDocumentSetup() {
+  const testProduct = window.modalApplicationProducts?.[0];
+  if (testProduct) {
+    console.log('Testing with product:', testProduct);
+    const statusDiv = document.getElementById(`doc-status-${testProduct.applicationNumber}`);
+    if (statusDiv) {
+      console.log('✅ Status div found:', statusDiv);
+    } else {
+      console.log('❌ Status div not found');
+    }
+  } else {
+    console.log('No products found to test');
+  }
+}
+// async function checkAllModalApplicationDocuments(allProducts) {
+//   const checkBtn = document.getElementById('check-all-docs-btn');
+//   const progressContainer = document.getElementById('doc-check-progress-container');
+//   const progressBar = document.getElementById('doc-check-progress-bar');
+//   const statusText = document.getElementById('doc-check-status-text');
+  
+//   // Show progress container
+//   if (progressContainer) {
+//     progressContainer.classList.remove('hidden');
+//   }
+  
+//   // Disable button
+//   if (checkBtn) {
+//     checkBtn.disabled = true;
+//     checkBtn.textContent = 'Checking...';
+//   }
+  
+//   let checked = 0;
+//   const total = allProducts.length;
+//   let withDocs = 0;
+  
+//   // Process in batches
+//   const batchSize = 5;
+  
+//   for (let i = 0; i < allProducts.length; i += batchSize) {
+//     const batch = allProducts.slice(i, Math.min(i + batchSize, allProducts.length));
+    
+//     const batchPromises = batch.map(async (product, batchIndex) => {
+//       const index = i + batchIndex;
+//       const appNumber = product.applicationNumber;
+      
+//       try {
+//         // Use your existing autoLoadFDADocuments logic or a simplified version
+//         const baseUrl = 'https://api.fda.gov/drug/drugsfda.json';
+//         const query = `search=application_number:"${appNumber}"&limit=1`;
+        
+//         const response = await fetch(`${baseUrl}?${query}`);
+//         if (response.ok) {
+//           const data = await response.json();
+//           if (data.results && data.results.length > 0) {
+//             const app = data.results[0];
+            
+//             // Check for documents
+//             let hasDocuments = false;
+//             let docCount = 0;
+            
+//             if (app.products) {
+//               docCount += app.products.length;
+//               hasDocuments = true;
+//             }
+            
+//             if (app.submissions) {
+//               docCount += app.submissions.length;
+//               hasDocuments = true;
+//             }
+            
+//             if (app.openfda?.orange_book_patent) {
+//               hasDocuments = true;
+//             }
+            
+//             // Update the card
+//             const appItem = document.getElementById(`app-item-${index}`);
+//             if (appItem) {
+//               const docIndicator = document.getElementById(`doc-indicator-${index}`);
+//               if (docIndicator) {
+//                 docIndicator.classList.remove('hidden');
+//                 if (hasDocuments) {
+//                   withDocs++;
+//                   docIndicator.innerHTML = `
+//                     <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+//                       📄 Documents Available
+//                     </span>
+//                   `;
+//                   appItem.setAttribute('data-has-docs', 'true');
+//                 } else {
+//                   docIndicator.innerHTML = `
+//                     <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+//                       No documents
+//                     </span>
+//                   `;
+//                   appItem.setAttribute('data-has-docs', 'false');
+//                 }
+//               }
+//             }
+//           }
+//         }
+//       } catch (error) {
+//         console.error(`Error checking ${appNumber}:`, error);
+//       }
+      
+//       checked++;
+      
+//       // Update progress
+//       const progress = Math.round((checked / total) * 100);
+//       if (progressBar) {
+//         progressBar.style.width = `${progress}%`;
+//       }
+//       if (statusText) {
+//         statusText.textContent = `Checked ${checked} of ${total} applications...`;
+//       }
+//     });
+    
+//     await Promise.all(batchPromises);
+    
+//     // Small delay between batches
+//     if (i + batchSize < allProducts.length) {
+//       await new Promise(resolve => setTimeout(resolve, 100));
+//     }
+//   }
+  
+//   // Complete
+//   if (checkBtn) {
+//     checkBtn.disabled = false;
+//     checkBtn.textContent = '✅ Check Complete';
+//   }
+  
+//   if (statusText) {
+//     statusText.textContent = `Complete! Found documents in ${withDocs} of ${total} applications.`;
+//   }
+  
+//   // Show document filter
+//   const docsFilter = document.getElementById('app-filter-docs');
+//   if (docsFilter) {
+//     docsFilter.classList.remove('hidden');
+//   }
+  
+//   // Hide progress after delay
+//   setTimeout(() => {
+//     if (progressContainer) {
+//       progressContainer.classList.add('hidden');
+//     }
+//     if (checkBtn) {
+//       checkBtn.textContent = '📄 Check All for Documents';
+//     }
+//   }, 3000);
+// }
 
 
 
@@ -113835,11 +114999,21 @@ class SearchCreditManager {
 //       window.creditModalResolve = resolve;
 //     });
 //   }
-async confirmAndUseCredit(searchQuery) {
-  return new Promise((resolve) => {
-    // Get current credits
-    const credits = window.subscriptionManager?.userAccess?.searchCredits || 0;
-    
+async confirmAndUseCredit(searchQuery, accesscredits) {
+  return new Promise(async (resolve) => {
+    // // Get current credits
+    // const credits = window.subscriptionManager?.userAccess?.searchCredits || 0;
+    // await window.subscriptionManager?.loadUserAccess();
+      
+      // Get current credits AFTER refresh
+    //   const credits = window.subscriptionManager?.userAccess?.searchCredits || 0;
+    //   await window.subscriptionManager?.loadUserAccess();
+    const userAccess = await window.subscriptionManager.refresh();
+
+    console.log("CREDIT MDDAL USER ACCESS IS: ", userAccess)
+          const credits = userAccess.searchCredits
+
+
     const modal = document.createElement('div');
     modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 animate-fadeIn';
     modal.id = 'credit-confirm-modal';
@@ -113960,6 +115134,9 @@ async confirmAndUseCredit(searchQuery) {
           `Credit used! ${result.creditsRemaining} credits remaining.`, 
           'success'
         );
+
+        this.enableTemporaryProAccess();
+        this.autoSaveSearch(searchQuery, 'results')
         
         return true;
       } else {
@@ -113975,7 +115152,7 @@ async confirmAndUseCredit(searchQuery) {
     }
   }
 
-  enableTemporaryProAccess() {
+enableTemporaryProAccess() {
     this.temporaryProAccess = true;
     
     // IMPORTANT: Actually disable the blockers
@@ -114027,23 +115204,81 @@ async confirmAndUseCredit(searchQuery) {
 
   async autoSaveSearch(searchQuery, results) {
     try {
-      const userId = this.getCurrentUserId();
-      if (!userId) return;
-      
-      await fetch(`/api/user/${userId}/saved-searches`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          name: `Search: ${searchQuery}`,
-          searchConfig: { drugName: searchQuery },
-          autoSaved: true,
-          results: results 
-        })
-      });
-      
-      console.log('Search auto-saved successfully');
+      // Use SavedSearchesManager if available
+      if (window.savedSearchesManager) {
+        console.log('Using SavedSearchesManager for auto-save');
+        
+        // Get the full search configuration from the form
+        const searchConfig = window.savedSearchesManager.getCurrentSearchConfig();
+        
+        // If no detailed config available, create a basic one
+        if (!searchConfig.drugName && !searchConfig.activeIngredient && 
+            !searchConfig.company && !searchConfig.indication) {
+          searchConfig.drugName = searchQuery;
+        }
+        
+        // Check if user can save searches
+        await window.savedSearchesManager.loadSavedSearches();
+        
+        if (!window.savedSearchesManager.canSave) {
+          console.log('User cannot save searches with current plan');
+          return;
+        }
+        
+        // Check if we've reached the limit
+        if (window.savedSearchesManager.remaining <= 0) {
+          console.log('Saved search limit reached');
+          this.showNotification('Search limit reached. Delete old searches to save new ones.', 'warning');
+          return;
+        }
+        
+        // Save using the SavedSearchesManager API
+        const userId = this.getCurrentUserId();
+        const response = await fetch(`/api/user/${userId}/saved-searches`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            name: `Auto-saved: ${searchQuery} (${new Date().toLocaleDateString()})`,
+            searchConfig: searchConfig,
+            autoSaved: true
+          })
+        });
+        
+        if (response.ok) {
+          console.log('Search auto-saved successfully via SavedSearchesManager');
+          
+          // Reload saved searches to update the UI
+          await window.savedSearchesManager.loadSavedSearches();
+          
+          // Show subtle notification
+          this.showNotification('Search saved automatically', 'success');
+        } else {
+          const error = await response.json();
+          console.log('Could not auto-save search:', error.message);
+        }
+        
+      } else {
+        // Fallback to basic auto-save if SavedSearchesManager not available
+        console.log('SavedSearchesManager not available, using basic auto-save');
+        
+        const userId = this.getCurrentUserId();
+        if (!userId) return;
+        
+        await fetch(`/api/user/${userId}/saved-searches`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            name: `Search: ${searchQuery}`,
+            searchConfig: { drugName: searchQuery },
+            autoSaved: true
+          })
+        });
+        
+        console.log('Search auto-saved successfully (basic)');
+      }
     } catch (error) {
       console.error('Error auto-saving search:', error);
+      // Don't show error to user for auto-save failures
     }
   }
 
@@ -114239,7 +115474,7 @@ class EnhancedSearchInterceptor {
 
   async showCreditConfirmationModal(searchQuery, creditsAvailable) {
     // Call confirmAndUseCredit and WAIT for the result
-    const confirmed = await window.searchCreditManager.confirmAndUseCredit(searchQuery);
+    const confirmed = await window.searchCreditManager.confirmAndUseCredit(searchQuery, creditsAvailable);
     return confirmed;
   }
   // Show credit confirmation modal
@@ -114910,60 +116145,96 @@ console.log(" ENHANCEDSEARCH IS PRO : ", isPro)
       
 
 
-
-      // Check if user has search credits
-      if (searchCredits > 0) {
-        // Store the search query for later use
-        localStorage.setItem('pendingSearchQuery', drugSearch);
+    if (searchCredits > 0) {
+      // Store the search query for later use
+      localStorage.setItem('pendingSearchQuery', drugSearch);
+      
+      // Show credit confirmation modal and handle the ENTIRE flow here
+      const confirmed = await window.searchCreditManager?.confirmAndUseCredit(drugSearch);
+      
+    //   if (confirmed) {
+    //     // Use the credit ONCE
+    //     const creditUsed = await window.searchCreditManager?.useSearchCredit(drugSearch);
         
-        // Use the new EnhancedSearchInterceptor for credit confirmation
-        if (window.enhancedSearchInterceptor) {
-          // Show the new credit confirmation modal
-          const confirmed = await window.enhancedSearchInterceptor.showCreditConfirmationModal(
-            drugSearch, 
-            searchCredits
-          );
+    //     if (creditUsed) {
+    //       // Enable temporary pro access
+    //       window.searchCreditManager?.enableTemporaryProAccess();
           
-          if (confirmed) {
-            // Use the enhanced interceptor to handle credit usage
-            await window.enhancedSearchInterceptor.useSearchCreditAndProceed(
-              drugSearch, 
-              searchButton, 
-              originalOnClick
-            );
-          }
-        } else {
-          // Fallback to old method if EnhancedSearchInterceptor doesn't exist
-          console.warn('EnhancedSearchInterceptor not found, using fallback');
+    //       // Proceed with search
+    //       if (originalOnClick) {
+    //         originalOnClick.call(searchButton, e);
+    //       }
           
-          const confirmed = await window.searchCreditManager?.confirmAndUseCredit(drugSearch);
-          
-          if (confirmed) {
-            const creditUsed = await window.searchCreditManager?.useSearchCredit(drugSearch);
+    //       // Auto-save the search after a delay
+    //       setTimeout(async () => {
+    //         await window.searchCreditManager?.autoSaveSearch(
+    //           drugSearch, 
+    //           document.querySelector('.search-results')?.innerHTML
+    //         );
             
-            if (creditUsed) {
-              window.searchCreditManager?.enableTemporaryProAccess();
+    //         // Disable temporary pro access after search completes
+    //         setTimeout(() => {
+    //           window.searchCreditManager?.disableTemporaryProAccess();
+    //           window.subscriptionManager?.checkSubscriptionStatus();
+    //         }, 2000);
+    //       }, 3000);
+    //     }
+    //   }
+      return; // EXIT HERE - no fallback code
+    }
+      // Check if user has search credits
+    //   if (searchCredits > 0) {
+    //     // Store the search query for later use
+    //     localStorage.setItem('pendingSearchQuery', drugSearch);
+        
+    //     // Use the new EnhancedSearchInterceptor for credit confirmation
+    //     if (window.enhancedSearchInterceptor) {
+    //       // Show the new credit confirmation modal
+    //       const confirmed = await window.enhancedSearchInterceptor.showCreditConfirmationModal(
+    //         drugSearch, 
+    //         searchCredits
+    //       );
+          
+    //       if (confirmed) {
+    //         // Use the enhanced interceptor to handle credit usage
+    //         await window.enhancedSearchInterceptor.useSearchCreditAndProceed(
+    //           drugSearch, 
+    //           searchButton, 
+    //           originalOnClick
+    //         );
+    //       }
+    //     } else {
+    //       // Fallback to old method if EnhancedSearchInterceptor doesn't exist
+    //       console.warn('EnhancedSearchInterceptor not found, using fallback');
+          
+    //       const confirmed = await window.searchCreditManager?.confirmAndUseCredit(drugSearch);
+          
+    //       if (confirmed) {
+    //         const creditUsed = await window.searchCreditManager?.useSearchCredit(drugSearch);
+            
+    //         if (creditUsed) {
+    //           window.searchCreditManager?.enableTemporaryProAccess();
               
-              if (originalOnClick) {
-                originalOnClick.call(searchButton, e);
-              }
+    //           if (originalOnClick) {
+    //             originalOnClick.call(searchButton, e);
+    //           }
               
-              setTimeout(async () => {
-                await window.searchCreditManager?.autoSaveSearch(
-                  drugSearch, 
-                  document.querySelector('.search-results')?.innerHTML
-                );
+    //           setTimeout(async () => {
+    //             await window.searchCreditManager?.autoSaveSearch(
+    //               drugSearch, 
+    //               document.querySelector('.search-results')?.innerHTML
+    //             );
                 
-                setTimeout(() => {
-                  window.searchCreditManager?.disableTemporaryProAccess();
-                  window.subscriptionManager?.checkSubscriptionStatus();
-                }, 2000);
-              }, 3000);
-            }
-          }
-        }
-        return;
-      }
+    //             setTimeout(() => {
+    //               window.searchCreditManager?.disableTemporaryProAccess();
+    //               window.subscriptionManager?.checkSubscriptionStatus();
+    //             }, 2000);
+    //           }, 3000);
+    //         }
+    //       }
+    //     }
+    //     return;
+    //   }
     }
       // Check if user has a saved search for this query
       const savedSearch = userAccess?.savedSearches?.find(
@@ -114995,6 +116266,7 @@ console.log(" ENHANCEDSEARCH IS PRO : ", isPro)
       }
     };
   }
+  
   // New method that handles both credit modal and upgrade modal
   async showPaymentOptions(drugSearch) {
     // Store the search query
