@@ -126,7 +126,8 @@ const allowedOrigins = [
   'https://www.syneticx.com', // Replace with your actual frontend domain
   'https://syneticx.com',
   'http://localhost:3000', // For local development
-  'https://leaf-intelligence-222463960417.us-central1.run.app/'
+  'https://leaf-intelligence-222463960417.us-central1.run.app'
+  
 ];
 
 app.use(
