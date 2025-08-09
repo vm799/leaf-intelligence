@@ -45,39 +45,7 @@ const PharmaLabellingModule = (function() {
         modalContent: document.getElementById('pharma-modal-content')
     };
 
-    // function init() {
-    //     // Check if elements exist before adding listeners
-    //     if (!elements.searchBtn || !elements.searchInput) {
-    //         console.log('Pharma elements not ready, waiting...');
-    //         return;
-    //     }
-
-    //     // Event Listeners
-    //     elements.searchBtn.addEventListener('click', performSearch);
-    //     elements.searchInput.addEventListener('keypress', (e) => {
-    //         if (e.key === 'Enter') performSearch();
-    //     });
-
-    //     if (elements.closeModal) {
-    //         elements.closeModal.addEventListener('click', () => {
-    //             elements.labelModal.classList.add('hidden');
-    //         });
-    //     }
-
-    //     // Filter buttons
-    //     if (elements.filterAll) elements.filterAll.addEventListener('click', () => setFilter('all'));
-    //     if (elements.filterFda) elements.filterFda.addEventListener('click', () => setFilter('fda'));
-    //     if (elements.filterEma) elements.filterEma.addEventListener('click', () => setFilter('ema'));
-    //     if (elements.filterWarnings) elements.filterWarnings.addEventListener('click', () => setFilter('warnings'));
-
-    //     // Pagination
-    //     if (elements.prevPage) elements.prevPage.addEventListener('click', () => changePage(-1));
-    //     if (elements.nextPage) elements.nextPage.addEventListener('click', () => changePage(1));
-
-    //     console.log('PharmaLabellingModule initialized successfully');
-    // }
-
-function init() {
+   function init() {
     // Check if elements exist before adding listeners
     if (!elements.searchBtn || !elements.searchInput) {
         console.log('Pharma elements not ready, waiting...');
@@ -107,35 +75,45 @@ function init() {
     if (elements.prevPage) elements.prevPage.addEventListener('click', () => changePage(-1));
     if (elements.nextPage) elements.nextPage.addEventListener('click', () => changePage(1));
 
-    // 🔥 EMA DATA EVENT LISTENERS - OPTION 1 🔥
-    
-    // Listen for EMA data loaded event
+    // 🔥 NEW: EVENT DELEGATION FOR LABEL VIEW BUTTONS 🔥
+    // This ensures buttons work regardless of Pro status and re-rendering
+    if (elements.labelsGrid) {
+        elements.labelsGrid.addEventListener('click', function(e) {
+            // Check if clicked element or its parent is a button with data-setid
+            const button = e.target.closest('button[data-setid]');
+            if (button) {
+                e.preventDefault();
+                e.stopPropagation();
+                const setid = button.getAttribute('data-setid');
+                console.log('Viewing label via delegation:', setid);
+                PharmaLabellingModule.showFullLabel(setid);
+            }
+        });
+    }
+
+    // EMA DATA EVENT LISTENERS
     document.addEventListener('emaDataLoaded', function(event) {
         console.log('EMA data loaded event received:', event.detail);
         
         const { medicines, count, searchTerm } = event.detail;
         
-        // Update the EMA count immediately
         if (elements.emaLabels) {
             elements.emaLabels.textContent = count || 0;
             console.log(`Updated EMA labels count to: ${count || 0}`);
         }
         
-        // Update total labels count if we have other labels
         if (elements.totalLabels) {
             const currentFDA = parseInt(elements.fdaLabels?.textContent || 0);
             const newTotal = currentFDA + (count || 0);
             elements.totalLabels.textContent = newTotal;
         }
         
-        // If labelling section is currently visible, refresh the display with EMA data
         const labellingSection = document.getElementById('LabellingSection');
         if (labellingSection && !labellingSection.classList.contains('hidden')) {
             console.log('Labelling section is visible, refreshing with EMA data...');
             refreshLabelsWithEMAData();
         }
         
-        // Show the labelling section if it's hidden but we now have data
         if (labellingSection && labellingSection.classList.contains('hidden') && count > 0) {
             console.log('Showing labelling section due to EMA data...');
             labellingSection.classList.remove('hidden');
@@ -143,19 +121,16 @@ function init() {
         }
     });
     
-    // Listen for any general data updates that might include EMA data
     document.addEventListener('dataUpdated', function(event) {
         const { dataType, data } = event.detail;
         
         if (dataType === 'ema' && data?.medicines) {
             console.log('EMA data updated via dataUpdated event');
             
-            // Update count
             if (elements.emaLabels) {
                 elements.emaLabels.textContent = data.medicines.length;
             }
             
-            // Refresh display if visible
             const labellingSection = document.getElementById('LabellingSection');
             if (labellingSection && !labellingSection.classList.contains('hidden')) {
                 refreshLabelsWithEMAData();
@@ -163,9 +138,7 @@ function init() {
         }
     });
 
-    // 🔥 CHECK FOR IMMEDIATE EMA DATA ON INITIALIZATION 🔥
-    
-    // Check if EMA data is already available when module initializes
+    // Check for existing EMA data
     if (window.appState?.emaData?.medicines) {
         console.log('Found existing EMA data on initialization');
         const emaCount = window.appState.emaData.medicines.length;
@@ -175,7 +148,6 @@ function init() {
             console.log(`Set initial EMA count to: ${emaCount}`);
         }
         
-        // Update total if needed
         if (elements.totalLabels) {
             const currentFDA = parseInt(elements.fdaLabels?.textContent || 0);
             const newTotal = currentFDA + emaCount;
@@ -183,15 +155,12 @@ function init() {
         }
     }
     
-    // 🔥 PERIODIC CHECK FOR EMA DATA (FALLBACK) 🔥
-    
-    // Set up a periodic check in case events are missed (fallback mechanism)
+    // Periodic check for EMA data (fallback)
     let lastEMACount = 0;
     const emaCheckInterval = setInterval(() => {
         if (window.appState?.emaData?.medicines) {
             const currentEMACount = window.appState.emaData.medicines.length;
             
-            // Only update if count has changed
             if (currentEMACount !== lastEMACount) {
                 console.log(`EMA count changed from ${lastEMACount} to ${currentEMACount} (periodic check)`);
                 lastEMACount = currentEMACount;
@@ -200,30 +169,185 @@ function init() {
                     elements.emaLabels.textContent = currentEMACount;
                 }
                 
-                // Update total
                 if (elements.totalLabels) {
                     const currentFDA = parseInt(elements.fdaLabels?.textContent || 0);
                     const newTotal = currentFDA + currentEMACount;
                     elements.totalLabels.textContent = newTotal;
                 }
                 
-                // Refresh display if section is visible
                 const labellingSection = document.getElementById('LabellingSection');
                 if (labellingSection && !labellingSection.classList.contains('hidden')) {
                     refreshLabelsWithEMAData();
                 }
             }
         }
-    }, 2000); // Check every 2 seconds
+    }, 2000);
     
-    // Clear interval after 30 seconds to avoid infinite checking
     setTimeout(() => {
         clearInterval(emaCheckInterval);
         console.log('EMA periodic check interval cleared');
     }, 30000);
-
-    console.log('PharmaLabellingModule initialized successfully with EMA event listeners');
+initModalSystem()
+    console.log('PharmaLabellingModule initialized successfully with event delegation');
 }
+function initModalSystem() {
+    // Ensure modal exists when module initializes
+    ensureModalExists();
+    
+    // Update the elements reference
+    elements.labelModal = document.getElementById('pharma-label-modal');
+    elements.closeModal = document.getElementById('pharma-close-modal');
+    
+    console.log('🔧 Modal system initialized');
+}
+
+// function init() {
+//     // Check if elements exist before adding listeners
+//     if (!elements.searchBtn || !elements.searchInput) {
+//         console.log('Pharma elements not ready, waiting...');
+//         return;
+//     }
+
+//     // Event Listeners for search functionality
+//     elements.searchBtn.addEventListener('click', performSearch);
+//     elements.searchInput.addEventListener('keypress', (e) => {
+//         if (e.key === 'Enter') performSearch();
+//     });
+
+//     // Modal close functionality
+//     if (elements.closeModal) {
+//         elements.closeModal.addEventListener('click', () => {
+//             elements.labelModal.classList.add('hidden');
+//         });
+//     }
+
+//     // Filter button event listeners
+//     if (elements.filterAll) elements.filterAll.addEventListener('click', () => setFilter('all'));
+//     if (elements.filterFda) elements.filterFda.addEventListener('click', () => setFilter('fda'));
+//     if (elements.filterEma) elements.filterEma.addEventListener('click', () => setFilter('ema'));
+//     if (elements.filterWarnings) elements.filterWarnings.addEventListener('click', () => setFilter('warnings'));
+
+//     // Pagination event listeners
+//     if (elements.prevPage) elements.prevPage.addEventListener('click', () => changePage(-1));
+//     if (elements.nextPage) elements.nextPage.addEventListener('click', () => changePage(1));
+
+//     // 🔥 EMA DATA EVENT LISTENERS - OPTION 1 🔥
+    
+//     // Listen for EMA data loaded event
+//     document.addEventListener('emaDataLoaded', function(event) {
+//         console.log('EMA data loaded event received:', event.detail);
+        
+//         const { medicines, count, searchTerm } = event.detail;
+        
+//         // Update the EMA count immediately
+//         if (elements.emaLabels) {
+//             elements.emaLabels.textContent = count || 0;
+//             console.log(`Updated EMA labels count to: ${count || 0}`);
+//         }
+        
+//         // Update total labels count if we have other labels
+//         if (elements.totalLabels) {
+//             const currentFDA = parseInt(elements.fdaLabels?.textContent || 0);
+//             const newTotal = currentFDA + (count || 0);
+//             elements.totalLabels.textContent = newTotal;
+//         }
+        
+//         // If labelling section is currently visible, refresh the display with EMA data
+//         const labellingSection = document.getElementById('LabellingSection');
+//         if (labellingSection && !labellingSection.classList.contains('hidden')) {
+//             console.log('Labelling section is visible, refreshing with EMA data...');
+//             refreshLabelsWithEMAData();
+//         }
+        
+//         // Show the labelling section if it's hidden but we now have data
+//         if (labellingSection && labellingSection.classList.contains('hidden') && count > 0) {
+//             console.log('Showing labelling section due to EMA data...');
+//             labellingSection.classList.remove('hidden');
+//             refreshLabelsWithEMAData();
+//         }
+//     });
+    
+//     // Listen for any general data updates that might include EMA data
+//     document.addEventListener('dataUpdated', function(event) {
+//         const { dataType, data } = event.detail;
+        
+//         if (dataType === 'ema' && data?.medicines) {
+//             console.log('EMA data updated via dataUpdated event');
+            
+//             // Update count
+//             if (elements.emaLabels) {
+//                 elements.emaLabels.textContent = data.medicines.length;
+//             }
+            
+//             // Refresh display if visible
+//             const labellingSection = document.getElementById('LabellingSection');
+//             if (labellingSection && !labellingSection.classList.contains('hidden')) {
+//                 refreshLabelsWithEMAData();
+//             }
+//         }
+//     });
+
+//     // 🔥 CHECK FOR IMMEDIATE EMA DATA ON INITIALIZATION 🔥
+    
+//     // Check if EMA data is already available when module initializes
+//     if (window.appState?.emaData?.medicines) {
+//         console.log('Found existing EMA data on initialization');
+//         const emaCount = window.appState.emaData.medicines.length;
+        
+//         if (elements.emaLabels) {
+//             elements.emaLabels.textContent = emaCount;
+//             console.log(`Set initial EMA count to: ${emaCount}`);
+//         }
+        
+//         // Update total if needed
+//         if (elements.totalLabels) {
+//             const currentFDA = parseInt(elements.fdaLabels?.textContent || 0);
+//             const newTotal = currentFDA + emaCount;
+//             elements.totalLabels.textContent = newTotal;
+//         }
+//     }
+    
+//     // 🔥 PERIODIC CHECK FOR EMA DATA (FALLBACK) 🔥
+    
+//     // Set up a periodic check in case events are missed (fallback mechanism)
+//     let lastEMACount = 0;
+//     const emaCheckInterval = setInterval(() => {
+//         if (window.appState?.emaData?.medicines) {
+//             const currentEMACount = window.appState.emaData.medicines.length;
+            
+//             // Only update if count has changed
+//             if (currentEMACount !== lastEMACount) {
+//                 console.log(`EMA count changed from ${lastEMACount} to ${currentEMACount} (periodic check)`);
+//                 lastEMACount = currentEMACount;
+                
+//                 if (elements.emaLabels) {
+//                     elements.emaLabels.textContent = currentEMACount;
+//                 }
+                
+//                 // Update total
+//                 if (elements.totalLabels) {
+//                     const currentFDA = parseInt(elements.fdaLabels?.textContent || 0);
+//                     const newTotal = currentFDA + currentEMACount;
+//                     elements.totalLabels.textContent = newTotal;
+//                 }
+                
+//                 // Refresh display if section is visible
+//                 const labellingSection = document.getElementById('LabellingSection');
+//                 if (labellingSection && !labellingSection.classList.contains('hidden')) {
+//                     refreshLabelsWithEMAData();
+//                 }
+//             }
+//         }
+//     }, 2000); // Check every 2 seconds
+    
+//     // Clear interval after 30 seconds to avoid infinite checking
+//     setTimeout(() => {
+//         clearInterval(emaCheckInterval);
+//         console.log('EMA periodic check interval cleared');
+//     }, 30000);
+
+//     console.log('PharmaLabellingModule initialized successfully with EMA event listeners');
+// }
 
 
 
@@ -710,15 +834,23 @@ async function fetchEMAMedicines(searchTerm) {
 
 // Improved createCleanLabelCard function with better UI design
 
-// function renderLabels() {
-//     // Check if user is Pro
-//     const isPro = window.leafIntelligenceFeatureBlocker ? window.leafIntelligenceFeatureBlocker.isPro : false;
+
+
+// async function renderLabels() {
+//     // Check if user is Pro - using the exact same logic from the working recent events
+//     // const isPro = window.leafIntelligenceFeatureBlocker ? window.leafIntelligenceFeatureBlocker.isPro : false;
     
+//     const currentAccess = await window.subscriptionManager.refresh();
+//     console.log("CURRENT ACCSSS BLOCK LABELLING", currentAccess)
+
+//     const isPro = currentAccess?.isPro || false;
+// console.log(" LABBELLING IS PRO : ", isPro)
+
+
 //     const filteredLabels = currentLabels.filter(label => {
 //         if (currentFilter === 'all') return true;
 //         if (currentFilter === 'fda') return label.type === 'FDA';
 //         if (currentFilter === 'ema') return label.type === 'EMA';
-        
 //         if (currentFilter === 'warnings') return label.boxedWarning;
 //         return true;
 //     });
@@ -730,16 +862,28 @@ async function fetchEMAMedicines(searchTerm) {
 //         return dateB - dateA;
 //     });
 
-//     // For free users, limit to top 3 most recent
-//     // const visibleLabels = isPro ? sortedLabels : sortedLabels.slice(0, 3);
-//     // const visibleLabels = sortedLabels.filter(label => label.type === 'FDA');
-//      const fdaOnlyLabels = sortedLabels.filter(label => label.type === 'FDA');
+//     // For free users, limit to top 3 most recent FDA labels only
+//     // For Pro users, show all labels
+//     let visibleLabels;
+//     if (isPro) {
+//         // Pro users see all labels
+//         visibleLabels = sortedLabels;
+//     } else {
+//         // Free users only see FDA labels, limited to 3
+//         const fdaOnlyLabels = sortedLabels.filter(label => label.type === 'FDA');
 //         visibleLabels = fdaOnlyLabels.slice(0, 3);
+//     }
+    
 //     const blockedCount = sortedLabels.length - visibleLabels.length;
     
-//     // For Pro users, use pagination normally
+//     // Handle pagination
 //     let pageLabels = visibleLabels;
+//     const paginationContainer = document.querySelector('.pharma-pagination-container') || 
+//                                document.querySelector('[id*="pagination"]') ||
+//                                document.querySelector('.pagination');
+    
 //     if (isPro) {
+//         // Pro users get pagination
 //         const totalPages = Math.ceil(visibleLabels.length / itemsPerPage);
 //         const startIndex = (currentPage - 1) * itemsPerPage;
 //         const endIndex = startIndex + itemsPerPage;
@@ -750,10 +894,16 @@ async function fetchEMAMedicines(searchTerm) {
 //         if (elements.totalPagesSpan) elements.totalPagesSpan.textContent = totalPages;
 //         if (elements.prevPage) elements.prevPage.disabled = currentPage === 1;
 //         if (elements.nextPage) elements.nextPage.disabled = currentPage === totalPages;
+        
+//         // Show pagination for Pro users
+//         if (paginationContainer) {
+//             paginationContainer.style.display = '';
+//         }
 //     } else {
 //         // Hide pagination for free users
-//         const paginationContainer = document.querySelector('.pharma-pagination-container');
-//         if (paginationContainer) paginationContainer.style.display = 'none';
+//         if (paginationContainer) {
+//             paginationContainer.style.display = 'none';
+//         }
 //     }
 
 //     if (elements.labelsGrid) {
@@ -766,8 +916,9 @@ async function fetchEMAMedicines(searchTerm) {
             
 //             // Add preview of next 2 blocked labels (blurred)
 //             if (sortedLabels.length > 3) {
-//                 const previewLabels = sortedLabels.slice(3, 5);
-//                 gridHTML += previewLabels.map(label => createBlurredLabelCard(label)).join('');
+//                 // Get the next 2 labels after the visible ones
+//                 const nextLabels = sortedLabels.slice(visibleLabels.length, visibleLabels.length + 2);
+//                 gridHTML += nextLabels.map(label => createBlurredLabelCard(label)).join('');
 //             }
 //         }
         
@@ -776,18 +927,21 @@ async function fetchEMAMedicines(searchTerm) {
     
 //     // Update the filter buttons to show counts
 //     updateFilterCounts(sortedLabels, isPro);
+    
+//     // Log the Pro status for debugging
+//     console.log(`🔐 User Pro Status: ${isPro ? 'PRO' : 'FREE'}`);
+//     console.log(`📊 Showing ${visibleLabels.length} of ${sortedLabels.length} labels`);
+//     if (!isPro) {
+//         console.log(`🚫 ${blockedCount} labels blocked for free users`);
+//     }
 // }
 
 async function renderLabels() {
-    // Check if user is Pro - using the exact same logic from the working recent events
-    // const isPro = window.leafIntelligenceFeatureBlocker ? window.leafIntelligenceFeatureBlocker.isPro : false;
-    
     const currentAccess = await window.subscriptionManager.refresh();
-    console.log("CURRENT ACCSSS BLOCK LABELLING", currentAccess)
+    console.log("CURRENT ACCESS BLOCK LABELLING", currentAccess);
 
     const isPro = currentAccess?.isPro || false;
-console.log(" LABBELLING IS PRO : ", isPro)
-
+    console.log("LABELLING IS PRO: ", isPro);
 
     const filteredLabels = currentLabels.filter(label => {
         if (currentFilter === 'all') return true;
@@ -805,13 +959,10 @@ console.log(" LABBELLING IS PRO : ", isPro)
     });
 
     // For free users, limit to top 3 most recent FDA labels only
-    // For Pro users, show all labels
     let visibleLabels;
     if (isPro) {
-        // Pro users see all labels
         visibleLabels = sortedLabels;
     } else {
-        // Free users only see FDA labels, limited to 3
         const fdaOnlyLabels = sortedLabels.filter(label => label.type === 'FDA');
         visibleLabels = fdaOnlyLabels.slice(0, 3);
     }
@@ -858,13 +1009,14 @@ console.log(" LABBELLING IS PRO : ", isPro)
             
             // Add preview of next 2 blocked labels (blurred)
             if (sortedLabels.length > 3) {
-                // Get the next 2 labels after the visible ones
                 const nextLabels = sortedLabels.slice(visibleLabels.length, visibleLabels.length + 2);
                 gridHTML += nextLabels.map(label => createBlurredLabelCard(label)).join('');
             }
         }
         
         elements.labelsGrid.innerHTML = gridHTML;
+        
+        // 🔥 Event delegation is now handled in init(), no need to re-attach handlers here 🔥
     }
     
     // Update the filter buttons to show counts
@@ -877,6 +1029,7 @@ console.log(" LABBELLING IS PRO : ", isPro)
         console.log(`🚫 ${blockedCount} labels blocked for free users`);
     }
 }
+
 function updateFilterCounts(allLabels, isPro) {
     const visibleLabels = isPro ? allLabels : allLabels.slice(0, 3);
     
@@ -1057,7 +1210,6 @@ function createBlurredLabelCard(label) {
     `;
 }
 
-
 function createCleanLabelCard(label) {
     const isEMA = label.type === 'EMA';
     
@@ -1077,13 +1229,11 @@ function createCleanLabelCard(label) {
     ` : '';
     
     const cardClasses = isEMA ? 
-        'pro-feature ema-label-card group bg-white border border-gray-200 rounded-xl p-6 transition-all duration-300 hover:border-gray-300 hover:shadow-lg hover:-translate-y-0.5' : 
+        'ema-label-card group bg-white border border-gray-200 rounded-xl p-6 transition-all duration-300 hover:border-gray-300 hover:shadow-lg hover:-translate-y-0.5' : 
         'group bg-white border border-gray-200 rounded-xl p-6 transition-all duration-300 hover:border-gray-300 hover:shadow-lg hover:-translate-y-0.5';
     
     return `
         <div class="${cardClasses}">
-        
-        
             <!-- Header Section -->
             <div class="flex items-start justify-between mb-4">
                 <div class="flex items-center gap-2 flex-wrap">
@@ -1165,9 +1315,8 @@ function createCleanLabelCard(label) {
                 ` : ''}
             </div>
             
-            <!-- Clean Minimal Button -->
+            <!-- Button without inline onclick - uses data attributes for event delegation -->
             <button 
-                onclick="PharmaLabellingModule.showFullLabel('${label.setid || label.id}')" 
                 class="w-full px-4 py-2.5 border border-gray-300 text-gray-700 text-sm font-medium rounded-lg transition-all duration-200 hover:border-gray-400 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-200 focus:ring-offset-1"
                 data-label-type="${label.type}"
                 data-setid="${label.setid || label.id}"
@@ -1179,54 +1328,329 @@ function createCleanLabelCard(label) {
                     View ${isEMA ? 'EMA Details' : 'Complete Label'}
                 </span>
             </button>
-            
         </div>
     `;
 }
 
+// function createCleanLabelCard(label) {
+//     const isEMA = label.type === 'EMA';
+    
+//     // Clean color scheme for badges
+//     const typeColor = isEMA ? 'bg-blue-100 text-blue-800 border-blue-200' : 'bg-slate-100 text-slate-800 border-slate-200';
+    
+//     // Warning badge with clean styling
+//     const warningBadge = label.boxedWarning ? 
+//         '<span class="inline-flex items-center px-2.5 py-1 text-xs font-medium bg-amber-100 text-amber-800 border border-amber-200 rounded-full">⚠ Warning</span>' : '';
+    
+//     const sourceText = label.source ? ` (${label.source})` : '';
+    
+//     // EMA-specific badges with clean colors
+//     const emaBadges = isEMA ? `
+//         ${label.authorizationStatus ? `<span class="inline-flex items-center px-2.5 py-1 text-xs font-medium bg-emerald-100 text-emerald-800 border border-emerald-200 rounded-full">${label.authorizationStatus}</span>` : ''}
+//         ${label.euNumber ? `<span class="inline-flex items-center px-2.5 py-1 text-xs font-medium bg-violet-100 text-violet-800 border border-violet-200 rounded-full">EU ${label.euNumber}</span>` : ''}
+//     ` : '';
+    
+//     const cardClasses = isEMA ? 
+//         'ema-label-card group bg-white border border-gray-200 rounded-xl p-6 transition-all duration-300 hover:border-gray-300 hover:shadow-lg hover:-translate-y-0.5' : 
+//         'group bg-white border border-gray-200 rounded-xl p-6 transition-all duration-300 hover:border-gray-300 hover:shadow-lg hover:-translate-y-0.5';
+    
+//     return `
+//         <div class="${cardClasses}">
+        
+        
+//             <!-- Header Section -->
+//             <div class="flex items-start justify-between mb-4">
+//                 <div class="flex items-center gap-2 flex-wrap">
+//                     <span class="inline-flex items-center px-3 py-1.5 text-xs font-semibold ${typeColor} border rounded-lg">
+//                         ${label.type}${sourceText}
+//                     </span>
+//                     ${warningBadge}
+//                     ${emaBadges}
+//                 </div>
+//                 <div class="text-xs text-gray-500 font-medium">
+//                     ${formatDate(label.lastUpdated)}
+//                 </div>
+//             </div>
+            
+//             <!-- Title -->
+//             <h3 class="font-semibold text-gray-900 mb-4 text-base leading-tight">
+//                 ${escapeHtml(label.productName)}
+//             </h3>
+            
+//             <!-- Content Section -->
+//             <div class="space-y-4 mb-6">
+                
+//                 <!-- Indication Box -->
+//                 <div class="bg-gray-50 rounded-lg p-4 border border-gray-100">
+//                     <div class="text-xs font-semibold text-gray-700 mb-2 uppercase tracking-wider">
+//                         Indication
+//                     </div>
+//                     <p class="text-sm text-gray-800 leading-relaxed">
+//                         ${truncateText(escapeHtml(label.indication || 'Not specified'), 150)}
+//                     </p>
+//                 </div>
+                
+//                 <!-- Details Grid -->
+//                 <div class="grid grid-cols-2 gap-3">
+//                     <div class="bg-gray-50 rounded-lg p-3 border border-gray-100">
+//                         <div class="text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wider">
+//                             Route
+//                         </div>
+//                         <div class="text-sm text-gray-900 font-medium">
+//                             ${escapeHtml(label.route || 'Not specified')}
+//                         </div>
+//                     </div>
+                    
+//                     <div class="bg-gray-50 rounded-lg p-3 border border-gray-100">
+//                         <div class="text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wider">
+//                             ${isEMA ? 'MAH' : 'Manufacturer'}
+//                         </div>
+//                         <div class="text-sm text-gray-900 font-medium" title="${escapeHtml(label.manufacturerName || 'Not specified')}">
+//                             ${truncateText(escapeHtml(label.manufacturerName || 'Not specified'), 25)}
+//                         </div>
+//                     </div>
+//                 </div>
+                
+//                 <!-- EMA-specific additional information -->
+//                 ${isEMA && (label.dosageForm || label.atcCode) ? `
+//                 <div class="grid grid-cols-2 gap-3">
+//                     ${label.dosageForm ? `
+//                     <div class="bg-blue-50 rounded-lg p-3 border border-blue-100">
+//                         <div class="text-xs font-semibold text-blue-700 mb-1 uppercase tracking-wider">
+//                             Dosage Form
+//                         </div>
+//                         <div class="text-sm text-blue-900 font-medium">
+//                             ${escapeHtml(label.dosageForm)}
+//                         </div>
+//                     </div>
+//                     ` : ''}
+                    
+//                     ${label.atcCode ? `
+//                     <div class="bg-violet-50 rounded-lg p-3 border border-violet-100">
+//                         <div class="text-xs font-semibold text-violet-700 mb-1 uppercase tracking-wider">
+//                             ATC Code
+//                         </div>
+//                         <div class="text-sm text-violet-900 font-medium font-mono">
+//                             ${escapeHtml(label.atcCode)}
+//                         </div>
+//                     </div>
+//                     ` : ''}
+//                 </div>
+//                 ` : ''}
+//             </div>
+            
+//             <!-- Clean Minimal Button -->
+//             <button 
+//                 onclick="PharmaLabellingModule.showFullLabel('${label.setid || label.id}')" 
+//                 class="w-full px-4 py-2.5 border border-gray-300 text-gray-700 text-sm font-medium rounded-lg transition-all duration-200 hover:border-gray-400 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-200 focus:ring-offset-1"
+//                 data-label-type="${label.type}"
+//                 data-setid="${label.setid || label.id}"
+//             >
+//                 <span class="flex items-center justify-center gap-2">
+//                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+//                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+//                     </svg>
+//                     View ${isEMA ? 'EMA Details' : 'Complete Label'}
+//                 </span>
+//             </button>
+            
+//         </div>
+//     `;
+// }
+// function showFullLabel(setid) {
+//     // Fixed: Check for both setid and id properties
+//     const label = currentLabels.find(l => l.setid === setid || l.id === setid);
+    
+//     if (!label) {
+//         console.error('Label not found for setid/id:', setid);
+//         console.log('Available labels:', currentLabels.map(l => ({ setid: l.setid, id: l.id })));
+//         return;
+//     }
 
+//     console.log('Opening modal for label:', label);
+
+//     // Update modal header
+//     if (elements.modalTitle) {
+//         elements.modalTitle.textContent = label.productName;
+//     }
+//     if (elements.modalSubtitle) {
+//         elements.modalSubtitle.textContent = `Last updated: ${formatDate(label.lastUpdated)}`;
+//     }
+    
+//     const isEMA = label.type === 'EMA';
+//     const sourceText = label.source ? ` (${label.source})` : '';
+    
+//     if (elements.modalSourceBadge) {
+//         elements.modalSourceBadge.textContent = `${label.type} ${isEMA ? 'Medicine' : 'Label'}${sourceText}`;
+//         elements.modalSourceBadge.className = `px-2 py-1 text-xs font-medium rounded ${
+//             isEMA ? 'bg-blue-100 text-blue-800' : 'bg-red-100 text-red-800'
+//         }`;
+//     }
+
+//     // Create modal content based on label type
+//     if (elements.modalContent) {
+//         if (isEMA) {
+//             elements.modalContent.innerHTML = createEMAModalContent(label);
+//         } else {
+//             elements.modalContent.innerHTML = createFDAModalContent(label);
+//         }
+//     }
+    
+//     // Show modal with better error handling and forced display
+//     if (elements.labelModal) {
+//         // Remove hidden class
+//         elements.labelModal.classList.remove('hidden');
+        
+//         // Force display in case there are CSS conflicts
+//         elements.labelModal.style.display = 'block';
+//         elements.labelModal.style.visibility = 'visible';
+//         elements.labelModal.style.opacity = '1';
+        
+//         // Ensure z-index is high enough
+//         elements.labelModal.style.zIndex = '9999';
+        
+//         console.log('✅ Modal should now be visible');
+//         console.log('Modal classes:', elements.labelModal.className);
+//         console.log('Modal computed style display:', window.getComputedStyle(elements.labelModal).display);
+//     } else {
+//         console.error('❌ Modal element not found!');
+//     }
+// }
+
+// function showFullLabel(setid) {
+//     // const label = currentLabels.find(l => l.setid === setid);
+//     const label = currentLabels.find(l => l.setid === setid || l.id === setid);
+//     if (!label) {
+//         console.error('Label not found for setid:', setid);
+//         return;
+//     }
+
+//     console.log('Opening modal for label:', label);
+
+//     // Update modal header
+//     if (elements.modalTitle) {
+//         elements.modalTitle.textContent = label.productName;
+//     }
+//     if (elements.modalSubtitle) {
+//         elements.modalSubtitle.textContent = `Last updated: ${formatDate(label.lastUpdated)}`;
+//     }
+    
+//     const isEMA = label.type === 'EMA';
+//     const sourceText = label.source ? ` (${label.source})` : '';
+    
+//     if (elements.modalSourceBadge) {
+//         elements.modalSourceBadge.textContent = `${label.type} ${isEMA ? 'Medicine' : 'Label'}${sourceText}`;
+//         elements.modalSourceBadge.className = `px-2 py-1 text-xs font-medium rounded ${
+//             isEMA ? 'bg-blue-100 text-blue-800' : 'bg-red-100 text-red-800'
+//         }`;
+//     }
+
+//     // Create modal content based on label type
+//     if (elements.modalContent) {
+//         if (isEMA) {
+//             // EMA-specific modal content (from your working commented version)
+//             elements.modalContent.innerHTML = createEMAModalContent(label);
+//         } else {
+//             // FDA-specific modal content (from your working uncommented version)
+//             elements.modalContent.innerHTML = createFDAModalContent(label);
+//         }
+//     }
+    
+//     // Show modal
+//     if (elements.labelModal) {
+//         elements.labelModal.classList.remove('hidden');
+//     }
+// }
+// UPDATED SHOWFULLLABEL FUNCTION
 function showFullLabel(setid) {
-    const label = currentLabels.find(l => l.setid === setid);
+    // Fixed: Check for both setid and id properties
+    const label = currentLabels.find(l => l.setid === setid || l.id === setid);
+    
     if (!label) {
-        console.error('Label not found for setid:', setid);
+        console.error('Label not found for setid/id:', setid);
+        console.log('Available labels:', currentLabels.map(l => ({ setid: l.setid, id: l.id })));
         return;
     }
 
     console.log('Opening modal for label:', label);
 
-    // Update modal header
-    if (elements.modalTitle) {
-        elements.modalTitle.textContent = label.productName;
+    // 🔥 ENSURE MODAL EXISTS - Create if it doesn't
+    const modalElement = ensureModalExists();
+    
+    if (!modalElement) {
+        console.error('❌ Failed to create or find modal element!');
+        return;
     }
-    if (elements.modalSubtitle) {
-        elements.modalSubtitle.textContent = `Last updated: ${formatDate(label.lastUpdated)}`;
+    
+    console.log('✅ Modal element ready:', modalElement);
+
+    // Update modal header
+    const modalTitle = document.getElementById('pharma-modal-title');
+    const modalSubtitle = document.getElementById('pharma-modal-subtitle');
+    const modalSourceBadge = document.getElementById('pharma-modal-source-badge');
+    const modalContent = document.getElementById('pharma-modal-content');
+    
+    if (modalTitle) {
+        modalTitle.textContent = label.productName;
+    }
+    
+    if (modalSubtitle) {
+        modalSubtitle.textContent = `Last updated: ${formatDate(label.lastUpdated)}`;
     }
     
     const isEMA = label.type === 'EMA';
     const sourceText = label.source ? ` (${label.source})` : '';
     
-    if (elements.modalSourceBadge) {
-        elements.modalSourceBadge.textContent = `${label.type} ${isEMA ? 'Medicine' : 'Label'}${sourceText}`;
-        elements.modalSourceBadge.className = `px-2 py-1 text-xs font-medium rounded ${
+    if (modalSourceBadge) {
+        modalSourceBadge.textContent = `${label.type} ${isEMA ? 'Medicine' : 'Label'}${sourceText}`;
+        modalSourceBadge.className = `px-2 py-1 text-xs font-medium rounded ${
             isEMA ? 'bg-blue-100 text-blue-800' : 'bg-red-100 text-red-800'
         }`;
     }
 
     // Create modal content based on label type
-    if (elements.modalContent) {
+    if (modalContent) {
         if (isEMA) {
-            // EMA-specific modal content (from your working commented version)
-            elements.modalContent.innerHTML = createEMAModalContent(label);
+            modalContent.innerHTML = createEMAModalContent(label);
         } else {
-            // FDA-specific modal content (from your working uncommented version)
-            elements.modalContent.innerHTML = createFDAModalContent(label);
+            modalContent.innerHTML = createFDAModalContent(label);
         }
+        console.log('✅ Modal content updated');
     }
     
-    // Show modal
-    if (elements.labelModal) {
-        elements.labelModal.classList.remove('hidden');
+    // Show the modal
+    showModal(modalElement);
+}
+
+// FUNCTION TO SHOW THE MODAL WITH ANIMATIONS
+function showModal(modalElement) {
+    // Prevent body scroll
+    document.body.style.overflow = 'hidden';
+    
+    // Remove hidden class
+    modalElement.classList.remove('hidden');
+    
+    // Force display
+    modalElement.style.display = 'flex';
+    modalElement.style.visibility = 'visible';
+    modalElement.style.opacity = '1';
+    
+    // Add animation classes if they exist
+    const modalContent = modalElement.querySelector('.bg-white');
+    if (modalContent) {
+        // Remove any scale transforms first
+        modalContent.style.transform = 'scale(0.95)';
+        modalContent.style.opacity = '0';
+        
+        // Trigger animation after a brief delay
+        setTimeout(() => {
+            modalContent.style.transition = 'all 0.3s ease-out';
+            modalContent.style.transform = 'scale(1)';
+            modalContent.style.opacity = '1';
+        }, 10);
     }
+    
+    console.log('✅ Modal displayed successfully');
 }
 
 // Separate function for FDA modal content (based on your working uncommented version)
@@ -1463,7 +1887,103 @@ function formatDate(dateString) {
             }
         }
     }
+function ensureModalExists() {
+    let modalElement = document.getElementById('pharma-label-modal');
+    
+    if (!modalElement) {
+        console.log('📦 Creating modal element as it does not exist in DOM');
+        
+        // Create the modal HTML
+        const modalHTML = `
+            <div id="pharma-label-modal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-black/20 labelling-modal">
+                <div class="flex items-center justify-center min-h-screen p-4">
+                    <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden labelling-card">
+                        <div class="flex items-center justify-between p-6 border-b border-gray-100 labelling-header">
+                            <div>
+                                <h3 class="text-lg font-medium text-primary" id="pharma-modal-title">📋 Label Information</h3>
+                                <div class="flex items-center gap-2 mt-1">
+                                    <span id="pharma-modal-source-badge" class="px-2 py-1 text-xs font-medium bg-green-100 text-green-700 rounded labelling-tag"></span>
+                                    <span class="text-xs text-secondary" id="pharma-modal-subtitle"></span>
+                                </div>
+                            </div>
+                            <button id="pharma-close-modal" class="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </button>
+                        </div>
+                        
+                        <div id="pharma-modal-content" class="p-6 overflow-y-auto max-h-[calc(90vh-120px)] scrollable">
+                            <!-- Modal content will be inserted here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Add modal to body
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+        
+        // Get the newly created modal
+        modalElement = document.getElementById('pharma-label-modal');
+        
+        // Setup close handlers
+        setupModalCloseHandlers();
+        
+        console.log('✅ Modal created and added to DOM');
+    }
+    
+    return modalElement;
+}
 
+// FUNCTION TO SETUP MODAL CLOSE HANDLERS
+function setupModalCloseHandlers() {
+    const closeModalButton = document.getElementById('pharma-close-modal');
+    const modalElement = document.getElementById('pharma-label-modal');
+    
+    if (closeModalButton && modalElement) {
+        // Close button handler
+        closeModalButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Closing modal via button');
+            closeModal();
+        });
+        
+        // Backdrop click handler
+        modalElement.addEventListener('click', function(e) {
+            // Check if clicked on backdrop (the modal element itself, not its children)
+            if (e.target === modalElement || e.target.classList.contains('bg-black/20')) {
+                console.log('Closing modal via backdrop click');
+                closeModal();
+            }
+        });
+        
+        // ESC key handler - add only once
+        if (!window.pharmaModalEscHandler) {
+            window.pharmaModalEscHandler = true;
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    const modal = document.getElementById('pharma-label-modal');
+                    if (modal && !modal.classList.contains('hidden')) {
+                        console.log('Closing modal via ESC key');
+                        closeModal();
+                    }
+                }
+            });
+        }
+    }
+}
+
+// FUNCTION TO CLOSE THE MODAL
+function closeModal() {
+    const modalElement = document.getElementById('pharma-label-modal');
+    if (modalElement) {
+        modalElement.classList.add('hidden');
+        modalElement.style.cssText = '';
+        document.body.style.overflow = ''; // Re-enable body scroll
+    }
+}
     function showError(message) {
         if (elements.loading) elements.loading.classList.add('hidden');
         console.error(message);

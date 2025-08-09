@@ -75372,22 +75372,22 @@ function showAllProducts() {
 }
 
 // 17. ENHANCED: initializeOrangeBookInteractivity function
-function initializeOrangeBookInteractivity() {
-  // Add click listeners for product cards to toggle details
-  document.querySelectorAll('.product-card .product-header').forEach(header => {
-    header.addEventListener('click', function(e) {
-      // Don't toggle if clicking on buttons
-      if (e.target.closest('button')) return;
+// function initializeOrangeBookInteractivity() {
+//   // Add click listeners for product cards to toggle details
+//   document.querySelectorAll('.product-card .product-header').forEach(header => {
+//     header.addEventListener('click', function(e) {
+//       // Don't toggle if clicking on buttons
+//       if (e.target.closest('button')) return;
       
-      const card = this.closest('.product-card');
-      const productId = card.dataset.productId;
-      toggleProductDetails(productId);
-    });
-  });
+//       const card = this.closest('.product-card');
+//       const productId = card.dataset.productId;
+//       toggleProductDetails(productId);
+//     });
+//   });
   
-  // Add global escape key listener
-  document.addEventListener('keydown', handleEscapeKey);
-}
+//   // Add global escape key listener
+//   document.addEventListener('keydown', handleEscapeKey);
+// }
 
 // 18. MISSING: toggleProductDetails function
 function toggleProductDetails(productId) {
@@ -75828,26 +75828,26 @@ function createEnhancedStyles() {
 }
 
 // Enhanced interactive functionality
-function initializeOrangeBookInteractivity() {
-  // Add click listeners for product cards to toggle details
-  document.querySelectorAll('.product-card .product-header').forEach(header => {
-    header.addEventListener('click', function(e) {
-      // Don't toggle if clicking on buttons
-      if (e.target.closest('button')) return;
+// function initializeOrangeBookInteractivity() {
+//   // Add click listeners for product cards to toggle details
+//   document.querySelectorAll('.product-card .product-header').forEach(header => {
+//     header.addEventListener('click', function(e) {
+//       // Don't toggle if clicking on buttons
+//       if (e.target.closest('button')) return;
       
-      const card = this.closest('.product-card');
-      const productId = card.dataset.productId;
-      toggleProductDetails(productId);
-    });
-  });
+//       const card = this.closest('.product-card');
+//       const productId = card.dataset.productId;
+//       toggleProductDetails(productId);
+//     });
+//   });
   
-  // Add keyboard navigation
-  document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
-      closeAllModals();
-    }
-  });
-}
+//   // Add keyboard navigation
+//   document.addEventListener('keydown', function(e) {
+//     if (e.key === 'Escape') {
+//       closeAllModals();
+//     }
+//   });
+// }
 
 // Filter functions
 function showProductsWithPatents() {
@@ -76153,21 +76153,32 @@ function createEnhancedStyles() {
 }
 
 // Interactive functionality
+// function initializeOrangeBookInteractivity() {
+//   // Add click listeners for product cards to toggle details
+//   document.querySelectorAll('.product-card .product-header').forEach(header => {
+//     header.style.cursor = 'pointer';
+//     header.addEventListener('click', function(e) {
+//       // Don't toggle if clicking on buttons
+//       if (e.target.closest('button')) return;
+      
+//       const card = this.closest('.product-card');
+//       const productId = card.dataset.productId;
+//       toggleProductDetails(productId);
+//     });
+//   });
+// }
 function initializeOrangeBookInteractivity() {
-  // Add click listeners for product cards to toggle details
   document.querySelectorAll('.product-card .product-header').forEach(header => {
-    header.style.cursor = 'pointer';
     header.addEventListener('click', function(e) {
-      // Don't toggle if clicking on buttons
       if (e.target.closest('button')) return;
       
       const card = this.closest('.product-card');
-      const productId = card.dataset.productId;
+      // Fix: Use the correct camelCase property name
+      const productId = card.dataset.productId; // This matches data-product-id
       toggleProductDetails(productId);
     });
   });
 }
-
 // Toggle product details
 function toggleProductDetails(productId) {
   const detailsElement = document.getElementById(`details-${productId}`);
