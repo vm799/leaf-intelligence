@@ -66554,6 +66554,235 @@ function displayComprehensiveFdaData(fdaData, drugName) {
   }, 2000);
 }
 
+
+
+
+// Add this new function to handle serious events modal
+function openAllSeriousEventsModal(eventData, drugName) {
+    if (!eventData || eventData.length === 0) return;
+    
+    // Create modal content specifically for serious events
+    let modalContent = `
+        <div class="p-4">
+            <h2 class="text-xl font-semibold mb-4">All Serious Adverse Event Reports for ${drugName} (${eventData.length})</h2>
+            
+            <div class="mb-4 bg-red-50 border border-red-200 rounded-lg p-3">
+                <p class="text-sm text-red-800">
+                    <strong>Note:</strong> These are serious adverse events including death, life-threatening conditions, 
+                    hospitalization, disability, or other medically important events.
+                </p>
+            </div>
+            
+            <div class="mb-4 flex flex-wrap gap-2">
+                <input type="text" id="event-search" placeholder="Search reports..." 
+                       class="flex-grow px-3 py-2 border border-gray-300 rounded-md">
+                
+                <select id="event-outcome-filter" class="px-3 py-2 border border-gray-300 rounded-md">
+                    <option value="">All Outcomes</option>
+                    <option value="death">Death</option>
+                    <option value="life-threatening">Life-threatening</option>
+                    <option value="hospitalization">Hospitalization</option>
+                    <option value="disability">Disability</option>
+                    <option value="other">Other Serious</option>
+                </select>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Drug</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Reactions</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Outcome</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200" id="events-table-body">
+    `;
+    
+    // Add each serious event to the table
+    eventData.forEach((event, index) => {
+        const reportDate = event.receiptdate || 'Unknown Date';
+        
+        // Find the relevant drug in the report
+        const drugReports = event.patient?.drug || [];
+        const drugInfo = drugReports.find(drug => 
+            drug.openfda?.brand_name?.[0]?.toLowerCase().includes(drugName.toLowerCase()) ||
+            drug.openfda?.generic_name?.[0]?.toLowerCase().includes(drugName.toLowerCase()) ||
+            (drug.medicinalproduct || '').toLowerCase().includes(drugName.toLowerCase())
+        ) || drugReports[0] || {};
+        
+        const productName = drugInfo.medicinalproduct || 
+                           drugInfo.openfda?.brand_name?.[0] || 
+                           drugInfo.openfda?.generic_name?.[0] || 
+                           'Unknown Drug';
+        
+        // Get reactions
+        const reactions = event.patient?.reaction || [];
+        const reactionsList = reactions.slice(0, 3)
+            .map(r => r.reactionmeddrapt || 'Unknown reaction')
+            .join(', ');
+        const hasMoreReactions = reactions.length > 3;
+        
+        // Determine serious outcome type
+        const seriousTypes = [];
+        if (event.seriousnessdeath === '1') seriousTypes.push("Death");
+        if (event.seriousnesslifethreatening === '1') seriousTypes.push("Life-threatening");
+        if (event.seriousnesshospitalization === '1') seriousTypes.push("Hospitalization");
+        if (event.seriousnessdisabling === '1') seriousTypes.push("Disability");
+        if (event.seriousnesscongenitalanomali === '1') seriousTypes.push("Congenital Anomaly");
+        if (event.seriousnessother === '1') seriousTypes.push("Other Serious");
+        
+        const seriousTypeText = seriousTypes.length > 0 ? seriousTypes.join(", ") : "Serious";
+        const mainOutcome = seriousTypes[0] || "Serious";
+        
+        // Determine outcome color
+        const outcomeClass = seriousTypes.includes("Death") ? 'text-red-600 font-semibold' :
+                            seriousTypes.includes("Life-threatening") ? 'text-orange-600 font-semibold' :
+                            seriousTypes.includes("Hospitalization") ? 'text-yellow-600' :
+                            'text-gray-600';
+        
+        modalContent += `
+            <tr class="hover:bg-gray-50 event-row" 
+                data-outcome="${mainOutcome.toLowerCase()}"
+                data-drug="${productName.toLowerCase()}"
+                data-reactions="${reactionsList.toLowerCase()}">
+                <td class="px-4 py-3 whitespace-nowrap text-sm">${formatDate(reportDate)}</td>
+                <td class="px-4 py-3 text-sm">
+                    <div class="font-medium text-gray-900">${productName}</div>
+                    ${drugInfo.drugdosagetext ? `<div class="text-xs text-gray-500">${drugInfo.drugdosagetext}</div>` : ''}
+                </td>
+                <td class="px-4 py-3 text-sm">
+                    ${reactionsList}${hasMoreReactions ? ` (+${reactions.length - 3} more)` : ''}
+                </td>
+                <td class="px-4 py-3 text-sm ${outcomeClass}">
+                    ${seriousTypeText}
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap text-sm">
+                    <button class="text-blue-600 hover:text-blue-900 serious-event-detail-btn" 
+                            data-index="${index}">Details</button>
+                </td>
+            </tr>
+        `;
+    });
+    
+    modalContent += `
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="mt-4 flex justify-between items-center">
+                <div class="text-sm text-gray-600">
+                    Showing ${eventData.length} serious adverse event reports
+                </div>
+                <button id="export-serious-events-csv" 
+                        class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                    <svg class="-ml-1 mr-2 h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
+                    </svg>
+                    Export to CSV
+                </button>
+            </div>
+        </div>
+    `;
+    
+    // Show the modal using your existing showCustomModal function
+    showCustomModal(modalContent, 'large');
+    
+    // Add event listeners for search and filter
+    document.getElementById('event-search')?.addEventListener('input', filterSeriousEvents);
+    document.getElementById('event-outcome-filter')?.addEventListener('change', filterSeriousEvents);
+    
+    // Add event listeners for detail buttons
+    document.querySelectorAll('.serious-event-detail-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const index = parseInt(this.getAttribute('data-index'));
+            if (eventData[index]) {
+                // Close current modal
+                closeCurrentModal();
+                // Open detail modal after a short delay
+                setTimeout(() => {
+                    openAdverseEventModal(eventData[index]);
+                }, 300);
+            }
+        });
+    });
+    
+    // Add export functionality
+    document.getElementById('export-serious-events-csv')?.addEventListener('click', function() {
+        exportSeriousEventsToCsv(eventData, drugName);
+    });
+}
+
+// Helper function to filter serious events in the modal
+function filterSeriousEvents() {
+    const searchTerm = document.getElementById('event-search')?.value.toLowerCase() || '';
+    const outcomeFilter = document.getElementById('event-outcome-filter')?.value.toLowerCase() || '';
+    
+    document.querySelectorAll('.event-row').forEach(row => {
+        const drug = row.getAttribute('data-drug');
+        const reactions = row.getAttribute('data-reactions');
+        const outcome = row.getAttribute('data-outcome');
+        
+        const matchesSearch = !searchTerm || 
+                             drug.includes(searchTerm) || 
+                             reactions.includes(searchTerm);
+        
+        const matchesOutcome = !outcomeFilter || 
+                              outcome.includes(outcomeFilter);
+        
+        if (matchesSearch && matchesOutcome) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+}
+
+// Helper function to export serious events to CSV
+function exportSeriousEventsToCsv(eventData, drugName) {
+    let csvContent = "Date,Drug,Dosage,Reactions,Outcome,Report ID\n";
+    
+    eventData.forEach(event => {
+        const reportDate = event.receiptdate || 'Unknown';
+        
+        // Get drug info
+        const drugReports = event.patient?.drug || [];
+        const drugInfo = drugReports[0] || {};
+        const productName = drugInfo.medicinalproduct || 'Unknown Drug';
+        const dosage = drugInfo.drugdosagetext || 'Not specified';
+        
+        // Get reactions
+        const reactions = event.patient?.reaction || [];
+        const reactionsList = reactions.map(r => r.reactionmeddrapt || 'Unknown').join('; ');
+        
+        // Get outcome
+        const seriousTypes = [];
+        if (event.seriousnessdeath === '1') seriousTypes.push("Death");
+        if (event.seriousnesslifethreatening === '1') seriousTypes.push("Life-threatening");
+        if (event.seriousnesshospitalization === '1') seriousTypes.push("Hospitalization");
+        if (event.seriousnessdisabling === '1') seriousTypes.push("Disability");
+        if (event.seriousnessother === '1') seriousTypes.push("Other Serious");
+        
+        const outcome = seriousTypes.join("; ") || "Serious";
+        const reportId = event.safetyreportid || 'N/A';
+        
+        // Add row to CSV
+        csvContent += `"${reportDate}","${productName}","${dosage}","${reactionsList}","${outcome}","${reportId}"\n`;
+    });
+    
+    // Create and download the CSV file
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.setAttribute('href', url);
+    a.setAttribute('download', `${drugName.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_serious_adverse_events.csv`);
+    a.click();
+    window.URL.revokeObjectURL(url);
+}
+
+
 // Generate Applications Content
 function generateApplicationsContent(fdaData, drugName, drugsCount) {
   let html = `
@@ -67240,6 +67469,9 @@ function generateEventContent(eventData, eventCount, drugName) {
   }
   
   html += `</div>`;
+
+
+
   return html;
 }
 
@@ -67664,6 +67896,18 @@ function initializeFDATabSwitching() {
 
 // FIXED: Event listeners with proper modal functions
 function initializeFDAEventListeners(endpointsData, fdaData, drugName) {
+
+      document.getElementById('view-all-events')?.addEventListener('click', function() {
+    // Get the serious events data
+    const eventData = endpointsData.event?.data || [];
+    
+    // Since we're already filtering for serious events, all events in eventData are serious
+    // Open the modal with all serious events
+    openAllSeriousEventsModal(eventData, drugName);
+});
+
+
+
   // View Details buttons for applications
   document.querySelectorAll('.view-details-btn').forEach(button => {
     button.addEventListener('click', function() {
@@ -105425,16 +105669,16 @@ async function initializeComprehensiveDrugAnalysis() {
     return;
   }
 
-  const currentAccess = await window.subscriptionManager.userAccess;
+  const currentAccess = await window.subscriptionManager.refresh();
   console.log("CURRENT ACCESS BLOCK PUBMED", currentAccess)
 
   let isPro = currentAccess?.isPro || false;
 
-      const tempPro = window.subscriptionManager.temporaryProOverride;
+//       const tempPro = window.subscriptionManager.temporaryProOverride;
 
-if (tempPro){
-    isPro = tempPro
-}
+// if (tempPro){
+//     isPro = tempPro
+// }
 
   console.log("LABELLING IS PUBMED : ", isPro)
   

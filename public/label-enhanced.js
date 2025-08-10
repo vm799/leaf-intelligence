@@ -1644,6 +1644,35 @@ function showFullLabel(setid) {
 }
 
 // FUNCTION TO SHOW THE MODAL WITH ANIMATIONS
+// function showModal(modalElement) {
+//     // Prevent body scroll
+//     document.body.style.overflow = 'hidden';
+    
+//     // Remove hidden class
+//     modalElement.classList.remove('hidden');
+    
+//     // Force display
+//     modalElement.style.display = 'flex';
+//     modalElement.style.visibility = 'visible';
+//     modalElement.style.opacity = '1';
+    
+//     // Add animation classes if they exist
+//     const modalContent = modalElement.querySelector('.bg-white');
+//     if (modalContent) {
+//         // Remove any scale transforms first
+//         modalContent.style.transform = 'scale(0.95)';
+//         modalContent.style.opacity = '0';
+        
+//         // Trigger animation after a brief delay
+//         setTimeout(() => {
+//             modalContent.style.transition = 'all 0.3s ease-out';
+//             modalContent.style.transform = 'scale(1)';
+//             modalContent.style.opacity = '1';
+//         }, 10);
+//     }
+    
+//     console.log('✅ Modal displayed successfully');
+// }
 function showModal(modalElement) {
     // Prevent body scroll
     document.body.style.overflow = 'hidden';
@@ -1651,10 +1680,15 @@ function showModal(modalElement) {
     // Remove hidden class
     modalElement.classList.remove('hidden');
     
-    // Force display
+    // Force flex display for proper centering
     modalElement.style.display = 'flex';
+    modalElement.style.alignItems = 'center';
+    modalElement.style.justifyContent = 'center';
     modalElement.style.visibility = 'visible';
     modalElement.style.opacity = '1';
+    
+    // Ensure z-index is high enough
+    modalElement.style.zIndex = '9999';
     
     // Add animation classes if they exist
     const modalContent = modalElement.querySelector('.bg-white');
