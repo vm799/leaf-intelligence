@@ -12800,7 +12800,7 @@ window.advancedsearchtoggle = function() {
 //     elements.mainSearch =  document.getElementById("mainSearch");
 // elements.advancedsearch =  document.getElementById("advancedSearch");
 }
-let API_BASE_URL = 'https://www.syneticx.com/api';
+let API_BASE_URL = '/api';
 // let API_BASE_URL = 'https://leaf-intelligence-222463960417.us-central1.run.app/api';
 
 // Fetch config on page load
@@ -30765,9 +30765,14 @@ async function renderImprovedTimelineListWithExistingModals(data, entityName, en
     const timelineElement = document.getElementById('usage-timeline');
     
     // Check if user is Pro
-    const currentAccess = await window.subscriptionManager.refresh();
-    const isPro = currentAccess.isPro;
-    
+    const currentAccess = await window.subscriptionManager.userAccess;
+    let isPro = currentAccess.isPro;
+    const tempPro = await window.subscriptionManager.temporaryProOverride;
+if (tempPro){
+    isPro = tempPro
+}
+
+
     // Determine which data field to use based on entity type
     const dataField = entityType === 'drug' ? 'byCondition' : 'byDrug';
     const itemType = entityType === 'drug' ? 'conditions' : 'treatments';
@@ -35165,8 +35170,15 @@ async function generateEnhancedPivotalTrialAnalysis(studies, drugName, condition
     
     // Check if user is Pro
     const currentAccess = await window.subscriptionManager.refresh();
-    const isPro = currentAccess.isPro;
+    let isPro = currentAccess.isPro;
     
+    const tempPro = await window.subscriptionManager.temporaryProOverride;
+
+if (tempPro){
+    isPro = tempPro
+}
+
+
     // Extract enhanced data using the 20x better functions
     const designData = extractEnhancedTrialDesignData(studies);
     const demographicsData = extractEnhancedDemographicsDataWithValidation(studies);
@@ -67025,26 +67037,27 @@ function generateNdcContent(ndcData, ndcCount, drugName) {
 //   `;
 //   return html;
 // }
+
 function generateEventContent(eventData, eventCount, drugName) {
-  // Calculate serious vs non-serious events
-  const seriousCount = eventData.filter(event => event.serious === 1 || event.serious === true).length;
-  const nonSeriousCount = eventData.length - seriousCount;
+  // Since we're filtering for serious events only, all events are serious
+  const seriousCount = eventData.length;
+  const nonSeriousCount = 0;
   
-  // Extract total count from meta if available (this would come from the API response meta)
+  // Extract total count from meta if available
   const totalAvailable = eventCount > 100 ? eventCount : null;
   
   let html = `
     <div id="event-content" class="fda-tab-pane hidden">
       <div class="flex justify-between items-center mb-4">
-        <h3 class="text-lg font-medium text-gray-900">Adverse Events</h3>
+        <h3 class="text-lg font-medium text-gray-900">Serious Adverse Events</h3>
         <div class="flex items-center space-x-3">
           ${totalAvailable ? `
             <span class="text-sm text-orange-600 font-medium">
               <i class="fas fa-exclamation-triangle mr-1"></i>
-              Showing ${eventData.length} of ${totalAvailable.toLocaleString()}+ total reports
+              Showing ${eventData.length} of ${totalAvailable.toLocaleString()}+ serious reports
             </span>
           ` : ''}
-          <span class="text-sm text-gray-500">${eventCount} events displayed</span>
+          <span class="text-sm text-gray-500">${eventCount} serious events displayed</span>
         </div>
       </div>
       
@@ -67060,8 +67073,8 @@ function generateEventContent(eventData, eventCount, drugName) {
             <div class="ml-3">
               <h3 class="text-sm font-medium text-amber-800">FDA API Limitation</h3>
               <p class="mt-1 text-sm text-amber-700">
-                The FDA API limits results to 100 records per request. There are <strong>${totalAvailable.toLocaleString()}+ total adverse event reports</strong> 
-                for ${drugName} in the FDA database. The data shown here represents the most recent ${eventData.length} reports.
+                The FDA API limits results to 100 records per request. There are <strong>${totalAvailable.toLocaleString()}+ total serious adverse event reports</strong> 
+                for ${drugName} in the FDA database. The data shown here represents the most recent ${eventData.length} serious reports.
               </p>
             </div>
           </div>
@@ -67072,28 +67085,28 @@ function generateEventContent(eventData, eventCount, drugName) {
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <div class="bg-white p-4 border border-gray-200 rounded-lg">
           <div class="flex items-center">
-            <div class="flex-shrink-0 bg-blue-100 rounded-lg p-3">
-              <svg class="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-              </svg>
-            </div>
-            <div class="ml-4">
-              <p class="text-sm font-medium text-gray-500">Total Reports Shown</p>
-              <p class="text-2xl font-semibold text-gray-900">${eventData.length}</p>
-            </div>
-          </div>
-        </div>
-        
-        <div class="bg-white p-4 border border-gray-200 rounded-lg">
-          <div class="flex items-center">
             <div class="flex-shrink-0 bg-red-100 rounded-lg p-3">
               <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
               </svg>
             </div>
             <div class="ml-4">
-              <p class="text-sm font-medium text-gray-500">Serious Events</p>
+              <p class="text-sm font-medium text-gray-500">Total Serious Reports</p>
               <p class="text-2xl font-semibold text-red-600">${seriousCount}</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="bg-white p-4 border border-gray-200 rounded-lg">
+          <div class="flex items-center">
+            <div class="flex-shrink-0 bg-orange-100 rounded-lg p-3">
+              <svg class="h-6 w-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+            </div>
+            <div class="ml-4">
+              <p class="text-sm font-medium text-gray-500">Death Reports</p>
+              <p class="text-2xl font-semibold text-orange-600">${eventData.filter(e => e.seriousnessdeath === "1").length}</p>
             </div>
           </div>
         </div>
@@ -67102,12 +67115,12 @@ function generateEventContent(eventData, eventCount, drugName) {
           <div class="flex items-center">
             <div class="flex-shrink-0 bg-yellow-100 rounded-lg p-3">
               <svg class="h-6 w-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
               </svg>
             </div>
             <div class="ml-4">
-              <p class="text-sm font-medium text-gray-500">Non-Serious Events</p>
-              <p class="text-2xl font-semibold text-yellow-600">${nonSeriousCount}</p>
+              <p class="text-sm font-medium text-gray-500">Hospitalization</p>
+              <p class="text-2xl font-semibold text-yellow-600">${eventData.filter(e => e.seriousnesshospitalization === "1").length}</p>
             </div>
           </div>
         </div>
@@ -67123,7 +67136,7 @@ function generateEventContent(eventData, eventCount, drugName) {
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Product</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Reaction(s)</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Serious</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Serious Type</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Outcome</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Action</th>
             </tr>
@@ -67141,20 +67154,21 @@ function generateEventContent(eventData, eventCount, drugName) {
       const reactionList = reactions.slice(0, 2).map(r => r.reactionmeddrapt || 'Unknown').join(', ');
       const hasMoreReactions = reactions.length > 2;
       
-      // Determine outcome
-      let outcome = 'Unknown';
-      if (event.patient) {
-        if (event.patient.patientdeath === '1') outcome = 'Death';
-        else if (event.seriousnesshospitalization === '1') outcome = 'Hospitalization';
-        else if (event.seriousnesslifethreatening === '1') outcome = 'Life-threatening';
-        else if (event.seriousnessdisabling === '1') outcome = 'Disability';
-        else if (event.serious === 1) outcome = 'Other Serious';
-        else outcome = 'Non-serious';
-      }
+      // Determine serious outcome types
+      const seriousTypes = [];
+      if (event.seriousnessdeath === "1") seriousTypes.push("Death");
+      if (event.seriousnesslifethreatening === "1") seriousTypes.push("Life-threatening");
+      if (event.seriousnesshospitalization === "1") seriousTypes.push("Hospitalization");
+      if (event.seriousnessdisabling === "1") seriousTypes.push("Disability");
+      if (event.seriousnesscongenitalanomali === "1") seriousTypes.push("Congenital Anomaly");
+      if (event.seriousnessother === "1") seriousTypes.push("Other");
       
-      const outcomeClass = outcome === 'Death' ? 'text-red-600 font-semibold' :
-                          outcome.includes('serious') ? 'text-orange-600' :
-                          outcome === 'Non-serious' ? 'text-green-600' :
+      const seriousTypeText = seriousTypes.length > 0 ? seriousTypes.join(", ") : "Serious";
+      
+      // Determine outcome color
+      const outcomeClass = seriousTypes.includes("Death") ? 'text-red-600 font-semibold' :
+                          seriousTypes.includes("Life-threatening") ? 'text-orange-600 font-semibold' :
+                          seriousTypes.includes("Hospitalization") ? 'text-yellow-600' :
                           'text-gray-600';
       
       html += `
@@ -67168,12 +67182,12 @@ function generateEventContent(eventData, eventCount, drugName) {
             ${reactionList}${hasMoreReactions ? ` (+${reactions.length - 2} more)` : ''}
           </td>
           <td class="px-6 py-4 whitespace-nowrap text-sm">
-            <span class="px-2 py-1 text-xs rounded-full ${event.serious ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}">
-              ${event.serious ? 'Yes' : 'No'}
+            <span class="px-2 py-1 text-xs rounded-full bg-red-100 text-red-800">
+              SERIOUS
             </span>
           </td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm ${outcomeClass}">
-            ${outcome}
+          <td class="px-6 py-4 text-sm ${outcomeClass}">
+            ${seriousTypeText}
           </td>
           <td class="px-6 py-4 whitespace-nowrap text-sm">
             <button class="text-blue-600 hover:text-blue-900 view-event-btn" data-index="${index}">Details</button>
@@ -67192,7 +67206,7 @@ function generateEventContent(eventData, eventCount, drugName) {
       html += `
         <div class="mt-4 text-center">
           <button id="view-all-events" class="px-4 py-2 bg-gray-100 text-gray-800 border border-gray-300 rounded hover:bg-gray-200 transition-colors text-sm">
-            View All ${eventData.length} Displayed Reports
+            View All ${eventData.length} Serious Event Reports
           </button>
         </div>
       `;
@@ -67204,7 +67218,7 @@ function generateEventContent(eventData, eventCount, drugName) {
         <div class="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
           <h4 class="text-sm font-medium text-blue-900 mb-1">Access Complete Dataset</h4>
           <p class="text-sm text-blue-800">
-            To access all ${totalAvailable.toLocaleString()}+ adverse event reports for ${drugName}, visit the 
+            To access all ${totalAvailable.toLocaleString()}+ serious adverse event reports for ${drugName}, visit the 
             <a href="https://open.fda.gov/data/faers/" target="_blank" class="underline font-medium">FDA FAERS database</a> 
             or use the <a href="https://fis.fda.gov/sense/app/95239e26-e0be-42d9-a960-9a5f7f1c25ee/sheet/6b5a135a-06db-4aa8-8c83-5b598fb7598e/state/analysis" target="_blank" class="underline font-medium">FDA Public Dashboard</a>.
           </p>
@@ -67219,8 +67233,8 @@ function generateEventContent(eventData, eventCount, drugName) {
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
           </svg>
         </div>
-        <p class="text-sm text-gray-700">No adverse events found for "${drugName}"</p>
-        <p class="text-xs text-gray-500 mt-1">This could mean the drug has no reported events or the search didn't match any records.</p>
+        <p class="text-sm text-gray-700">No serious adverse events found for "${drugName}"</p>
+        <p class="text-xs text-gray-500 mt-1">This search filters for serious events only (death, life-threatening, hospitalization, disability, etc.)</p>
       </div>
     `;
   }
@@ -67228,6 +67242,211 @@ function generateEventContent(eventData, eventCount, drugName) {
   html += `</div>`;
   return html;
 }
+
+
+// function generateEventContent(eventData, eventCount, drugName) {
+//   // Calculate serious vs non-serious events
+//   const seriousCount = eventData.filter(event => event.serious === 1 || event.serious === true).length;
+//   const nonSeriousCount = eventData.length - seriousCount;
+  
+//   // Extract total count from meta if available (this would come from the API response meta)
+//   const totalAvailable = eventCount > 100 ? eventCount : null;
+  
+//   let html = `
+//     <div id="event-content" class="fda-tab-pane hidden">
+//       <div class="flex justify-between items-center mb-4">
+//         <h3 class="text-lg font-medium text-gray-900">Adverse Events</h3>
+//         <div class="flex items-center space-x-3">
+//           ${totalAvailable ? `
+//             <span class="text-sm text-orange-600 font-medium">
+//               <i class="fas fa-exclamation-triangle mr-1"></i>
+//               Showing ${eventData.length} of ${totalAvailable.toLocaleString()}+ total reports
+//             </span>
+//           ` : ''}
+//           <span class="text-sm text-gray-500">${eventCount} events displayed</span>
+//         </div>
+//       </div>
+      
+//       <!-- FDA API Limitation Notice -->
+//       ${totalAvailable ? `
+//         <div class="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+//           <div class="flex">
+//             <div class="flex-shrink-0">
+//               <svg class="h-5 w-5 text-amber-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+//                 <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+//               </svg>
+//             </div>
+//             <div class="ml-3">
+//               <h3 class="text-sm font-medium text-amber-800">FDA API Limitation</h3>
+//               <p class="mt-1 text-sm text-amber-700">
+//                 The FDA API limits results to 100 records per request. There are <strong>${totalAvailable.toLocaleString()}+ total adverse event reports</strong> 
+//                 for ${drugName} in the FDA database. The data shown here represents the most recent ${eventData.length} reports.
+//               </p>
+//             </div>
+//           </div>
+//         </div>
+//       ` : ''}
+      
+//       <!-- Summary Statistics -->
+//       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+//         <div class="bg-white p-4 border border-gray-200 rounded-lg">
+//           <div class="flex items-center">
+//             <div class="flex-shrink-0 bg-blue-100 rounded-lg p-3">
+//               <svg class="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+//                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+//               </svg>
+//             </div>
+//             <div class="ml-4">
+//               <p class="text-sm font-medium text-gray-500">Total Reports Shown</p>
+//               <p class="text-2xl font-semibold text-gray-900">${eventData.length}</p>
+//             </div>
+//           </div>
+//         </div>
+        
+//         <div class="bg-white p-4 border border-gray-200 rounded-lg">
+//           <div class="flex items-center">
+//             <div class="flex-shrink-0 bg-red-100 rounded-lg p-3">
+//               <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+//                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+//               </svg>
+//             </div>
+//             <div class="ml-4">
+//               <p class="text-sm font-medium text-gray-500">Serious Events</p>
+//               <p class="text-2xl font-semibold text-red-600">${seriousCount}</p>
+//             </div>
+//           </div>
+//         </div>
+        
+//         <div class="bg-white p-4 border border-gray-200 rounded-lg">
+//           <div class="flex items-center">
+//             <div class="flex-shrink-0 bg-yellow-100 rounded-lg p-3">
+//               <svg class="h-6 w-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+//                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+//               </svg>
+//             </div>
+//             <div class="ml-4">
+//               <p class="text-sm font-medium text-gray-500">Non-Serious Events</p>
+//               <p class="text-2xl font-semibold text-yellow-600">${nonSeriousCount}</p>
+//             </div>
+//           </div>
+//         </div>
+//       </div>
+//   `;
+  
+//   if (eventData.length > 0) {
+//     html += `
+//       <div class="overflow-x-auto">
+//         <table class="min-w-full divide-y divide-gray-200">
+//           <thead class="bg-gray-50">
+//             <tr>
+//               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+//               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Product</th>
+//               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Reaction(s)</th>
+//               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Serious</th>
+//               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Outcome</th>
+//               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Action</th>
+//             </tr>
+//           </thead>
+//           <tbody class="bg-white divide-y divide-gray-200">
+//     `;
+    
+//     eventData.slice(0, 20).forEach((event, index) => {
+//       // Extract drug info
+//       const drugInfo = event.patient?.drug?.[0] || {};
+//       const productName = drugInfo.medicinalproduct || drugInfo.openfda?.brand_name?.[0] || 'Unknown Product';
+      
+//       // Extract reactions
+//       const reactions = event.patient?.reaction || [];
+//       const reactionList = reactions.slice(0, 2).map(r => r.reactionmeddrapt || 'Unknown').join(', ');
+//       const hasMoreReactions = reactions.length > 2;
+      
+//       // Determine outcome
+//       let outcome = 'Unknown';
+//       if (event.patient) {
+//         if (event.patient.patientdeath === '1') outcome = 'Death';
+//         else if (event.seriousnesshospitalization === '1') outcome = 'Hospitalization';
+//         else if (event.seriousnesslifethreatening === '1') outcome = 'Life-threatening';
+//         else if (event.seriousnessdisabling === '1') outcome = 'Disability';
+//         else if (event.serious === 1) outcome = 'Other Serious';
+//         else outcome = 'Non-serious';
+//       }
+      
+//       const outcomeClass = outcome === 'Death' ? 'text-red-600 font-semibold' :
+//                           outcome.includes('serious') ? 'text-orange-600' :
+//                           outcome === 'Non-serious' ? 'text-green-600' :
+//                           'text-gray-600';
+      
+//       html += `
+//         <tr class="hover:bg-gray-50">
+//           <td class="px-6 py-4 whitespace-nowrap text-sm">${formatFDAEventDate(event.receiptdate)}</td>
+//           <td class="px-6 py-4 text-sm">
+//             <div class="font-medium text-gray-900">${productName}</div>
+//             ${drugInfo.drugdosagetext ? `<div class="text-xs text-gray-500">${drugInfo.drugdosagetext}</div>` : ''}
+//           </td>
+//           <td class="px-6 py-4 text-sm">
+//             ${reactionList}${hasMoreReactions ? ` (+${reactions.length - 2} more)` : ''}
+//           </td>
+//           <td class="px-6 py-4 whitespace-nowrap text-sm">
+//             <span class="px-2 py-1 text-xs rounded-full ${event.serious ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}">
+//               ${event.serious ? 'Yes' : 'No'}
+//             </span>
+//           </td>
+//           <td class="px-6 py-4 whitespace-nowrap text-sm ${outcomeClass}">
+//             ${outcome}
+//           </td>
+//           <td class="px-6 py-4 whitespace-nowrap text-sm">
+//             <button class="text-blue-600 hover:text-blue-900 view-event-btn" data-index="${index}">Details</button>
+//           </td>
+//         </tr>
+//       `;
+//     });
+    
+//     html += `
+//           </tbody>
+//         </table>
+//       </div>
+//     `;
+    
+//     if (eventData.length > 20) {
+//       html += `
+//         <div class="mt-4 text-center">
+//           <button id="view-all-events" class="px-4 py-2 bg-gray-100 text-gray-800 border border-gray-300 rounded hover:bg-gray-200 transition-colors text-sm">
+//             View All ${eventData.length} Displayed Reports
+//           </button>
+//         </div>
+//       `;
+//     }
+    
+//     // Add note about accessing full dataset
+//     if (totalAvailable && totalAvailable > 100) {
+//       html += `
+//         <div class="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+//           <h4 class="text-sm font-medium text-blue-900 mb-1">Access Complete Dataset</h4>
+//           <p class="text-sm text-blue-800">
+//             To access all ${totalAvailable.toLocaleString()}+ adverse event reports for ${drugName}, visit the 
+//             <a href="https://open.fda.gov/data/faers/" target="_blank" class="underline font-medium">FDA FAERS database</a> 
+//             or use the <a href="https://fis.fda.gov/sense/app/95239e26-e0be-42d9-a960-9a5f7f1c25ee/sheet/6b5a135a-06db-4aa8-8c83-5b598fb7598e/state/analysis" target="_blank" class="underline font-medium">FDA Public Dashboard</a>.
+//           </p>
+//         </div>
+//       `;
+//     }
+//   } else {
+//     html += `
+//       <div class="text-center p-8">
+//         <div class="inline-flex items-center justify-center w-16 h-16 bg-gray-100 rounded-full mb-4">
+//           <svg class="h-8 w-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+//             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+//           </svg>
+//         </div>
+//         <p class="text-sm text-gray-700">No adverse events found for "${drugName}"</p>
+//         <p class="text-xs text-gray-500 mt-1">This could mean the drug has no reported events or the search didn't match any records.</p>
+//       </div>
+//     `;
+//   }
+  
+//   html += `</div>`;
+//   return html;
+// }
 
 // FDA Event Date Formatter (YYYYMMDD format)
 function formatFDAEventDate(dateStr) {
@@ -74078,147 +74297,147 @@ document.addEventListener('DOMContentLoaded', function() {
 // ==========================================
 
 // 1. MISSING FUNCTION: createEnhancedSummarySection
-function createEnhancedSummarySection({ totalProducts, totalPatents, totalExclusivity, totalApplications, unlinkedPatents, unlinkedExclusivity }) {
-  return `
-    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-lg border border-blue-200 mb-6 summary-section">
-      <div class="flex items-center justify-between mb-4">
-        <h3 class="text-xl font-semibold text-gray-900">Orange Book Overview</h3>
-        <button onclick="showAllDetails()" class="text-sm text-blue-600 hover:text-blue-800 font-medium">
-          View All Details →
-        </button>
-      </div>
-      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-        <div class="text-center cursor-pointer summary-metric" onclick="filterByType('products')" data-type="products">
-          <div class="text-2xl font-bold text-blue-600">${totalProducts}</div>
-          <div class="text-xs text-gray-600">Products</div>
-        </div>
-        <div class="text-center cursor-pointer summary-metric" onclick="filterByType('patents')" data-type="patents">
-          <div class="text-2xl font-bold text-green-600">${totalPatents}</div>
-          <div class="text-xs text-gray-600">Total Patents</div>
-        </div>
-        <div class="text-center cursor-pointer summary-metric" onclick="filterByType('exclusivity')" data-type="exclusivity">
-          <div class="text-2xl font-bold text-orange-600">${totalExclusivity}</div>
-          <div class="text-xs text-gray-600">Total Exclusivity</div>
-        </div>
-        <div class="text-center cursor-pointer summary-metric" onclick="filterByType('applications')" data-type="applications">
-          <div class="text-2xl font-bold text-purple-600">${totalApplications}</div>
-          <div class="text-xs text-gray-600">Applications</div>
-        </div>
-        ${unlinkedPatents > 0 ? `
-        <div class="text-center cursor-pointer summary-metric" onclick="filterByType('unlinked-patents')" data-type="unlinked-patents">
-          <div class="text-2xl font-bold text-red-600">${unlinkedPatents}</div>
-          <div class="text-xs text-gray-600">Orphan Patents</div>
-        </div>
-        ` : ''}
-        ${unlinkedExclusivity > 0 ? `
-        <div class="text-center cursor-pointer summary-metric" onclick="filterByType('unlinked-exclusivity')" data-type="unlinked-exclusivity">
-          <div class="text-2xl font-bold text-yellow-600">${unlinkedExclusivity}</div>
-          <div class="text-xs text-gray-600">Orphan Exclusivity</div>
-        </div>
-        ` : ''}
-      </div>
-    </div>
-  `;
-}
+// function createEnhancedSummarySection({ totalProducts, totalPatents, totalExclusivity, totalApplications, unlinkedPatents, unlinkedExclusivity }) {
+//   return `
+//     <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-lg border border-blue-200 mb-6 summary-section">
+//       <div class="flex items-center justify-between mb-4">
+//         <h3 class="text-xl font-semibold text-gray-900">Orange Book Overview</h3>
+//         <button onclick="showAllDetails()" class="text-sm text-blue-600 hover:text-blue-800 font-medium">
+//           View All Details →
+//         </button>
+//       </div>
+//       <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+//         <div class="text-center cursor-pointer summary-metric" onclick="filterByType('products')" data-type="products">
+//           <div class="text-2xl font-bold text-blue-600">${totalProducts}</div>
+//           <div class="text-xs text-gray-600">Products</div>
+//         </div>
+//         <div class="text-center cursor-pointer summary-metric" onclick="filterByType('patents')" data-type="patents">
+//           <div class="text-2xl font-bold text-green-600">${totalPatents}</div>
+//           <div class="text-xs text-gray-600">Total Patents</div>
+//         </div>
+//         <div class="text-center cursor-pointer summary-metric" onclick="filterByType('exclusivity')" data-type="exclusivity">
+//           <div class="text-2xl font-bold text-orange-600">${totalExclusivity}</div>
+//           <div class="text-xs text-gray-600">Total Exclusivity</div>
+//         </div>
+//         <div class="text-center cursor-pointer summary-metric" onclick="filterByType('applications')" data-type="applications">
+//           <div class="text-2xl font-bold text-purple-600">${totalApplications}</div>
+//           <div class="text-xs text-gray-600">Applications</div>
+//         </div>
+//         ${unlinkedPatents > 0 ? `
+//         <div class="text-center cursor-pointer summary-metric" onclick="filterByType('unlinked-patents')" data-type="unlinked-patents">
+//           <div class="text-2xl font-bold text-red-600">${unlinkedPatents}</div>
+//           <div class="text-xs text-gray-600">Orphan Patents</div>
+//         </div>
+//         ` : ''}
+//         ${unlinkedExclusivity > 0 ? `
+//         <div class="text-center cursor-pointer summary-metric" onclick="filterByType('unlinked-exclusivity')" data-type="unlinked-exclusivity">
+//           <div class="text-2xl font-bold text-yellow-600">${unlinkedExclusivity}</div>
+//           <div class="text-xs text-gray-600">Orphan Exclusivity</div>
+//         </div>
+//         ` : ''}
+//       </div>
+//     </div>
+//   `;
+// }
 
-// 2. MISSING FUNCTION: createUnlinkedPatentsSection
-function createUnlinkedPatentsSection(unlinkedPatents) {
-  return `
-    <div class="bg-red-50 border border-red-200 rounded-lg p-6 mb-6">
-      <div class="flex items-center justify-between mb-4">
-        <h4 class="text-lg font-medium text-red-800">Orphan Patents (${unlinkedPatents.length})</h4>
-        <button onclick="toggleSection('orphan-patents')" class="text-sm text-red-600 hover:text-red-800">
-          View Details →
-        </button>
-      </div>
-      <p class="text-sm text-red-700 mb-4">Patents that exist in the Orange Book but are not linked to any specific products in your search results.</p>
+// // 2. MISSING FUNCTION: createUnlinkedPatentsSection
+// function createUnlinkedPatentsSection(unlinkedPatents) {
+//   return `
+//     <div class="bg-red-50 border border-red-200 rounded-lg p-6 mb-6">
+//       <div class="flex items-center justify-between mb-4">
+//         <h4 class="text-lg font-medium text-red-800">Orphan Patents (${unlinkedPatents.length})</h4>
+//         <button onclick="toggleSection('orphan-patents')" class="text-sm text-red-600 hover:text-red-800">
+//           View Details →
+//         </button>
+//       </div>
+//       <p class="text-sm text-red-700 mb-4">Patents that exist in the Orange Book but are not linked to any specific products in your search results.</p>
       
-      <div id="orphan-patents" class="hidden">
-        <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-red-200">
-            <thead class="bg-red-100">
-              <tr>
-                <th class="px-3 py-2 text-left text-xs font-medium text-red-800 uppercase">Patent No</th>
-                <th class="px-3 py-2 text-left text-xs font-medium text-red-800 uppercase">Application</th>
-                <th class="px-3 py-2 text-left text-xs font-medium text-red-800 uppercase">Expiration</th>
-                <th class="px-3 py-2 text-left text-xs font-medium text-red-800 uppercase">Type</th>
-                <th class="px-3 py-2 text-left text-xs font-medium text-red-800 uppercase">Use Code</th>
-              </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-red-200">
-              ${unlinkedPatents.slice(0, 10).map(patent => `
-                <tr class="hover:bg-red-50">
-                  <td class="px-3 py-2 text-sm">
-                    <a href="https://patents.google.com/patent/US${patent.Patent_No}" 
-                       target="_blank" 
-                       class="text-blue-600 hover:underline font-mono">${patent.Patent_No}</a>
-                  </td>
-                  <td class="px-3 py-2 text-sm font-mono">${patent.Appl_Type}-${patent.Appl_No}-${patent.Product_No}</td>
-                  <td class="px-3 py-2 text-sm">${patent.Patent_Expire_Date_Text || 'N/A'}</td>
-                  <td class="px-3 py-2 text-sm">
-                    ${patent.Drug_Substance_Flag === 'Y' ? '<span class="bg-blue-100 text-blue-800 px-1 rounded text-xs mr-1">DS</span>' : ''}
-                    ${patent.Drug_Product_Flag === 'Y' ? '<span class="bg-green-100 text-green-800 px-1 rounded text-xs">DP</span>' : ''}
-                  </td>
-                  <td class="px-3 py-2 text-sm">${patent.Patent_Use_Code || 'N/A'}</td>
-                </tr>
-              `).join('')}
-            </tbody>
-          </table>
-        </div>
-        ${unlinkedPatents.length > 10 ? `
-          <p class="text-xs text-red-600 mt-2">Showing 10 of ${unlinkedPatents.length} orphan patents</p>
-        ` : ''}
-      </div>
-    </div>
-  `;
-}
+//       <div id="orphan-patents" class="hidden">
+//         <div class="overflow-x-auto">
+//           <table class="min-w-full divide-y divide-red-200">
+//             <thead class="bg-red-100">
+//               <tr>
+//                 <th class="px-3 py-2 text-left text-xs font-medium text-red-800 uppercase">Patent No</th>
+//                 <th class="px-3 py-2 text-left text-xs font-medium text-red-800 uppercase">Application</th>
+//                 <th class="px-3 py-2 text-left text-xs font-medium text-red-800 uppercase">Expiration</th>
+//                 <th class="px-3 py-2 text-left text-xs font-medium text-red-800 uppercase">Type</th>
+//                 <th class="px-3 py-2 text-left text-xs font-medium text-red-800 uppercase">Use Code</th>
+//               </tr>
+//             </thead>
+//             <tbody class="bg-white divide-y divide-red-200">
+//               ${unlinkedPatents.slice(0, 10).map(patent => `
+//                 <tr class="hover:bg-red-50">
+//                   <td class="px-3 py-2 text-sm">
+//                     <a href="https://patents.google.com/patent/US${patent.Patent_No}" 
+//                        target="_blank" 
+//                        class="text-blue-600 hover:underline font-mono">${patent.Patent_No}</a>
+//                   </td>
+//                   <td class="px-3 py-2 text-sm font-mono">${patent.Appl_Type}-${patent.Appl_No}-${patent.Product_No}</td>
+//                   <td class="px-3 py-2 text-sm">${patent.Patent_Expire_Date_Text || 'N/A'}</td>
+//                   <td class="px-3 py-2 text-sm">
+//                     ${patent.Drug_Substance_Flag === 'Y' ? '<span class="bg-blue-100 text-blue-800 px-1 rounded text-xs mr-1">DS</span>' : ''}
+//                     ${patent.Drug_Product_Flag === 'Y' ? '<span class="bg-green-100 text-green-800 px-1 rounded text-xs">DP</span>' : ''}
+//                   </td>
+//                   <td class="px-3 py-2 text-sm">${patent.Patent_Use_Code || 'N/A'}</td>
+//                 </tr>
+//               `).join('')}
+//             </tbody>
+//           </table>
+//         </div>
+//         ${unlinkedPatents.length > 10 ? `
+//           <p class="text-xs text-red-600 mt-2">Showing 10 of ${unlinkedPatents.length} orphan patents</p>
+//         ` : ''}
+//       </div>
+//     </div>
+//   `;
+// }
 
-// 3. MISSING FUNCTION: createUnlinkedExclusivitySection
-function createUnlinkedExclusivitySection(unlinkedExclusivity) {
-  return `
-    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6 mb-6">
-      <div class="flex items-center justify-between mb-4">
-        <h4 class="text-lg font-medium text-yellow-800">Orphan Exclusivity (${unlinkedExclusivity.length})</h4>
-        <button onclick="toggleSection('orphan-exclusivity')" class="text-sm text-yellow-600 hover:text-yellow-800">
-          View Details →
-        </button>
-      </div>
-      <p class="text-sm text-yellow-700 mb-4">Exclusivity records that exist in the Orange Book but are not linked to any specific products in your search results.</p>
+// // 3. MISSING FUNCTION: createUnlinkedExclusivitySection
+// function createUnlinkedExclusivitySection(unlinkedExclusivity) {
+//   return `
+//     <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6 mb-6">
+//       <div class="flex items-center justify-between mb-4">
+//         <h4 class="text-lg font-medium text-yellow-800">Orphan Exclusivity (${unlinkedExclusivity.length})</h4>
+//         <button onclick="toggleSection('orphan-exclusivity')" class="text-sm text-yellow-600 hover:text-yellow-800">
+//           View Details →
+//         </button>
+//       </div>
+//       <p class="text-sm text-yellow-700 mb-4">Exclusivity records that exist in the Orange Book but are not linked to any specific products in your search results.</p>
       
-      <div id="orphan-exclusivity" class="hidden">
-        <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-yellow-200">
-            <thead class="bg-yellow-100">
-              <tr>
-                <th class="px-3 py-2 text-left text-xs font-medium text-yellow-800 uppercase">Code</th>
-                <th class="px-3 py-2 text-left text-xs font-medium text-yellow-800 uppercase">Type</th>
-                <th class="px-3 py-2 text-left text-xs font-medium text-yellow-800 uppercase">Application</th>
-                <th class="px-3 py-2 text-left text-xs font-medium text-yellow-800 uppercase">Expiration</th>
-              </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-yellow-200">
-              ${unlinkedExclusivity.slice(0, 10).map(exclusivity => `
-                <tr class="hover:bg-yellow-50">
-                  <td class="px-3 py-2 text-sm">
-                    <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded font-medium">
-                      ${exclusivity.Exclusivity_Code || 'N/A'}
-                    </span>
-                  </td>
-                  <td class="px-3 py-2 text-sm">${getExclusivityDescription(exclusivity.Exclusivity_Code)}</td>
-                  <td class="px-3 py-2 text-sm font-mono">${exclusivity.Appl_Type}-${exclusivity.Appl_No}-${exclusivity.Product_No}</td>
-                  <td class="px-3 py-2 text-sm">${exclusivity.Exclusivity_Date || 'N/A'}</td>
-                </tr>
-              `).join('')}
-            </tbody>
-          </table>
-        </div>
-        ${unlinkedExclusivity.length > 10 ? `
-          <p class="text-xs text-yellow-600 mt-2">Showing 10 of ${unlinkedExclusivity.length} orphan exclusivity records</p>
-        ` : ''}
-      </div>
-    </div>
-  `;
-}
+//       <div id="orphan-exclusivity" class="hidden">
+//         <div class="overflow-x-auto">
+//           <table class="min-w-full divide-y divide-yellow-200">
+//             <thead class="bg-yellow-100">
+//               <tr>
+//                 <th class="px-3 py-2 text-left text-xs font-medium text-yellow-800 uppercase">Code</th>
+//                 <th class="px-3 py-2 text-left text-xs font-medium text-yellow-800 uppercase">Type</th>
+//                 <th class="px-3 py-2 text-left text-xs font-medium text-yellow-800 uppercase">Application</th>
+//                 <th class="px-3 py-2 text-left text-xs font-medium text-yellow-800 uppercase">Expiration</th>
+//               </tr>
+//             </thead>
+//             <tbody class="bg-white divide-y divide-yellow-200">
+//               ${unlinkedExclusivity.slice(0, 10).map(exclusivity => `
+//                 <tr class="hover:bg-yellow-50">
+//                   <td class="px-3 py-2 text-sm">
+//                     <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded font-medium">
+//                       ${exclusivity.Exclusivity_Code || 'N/A'}
+//                     </span>
+//                   </td>
+//                   <td class="px-3 py-2 text-sm">${getExclusivityDescription(exclusivity.Exclusivity_Code)}</td>
+//                   <td class="px-3 py-2 text-sm font-mono">${exclusivity.Appl_Type}-${exclusivity.Appl_No}-${exclusivity.Product_No}</td>
+//                   <td class="px-3 py-2 text-sm">${exclusivity.Exclusivity_Date || 'N/A'}</td>
+//                 </tr>
+//               `).join('')}
+//             </tbody>
+//           </table>
+//         </div>
+//         ${unlinkedExclusivity.length > 10 ? `
+//           <p class="text-xs text-yellow-600 mt-2">Showing 10 of ${unlinkedExclusivity.length} orphan exclusivity records</p>
+//         ` : ''}
+//       </div>
+//     </div>
+//   `;
+// }
 
 // 4. MISSING FUNCTION: createEnhancedStyles (Fixed version)
 function createEnhancedStyles() {
@@ -74495,24 +74714,7 @@ function showDetailedExclusivityInfo(productId) {
 }
 
 // 7. MISSING HELPER FUNCTIONS FOR EXCLUSIVITY DESCRIPTIONS
-function getExclusivityDescription(code) {
-  const descriptions = {
-    'ODE': 'Orphan Drug Exclusivity',
-    'NCE': 'New Chemical Entity Exclusivity', 
-    'NDF': 'New Dosage Form Exclusivity',
-    'NPE': 'New Patient Population Exclusivity',
-    'POA': 'Pediatric Exclusivity',
-    'PED': 'Pediatric Exclusivity',
-    'CSP': 'Competitive Generic Therapy Exclusivity',
-    'CRP': 'GAIN Exclusivity',
-    'EBE': 'Biologics Exclusivity',
-    'RTO': 'Reference Product Exclusivity',
-    'D-183': '3-Year Exclusivity',
-    'D-193': '3-Year Exclusivity (Extended)',
-    'BLA': 'Biologics License Application Exclusivity'
-  };
-  return descriptions[code] || 'Unknown exclusivity type';
-}
+
 
 function getExclusivityAppliesTo(code) {
   const appliesTo = {
@@ -74633,22 +74835,9 @@ function showAllDetails() {
 // ==========================================
 
 // 11. FIX: Proper closeModal function with event cleanup
-function closeModal(modalId) {
-  const modal = document.getElementById(modalId);
-  if (modal) {
-    // Remove any event listeners before removing the modal
-    modal.remove();
-  }
-  
-  // Remove any lingering escape key listeners
-  document.removeEventListener('keydown', handleEscapeKey);
-}
 
-function closeAllModals() {
-  ['patent-modal', 'exclusivity-modal'].forEach(modalId => {
-    closeModal(modalId);
-  });
-}
+
+
 
 // Global escape key handler
 function handleEscapeKey(e) {
@@ -74830,9 +75019,84 @@ function displayOrangeBookData(data) {
   fixModalClosing();
 }
 
+
+function displayOrangeBookData(data) {
+  console.log('🚀 Enhanced displayOrangeBookData called with:', data);
+  
+  // Store data globally
+  storeCurrentOrangeBookData(data);
+  
+  // Count total entries
+  const totalProducts = data.total.products || 0;
+  const totalPatents = data.total.patents || 0;
+  const totalExclusivity = data.total.exclusivity || 0;
+  const totalApplications = new Set(data.results.products.map(p => p.Appl_No)).size;
+  
+  // Sort products - those with patents/exclusivity first
+  const sortedProducts = sortProductsByImportance(data.results.products);
+  
+  // Calculate unlinked patents and exclusivity
+  const { unlinkedPatents, unlinkedExclusivity } = calculateUnlinkedItems(data);
+  
+  // Update counter with page info
+  let countText = `${totalProducts} Products | ${totalPatents} Patents | ${totalExclusivity} Exclusivity`;
+  if (data.pagination) {
+    countText += ` | Page ${data.pagination.currentPage} of ${data.pagination.totalPages}`;
+  }
+  elements.orangeBookCount.textContent = countText;
+  elements.orangeBookCount.style.display = 'inline-block';
+  
+  if (totalProducts === 0 && totalPatents === 0 && totalExclusivity === 0) {
+    elements.orangeBookData.innerHTML = createEmptyState();
+    return;
+  }
+
+  // Create the enhanced HTML structure
+  let html = `
+    ${createEnhancedSummarySection({ 
+      totalProducts, 
+      totalPatents, 
+      totalExclusivity, 
+      totalApplications,
+      unlinkedPatents: unlinkedPatents.length,
+      unlinkedExclusivity: unlinkedExclusivity.length
+    })}
+    ${createProductCardsSection(sortedProducts)}
+    ${unlinkedPatents.length > 0 ? createUnlinkedPatentsSection(unlinkedPatents) : ''}
+    ${unlinkedExclusivity.length > 0 ? createUnlinkedExclusivitySection(unlinkedExclusivity) : ''}
+    ${createEnhancedStyles()}
+  `;
+  
+  elements.orangeBookData.innerHTML = html;
+  
+  // Add pagination controls if needed
+  if (data.pagination && data.pagination.totalPages > 1) {
+    addPaginationControls(data.pagination);
+  }
+  
+  // Initialize interactive features
+  initializeOrangeBookInteractivity();
+  
+  console.log('✅ Enhanced Orange Book display completed');
+}
+
+function sortProductsByImportance(products) {
+  return products.sort((a, b) => {
+    const aHasPatents = a.related_patents && a.related_patents.length > 0;
+    const aHasExclusivity = a.related_exclusivity && a.related_exclusivity.length > 0;
+    const bHasPatents = b.related_patents && b.related_patents.length > 0;
+    const bHasExclusivity = b.related_exclusivity && b.related_exclusivity.length > 0;
+    
+    // Products with both patents and exclusivity come first
+    const aScore = (aHasPatents ? 2 : 0) + (aHasExclusivity ? 1 : 0);
+    const bScore = (bHasPatents ? 2 : 0) + (bHasExclusivity ? 1 : 0);
+    
+    return bScore - aScore;
+  });
+}
+
 // function displayOrangeBookData(data) {
 //   console.log('🚀 Enhanced displayOrangeBookData called with:', data);
-  
 //   // Store data globally
 //   storeCurrentOrangeBookData(data);
   
@@ -74985,42 +75249,79 @@ document.addEventListener('DOMContentLoaded', function() {
 // // Call this function when the page loads
 // document.addEventListener('DOMContentLoaded', fixOrangeBookIssues);
 // 2. MISSING: createEnhancedSummarySection - This was being called but didn't exist
+// function createEnhancedSummarySection({ totalProducts, totalPatents, totalExclusivity, totalApplications, unlinkedPatents, unlinkedExclusivity }) {
+//   return `
+//     <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-lg border border-blue-200 mb-6 summary-section">
+//       <div class="flex items-center justify-between mb-4">
+//         <h3 class="text-xl font-semibold text-gray-900">🍊 Orange Book Overview</h3>
+//         <button onclick="showAllDetails()" class="text-sm text-blue-600 hover:text-blue-800 font-medium">
+//           View All Details →
+//         </button>
+//       </div>
+//       <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+//         <div class="text-center cursor-pointer summary-metric hover:bg-white hover:shadow-lg transition-all p-3 rounded" onclick="filterByType('products')" data-type="products">
+//           <div class="text-2xl font-bold text-blue-600">${totalProducts}</div>
+//           <div class="text-xs text-gray-600">Products</div>
+//         </div>
+//         <div class="text-center cursor-pointer summary-metric hover:bg-white hover:shadow-lg transition-all p-3 rounded" onclick="filterByType('patents')" data-type="patents">
+//           <div class="text-2xl font-bold text-green-600">${totalPatents}</div>
+//           <div class="text-xs text-gray-600">Total Patents</div>
+//         </div>
+//         <div class="text-center cursor-pointer summary-metric hover:bg-white hover:shadow-lg transition-all p-3 rounded" onclick="filterByType('exclusivity')" data-type="exclusivity">
+//           <div class="text-2xl font-bold text-orange-600">${totalExclusivity}</div>
+//           <div class="text-xs text-gray-600">Total Exclusivity</div>
+//         </div>
+//         <div class="text-center cursor-pointer summary-metric hover:bg-white hover:shadow-lg transition-all p-3 rounded" onclick="filterByType('applications')" data-type="applications">
+//           <div class="text-2xl font-bold text-purple-600">${totalApplications}</div>
+//           <div class="text-xs text-gray-600">Applications</div>
+//         </div>
+//         ${unlinkedPatents > 0 ? `
+//         <div class="text-center cursor-pointer summary-metric hover:bg-white hover:shadow-lg transition-all p-3 rounded" onclick="filterByType('unlinked-patents')" data-type="unlinked-patents">
+//           <div class="text-2xl font-bold text-red-600">${unlinkedPatents}</div>
+//           <div class="text-xs text-gray-600">🔍 Orphan Patents</div>
+//         </div>
+//         ` : ''}
+//         ${unlinkedExclusivity > 0 ? `
+//         <div class="text-center cursor-pointer summary-metric hover:bg-white hover:shadow-lg transition-all p-3 rounded" onclick="filterByType('unlinked-exclusivity')" data-type="unlinked-exclusivity">
+//           <div class="text-2xl font-bold text-yellow-600">${unlinkedExclusivity}</div>
+//           <div class="text-xs text-gray-600">🔍 Orphan Exclusivity</div>
+//         </div>
+//         ` : ''}
+//       </div>
+//     </div>
+//   `;
+// }
 function createEnhancedSummarySection({ totalProducts, totalPatents, totalExclusivity, totalApplications, unlinkedPatents, unlinkedExclusivity }) {
   return `
-    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-lg border border-blue-200 mb-6 summary-section">
-      <div class="flex items-center justify-between mb-4">
-        <h3 class="text-xl font-semibold text-gray-900">🍊 Orange Book Overview</h3>
-        <button onclick="showAllDetails()" class="text-sm text-blue-600 hover:text-blue-800 font-medium">
-          View All Details →
-        </button>
-      </div>
+    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-lg border border-blue-200 mb-6">
+      <h3 class="text-xl font-semibold text-gray-900 mb-4">Orange Book Overview</h3>
       <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-        <div class="text-center cursor-pointer summary-metric hover:bg-white hover:shadow-lg transition-all p-3 rounded" onclick="filterByType('products')" data-type="products">
+        <div class="text-center">
           <div class="text-2xl font-bold text-blue-600">${totalProducts}</div>
           <div class="text-xs text-gray-600">Products</div>
         </div>
-        <div class="text-center cursor-pointer summary-metric hover:bg-white hover:shadow-lg transition-all p-3 rounded" onclick="filterByType('patents')" data-type="patents">
+        <div class="text-center">
           <div class="text-2xl font-bold text-green-600">${totalPatents}</div>
-          <div class="text-xs text-gray-600">Total Patents</div>
+          <div class="text-xs text-gray-600">Patents</div>
         </div>
-        <div class="text-center cursor-pointer summary-metric hover:bg-white hover:shadow-lg transition-all p-3 rounded" onclick="filterByType('exclusivity')" data-type="exclusivity">
+        <div class="text-center">
           <div class="text-2xl font-bold text-orange-600">${totalExclusivity}</div>
-          <div class="text-xs text-gray-600">Total Exclusivity</div>
+          <div class="text-xs text-gray-600">Exclusivity</div>
         </div>
-        <div class="text-center cursor-pointer summary-metric hover:bg-white hover:shadow-lg transition-all p-3 rounded" onclick="filterByType('applications')" data-type="applications">
+        <div class="text-center">
           <div class="text-2xl font-bold text-purple-600">${totalApplications}</div>
           <div class="text-xs text-gray-600">Applications</div>
         </div>
         ${unlinkedPatents > 0 ? `
-        <div class="text-center cursor-pointer summary-metric hover:bg-white hover:shadow-lg transition-all p-3 rounded" onclick="filterByType('unlinked-patents')" data-type="unlinked-patents">
+        <div class="text-center">
           <div class="text-2xl font-bold text-red-600">${unlinkedPatents}</div>
-          <div class="text-xs text-gray-600">🔍 Orphan Patents</div>
+          <div class="text-xs text-gray-600">Orphan Patents</div>
         </div>
         ` : ''}
         ${unlinkedExclusivity > 0 ? `
-        <div class="text-center cursor-pointer summary-metric hover:bg-white hover:shadow-lg transition-all p-3 rounded" onclick="filterByType('unlinked-exclusivity')" data-type="unlinked-exclusivity">
+        <div class="text-center">
           <div class="text-2xl font-bold text-yellow-600">${unlinkedExclusivity}</div>
-          <div class="text-xs text-gray-600">🔍 Orphan Exclusivity</div>
+          <div class="text-xs text-gray-600">Orphan Exclusivity</div>
         </div>
         ` : ''}
       </div>
@@ -75028,110 +75329,110 @@ function createEnhancedSummarySection({ totalProducts, totalPatents, totalExclus
   `;
 }
 
-// 3. MISSING: createUnlinkedPatentsSection - This was being called but didn't exist
-function createUnlinkedPatentsSection(unlinkedPatents) {
-  return `
-    <div class="bg-red-50 border border-red-200 rounded-lg p-6 mb-6">
-      <div class="flex items-center justify-between mb-4">
-        <h4 class="text-lg font-medium text-red-800">🔍 Orphan Patents (${unlinkedPatents.length})</h4>
-        <button onclick="toggleSection('orphan-patents')" class="text-sm text-red-600 hover:text-red-800 font-medium">
-          View Details →
-        </button>
-      </div>
-      <p class="text-sm text-red-700 mb-4">
-        <strong>Patents that exist in the Orange Book but are not linked to any specific products in your search results.</strong>
-        These may be patents for products not in your current search or orphaned patents.
-      </p>
+// // 3. MISSING: createUnlinkedPatentsSection - This was being called but didn't exist
+// function createUnlinkedPatentsSection(unlinkedPatents) {
+//   return `
+//     <div class="bg-red-50 border border-red-200 rounded-lg p-6 mb-6">
+//       <div class="flex items-center justify-between mb-4">
+//         <h4 class="text-lg font-medium text-red-800">🔍 Orphan Patents (${unlinkedPatents.length})</h4>
+//         <button onclick="toggleSection('orphan-patents')" class="text-sm text-red-600 hover:text-red-800 font-medium">
+//           View Details →
+//         </button>
+//       </div>
+//       <p class="text-sm text-red-700 mb-4">
+//         <strong>Patents that exist in the Orange Book but are not linked to any specific products in your search results.</strong>
+//         These may be patents for products not in your current search or orphaned patents.
+//       </p>
       
-      <div id="orphan-patents" class="hidden">
-        <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-red-200">
-            <thead class="bg-red-100">
-              <tr>
-                <th class="px-3 py-2 text-left text-xs font-medium text-red-800 uppercase">Patent No</th>
-                <th class="px-3 py-2 text-left text-xs font-medium text-red-800 uppercase">Application</th>
-                <th class="px-3 py-2 text-left text-xs font-medium text-red-800 uppercase">Expiration</th>
-                <th class="px-3 py-2 text-left text-xs font-medium text-red-800 uppercase">Type</th>
-                <th class="px-3 py-2 text-left text-xs font-medium text-red-800 uppercase">Use Code</th>
-              </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-red-200">
-              ${unlinkedPatents.slice(0, 15).map(patent => `
-                <tr class="hover:bg-red-50">
-                  <td class="px-3 py-2 text-sm">
-                    <a href="https://patents.google.com/patent/US${patent.Patent_No}" 
-                       target="_blank" 
-                       class="text-blue-600 hover:underline font-mono">${patent.Patent_No}</a>
-                  </td>
-                  <td class="px-3 py-2 text-sm font-mono">${patent.Appl_Type}-${patent.Appl_No}-${patent.Product_No}</td>
-                  <td class="px-3 py-2 text-sm">${patent.Patent_Expire_Date_Text || 'N/A'}</td>
-                  <td class="px-3 py-2 text-sm">
-                    ${patent.Drug_Substance_Flag === 'Y' ? '<span class="bg-blue-100 text-blue-800 px-1 rounded text-xs mr-1">DS</span>' : ''}
-                    ${patent.Drug_Product_Flag === 'Y' ? '<span class="bg-green-100 text-green-800 px-1 rounded text-xs">DP</span>' : ''}
-                  </td>
-                  <td class="px-3 py-2 text-sm">${patent.Patent_Use_Code || 'N/A'}</td>
-                </tr>
-              `).join('')}
-            </tbody>
-          </table>
-        </div>
-        ${unlinkedPatents.length > 15 ? `
-          <p class="text-xs text-red-600 mt-2 text-center">Showing 15 of ${unlinkedPatents.length} orphan patents</p>
-        ` : ''}
-      </div>
-    </div>
-  `;
-}
+//       <div id="orphan-patents" class="hidden">
+//         <div class="overflow-x-auto">
+//           <table class="min-w-full divide-y divide-red-200">
+//             <thead class="bg-red-100">
+//               <tr>
+//                 <th class="px-3 py-2 text-left text-xs font-medium text-red-800 uppercase">Patent No</th>
+//                 <th class="px-3 py-2 text-left text-xs font-medium text-red-800 uppercase">Application</th>
+//                 <th class="px-3 py-2 text-left text-xs font-medium text-red-800 uppercase">Expiration</th>
+//                 <th class="px-3 py-2 text-left text-xs font-medium text-red-800 uppercase">Type</th>
+//                 <th class="px-3 py-2 text-left text-xs font-medium text-red-800 uppercase">Use Code</th>
+//               </tr>
+//             </thead>
+//             <tbody class="bg-white divide-y divide-red-200">
+//               ${unlinkedPatents.slice(0, 15).map(patent => `
+//                 <tr class="hover:bg-red-50">
+//                   <td class="px-3 py-2 text-sm">
+//                     <a href="https://patents.google.com/patent/US${patent.Patent_No}" 
+//                        target="_blank" 
+//                        class="text-blue-600 hover:underline font-mono">${patent.Patent_No}</a>
+//                   </td>
+//                   <td class="px-3 py-2 text-sm font-mono">${patent.Appl_Type}-${patent.Appl_No}-${patent.Product_No}</td>
+//                   <td class="px-3 py-2 text-sm">${patent.Patent_Expire_Date_Text || 'N/A'}</td>
+//                   <td class="px-3 py-2 text-sm">
+//                     ${patent.Drug_Substance_Flag === 'Y' ? '<span class="bg-blue-100 text-blue-800 px-1 rounded text-xs mr-1">DS</span>' : ''}
+//                     ${patent.Drug_Product_Flag === 'Y' ? '<span class="bg-green-100 text-green-800 px-1 rounded text-xs">DP</span>' : ''}
+//                   </td>
+//                   <td class="px-3 py-2 text-sm">${patent.Patent_Use_Code || 'N/A'}</td>
+//                 </tr>
+//               `).join('')}
+//             </tbody>
+//           </table>
+//         </div>
+//         ${unlinkedPatents.length > 15 ? `
+//           <p class="text-xs text-red-600 mt-2 text-center">Showing 15 of ${unlinkedPatents.length} orphan patents</p>
+//         ` : ''}
+//       </div>
+//     </div>
+//   `;
+// }
 
-// 4. MISSING: createUnlinkedExclusivitySection - This was being called but didn't exist
-function createUnlinkedExclusivitySection(unlinkedExclusivity) {
-  return `
-    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6 mb-6">
-      <div class="flex items-center justify-between mb-4">
-        <h4 class="text-lg font-medium text-yellow-800">🛡️ Orphan Exclusivity (${unlinkedExclusivity.length})</h4>
-        <button onclick="toggleSection('orphan-exclusivity')" class="text-sm text-yellow-600 hover:text-yellow-800 font-medium">
-          View Details →
-        </button>
-      </div>
-      <p class="text-sm text-yellow-700 mb-4">
-        <strong>Exclusivity records that exist in the Orange Book but are not linked to any specific products in your search results.</strong>
-        These may be exclusivity for products not in your current search.
-      </p>
+// // 4. MISSING: createUnlinkedExclusivitySection - This was being called but didn't exist
+// function createUnlinkedExclusivitySection(unlinkedExclusivity) {
+//   return `
+//     <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6 mb-6">
+//       <div class="flex items-center justify-between mb-4">
+//         <h4 class="text-lg font-medium text-yellow-800">🛡️ Orphan Exclusivity (${unlinkedExclusivity.length})</h4>
+//         <button onclick="toggleSection('orphan-exclusivity')" class="text-sm text-yellow-600 hover:text-yellow-800 font-medium">
+//           View Details →
+//         </button>
+//       </div>
+//       <p class="text-sm text-yellow-700 mb-4">
+//         <strong>Exclusivity records that exist in the Orange Book but are not linked to any specific products in your search results.</strong>
+//         These may be exclusivity for products not in your current search.
+//       </p>
       
-      <div id="orphan-exclusivity" class="hidden">
-        <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-yellow-200">
-            <thead class="bg-yellow-100">
-              <tr>
-                <th class="px-3 py-2 text-left text-xs font-medium text-yellow-800 uppercase">Code</th>
-                <th class="px-3 py-2 text-left text-xs font-medium text-yellow-800 uppercase">Type</th>
-                <th class="px-3 py-2 text-left text-xs font-medium text-yellow-800 uppercase">Application</th>
-                <th class="px-3 py-2 text-left text-xs font-medium text-yellow-800 uppercase">Expiration</th>
-              </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-yellow-200">
-              ${unlinkedExclusivity.slice(0, 15).map(exclusivity => `
-                <tr class="hover:bg-yellow-50">
-                  <td class="px-3 py-2 text-sm">
-                    <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded font-medium">
-                      ${exclusivity.Exclusivity_Code || 'N/A'}
-                    </span>
-                  </td>
-                  <td class="px-3 py-2 text-sm">${getExclusivityDescription(exclusivity.Exclusivity_Code)}</td>
-                  <td class="px-3 py-2 text-sm font-mono">${exclusivity.Appl_Type}-${exclusivity.Appl_No}-${exclusivity.Product_No}</td>
-                  <td class="px-3 py-2 text-sm">${exclusivity.Exclusivity_Date || 'N/A'}</td>
-                </tr>
-              `).join('')}
-            </tbody>
-          </table>
-        </div>
-        ${unlinkedExclusivity.length > 15 ? `
-          <p class="text-xs text-yellow-600 mt-2 text-center">Showing 15 of ${unlinkedExclusivity.length} orphan exclusivity records</p>
-        ` : ''}
-      </div>
-    </div>
-  `;
-}
+//       <div id="orphan-exclusivity" class="hidden">
+//         <div class="overflow-x-auto">
+//           <table class="min-w-full divide-y divide-yellow-200">
+//             <thead class="bg-yellow-100">
+//               <tr>
+//                 <th class="px-3 py-2 text-left text-xs font-medium text-yellow-800 uppercase">Code</th>
+//                 <th class="px-3 py-2 text-left text-xs font-medium text-yellow-800 uppercase">Type</th>
+//                 <th class="px-3 py-2 text-left text-xs font-medium text-yellow-800 uppercase">Application</th>
+//                 <th class="px-3 py-2 text-left text-xs font-medium text-yellow-800 uppercase">Expiration</th>
+//               </tr>
+//             </thead>
+//             <tbody class="bg-white divide-y divide-yellow-200">
+//               ${unlinkedExclusivity.slice(0, 15).map(exclusivity => `
+//                 <tr class="hover:bg-yellow-50">
+//                   <td class="px-3 py-2 text-sm">
+//                     <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded font-medium">
+//                       ${exclusivity.Exclusivity_Code || 'N/A'}
+//                     </span>
+//                   </td>
+//                   <td class="px-3 py-2 text-sm">${getExclusivityDescription(exclusivity.Exclusivity_Code)}</td>
+//                   <td class="px-3 py-2 text-sm font-mono">${exclusivity.Appl_Type}-${exclusivity.Appl_No}-${exclusivity.Product_No}</td>
+//                   <td class="px-3 py-2 text-sm">${exclusivity.Exclusivity_Date || 'N/A'}</td>
+//                 </tr>
+//               `).join('')}
+//             </tbody>
+//           </table>
+//         </div>
+//         ${unlinkedExclusivity.length > 15 ? `
+//           <p class="text-xs text-yellow-600 mt-2 text-center">Showing 15 of ${unlinkedExclusivity.length} orphan exclusivity records</p>
+//         ` : ''}
+//       </div>
+//     </div>
+//   `;
+// }
 
 // 5. MISSING: toggleSection - This was being called but didn't exist
 function toggleSection(sectionId) {
@@ -75149,61 +75450,196 @@ function toggleSection(sectionId) {
 }
 
 // 6. MISSING: getExclusivityDescription - This was being called but didn't exist
-function getExclusivityDescription(code) {
-  const descriptions = {
-    'ODE': 'Orphan Drug Exclusivity',
-    'NCE': 'New Chemical Entity Exclusivity', 
-    'NDF': 'New Dosage Form Exclusivity',
-    'NPE': 'New Patient Population Exclusivity',
-    'POA': 'Pediatric Exclusivity',
-    'PED': 'Pediatric Exclusivity',
-    'CSP': 'Competitive Generic Therapy Exclusivity',
-    'CRP': 'GAIN Exclusivity',
-    'EBE': 'Biologics Exclusivity',
-    'RTO': 'Reference Product Exclusivity',
-    'D-183': '3-Year Exclusivity',
-    'D-193': '3-Year Exclusivity (Extended)',
-    'BLA': 'Biologics License Application Exclusivity'
-  };
-  return descriptions[code] || 'Unknown exclusivity type';
-}
+
 // 13. FIXED: createProductCardsSection with proper filter buttons
+// function createProductCardsSection(products) {
+//   if (!products || products.length === 0) {
+//     return '<div class="text-center p-4"><p class="text-gray-600">No products found</p></div>';
+//   }
+
+//   let html = `
+//     <div class="mb-6">
+//       <div class="flex justify-between items-center mb-4">
+//         <h4 class="text-lg font-medium text-gray-900">Products</h4>
+//         <div class="flex gap-2">
+//           <button onclick="expandAllCards()" id="expandAllBtn" class="text-sm px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded text-gray-700 transition-colors">
+//             Expand All
+//           </button>
+//           <button onclick="showProductsWithPatents()" class="text-sm px-3 py-1 bg-orange-100 hover:bg-orange-200 rounded text-orange-700 transition-colors">
+//             Filter: With Patents
+//           </button>
+//           <button onclick="showProductsWithExclusivity()" class="text-sm px-3 py-1 bg-purple-100 hover:bg-purple-200 rounded text-purple-700 transition-colors">
+//             Filter: With Exclusivity
+//           </button>
+//           <button onclick="showAllProducts()" class="text-sm px-3 py-1 bg-blue-100 hover:bg-blue-200 rounded text-blue-700 transition-colors filter-active">
+//             Show All
+//           </button>
+//         </div>
+//       </div>
+//       <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 product-cards-container">
+//   `;
+  
+//   products.forEach(product => {
+//     html += createProductCard(product);
+//   });
+  
+//   html += '</div></div>';
+//   return html;
+// }
+
+
 function createProductCardsSection(products) {
   if (!products || products.length === 0) {
     return '<div class="text-center p-4"><p class="text-gray-600">No products found</p></div>';
   }
 
-  let html = `
-    <div class="mb-6">
-      <div class="flex justify-between items-center mb-4">
-        <h4 class="text-lg font-medium text-gray-900">Products</h4>
-        <div class="flex gap-2">
-          <button onclick="expandAllCards()" id="expandAllBtn" class="text-sm px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded text-gray-700 transition-colors">
-            Expand All
-          </button>
-          <button onclick="showProductsWithPatents()" class="text-sm px-3 py-1 bg-orange-100 hover:bg-orange-200 rounded text-orange-700 transition-colors">
-            Filter: With Patents
-          </button>
-          <button onclick="showProductsWithExclusivity()" class="text-sm px-3 py-1 bg-purple-100 hover:bg-purple-200 rounded text-purple-700 transition-colors">
-            Filter: With Exclusivity
-          </button>
-          <button onclick="showAllProducts()" class="text-sm px-3 py-1 bg-blue-100 hover:bg-blue-200 rounded text-blue-700 transition-colors filter-active">
-            Show All
-          </button>
-        </div>
+  return `
+    <div class="mb-4">
+      <h4 class="text-lg font-medium text-gray-900 mb-3">Products (Sorted by Importance)</h4>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        ${products.map(product => createProductCard(product)).join('')}
       </div>
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 product-cards-container">
+    </div>
   `;
-  
-  products.forEach(product => {
-    html += createProductCard(product);
-  });
-  
-  html += '</div></div>';
-  return html;
 }
 
+
 // 14. COMPLETE: createProductCard function - this was truncated in your code
+// function createProductCard(product) {
+//   const hasPatents = product.related_patents && product.related_patents.length > 0;
+//   const hasExclusivity = product.related_exclusivity && product.related_exclusivity.length > 0;
+//   const productId = `${product.Appl_No}-${product.Product_No}`;
+  
+//   return `
+//     <div class="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 product-card" 
+//          data-product-id="${productId}">
+//       <!-- Product Header -->
+//       <div class="p-4 border-b border-gray-200 product-header cursor-pointer">
+//         <div class="flex items-start justify-between">
+//           <div class="flex-1">
+//             <h4 class="text-lg font-semibold text-gray-900 mb-2">${product.Trade_Name || 'N/A'}</h4>
+//             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+//               <div class="flex">
+//                 <span class="text-gray-500 font-medium min-w-24">Dosage Form:</span>
+//                 <span class="ml-2">${product['DF;Route'] || 'N/A'}</span>
+//               </div>
+//               <div class="flex">
+//                 <span class="text-gray-500 font-medium min-w-24">Strength:</span>
+//                 <span class="ml-2">${product.Strength || 'N/A'}</span>
+//               </div>
+//               <div class="flex">
+//                 <span class="text-gray-500 font-medium min-w-24">Route:</span>
+//                 <span class="ml-2">${extractRoute(product['DF;Route']) || 'N/A'}</span>
+//               </div>
+//               <div class="flex">
+//                 <span class="text-gray-500 font-medium min-w-24">Application:</span>
+//                 <a href="https://www.accessdata.fda.gov/scripts/cder/ob/results_product.cfm?Appl_Type=${product.Appl_Type}&Appl_No=${product.Appl_No}" target="_blank" rel="noopener noreferrer" class="ml-2 font-mono text-blue-600 underline hover:text-blue-800">${product.Appl_Type} ${product.Appl_No}</a>
+//                 </div>
+//             </div>
+//           </div>
+//           <div class="flex flex-col gap-2 ml-4">
+//             ${createRegulatoryTags(product)}
+//           </div>
+//         </div>
+//       </div>
+      
+//       <!-- Interactive Buttons Section -->
+//       <div class="p-4 bg-gray-50 border-b border-gray-200">
+//         <div class="flex flex-wrap gap-2">
+//           ${hasPatents ? `
+//             <button onclick="showDetailedPatentInfo('${productId}')" 
+//                     class="bg-orange-100 text-orange-800 px-3 py-2 rounded-lg text-sm font-medium hover:bg-orange-200 transition-colors flex items-center gap-1">
+//               <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+//                 <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
+//                 <path fill-rule="evenodd" d="M4 5a2 2 0 012-2v1a3 3 0 003 3h2a3 3 0 003-3V3a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V5z"/>
+//               </svg>
+//               ${product.related_patents.length} Patent${product.related_patents.length !== 1 ? 's' : ''}
+//             </button>
+//           ` : ''}
+//           ${hasExclusivity ? `
+//             <button onclick="showDetailedExclusivityInfo('${productId}')" 
+//                     class="bg-purple-100 text-purple-800 px-3 py-2 rounded-lg text-sm font-medium hover:bg-purple-200 transition-colors flex items-center gap-1">
+//               <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+//                 <path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/>
+//               </svg>
+//               ${product.related_exclusivity.length} Exclusivity Remaining
+//             </button>
+//           ` : ''}
+//           ${!hasPatents && !hasExclusivity ? `
+//             <span class="text-sm text-gray-500 italic">No patent or exclusivity data</span>
+//           ` : ''}
+//         </div>
+//       </div>
+      
+//       <!-- Expandable Details Section -->
+//       <div id="details-${productId}" class="product-details hidden">
+//         <div class="p-4">
+//           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+//             <div>
+//               <span class="font-medium text-gray-700">Applicant:</span>
+//               <span class="ml-2">${product.Applicant || 'N/A'}</span>
+//             </div>
+//             <div>
+//               <span class="font-medium text-gray-700">Product Number:</span>
+//               <span class="ml-2">${product.Product_No || 'N/A'}</span>
+//             </div>
+//             <div>
+//               <span class="font-medium text-gray-700">Approval Date:</span>
+//               <span class="ml-2">${product.Approval_Date || 'N/A'}</span>
+//             </div>
+//             <div>
+//               <span class="font-medium text-gray-700">RLD:</span>
+//               <span class="ml-2">${product.RLD ? 'Yes' : 'No'}</span>
+//             </div>
+//           </div>
+//         </div>
+//       </div>
+//     </div>
+//   `;
+// }
+function createEnhancedStyles() {
+  return `
+    <style>
+      /* Ensure modals are above everything */
+      #orangebook-patent-modal,
+      #orangebook-exclusivity-modal {
+        z-index: 9999 !important;
+      }
+      
+      /* Clean badge styles */
+      .product-card .bg-green-100,
+      .product-card .bg-purple-100,
+      .product-card .bg-blue-100 {
+        display: inline-block;
+        font-weight: 500;
+      }
+      
+      /* Ensure modal content doesn't overflow */
+      #orangebook-patent-modal .overflow-y-auto,
+      #orangebook-exclusivity-modal .overflow-y-auto {
+        max-height: calc(85vh - 120px);
+      }
+      
+      /* Button hover states */
+      .product-card button {
+        transition: all 0.2s ease;
+      }
+    </style>
+  `;
+}
+function getExclusivityDescription(code) {
+  const descriptions = {
+    'ODE': 'Orphan Drug Exclusivity - 7 years',
+    'NCE': 'New Chemical Entity - 5 years',
+    'NDF': 'New Dosage Form - 3 years',
+    'NPE': 'New Patient Population - 3 years',
+    'POA': 'Pediatric Exclusivity - 6 months added',
+    'PED': 'Pediatric Exclusivity - 6 months added',
+    'CSP': 'Competitive Generic Therapy - 180 days',
+    'CRP': 'GAIN Exclusivity - 5 years'
+  };
+  return descriptions[code] || 'Unknown exclusivity type';
+}
 function createProductCard(product) {
   const hasPatents = product.related_patents && product.related_patents.length > 0;
   const hasExclusivity = product.related_exclusivity && product.related_exclusivity.length > 0;
@@ -75212,123 +75648,332 @@ function createProductCard(product) {
   return `
     <div class="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 product-card" 
          data-product-id="${productId}">
+      
       <!-- Product Header -->
-      <div class="p-4 border-b border-gray-200 product-header cursor-pointer">
+      <div class="p-4 border-b border-gray-200">
         <div class="flex items-start justify-between">
           <div class="flex-1">
-            <h4 class="text-lg font-semibold text-gray-900 mb-2">${product.Trade_Name || 'N/A'}</h4>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-              <div class="flex">
-                <span class="text-gray-500 font-medium min-w-24">Dosage Form:</span>
+            <div class="flex items-center gap-2 mb-2">
+              <h4 class="text-lg font-semibold text-gray-900">${product.Trade_Name || 'N/A'}</h4>
+              <!-- Clean inline badges -->
+              ${hasPatents ? `<span class="bg-green-100 text-green-800 px-2 py-0.5 rounded text-xs font-medium">Patents: ${product.related_patents.length}</span>` : ''}
+              ${hasExclusivity ? `<span class="bg-purple-100 text-purple-800 px-2 py-0.5 rounded text-xs font-medium">Exclusivity: ${product.related_exclusivity.length}</span>` : ''}
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+              <div>
+                <span class="text-gray-500 font-medium">Form:</span>
                 <span class="ml-2">${product['DF;Route'] || 'N/A'}</span>
               </div>
-              <div class="flex">
-                <span class="text-gray-500 font-medium min-w-24">Strength:</span>
+              <div>
+                <span class="text-gray-500 font-medium">Strength:</span>
                 <span class="ml-2">${product.Strength || 'N/A'}</span>
               </div>
-              <div class="flex">
-                <span class="text-gray-500 font-medium min-w-24">Route:</span>
-                <span class="ml-2">${extractRoute(product['DF;Route']) || 'N/A'}</span>
+              <div>
+                <span class="text-gray-500 font-medium">Application:</span>
+                <span class="ml-2 font-mono text-blue-600">${product.Appl_Type} ${product.Appl_No}</span>
               </div>
-              <div class="flex">
-                <span class="text-gray-500 font-medium min-w-24">Application:</span>
-                <a href="https://www.accessdata.fda.gov/scripts/cder/ob/results_product.cfm?Appl_Type=${product.Appl_Type}&Appl_No=${product.Appl_No}" target="_blank" rel="noopener noreferrer" class="ml-2 font-mono text-blue-600 underline hover:text-blue-800">${product.Appl_Type} ${product.Appl_No}</a>
-                </div>
+              <div>
+                <span class="text-gray-500 font-medium">Product #:</span>
+                <span class="ml-2">${product.Product_No}</span>
+              </div>
             </div>
           </div>
-          <div class="flex flex-col gap-2 ml-4">
-            ${createRegulatoryTags(product)}
+          <div class="ml-4">
+            ${product.Appl_Type === 'NDA' ? 
+              '<span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs font-medium">NDA</span>' : 
+              '<span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs font-medium">ANDA</span>'}
           </div>
         </div>
       </div>
       
-      <!-- Interactive Buttons Section -->
-      <div class="p-4 bg-gray-50 border-b border-gray-200">
+      <!-- Action Buttons -->
+      <div class="p-4 bg-gray-50">
         <div class="flex flex-wrap gap-2">
           ${hasPatents ? `
-            <button onclick="showDetailedPatentInfo('${productId}')" 
-                    class="bg-orange-100 text-orange-800 px-3 py-2 rounded-lg text-sm font-medium hover:bg-orange-200 transition-colors flex items-center gap-1">
-              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
-                <path fill-rule="evenodd" d="M4 5a2 2 0 012-2v1a3 3 0 003 3h2a3 3 0 003-3V3a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V5z"/>
-              </svg>
-              ${product.related_patents.length} Patent${product.related_patents.length !== 1 ? 's' : ''}
+            <button onclick="showProductPatentsModal('${productId}')" 
+                    class="px-3 py-1.5 bg-white border border-green-600 text-green-600 rounded hover:bg-green-50 text-sm font-medium transition-colors">
+              View Patents (${product.related_patents.length})
             </button>
           ` : ''}
           ${hasExclusivity ? `
-            <button onclick="showDetailedExclusivityInfo('${productId}')" 
-                    class="bg-purple-100 text-purple-800 px-3 py-2 rounded-lg text-sm font-medium hover:bg-purple-200 transition-colors flex items-center gap-1">
-              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/>
-              </svg>
-              ${product.related_exclusivity.length} Exclusivity Remaining
+            <button onclick="showProductExclusivityModal('${productId}')" 
+                    class="px-3 py-1.5 bg-white border border-purple-600 text-purple-600 rounded hover:bg-purple-50 text-sm font-medium transition-colors">
+              View Exclusivity (${product.related_exclusivity.length})
             </button>
           ` : ''}
           ${!hasPatents && !hasExclusivity ? `
-            <span class="text-sm text-gray-500 italic">No patent or exclusivity data</span>
+            <span class="text-sm text-gray-500 italic">No patents or exclusivity data</span>
           ` : ''}
-        </div>
-      </div>
-      
-      <!-- Expandable Details Section -->
-      <div id="details-${productId}" class="product-details hidden">
-        <div class="p-4">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-            <div>
-              <span class="font-medium text-gray-700">Applicant:</span>
-              <span class="ml-2">${product.Applicant || 'N/A'}</span>
-            </div>
-            <div>
-              <span class="font-medium text-gray-700">Product Number:</span>
-              <span class="ml-2">${product.Product_No || 'N/A'}</span>
-            </div>
-            <div>
-              <span class="font-medium text-gray-700">Approval Date:</span>
-              <span class="ml-2">${product.Approval_Date || 'N/A'}</span>
-            </div>
-            <div>
-              <span class="font-medium text-gray-700">RLD:</span>
-              <span class="ml-2">${product.RLD ? 'Yes' : 'No'}</span>
-            </div>
-          </div>
         </div>
       </div>
     </div>
   `;
 }
+function showProductPatentsModal(productId) {
+  const product = findProductById(productId);
+  if (!product || !product.related_patents) return;
+  
+  // Close any existing modals first
+  closeAllOrangeBookModals();
+  
+  const modal = document.createElement('div');
+  modal.id = 'patent-modal';
+  modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999] p-4';
+  
+  modal.innerHTML = `
+    <div class="bg-white rounded-lg max-w-4xl w-full max-h-[85vh] flex flex-col">
+      <div class="p-6 border-b border-gray-200 flex justify-between items-center bg-green-50">
+        <div>
+          <h3 class="text-xl font-semibold text-gray-900">Patents for ${product.Trade_Name || 'Product'}</h3>
+          <p class="text-sm text-gray-600 mt-1">Application: ${product.Appl_Type} ${product.Appl_No}</p>
+        </div>
+        <button id="close-patent-modal-btn" class="text-gray-500 hover:text-gray-700">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+      <div class="p-6 overflow-y-auto flex-1">
+        <div class="space-y-4">
+          ${product.related_patents.map((patent, index) => {
+            const expiryDate = patent.Patent_Expire_Date_Text || 
+                              patent.Patent_Expire || 
+                              patent.Patent_Expiration || 
+                              patent.Patent_Expire_Date ||
+                              patent.Expiration_Date ||
+                              'N/A';
+            
+            return `
+            <div class="border border-gray-200 rounded-lg p-4 bg-gray-50">
+              <div class="flex items-center justify-between mb-3">
+                <h4 class="font-semibold text-gray-900">Patent #${index + 1}</h4>
+                <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs font-medium">
+                  ${patent.Patent_No || 'N/A'}
+                </span>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label class="text-sm font-medium text-gray-700">Patent Number</label>
+                  <p class="text-sm text-gray-900 mt-1 font-mono">${patent.Patent_No || 'N/A'}</p>
+                </div>
+                <div>
+                  <label class="text-sm font-medium text-gray-700">Expiration Date</label>
+                  <p class="text-sm text-gray-900 mt-1 font-semibold text-red-600">
+                    ${expiryDate}
+                  </p>
+                </div>
+                <div>
+                  <label class="text-sm font-medium text-gray-700">Drug Substance</label>
+                  <p class="text-sm text-gray-900 mt-1">${patent.Drug_Substance_Flag === 'Y' ? 'Yes' : 'No'}</p>
+                </div>
+                <div>
+                  <label class="text-sm font-medium text-gray-700">Drug Product</label>
+                  <p class="text-sm text-gray-900 mt-1">${patent.Drug_Product_Flag === 'Y' ? 'Yes' : 'No'}</p>
+                </div>
+                <div class="md:col-span-2">
+                  <label class="text-sm font-medium text-gray-700">Patent Use Code</label>
+                  <p class="text-sm text-gray-900 mt-1">${patent.Patent_Use_Code || 'N/A'}</p>
+                </div>
+              </div>
+            </div>
+            `;
+          }).join('')}
+        </div>
+      </div>
+    </div>
+  `;
+  
+  document.body.appendChild(modal);
+  
+  // Add click handler to close button
+  const closeBtn = modal.querySelector('#close-patent-modal-btn');
+  if (closeBtn) {
+    closeBtn.addEventListener('click', function() {
+     closeOrangeBookModal('patent-modal');
+    });
+  }
+  
+  // Add click outside to close
+  modal.addEventListener('click', function(e) {
+    if (e.target === modal) {
+      closeOrangeBookModal('patent-modal');
+    }
+  });
+  
+  // Add escape key handler
+  window.currentEscapeHandler = function(e) {
+    if (e.key === 'Escape') {
+     closeOrangeBookModal('patent-modal');
+    }
+  };
+  document.addEventListener('keydown', window.currentEscapeHandler);
+}
+
+// Fixed showProductExclusivityModal function
+function showProductExclusivityModal(productId) {
+  const product = findProductById(productId);
+  if (!product || !product.related_exclusivity) return;
+  
+  // Close any existing modals first
+  closeAllOrangeBookModals();
+  
+  const modal = document.createElement('div');
+  modal.id = 'exclusivity-modal';
+  modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999] p-4';
+  
+  modal.innerHTML = `
+    <div class="bg-white rounded-lg max-w-4xl w-full max-h-[85vh] flex flex-col">
+      <div class="p-6 border-b border-gray-200 flex justify-between items-center bg-purple-50">
+        <div>
+          <h3 class="text-xl font-semibold text-gray-900">Exclusivity for ${product.Trade_Name || 'Product'}</h3>
+          <p class="text-sm text-gray-600 mt-1">Application: ${product.Appl_Type} ${product.Appl_No}</p>
+        </div>
+        <button id="close-exclusivity-modal-btn" class="text-gray-500 hover:text-gray-700">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+      <div class="p-6 overflow-y-auto flex-1">
+        <div class="space-y-4">
+          ${product.related_exclusivity.map((exclusivity, index) => `
+            <div class="border border-gray-200 rounded-lg p-4 bg-gray-50">
+              <div class="flex items-center justify-between mb-3">
+                <h4 class="font-semibold text-gray-900">Exclusivity #${index + 1}</h4>
+                <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded text-xs font-medium">
+                  ${exclusivity.Exclusivity_Code || 'N/A'}
+                </span>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label class="text-sm font-medium text-gray-700">Exclusivity Code</label>
+                  <p class="text-sm text-gray-900 mt-1">${exclusivity.Exclusivity_Code || 'N/A'}</p>
+                </div>
+                <div>
+                  <label class="text-sm font-medium text-gray-700">Expiration Date</label>
+                  <p class="text-sm text-gray-900 mt-1 font-semibold text-purple-600">
+                    ${exclusivity.Exclusivity_Date || 'N/A'}
+                  </p>
+                </div>
+                <div class="md:col-span-2">
+                  <label class="text-sm font-medium text-gray-700">Description</label>
+                  <p class="text-sm text-gray-900 mt-1">${getExclusivityDescription(exclusivity.Exclusivity_Code)}</p>
+                </div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    </div>
+  `;
+  
+  document.body.appendChild(modal);
+  
+  // Add click handler to close button
+  const closeBtn = modal.querySelector('#close-exclusivity-modal-btn');
+  if (closeBtn) {
+    closeBtn.addEventListener('click', function() {
+      closeOrangeBookModal('exclusivity-modal');
+    });
+  }
+  
+  // Add click outside to close
+  modal.addEventListener('click', function(e) {
+    if (e.target === modal) {
+     closeOrangeBookModal('exclusivity-modal');
+    }
+  });
+  
+  // Add escape key handler
+  window.currentEscapeHandler = function(e) {
+    if (e.key === 'Escape') {
+      closeOrangeBookModal('exclusivity-modal');
+    }
+  };
+  document.addEventListener('keydown', window.currentEscapeHandler);
+}
+
+// function showProductPatentsModal(productId) {
+//   const product = findProductById(productId);
+//   if (!product || !product.related_patents) return;
+  
+//  closeAllOrangeBookModals();
+  
+//   const modal = document.createElement('div');
+//   modal.id = 'patent-modal';
+//   modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4';
+//   modal.innerHTML = `
+//     <div class="bg-white rounded-lg max-w-4xl w-full max-h-[85vh] flex flex-col">
+//       <div class="p-6 border-b border-gray-200 flex justify-between items-center">
+//         <div>
+//           <h3 class="text-xl font-semibold text-gray-900">Patents for ${product.Trade_Name || 'Product'}</h3>
+//           <p class="text-sm text-gray-600 mt-1">Application: ${product.Appl_Type} ${product.Appl_No}</p>
+//         </div>
+//         <button onclick="closeModal('patent-modal')" class="text-gray-500 hover:text-gray-700">
+//           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+//             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+//           </svg>
+//         </button>
+//       </div>
+//       <div class="p-6 overflow-y-auto flex-1">
+//         <div class="space-y-4">
+//           ${product.related_patents.map((patent, index) => `
+//             <div class="border border-gray-200 rounded-lg p-4 bg-gray-50">
+//               <div class="flex items-center justify-between mb-3">
+//                 <h4 class="font-semibold text-gray-900">Patent #${index + 1}</h4>
+//                 <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs font-medium">
+//                   ${patent.Patent_No || 'N/A'}
+//                 </span>
+//               </div>
+//               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+//                 <div>
+//                   <label class="text-sm font-medium text-gray-700">Patent Number</label>
+//                   <p class="text-sm text-gray-900 mt-1">${patent.Patent_No || 'N/A'}</p>
+//                 </div>
+//                 <div>
+//                   <label class="text-sm font-medium text-gray-700">Expiration Date</label>
+//                   <p class="text-sm text-gray-900 mt-1">${patent.Patent_Expire || 'N/A'}</p>
+//                 </div>
+//                 <div class="md:col-span-2">
+//                   <label class="text-sm font-medium text-gray-700">Use Code</label>
+//                   <p class="text-sm text-gray-900 mt-1">${patent.Patent_Use_Code || 'N/A'}</p>
+//                 </div>
+//                 <div class="md:col-span-2">
+//                   <label class="text-sm font-medium text-gray-700">Drug Substance</label>
+//                   <p class="text-sm text-gray-900 mt-1">${patent.Drug_Substance_Flag === 'Y' ? 'Yes' : 'No'}</p>
+//                 </div>
+//                 <div class="md:col-span-2">
+//                   <label class="text-sm font-medium text-gray-700">Drug Product</label>
+//                   <p class="text-sm text-gray-900 mt-1">${patent.Drug_Product_Flag === 'Y' ? 'Yes' : 'No'}</p>
+//                 </div>
+//               </div>
+//             </div>
+//           `).join('')}
+//         </div>
+//       </div>
+//     </div>
+//   `;
+  
+//   document.body.appendChild(modal);
+  
+//   // Add click outside to close
+//   modal.addEventListener('click', function(e) {
+//     if (e.target === modal) {
+//       closeOrangeBookModal('orangebook-patent-modal');
+//     }
+//   });
+  
+//   // Add unique escape handler
+//   const orangeBookEscapeHandler = function(e) {
+//     if (e.key === 'Escape') {
+//       closeOrangeBookModal('orangebook-patent-modal');
+//     }
+//   };
+//   document.addEventListener('keydown', orangeBookEscapeHandler, { once: true });
+// }
+
 
 // 15. MISSING: createRegulatoryTags function - this was called but not defined
-function createRegulatoryTags(product) {
-  const tags = [];
-  
-  // Application type tag
-  if (product.Appl_Type === 'NDA') {
-    tags.push('<span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs font-medium regulatory-tag" title="New Drug Application">NDA</span>');
-  } else if (product.Appl_Type === 'ANDA') {
-    tags.push('<span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs font-medium regulatory-tag" title="Abbreviated New Drug Application">ANDA</span>');
-  } else if (product.Appl_Type === 'BLA') {
-    tags.push('<span class="bg-purple-100 text-purple-800 px-2 py-1 rounded text-xs font-medium regulatory-tag" title="Biologics License Application">BLA</span>');
-  }
-  
-  // Patent status tag
-  if (product.related_patents && product.related_patents.length > 0) {
-    const patentCount = product.related_patents.length;
-    tags.push(`<span class="bg-orange-100 text-orange-800 px-2 py-1 rounded text-xs font-medium regulatory-tag" title="${patentCount} patent(s) listed">${patentCount} Patent${patentCount > 1 ? 's' : ''}</span>`);
-  }
-  
-  // Exclusivity tag
-  if (product.related_exclusivity && product.related_exclusivity.length > 0) {
-    const exclusivityCount = product.related_exclusivity.length;
-    tags.push(`<span class="bg-red-100 text-red-800 px-2 py-1 rounded text-xs font-medium regulatory-tag" title="${exclusivityCount} exclusivity record(s)">${exclusivityCount} Exclusivity</span>`);
-  }
-  
-  // RLD tag
-  if (product.RLD === 'Yes' || product.RLD === true) {
-    tags.push('<span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-xs font-medium regulatory-tag" title="Reference Listed Drug">RLD</span>');
-  }
-  
-  return tags.join('');
-}
 
 // 16. MISSING: Filter functions that were referenced but not defined
 function showProductsWithPatents() {
@@ -75447,25 +76092,8 @@ function filterByType(type) {
   }
 }
 
-// 21. MISSING: Helper functions that were referenced
-function extractRoute(dfRoute) {
-  if (!dfRoute) return null;
-  const parts = dfRoute.split(';');
-  return parts.length > 1 ? parts[1].trim() : dfRoute;
-}
 
-function findProductById(productId) {
-  if (window.currentOrangeBookData && window.currentOrangeBookData.results) {
-    return window.currentOrangeBookData.results.products.find(p => 
-      `${p.Appl_No}-${p.Product_No}` === productId
-    );
-  }
-  return null;
-}
 
-function storeCurrentOrangeBookData(data) {
-  window.currentOrangeBookData = data;
-}
 
 // 22. DEBUGGING: Add console logs to help identify issues
 function debugOrangeBookData(data) {
@@ -75534,106 +76162,150 @@ console.log('🎯 Orange Book Enhanced Functions Loaded Successfully');
 
 // Enhanced summary section with unlinked data
 
-// Section for unlinked patents
+// // Section for unlinked patents
+// function createUnlinkedPatentsSection(unlinkedPatents) {
+//   return `
+//     <div class="bg-red-50 border border-red-200 rounded-lg p-6 mb-6">
+//       <div class="flex items-center justify-between mb-4">
+//         <h4 class="text-lg font-medium text-red-800">Orphan Patents (${unlinkedPatents.length})</h4>
+//         <button onclick="toggleSection('orphan-patents')" class="text-sm text-red-600 hover:text-red-800">
+//           View Details →
+//         </button>
+//       </div>
+//       <p class="text-sm text-red-700 mb-4">Patents that exist in the Orange Book but are not linked to any specific products in your search results.</p>
+      
+//       <div id="orphan-patents" class="hidden">
+//         <div class="overflow-x-auto">
+//           <table class="min-w-full divide-y divide-red-200">
+//             <thead class="bg-red-100">
+//               <tr>
+//                 <th class="px-3 py-2 text-left text-xs font-medium text-red-800 uppercase">Patent No</th>
+//                 <th class="px-3 py-2 text-left text-xs font-medium text-red-800 uppercase">Application</th>
+//                 <th class="px-3 py-2 text-left text-xs font-medium text-red-800 uppercase">Expiration</th>
+//                 <th class="px-3 py-2 text-left text-xs font-medium text-red-800 uppercase">Type</th>
+//                 <th class="px-3 py-2 text-left text-xs font-medium text-red-800 uppercase">Use Code</th>
+//               </tr>
+//             </thead>
+//             <tbody class="bg-white divide-y divide-red-200">
+//               ${unlinkedPatents.slice(0, 10).map(patent => `
+//                 <tr class="hover:bg-red-50">
+//                   <td class="px-3 py-2 text-sm">
+//                     <a href="https://patents.google.com/patent/US${patent.Patent_No}" 
+//                        target="_blank" 
+//                        class="text-blue-600 hover:underline font-mono">${patent.Patent_No}</a>
+//                   </td>
+//                   <td class="px-3 py-2 text-sm font-mono">${patent.Appl_Type}-${patent.Appl_No}-${patent.Product_No}</td>
+//                   <td class="px-3 py-2 text-sm">${patent.Patent_Expire_Date_Text || 'N/A'}</td>
+//                   <td class="px-3 py-2 text-sm">
+//                     ${patent.Drug_Substance_Flag === 'Y' ? '<span class="bg-blue-100 text-blue-800 px-1 rounded text-xs mr-1">DS</span>' : ''}
+//                     ${patent.Drug_Product_Flag === 'Y' ? '<span class="bg-green-100 text-green-800 px-1 rounded text-xs">DP</span>' : ''}
+//                   </td>
+//                   <td class="px-3 py-2 text-sm">${patent.Patent_Use_Code || 'N/A'}</td>
+//                 </tr>
+//               `).join('')}
+//             </tbody>
+//           </table>
+//         </div>
+//         ${unlinkedPatents.length > 10 ? `
+//           <p class="text-xs text-red-600 mt-2">Showing 10 of ${unlinkedPatents.length} orphan patents</p>
+//         ` : ''}
+//       </div>
+//     </div>
+//   `;
+// }
+
+// // Section for unlinked exclusivity
+// function createUnlinkedExclusivitySection(unlinkedExclusivity) {
+//   return `
+//     <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6 mb-6">
+//       <div class="flex items-center justify-between mb-4">
+//         <h4 class="text-lg font-medium text-yellow-800">Orphan Exclusivity (${unlinkedExclusivity.length})</h4>
+//         <button onclick="toggleSection('orphan-exclusivity')" class="text-sm text-yellow-600 hover:text-yellow-800">
+//           View Details →
+//         </button>
+//       </div>
+//       <p class="text-sm text-yellow-700 mb-4">Exclusivity records that exist in the Orange Book but are not linked to any specific products in your search results.</p>
+      
+//       <div id="orphan-exclusivity" class="hidden">
+//         <div class="overflow-x-auto">
+//           <table class="min-w-full divide-y divide-yellow-200">
+//             <thead class="bg-yellow-100">
+//               <tr>
+//                 <th class="px-3 py-2 text-left text-xs font-medium text-yellow-800 uppercase">Code</th>
+//                 <th class="px-3 py-2 text-left text-xs font-medium text-yellow-800 uppercase">Type</th>
+//                 <th class="px-3 py-2 text-left text-xs font-medium text-yellow-800 uppercase">Application</th>
+//                 <th class="px-3 py-2 text-left text-xs font-medium text-yellow-800 uppercase">Expiration</th>
+//               </tr>
+//             </thead>
+//             <tbody class="bg-white divide-y divide-yellow-200">
+//               ${unlinkedExclusivity.slice(0, 10).map(exclusivity => `
+//                 <tr class="hover:bg-yellow-50">
+//                   <td class="px-3 py-2 text-sm">
+//                     <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded font-medium">
+//                       ${exclusivity.Exclusivity_Code || 'N/A'}
+//                     </span>
+//                   </td>
+//                   <td class="px-3 py-2 text-sm">${getExclusivityDescription(exclusivity.Exclusivity_Code)}</td>
+//                   <td class="px-3 py-2 text-sm font-mono">${exclusivity.Appl_Type}-${exclusivity.Appl_No}-${exclusivity.Product_No}</td>
+//                   <td class="px-3 py-2 text-sm">${exclusivity.Exclusivity_Date || 'N/A'}</td>
+//                 </tr>
+//               `).join('')}
+//             </tbody>
+//           </table>
+//         </div>
+//         ${unlinkedExclusivity.length > 10 ? `
+//           <p class="text-xs text-yellow-600 mt-2">Showing 10 of ${unlinkedExclusivity.length} orphan exclusivity records</p>
+//         ` : ''}
+//       </div>
+//     </div>
+//   `;
+// }
+
 function createUnlinkedPatentsSection(unlinkedPatents) {
   return `
     <div class="bg-red-50 border border-red-200 rounded-lg p-6 mb-6">
-      <div class="flex items-center justify-between mb-4">
-        <h4 class="text-lg font-medium text-red-800">Orphan Patents (${unlinkedPatents.length})</h4>
-        <button onclick="toggleSection('orphan-patents')" class="text-sm text-red-600 hover:text-red-800">
-          View Details →
-        </button>
+      <h4 class="text-lg font-medium text-red-800 mb-4">Orphan Patents (${unlinkedPatents.length})</h4>
+      <p class="text-sm text-red-700 mb-4">Patents not linked to products in search results:</p>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+        ${unlinkedPatents.slice(0, 10).map(patent => `
+          <div class="text-sm bg-white p-2 rounded border border-red-200">
+            Patent: ${patent.Patent_No} | Expires: ${patent.Patent_Expire || 'N/A'}
+          </div>
+        `).join('')}
       </div>
-      <p class="text-sm text-red-700 mb-4">Patents that exist in the Orange Book but are not linked to any specific products in your search results.</p>
-      
-      <div id="orphan-patents" class="hidden">
-        <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-red-200">
-            <thead class="bg-red-100">
-              <tr>
-                <th class="px-3 py-2 text-left text-xs font-medium text-red-800 uppercase">Patent No</th>
-                <th class="px-3 py-2 text-left text-xs font-medium text-red-800 uppercase">Application</th>
-                <th class="px-3 py-2 text-left text-xs font-medium text-red-800 uppercase">Expiration</th>
-                <th class="px-3 py-2 text-left text-xs font-medium text-red-800 uppercase">Type</th>
-                <th class="px-3 py-2 text-left text-xs font-medium text-red-800 uppercase">Use Code</th>
-              </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-red-200">
-              ${unlinkedPatents.slice(0, 10).map(patent => `
-                <tr class="hover:bg-red-50">
-                  <td class="px-3 py-2 text-sm">
-                    <a href="https://patents.google.com/patent/US${patent.Patent_No}" 
-                       target="_blank" 
-                       class="text-blue-600 hover:underline font-mono">${patent.Patent_No}</a>
-                  </td>
-                  <td class="px-3 py-2 text-sm font-mono">${patent.Appl_Type}-${patent.Appl_No}-${patent.Product_No}</td>
-                  <td class="px-3 py-2 text-sm">${patent.Patent_Expire_Date_Text || 'N/A'}</td>
-                  <td class="px-3 py-2 text-sm">
-                    ${patent.Drug_Substance_Flag === 'Y' ? '<span class="bg-blue-100 text-blue-800 px-1 rounded text-xs mr-1">DS</span>' : ''}
-                    ${patent.Drug_Product_Flag === 'Y' ? '<span class="bg-green-100 text-green-800 px-1 rounded text-xs">DP</span>' : ''}
-                  </td>
-                  <td class="px-3 py-2 text-sm">${patent.Patent_Use_Code || 'N/A'}</td>
-                </tr>
-              `).join('')}
-            </tbody>
-          </table>
-        </div>
-        ${unlinkedPatents.length > 10 ? `
-          <p class="text-xs text-red-600 mt-2">Showing 10 of ${unlinkedPatents.length} orphan patents</p>
-        ` : ''}
-      </div>
+      ${unlinkedPatents.length > 10 ? `
+        <p class="text-sm text-red-600 mt-2">... and ${unlinkedPatents.length - 10} more</p>
+      ` : ''}
     </div>
   `;
 }
 
-// Section for unlinked exclusivity
 function createUnlinkedExclusivitySection(unlinkedExclusivity) {
   return `
     <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6 mb-6">
-      <div class="flex items-center justify-between mb-4">
-        <h4 class="text-lg font-medium text-yellow-800">Orphan Exclusivity (${unlinkedExclusivity.length})</h4>
-        <button onclick="toggleSection('orphan-exclusivity')" class="text-sm text-yellow-600 hover:text-yellow-800">
-          View Details →
-        </button>
+      <h4 class="text-lg font-medium text-yellow-800 mb-4">Orphan Exclusivity (${unlinkedExclusivity.length})</h4>
+      <p class="text-sm text-yellow-700 mb-4">Exclusivity not linked to products in search results:</p>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+        ${unlinkedExclusivity.slice(0, 10).map(exc => `
+          <div class="text-sm bg-white p-2 rounded border border-yellow-200">
+            Code: ${exc.Exclusivity_Code} | Expires: ${exc.Exclusivity_Date || 'N/A'}
+          </div>
+        `).join('')}
       </div>
-      <p class="text-sm text-yellow-700 mb-4">Exclusivity records that exist in the Orange Book but are not linked to any specific products in your search results.</p>
-      
-      <div id="orphan-exclusivity" class="hidden">
-        <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-yellow-200">
-            <thead class="bg-yellow-100">
-              <tr>
-                <th class="px-3 py-2 text-left text-xs font-medium text-yellow-800 uppercase">Code</th>
-                <th class="px-3 py-2 text-left text-xs font-medium text-yellow-800 uppercase">Type</th>
-                <th class="px-3 py-2 text-left text-xs font-medium text-yellow-800 uppercase">Application</th>
-                <th class="px-3 py-2 text-left text-xs font-medium text-yellow-800 uppercase">Expiration</th>
-              </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-yellow-200">
-              ${unlinkedExclusivity.slice(0, 10).map(exclusivity => `
-                <tr class="hover:bg-yellow-50">
-                  <td class="px-3 py-2 text-sm">
-                    <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded font-medium">
-                      ${exclusivity.Exclusivity_Code || 'N/A'}
-                    </span>
-                  </td>
-                  <td class="px-3 py-2 text-sm">${getExclusivityDescription(exclusivity.Exclusivity_Code)}</td>
-                  <td class="px-3 py-2 text-sm font-mono">${exclusivity.Appl_Type}-${exclusivity.Appl_No}-${exclusivity.Product_No}</td>
-                  <td class="px-3 py-2 text-sm">${exclusivity.Exclusivity_Date || 'N/A'}</td>
-                </tr>
-              `).join('')}
-            </tbody>
-          </table>
-        </div>
-        ${unlinkedExclusivity.length > 10 ? `
-          <p class="text-xs text-yellow-600 mt-2">Showing 10 of ${unlinkedExclusivity.length} orphan exclusivity records</p>
-        ` : ''}
-      </div>
+      ${unlinkedExclusivity.length > 10 ? `
+        <p class="text-sm text-yellow-600 mt-2">... and ${unlinkedExclusivity.length - 10} more</p>
+      ` : ''}
     </div>
   `;
 }
-
-
+function initializeOrangeBookInteractivity() {
+  // Add escape key handler for modals
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      closeAllModals();
+    }
+  });
+}
 // Helper function to get patent use descriptions
 function getPatentUseDescription(useCode) {
   const descriptions = {
@@ -75652,24 +76324,7 @@ function getPatentUseDescription(useCode) {
 }
 
 // Enhanced exclusivity descriptions
-function getExclusivityDescription(code) {
-  const descriptions = {
-    'ODE': 'Orphan Drug Exclusivity',
-    'NCE': 'New Chemical Entity Exclusivity', 
-    'NDF': 'New Dosage Form Exclusivity',
-    'NPE': 'New Patient Population Exclusivity',
-    'POA': 'Pediatric Exclusivity',
-    'PED': 'Pediatric Exclusivity',
-    'CSP': 'Competitive Generic Therapy Exclusivity',
-    'CRP': 'GAIN Exclusivity',
-    'EBE': 'Biologics Exclusivity',
-    'RTO': 'Reference Product Exclusivity',
-    'D-183': '3-Year Exclusivity',
-    'D-193': '3-Year Exclusivity (Extended)',
-    'BLA': 'Biologics License Application Exclusivity'
-  };
-  return descriptions[code] || 'Unknown exclusivity type';
-}
+
 
 // What exclusivity applies to
 function getExclusivityAppliesTo(code) {
@@ -75706,38 +76361,6 @@ function getExclusivityExplanation(code) {
   return explanations[code] || 'See FDA exclusivity guidance for details';
 }
 
-// Create regulatory tags with enhanced info
-function createRegulatoryTags(product) {
-  const tags = [];
-  
-  // Application type tag
-  if (product.Appl_Type === 'NDA') {
-    tags.push('<span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs font-medium regulatory-tag" title="New Drug Application">NDA</span>');
-  } else if (product.Appl_Type === 'ANDA') {
-    tags.push('<span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs font-medium regulatory-tag" title="Abbreviated New Drug Application">ANDA</span>');
-  } else if (product.Appl_Type === 'BLA') {
-    tags.push('<span class="bg-purple-100 text-purple-800 px-2 py-1 rounded text-xs font-medium regulatory-tag" title="Biologics License Application">BLA</span>');
-  }
-  
-  // Patent status tag
-  if (product.related_patents && product.related_patents.length > 0) {
-    const patentCount = product.related_patents.length;
-    tags.push(`<span class="bg-orange-100 text-orange-800 px-2 py-1 rounded text-xs font-medium regulatory-tag" title="${patentCount} patent(s) listed">${patentCount} Patent${patentCount > 1 ? 's' : ''}</span>`);
-  }
-  
-  // Exclusivity tag
-  if (product.related_exclusivity && product.related_exclusivity.length > 0) {
-    const exclusivityCount = product.related_exclusivity.length;
-    tags.push(`<span class="bg-red-100 text-red-800 px-2 py-1 rounded text-xs font-medium regulatory-tag" title="${exclusivityCount} exclusivity record(s)">${exclusivityCount} Exclusivity</span>`);
-  }
-  
-  // RLD tag
-  if (product.RLD === 'Yes' || product.RLD === true) {
-    tags.push('<span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-xs font-medium regulatory-tag" title="Reference Listed Drug">RLD</span>');
-  }
-  
-  return tags.join('');
-}
 
 
 // Enhanced styles
@@ -75989,107 +76612,69 @@ function showAllDetails() {
 }
 
 // Enhanced helper functions
-function findProductById(productId) {
-  if (window.currentOrangeBookData && window.currentOrangeBookData.results) {
-    return window.currentOrangeBookData.results.products.find(p => 
-      `${p.Appl_No}-${p.Product_No}` === productId
-    );
-  }
-  return null;
-}
 
-function extractRoute(dfRoute) {
-  if (!dfRoute) return null;
-  const parts = dfRoute.split(';');
-  return parts.length > 1 ? parts[1].trim() : dfRoute;
-}
 
-function closeModal(modalId) {
-  const modal = document.getElementById(modalId);
-  if (modal) {
-    modal.remove();
-  }
-}
 
-function closeAllModals() {
-  ['patent-modal', 'exclusivity-modal'].forEach(modalId => {
-    const modal = document.getElementById(modalId);
-    if (modal) modal.remove();
-  });
-}
 
-function createEmptyState() {
-  return `
-    <div class="text-center p-8 bg-gray-50 rounded-lg">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-gray-400 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-      </svg>
-      <p class="text-lg text-gray-600">No Orange Book entries found</p>
-    </div>
-  `;
-}
 
-// Store current data globally for modal access
-function storeCurrentOrangeBookData(data) {
-  window.currentOrangeBookData = data;
-}
+// function createEmptyState() {
+//   return `
+//     <div class="text-center p-8 bg-gray-50 rounded-lg">
+//       <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-gray-400 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+//       </svg>
+//       <p class="text-lg text-gray-600">No Orange Book entries found</p>
+//     </div>
+//   `;
+// }
+
+
 
 // Create the product cards section
-function createProductCardsSection(products) {
-  if (!products || products.length === 0) {
-    return '<div class="text-center p-4"><p class="text-gray-600">No products found</p></div>';
-  }
+// function createProductCardsSection(products) {
+//   if (!products || products.length === 0) {
+//     return '<div class="text-center p-4"><p class="text-gray-600">No products found</p></div>';
+//   }
 
-  let html = `
-    <div class="mb-4 flex justify-between items-center">
-      <h4 class="text-lg font-medium text-gray-900">Products</h4>
-      <div class="flex gap-2">
-        <button onclick="expandAllCards()" id="expandAllBtn" class="text-sm px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded text-gray-700">
-          Expand All
-        </button>
-      </div>
-    </div>
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 product-cards-container">
-  `;
+//   let html = `
+//     <div class="mb-4 flex justify-between items-center">
+//       <h4 class="text-lg font-medium text-gray-900">Products</h4>
+//       <div class="flex gap-2">
+//         <button onclick="expandAllCards()" id="expandAllBtn" class="text-sm px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded text-gray-700">
+//           Expand All
+//         </button>
+//       </div>
+//     </div>
+//     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 product-cards-container">
+//   `;
   
-  products.forEach(product => {
-    html += createProductCard(product);
-  });
+//   products.forEach(product => {
+//     html += createProductCard(product);
+//   });
   
-  html += '</div>';
-  return html;
-}
+//   html += '</div>';
+//   return html;
+// }
 
 
-// Create regulatory tags for products
 function createRegulatoryTags(product) {
   const tags = [];
   
-  // Application type tag
   if (product.Appl_Type === 'NDA') {
-    tags.push('<span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs font-medium regulatory-tag">NDA</span>');
+    tags.push('<span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs font-medium">NDA</span>');
   } else if (product.Appl_Type === 'ANDA') {
-    tags.push('<span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs font-medium regulatory-tag">ANDA</span>');
-  } else if (product.Appl_Type === 'BLA') {
-    tags.push('<span class="bg-purple-100 text-purple-800 px-2 py-1 rounded text-xs font-medium regulatory-tag">BLA</span>');
+    tags.push('<span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs font-medium">ANDA</span>');
   }
   
-  // Patent status tag
   if (product.related_patents && product.related_patents.length > 0) {
-    tags.push('<span class="bg-orange-100 text-orange-800 px-2 py-1 rounded text-xs font-medium regulatory-tag">Patented</span>');
+    tags.push('<span class="bg-purple-100 text-purple-800 px-2 py-1 rounded text-xs font-medium">Patented</span>');
   }
   
-  // Exclusivity tag
   if (product.related_exclusivity && product.related_exclusivity.length > 0) {
-    tags.push('<span class="bg-red-100 text-red-800 px-2 py-1 rounded text-xs font-medium regulatory-tag">Exclusivity</span>');
+    tags.push('<span class="bg-orange-100 text-orange-800 px-2 py-1 rounded text-xs font-medium">Exclusive</span>');
   }
   
-  // RLD tag
-  if (product.RLD === 'Yes' || product.RLD === true) {
-    tags.push('<span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-xs font-medium regulatory-tag">RLD</span>');
-  }
-  
-  return tags.join('');
+  return tags.join(' ');
 }
 
 // Enhanced styles
@@ -76223,141 +76808,190 @@ function showAllDetails() {
   document.getElementById('expandAllBtn').textContent = 'Collapse All';
 }
 
-// Patent information modal
-function togglePatentInfo(productId) {
-  // Close any existing modals
-  closeAllModals();
+// // Patent information modal
+// function togglePatentInfo(productId) {
+//   // Close any existing modals
+//   closeAllModals();
   
-  // Find the product data
-  const product = findProductById(productId);
-  if (!product || !product.related_patents || product.related_patents.length === 0) {
-    console.warn('No patent data found for product:', productId);
-    return;
+//   // Find the product data
+//   const product = findProductById(productId);
+//   if (!product || !product.related_patents || product.related_patents.length === 0) {
+//     console.warn('No patent data found for product:', productId);
+//     return;
+//   }
+  
+//   const modal = document.createElement('div');
+//   modal.id = 'patent-modal';
+//   modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 patent-modal';
+//   modal.innerHTML = `
+//     <div class="bg-white rounded-lg max-w-5xl max-h-screen overflow-y-auto m-4 w-full">
+//       <div class="p-6 border-b border-gray-200 bg-orange-50">
+//         <div class="flex items-center justify-between">
+//           <h3 class="text-xl font-semibold text-orange-800">Patent Information</h3>
+//           <button onclick="closeModal('patent-modal')" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+//         </div>
+//         <p class="text-sm text-orange-700 mt-1">Product: ${product.Trade_Name || 'N/A'} (${product.Appl_Type} ${product.Appl_No})</p>
+//       </div>
+//       <div class="p-6">
+//         <div class="space-y-4">
+//           ${product.related_patents.map((patent, index) => `
+//             <div class="border border-gray-200 rounded-lg p-4 bg-gray-50">
+//               <div class="flex items-center justify-between mb-3">
+//                 <h4 class="font-semibold text-gray-900">Patent #${index + 1}</h4>
+//                 <span class="bg-orange-100 text-orange-800 px-2 py-1 rounded text-xs font-medium">
+//                   ${patent.Patent_No || 'N/A'}
+//                 </span>
+//               </div>
+//               <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+//                 <div>
+//                   <label class="text-sm font-medium text-gray-700">Patent Number</label>
+//                   <p class="text-sm text-gray-900 mt-1">${patent.Patent_No || 'N/A'}</p>
+//                 </div>
+//                 <div>
+//                   <label class="text-sm font-medium text-gray-700">Expiration Date</label>
+//                   <p class="text-sm text-gray-900 mt-1">${patent.Patent_Expire_Date_Text || 'N/A'}</p>
+//                 </div>
+//                 <div>
+//                   <label class="text-sm font-medium text-gray-700">Drug Product Flag</label>
+//                   <p class="text-sm text-gray-900 mt-1">${patent.Drug_Product_Flag || 'N/A'}</p>
+//                 </div>
+//                 <div class="md:col-span-3">
+//                   <label class="text-sm font-medium text-gray-700">Use Code</label>
+//                   <p class="text-sm text-gray-900 mt-1">${patent.Patent_Use_Code || 'N/A'}</p>
+//                 </div>
+//               </div>
+//             </div>
+//           `).join('')}
+//         </div>
+//       </div>
+//     </div>
+//   `;
+  
+//   document.body.appendChild(modal);
+  
+//   // Close modal when clicking outside
+//   modal.addEventListener('click', function(e) {
+//     if (e.target === modal) {
+//       closeModal('patent-modal');
+//     }
+//   });
+// }
+
+
+
+function closeOrangeBookModal(modalId) {
+  const modal = document.getElementById(modalId);
+  if (modal) {
+    // Remove all event listeners specific to this modal
+    const newModal = modal.cloneNode(true);
+    modal.parentNode.replaceChild(newModal, modal);
+    newModal.remove();
   }
-  
-  const modal = document.createElement('div');
-  modal.id = 'patent-modal';
-  modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 patent-modal';
-  modal.innerHTML = `
-    <div class="bg-white rounded-lg max-w-5xl max-h-screen overflow-y-auto m-4 w-full">
-      <div class="p-6 border-b border-gray-200 bg-orange-50">
-        <div class="flex items-center justify-between">
-          <h3 class="text-xl font-semibold text-orange-800">Patent Information</h3>
-          <button onclick="closeModal('patent-modal')" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
-        </div>
-        <p class="text-sm text-orange-700 mt-1">Product: ${product.Trade_Name || 'N/A'} (${product.Appl_Type} ${product.Appl_No})</p>
-      </div>
-      <div class="p-6">
-        <div class="space-y-4">
-          ${product.related_patents.map((patent, index) => `
-            <div class="border border-gray-200 rounded-lg p-4 bg-gray-50">
-              <div class="flex items-center justify-between mb-3">
-                <h4 class="font-semibold text-gray-900">Patent #${index + 1}</h4>
-                <span class="bg-orange-100 text-orange-800 px-2 py-1 rounded text-xs font-medium">
-                  ${patent.Patent_No || 'N/A'}
-                </span>
-              </div>
-              <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <label class="text-sm font-medium text-gray-700">Patent Number</label>
-                  <p class="text-sm text-gray-900 mt-1">${patent.Patent_No || 'N/A'}</p>
-                </div>
-                <div>
-                  <label class="text-sm font-medium text-gray-700">Expiration Date</label>
-                  <p class="text-sm text-gray-900 mt-1">${patent.Patent_Expire_Date_Text || 'N/A'}</p>
-                </div>
-                <div>
-                  <label class="text-sm font-medium text-gray-700">Drug Product Flag</label>
-                  <p class="text-sm text-gray-900 mt-1">${patent.Drug_Product_Flag || 'N/A'}</p>
-                </div>
-                <div class="md:col-span-3">
-                  <label class="text-sm font-medium text-gray-700">Use Code</label>
-                  <p class="text-sm text-gray-900 mt-1">${patent.Patent_Use_Code || 'N/A'}</p>
-                </div>
-              </div>
-            </div>
-          `).join('')}
-        </div>
-      </div>
-    </div>
-  `;
-  
-  document.body.appendChild(modal);
-  
-  // Close modal when clicking outside
-  modal.addEventListener('click', function(e) {
-    if (e.target === modal) {
-      closeModal('patent-modal');
-    }
+}
+
+// Unique close all function for OrangeBook
+function closeAllOrangeBookModals() {
+  ['patent-modal', 'exclusivity-modal'].forEach(modalId => {
+    closeModal(modalId);
   });
 }
 
-// Exclusivity information modal
-function toggleExclusivityInfo(productId) {
-  // Close any existing modals
-  closeAllModals();
+// // Exclusivity information modal
+// function toggleExclusivityInfo(productId) {
+//   // Close any existing modals
+//   closeAllModals();
   
-  // Find the product data
-  const product = findProductById(productId);
-  if (!product || !product.related_exclusivity || product.related_exclusivity.length === 0) {
-    console.warn('No exclusivity data found for product:', productId);
-    return;
-  }
+//   // Find the product data
+//   const product = findProductById(productId);
+//   if (!product || !product.related_exclusivity || product.related_exclusivity.length === 0) {
+//     console.warn('No exclusivity data found for product:', productId);
+//     return;
+//   }
   
-  const modal = document.createElement('div');
-  modal.id = 'exclusivity-modal';
-  modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 exclusivity-modal';
-  modal.innerHTML = `
-    <div class="bg-white rounded-lg max-w-4xl max-h-screen overflow-y-auto m-4 w-full">
-      <div class="p-6 border-b border-gray-200 bg-purple-50">
-        <div class="flex items-center justify-between">
-          <h3 class="text-xl font-semibold text-purple-800">Exclusivity Information</h3>
-          <button onclick="closeModal('exclusivity-modal')" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
-        </div>
-        <p class="text-sm text-purple-700 mt-1">Product: ${product.Trade_Name || 'N/A'} (${product.Appl_Type} ${product.Appl_No})</p>
-      </div>
-      <div class="p-6">
-        <div class="space-y-4">
-          ${product.related_exclusivity.map((exclusivity, index) => `
-            <div class="border border-gray-200 rounded-lg p-4 bg-gray-50">
-              <div class="flex items-center justify-between mb-3">
-                <h4 class="font-semibold text-gray-900">Exclusivity #${index + 1}</h4>
-                <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded text-xs font-medium">
-                  ${exclusivity.Exclusivity_Code || 'N/A'}
-                </span>
-              </div>
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label class="text-sm font-medium text-gray-700">Exclusivity Code</label>
-                  <p class="text-sm text-gray-900 mt-1">${exclusivity.Exclusivity_Code || 'N/A'}</p>
-                  <p class="text-xs text-gray-500 mt-1">${getExclusivityDescription(exclusivity.Exclusivity_Code)}</p>
-                </div>
-                <div>
-                  <label class="text-sm font-medium text-gray-700">Expiration Date</label>
-                  <p class="text-sm text-gray-900 mt-1">${exclusivity.Exclusivity_Date || 'N/A'}</p>
-                </div>
-              </div>
-            </div>
-          `).join('')}
-        </div>
-      </div>
-    </div>
-  `;
+//   const modal = document.createElement('div');
+//   modal.id = 'exclusivity-modal';
+//   modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 exclusivity-modal';
+//   modal.innerHTML = `
+//     <div class="bg-white rounded-lg max-w-4xl max-h-screen overflow-y-auto m-4 w-full">
+//       <div class="p-6 border-b border-gray-200 bg-purple-50">
+//         <div class="flex items-center justify-between">
+//           <h3 class="text-xl font-semibold text-purple-800">Exclusivity Information</h3>
+//           <button onclick="closeModal('exclusivity-modal')" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+//         </div>
+//         <p class="text-sm text-purple-700 mt-1">Product: ${product.Trade_Name || 'N/A'} (${product.Appl_Type} ${product.Appl_No})</p>
+//       </div>
+//       <div class="p-6">
+//         <div class="space-y-4">
+//           ${product.related_exclusivity.map((exclusivity, index) => `
+//             <div class="border border-gray-200 rounded-lg p-4 bg-gray-50">
+//               <div class="flex items-center justify-between mb-3">
+//                 <h4 class="font-semibold text-gray-900">Exclusivity #${index + 1}</h4>
+//                 <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded text-xs font-medium">
+//                   ${exclusivity.Exclusivity_Code || 'N/A'}
+//                 </span>
+//               </div>
+//               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+//                 <div>
+//                   <label class="text-sm font-medium text-gray-700">Exclusivity Code</label>
+//                   <p class="text-sm text-gray-900 mt-1">${exclusivity.Exclusivity_Code || 'N/A'}</p>
+//                   <p class="text-xs text-gray-500 mt-1">${getExclusivityDescription(exclusivity.Exclusivity_Code)}</p>
+//                 </div>
+//                 <div>
+//                   <label class="text-sm font-medium text-gray-700">Expiration Date</label>
+//                   <p class="text-sm text-gray-900 mt-1">${exclusivity.Exclusivity_Date || 'N/A'}</p>
+//                 </div>
+//               </div>
+//             </div>
+//           `).join('')}
+//         </div>
+//       </div>
+//     </div>
+//   `;
   
-  document.body.appendChild(modal);
+//   document.body.appendChild(modal);
   
-  // Close modal when clicking outside
-  modal.addEventListener('click', function(e) {
-    if (e.target === modal) {
-      closeModal('exclusivity-modal');
+//   // Close modal when clicking outside
+//   modal.addEventListener('click', function(e) {
+//     if (e.target === modal) {
+//       closeModal('exclusivity-modal');
+//     }
+//   });
+// }
+
+
+function calculateUnlinkedItems(data) {
+  const linkedPatentIds = new Set();
+  const linkedExclusivityIds = new Set();
+  
+  data.results.products.forEach(product => {
+    if (product.related_patents) {
+      product.related_patents.forEach(patent => {
+        linkedPatentIds.add(`${patent.Appl_Type}-${patent.Appl_No}-${patent.Product_No}-${patent.Patent_No}`);
+      });
+    }
+    if (product.related_exclusivity) {
+      product.related_exclusivity.forEach(exclusivity => {
+        linkedExclusivityIds.add(`${exclusivity.Appl_Type}-${exclusivity.Appl_No}-${exclusivity.Product_No}-${exclusivity.Exclusivity_Code}`);
+      });
     }
   });
+  
+  const unlinkedPatents = data.results.patents.filter(patent => 
+    !linkedPatentIds.has(`${patent.Appl_Type}-${patent.Appl_No}-${patent.Product_No}-${patent.Patent_No}`)
+  );
+  
+  const unlinkedExclusivity = data.results.exclusivity.filter(exclusivity => 
+    !linkedExclusivityIds.has(`${exclusivity.Appl_Type}-${exclusivity.Appl_No}-${exclusivity.Product_No}-${exclusivity.Exclusivity_Code}`)
+  );
+  
+  return { unlinkedPatents, unlinkedExclusivity };
 }
 
-// Helper functions
+function storeCurrentOrangeBookData(data) {
+  window.currentOrangeBookData = data;
+}
+
 function findProductById(productId) {
-  // This should access your stored data - adjust according to your data structure
-  // You might need to store the current data globally or pass it differently
   if (window.currentOrangeBookData && window.currentOrangeBookData.results) {
     return window.currentOrangeBookData.results.products.find(p => 
       `${p.Appl_No}-${p.Product_No}` === productId
@@ -76366,16 +77000,17 @@ function findProductById(productId) {
   return null;
 }
 
+
 function extractRoute(dfRoute) {
   if (!dfRoute) return null;
   const parts = dfRoute.split(';');
-  return parts.length > 1 ? parts[1] : dfRoute;
+  return parts.length > 1 ? parts[1].trim() : dfRoute;
 }
 
 function getExclusivityDescription(code) {
   const descriptions = {
     'ODE': 'Orphan Drug Exclusivity',
-    'NCE': 'New Chemical Entity Exclusivity', 
+    'NCE': 'New Chemical Entity Exclusivity',
     'NDF': 'New Dosage Form Exclusivity',
     'NPE': 'New Patient Population Exclusivity',
     'POA': 'Pediatric Exclusivity',
@@ -76386,18 +77021,20 @@ function getExclusivityDescription(code) {
   return descriptions[code] || 'Unknown exclusivity type';
 }
 
-
-function closeAllModals() {
-  ['patent-modal', 'exclusivity-modal'].forEach(modalId => {
-    const modal = document.getElementById(modalId);
-    if (modal) modal.remove();
-  });
+function createEmptyState() {
+  return `
+    <div class="text-center p-8 bg-gray-50 rounded-lg">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-gray-400 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+      </svg>
+      <p class="text-lg text-gray-600">No Orange Book entries found</p>
+    </div>
+  `;
 }
 
-// Store current data globally for modal access
-function storeCurrentOrangeBookData(data) {
-  window.currentOrangeBookData = data;
-}
+
+
+
 // Function to toggle product details
 function toggleProductDetails(productId) {
   const detailsElement = document.getElementById(`details-${productId}`);
@@ -76647,33 +77284,79 @@ productCard.querySelectorAll('.related-pane').forEach(pane => {
 // ==========================================
 
 // Global variables to store current state
-window.currentOrangeBookQuery = '';
-window.currentOrangeBookPage = 1;
+// window.currentOrangeBookQuery = '';
+// window.currentOrangeBookPage = 1;
 
-// Global function to handle pagination
-window.goToOrangeBookPage = function(page) {
-  console.log(`[OrangeBook] Going to page ${page} with query: ${window.currentOrangeBookQuery}`);
+// // Global function to handle pagination
+// window.goToOrangeBookPage = function(page) {
+//   console.log(`[OrangeBook] Going to page ${page} with query: ${window.currentOrangeBookQuery}`);
   
-  // Validate inputs
-  if (!window.currentOrangeBookQuery) {
-    console.error('[OrangeBook] No query stored for pagination');
-    return;
-  }
+//   // Validate inputs
+//   if (!window.currentOrangeBookQuery) {
+//     console.error('[OrangeBook] No query stored for pagination');
+//     return;
+//   }
   
-  if (!page || isNaN(page) || page < 1) {
-    console.error('[OrangeBook] Invalid page number:', page);
-    return;
-  }
+//   if (!page || isNaN(page) || page < 1) {
+//     console.error('[OrangeBook] Invalid page number:', page);
+//     return;
+//   }
   
-  // Call searchOrangeBook with stored query and new page
-  if (typeof searchOrangeBook === 'function') {
-    searchOrangeBook(window.currentOrangeBookQuery, page);
-  } else {
-    console.error('[OrangeBook] searchOrangeBook function not found');
-  }
-};
+//   // Call searchOrangeBook with stored query and new page
+//   if (typeof searchOrangeBook === 'function') {
+//     searchOrangeBook(window.currentOrangeBookQuery, page);
+//   } else {
+//     console.error('[OrangeBook] searchOrangeBook function not found');
+//   }
+// };
 
 // Enhanced searchOrangeBook function with pagination
+// function searchOrangeBook(query, page = 1) {
+//   if (!query || !query.trim()) {
+//     elements.orangeBookData.innerHTML = `
+//       <div class="text-center p-4">
+//         <p class="text-sm text-gray-700">Please enter a search term</p>
+//       </div>
+//     `;
+//     elements.orangeBookCount.textContent = '0 entries';
+//     return;
+//   }
+  
+//   // Store current query and page globally
+//   window.currentOrangeBookQuery = query;
+//   window.currentOrangeBookPage = page;
+  
+//   console.log(`Searching Orange Book: query="${query}", page=${page}`);
+  
+//   // Show loading state
+//   elements.orangeBookData.innerHTML = `
+//     <div class="flex justify-center items-center p-8">
+//       <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+//       <p class="mt-2 text-sm text-gray-700">Searching...</p>
+//     </div>
+//   `;
+  
+//   // Fetch data with pagination
+//   fetch(`/api/fda/orangebook/search?q=${encodeURIComponent(query)}&page=${page}&limit=50`)
+//     .then(response => {
+//       if (!response.ok) throw new Error('Network response was not ok');
+//       return response.json();
+//     })
+//     .then(data => {
+//       console.log('Orange Book data received:', data);
+//       displayOrangeBookData(data);
+//     })
+//     .catch(error => {
+//       console.error('Error fetching Orange Book data:', error);
+//       elements.orangeBookData.innerHTML = `
+//         <div class="text-center p-4">
+//           <p class="text-sm text-red-600">Error: ${error.message}</p>
+//         </div>
+//       `;
+//       elements.orangeBookCount.textContent = '0 entries';
+//     });
+// }
+
 function searchOrangeBook(query, page = 1) {
   if (!query || !query.trim()) {
     elements.orangeBookData.innerHTML = `
@@ -76695,7 +77378,7 @@ function searchOrangeBook(query, page = 1) {
   elements.orangeBookData.innerHTML = `
     <div class="flex justify-center items-center p-8">
       <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-      <p class="mt-2 text-sm text-gray-700">Searching...</p>
+      <p class="ml-3 text-sm text-gray-700">Searching...</p>
     </div>
   `;
   
@@ -76719,6 +77402,20 @@ function searchOrangeBook(query, page = 1) {
       elements.orangeBookCount.textContent = '0 entries';
     });
 }
+window.currentOrangeBookQuery = '';
+window.currentOrangeBookPage = 1;
+window.currentOrangeBookData = null;
+// Global pagination handler
+window.goToOrangeBookPage = function(page) {
+  console.log(`[OrangeBook] Going to page ${page}`);
+  
+  if (!window.currentOrangeBookQuery) {
+    console.error('[OrangeBook] No query stored for pagination');
+    return;
+  }
+  
+  searchOrangeBook(window.currentOrangeBookQuery, page);
+};
 
 
 // 1. FIX: Update displayOrangeBookDataWithPagination to not duplicate pagination
@@ -76756,71 +77453,127 @@ function createPageButtons(currentPage, totalPages) {
   return buttons;
 }
 // Updated addPaginationControls function - keep everything else the same
+// function addPaginationControls(pagination) {
+//   const { currentPage, totalPages, hasNextPage, hasPrevPage, totalItems, itemsPerPage } = pagination;
+  
+//   const startItem = ((currentPage - 1) * itemsPerPage) + 1;
+//   const endItem = Math.min(currentPage * itemsPerPage, totalItems);
+  
+//   let html = `
+//     <div class="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6">
+//       <div class="flex flex-1 justify-between sm:hidden">
+//         <button 
+//           onclick="goToOrangeBookPage(${currentPage - 1})"
+//           ${!hasPrevPage ? 'disabled' : ''}
+//           class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md ${!hasPrevPage ? 'text-gray-300 bg-gray-100 cursor-not-allowed' : 'text-gray-700 bg-white hover:bg-gray-50'}"
+//         >
+//           Previous
+//         </button>
+//         <button 
+//           onclick="goToOrangeBookPage(${currentPage + 1})"
+//           ${!hasNextPage ? 'disabled' : ''}
+//           class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md ${!hasNextPage ? 'text-gray-300 bg-gray-100 cursor-not-allowed' : 'text-gray-700 bg-white hover:bg-gray-50'}"
+//         >
+//           Next
+//         </button>
+//       </div>
+//       <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+//         <div>
+//           <p class="text-sm text-gray-700">
+//             Showing <span class="font-medium">${startItem}</span> to <span class="font-medium">${endItem}</span> of{' '}
+//             <span class="font-medium">${totalItems}</span> results
+//           </p>
+//         </div>
+//         <div>
+//           <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+//             <button 
+//               onclick="goToOrangeBookPage(${currentPage - 1})"
+//               ${!hasPrevPage ? 'disabled' : ''}
+//               class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium ${!hasPrevPage ? 'text-gray-300 cursor-not-allowed' : 'text-gray-500 hover:bg-gray-50'}"
+//             >
+//               <span class="sr-only">Previous</span>
+//               <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+//                 <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+//               </svg>
+//             </button>
+            
+//             ${createPageButtons(currentPage, totalPages)}
+            
+//             <button 
+//               onclick="goToOrangeBookPage(${currentPage + 1})"
+//               ${!hasNextPage ? 'disabled' : ''}
+//               class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium ${!hasNextPage ? 'text-gray-300 cursor-not-allowed' : 'text-gray-500 hover:bg-gray-50'}"
+//             >
+//               <span class="sr-only">Next</span>
+//               <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+//                 <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+//               </svg>
+//             </button>
+//           </nav>
+//         </div>
+//       </div>
+//     </div>
+//   `;
+  
+//   return html;
+// }
+
 function addPaginationControls(pagination) {
-  const { currentPage, totalPages, hasNextPage, hasPrevPage, totalItems, itemsPerPage } = pagination;
+  const container = document.getElementById('orangeBookData');
+  if (!container) return;
   
-  const startItem = ((currentPage - 1) * itemsPerPage) + 1;
-  const endItem = Math.min(currentPage * itemsPerPage, totalItems);
-  
-  let html = `
-    <div class="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6">
-      <div class="flex flex-1 justify-between sm:hidden">
-        <button 
-          onclick="goToOrangeBookPage(${currentPage - 1})"
-          ${!hasPrevPage ? 'disabled' : ''}
-          class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md ${!hasPrevPage ? 'text-gray-300 bg-gray-100 cursor-not-allowed' : 'text-gray-700 bg-white hover:bg-gray-50'}"
-        >
-          Previous
-        </button>
-        <button 
-          onclick="goToOrangeBookPage(${currentPage + 1})"
-          ${!hasNextPage ? 'disabled' : ''}
-          class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md ${!hasNextPage ? 'text-gray-300 bg-gray-100 cursor-not-allowed' : 'text-gray-700 bg-white hover:bg-gray-50'}"
-        >
-          Next
-        </button>
+  const paginationHTML = `
+    <div class="flex items-center justify-center space-x-2 mt-6 p-4 bg-white rounded-lg border border-gray-200">
+      <button 
+        onclick="goToOrangeBookPage(${pagination.currentPage - 1})" 
+        ${pagination.currentPage === 1 ? 'disabled' : ''}
+        class="px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed">
+        Previous
+      </button>
+      
+      <div class="flex space-x-1">
+        ${generatePageButtons(pagination)}
       </div>
-      <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
-        <div>
-          <p class="text-sm text-gray-700">
-            Showing <span class="font-medium">${startItem}</span> to <span class="font-medium">${endItem}</span> of{' '}
-            <span class="font-medium">${totalItems}</span> results
-          </p>
-        </div>
-        <div>
-          <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
-            <button 
-              onclick="goToOrangeBookPage(${currentPage - 1})"
-              ${!hasPrevPage ? 'disabled' : ''}
-              class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium ${!hasPrevPage ? 'text-gray-300 cursor-not-allowed' : 'text-gray-500 hover:bg-gray-50'}"
-            >
-              <span class="sr-only">Previous</span>
-              <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
-              </svg>
-            </button>
-            
-            ${createPageButtons(currentPage, totalPages)}
-            
-            <button 
-              onclick="goToOrangeBookPage(${currentPage + 1})"
-              ${!hasNextPage ? 'disabled' : ''}
-              class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium ${!hasNextPage ? 'text-gray-300 cursor-not-allowed' : 'text-gray-500 hover:bg-gray-50'}"
-            >
-              <span class="sr-only">Next</span>
-              <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
-              </svg>
-            </button>
-          </nav>
-        </div>
-      </div>
+      
+      <button 
+        onclick="goToOrangeBookPage(${pagination.currentPage + 1})" 
+        ${pagination.currentPage === pagination.totalPages ? 'disabled' : ''}
+        class="px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed">
+        Next
+      </button>
     </div>
   `;
   
-  return html;
+  container.insertAdjacentHTML('beforeend', paginationHTML);
 }
 
+function generatePageButtons(pagination) {
+  const { currentPage, totalPages } = pagination;
+  let buttons = '';
+  
+  // Show max 5 page buttons
+  const maxButtons = 5;
+  let startPage = Math.max(1, currentPage - Math.floor(maxButtons / 2));
+  let endPage = Math.min(totalPages, startPage + maxButtons - 1);
+  
+  if (endPage - startPage + 1 < maxButtons) {
+    startPage = Math.max(1, endPage - maxButtons + 1);
+  }
+  
+  for (let i = startPage; i <= endPage; i++) {
+    buttons += `
+      <button 
+        onclick="goToOrangeBookPage(${i})"
+        class="px-3 py-1 text-sm ${i === currentPage ? 
+          'bg-blue-600 text-white' : 
+          'bg-gray-100 text-gray-700 hover:bg-gray-200'} rounded">
+        ${i}
+      </button>
+    `;
+  }
+  
+  return buttons;
+}
 // Debug function to check current state
 window.debugOrangeBookPagination = function() {
   console.log('=== Orange Book Pagination Debug ===');
@@ -82472,8 +83225,11 @@ async function enhancedHandleSearch(isAISearch = false, aiQuery = '') {
         updateSectionStatus(section, 'idle', '-', 0);
     });
     const currentAccess = await window.subscriptionManager.refresh();
-    const isPro = currentAccess.isPro;
-    
+    let isPro = currentAccess.isPro;
+    const tempPro = await window.subscriptionManager.temporaryProOverride;
+if (tempPro){
+    isPro = tempPro
+}
     // Clear previous search results and hide sections
     // elements.drugSearch.value = '';
     // elements.conditionSearch.value = '';
@@ -83593,7 +84349,7 @@ if (showPubMed && searchConfig.pubmed && searchConfig.pubmed.enabled) {
 
 async function handleSearch() {
     console.log("Starting search validation...");
-    
+    window.subscriptionManager.resetTemporaryPro()
     // Get search parameters from form inputs
     const drug = elements.drugSearch.value.trim();
     const condition = elements.conditionSearch.value.trim();
@@ -83606,9 +84362,123 @@ async function handleSearch() {
         showEmptySearchPopup();
         return; // Exit early, don't run the search
     }
+
+
+    const currentAccess = await window.subscriptionManager.userAccess;
+   
+    // console.log("CURRENT ACCSSS BLOCK", currentAccess)
+
+    // const isPro = currentAccess?.isPro || false;
+    // console.log(" ENHANCEDSEARCH IS PRO : ", isPro)
+
+    console.log("CURRENT ACCSSS BLOCK", currentAccess)
+    const isPro = currentAccess?.subscriptionTier === 'monthly' || 
+          currentAccess?.subscriptionStatus === 'active' || false;
+
+          if (currentAccess?.subscriptionTier === 'monthly' || 
+          currentAccess?.subscriptionStatus === 'active') {
+             const isPro = true;
+      }
+
+console.log(" ENHANCEDSEARCH IS PRO : ", isPro)
+
+            if(isPro){
+
     
     // At least one field has a value, proceed with search
     return await enhancedHandleSearch(false, '');
+
+
+
+      } else {
+      // Check user access - get fresh data
+      await window.subscriptionManager?.loadUserAccess();
+      const userAccess = window.subscriptionManager?.userAccess;
+      
+      // Also check localStorage as backup
+      const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+      const searchCredits = userAccess?.searchCredits || currentUser.searchCredits || 0;
+      
+      console.log('Credits check:', {
+        fromManager: userAccess?.searchCredits,
+        fromStorage: currentUser.searchCredits,
+        final: searchCredits
+      });
+      
+      // Check if user is Pro
+      if (userAccess?.subscriptionTier === 'monthly' || 
+          userAccess?.subscriptionStatus === 'active') {
+        // Pro user - proceed directly
+
+    
+    // At least one field has a value, proceed with search
+    return await enhancedHandleSearch(false, '');
+      }
+      
+
+
+    if (searchCredits > 0) {
+      // Store the search query for later use
+      localStorage.setItem('pendingSearchQuery', drug);
+      
+      // Show credit confirmation modal and handle the ENTIRE flow here
+      const confirmed = await window.searchCreditManager?.confirmAndUseCredit(drug);
+
+if(confirmed){
+await window.subscriptionManager?.enableTemporaryPro()
+return await enhancedHandleSearch(false, '');
+}else {
+ return await enhancedHandleSearch(false, '');
+}
+      
+    }
+      // Check if user has a saved search for this query
+      const savedSearch = userAccess?.savedSearches?.find(
+        s => s.searchConfig?.drugName?.toLowerCase() === drug.toLowerCase()
+      );
+      
+      if (savedSearch) {
+        // User has this search saved - allow access
+        const notification = window.enhancedSearchInterceptor?.showNotification || 
+                           window.searchCreditManager?.showNotification;
+        if (notification) {
+          notification.call(window.enhancedSearchInterceptor || window.searchCreditManager, 
+                           'Loading your saved search...', 'info');
+        }
+        return await enhancedHandleSearch(false, '');
+      }
+      
+      // No access - show purchase options
+      // Store query and show upgrade modal
+      localStorage.setItem('pendingSearchQuery', drug);
+      if(!isPro){
+      window.stripeIntegration.showUpgradeModal(
+        'Purchase Search Access',
+        `You need search credits to search for "${drug}".`
+      );
+       return await enhancedHandleSearch(false, '');
+      }
+
+    };
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
 
 function showEmptySearchPopup() {
@@ -104555,10 +105425,17 @@ async function initializeComprehensiveDrugAnalysis() {
     return;
   }
 
-  const currentAccess = await window.subscriptionManager.refresh();
+  const currentAccess = await window.subscriptionManager.userAccess;
   console.log("CURRENT ACCESS BLOCK PUBMED", currentAccess)
 
-  const isPro = currentAccess?.isPro || false;
+  let isPro = currentAccess?.isPro || false;
+
+      const tempPro = window.subscriptionManager.temporaryProOverride;
+
+if (tempPro){
+    isPro = tempPro
+}
+
   console.log("LABELLING IS PUBMED : ", isPro)
   
   // Find where to insert it
@@ -114244,6 +115121,11 @@ class UnifiedSubscriptionManager {
     this.callbacks = [];
     this.isInitialized = false;
     
+    // Add temporary pro override properties
+    this.temporaryProOverride = false;
+    this.originalUserAccess = null;
+    this.temporaryProTimeout = null;
+    
     // Cache duration: 5 minutes
     this.CACHE_DURATION = 5 * 60 * 1000;
     
@@ -114270,6 +115152,245 @@ class UnifiedSubscriptionManager {
     }
   }
 
+    getProFeatureAccess() {
+    return {
+      clinicalTrials: {
+        topConditions: -1, // unlimited
+        trialAnalysis: true,
+        viewAllTrials: true,
+      },
+      fdaData: {
+        viewAllNDAs: true,
+        timelineAccess: 'all',
+        enforcementsAccess: true,
+        adverseEventsAccess: true,
+        labelingAccess: true
+      },
+      responseLetters: true,
+      warningLetters: true,
+      labeling: {
+        latestChanges: -1, // unlimited
+        emaAccess: true
+      },
+      pubmed: {
+        advancedSearch: true
+      }
+    };
+  }
+
+ /**
+   * Enable temporary pro access
+   * @param {number} durationMs - Duration in milliseconds (optional, defaults to no auto-reset)
+   */
+  enableTemporaryPro(durationMs = null) {
+    console.log('Enabling temporary Pro access...');
+    
+    // Clear any existing timeout
+    if (this.temporaryProTimeout) {
+      clearTimeout(this.temporaryProTimeout);
+      this.temporaryProTimeout = null;
+    }
+    
+    // Store original access if not already stored
+    if (!this.originalUserAccess && this.userAccess) {
+      this.originalUserAccess = JSON.parse(JSON.stringify(this.userAccess));
+    }
+    
+    // Set the override flag
+    this.temporaryProOverride = true;
+    
+    // Modify current user access to Pro
+    if (this.userAccess) {
+      this.userAccess = {
+        ...this.userAccess,
+        isPro: true,
+        subscriptionStatus: 'active',
+        subscriptionTier: 'professional',
+        featureAccess: this.getProFeatureAccess(),
+        billingPeriod: 'Temporary Pro Access'
+      };
+    } else {
+      // Create pro access from scratch if needed
+      this.userAccess = {
+        ...this.getDefaultAccess(),
+        isPro: true,
+        subscriptionStatus: 'active',
+        subscriptionTier: 'professional',
+        featureAccess: this.getProFeatureAccess(),
+        billingPeriod: 'Temporary Pro Access'
+      };
+    }
+    
+    // Store in localStorage so it persists across refreshes
+    localStorage.setItem('temporaryProOverride', JSON.stringify({
+      enabled: true,
+      timestamp: Date.now(),
+      duration: durationMs,
+      originalAccess: this.originalUserAccess
+    }));
+    
+    // Notify all callbacks about the change
+    this.notifyCallbacks();
+    
+    // Set auto-reset timer if duration specified
+    if (durationMs && durationMs > 0) {
+      this.temporaryProTimeout = setTimeout(() => {
+        console.log('Temporary Pro access expired, resetting...');
+        this.resetTemporaryPro();
+      }, durationMs);
+    }
+    
+    console.log('Temporary Pro access enabled!', this.userAccess);
+    return true;
+  }
+
+  /**
+   * Reset back to original access level
+   */
+  resetTemporaryPro() {
+    console.log('Resetting temporary Pro access...');
+    
+    // Clear timeout if exists
+    if (this.temporaryProTimeout) {
+      clearTimeout(this.temporaryProTimeout);
+      this.temporaryProTimeout = null;
+    }
+    
+    // Reset the flag
+    this.temporaryProOverride = false;
+    
+    // Restore original access
+    if (this.originalUserAccess) {
+      this.userAccess = JSON.parse(JSON.stringify(this.originalUserAccess));
+      this.originalUserAccess = null;
+    } else {
+      // If no original, refresh from server
+      this.checkSubscriptionStatus(true);
+    }
+    
+    // Clear from localStorage
+    localStorage.removeItem('temporaryProOverride');
+    
+    // Notify callbacks
+    this.notifyCallbacks();
+    
+    console.log('Temporary Pro access reset complete', this.userAccess);
+    return true;
+  }
+
+  /**
+   * Check if temporary pro is currently active
+   */
+  isTemporaryProActive() {
+    return this.temporaryProOverride === true;
+  }
+
+   /**
+   * Enable temporary pro access
+   * @param {number} durationMs - Duration in milliseconds (optional, defaults to no auto-reset)
+   */
+  enableTemporaryPro(durationMs = null) {
+    console.log('Enabling temporary Pro access...');
+    
+    // Clear any existing timeout
+    if (this.temporaryProTimeout) {
+      clearTimeout(this.temporaryProTimeout);
+      this.temporaryProTimeout = null;
+    }
+    
+    // Store original access if not already stored
+    if (!this.originalUserAccess && this.userAccess) {
+      this.originalUserAccess = JSON.parse(JSON.stringify(this.userAccess));
+    }
+    
+    // Set the override flag
+    this.temporaryProOverride = true;
+    
+    // Modify current user access to Pro
+    if (this.userAccess) {
+      this.userAccess = {
+        ...this.userAccess,
+        isPro: true,
+        subscriptionStatus: 'active',
+        subscriptionTier: 'professional',
+        featureAccess: this.getProFeatureAccess(),
+        billingPeriod: 'Temporary Pro Access'
+      };
+    } else {
+      // Create pro access from scratch if needed
+      this.userAccess = {
+        ...this.getDefaultAccess(),
+        isPro: true,
+        subscriptionStatus: 'active',
+        subscriptionTier: 'professional',
+        featureAccess: this.getProFeatureAccess(),
+        billingPeriod: 'Temporary Pro Access'
+      };
+    }
+    
+    // Store in localStorage so it persists across refreshes
+    localStorage.setItem('temporaryProOverride', JSON.stringify({
+      enabled: true,
+      timestamp: Date.now(),
+      duration: durationMs,
+      originalAccess: this.originalUserAccess
+    }));
+    
+    // Notify all callbacks about the change
+    this.notifyCallbacks();
+    
+    // Set auto-reset timer if duration specified
+    if (durationMs && durationMs > 0) {
+      this.temporaryProTimeout = setTimeout(() => {
+        console.log('Temporary Pro access expired, resetting...');
+        this.resetTemporaryPro();
+      }, durationMs);
+    }
+    
+    console.log('Temporary Pro access enabled!', this.userAccess);
+    return true;
+  }
+
+  /**
+   * Reset back to original access level
+   */
+  resetTemporaryPro() {
+    console.log('Resetting temporary Pro access...');
+    
+    // Clear timeout if exists
+    if (this.temporaryProTimeout) {
+      clearTimeout(this.temporaryProTimeout);
+      this.temporaryProTimeout = null;
+    }
+    
+    // Reset the flag
+    this.temporaryProOverride = false;
+    
+    // Restore original access
+    if (this.originalUserAccess) {
+      this.userAccess = JSON.parse(JSON.stringify(this.originalUserAccess));
+      this.originalUserAccess = null;
+    } else {
+      // If no original, refresh from server
+      this.checkSubscriptionStatus(true);
+    }
+    
+    // Clear from localStorage
+    localStorage.removeItem('temporaryProOverride');
+    
+    // Notify callbacks
+    this.notifyCallbacks();
+    
+    console.log('Temporary Pro access reset complete', this.userAccess);
+    return true;
+  }
+
+  /**
+   * Check if temporary pro is currently active
+   */
+  isTemporaryProActive() {
+    return this.temporaryProOverride === true;
+  }
   async waitForLoginSystem() {
     return new Promise((resolve) => {
       const checkLoginSystem = () => {
@@ -116086,197 +117207,197 @@ async init() {
 //   }
  
   async interceptSearchAttempts() {
-    const searchButton = document.getElementById('searchButton');
+//     const searchButton = document.getElementById('searchButton');
 
 
 
-    if (!searchButton) {
-      console.log('Search button not found, retrying...');
-      setTimeout(() => this.interceptSearchAttempts(), 1000);
-      return;
-    }
+//     if (!searchButton) {
+//       console.log('Search button not found, retrying...');
+//       setTimeout(() => this.interceptSearchAttempts(), 1000);
+//       return;
+//     }
 
-    // Store original click handler
-    const originalOnClick = searchButton.onclick;
+//     // Store original click handler
+//     const originalOnClick = searchButton.onclick;
     
-    // Replace with payment-aware handler
-    searchButton.onclick = async (e) => {
-      e.preventDefault();
+//     // Replace with payment-aware handler
+//     searchButton.onclick = async (e) => {
+//       e.preventDefault();
       
 
-              const currentAccess = await window.subscriptionManager.userAccess;
-    // console.log("CURRENT ACCSSS BLOCK", currentAccess)
+//               const currentAccess = await window.subscriptionManager.userAccess;
+//     // console.log("CURRENT ACCSSS BLOCK", currentAccess)
 
-    // const isPro = currentAccess?.isPro || false;
-    // console.log(" ENHANCEDSEARCH IS PRO : ", isPro)
+//     // const isPro = currentAccess?.isPro || false;
+//     // console.log(" ENHANCEDSEARCH IS PRO : ", isPro)
 
-    console.log("CURRENT ACCSSS BLOCK", currentAccess)
-    const isPro = currentAccess?.subscriptionTier === 'monthly' || 
-          currentAccess?.subscriptionStatus === 'active' || false;
+//     console.log("CURRENT ACCSSS BLOCK", currentAccess)
+//     const isPro = currentAccess?.subscriptionTier === 'monthly' || 
+//           currentAccess?.subscriptionStatus === 'active' || false;
 
-          if (currentAccess?.subscriptionTier === 'monthly' || 
-          currentAccess?.subscriptionStatus === 'active') {
-             const isPro = true;
-      }
+//           if (currentAccess?.subscriptionTier === 'monthly' || 
+//           currentAccess?.subscriptionStatus === 'active') {
+//              const isPro = true;
+//       }
 
-console.log(" ENHANCEDSEARCH IS PRO : ", isPro)
-      // Get search query
-      const drugSearch = document.getElementById('drugSearch')?.value;
-      if (!drugSearch) {
-        return;
-      }
-            if(isPro){
-                if (originalOnClick) {
-          originalOnClick.call(searchButton, e);
-        }
-        return;
-      } else {
-      // Check user access - get fresh data
-      await window.subscriptionManager?.loadUserAccess();
-      const userAccess = window.subscriptionManager?.userAccess;
+// console.log(" ENHANCEDSEARCH IS PRO : ", isPro)
+//       // Get search query
+//       const drugSearch = document.getElementById('drugSearch')?.value;
+//       if (!drugSearch) {
+//         return;
+//       }
+//             if(isPro){
+//                 if (originalOnClick) {
+//           originalOnClick.call(searchButton, e);
+//         }
+//         return;
+//       } else {
+//       // Check user access - get fresh data
+//       await window.subscriptionManager?.loadUserAccess();
+//       const userAccess = window.subscriptionManager?.userAccess;
       
-      // Also check localStorage as backup
-      const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
-      const searchCredits = userAccess?.searchCredits || currentUser.searchCredits || 0;
+//       // Also check localStorage as backup
+//       const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+//       const searchCredits = userAccess?.searchCredits || currentUser.searchCredits || 0;
       
-      console.log('Credits check:', {
-        fromManager: userAccess?.searchCredits,
-        fromStorage: currentUser.searchCredits,
-        final: searchCredits
-      });
+//       console.log('Credits check:', {
+//         fromManager: userAccess?.searchCredits,
+//         fromStorage: currentUser.searchCredits,
+//         final: searchCredits
+//       });
       
-      // Check if user is Pro
-      if (userAccess?.subscriptionTier === 'monthly' || 
-          userAccess?.subscriptionStatus === 'active') {
-        // Pro user - proceed directly
-        if (originalOnClick) {
-          originalOnClick.call(searchButton, e);
-        }
-        return;
-      }
+//       // Check if user is Pro
+//       if (userAccess?.subscriptionTier === 'monthly' || 
+//           userAccess?.subscriptionStatus === 'active') {
+//         // Pro user - proceed directly
+//         if (originalOnClick) {
+//           originalOnClick.call(searchButton, e);
+//         }
+//         return;
+//       }
       
 
 
-    if (searchCredits > 0) {
-      // Store the search query for later use
-      localStorage.setItem('pendingSearchQuery', drugSearch);
+//     if (searchCredits > 0) {
+//       // Store the search query for later use
+//       localStorage.setItem('pendingSearchQuery', drugSearch);
       
-      // Show credit confirmation modal and handle the ENTIRE flow here
-      const confirmed = await window.searchCreditManager?.confirmAndUseCredit(drugSearch);
+//       // Show credit confirmation modal and handle the ENTIRE flow here
+//       const confirmed = await window.searchCreditManager?.confirmAndUseCredit(drugSearch);
       
-    //   if (confirmed) {
-    //     // Use the credit ONCE
-    //     const creditUsed = await window.searchCreditManager?.useSearchCredit(drugSearch);
+//     //   if (confirmed) {
+//     //     // Use the credit ONCE
+//     //     const creditUsed = await window.searchCreditManager?.useSearchCredit(drugSearch);
         
-    //     if (creditUsed) {
-    //       // Enable temporary pro access
-    //       window.searchCreditManager?.enableTemporaryProAccess();
+//     //     if (creditUsed) {
+//     //       // Enable temporary pro access
+//     //       window.searchCreditManager?.enableTemporaryProAccess();
           
-    //       // Proceed with search
-    //       if (originalOnClick) {
-    //         originalOnClick.call(searchButton, e);
-    //       }
+//     //       // Proceed with search
+//     //       if (originalOnClick) {
+//     //         originalOnClick.call(searchButton, e);
+//     //       }
           
-    //       // Auto-save the search after a delay
-    //       setTimeout(async () => {
-    //         await window.searchCreditManager?.autoSaveSearch(
-    //           drugSearch, 
-    //           document.querySelector('.search-results')?.innerHTML
-    //         );
+//     //       // Auto-save the search after a delay
+//     //       setTimeout(async () => {
+//     //         await window.searchCreditManager?.autoSaveSearch(
+//     //           drugSearch, 
+//     //           document.querySelector('.search-results')?.innerHTML
+//     //         );
             
-    //         // Disable temporary pro access after search completes
-    //         setTimeout(() => {
-    //           window.searchCreditManager?.disableTemporaryProAccess();
-    //           window.subscriptionManager?.checkSubscriptionStatus();
-    //         }, 2000);
-    //       }, 3000);
-    //     }
-    //   }
-      return; // EXIT HERE - no fallback code
-    }
-      // Check if user has search credits
-    //   if (searchCredits > 0) {
-    //     // Store the search query for later use
-    //     localStorage.setItem('pendingSearchQuery', drugSearch);
+//     //         // Disable temporary pro access after search completes
+//     //         setTimeout(() => {
+//     //           window.searchCreditManager?.disableTemporaryProAccess();
+//     //           window.subscriptionManager?.checkSubscriptionStatus();
+//     //         }, 2000);
+//     //       }, 3000);
+//     //     }
+//     //   }
+//       return; // EXIT HERE - no fallback code
+//     }
+//       // Check if user has search credits
+//     //   if (searchCredits > 0) {
+//     //     // Store the search query for later use
+//     //     localStorage.setItem('pendingSearchQuery', drugSearch);
         
-    //     // Use the new EnhancedSearchInterceptor for credit confirmation
-    //     if (window.enhancedSearchInterceptor) {
-    //       // Show the new credit confirmation modal
-    //       const confirmed = await window.enhancedSearchInterceptor.showCreditConfirmationModal(
-    //         drugSearch, 
-    //         searchCredits
-    //       );
+//     //     // Use the new EnhancedSearchInterceptor for credit confirmation
+//     //     if (window.enhancedSearchInterceptor) {
+//     //       // Show the new credit confirmation modal
+//     //       const confirmed = await window.enhancedSearchInterceptor.showCreditConfirmationModal(
+//     //         drugSearch, 
+//     //         searchCredits
+//     //       );
           
-    //       if (confirmed) {
-    //         // Use the enhanced interceptor to handle credit usage
-    //         await window.enhancedSearchInterceptor.useSearchCreditAndProceed(
-    //           drugSearch, 
-    //           searchButton, 
-    //           originalOnClick
-    //         );
-    //       }
-    //     } else {
-    //       // Fallback to old method if EnhancedSearchInterceptor doesn't exist
-    //       console.warn('EnhancedSearchInterceptor not found, using fallback');
+//     //       if (confirmed) {
+//     //         // Use the enhanced interceptor to handle credit usage
+//     //         await window.enhancedSearchInterceptor.useSearchCreditAndProceed(
+//     //           drugSearch, 
+//     //           searchButton, 
+//     //           originalOnClick
+//     //         );
+//     //       }
+//     //     } else {
+//     //       // Fallback to old method if EnhancedSearchInterceptor doesn't exist
+//     //       console.warn('EnhancedSearchInterceptor not found, using fallback');
           
-    //       const confirmed = await window.searchCreditManager?.confirmAndUseCredit(drugSearch);
+//     //       const confirmed = await window.searchCreditManager?.confirmAndUseCredit(drugSearch);
           
-    //       if (confirmed) {
-    //         const creditUsed = await window.searchCreditManager?.useSearchCredit(drugSearch);
+//     //       if (confirmed) {
+//     //         const creditUsed = await window.searchCreditManager?.useSearchCredit(drugSearch);
             
-    //         if (creditUsed) {
-    //           window.searchCreditManager?.enableTemporaryProAccess();
+//     //         if (creditUsed) {
+//     //           window.searchCreditManager?.enableTemporaryProAccess();
               
-    //           if (originalOnClick) {
-    //             originalOnClick.call(searchButton, e);
-    //           }
+//     //           if (originalOnClick) {
+//     //             originalOnClick.call(searchButton, e);
+//     //           }
               
-    //           setTimeout(async () => {
-    //             await window.searchCreditManager?.autoSaveSearch(
-    //               drugSearch, 
-    //               document.querySelector('.search-results')?.innerHTML
-    //             );
+//     //           setTimeout(async () => {
+//     //             await window.searchCreditManager?.autoSaveSearch(
+//     //               drugSearch, 
+//     //               document.querySelector('.search-results')?.innerHTML
+//     //             );
                 
-    //             setTimeout(() => {
-    //               window.searchCreditManager?.disableTemporaryProAccess();
-    //               window.subscriptionManager?.checkSubscriptionStatus();
-    //             }, 2000);
-    //           }, 3000);
-    //         }
-    //       }
-    //     }
-    //     return;
-    //   }
-    }
-      // Check if user has a saved search for this query
-      const savedSearch = userAccess?.savedSearches?.find(
-        s => s.searchConfig?.drugName?.toLowerCase() === drugSearch.toLowerCase()
-      );
+//     //             setTimeout(() => {
+//     //               window.searchCreditManager?.disableTemporaryProAccess();
+//     //               window.subscriptionManager?.checkSubscriptionStatus();
+//     //             }, 2000);
+//     //           }, 3000);
+//     //         }
+//     //       }
+//     //     }
+//     //     return;
+//     //   }
+//     }
+//       // Check if user has a saved search for this query
+//       const savedSearch = userAccess?.savedSearches?.find(
+//         s => s.searchConfig?.drugName?.toLowerCase() === drugSearch.toLowerCase()
+//       );
       
-      if (savedSearch) {
-        // User has this search saved - allow access
-        const notification = window.enhancedSearchInterceptor?.showNotification || 
-                           window.searchCreditManager?.showNotification;
-        if (notification) {
-          notification.call(window.enhancedSearchInterceptor || window.searchCreditManager, 
-                           'Loading your saved search...', 'info');
-        }
-        if (originalOnClick) {
-          originalOnClick.call(searchButton, e);
-        }
-        return;
-      }
+//       if (savedSearch) {
+//         // User has this search saved - allow access
+//         const notification = window.enhancedSearchInterceptor?.showNotification || 
+//                            window.searchCreditManager?.showNotification;
+//         if (notification) {
+//           notification.call(window.enhancedSearchInterceptor || window.searchCreditManager, 
+//                            'Loading your saved search...', 'info');
+//         }
+//         if (originalOnClick) {
+//           originalOnClick.call(searchButton, e);
+//         }
+//         return;
+//       }
       
-      // No access - show purchase options
-      // Store query and show upgrade modal
-      localStorage.setItem('pendingSearchQuery', drugSearch);
-      if(!isPro){
-      this.showUpgradeModal(
-        'Purchase Search Access',
-        `You neeaaaaaad search credits to search for "${drugSearch}".`
-      );
-      }
-    };
+//       // No access - show purchase options
+//       // Store query and show upgrade modal
+//       localStorage.setItem('pendingSearchQuery', drugSearch);
+//       if(!isPro){
+//       this.showUpgradeModal(
+//         'Purchase Search Access',
+//         `You neeaaaaaad search credits to search for "${drugSearch}".`
+//       );
+//       }
+//     };
   }
   
   // New method that handles both credit modal and upgrade modal
@@ -118441,18 +119562,21 @@ class LeafIntelligenceFeatureBlocker {
     this.setupMutationObserver();
     
     // IMPORTANT: Force initial check to get current state
-    const currentAccess = await window.subscriptionManager.refresh();
+    const currentAccess = await window.subscriptionManager.userAccess;
+
     console.log("CURRENT ACCSSS BLOCK", currentAccess)
     if (currentAccess) {
       this.updateBlockedFeatures(currentAccess);
     }
   }
 
-  updateBlockedFeatures(userAccess) {
-    const isPro = userAccess?.isPro || false;
-    
+  async updateBlockedFeatures(userAccess) {
+    let isPro = userAccess?.isPro || false;
+    const tempPro = await window.subscriptionManager.temporaryProOverride;
     console.log('Updating blocked features, isPro:', isPro);
-    
+    if (tempPro){
+    isPro = tempPro
+}
     // Remove existing blockers
     document.querySelectorAll('.feature-blocker-overlay').forEach(overlay => overlay.remove());
     document.querySelectorAll('.pro-overlay-container').forEach(overlay => overlay.remove());
@@ -118462,7 +119586,7 @@ class LeafIntelligenceFeatureBlocker {
       el.style.userSelect = '';
     });
     
-    if (!userAccess.isPro) {
+    if (!isPro) {
       // Block features based on configuration
       this.blockConfiguredFeatures();
       this.blockRecentEvents();
@@ -118528,10 +119652,11 @@ class LeafIntelligenceFeatureBlocker {
 //     element.appendChild(overlay);
 //   }
     // Fixed createSectionBlocker method
-  createSectionBlocker(element, customMessage = null) {
+ async  createSectionBlocker(element, customMessage = null) {
     // Check if already blocked
     if (element.querySelector('.feature-blocker-overlay')) return;
-    
+        const tempPro = await window.subscriptionManager.temporaryProOverride;
+    if (tempPro) return;
     // Add blocked class
     element.classList.add('feature-blocked');
     
@@ -118978,7 +120103,9 @@ class LeafIntelligenceFeatureBlocker {
         if (window.subscriptionManager?.isPro()) {
             return; // Don't process mutations for Pro users
         }
-        
+                if (window.subscriptionManager?.temporaryProOverride) {
+            return; // Don't process mutations for Pro users
+        }
         mutations.forEach((mutation) => {
             if (mutation.type === 'childList') {
                 mutation.addedNodes.forEach((node) => {
@@ -122546,7 +123673,7 @@ function generateExecutiveSummary(searchTerm, dataAnalysis) {
                 </div>
             </div>
             
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div class="hidden grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
                 <div class="text-center">
                     <div class="text-2xl font-bold text-blue-600">${dataAnalysis.totalDataPoints}</div>
                     <div class="text-sm text-gray-600">Total Data Points</div>

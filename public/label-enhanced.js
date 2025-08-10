@@ -937,10 +937,18 @@ async function fetchEMAMedicines(searchTerm) {
 // }
 
 async function renderLabels() {
-    const currentAccess = await window.subscriptionManager.refresh();
+    const currentAccess = await window.subscriptionManager.userAccess;
+    const tempPro = await window.subscriptionManager.temporaryProOverride;
+    
+
     console.log("CURRENT ACCESS BLOCK LABELLING", currentAccess);
 
-    const isPro = currentAccess?.isPro || false;
+    let isPro = currentAccess?.isPro || false;
+
+if (tempPro){
+    isPro = tempPro
+}
+
     console.log("LABELLING IS PRO: ", isPro);
 
     const filteredLabels = currentLabels.filter(label => {
@@ -1210,9 +1218,18 @@ function createBlurredLabelCard(label) {
     `;
 }
 
-function createCleanLabelCard(label) {
+ function createCleanLabelCard(label) {
     const isEMA = label.type === 'EMA';
-    
+    const currentAccess =  window.subscriptionManager.userAccess;
+    const tempPro =  window.subscriptionManager.temporaryProOverride;
+
+    console.log("CURRENT ACCESS BLOCK LABELLING", currentAccess);
+
+    let isPro = currentAccess?.isPro || false;
+
+if (tempPro){
+    isPro = tempPro
+}
     // Clean color scheme for badges
     const typeColor = isEMA ? 'bg-blue-100 text-blue-800 border-blue-200' : 'bg-slate-100 text-slate-800 border-slate-200';
     
@@ -1227,11 +1244,15 @@ function createCleanLabelCard(label) {
         ${label.authorizationStatus ? `<span class="inline-flex items-center px-2.5 py-1 text-xs font-medium bg-emerald-100 text-emerald-800 border border-emerald-200 rounded-full">${label.authorizationStatus}</span>` : ''}
         ${label.euNumber ? `<span class="inline-flex items-center px-2.5 py-1 text-xs font-medium bg-violet-100 text-violet-800 border border-violet-200 rounded-full">EU ${label.euNumber}</span>` : ''}
     ` : '';
+    // ema-label-card
+    // const cardClasses = isEMA ? 
+    //     ' group bg-white border border-gray-200 rounded-xl p-6 transition-all duration-300 hover:border-gray-300 hover:shadow-lg hover:-translate-y-0.5' : 
+    //     'group bg-white border border-gray-200 rounded-xl p-6 transition-all duration-300 hover:border-gray-300 hover:shadow-lg hover:-translate-y-0.5';
     
-    const cardClasses = isEMA ? 
-        'ema-label-card group bg-white border border-gray-200 rounded-xl p-6 transition-all duration-300 hover:border-gray-300 hover:shadow-lg hover:-translate-y-0.5' : 
-        'group bg-white border border-gray-200 rounded-xl p-6 transition-all duration-300 hover:border-gray-300 hover:shadow-lg hover:-translate-y-0.5';
-    
+
+        const cardClasses = isEMA 
+  ? `group bg-white border border-gray-200 rounded-xl p-6 transition-all duration-300 hover:border-gray-300 hover:shadow-lg hover:-translate-y-0.5${!isPro ? ' ema-label-card' : ''}`
+  : 'group bg-white border border-gray-200 rounded-xl p-6 transition-all duration-300 hover:border-gray-300 hover:shadow-lg hover:-translate-y-0.5';
     return `
         <div class="${cardClasses}">
             <!-- Header Section -->

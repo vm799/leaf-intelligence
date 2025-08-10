@@ -14931,8 +14931,8 @@ searchQuery = `search=${variation}`;
               searchQuery = `search=product_description:"${variation}"`;
               break;
             case "event":
-              searchQuery = `search=patient.drug.medicinalproduct:"${variation}"+OR+patient.drug.openfda.brand_name:"${variation}"+OR+patient.drug.openfda.generic_name:"${variation}"`;
-            // searchQuery = `search=(patient.drug.medicinalproduct:"${variation}"+OR+patient.drug.openfda.brand_name:"${variation}"+OR+patient.drug.openfda.generic_name:"${variation}")+AND+serious:1&sort=receiptdate:desc`;
+              searchQuery = `search=(patient.drug.medicinalproduct:"${variation}"+OR+patient.drug.openfda.brand_name:"${variation}"+OR+patient.drug.openfda.generic_name:"${variation}")+AND+serious:1`;
+              // searchQuery = `search=patient.drug.medicinalproduct:"${variation}"+OR+patient.drug.openfda.brand_name:"${variation}"+OR+patient.drug.openfda.generic_name:"${variation}"`;
               break;
             default:
               searchQuery = `search=${variation}`;
@@ -15660,26 +15660,57 @@ function processDeviceEndpointResults(endpointName, results, searchTerm) {
         }
         break;
         
-      case "event":
-        for (const item of results) {
-          const deviceInfo = item.device || {};
-          processedResults.push({
-            source: "event",
-            name: deviceInfo.brand_name || deviceInfo.generic_name || "Unknown Device",
-            description: `Adverse Event - ${deviceInfo.brand_name || deviceInfo.generic_name || "Unknown Device"}`,
-            applicant: deviceInfo.manufacturer_d_name || "Unknown",
-            date: item.date_received || item.date_of_event || "Unknown",
-            status: item.type_of_report || "Unknown",
-            id: item.report_number || "",
-            additionalInfo: {
-              productProblem: item.product_problem_code,
-              eventType: item.event_type,
-              deviceCategory: deviceInfo.device_category
-            }
-          });
-        }
-        break;
+      // case "event":
+      //   for (const item of results) {
+      //     const deviceInfo = item.device || {};
+      //     processedResults.push({
+      //       source: "event",
+      //       name: deviceInfo.brand_name || deviceInfo.generic_name || "Unknown Device",
+      //       description: `Adverse Event - ${deviceInfo.brand_name || deviceInfo.generic_name || "Unknown Device"}`,
+      //       applicant: deviceInfo.manufacturer_d_name || "Unknown",
+      //       date: item.date_received || item.date_of_event || "Unknown",
+      //       status: item.type_of_report || "Unknown",
+      //       id: item.report_number || "",
+      //       additionalInfo: {
+      //         productProblem: item.product_problem_code,
+      //         eventType: item.event_type,
+      //         deviceCategory: deviceInfo.device_category
+      //       }
+      //     });
+      //   }
+      //   break;
         
+
+
+      case "event":
+  // Process adverse event reports - now only serious ones
+  results.forEach(event => {
+    // Find the drug matching our search term in the report
+    const drugReports = event.patient?.drug || [];
+    const relevantDrugs = drugReports.filter(drug => 
+      (drug.medicinalproduct || '').toLowerCase().includes((searchTerm || '').toLowerCase()) ||
+      (drug.openfda?.brand_name?.[0] || '').toLowerCase().includes((searchTerm || '').toLowerCase()) ||
+      (drug.openfda?.generic_name?.[0] || '').toLowerCase().includes((searchTerm || '').toLowerCase())
+    );
+    
+    if (relevantDrugs.length > 0) {
+      const drug = relevantDrugs[0]; // Use the first matching drug
+      
+      processed.push({
+        source: "event",
+        type: "adverseEvent",
+        name: drug.medicinalproduct || drug.openfda?.brand_name?.[0] || 'Unknown',
+        genericName: drug.openfda?.generic_name?.[0] || 'Unknown',
+        reportDate: event.receiptdate,
+        serious: event.serious === "1" || event.serious === 1, // Ensure boolean
+        seriousOutcomes: 'Yes', // All are serious now
+        reactions: event.patient?.reaction?.map(r => r.reactionmeddrapt || 'Unknown reaction').join(', ') || 'No reactions reported',
+        description: `Serious adverse event report for ${drug.medicinalproduct || drug.openfda?.brand_name?.[0] || 'Unknown drug'}`
+      });
+    }
+  });
+  break;
+
       case "recall":
         for (const item of results) {
           processedResults.push({
