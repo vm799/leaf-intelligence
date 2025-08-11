@@ -1494,6 +1494,107 @@ tailwind.config = {
       .animate-fadeIn {
         animation: fadeIn 0.3s ease-out;
       }
+.citations-modal-content {
+  max-height: 80vh;
+  overflow-y: auto;
+  position: relative;
+}
+
+.firm-profile-section {
+  max-width: 100%;
+  overflow-x: hidden;
+  word-wrap: break-word;
+  word-break: break-word;
+}
+
+.firm-profile-section p,
+.firm-profile-section div {
+  max-width: 100%;
+  overflow-wrap: break-word;
+}
+
+/* Ensure long URLs or text don't break layout */
+.firm-profile-section a {
+  word-break: break-all;
+  display: inline-block;
+  max-width: 100%;
+}
+
+/* Fix modal backdrop scrolling */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 50;
+  overflow-y: auto;
+}
+
+.modal-content-wrapper {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.modal-inner-content {
+  background: white;
+  border-radius: 0.5rem;
+  max-width: 90vw;
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.5rem;
+}
+
+.ema-horizontal-scroll {
+  display: flex;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-behavior: smooth;
+  gap: 1rem;
+  padding: 1rem 0;
+  -webkit-overflow-scrolling: touch;
+}
+
+.ema-horizontal-scroll::-webkit-scrollbar {
+  height: 8px;
+}
+
+.ema-horizontal-scroll::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.ema-horizontal-scroll::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.ema-horizontal-scroll::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Fix for individual cards in scroll container */
+.ema-card {
+  flex: 0 0 auto;
+  width: 300px;
+  min-width: 300px;
+}
+
+/* Make sure the parent container doesn't overflow */
+.ema-scroll-container {
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+}
 
 </style>
 <body class="bg-gray-50 font-sans text-gray-800" >
@@ -6884,67 +6985,92 @@ tailwind.config = {
                 </div>
             </div>
         </div>
-
-        <!-- Tab Navigation with All 11 Tabs -->
+<!-- Tab Navigation with All 11 Tabs -->
         <div id="emaTabsContainer" class="hidden">
             <div class="border-b border-gray-200 bg-white">
-                <nav class="flex space-x-4 px-6 overflow-x-auto" aria-label="EMA Data Tabs">
-                    <!-- Main Medicines Tab -->
-                    <button class="ema-tab-button tab-active py-4 px-2 border-b-2 border-blue-500 text-blue-600 font-medium text-sm whitespace-nowrap" data-tab="medicines">
-                        💊 Medicines <span class="ema-tab-count bg-blue-100 text-blue-600 py-1 px-2 rounded-full text-xs ml-1">0</span>
-                    </button>
-                    
-                    <!-- Safety Communications Tab -->
-                    <button class="ema-tab-button tab-inactive py-4 px-2 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium text-sm whitespace-nowrap" data-tab="safety">
-                        ⚠️ Safety (DHPC) <span class="ema-tab-count bg-gray-100 text-gray-600 py-1 px-2 rounded-full text-xs ml-1">0</span>
-                    </button>
-                    
-                    <!-- Orphan Designations Tab -->
-                    <button class="ema-tab-button tab-inactive py-4 px-2 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium text-sm whitespace-nowrap" data-tab="orphan">
-                        🎗️ Orphan <span class="ema-tab-count bg-gray-100 text-gray-600 py-1 px-2 rounded-full text-xs ml-1">0</span>
-                    </button>
-                    
-                    <!-- Herbal Medicines Tab -->
-                    <button class="ema-tab-button tab-inactive py-4 px-2 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium text-sm whitespace-nowrap" data-tab="herbal">
-                        🌿 Herbal <span class="ema-tab-count bg-gray-100 text-gray-600 py-1 px-2 rounded-full text-xs ml-1">0</span>
-                    </button>
-                    
-                    <!-- Referrals Tab -->
-                    <button class="ema-tab-button tab-inactive py-4 px-2 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium text-sm whitespace-nowrap" data-tab="referrals">
-                        📋 Referrals <span class="ema-tab-count bg-gray-100 text-gray-600 py-1 px-2 rounded-full text-xs ml-1">0</span>
-                    </button>
-                    
-                    <!-- Outside EU Tab -->
-                    <button class="ema-tab-button tab-inactive py-4 px-2 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium text-sm whitespace-nowrap" data-tab="outsideeu">
-                        🌍 Outside EU <span class="ema-tab-count bg-gray-100 text-gray-600 py-1 px-2 rounded-full text-xs ml-1">0</span>
-                    </button>
-                    
-                    <!-- PIP (Pediatric Investigation Plans) Tab -->
-                    <button class="ema-tab-button tab-inactive py-4 px-2 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium text-sm whitespace-nowrap" data-tab="pip">
-                        👶 PIP (Pediatric) <span class="ema-tab-count bg-gray-100 text-gray-600 py-1 px-2 rounded-full text-xs ml-1">0</span>
-                    </button>
-                    
-                    <!-- Post-Authorization Tab -->
-                    <button class="ema-tab-button tab-inactive py-4 px-2 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium text-sm whitespace-nowrap" data-tab="postauth">
-                        📋 Post-Auth <span class="ema-tab-count bg-gray-100 text-gray-600 py-1 px-2 rounded-full text-xs ml-1">0</span>
-                    </button>
-                    
-                    <!-- PSUSA Tab -->
-                    <button class="ema-tab-button tab-inactive py-4 px-2 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium text-sm whitespace-nowrap" data-tab="psusa">
-                        🔍 PSUSA <span class="ema-tab-count bg-gray-100 text-gray-600 py-1 px-2 rounded-full text-xs ml-1">0</span>
-                    </button>
-                    
-                    <!-- Shortages Tab -->
-                    <button class="ema-tab-button tab-inactive py-4 px-2 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium text-sm whitespace-nowrap" data-tab="shortages">
-                        📦 Shortages <span class="ema-tab-count bg-gray-100 text-gray-600 py-1 px-2 rounded-full text-xs ml-1">0</span>
-                    </button>
-                    
-                    <!-- Product URLs Tab -->
-                    <button class="ema-tab-button tab-inactive py-4 px-2 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium text-sm whitespace-nowrap" data-tab="producturls">
-                        🔗 Product URLs <span class="ema-tab-count bg-gray-100 text-gray-600 py-1 px-2 rounded-full text-xs ml-1">0</span>
-                    </button>
+                <nav class="px-4 py-2" aria-label="EMA Data Tabs">
+                    <div class="flex flex-wrap gap-2">
+                        <!-- Main Medicines Tab -->
+                        <button class="ema-tab-button tab-active py-2 px-3 border-2 border-blue-500 bg-blue-50 text-blue-600 font-medium text-sm rounded-lg flex items-center gap-2 whitespace-nowrap" data-tab="medicines">
+                            <span>💊</span>
+                            <span>Medicines</span>
+                            <span class="ema-tab-count bg-blue-100 text-blue-600 py-1 px-2 rounded-full text-xs">0</span>
+                        </button>
+                        
+                        <!-- Safety Communications Tab -->
+                        <button class="ema-tab-button tab-inactive py-2 px-3 border-2 border-gray-200 bg-white text-gray-500 hover:text-gray-700 hover:border-gray-300 font-medium text-sm rounded-lg flex items-center gap-2 whitespace-nowrap" data-tab="safety">
+                            <span>⚠️</span>
+                            <span>Safety</span>
+                            <span class="ema-tab-count bg-gray-100 text-gray-600 py-1 px-2 rounded-full text-xs">0</span>
+                        </button>
+                        
+                        <!-- Orphan Designations Tab -->
+                        <button class="ema-tab-button tab-inactive py-2 px-3 border-2 border-gray-200 bg-white text-gray-500 hover:text-gray-700 hover:border-gray-300 font-medium text-sm rounded-lg flex items-center gap-2 whitespace-nowrap" data-tab="orphan">
+                            <span>🎗️</span>
+                            <span>Orphan</span>
+                            <span class="ema-tab-count bg-gray-100 text-gray-600 py-1 px-2 rounded-full text-xs">0</span>
+                        </button>
+                        
+                        <!-- Herbal Medicines Tab -->
+                        <button class="ema-tab-button tab-inactive py-2 px-3 border-2 border-gray-200 bg-white text-gray-500 hover:text-gray-700 hover:border-gray-300 font-medium text-sm rounded-lg flex items-center gap-2 whitespace-nowrap" data-tab="herbal">
+                            <span>🌿</span>
+                            <span>Herbal</span>
+                            <span class="ema-tab-count bg-gray-100 text-gray-600 py-1 px-2 rounded-full text-xs">0</span>
+                        </button>
+                        
+                        <!-- Referrals Tab -->
+                        <button class="ema-tab-button tab-inactive py-2 px-3 border-2 border-gray-200 bg-white text-gray-500 hover:text-gray-700 hover:border-gray-300 font-medium text-sm rounded-lg flex items-center gap-2 whitespace-nowrap" data-tab="referrals">
+                            <span>📋</span>
+                            <span>Referrals</span>
+                            <span class="ema-tab-count bg-gray-100 text-gray-600 py-1 px-2 rounded-full text-xs">0</span>
+                        </button>
+                        
+                        <!-- Outside EU Tab -->
+                        <button class="ema-tab-button tab-inactive py-2 px-3 border-2 border-gray-200 bg-white text-gray-500 hover:text-gray-700 hover:border-gray-300 font-medium text-sm rounded-lg flex items-center gap-2 whitespace-nowrap" data-tab="outsideeu">
+                            <span>🌍</span>
+                            <span>Outside EU</span>
+                            <span class="ema-tab-count bg-gray-100 text-gray-600 py-1 px-2 rounded-full text-xs">0</span>
+                        </button>
+                        
+                        <!-- PIP (Pediatric Investigation Plans) Tab -->
+                        <button class="ema-tab-button tab-inactive py-2 px-3 border-2 border-gray-200 bg-white text-gray-500 hover:text-gray-700 hover:border-gray-300 font-medium text-sm rounded-lg flex items-center gap-2 whitespace-nowrap" data-tab="pip">
+                            <span>👶</span>
+                            <span>PIP</span>
+                            <span class="ema-tab-count bg-gray-100 text-gray-600 py-1 px-2 rounded-full text-xs">0</span>
+                        </button>
+                        
+                        <!-- Post-Authorization Tab -->
+                        <button class="ema-tab-button tab-inactive py-2 px-3 border-2 border-gray-200 bg-white text-gray-500 hover:text-gray-700 hover:border-gray-300 font-medium text-sm rounded-lg flex items-center gap-2 whitespace-nowrap" data-tab="postauth">
+                            <span>📋</span>
+                            <span>Post-Auth</span>
+                            <span class="ema-tab-count bg-gray-100 text-gray-600 py-1 px-2 rounded-full text-xs">0</span>
+                        </button>
+                        
+                        <!-- PSUSA Tab -->
+                        <button class="ema-tab-button tab-inactive py-2 px-3 border-2 border-gray-200 bg-white text-gray-500 hover:text-gray-700 hover:border-gray-300 font-medium text-sm rounded-lg flex items-center gap-2 whitespace-nowrap" data-tab="psusa">
+                            <span>🔍</span>
+                            <span>PSUSA</span>
+                            <span class="ema-tab-count bg-gray-100 text-gray-600 py-1 px-2 rounded-full text-xs">0</span>
+                        </button>
+                        
+                        <!-- Shortages Tab -->
+                        <button class="ema-tab-button tab-inactive py-2 px-3 border-2 border-gray-200 bg-white text-gray-500 hover:text-gray-700 hover:border-gray-300 font-medium text-sm rounded-lg flex items-center gap-2 whitespace-nowrap" data-tab="shortages">
+                            <span>📦</span>
+                            <span>Shortages</span>
+                            <span class="ema-tab-count bg-gray-100 text-gray-600 py-1 px-2 rounded-full text-xs">0</span>
+                        </button>
+                        
+                        <!-- Product URLs Tab -->
+                        <button class="hidden ema-tab-button tab-inactive py-2 px-3 border-2 border-gray-200 bg-white text-gray-500 hover:text-gray-700 hover:border-gray-300 font-medium text-sm rounded-lg flex items-center gap-2 whitespace-nowrap" data-tab="producturls">
+                            <span>🔗</span>
+                            <span>Product URLs</span>
+                            <span class="ema-tab-count bg-gray-100 text-gray-600 py-1 px-2 rounded-full text-xs">0</span>
+                        </button>
+                    </div>
                 </nav>
             </div>
+      
+       
 
             <!-- Tab Content for All 11 Collections -->
             
@@ -66648,7 +66774,7 @@ function openAllSeriousEventsModal(eventData, drugName) {
                 data-outcome="${mainOutcome.toLowerCase()}"
                 data-drug="${productName.toLowerCase()}"
                 data-reactions="${reactionsList.toLowerCase()}">
-                <td class="px-4 py-3 whitespace-nowrap text-sm">${formatDate(reportDate)}</td>
+                <td class="px-4 py-3 whitespace-nowrap text-sm">${formatFDAEventDate(reportDate)}</td>
                 <td class="px-4 py-3 text-sm">
                     <div class="font-medium text-gray-900">${productName}</div>
                     ${drugInfo.drugdosagetext ? `<div class="text-xs text-gray-500">${drugInfo.drugdosagetext}</div>` : ''}
@@ -67116,10 +67242,12 @@ function formatFDALabelDate(dateStr) {
 //   `;
 //   return html;
 // }
+
+
 function generateNdcContent(ndcData, ndcCount, drugName) {
   let html = `
     <div id="ndc-content" class="fda-tab-pane hidden">
-      <div class="flex justify-between items-center mb-4">
+      <div class="flex justify-between items-center mb-3">
         <h3 class="text-lg font-medium text-gray-900">NDC Directory</h3>
         <span class="text-sm text-gray-500">${ndcCount} NDC records found</span>
       </div>
@@ -67127,22 +67255,11 @@ function generateNdcContent(ndcData, ndcCount, drugName) {
   
   if (ndcData && ndcData.length > 0) {
     html += `
-      <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200">
-          <thead class="bg-gray-50">
-            <tr>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Product</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">NDC</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Labeler</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Package</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Action</th>
-            </tr>
-          </thead>
-          <tbody class="bg-white divide-y divide-gray-200">
+      <div class="w-full">
+        <div class="grid gap-3">
     `;
     
-    ndcData.slice(0, 20).forEach((ndc, index) => {
+    ndcData.forEach((ndc, index) => {
       // Extract product name with better fallbacks
       const productName = ndc.brand_name || 
                          ndc.proprietary_name || 
@@ -67173,39 +67290,49 @@ function generateNdcContent(ndcData, ndcCount, drugName) {
                          'text-gray-500';
       
       html += `
-        <tr>
-          <td class="px-6 py-4 whitespace-nowrap">
-            <div class="text-sm font-medium text-gray-900">${productName}</div>
-            <div class="text-sm text-gray-500">${ndc.generic_name || ''}</div>
-          </td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${productNdc}</td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${labelerName}</td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${packageInfo}</td>
-          <td class="px-6 py-4 whitespace-nowrap">
-            <span class="text-sm font-medium ${statusClass}">${marketingStatus}</span>
-          </td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm">
-            <button class="text-blue-600 hover:text-blue-900 view-ndc-btn" data-index="${index}">Details</button>
-          </td>
-        </tr>
+        <div class="border border-gray-200 rounded-lg p-3 bg-white hover:bg-gray-50">
+          <div class="flex flex-wrap items-start justify-between gap-2 mb-2">
+            <div class="flex-1 min-w-0">
+              <h4 class="text-sm font-medium text-gray-900 truncate">${productName}</h4>
+              ${ndc.generic_name ? `<p class="text-xs text-gray-500 mt-1">${ndc.generic_name}</p>` : ''}
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-medium ${statusClass}">${marketingStatus}</span>
+              <button class="text-xs text-blue-600 hover:text-blue-900 view-ndc-btn px-2 py-1 rounded hover:bg-blue-50" data-index="${index}">Details</button>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs text-gray-600">
+            <div>
+              <span class="font-medium">NDC:</span>
+              <span class="ml-1">${productNdc}</span>
+            </div>
+            <div class="truncate">
+              <span class="font-medium">Labeler:</span>
+              <span class="ml-1" title="${labelerName}">${labelerName}</span>
+            </div>
+            <div class="truncate">
+              <span class="font-medium">Package:</span>
+              <span class="ml-1" title="${packageInfo}">${packageInfo}</span>
+            </div>
+          </div>
+        </div>
       `;
     });
     
     html += `
-          </tbody>
-        </table>
+        </div>
       </div>
     `;
     
-    if (ndcCount > 20) {
-      html += `
-        <div class="mt-4 text-center">
-          <button id="view-all-ndc" class="px-4 py-2 bg-gray-100 text-gray-800 border border-gray-300 rounded hover:bg-gray-200 transition-colors text-sm">
-            View All ${ndcCount} NDC Records
-          </button>
-        </div>
-      `;
-    }
+    // if (ndcCount > 20) {
+    //   html += `
+    //     <div class="mt-4 text-center">
+    //       <button id="view-all-ndc" class="px-4 py-2 bg-gray-100 text-gray-800 border border-gray-300 rounded hover:bg-gray-200 transition-colors text-sm">
+    //         View All ${ndcCount} NDC Records
+    //       </button>
+    //     </div>
+    //   `;
+    // }
   } else {
     html += `
       <div class="text-center p-4">
@@ -67217,6 +67344,111 @@ function generateNdcContent(ndcData, ndcCount, drugName) {
   html += `</div>`;
   return html;
 }
+
+// function generateNdcContent(ndcData, ndcCount, drugName) {
+//   let html = `
+//     <div id="ndc-content" class="fda-tab-pane hidden">
+//       <div class="flex justify-between items-center mb-4">
+//         <h3 class="text-lg font-medium text-gray-900">NDC Directory</h3>
+//         <span class="text-sm text-gray-500">${ndcCount} NDC records found</span>
+//       </div>
+//   `;
+  
+//   if (ndcData && ndcData.length > 0) {
+//     html += `
+//       <div class="overflow-x-auto">
+//         <table class="min-w-full divide-y divide-gray-200">
+//           <thead class="bg-gray-50">
+//             <tr>
+//               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Product</th>
+//               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">NDC</th>
+//               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Labeler</th>
+//               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Package</th>
+//               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+//               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Action</th>
+//             </tr>
+//           </thead>
+//           <tbody class="bg-white divide-y divide-gray-200">
+//     `;
+    
+//     ndcData.slice(0, 20).forEach((ndc, index) => {
+//       // Extract product name with better fallbacks
+//       const productName = ndc.brand_name || 
+//                          ndc.proprietary_name || 
+//                          ndc.nonproprietary_name || 
+//                          ndc.generic_name || 
+//                          'Product Name Not Available';
+      
+//       // Extract NDC with formatting
+//       const productNdc = ndc.product_ndc || ndc.ndc || 'NDC Not Available';
+      
+//       // Extract labeler name
+//       const labelerName = ndc.labeler_name || 
+//                          ndc.openfda?.manufacturer_name?.[0] || 
+//                          'Labeler Not Available';
+      
+//       // Extract package info
+//       const packageInfo = ndc.packaging ? 
+//         (ndc.packaging[0]?.description || ndc.packaging[0]?.package_ndc || 'Multiple packages') : 
+//         (ndc.package_ndc || 'Package info not available');
+      
+//       // Determine status
+//       const marketingStatus = ndc.marketing_start_date ? 
+//         (ndc.marketing_end_date ? 'Discontinued' : 'Active') : 
+//         'Status Unknown';
+      
+//       const statusClass = marketingStatus === 'Active' ? 'text-green-600' : 
+//                          marketingStatus === 'Discontinued' ? 'text-red-600' : 
+//                          'text-gray-500';
+      
+//       html += `
+//         <tr>
+//           <td class="px-6 py-4 whitespace-nowrap">
+//             <div class="text-sm font-medium text-gray-900">${productName}</div>
+//             <div class="text-sm text-gray-500">${ndc.generic_name || ''}</div>
+//           </td>
+//           <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${productNdc}</td>
+//           <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${labelerName}</td>
+//           <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${packageInfo}</td>
+//           <td class="px-6 py-4 whitespace-nowrap">
+//             <span class="text-sm font-medium ${statusClass}">${marketingStatus}</span>
+//           </td>
+//           <td class="px-6 py-4 whitespace-nowrap text-sm">
+//             <button class="text-blue-600 hover:text-blue-900 view-ndc-btn" data-index="${index}">Details</button>
+//           </td>
+//         </tr>
+//       `;
+//     });
+    
+//     html += `
+//           </tbody>
+//         </table>
+//       </div>
+//     `;
+    
+//     if (ndcCount > 20) {
+//       html += `
+//         <div class="mt-4 text-center">
+//           <button id="view-all-ndc" class="px-4 py-2 bg-gray-100 text-gray-800 border border-gray-300 rounded hover:bg-gray-200 transition-colors text-sm">
+//             View All ${ndcCount} NDC Records
+//           </button>
+//         </div>
+//       `;
+//     }
+//   } else {
+//     html += `
+//       <div class="text-center p-4">
+//         <p class="text-sm text-gray-700">No NDC records found for "${drugName}"</p>
+//       </div>
+//     `;
+//   }
+  
+//   html += `</div>`;
+//   return html;
+// }
+
+
+
 // Generate Event Content
 // function generateEventContent(eventData, eventCount, drugName) {
 //   let html = `
@@ -67685,35 +67917,54 @@ function formatFDAEventDate(dateStr) {
   if (!dateStr) return 'Unknown';
   
   try {
-    // FDA dates are typically in YYYYMMDD format
+    let parsedDate;
+    
+    // Check if it's already in YYYYMMDD format (8 digits)
     if (/^\d{8}$/.test(dateStr)) {
       const year = dateStr.substring(0, 4);
       const month = dateStr.substring(4, 6);
       const day = dateStr.substring(6, 8);
-      const date = new Date(`${year}-${month}-${day}`);
       
-      if (!isNaN(date.getTime())) {
-        return date.toLocaleDateString('en-US', { 
-          year: 'numeric', 
-          month: 'short', 
-          day: 'numeric' 
-        });
+      // Validate the date components
+      const monthNum = parseInt(month);
+      const dayNum = parseInt(day);
+      const yearNum = parseInt(year);
+      
+      if (monthNum >= 1 && monthNum <= 12 && dayNum >= 1 && dayNum <= 31 && yearNum >= 1900 && yearNum <= 2030) {
+        parsedDate = new Date(yearNum, monthNum - 1, dayNum);
+      } else {
+        return 'Invalid Date';
       }
     }
-    
-    // Try parsing as regular date
-    const date = new Date(dateStr);
-    if (!isNaN(date.getTime())) {
-      return date.toLocaleDateString('en-US', { 
-        year: 'numeric', 
-        month: 'short', 
-        day: 'numeric' 
-      });
+    // Check for YYYY-MM-DD format
+    else if (/^\d{4}-\d{2}-\d{2}/.test(dateStr)) {
+      parsedDate = new Date(dateStr);
+    }
+    // Try standard date parsing
+    else {
+      parsedDate = new Date(dateStr);
     }
     
-    return dateStr;
+    // Validate the parsed date
+    if (!parsedDate || isNaN(parsedDate.getTime())) {
+      return 'Invalid Date';
+    }
+    
+    // Check if date is reasonable (after 1900, before 2030)
+    const year = parsedDate.getFullYear();
+    if (year < 1900 || year > 2030) {
+      return 'Invalid Date';
+    }
+    
+    // Format the date nicely
+    return parsedDate.toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'short', 
+      day: 'numeric' 
+    });
   } catch (e) {
-    return dateStr;
+    console.error('Date parsing error:', e, 'for date:', dateStr);
+    return 'Invalid Date';
   }
 }
 // Generate Enforcement Content
@@ -67737,7 +67988,7 @@ function generateEnforcementContent(enforcementData, enforcementCount, drugName)
               </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
-              ${enforcementData.slice(0, 10).map((enforcement, index) => `
+              ${enforcementData.map((enforcement, index) => `
                 <tr>
                   <td class="px-6 py-4 whitespace-nowrap text-sm">${enforcement.report_date || 'Unknown'}</td>
                   <td class="px-6 py-4 text-sm">${enforcement.product_description?.substring(0, 50) || 'Unknown'}...</td>
@@ -68730,159 +68981,381 @@ function openAllNdcModal(ndcData) {
 }
 
 // Function to open modal with all enforcement records
+// function openAllEnforcementModal(enforcementData) {
+//   if (!enforcementData || enforcementData.length === 0) return;
+  
+//   // Create modal content
+//   let modalContent = `
+//     <div class="p-4">
+//       <h2 class="text-xl font-semibold mb-4">All Enforcement Records (${enforcementData.length})</h2>
+      
+//       <div class="flex flex-wrap gap-3 mb-4">
+//         <input type="text" id="enforcement-search" placeholder="Search records..." class="flex-grow px-3 py-2 border border-gray-300 rounded-md">
+        
+//         <select id="enforcement-filter-class" class="px-3 py-2 border border-gray-300 rounded-md">
+//           <option value="">All Classifications</option>
+//           <option value="Class I">Class I</option>
+//           <option value="Class II">Class II</option>
+//           <option value="Class III">Class III</option>
+//         </select>
+        
+//         <select id="enforcement-filter-status" class="px-3 py-2 border border-gray-300 rounded-md">
+//           <option value="">All Statuses</option>
+//           <option value="Ongoing">Ongoing</option>
+//           <option value="Completed">Completed</option>
+//           <option value="Terminated">Terminated</option>
+//         </select>
+//       </div>
+      
+//       <div class="space-y-4" id="enforcement-records-container">
+//   `;
+  
+//   // Add each enforcement record
+//   enforcementData.forEach((report, index) => {
+//     const date = report.recall_initiation_date || 'Unknown Date';
+//     const reason = report.reason_for_recall || 'Not specified';
+//     const status = report.status || 'Unknown Status';
+//     const classification = report.classification || 'Unknown Classification';
+    
+//     // Determine the severity badge color based on classification
+//     let classificationColor = 'bg-gray-100 text-gray-800';
+//     if (classification.includes('Class I')) {
+//       classificationColor = 'bg-red-100 text-red-800';
+//     } else if (classification.includes('Class II')) {
+//       classificationColor = 'bg-yellow-100 text-yellow-800';
+//     } else if (classification.includes('Class III')) {
+//       classificationColor = 'bg-green-100 text-green-800';
+//     }
+    
+//     modalContent += `
+//       <div class="enforcement-record bg-white rounded-lg border border-gray-200 p-4 shadow-sm" 
+//            data-class="${classification}" 
+//            data-status="${status}">
+//         <div class="flex justify-between items-start">
+//           <div>
+//             <span class="text-sm text-gray-500">${formatDate(date)}</span>
+//             <h4 class="text-base font-medium text-gray-900 mt-0.5 enforcement-product">${report.product_description || 'Unknown Product'}</h4>
+//           </div>
+//           <span class="px-2 py-0.5 text-xs rounded-full ${classificationColor}">
+//             ${classification}
+//           </span>
+//         </div>
+        
+//         <div class="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
+//           <div>
+//             <h5 class="text-sm font-medium text-gray-700">Reason for Recall:</h5>
+//             <p class="text-sm text-gray-600 mt-1 enforcement-reason">${reason}</p>
+//           </div>
+          
+//           <div>
+//             <div class="flex flex-col space-y-2">
+//               <div>
+//                 <span class="text-sm font-medium text-gray-700">Status:</span>
+//                 <span class="text-sm text-gray-600 ml-1">${status}</span>
+//               </div>
+//               <div>
+//                 <span class="text-sm font-medium text-gray-700">Recall Number:</span>
+//                 <span class="text-sm text-gray-600 ml-1">${report.recall_number || 'N/A'}</span>
+//               </div>
+//               <div>
+//                 <span class="text-sm font-medium text-gray-700">Recalling Firm:</span>
+//                 <span class="text-sm text-gray-600 ml-1">${report.recalling_firm || 'Unknown'}</span>
+//               </div>
+//             </div>
+//           </div>
+//         </div>
+        
+//         <div class="mt-3 flex justify-end">
+//           <button 
+//             class="px-3 py-1.5 bg-blue-50 text-blue-600 border border-blue-100 rounded text-sm hover:bg-blue-100 transition modal-view-enforcement-btn" 
+//             data-index="${index}">
+//             View Full Details
+//           </button>
+//         </div>
+//       </div>
+//     `;
+//   });
+  
+//   modalContent += `
+//       </div>
+//     </div>
+//   `;
+  
+//   // Create and show modal
+//   showCustomModal(modalContent, 'large');
+  
+//   // Initialize search functionality
+//   document.getElementById('enforcement-search')?.addEventListener('input', function() {
+//     applyEnforcementFilters();
+//   });
+  
+//   // Initialize classification filter
+//   document.getElementById('enforcement-filter-class')?.addEventListener('change', function() {
+//     applyEnforcementFilters();
+//   });
+  
+//   // Initialize status filter
+//   document.getElementById('enforcement-filter-status')?.addEventListener('change', function() {
+//     applyEnforcementFilters();
+//   });
+  
+//   // Function to apply all filters
+//   function applyEnforcementFilters() {
+//     const searchTerm = document.getElementById('enforcement-search').value.toLowerCase();
+//     const classFilter = document.getElementById('enforcement-filter-class').value;
+//     const statusFilter = document.getElementById('enforcement-filter-status').value;
+    
+//     document.querySelectorAll('.enforcement-record').forEach(record => {
+//       const product = record.querySelector('.enforcement-product').textContent.toLowerCase();
+//       const reason = record.querySelector('.enforcement-reason').textContent.toLowerCase();
+//       const classification = record.getAttribute('data-class');
+//       const status = record.getAttribute('data-status');
+      
+//       const matchesSearch = product.includes(searchTerm) || reason.includes(searchTerm);
+//       const matchesClass = !classFilter || classification.includes(classFilter);
+//       const matchesStatus = !statusFilter || status.includes(statusFilter);
+      
+//       if (matchesSearch && matchesClass && matchesStatus) {
+//         record.style.display = 'block';
+//       } else {
+//         record.style.display = 'none';
+//       }
+//     });
+//   }
+  
+//   // Add event listeners for detail buttons
+//   document.querySelectorAll('.modal-view-enforcement-btn').forEach(button => {
+//     button.addEventListener('click', function() {
+//       const index = parseInt(this.getAttribute('data-index'));
+//       if (enforcementData[index]) {
+//         openEnforcementModal(enforcementData[index]);
+//       }
+//     });
+//   });
+// }
 function openAllEnforcementModal(enforcementData) {
   if (!enforcementData || enforcementData.length === 0) return;
   
-  // Create modal content
-  let modalContent = `
-    <div class="p-4">
-      <h2 class="text-xl font-semibold mb-4">All Enforcement Records (${enforcementData.length})</h2>
-      
-      <div class="flex flex-wrap gap-3 mb-4">
-        <input type="text" id="enforcement-search" placeholder="Search records..." class="flex-grow px-3 py-2 border border-gray-300 rounded-md">
-        
-        <select id="enforcement-filter-class" class="px-3 py-2 border border-gray-300 rounded-md">
-          <option value="">All Classifications</option>
-          <option value="Class I">Class I</option>
-          <option value="Class II">Class II</option>
-          <option value="Class III">Class III</option>
-        </select>
-        
-        <select id="enforcement-filter-status" class="px-3 py-2 border border-gray-300 rounded-md">
-          <option value="">All Statuses</option>
-          <option value="Ongoing">Ongoing</option>
-          <option value="Completed">Completed</option>
-          <option value="Terminated">Terminated</option>
-        </select>
-      </div>
-      
-      <div class="space-y-4" id="enforcement-records-container">
-  `;
+  // Pagination setup
+  const itemsPerPage = 10;
+  let currentPage = 1;
+  let filteredData = [...enforcementData];
   
-  // Add each enforcement record
-  enforcementData.forEach((report, index) => {
-    const date = report.recall_initiation_date || 'Unknown Date';
-    const reason = report.reason_for_recall || 'Not specified';
-    const status = report.status || 'Unknown Status';
-    const classification = report.classification || 'Unknown Classification';
-    
-    // Determine the severity badge color based on classification
-    let classificationColor = 'bg-gray-100 text-gray-800';
-    if (classification.includes('Class I')) {
-      classificationColor = 'bg-red-100 text-red-800';
-    } else if (classification.includes('Class II')) {
-      classificationColor = 'bg-yellow-100 text-yellow-800';
-    } else if (classification.includes('Class III')) {
-      classificationColor = 'bg-green-100 text-green-800';
-    }
-    
-    modalContent += `
-      <div class="enforcement-record bg-white rounded-lg border border-gray-200 p-4 shadow-sm" 
-           data-class="${classification}" 
-           data-status="${status}">
-        <div class="flex justify-between items-start">
-          <div>
-            <span class="text-sm text-gray-500">${formatDate(date)}</span>
-            <h4 class="text-base font-medium text-gray-900 mt-0.5 enforcement-product">${report.product_description || 'Unknown Product'}</h4>
-          </div>
-          <span class="px-2 py-0.5 text-xs rounded-full ${classificationColor}">
-            ${classification}
-          </span>
-        </div>
-        
-        <div class="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
-          <div>
-            <h5 class="text-sm font-medium text-gray-700">Reason for Recall:</h5>
-            <p class="text-sm text-gray-600 mt-1 enforcement-reason">${reason}</p>
+  // Create modal wrapper
+  const modalWrapper = document.createElement('div');
+  modalWrapper.id = 'enforcement-modal-wrapper';
+  modalWrapper.className = 'fixed inset-0 bg-black bg-opacity-50 z-50 overflow-y-auto';
+  
+  // Create modal container
+  modalWrapper.innerHTML = `
+    <div class="min-h-screen px-4 text-center">
+      <div class="inline-block align-middle bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all my-8 max-w-6xl w-full">
+        <div class="bg-white px-6 py-4">
+          <div class="flex justify-between items-center mb-4">
+            <h2 class="text-2xl font-bold text-gray-900">All Enforcement Records (${enforcementData.length})</h2>
+            <button id="close-enforcement-modal" class="text-gray-400 hover:text-gray-600">
+              <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
           </div>
           
-          <div>
-            <div class="flex flex-col space-y-2">
-              <div>
-                <span class="text-sm font-medium text-gray-700">Status:</span>
-                <span class="text-sm text-gray-600 ml-1">${status}</span>
-              </div>
-              <div>
-                <span class="text-sm font-medium text-gray-700">Recall Number:</span>
-                <span class="text-sm text-gray-600 ml-1">${report.recall_number || 'N/A'}</span>
-              </div>
-              <div>
-                <span class="text-sm font-medium text-gray-700">Recalling Firm:</span>
-                <span class="text-sm text-gray-600 ml-1">${report.recalling_firm || 'Unknown'}</span>
-              </div>
-            </div>
+          <!-- Filters -->
+          <div class="flex flex-wrap gap-3 mb-4">
+            <input type="text" id="enforcement-search" placeholder="Search records..." 
+                   class="flex-grow px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            
+            <select id="enforcement-filter-class" class="px-3 py-2 border border-gray-300 rounded-md">
+              <option value="">All Classifications</option>
+              <option value="Class I">Class I</option>
+              <option value="Class II">Class II</option>
+              <option value="Class III">Class III</option>
+            </select>
+            
+            <select id="enforcement-filter-status" class="px-3 py-2 border border-gray-300 rounded-md">
+              <option value="">All Status</option>
+              <option value="Ongoing">Ongoing</option>
+              <option value="Completed">Completed</option>
+              <option value="Terminated">Terminated</option>
+            </select>
           </div>
-        </div>
-        
-        <div class="mt-3 flex justify-end">
-          <button 
-            class="px-3 py-1.5 bg-blue-50 text-blue-600 border border-blue-100 rounded text-sm hover:bg-blue-100 transition modal-view-enforcement-btn" 
-            data-index="${index}">
-            View Full Details
-          </button>
+          
+          <!-- Results info -->
+          <div id="enforcement-results-info" class="mb-4 text-sm text-gray-600"></div>
+          
+          <!-- Table container -->
+          <div id="enforcement-table-container" class="overflow-x-auto mb-4"></div>
+          
+          <!-- Pagination controls -->
+          <div id="enforcement-pagination" class="flex justify-between items-center"></div>
         </div>
       </div>
-    `;
-  });
+    </div>`;
   
-  modalContent += `
-      </div>
-    </div>
-  `;
+  document.body.appendChild(modalWrapper);
   
-  // Create and show modal
-  showCustomModal(modalContent, 'large');
-  
-  // Initialize search functionality
-  document.getElementById('enforcement-search')?.addEventListener('input', function() {
-    applyEnforcementFilters();
-  });
-  
-  // Initialize classification filter
-  document.getElementById('enforcement-filter-class')?.addEventListener('change', function() {
-    applyEnforcementFilters();
-  });
-  
-  // Initialize status filter
-  document.getElementById('enforcement-filter-status')?.addEventListener('change', function() {
-    applyEnforcementFilters();
-  });
-  
-  // Function to apply all filters
-  function applyEnforcementFilters() {
-    const searchTerm = document.getElementById('enforcement-search').value.toLowerCase();
-    const classFilter = document.getElementById('enforcement-filter-class').value;
-    const statusFilter = document.getElementById('enforcement-filter-status').value;
+  // Render function
+  function renderEnforcementTable() {
+    const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = Math.min(startIndex + itemsPerPage, filteredData.length);
+    const pageData = filteredData.slice(startIndex, endIndex);
     
-    document.querySelectorAll('.enforcement-record').forEach(record => {
-      const product = record.querySelector('.enforcement-product').textContent.toLowerCase();
-      const reason = record.querySelector('.enforcement-reason').textContent.toLowerCase();
-      const classification = record.getAttribute('data-class');
-      const status = record.getAttribute('data-status');
+    // Update results info
+    document.getElementById('enforcement-results-info').innerHTML = 
+      `Showing ${startIndex + 1}-${endIndex} of ${filteredData.length} records`;
+    
+    // Build table
+    let tableHtml = `
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Classification</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Recalling Firm</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">`;
+    
+    pageData.forEach((record, index) => {
+      const globalIndex = startIndex + index;
+      const date = formatFDAEventDate(record.recall_initiation_date || record.report_date || '');
+      const classification = record.classification || 'Unknown';
+      const classColor = classification.includes('I') ? 'text-red-600' : 
+                        classification.includes('II') ? 'text-yellow-600' : 'text-green-600';
       
-      const matchesSearch = product.includes(searchTerm) || reason.includes(searchTerm);
-      const matchesClass = !classFilter || classification.includes(classFilter);
-      const matchesStatus = !statusFilter || status.includes(statusFilter);
-      
-      if (matchesSearch && matchesClass && matchesStatus) {
-        record.style.display = 'block';
-      } else {
-        record.style.display = 'none';
+      tableHtml += `
+        <tr class="hover:bg-gray-50">
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${date}</td>
+          <td class="px-6 py-4 text-sm text-gray-900">
+            <div class="max-w-xs truncate" title="${record.product_description || ''}">
+              ${record.product_description || 'Unknown Product'}
+            </div>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium ${classColor}">${classification}</td>
+          <td class="px-6 py-4 text-sm text-gray-900">
+            <div class="max-w-xs truncate" title="${record.recalling_firm || ''}">
+              ${record.recalling_firm || 'Unknown'}
+            </div>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${record.status || 'Unknown'}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm">
+            <button onclick="openEnforcementDetailModal(${globalIndex})" 
+                    class="text-blue-600 hover:text-blue-900">Details</button>
+          </td>
+        </tr>`;
+    });
+    
+    tableHtml += `</tbody></table>`;
+    document.getElementById('enforcement-table-container').innerHTML = tableHtml;
+    
+    // Render pagination
+    renderPagination(totalPages);
+  }
+  
+  // Pagination controls
+  function renderPagination(totalPages) {
+    let paginationHtml = `
+      <div class="flex items-center space-x-2">
+        <button id="enforcement-prev-btn" 
+                class="px-3 py-1 border rounded ${currentPage === 1 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white hover:bg-gray-50'}"
+                ${currentPage === 1 ? 'disabled' : ''}>
+          Previous
+        </button>
+        <span class="text-sm text-gray-700">
+          Page <span class="font-semibold">${currentPage}</span> of ${totalPages}
+        </span>
+        <button id="enforcement-next-btn"
+                class="px-3 py-1 border rounded ${currentPage === totalPages ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white hover:bg-gray-50'}"
+                ${currentPage === totalPages ? 'disabled' : ''}>
+          Next
+        </button>
+      </div>
+      <div class="flex items-center space-x-2">
+        <span class="text-sm text-gray-700">Go to page:</span>
+        <input type="number" id="enforcement-page-input" 
+               min="1" max="${totalPages}" value="${currentPage}"
+               class="w-16 px-2 py-1 border rounded text-sm">
+        <button id="enforcement-go-btn" class="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm">
+          Go
+        </button>
+      </div>`;
+    
+    document.getElementById('enforcement-pagination').innerHTML = paginationHtml;
+    
+    // Add pagination event listeners
+    document.getElementById('enforcement-prev-btn')?.addEventListener('click', () => {
+      if (currentPage > 1) {
+        currentPage--;
+        renderEnforcementTable();
+      }
+    });
+    
+    document.getElementById('enforcement-next-btn')?.addEventListener('click', () => {
+      if (currentPage < totalPages) {
+        currentPage++;
+        renderEnforcementTable();
+      }
+    });
+    
+    document.getElementById('enforcement-go-btn')?.addEventListener('click', () => {
+      const input = document.getElementById('enforcement-page-input');
+      const page = parseInt(input.value);
+      if (page >= 1 && page <= totalPages) {
+        currentPage = page;
+        renderEnforcementTable();
       }
     });
   }
   
-  // Add event listeners for detail buttons
-  document.querySelectorAll('.modal-view-enforcement-btn').forEach(button => {
-    button.addEventListener('click', function() {
-      const index = parseInt(this.getAttribute('data-index'));
-      if (enforcementData[index]) {
-        openEnforcementModal(enforcementData[index]);
-      }
+  // Filter function
+  function applyFilters() {
+    const searchTerm = document.getElementById('enforcement-search').value.toLowerCase();
+    const classFilter = document.getElementById('enforcement-filter-class').value;
+    const statusFilter = document.getElementById('enforcement-filter-status').value;
+    
+    filteredData = enforcementData.filter(record => {
+      const matchesSearch = !searchTerm || 
+        (record.product_description?.toLowerCase().includes(searchTerm) ||
+         record.recalling_firm?.toLowerCase().includes(searchTerm) ||
+         record.reason_for_recall?.toLowerCase().includes(searchTerm));
+      
+      const matchesClass = !classFilter || record.classification?.includes(classFilter);
+      const matchesStatus = !statusFilter || record.status === statusFilter;
+      
+      return matchesSearch && matchesClass && matchesStatus;
     });
+    
+    currentPage = 1;
+    renderEnforcementTable();
+  }
+  
+  // Store data globally for detail access
+  window.enforcementModalData = enforcementData;
+  
+  // Add event listeners
+  document.getElementById('enforcement-search').addEventListener('input', applyFilters);
+  document.getElementById('enforcement-filter-class').addEventListener('change', applyFilters);
+  document.getElementById('enforcement-filter-status').addEventListener('change', applyFilters);
+  document.getElementById('close-enforcement-modal').addEventListener('click', () => {
+    document.getElementById('enforcement-modal-wrapper').remove();
   });
+  
+  // Initial render
+  renderEnforcementTable();
 }
 
+// Detail modal for enforcement records
+function openEnforcementDetailModal(index) {
+  const record = window.enforcementModalData[index];
+  if (!record) return;
+  
+  // Your existing openEnforcementModal function for showing details
+  openEnforcementModal(record);
+}
 // Function to show the details of an NDC record in a modal
 function openNdcModal(ndcData) {
   if (!ndcData) return;
@@ -70990,124 +71463,206 @@ function testModalDocumentSetup() {
 //   }, 3000);
 // }
 
-
-
-// Open all events modal
 function openAllEventsModal(eventData, drugName) {
   if (!eventData || eventData.length === 0) return;
   
-  // Create modal content
   let modalContent = `
-    <div class="p-4">
-      <h2 class="text-xl font-semibold mb-4">All Adverse Event Reports for ${drugName} (${eventData.length})</h2>
-      
-      <div class="mb-4 flex flex-wrap gap-2">
-        <input type="text" id="event-search" placeholder="Search reports..." class="flex-grow px-3 py-2 border border-gray-300 rounded-md">
-        
-        <select id="event-filter-serious" class="px-3 py-2 border border-gray-300 rounded-md">
-          <option value="">All Severity</option>
-          <option value="true">Serious</option>
-          <option value="false">Non-serious</option>
-        </select>
-      </div>
-      
-      <div class="space-y-3" id="events-container">
-  `;
+    <div id="all-events-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 overflow-y-auto">
+      <div class="min-h-screen px-4 text-center">
+        <div class="inline-block align-middle bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all my-8 max-w-6xl w-full">
+          <div class="bg-white px-6 py-4">
+            <div class="flex justify-between items-center mb-4">
+              <h2 class="text-2xl font-bold text-gray-900">All Adverse Event Reports for ${drugName}</h2>
+              <button onclick="closeAllEventsModal()" class="text-gray-400 hover:text-gray-600">
+                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+              </button>
+            </div>
+            
+            <div class="mb-4 text-sm text-gray-600">
+              Total Reports: <span class="font-semibold">${eventData.length}</span>
+            </div>
+            
+            <div class="overflow-x-auto">
+              <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Drug</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reactions</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Outcome</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+                  </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">`;
   
-  // Add events
   eventData.forEach((event, index) => {
-    const reportDate = event.receiptdate || 'Unknown Date';
-    const seriousness = event.serious ? 'Serious' : 'Non-serious';
+    // Extract the date - look for receivedate, receiptdate, or other date fields
+    const reportDate = event.receivedate || event.receiptdate || event.transmissiondate || '';
+    const formattedDate = formatFDAEventDate(reportDate);
     
-    // Find the relevant drug in the report
-    const drugReports = event.patient?.drug || [];
-    const drugInfo = drugReports.find(drug => 
-      drug.openfda?.brand_name?.[0]?.toLowerCase().includes(drugName.toLowerCase()) ||
-      drug.openfda?.generic_name?.[0]?.toLowerCase().includes(drugName.toLowerCase()) ||
-      (drug.medicinalproduct || '').toLowerCase().includes(drugName.toLowerCase())
-    ) || drugReports[0] || {};
+    // Extract drug info
+    const drugInfo = event.patient?.drug?.[0] || {};
+    const drugName = drugInfo.medicinalproduct || drugInfo.openfda?.brand_name?.[0] || 'Unknown Drug';
     
-    // Get reactions
+    // Extract reactions
     const reactions = event.patient?.reaction || [];
-    const reactionsList = reactions.map(r => r.reactionmeddrapt || 'Unknown reaction').join(', ');
+    const reactionText = reactions.slice(0, 2).map(r => r.reactionmeddrapt).join(', ');
+    const moreReactions = reactions.length > 2 ? ` (+${reactions.length - 2} more)` : '';
+    
+    // Determine outcome
+    const outcome = event.serious === "1" || event.serious === 1 ? 
+      '<span class="text-red-600 font-semibold">Serious</span>' : 
+      '<span class="text-yellow-600">Non-serious</span>';
     
     modalContent += `
-      <div class="event-item bg-white border border-gray-200 rounded-md p-3 hover:shadow-sm transition" data-serious="${event.serious}">
-        <div class="flex justify-between items-start">
-          <div>
-            <h4 class="text-sm font-medium text-gray-900 event-drug">
-              ${drugInfo.medicinalproduct || drugInfo.openfda?.brand_name?.[0] || 'Unknown Drug'}
-            </h4>
-            <p class="text-xs text-gray-500">Report Date: ${formatDate(reportDate)}</p>
-          </div>
-          <span class="px-2 py-0.5 text-xs rounded-full ${event.serious ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'}">
-            ${seriousness}
-          </span>
-        </div>
-        
-        <div class="mt-2">
-          <h5 class="text-xs font-medium text-gray-700">Reported Reactions:</h5>
-          <p class="text-xs text-gray-600 mt-1 event-reactions">${reactionsList || 'None reported'}</p>
-        </div>
-        
-        <button 
-          class="mt-2 text-xs text-blue-600 hover:text-blue-800 modal-view-event-btn" 
-          data-index="${index}">
-          View Full Report
-        </button>
-      </div>
-    `;
+      <tr class="hover:bg-gray-50">
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${formattedDate}</td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${drugName}</td>
+        <td class="px-6 py-4 text-sm text-gray-900">${reactionText}${moreReactions}</td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm">${outcome}</td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm">
+          <button onclick="openAdverseEventModal(window.fdaEventData[${index}])" class="text-blue-600 hover:text-blue-900">
+            Details
+          </button>
+        </td>
+      </tr>`;
   });
   
   modalContent += `
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
-  `;
+    </div>`;
   
-  // Create and show modal
-  showCustomModal(modalContent, 'large');
+  // Store event data globally for detail button access
+  window.fdaEventData = eventData;
   
-  // Initialize search functionality
-  document.getElementById('event-search')?.addEventListener('input', function() {
-    applyEventFilters();
-  });
-  
-  // Initialize seriousness filter
-  document.getElementById('event-filter-serious')?.addEventListener('change', function() {
-    applyEventFilters();
-  });
-  
-  // Function to apply all filters
-  function applyEventFilters() {
-    const searchTerm = document.getElementById('event-search').value.toLowerCase();
-    const seriousFilter = document.getElementById('event-filter-serious').value;
-    
-    document.querySelectorAll('.event-item').forEach(item => {
-      const drug = item.querySelector('.event-drug').textContent.toLowerCase();
-      const reactions = item.querySelector('.event-reactions').textContent.toLowerCase();
-      const isSerious = item.getAttribute('data-serious');
-      
-      const matchesSearch = drug.includes(searchTerm) || reactions.includes(searchTerm);
-      const matchesSeriousness = seriousFilter === '' || isSerious === seriousFilter;
-      
-      if (matchesSearch && matchesSeriousness) {
-        item.style.display = 'block';
-      } else {
-        item.style.display = 'none';
-      }
-    });
-  }
-  
-  // Add event listeners for detail buttons
-  document.querySelectorAll('.modal-view-event-btn').forEach(button => {
-    button.addEventListener('click', function() {
-      const index = parseInt(this.getAttribute('data-index'));
-      if (eventData[index]) {
-        openAdverseEventModal(eventData[index]);
-      }
-    });
-  });
+  // Add modal to body
+  document.body.insertAdjacentHTML('beforeend', modalContent);
 }
+
+
+// // Open all events modal
+// function openAllEventsModal(eventData, drugName) {
+//   if (!eventData || eventData.length === 0) return;
+  
+//   // Create modal content
+//   let modalContent = `
+//     <div class="p-4">
+//       <h2 class="text-xl font-semibold mb-4">All Adverse Event Reports for ${drugName} (${eventData.length})</h2>
+      
+//       <div class="mb-4 flex flex-wrap gap-2">
+//         <input type="text" id="event-search" placeholder="Search reports..." class="flex-grow px-3 py-2 border border-gray-300 rounded-md">
+        
+//         <select id="event-filter-serious" class="px-3 py-2 border border-gray-300 rounded-md">
+//           <option value="">All Severity</option>
+//           <option value="true">Serious</option>
+//           <option value="false">Non-serious</option>
+//         </select>
+//       </div>
+      
+//       <div class="space-y-3" id="events-container">
+//   `;
+  
+//   // Add events
+//   eventData.forEach((event, index) => {
+//     const reportDate = event.receiptdate || 'Unknown Date';
+//     const seriousness = event.serious ? 'Serious' : 'Non-serious';
+    
+//     // Find the relevant drug in the report
+//     const drugReports = event.patient?.drug || [];
+//     const drugInfo = drugReports.find(drug => 
+//       drug.openfda?.brand_name?.[0]?.toLowerCase().includes(drugName.toLowerCase()) ||
+//       drug.openfda?.generic_name?.[0]?.toLowerCase().includes(drugName.toLowerCase()) ||
+//       (drug.medicinalproduct || '').toLowerCase().includes(drugName.toLowerCase())
+//     ) || drugReports[0] || {};
+    
+//     // Get reactions
+//     const reactions = event.patient?.reaction || [];
+//     const reactionsList = reactions.map(r => r.reactionmeddrapt || 'Unknown reaction').join(', ');
+    
+//     modalContent += `
+//       <div class="event-item bg-white border border-gray-200 rounded-md p-3 hover:shadow-sm transition" data-serious="${event.serious}">
+//         <div class="flex justify-between items-start">
+//           <div>
+//             <h4 class="text-sm font-medium text-gray-900 event-drug">
+//               ${drugInfo.medicinalproduct || drugInfo.openfda?.brand_name?.[0] || 'Unknown Drug'}
+//             </h4>
+//             <p class="text-xs text-gray-500">Report Date: ${formatDate(reportDate)}</p>
+//           </div>
+//           <span class="px-2 py-0.5 text-xs rounded-full ${event.serious ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'}">
+//             ${seriousness}
+//           </span>
+//         </div>
+        
+//         <div class="mt-2">
+//           <h5 class="text-xs font-medium text-gray-700">Reported Reactions:</h5>
+//           <p class="text-xs text-gray-600 mt-1 event-reactions">${reactionsList || 'None reported'}</p>
+//         </div>
+        
+//         <button 
+//           class="mt-2 text-xs text-blue-600 hover:text-blue-800 modal-view-event-btn" 
+//           data-index="${index}">
+//           View Full Report
+//         </button>
+//       </div>
+//     `;
+//   });
+  
+//   modalContent += `
+//       </div>
+//     </div>
+//   `;
+  
+//   // Create and show modal
+//   showCustomModal(modalContent, 'large');
+  
+//   // Initialize search functionality
+//   document.getElementById('event-search')?.addEventListener('input', function() {
+//     applyEventFilters();
+//   });
+  
+//   // Initialize seriousness filter
+//   document.getElementById('event-filter-serious')?.addEventListener('change', function() {
+//     applyEventFilters();
+//   });
+  
+//   // Function to apply all filters
+//   function applyEventFilters() {
+//     const searchTerm = document.getElementById('event-search').value.toLowerCase();
+//     const seriousFilter = document.getElementById('event-filter-serious').value;
+    
+//     document.querySelectorAll('.event-item').forEach(item => {
+//       const drug = item.querySelector('.event-drug').textContent.toLowerCase();
+//       const reactions = item.querySelector('.event-reactions').textContent.toLowerCase();
+//       const isSerious = item.getAttribute('data-serious');
+      
+//       const matchesSearch = drug.includes(searchTerm) || reactions.includes(searchTerm);
+//       const matchesSeriousness = seriousFilter === '' || isSerious === seriousFilter;
+      
+//       if (matchesSearch && matchesSeriousness) {
+//         item.style.display = 'block';
+//       } else {
+//         item.style.display = 'none';
+//       }
+//     });
+//   }
+  
+//   // Add event listeners for detail buttons
+//   document.querySelectorAll('.modal-view-event-btn').forEach(button => {
+//     button.addEventListener('click', function() {
+//       const index = parseInt(this.getAttribute('data-index'));
+//       if (eventData[index]) {
+//         openAdverseEventModal(eventData[index]);
+//       }
+//     });
+//   });
+// }
 
 // Function to initialize adverse events chart
 // Function to initialize adverse events chart with proper heights
@@ -72503,125 +73058,125 @@ function openAllLabelsModal(labelData) {
   });
 }
 
-function openAllEventsModal(eventData, drugName) {
-  const modalContent = `
-    <div class="bg-white rounded-lg shadow-xl max-w-5xl w-full">
-      <div class="flex justify-between items-center p-4 border-b border-gray-200">
-        <h2 class="text-xl font-bold text-gray-800">All Adverse Events for ${drugName}</h2>
-        <button class="close-modal text-gray-400 hover:text-gray-600">
-          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-          </svg>
-        </button>
-      </div>
+// function openAllEventsModal(eventData, drugName) {
+//   const modalContent = `
+//     <div class="bg-white rounded-lg shadow-xl max-w-5xl w-full">
+//       <div class="flex justify-between items-center p-4 border-b border-gray-200">
+//         <h2 class="text-xl font-bold text-gray-800">All Adverse Events for ${drugName}</h2>
+//         <button class="close-modal text-gray-400 hover:text-gray-600">
+//           <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+//             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+//           </svg>
+//         </button>
+//       </div>
       
-      <div class="p-6 max-h-[70vh] overflow-y-auto">
-        <div class="mb-4">
-          <input type="text" id="event-search" placeholder="Search events..." class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-        </div>
+//       <div class="p-6 max-h-[70vh] overflow-y-auto">
+//         <div class="mb-4">
+//           <input type="text" id="event-search" placeholder="Search events..." class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+//         </div>
         
-        <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-gray-200" id="events-table">
-            <thead class="bg-gray-50">
-              <tr>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Drug</th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Severity</th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reactions</th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Patient</th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
-              </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-              ${eventData.map((event, index) => {
-                const reportDate = event.receiptdate || 'Unknown Date';
-                const isSerious = event.serious ? true : false;
+//         <div class="overflow-x-auto">
+//           <table class="min-w-full divide-y divide-gray-200" id="events-table">
+//             <thead class="bg-gray-50">
+//               <tr>
+//                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+//                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Drug</th>
+//                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Severity</th>
+//                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reactions</th>
+//                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Patient</th>
+//                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+//               </tr>
+//             </thead>
+//             <tbody class="bg-white divide-y divide-gray-200">
+//               ${eventData.map((event, index) => {
+//                 const reportDate = event.receiptdate || 'Unknown Date';
+//                 const isSerious = event.serious ? true : false;
                 
-                // Find the relevant drug in the report
-                const drugReports = event.patient?.drug || [];
-                const drugInfo = drugReports.find(drug => 
-                  drug.openfda?.brand_name?.[0]?.toLowerCase().includes(drugName.toLowerCase()) ||
-                  drug.openfda?.generic_name?.[0]?.toLowerCase().includes(drugName.toLowerCase()) ||
-                  (drug.medicinalproduct || '').toLowerCase().includes(drugName.toLowerCase())
-                ) || drugReports[0] || {};
+//                 // Find the relevant drug in the report
+//                 const drugReports = event.patient?.drug || [];
+//                 const drugInfo = drugReports.find(drug => 
+//                   drug.openfda?.brand_name?.[0]?.toLowerCase().includes(drugName.toLowerCase()) ||
+//                   drug.openfda?.generic_name?.[0]?.toLowerCase().includes(drugName.toLowerCase()) ||
+//                   (drug.medicinalproduct || '').toLowerCase().includes(drugName.toLowerCase())
+//                 ) || drugReports[0] || {};
                 
-                // Get reactions
-                const reactions = event.patient?.reaction || [];
-                const reactionsList = reactions.map(r => r.reactionmeddrapt || 'Unknown').slice(0, 3).join(', ');
+//                 // Get reactions
+//                 const reactions = event.patient?.reaction || [];
+//                 const reactionsList = reactions.map(r => r.reactionmeddrapt || 'Unknown').slice(0, 3).join(', ');
                 
-                // Patient info
-                const patientAge = event.patient?.patientonsetage ? 
-                  `${event.patient.patientonsetage} ${event.patient.patientonsetageunit || 'years'}` : 'Unknown';
-                const patientSex = event.patient?.patientsex === 1 ? 'Male' : 
-                  event.patient?.patientsex === 2 ? 'Female' : 'Unknown';
+//                 // Patient info
+//                 const patientAge = event.patient?.patientonsetage ? 
+//                   `${event.patient.patientonsetage} ${event.patient.patientonsetageunit || 'years'}` : 'Unknown';
+//                 const patientSex = event.patient?.patientsex === 1 ? 'Male' : 
+//                   event.patient?.patientsex === 2 ? 'Female' : 'Unknown';
                 
-                return `
-                  <tr class="hover:bg-gray-50">
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${formatDate(reportDate)}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      ${drugInfo.medicinalproduct || drugInfo.openfda?.brand_name?.[0] || 'Unknown'}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                      <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${isSerious ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'}">
-                        ${isSerious ? 'Serious' : 'Non-serious'}
-                      </span>
-                    </td>
-                    <td class="px-6 py-4 text-sm text-gray-500">
-                      <div class="max-w-xs truncate" title="${reactions.map(r => r.reactionmeddrapt || 'Unknown').join(', ')}">
-                        ${reactionsList}${reactions.length > 3 ? '...' : ''}
-                      </div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      ${patientAge}, ${patientSex}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <button class="text-blue-600 hover:text-blue-900 view-event-btn" data-index="${index}">Details</button>
-                    </td>
-                  </tr>
-                `;
-              }).join('')}
-            </tbody>
-          </table>
-        </div>
-      </div>
+//                 return `
+//                   <tr class="hover:bg-gray-50">
+//                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${formatDate(reportDate)}</td>
+//                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+//                       ${drugInfo.medicinalproduct || drugInfo.openfda?.brand_name?.[0] || 'Unknown'}
+//                     </td>
+//                     <td class="px-6 py-4 whitespace-nowrap">
+//                       <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${isSerious ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'}">
+//                         ${isSerious ? 'Serious' : 'Non-serious'}
+//                       </span>
+//                     </td>
+//                     <td class="px-6 py-4 text-sm text-gray-500">
+//                       <div class="max-w-xs truncate" title="${reactions.map(r => r.reactionmeddrapt || 'Unknown').join(', ')}">
+//                         ${reactionsList}${reactions.length > 3 ? '...' : ''}
+//                       </div>
+//                     </td>
+//                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+//                       ${patientAge}, ${patientSex}
+//                     </td>
+//                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+//                       <button class="text-blue-600 hover:text-blue-900 view-event-btn" data-index="${index}">Details</button>
+//                     </td>
+//                   </tr>
+//                 `;
+//               }).join('')}
+//             </tbody>
+//           </table>
+//         </div>
+//       </div>
       
-      <div class="p-4 border-t border-gray-200 flex justify-end">
-        <button class="close-modal px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 transition">
-          Close
-        </button>
-      </div>
-    </div>
-  `;
+//       <div class="p-4 border-t border-gray-200 flex justify-end">
+//         <button class="close-modal px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 transition">
+//           Close
+//         </button>
+//       </div>
+//     </div>
+//   `;
   
-  showModal(modalContent, () => {
-    // Add search functionality
-    const searchInput = document.getElementById('event-search');
-    searchInput.addEventListener('keyup', function() {
-      const searchTerm = this.value.toLowerCase();
-      const rows = document.querySelectorAll('#events-table tbody tr');
+//   showModal(modalContent, () => {
+//     // Add search functionality
+//     const searchInput = document.getElementById('event-search');
+//     searchInput.addEventListener('keyup', function() {
+//       const searchTerm = this.value.toLowerCase();
+//       const rows = document.querySelectorAll('#events-table tbody tr');
       
-      rows.forEach(row => {
-        const text = row.textContent.toLowerCase();
-        row.style.display = text.includes(searchTerm) ? '' : 'none';
-      });
-    });
+//       rows.forEach(row => {
+//         const text = row.textContent.toLowerCase();
+//         row.style.display = text.includes(searchTerm) ? '' : 'none';
+//       });
+//     });
     
-    // Add event listeners to view event details buttons
-    document.querySelectorAll('.view-event-btn').forEach(button => {
-      button.addEventListener('click', function() {
-        const index = parseInt(this.getAttribute('data-index'));
-        if (eventData[index]) {
-          // Close the current modal
-          closeCurrentModal();
-          // Open the event detail modal
-          setTimeout(() => {
-            openAdverseEventModal(eventData[index]);
-          }, 300);
-        }
-      });
-    });
-  });
-}
+//     // Add event listeners to view event details buttons
+//     document.querySelectorAll('.view-event-btn').forEach(button => {
+//       button.addEventListener('click', function() {
+//         const index = parseInt(this.getAttribute('data-index'));
+//         if (eventData[index]) {
+//           // Close the current modal
+//           closeCurrentModal();
+//           // Open the event detail modal
+//           setTimeout(() => {
+//             openAdverseEventModal(eventData[index]);
+//           }, 300);
+//         }
+//       });
+//     });
+//   });
+// }
 
 // Helper functions
 function formatDate(dateString) {
@@ -109388,15 +109943,15 @@ if (enforcementData.length > 0) {
     </div>
   `;
   
-  if (enforcementData.length > 5) {
-    html += `
-      <div class="mt-4 text-center">
-        <button id="view-all-enforcements" class="px-4 py-2 bg-gray-100 text-gray-800 border border-gray-300 rounded hover:bg-gray-200 transition-colors text-sm">
-          View All ${enforcementData.length} Enforcement Records
-        </button>
-      </div>
-    `;
-  }
+//   if (enforcementData.length > 5) {
+//     html += `
+//       <div class="mt-4 text-center">
+//         <button id="view-all-enforcements" class="px-4 py-2 bg-gray-100 text-gray-800 border border-gray-300 rounded hover:bg-gray-200 transition-colors text-sm">
+//           View All ${enforcementData.length} Enforcement Records
+//         </button>
+//       </div>
+//     `;
+//   }
 } else {
   html += `
     <div class="text-center py-4">
@@ -109406,6 +109961,11 @@ if (enforcementData.length > 0) {
 }
 
 html += `
+      <div class="mt-4 text-center">
+        <button id="view-all-enforcements" class="px-4 py-2 bg-gray-100 text-gray-800 border border-gray-300 rounded hover:bg-gray-200 transition-colors text-sm">
+          View All ${enforcementData.length} Enforcement Records
+        </button>
+      </div>
     </div>
   </div>
 </div>
@@ -109553,7 +110113,7 @@ document.getElementById('view-all-udi')?.addEventListener('click', function() {
 });
 
 document.getElementById('view-all-enforcements')?.addEventListener('click', function() {
-  openAllEnforcementsModal(endpointsData.enforcement?.data || []);
+  openAllEnforcementModal(endpointsData.enforcement?.data || []);
 });
 }
 

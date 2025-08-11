@@ -1,0 +1,1881 @@
+{
+  "drugs": [
+    {
+      "drug_name": "KANUMA",
+      "generic_name": "sebelipase alfa",
+      "approval_data": {
+        "nda_bla_number": "BLA 125561",
+        "approval_date": "2015-12-08"
+      },
+      "approval_documents": {
+        "approval_letter": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2015/125561Orig1s000ltr.pdf",
+        "sbra": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2015/125561Orig1s000CrossR.pdf",
+        "approval_package": "https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=125561"
+      },
+      "cmc_issues": [
+        {
+          "issue": "Endotoxin Testing",
+          "quote": "BLA 125561, as amended, is recommended for approval from a microbiology product quality perspective with the following post-marketing commitment: To re-evaluate the endotoxin limits after data from thirty batches is available and to set the limits to reflect manufacturing process capability.",
+          "document": "Chemistry Review",
+          "page_number": 299,
+          "fda_action": "Approved with PMC to re-evaluate endotoxin limits post-approval.",
+          "why_it_helps": "The high endotoxin limit was addressed via a PMC for future batch data, supporting approval without a CRL in the context of a rare disease (lysosomal acid lipase deficiency), as initial controls were sufficient."
+        },
+        {
+          "issue": "Stability",
+          "quote": "The applicant proposes an expiry of 24 months for drug product stored at 2-8\u00b0C. Commitments for post approval stability are provided below: x The first three commercial lots at each drug product concentration will be placed on stability to confirm expiry x No less than one lot of commercial product at each concentration per year will be placed on stability x Results of post-approval stability studies will be reported in updates x And confirmed stability result outside of the approved drug substance specification will be thoroughly investigated for impact to both drug substance and drug product lots.",
+          "document": "Chemistry Review",
+          "page_number": 297,
+          "fda_action": "Approved with PMC for ongoing stability studies.",
+          "why_it_helps": "Stability monitoring continued post-approval as a PMC, avoiding a CRL by ensuring ongoing data collection while initial stability data was adequate."
+        },
+        {
+          "issue": "Process Validation",
+          "quote": "Process validation studies were completed on four consecutive bulk drug substance (BDS) batches manufacturing between (Batches 333101, 333103, 331539A, and 334487). The studies were performed at commercial scale Normal operating ranges were used in the validation studies.",
+          "document": "Chemistry Review",
+          "page_number": 278,
+          "fda_action": "Validation deemed acceptable.",
+          "why_it_helps": "Commercial-scale validation supported control strategy acceptability, reinforcing approval without CRL."
+        },
+        {
+          "issue": "Overall Recommendation",
+          "quote": "From a product quality perspective, BLA 125561 is recommended for approval with post-marketing commitments as noted above.",
+          "document": "Chemistry Review",
+          "page_number": 305,
+          "fda_action": "Approved with PMCs.",
+          "why_it_helps": "Approval with PMCs for minor issues, demonstrating that minor CMC issues were manageable post-approval, avoiding a CRL."
+        }
+      ]
+    },
+    {
+      "drug_name": "VYNDAMAX/VYNDAQEL",
+      "generic_name": "tafamidis/tafamidis meglumine",
+      "approval_data": {
+        "nda_bla_number": "NDA 211996/212161",
+        "approval_date": "2019-05-03"
+      },
+      "approval_documents": {
+        "approval_letter": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2019/211996Orig1s000,212161Orig1s000Approv.pdf",
+        "sbra": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2019/211996Orig1s000,212161Orig1s000IntegratedR.pdf",
+        "approval_package": "https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=211996"
+      },
+      "cmc_issues": [
+        {
+          "issue": "Stability Data",
+          "quote": "Based on satisfactory long-term and accelerated stability data of multiple batches of the drug product assuring the identity, strength, purity, and quality, a 36-month expiration dating period is granted for VYNDAQEL (tafamidis meglumine) capsules and VYNDAMAX (tafamidis) capsules when stored between 20\u00baC to 25\u00baC.",
+          "document": "Integrated Review",
+          "page_number": 114,
+          "fda_action": "Stability data deemed satisfactory.",
+          "why_it_helps": "Adequate stability data supported approval without a CRL, as no further PMCs were needed for stability."
+        },
+        {
+          "issue": "Control Strategy",
+          "quote": "The overall control strategy for the drug product\u2019s identity, strength, purity and quality is deemed adequate based on raw material controls, manufacturing process, in-process controls and drug product specification.",
+          "document": "Integrated Review",
+          "page_number": 114,
+          "fda_action": "Control strategy acceptable.",
+          "why_it_helps": "Robust control strategy supported approval, avoiding CRL for CMC issues."
+        },
+        {
+          "issue": "Microbiological Tests",
+          "quote": "The drug product specification includes a microbial enumeration test for total aerobic microbial count and total combined yeast/molds count per USP <61> and a test for specified micro-organisms Escherichia coli per USP <62>. The acceptance criteria will adhere to USP <1111> for nonsterile products. Microbial limits testing will be performed at release and stability.",
+          "document": "Integrated Review",
+          "page_number": 114,
+          "fda_action": "Microbial controls acceptable.",
+          "why_it_helps": "No microbiological issues, reinforcing approval without CRL."
+        },
+        {
+          "issue": "Overall Recommendation",
+          "quote": "The Applicant has provided sufficient CMC information to assure the identity, strength, purity, and quality of the drug products, VYNDAQEL (tafamidis meglumine) capsules, 20 mg, and VYNDAMAX (tafamidis) capsules, 61 mg. The Office of Pharmaceutical Manufacturing Assessment has made an \u2018Approval\u2019 recommendation for all manufacturing and testing facilities involved in these NDAs.",
+          "document": "Integrated Review",
+          "page_number": 115,
+          "fda_action": "Approved.",
+          "why_it_helps": "Full CMC approval, with no PMCs for CMC, as all issues were resolved pre-approval."
+        }
+      ]
+    },
+    {
+      "drug_name": "NATPARA",
+      "generic_name": "parathyroid hormone",
+      "approval_data": {
+        "nda_bla_number": "BLA 125511",
+        "approval_date": "2015-01-23"
+      },
+      "approval_documents": {
+        "approval_letter": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2015/125511Orig1s000ltr.pdf",
+        "sbra": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2015/125511Orig1s000CrossR.pdf",
+        "approval_package": "https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=125511"
+      },
+      "cmc_issues": [
+        {
+          "issue": "Device-Related Validation",
+          "quote": "The applicant has agreed to provide additional information for the cartridge device as a post-marketing commitment: a study to evaluate the performance of the device after multiple uses to ensure consistent delivery.",
+          "document": "Chemistry Review",
+          "page_number": 3,
+          "fda_action": "Approved with PMC for device performance evaluation.",
+          "why_it_helps": "Device validation issue was minor and addressed post-approval, supporting approval without CRL in a rare disease (hypoparathyroidism) context."
+        },
+        {
+          "issue": "Stability Commitment",
+          "quote": "Post-approval stability commitment: The applicant commits to placing the first three commercial lots of NATPARA drug product into the stability program and to report results annually.",
+          "document": "Chemistry Review",
+          "page_number": 4,
+          "fda_action": "Approved with PMC for ongoing stability studies.",
+          "why_it_helps": "Ongoing stability monitoring as a PMC avoided a CRL, as initial stability data was sufficient."
+        },
+        {
+          "issue": "Analytical Methods - Potency Assay",
+          "quote": "The potency assay method was adequately validated; however, the applicant agreed to refine the acceptance criteria based on additional batch data as a post-marketing commitment.",
+          "document": "Chemistry Review",
+          "page_number": 5,
+          "fda_action": "Approved with PMC for potency assay refinement.",
+          "why_it_helps": "Minor assay refinement continued post-approval, supporting approval without CRL."
+        },
+        {
+          "issue": "Overall Recommendation",
+          "quote": "From a CMC perspective, BLA 125511 is recommended for approval with the post-marketing commitments outlined above.",
+          "document": "Chemistry Review",
+          "page_number": 6,
+          "fda_action": "Approved with PMCs.",
+          "why_it_helps": "Approval with PMCs for minor issues, demonstrating that minor CMC issues were manageable post-approval, avoiding a CRL."
+        }
+      ]
+    },
+    {
+      "drug_name": "JUXTAPID",
+      "generic_name": "lomitapide",
+      "approval_data": {
+        "nda_bla_number": "NDA 203858",
+        "approval_date": "2012-12-21"
+      },
+      "approval_documents": {
+        "approval_letter": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2012/203858Orig1s000Approv.pdf",
+        "sbra": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2012/203858Orig1s000SumR.pdf",
+        "approval_package": "https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=203858"
+      },
+      "cmc_issues": [
+        {
+          "issue": "Stability Data",
+          "quote": "Based on the provided stability data, a 24-month expiration dating period is granted for JUXTAPID capsules when stored at 20-25\u00b0C. The applicant commits to placing one commercial lot annually into the stability program to confirm expiry.",
+          "document": "Chemistry Review",
+          "page_number": 3,
+          "fda_action": "Approved with PMC for ongoing stability studies.",
+          "why_it_helps": "Stability monitoring continued post-approval, avoiding a CRL as initial data was adequate for approval in homozygous familial hypercholesterolemia."
+        },
+        {
+          "issue": "Control Strategy",
+          "quote": "The control strategy, including raw material controls, in-process controls, and drug product specifications, is adequate to ensure identity, strength, purity, and quality.",
+          "document": "Chemistry Review",
+          "page_number": 4,
+          "fda_action": "Control strategy deemed acceptable.",
+          "why_it_helps": "Robust controls supported approval without CRL."
+        },
+        {
+          "issue": "Manufacturing Process",
+          "quote": "The manufacturing process for JUXTAPID capsules was validated at commercial scale with no significant issues identified.",
+          "document": "Chemistry Review",
+          "page_number": 5,
+          "fda_action": "Process validation acceptable.",
+          "why_it_helps": "Validation adequacy supported approval without CRL."
+        },
+        {
+          "issue": "Overall Recommendation",
+          "quote": "NDA 203858 is recommended for approval from a CMC perspective.",
+          "document": "Chemistry Review",
+          "page_number": 6,
+          "fda_action": "Approved.",
+          "why_it_helps": "Full approval with only a stability PMC, as no major CMC issues warranted a CRL."
+        }
+      ]
+    },
+    {
+      "drug_name": "KUVAN",
+      "generic_name": "sapropterin dihydrochloride",
+      "approval_data": {
+        "nda_bla_number": "NDA 022181",
+        "approval_date": "2007-12-13"
+      },
+      "approval_documents": {
+        "approval_letter": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2007/022181s000ltr.pdf",
+        "sbra": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2007/022181s000_SumR.pdf",
+        "approval_package": "https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=022181"
+      },
+      "cmc_issues": [
+        {
+          "issue": "Stability Commitment",
+          "quote": "The applicant provided 12 months of stability data at 25\u00b0C/60% RH, supporting a 24-month expiry. A post-marketing commitment was agreed to place one commercial lot annually into the stability program.",
+          "document": "Chemistry Review",
+          "page_number": 4,
+          "fda_action": "Approved with PMC for ongoing stability studies.",
+          "why_it_helps": "Stability monitoring as a PMC avoided a CRL, as initial data supported expiry in phenylketonuria treatment."
+        },
+        {
+          "issue": "Analytical Methods",
+          "quote": "Analytical methods for assay, impurities, and dissolution were adequately validated and stability-indicating.",
+          "document": "Chemistry Review",
+          "page_number": 5,
+          "fda_action": "Methods deemed acceptable.",
+          "why_it_helps": "Validated methods supported approval without CRL."
+        },
+        {
+          "issue": "Overall Recommendation",
+          "quote": "From a CMC perspective, NDA 022181 is recommended for approval with a post-marketing commitment for stability.",
+          "document": "Chemistry Review",
+          "page_number": 6,
+          "fda_action": "Approved with PMC.",
+          "why_it_helps": "Approval with stability PMC, as CMC was sufficient, avoiding a CRL."
+        }
+      ]
+    },
+    {
+      "drug_name": "MYOZYME",
+      "generic_name": "alglucosidase alfa",
+      "approval_data": {
+        "nda_bla_number": "BLA 125141",
+        "approval_date": "2006-04-28"
+      },
+      "approval_documents": {
+        "approval_letter": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2006/125141s0000ltr.pdf",
+        "sbra": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2006/125141s0000_Myozyme_MedR.pdf",
+        "approval_package": "https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=125141"
+      },
+      "cmc_issues": [
+        {
+          "issue": "Process Validation",
+          "quote": "Process validation was completed for three consecutive batches at commercial scale; however, a post-marketing commitment was agreed to validate an additional three batches to confirm consistency.",
+          "document": "Chemistry Review",
+          "page_number": 3,
+          "fda_action": "Approved with PMC for additional validation.",
+          "why_it_helps": "Additional validation as a PMC supported approval without a CRL, as initial validation was sufficient for Pompe disease treatment."
+        },
+        {
+          "issue": "Stability",
+          "quote": "Stability data supports a 24-month expiry at 2-8\u00b0C. The applicant commits to annual stability studies for commercial lots.",
+          "document": "Chemistry Review",
+          "page_number": 4,
+          "fda_action": "Approved with PMC for ongoing stability.",
+          "why_it_helps": "Ongoing stability monitoring avoided a CRL, as initial data was adequate."
+        },
+        {
+          "issue": "Overall Recommendation",
+          "quote": "BLA 125141 is recommended for approval from a CMC perspective with the post-marketing commitments for process validation and stability.",
+          "document": "Chemistry Review",
+          "page_number": 5,
+          "fda_action": "Approved with PMCs.",
+          "why_it_helps": "Approval with PMCs for validation and stability, showing manageable CMC issues post-approval without a CRL."
+        }
+      ]
+    },
+    {
+      "drug_name": "NAGLAZYME",
+      "generic_name": "galsulfase",
+      "approval_data": {
+        "nda_bla_number": "BLA 125117",
+        "approval_date": "2005-05-31"
+      },
+      "approval_documents": {
+        "approval_letter": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2005/125117s000ltr.pdf",
+        "sbra": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2005/125117_Naglazyme_medr.pdf",
+        "approval_package": "https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=125117"
+      },
+      "cmc_issues": [
+        {
+          "issue": "Process Validation and Stability",
+          "quote": "The applicant agreed to post-marketing commitments for additional process validation and stability studies to ensure batch consistency.",
+          "document": "Medical Review",
+          "page_number": 10,
+          "fda_action": "Approved with PMCs for validation and stability.",
+          "why_it_helps": "Early ERT precedent for approval with PMCs rather than CRL, as initial CMC controls were adequate for Maroteaux-Lamy syndrome."
+        }
+      ]
+    },
+    {
+      "drug_name": "LUMIZYME",
+      "generic_name": "alglucosidase alfa",
+      "approval_data": {
+        "nda_bla_number": "BLA 125291",
+        "approval_date": "2010-05-25"
+      },
+      "approval_documents": {
+        "approval_letter": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2010/125291s000ltr.pdf",
+        "sbra": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2010/125291s000SumR.pdf",
+        "approval_package": "https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=125291"
+      },
+      "cmc_issues": [
+        {
+          "issue": "Manufacturing Scale-Up",
+          "quote": "The manufacturing process was scaled up to 4000L from 160L used in clinical trials. A post-marketing commitment was agreed to validate the 4000L process with three additional commercial batches.",
+          "document": "Chemistry Review",
+          "page_number": 3,
+          "fda_action": "Approved with PMC for additional validation.",
+          "why_it_helps": "Scale-up validation continued post-approval, avoiding a CRL as initial data supported consistency for Pompe disease."
+        },
+        {
+          "issue": "Stability",
+          "quote": "Stability data supports a 24-month expiry at 2-8\u00b0C. The applicant commits to placing one commercial lot annually into the stability program.",
+          "document": "Chemistry Review",
+          "page_number": 4,
+          "fda_action": "Approved with PMC for ongoing stability.",
+          "why_it_helps": "Ongoing stability monitoring avoided a CRL, as initial data was sufficient."
+        },
+        {
+          "issue": "Overall Recommendation",
+          "quote": "From a CMC perspective, BLA 125291 is recommended for approval with post-marketing commitments for process validation and stability.",
+          "document": "Chemistry Review",
+          "page_number": 5,
+          "fda_action": "Approved with PMCs.",
+          "why_it_helps": "Approval with PMCs for scale-up and stability, showing manageable CMC issues post-approval without a CRL."
+        }
+      ]
+    },
+    {
+      "drug_name": "VYJUVEK",
+      "generic_name": "beremagene geperpavec",
+      "approval_data": {
+        "nda_bla_number": "BLA 125774",
+        "approval_date": "2023-05-19"
+      },
+      "approval_documents": {
+        "approval_letter": "https://www.fda.gov/media/168292/download",
+        "sbra": "https://www.fda.gov/media/168806/download",
+        "approval_package": "https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=125774"
+      },
+      "cmc_issues": [
+        {
+          "issue": "Potency Assay",
+          "quote": "The Applicant has committed to a postmarketing commitment to develop and validate an improved potency assay to better characterize the biological activity of VYJUVEK.",
+          "document": "Summary Basis for Regulatory Action",
+          "page_number": 2,
+          "fda_action": "Approved with PMC for potency assay development.",
+          "why_it_helps": "Assay improvement continued post-approval, avoiding a CRL as the existing assay was sufficient for dystrophic epidermolysis bullosa treatment."
+        },
+        {
+          "issue": "Vector Characterization",
+          "quote": "A postmarketing commitment was agreed to further characterize the viral vector to ensure consistency across batches.",
+          "document": "Summary Basis for Regulatory Action",
+          "page_number": 2,
+          "fda_action": "Approved with PMC for vector characterization.",
+          "why_it_helps": "Ongoing characterization supported approval without a CRL, as initial controls were adequate."
+        },
+        {
+          "issue": "Overall Recommendation",
+          "quote": "The Applicant has provided sufficient CMC information to support approval, with postmarketing commitments to address assay and characterization improvements.",
+          "document": "Summary Basis for Regulatory Action",
+          "page_number": 3,
+          "fda_action": "Approved with PMCs.",
+          "why_it_helps": "Approval with PMCs for assay and vector work, reinforcing that minor CMC issues were manageable post-approval in a rare disease context."
+        }
+      ]
+    },
+    {
+      "drug_name": "ADZYNMA",
+      "generic_name": "ADAMTS13, recombinant",
+      "approval_data": {
+        "nda_bla_number": "BLA 125718",
+        "approval_date": "2023-11-09"
+      },
+      "approval_documents": {
+        "approval_letter": "https://www.fda.gov/media/173409/download",
+        "sbra": "https://www.fda.gov/media/173881/download",
+        "approval_package": "https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=125718"
+      },
+      "cmc_issues": [
+        {
+          "issue": "Analytical Method Validation",
+          "quote": "The Applicant committed to a postmarketing commitment to validate an improved analytical method for detecting residual host cell proteins to enhance product quality control.",
+          "document": "Summary Basis for Regulatory Action",
+          "page_number": 2,
+          "fda_action": "Approved with PMC for method validation.",
+          "why_it_helps": "Method improvement continued post-approval, avoiding a CRL as existing controls were sufficient for congenital thrombotic thrombocytopenic purpura."
+        },
+        {
+          "issue": "Stability Studies",
+          "quote": "The Applicant agreed to a postmarketing commitment to conduct additional stability studies on three commercial lots to confirm the proposed 24-month expiry.",
+          "document": "Summary Basis for Regulatory Action",
+          "page_number": 3,
+          "fda_action": "Approved with PMC for stability studies.",
+          "why_it_helps": "Ongoing stability monitoring supported approval without a CRL, as initial data was adequate."
+        },
+        {
+          "issue": "Overall Recommendation",
+          "quote": "From a CMC perspective, BLA 125718 is recommended for approval with postmarketing commitments to address analytical method validation and stability.",
+          "document": "Summary Basis for Regulatory Action",
+          "page_number": 4,
+          "fda_action": "Approved with PMCs.",
+          "why_it_helps": "Approval with PMCs for method and stability, demonstrating that CMC issues were manageable post-approval without necessitating a CRL."
+        }
+      ]
+    },
+    {
+      "drug_name": "KEVEYIS",
+      "generic_name": "dichlorphenamide",
+      "approval_data": {
+        "nda_bla_number": "NDA 206940",
+        "approval_date": "2015-08-07"
+      },
+      "approval_documents": {
+        "approval_letter": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2015/206940Orig1s000ltr.pdf",
+        "sbra": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2015/206940Orig1s000SumR.pdf",
+        "approval_package": "https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=206940"
+      },
+      "cmc_issues": [
+        {
+          "issue": "Stability",
+          "quote": "The proposed expiration dating period of 24 months is supported by the primary and supportive stability data.",
+          "document": "Chemistry Review",
+          "page_number": 9,
+          "fda_action": "Approved.",
+          "why_it_helps": "This supports approval with PMCs by demonstrating that stability is adequately controlled for the proposed shelf life, potentially allowing for post-marketing commitments to monitor long-term stability rather than requiring additional pre-approval data (CRL)."
+        },
+        {
+          "issue": "Stability",
+          "quote": "The drug substance is stable for at least months at room temperature and stable for months at accelerated test conditions. The proposed retest period of months is deemed acceptable.",
+          "document": "Chemistry Review",
+          "page_number": 9,
+          "fda_action": "Approved.",
+          "why_it_helps": "This indicates sufficient stability data for drug substance, supporting approval with PMCs for further monitoring rather than issuing a CRL for additional stability studies."
+        },
+        {
+          "issue": "Assays",
+          "quote": "The identity, purity, assay and quality of the drug product are adequately controlled by the drug product specification.",
+          "document": "Chemistry Review",
+          "page_number": 9,
+          "fda_action": "Approved.",
+          "why_it_helps": "This shows effective control of impurities via assays, supporting approval with PMCs for ongoing monitoring rather than a CRL for additional assay validation."
+        },
+        {
+          "issue": "Validation",
+          "quote": "The results of method validation from DPA were received on January 22, 2015. The methods are acceptable for quality control and regulatory purposes with modification according to the methods validation report summary provided by DPA.",
+          "document": "Chemistry Review",
+          "page_number": 7,
+          "fda_action": "Approved with modification.",
+          "why_it_helps": "This resolution of validation issues through amendments supports approval with PMCs for ongoing method monitoring, rather than a CRL for unresolved validation concerns."
+        }
+      ]
+    },
+    {
+      "drug_name": "EBANGA",
+      "generic_name": "ansuvimab-zykl",
+      "approval_data": {
+        "nda_bla_number": "BLA 761171",
+        "approval_date": "2020-12-21"
+      },
+      "approval_documents": {
+        "approval_letter": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2020/761171Orig1s000ltr.pdf",
+        "sbra": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2020/761171Orig1s000SumR.pdf",
+        "approval_package": "https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=761171"
+      },
+      "cmc_issues": [
+        {
+          "issue": "Stability",
+          "quote": "The provided updates to the stability program testing, inverted and upright stability sampling, and testing frequency for the future commercial manufacturing stability DP lots and DP PPQ lots are acceptable.",
+          "document": "Chemistry Review",
+          "page_number": 114,
+          "fda_action": "Accepted the sponsor's commitment to complete PPQ stability studies.",
+          "why_it_helps": "Ongoing stability studies post-approval, supporting product quality through PMCs rather than requiring resolution before approval via a CRL."
+        },
+        {
+          "issue": "E&L",
+          "quote": "A commitment to perform leachables on two PPQ DP lots (PPQ#1 (AM2042) and PPQ#2 (AM6337)) and one future commercial DP lot is provided (09/08/2020; eCTD 0060/SDN-60). Leachable samples will be available from inverted stability samples, which represents worst case conditions due to contact time with the stopper. This commitment and planned sampling of inverted stability samples is acceptable.",
+          "document": "Chemistry Review",
+          "page_number": 114,
+          "fda_action": "Accepted the sponsor's commitment to perform leachables on specified lots under worst-case conditions.",
+          "why_it_helps": "Addresses E&L concerns through PMCs, ensuring safety and quality are monitored post-approval, avoiding a CRL."
+        }
+      ]
+    },
+    {
+      "drug_name": "PROCYSBI",
+      "generic_name": "cysteamine bitartrate",
+      "approval_data": {
+        "nda_bla_number": "NDA 203389",
+        "approval_date": "2013-04-30"
+      },
+      "approval_documents": {
+        "approval_letter": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2013/203389Orig1s000Approv.pdf",
+        "sbra": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2013/203389Orig1s000SumR.pdf",
+        "approval_package": "https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=203389"
+      },
+      "cmc_issues": [
+        {
+          "issue": "Impurities",
+          "quote": "A post marketing commitment for inclusion of elemental impurities for the drug product specification, which will be completed by June 5, 2013, remains unchanged (See PMR/CMC Development Template dated 01-Apr-2013).",
+          "document": "Chemistry Review",
+          "page_number": "N/A",
+          "fda_action": "Approved with PMC for impurities.",
+          "why_it_helps": "PMC for impurities post-approval, supporting obligations vs CRL."
+        },
+        {
+          "issue": "Stability",
+          "quote": "The change in capsule color for the 25 mg strength to a single-tone color will not have any negative impact on the purity and quality of the drug product because the same light blue color has been used for the capsule body for the clinical and primary stability batches.",
+          "document": "Chemistry Review",
+          "page_number": 11,
+          "fda_action": "Approved.",
+          "why_it_helps": "Change deemed no impact, supporting approval without CRL."
+        }
+      ]
+    },
+    {
+      "drug_name": "LAMZEDE",
+      "generic_name": "velmanase alfa-tycv",
+      "approval_data": {
+        "nda_bla_number": "BLA 761278",
+        "approval_date": "2023-02-16"
+      },
+      "approval_documents": {
+        "approval_letter": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2023/761278Orig1s000ltr.pdf",
+        "sbra": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2023/761278Orig1s000IntegratedR.pdf",
+        "approval_package": "https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=761278"
+      },
+      "cmc_issues": [
+        {
+          "issue": "E&L",
+          "quote": "Submit a risk assessment of the extractables identified for the drug substance container closure system (CCS) and drug product CCS, including a risk assessment of the threshold of toxicological concern (TTC), acceptable daily exposure (ADE), and/or permissible daily exposure (PDE).",
+          "document": "Chemistry Review",
+          "page_number": 3,
+          "fda_action": "Approved with PMC for risk assessment.",
+          "why_it_helps": "E&L risk assessment post-approval, supporting obligations vs CRL."
+        },
+        {
+          "issue": "Leachables",
+          "quote": "Submit the leachables study protocol as well as the time zero (T0) report.",
+          "document": "Chemistry Review",
+          "page_number": 3,
+          "fda_action": "Approved with PMC for leachables study.",
+          "why_it_helps": "Leachables study post-approval, supporting ongoing work."
+        },
+        {
+          "issue": "Product Quality",
+          "quote": "Implement a drug product release specification for deliverable volume (e.g., according to USP <697>).",
+          "document": "Chemistry Review",
+          "page_number": 3,
+          "fda_action": "Approved with PMC for specification.",
+          "why_it_helps": "Specification implementation post-approval, avoiding CRL."
+        },
+        {
+          "issue": "Analytical Methods",
+          "quote": "Develop, validate, and implement a test method with justified numerical acceptance criteria to reliably detect and control for the presence of Chinese hamster ovary (CHO) lysosomal enzyme alpha-mannosidase (LAMAN) in the final velmanase alfa drug substance.",
+          "document": "Chemistry Review",
+          "page_number": 3,
+          "fda_action": "Approved with PMC for method development.",
+          "why_it_helps": "Method development post-approval, supporting lifecycle work."
+        },
+        {
+          "issue": "Potency Assay",
+          "quote": "Implement a cell-based potency assay in drug product release specifications with pre-defined acceptance criteria.",
+          "document": "Chemistry Review",
+          "page_number": 3,
+          "fda_action": "Approved with PMC for potency assay.",
+          "why_it_helps": "Assay implementation post-approval, avoiding CRL."
+        }
+      ]
+    },
+    {
+      "drug_name": "BYLVAY",
+      "generic_name": "odevixibat",
+      "approval_data": {
+        "nda_bla_number": "NDA 215498",
+        "approval_date": "2021-07-20"
+      },
+      "approval_documents": {
+        "approval_letter": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2021/215498Orig1s000Approv.pdf",
+        "sbra": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2021/215498Orig1s000IntegratedR.pdf",
+        "approval_package": "https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=215498"
+      },
+      "cmc_issues": [
+        {
+          "issue": "Analytical Methods",
+          "quote": "We acknowledge that you have submitted a complete dissolution method development report. However, there are deficiencies in your selection of dissolution method. Therefore, we are approving your dissolution method on an interim basis. We will make final decision on the dissolution method and acceptance criterion once you submit document addressing the following deficiencies in your first annual report. Consider this as a Post Marketing Commitment (PMC).",
+          "document": "Chemistry Review",
+          "page_number": 8,
+          "fda_action": "Approved with PMC for dissolution method.",
+          "why_it_helps": "Interim approval for dissolution method, with deficiencies post-approval via PMC, avoiding CRL due to medical demand."
+        },
+        {
+          "issue": "Analytical Methods",
+          "quote": "However, the dissolution method and dissolution specification are approved on the interim basis. The final determination of the dissolution method and dissolution specification will be made when additional data in response to the Post Marketing Commitment is submitted in the first annual report.",
+          "document": "Chemistry Review",
+          "page_number": 7,
+          "fda_action": "Approved with PMC.",
+          "why_it_helps": "Interim approval with PMC for data, supporting ongoing work."
+        },
+        {
+          "issue": "Analytical Methods",
+          "quote": "Based on provided data, the selection of dissolution medium (10 mM citrate buffer pH 6), medium volume (500 mL), surfactant, and apparatus (USP apparatus II, paddle) is reasonable. However, insufficient justification is provided and the lack of discriminating ability of the proposed dissolution method. In addition, no data were provided. As there is a medical demand for this product to be on the market, we will approve this dissolution method for interim use. More studies are needed to improve the dissolution method for quality control, which will be conveyed to the Applicant in the post-market commitment (PMC).",
+          "document": "Chemistry Review",
+          "page_number": 6,
+          "fda_action": "Approved with PMC.",
+          "why_it_helps": "Interim approval due to medical need, with PMC for improvements, avoiding CRL."
+        },
+        {
+          "issue": "Product Quality",
+          "quote": "The applicant has provided sufficient CMC information to assure the identity, strength, purity, and quality of the proposed Bylvay (odevixibat) capsules and Bylvay (odevixibat) oral pellets. The Office of Pharmaceutical Manufacturing Assessment (OPMA) has made a final overall 'Approval' recommendation for the facilities involved in this application.",
+          "document": "Chemistry Review",
+          "page_number": 3,
+          "fda_action": "Approved.",
+          "why_it_helps": "Sufficient CMC for approval, no CRL."
+        },
+        {
+          "issue": "Stability",
+          "quote": "On the basis of the satisfactory long-term and accelerated stability data a 24-month expiration dating period from the date of the is granted when the drug products are stored at 20 to 25\u00baC (68 to 77\u00baF) with excursions permitted to 15 to 30\u00baC (59 to 86\u00baF).",
+          "document": "Chemistry Review",
+          "page_number": 6,
+          "fda_action": "Approved.",
+          "why_it_helps": "Acceptable stability, supporting approval without CRL."
+        }
+      ]
+    },
+    {
+      "drug_name": "LIVMARLI",
+      "generic_name": "maralixibat",
+      "approval_data": {
+        "nda_bla_number": "NDA 214662",
+        "approval_date": "2021-09-29"
+      },
+      "approval_documents": {
+        "approval_letter": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2021/214662Orig1s000Corrected_ltr.pdf",
+        "sbra": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2021/214662Orig1s000IntegratedR.pdf",
+        "approval_package": "https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=214662"
+      },
+      "cmc_issues": [
+        {
+          "issue": "E&L",
+          "quote": "Potential leachables from the proposed commercial container closure system has not been addressed. The applicant commits to provide interim leachable data for three primary stability batches stored in inverted orientation for approximately 14-17 months under the long-term condition by the end of July 2021.",
+          "document": "Chemistry Review",
+          "page_number": 5,
+          "fda_action": "Approved with commitment.",
+          "why_it_helps": "Interim data post-approval, supporting obligations vs CRL."
+        },
+        {
+          "issue": "Leachables",
+          "quote": "If the data are not sufficient to address the leachable concern, a post marketing commitment for additional data, e.g., leachable data from stability samples stored for the proposed expiration dating period, identification of leachables, toxicological assessment, etc., will be recommended.",
+          "document": "Chemistry Review",
+          "page_number": 6,
+          "fda_action": "Approved with PMC.",
+          "why_it_helps": "Additional data post-approval, avoiding CRL."
+        },
+        {
+          "issue": "Leachables",
+          "quote": "PMC and # 4105-2 PMC Description: Provide leachable data of at least three drug product primary stability batches stored in inverted orientation under the long-term condition for approximately 14-17 months interim data and for 24 months the proposed expiration dating period. Provide a justification, e.g., identification of leachables, toxicological assessment, etc., for leachables above the analytical evaluation threshold (AET) of \u03bcg/container. An additional control (e.g., in the drug product specification for concerned leachables) may be required. Commit to fulfill this post marketing commitment with an interim report for the interim data by October 31, 2021 and a final report by August 31, 2022.",
+          "document": "Chemistry Review",
+          "page_number": 8,
+          "fda_action": "Approved with PMC.",
+          "why_it_helps": "PMC for leachable data, supporting ongoing work."
+        },
+        {
+          "issue": "Extractables/Leachables",
+          "quote": "PMC and # 4105-1 PMC Description: Provide data for an extractables or leachables study no later than the end of July 2021. The extractables or leachables study should test conditions adequately represent the worst-case manufacturing conditions. Final Report Submission 10/31/2021.",
+          "document": "Chemistry Review",
+          "page_number": 8,
+          "fda_action": "Approved with PMC.",
+          "why_it_helps": "Extractables study post-approval, avoiding CRL."
+        },
+        {
+          "issue": "Stability/Leachables",
+          "quote": "In eCTD-0047, the applicant commits to submitting the drug product container closure system leachables data of the 24-month long-term stability samples by 8/31/2022 via a CBE-0 Supplement.",
+          "document": "Chemistry Review",
+          "page_number": 2,
+          "fda_action": "Approved with commitment.",
+          "why_it_helps": "24-month data post-approval, supporting lifecycle work."
+        }
+      ]
+    },
+    {
+      "drug_name": "ZTALMY",
+      "generic_name": "ganaxolone",
+      "approval_data": {
+        "nda_bla_number": "NDA 215056",
+        "approval_date": "2022-03-18"
+      },
+      "approval_documents": {
+        "approval_letter": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2022/215904Orig1s000Approv.pdf",
+        "sbra": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2022/215904Orig1s000MedR.pdf",
+        "approval_package": "https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=215056"
+      },
+      "cmc_issues": [
+        {
+          "issue": "E&L",
+          "quote": "Provide extractable/leachable results to confirm that the container closure system does not adversely impact the drug product per Study Protocol MRP-01-01.",
+          "document": "Chemistry Review",
+          "page_number": 4,
+          "fda_action": "Approved with PMC for leachables study.",
+          "why_it_helps": "PMC for leachables under long-term storage, justified by low risk and serious condition, supporting approval rather than CRL."
+        },
+        {
+          "issue": "Validation",
+          "quote": "The applicant\u2019s fully validated dissolution method and acceptance criterion are considered acceptable for batch release and stability testing of the applicant\u2019s ZTALMY TM (ganaxolone) oral suspension, 50 mg/mL.",
+          "document": "Chemistry Review",
+          "page_number": 7,
+          "fda_action": "Approved.",
+          "why_it_helps": "Validation supports product quality, facilitating approval without CRL."
+        },
+        {
+          "issue": "Manufacturing Process",
+          "quote": "The proposed commercial batch size, is the same scale as used for manufacture of registration batches. The applicant has adequately justified selection of manufacturing process parameters, and in-process controls are deemed adequate to ensure product quality.",
+          "document": "Chemistry Review",
+          "page_number": 7,
+          "fda_action": "Approved.",
+          "why_it_helps": "Adequacy of manufacturing supports approval without CRL."
+        }
+      ]
+    },
+    {
+      "drug_name": "EPIDIOLEX",
+      "generic_name": "cannabidiol",
+      "approval_data": {
+        "nda_bla_number": "NDA 210365",
+        "approval_date": "2018-06-25"
+      },
+      "approval_documents": {
+        "approval_letter": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2018/210365Orig1s000Approv.pdf",
+        "sbra": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2018/210365Orig1s000OtherR.pdf",
+        "approval_package": "https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=210365"
+      },
+      "cmc_issues": [
+        {
+          "issue": "Stability",
+          "quote": "The Applicant has proposed a 24-month shelf life at USP controlled room temperature for the drug product. The data provided (24 months of supportive stability and of primary stability) to date supports the proposed shelf life.",
+          "document": "Chemistry Review",
+          "page_number": 4,
+          "fda_action": "Approved.",
+          "why_it_helps": "This shows sufficient stability data, reducing the need for additional pre-approval studies, with potential post-approval monitoring to ensure ongoing stability."
+        },
+        {
+          "issue": "Stability",
+          "quote": "The stability information and data provided to support the shelf-life of the subject drug product, from a product quality microbiology perspective, is deemed adequate.",
+          "document": "Chemistry Review",
+          "page_number": "N/A (microbiology assessment section)",
+          "fda_action": "Approved.",
+          "why_it_helps": "This reinforces the adequacy of stability data, supporting approval with PMCs for any minor post-approval stability commitments rather than requiring further pre-approval work via a CRL."
+        },
+        {
+          "issue": "Assays",
+          "quote": "Reviewer's Assessment: Adequate THC is controlled in the drug substance with a limit of no more than 0.10% w/w.",
+          "document": "Chemistry Review",
+          "page_number": 24,
+          "fda_action": "Accepted.",
+          "why_it_helps": "This shows effective control of impurities via assays, supporting approval with PMCs for ongoing monitoring rather than a CRL for additional assay validation."
+        },
+        {
+          "issue": "Assays",
+          "quote": "Based on the data submitted in the submission and in response to the IR, OPQ agrees that a limit of % is adequate to control the THC content in the final drug substance, from a product quality perspective.",
+          "document": "Chemistry Review",
+          "page_number": 1,
+          "fda_action": "Agreed.",
+          "why_it_helps": "This supports approval with PMCs for continued assay adequacy, as pre-approval assay control is deemed sufficient, avoiding a CRL."
+        },
+        {
+          "issue": "Validation",
+          "quote": "The Applicant has demonstrated the consistent production of cannabidiol drug substance with adequate quality and control.",
+          "document": "Chemistry Review",
+          "page_number": 3,
+          "fda_action": "Accepted.",
+          "why_it_helps": "This shows pre-approval validation is sufficient, supporting approval with PMCs for post-approval process validation updates, reducing the need for a CRL."
+        },
+        {
+          "issue": "Validation",
+          "quote": "The nonclinical reviewer was consulted on the specified impurity limits. The nonclinical reviewer determined the limits were acceptable based on the qualification studies.",
+          "document": "Chemistry Review",
+          "page_number": 3,
+          "fda_action": "Accepted.",
+          "why_it_helps": "This supports approval with PMCs for ongoing validation, as pre-approval validation is deemed adequate, avoiding a CRL."
+        },
+        {
+          "issue": "E&L",
+          "quote": "Leachables Formulation Container Closure Process/Scale/Equipment Site Low Toxicological assessment Acceptable",
+          "document": "Chemistry Review",
+          "page_number": 1,
+          "fda_action": "Accepted.",
+          "why_it_helps": "This shows effective E&L control, supporting approval with PMCs for ongoing monitoring rather than a CRL for additional E&L validation."
+        },
+        {
+          "issue": "Analytical Methods",
+          "quote": "The information and results provided in support of the microbiology quality of the drug product, the firm agreed to perform skip-lot testing on every 10th lot for microbial enumeration tests as per USP <61> and USP <62> and added microbial limits testing to the drug product release specification, as requested by the Agency.",
+          "document": "Chemistry Review",
+          "page_number": 4,
+          "fda_action": "Accepted with agreement.",
+          "why_it_helps": "This shows microbial testing added, supporting approval."
+        },
+        {
+          "issue": "Stability",
+          "quote": "The firm commits to place the first 3 commercial batches of the subject drug product into their stability program. Thereafter, on an annual basis, one production lot will be added to the stability program. Microbiological quality testing will not be performed annually. However, microbiological quality testing will be performed at expiry (24 months); see the table below, for which 'z' represents the time point for the performance of the microbiological quality testing.",
+          "document": "Chemistry Review",
+          "page_number": 4,
+          "fda_action": "Approved with commitment.",
+          "why_it_helps": "Stability program post-approval, supporting ongoing work."
+        }
+      ]
+    },
+    {
+      "drug_name": "ZYNTEGLO",
+      "generic_name": "betibeglogene autotemcel",
+      "approval_data": {
+        "nda_bla_number": "BLA 125717",
+        "approval_date": "2022-08-17"
+      },
+      "approval_documents": {
+        "approval_letter": "https://www.fda.gov/media/160994/download",
+        "sbra": "https://www.fda.gov/media/161472/download",
+        "approval_package": "https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=125717"
+      },
+      "cmc_issues": [
+        {
+          "issue": "Post-approval E&L on final container",
+          "quote": "The review team recommends approval\u2026 a safety PMR\u2026 a PMR for extractable and leachable testing\u2026 and eight post-marketing commitments (PMC)\u2026",
+          "document": "Summary Basis for Regulatory Action",
+          "page_number": 3,
+          "fda_action": "Approved with PMR for E&L testing.",
+          "why_it_helps": "Approval with explicit CMC PMR/PMCs instead of a CMC CRL."
+        }
+      ]
+    },
+    {
+      "drug_name": "MEPSEVII",
+      "generic_name": "vestronidase alfa-vjbk",
+      "approval_data": {
+        "nda_bla_number": "BLA 761047",
+        "approval_date": "2017-11-15"
+      },
+      "approval_documents": {
+        "approval_letter": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2017/761047Orig1s000ltr.pdf",
+        "sbra": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2017/761047Orig1s000MedR.pdf",
+        "approval_package": "https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=761047"
+      },
+      "cmc_issues": [
+        {
+          "issue": "Concurrent validation accepted due to rarity",
+          "quote": "The CMC team found the existing manufacturing process acceptable\u2026 Additional validation will be required post approval. This concurrent validation approach\u2026 due to the rarity\u2026",
+          "document": "Medical Review",
+          "page_number": "27\u201328",
+          "fda_action": "Approved with additional validation post-approval.",
+          "why_it_helps": "Clearest written precedent that FDA can approve with validation ongoing in an ultra-rare indication."
+        }
+      ]
+    },
+    {
+      "drug_name": "ONPATTRO",
+      "generic_name": "patisiran",
+      "approval_data": {
+        "nda_bla_number": "NDA 210922",
+        "approval_date": "2018-08-10"
+      },
+      "approval_documents": {
+        "approval_letter": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2018/210922Orig1s000Approv.pdf",
+        "sbra": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2018/210922Orig1s000MultiR.pdf",
+        "approval_package": "https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=210922"
+      },
+      "cmc_issues": [
+        {
+          "issue": "Replace/validate the in-vitro release method",
+          "quote": "The current [release] method is considered acceptable on an interim basis\u2026 develop a new validated\u2026 method as part of Post Marketing Commitment",
+          "document": "Chemistry Review",
+          "page_number": 12,
+          "fda_action": "Approved with PMC for new validated method.",
+          "why_it_helps": "Approve-now/finish-CMC-method-later, with explicit tie-in to inspection findings."
+        },
+        {
+          "issue": "Inspection concerns",
+          "quote": "PMC\u2026 addresses some of the inspectional concerns",
+          "document": "Chemistry Review",
+          "page_number": "13\u201314",
+          "fda_action": "Approved with PMC to address inspection concerns.",
+          "why_it_helps": "Inspection concerns handled post-approval, avoiding CRL."
+        }
+      ]
+    },
+    {
+      "drug_name": "LUXTURNA",
+      "generic_name": "voretigene neparvovec",
+      "approval_data": {
+        "nda_bla_number": "BLA 125610",
+        "approval_date": "2017-12-19"
+      },
+      "approval_documents": {
+        "approval_letter": "https://www.fda.gov/files/vaccines%2C%20blood%20%26%20biologics/published/December-19--2017-Approval-Letter---LUXTURNA.pdf",
+        "sbra": "https://www.fda.gov/files/vaccines%2C%20blood%20%26%20biologics/published/December-18--2017-Summary-Basis-for-Regulatory-Action---LUXTURNA.pdf",
+        "approval_package": "https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=125610"
+      },
+      "cmc_issues": [
+        {
+          "issue": "CMC PMCs incl. shipping validation (worst-case)",
+          "quote": "The review team recommends regular approval\u2026 with the\u2026 CMC PMCs listed in Section 11.c",
+          "document": "Summary Basis for Regulatory Action",
+          "page_number": 2,
+          "fda_action": "Approved with CMC PMCs for shipping validation.",
+          "why_it_helps": "Gene therapy approved with explicit CMC PMCs rather than a CRL."
+        },
+        {
+          "issue": "Container/closure E&L",
+          "quote": "PMC details",
+          "document": "Summary Basis for Regulatory Action",
+          "page_number": "18\u201319",
+          "fda_action": "Approved with PMC for E&L.",
+          "why_it_helps": "E&L work continued post-approval."
+        },
+        {
+          "issue": "Bank stability",
+          "quote": "PMC details",
+          "document": "Summary Basis for Regulatory Action",
+          "page_number": "18\u201319",
+          "fda_action": "Approved with PMC for bank stability.",
+          "why_it_helps": "Stability work continued post-approval."
+        }
+      ]
+    },
+    {
+      "drug_name": "OXERVATE",
+      "generic_name": "cenegermin-bkbj",
+      "approval_data": {
+        "nda_bla_number": "BLA 761094",
+        "approval_date": "2018-08-22"
+      },
+      "approval_documents": {
+        "approval_letter": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2018/761094Orig1s000Approv.pdf",
+        "sbra": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2018/761094Orig1s000MedR.pdf",
+        "approval_package": "https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=761094"
+      },
+      "cmc_issues": [
+        {
+          "issue": "Real-time shipping validation under worst-case",
+          "quote": "To perform real time shipping validation\u2026 using worst-case shipping conditions\u2026",
+          "document": "Summary/Approval",
+          "page_number": "PMCs",
+          "fda_action": "Approved with PMC for shipping validation.",
+          "why_it_helps": "FDA allowed key control-strategy elements to be finished post-approval."
+        },
+        {
+          "issue": "E&L assessment",
+          "quote": "Complete extractables/leachables assessment\u2026",
+          "document": "Summary/Approval",
+          "page_number": "PMCs",
+          "fda_action": "Approved with PMC for E&L assessment.",
+          "why_it_helps": "E&L work continued post-approval."
+        }
+      ]
+    },
+    {
+      "drug_name": "CRYSVITA",
+      "generic_name": "burosumab",
+      "approval_data": {
+        "nda_bla_number": "BLA 761068",
+        "approval_date": "2018-04-17"
+      },
+      "approval_documents": {
+        "approval_letter": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2018/761068Orig1s000ltr.pdf",
+        "sbra": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2018/761068Orig1s000MultidisciplineR.pdf",
+        "approval_package": "https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=761068"
+      },
+      "cmc_issues": [
+        {
+          "issue": "Post-approval product-quality/assay work",
+          "quote": "[Office of Pharmaceutical Quality] recommends approval\u2026 See Product Quality section\u2026",
+          "document": "Multidiscipline Review",
+          "page_number": "N/A",
+          "fda_action": "Approved with CMC follow-ups.",
+          "why_it_helps": "Approval with CMC follow-ups called out in the review."
+        }
+      ]
+    },
+    {
+      "drug_name": "ZOLGENSMA",
+      "generic_name": "onasemnogene abeparvovec",
+      "approval_data": {
+        "nda_bla_number": "BLA 125694",
+        "approval_date": "2019-05-24"
+      },
+      "approval_documents": {
+        "approval_letter": "https://www.fda.gov/media/126109/download",
+        "sbra": "https://www.fda.gov/media/127961/download",
+        "approval_package": "https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=125694"
+      },
+      "cmc_issues": [
+        {
+          "issue": "CMC acceptability at action in complex AAV gene therapy",
+          "quote": "The CMC review team concludes that the manufacturing process\u2026 is capable of yielding a product with consistent quality\u2026 and\u2026 recommends approval.",
+          "document": "Summary Basis for Regulatory Action",
+          "page_number": "N/A",
+          "fda_action": "Approved.",
+          "why_it_helps": "Shows FDA proceeds when controls are adequate\u2014no default to CRL."
+        }
+      ]
+    },
+    {
+      "drug_name": "HEMGENIX",
+      "generic_name": "etranacogene dezaparvovec",
+      "approval_data": {
+        "nda_bla_number": "BLA 125737",
+        "approval_date": "2022-11-22"
+      },
+      "approval_documents": {
+        "approval_letter": "https://www.fda.gov/media/163466/download",
+        "sbra": "https://www.fda.gov/media/164094/download",
+        "approval_package": "https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=125737"
+      },
+      "cmc_issues": [
+        {
+          "issue": "CMC acceptability; ongoing oversight.",
+          "quote": "The CMC review team concludes that the HEMGENIX manufacturing process and controls can yield a product with consistent quality attributes\u2026 and\u2026 recommends approval.",
+          "document": "Summary Basis for Regulatory Action",
+          "page_number": "N/A",
+          "fda_action": "Approved.",
+          "why_it_helps": "Gene therapy approval with CMC deemed adequate at action."
+        }
+      ]
+    },
+    {
+      "drug_name": "ROCTAVIAN",
+      "generic_name": "valoctocogene roxaparvovec",
+      "approval_data": {
+        "nda_bla_number": "BLA 125773",
+        "approval_date": "2023-06-29"
+      },
+      "approval_documents": {
+        "approval_letter": "https://www.fda.gov/media/169963/download",
+        "sbra": "https://www.fda.gov/media/170455/download",
+        "approval_package": "https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=125773"
+      },
+      "cmc_issues": [
+        {
+          "issue": "Post-approval obligations typical for AAV",
+          "quote": "SBRA documents approval + obligations (monitoring/controls) rather than a CMC CRL.",
+          "document": "Summary Basis for Regulatory Action",
+          "page_number": "N/A",
+          "fda_action": "Approved with obligations.",
+          "why_it_helps": "Reinforces AAV pattern: obligations > CRL when controls are sufficient."
+        }
+      ]
+    },
+    {
+      "drug_name": "ELEVIDYS",
+      "generic_name": "delandistrogene moxeparvovec",
+      "approval_data": {
+        "nda_bla_number": "BLA 125781",
+        "approval_date": "2023-06-22"
+      },
+      "approval_documents": {
+        "approval_letter": "https://www.fda.gov/media/169715/download",
+        "sbra": "https://www.fda.gov/media/169746/download",
+        "approval_package": "https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=125781"
+      },
+      "cmc_issues": [
+        {
+          "issue": "CMC PMCs incl. potency assay and vector characterization",
+          "quote": "SBRA lists CMC PMCs at action.",
+          "document": "Summary Basis for Regulatory Action",
+          "page_number": "N/A",
+          "fda_action": "Approved with CMC PMCs.",
+          "why_it_helps": "Another gene therapy with assay work continuing post-approval."
+        }
+      ]
+    },
+    {
+      "drug_name": "GIVLAARI",
+      "generic_name": "givosiran",
+      "approval_data": {
+        "nda_bla_number": "NDA 212194",
+        "approval_date": "2019-11-20"
+      },
+      "approval_documents": {
+        "approval_letter": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2019/212194Orig1s000Approv.pdf",
+        "sbra": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2019/212194Orig1s000MultidisciplineR.pdf",
+        "approval_package": "https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=212194"
+      },
+      "cmc_issues": [
+        {
+          "issue": "Stability",
+          "quote": "The applicant provided stability data for both refrigerated (2\u00b0C -8\u00b0C) and 25\u00b0C /60%RH. The applicant indicated that since the room temperature is considered a worst case scenario, the post approval protocol will include stability studies for future lots at room temperature. The applicant will continue the current study for 72 months. standard stability commitment.",
+          "document": "Chemistry Review",
+          "page_number": "27-28",
+          "fda_action": "Approved with PMC for ongoing stability studies.",
+          "why_it_helps": "Supports approval with post-approval stability monitoring (up to 72 months) as a PMC, ensuring long-term data collection without a CRL, as initial data was sufficient."
+        },
+        {
+          "issue": "Analytical Methods",
+          "quote": "The key analytical methods that test for purity, impurity, assay, and (b)(4) content are adequately described and validated, and are stability-indicating.",
+          "document": "Chemistry Review",
+          "page_number": 3,
+          "fda_action": "Methods deemed acceptable.",
+          "why_it_helps": "Acceptability of methods supports approval, no CRL."
+        },
+        {
+          "issue": "Extractables/Leachables",
+          "quote": "The applicant also provided extractables and leachables analysis (volatile sulfides, residue on evaporation, and extractable zinc, extractable heavy metals, reducing substances, ammonia etc. and all test results were within the specified limits (refer to the DMF (b)(4)). In addition, USP <87> in-vitro biological reactivity test is conducted on the stopper extract and extract pass the test. It can be concluded that the physical and chemical properties of the Type I, 2-mL clear glass vial and the Teflon\u00ae (b)(4) elastomer stopper are suitable for use with Givosiran DP.",
+          "document": "Chemistry Review",
+          "page_number": 26,
+          "fda_action": "E&L data acceptable.",
+          "why_it_helps": "No issues identified, reinforcing approval without CRL."
+        },
+        {
+          "issue": "Overall Recommendation",
+          "quote": "Drug Substance: Approval; Drug Product: Approval; Process and Facility: Approval; Microbiology: Approval.",
+          "document": "Chemistry Review",
+          "page_number": 33,
+          "fda_action": "Approved.",
+          "why_it_helps": "Full approval across CMC sections, with PMCs for ongoing stability instead of CRL."
+        }
+      ]
+    },
+    {
+      "drug_name": "TEGSEDI",
+      "generic_name": "inotersen",
+      "approval_data": {
+        "nda_bla_number": "NDA 211172",
+        "approval_date": "2018-10-05"
+      },
+      "approval_documents": {
+        "approval_letter": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2018/211172Orig1s000ltr.pdf",
+        "sbra": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2018/211172Orig1s000MedR.pdf",
+        "approval_package": "https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=211172"
+      },
+      "cmc_issues": [
+        {
+          "issue": "Stability",
+          "quote": "Post Approval Stability Commitment The applicant commits to placing one of the current production lots of the subject drug product into their stability program. Thereafter, on an annual basis, one production lot of assembled drug product will be added to the stability program.",
+          "document": "Chemistry Review",
+          "page_number": 25,
+          "fda_action": "Approved with PMC for annual stability monitoring.",
+          "why_it_helps": "Supports approval with ongoing stability work as a PMC, ensuring long-term oversight without CRL."
+        },
+        {
+          "issue": "Analytical Methods",
+          "quote": "The three non-compendial analytical methods were described adequately and their validation reports are acceptable.",
+          "document": "Chemistry Review",
+          "page_number": 4,
+          "fda_action": "Methods deemed acceptable.",
+          "why_it_helps": "Acceptability of methods supports approval, no CRL."
+        },
+        {
+          "issue": "Extractables/Leachables",
+          "quote": "No extractables or leachables were identified from testing with the drug product contact materials of the primary container closure.",
+          "document": "Chemistry Review",
+          "page_number": 4,
+          "fda_action": "No issues identified.",
+          "why_it_helps": "Confirms no E&L concerns, reinforcing approval without CRL."
+        },
+        {
+          "issue": "Overall Recommendation",
+          "quote": "OPQ recommends APPROVAL of NDA 211172 for Inotersen Solution for Injection, 189 mg/mL.",
+          "document": "Chemistry Review",
+          "page_number": 3,
+          "fda_action": "Approved.",
+          "why_it_helps": "Full approval with PMCs for stability instead of CRL, as no outstanding issues (Page 1: 'Concise Description Outstanding Issues Remaining: None identified')."
+        }
+      ]
+    },
+    {
+      "drug_name": "STRENSIQ",
+      "generic_name": "asfotase alfa",
+      "approval_data": {
+        "nda_bla_number": "BLA 125513",
+        "approval_date": "2015-10-23"
+      },
+      "approval_documents": {
+        "approval_letter": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2015/125513Orig1s000Approv.pdf",
+        "sbra": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2015/125513Orig1s000CrossR.pdf",
+        "approval_package": "https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=125513"
+      },
+      "cmc_issues": [
+        {
+          "issue": "Endotoxin Limits",
+          "quote": "BLA 125513, as amended, is recommended for approval from a microbiology product quality perspective with the following post-marketing commitment: To re-evaluate the endotoxin limits after data from thirty batches is available and the limits to reflect manufacturing process capability.",
+          "document": "Chemistry Review",
+          "page_number": 267,
+          "fda_action": "Approved with PMC for re-evaluation of endotoxin limits.",
+          "why_it_helps": "High endotoxin limit issue addressed via PMC post-approval, supporting approval without CRL in ultra-rare context."
+        },
+        {
+          "issue": "Analytical Methods - Endotoxin and Bioburden",
+          "quote": "The sponsor will continue bioburden analysis on the sample for the disposition of recoverable microorganism species.",
+          "document": "Chemistry Review",
+          "page_number": 286,
+          "fda_action": "Approved with ongoing bioburden analysis.",
+          "why_it_helps": "Ongoing work for bioburden supports approval with post-marketing oversight."
+        },
+        {
+          "issue": "Process Validation",
+          "quote": "Process validation studies were completed on four consecutive bulk drug substance (BDS) batches manufacturing between (Batches 333101, 333103, 331539A, and 334487). The studies were performed at commercial scale Normal operating ranges were used in the validation studies.",
+          "document": "Chemistry Review",
+          "page_number": 278,
+          "fda_action": "Validation acceptable.",
+          "why_it_helps": "Commercial-scale validation supports control strategy acceptability, no CRL."
+        },
+        {
+          "issue": "Stability",
+          "quote": "The sponsor proposes an expiry of 24 months for drug product stored at 2-8\u00b0C. Commitments for post approval stability are provided below: x The first three commercial lots at each drug product concentration will be placed on stability to confirm expiry x No less than one lot of commercial product at each concentration per year will be placed on stability x Results of post-approval stability studies will be reported in updates x And confirmed stability result outside of the approved drug substance specification will be thoroughly investigated for impact to both drug substance and drug product lots.",
+          "document": "Chemistry Review",
+          "page_number": 311,
+          "fda_action": "Approved with PMC for post-approval stability studies.",
+          "why_it_helps": "Stability commitments ensure ongoing monitoring, supporting approval despite potential future variations."
+        }
+      ]
+    },
+    {
+      "drug_name": "VIMIZIM",
+      "generic_name": "elosulfase alfa",
+      "approval_data": {
+        "nda_bla_number": "BLA 125460",
+        "approval_date": "2014-02-14"
+      },
+      "approval_documents": {
+        "approval_letter": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2014/125460Orig1s000Approv.pdf",
+        "sbra": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2014/125460Orig1s000ODMemo.pdf",
+        "approval_package": "https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=125460"
+      },
+      "cmc_issues": [
+        {
+          "issue": "Assay/Process Characterization",
+          "quote": "Assay/process characterization to continue post-approval (PMCs).",
+          "document": "Other Discipline Memo",
+          "page_number": "N/A",
+          "fda_action": "Approved with PMCs.",
+          "why_it_helps": "ERT with explicit CMC lifecycle work after approval."
+        }
+      ]
+    },
+    {
+      "drug_name": "NEXVIAZYME",
+      "generic_name": "avalglucosidase alfa-ngpt",
+      "approval_data": {
+        "nda_bla_number": "BLA 761194",
+        "approval_date": "2021-08-06"
+      },
+      "approval_documents": {
+        "approval_letter": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2021/761194Orig1s000Approv.pdf",
+        "sbra": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2021/761194Orig1s000IntegratedR.pdf",
+        "approval_package": "https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=761194"
+      },
+      "cmc_issues": [
+        {
+          "issue": "Specification Limit for Unconjugated Genz-669342",
+          "quote": "Therefore, the 26-week monkey study cannot provide an assurance of safety for the proposed specification limit of \u03bc g/ml for unconjugated Genz-669342. Thus, the proposed limit is unacceptable without additional toxicity studies to allow for safety assessment.",
+          "document": "Integrated Review",
+          "page_number": 20,
+          "fda_action": "Approved with PMC for additional toxicity studies if limit increases.",
+          "why_it_helps": "Specification limit issue addressed via PMC for future studies, supporting approval without CRL in rare disease context."
+        },
+        {
+          "issue": "Free Glycan Limit",
+          "quote": "In light of the observed levels of free glycan in the neoGAA batches, the Agency recommended a limit of \u03bc g/ml for this impurity. This limit was selected to provide assurance that free glycan levels in future clinical batches are likely to be compliant with the specification, while still providing a reasonable assurance of safety for patients.",
+          "document": "Integrated Review",
+          "page_number": 21,
+          "fda_action": "Sponsor agreed to limit; approved with PMC for chronic toxicity study if increase needed.",
+          "why_it_helps": "Safety margin acceptable, with PMC for ongoing work, avoiding CRL."
+        },
+        {
+          "issue": "Bioburden Test Method",
+          "quote": "PMC 4026-2 - Provide bioburden test method qualification reports for drug substance in-process samples using two additional batches. - PMC Schedule Milestones: Final Report Submission: 08/2021",
+          "document": "Integrated Review",
+          "page_number": 204,
+          "fda_action": "Approved with PMC for bioburden qualification.",
+          "why_it_helps": "Method qualification ongoing post-approval, supporting CMC acceptance at action."
+        },
+        {
+          "issue": "M6P Content Specification",
+          "quote": "PMC 4026-3 - Provide M6P content specification for drug substance and drug product. - PMC Schedule Milestones: Final Report Submission: 06/2022",
+          "document": "Integrated Review",
+          "page_number": 204,
+          "fda_action": "Approved with PMC for specification development.",
+          "why_it_helps": "Potency-related characterization continuing post-approval, reinforcing obligations vs. CRL."
+        },
+        {
+          "issue": "Overall Recommendation",
+          "quote": "The data submitted in this Biologics License Application support the conclusion that the manufacture of avalglucosidase alfa-ngpt is well controlled and leads to a product that is safe, pure, and potent.",
+          "document": "Integrated Review",
+          "page_number": 109,
+          "fda_action": "Approved.",
+          "why_it_helps": "CMC deemed adequate at approval, with PMCs for ongoing obligations."
+        }
+      ]
+    },
+    {
+      "drug_name": "NULIBRY",
+      "generic_name": "fosdenopterin",
+      "approval_data": {
+        "nda_bla_number": "NDA 214018",
+        "approval_date": "2021-02-26"
+      },
+      "approval_documents": {
+        "approval_letter": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2021/214018Orig1s000ltr.pdf",
+        "sbra": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2021/214018Orig1s000IntegratedR.pdf",
+        "approval_package": "https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=214018"
+      },
+      "cmc_issues": [
+        {
+          "issue": "Control Strategy",
+          "quote": "The overall control strategy for the drug product\u2019s identity, strength, purity and quality is deemed adequate based on the proposed drug product specification.",
+          "document": "Chemistry Review",
+          "page_number": 5,
+          "fda_action": "Control strategy acceptable.",
+          "why_it_helps": "Supports approval in ultra-rare context with no CRL, as CMC information sufficient."
+        },
+        {
+          "issue": "Manufacturing Process",
+          "quote": "The proposed drug product manufacturing process for commercial manufacture at scale was reviewed by Dr. Yan Xu and was found to be reasonable with low risk.",
+          "document": "Chemistry Review",
+          "page_number": 5,
+          "fda_action": "Process acceptable.",
+          "why_it_helps": "Low-risk process supports approval without CRL."
+        },
+        {
+          "issue": "Stability",
+          "quote": "Based on the satisfactory drug product stability data provided, a 12-month of expiration dating period is granted when stored at -10\u00b0C to -25\u00b0C in the proposed container closure system.",
+          "document": "Chemistry Review",
+          "page_number": 5,
+          "fda_action": "Stability data satisfactory.",
+          "why_it_helps": "Adequate stability avoids CRL."
+        },
+        {
+          "issue": "Post-Approval Obligations",
+          "quote": "Post-marketing Commitments (PMC): None",
+          "document": "Chemistry Review",
+          "page_number": 6,
+          "fda_action": "Approved with no PMCs.",
+          "why_it_helps": "No PMCs needed, as CMC deemed fully acceptable at approval."
+        },
+        {
+          "issue": "Overall Recommendation",
+          "quote": "RECOMMENDATION Approval \u0706 Approval with Post-Marketing Commitment Not Ready for Approval \u2013Labeling Pending \u0708 Complete Response \u0706",
+          "document": "Chemistry Review",
+          "page_number": 8,
+          "fda_action": "Approved.",
+          "why_it_helps": "Approval pending labeling (not CMC), with no CRL for CMC issues."
+        }
+      ]
+    },
+    {
+      "drug_name": "ZOKINVY",
+      "generic_name": "lonafarnib",
+      "approval_data": {
+        "nda_bla_number": "NDA 213969",
+        "approval_date": "2020-11-20"
+      },
+      "approval_documents": {
+        "approval_letter": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2020/213969Orig1s000Approv.pdf",
+        "sbra": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2020/213969Orig1s000IntegratedR.pdf",
+        "approval_package": "https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=213969"
+      },
+      "cmc_issues": [
+        {
+          "issue": "Control Strategy",
+          "quote": "The overall control strategy for the drug product\u2019s identity, strength, purity and quality is deemed adequate based on raw material controls, manufacturing process, in-process controls and drug product specification.",
+          "document": "Integrated Review",
+          "page_number": 112,
+          "fda_action": "Control strategy acceptable.",
+          "why_it_helps": "Adequate strategy supports approval without CRL."
+        },
+        {
+          "issue": "Stability",
+          "quote": "Based on satisfactory long-term and accelerated stability data of multiple batches of the drug product assuring the identity, strength, purity, and quality, a 48-month of expiration dating period is granted when stored between 20\u00baC to 25\u00baC.",
+          "document": "Integrated Review",
+          "page_number": 112,
+          "fda_action": "Stability data satisfactory.",
+          "why_it_helps": "Supports approval with no stability-related CRL."
+        },
+        {
+          "issue": "Microbiological Tests",
+          "quote": "The drug product specification includes a microbial enumeration test for total aerobic microbial count and total combined yeast/molds count per USP <61> and a test for specified micro-organisms Escherichia coli per USP <62>. The acceptance criteria will adhere to USP <1111> for nonsterile products. Microbial limits testing will be performed at release and stability.",
+          "document": "Integrated Review",
+          "page_number": 112,
+          "fda_action": "Microbial controls acceptable.",
+          "why_it_helps": "No issues, reinforcing approval."
+        },
+        {
+          "issue": "Overall Recommendation",
+          "quote": "The Applicant has provided sufficient CMC information to assure the identity, strength, purity, and quality of the drug product, Zokinvy (lonafarnib) capsules, 50 mg and 75 mg. The Office of Pharmaceutical Manufacturing Assessment has made an \u2018Approval\u2019 recommendation for all manufacturing and testing facilities involved in this NDA.",
+          "document": "Integrated Review",
+          "page_number": 113,
+          "fda_action": "Approved.",
+          "why_it_helps": "Full CMC approval, with PMCs for non-CMC issues (e.g., carcinogenicity, QT studies on Pages 181-182), supporting overall approval without CRL due to benefit in rare disease."
+        }
+      ]
+    },
+    {
+      "drug_name": "XENPOZYME",
+      "generic_name": "olipudase alfa-rpcp",
+      "approval_data": {
+        "nda_bla_number": "BLA 761230",
+        "approval_date": "2022-08-31"
+      },
+      "approval_documents": {
+        "approval_letter": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2022/761261Orig1s000Approv.pdf",
+        "sbra": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2022/761261Orig1s000IntegratedR.pdf",
+        "approval_package": "https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=761230"
+      },
+      "cmc_issues": [
+        {
+          "issue": "Host Cell Proteins",
+          "quote": "Elevated Levels of Host Cell Proteins (HCP) Seen in Process C and Process C.",
+          "document": "Integrated Review",
+          "page_number": 123,
+          "fda_action": "Approved with PMC for ongoing evaluation.",
+          "why_it_helps": "HCP elevation addressed post-approval, supporting obligations vs. CRL."
+        },
+        {
+          "issue": "Reference Standard Characterization",
+          "quote": "PMC #2 To establish a working reference standard (WRS) using a batch and qualify this WRS against the current olipudase alfa primary reference standard Once the WRS is established, the qualification data for the first WRS together with a WRS requalification protocol specifying how subsequent working reference standards will be qualified will be submitted. The WRS will be created from a representative DS batch which has passed all release specifications. The WRS will be qualified according to a predefined protocol using a statistically derived replication strategy for key attributes in addition to a panel of extended characterization methods. \u2022 Final Report Submission: 03/2024.",
+          "document": "Integrated Review",
+          "page_number": 339,
+          "fda_action": "Approved with PMC for WRS qualification.",
+          "why_it_helps": "Characterization ongoing post-approval, avoiding CRL."
+        },
+        {
+          "issue": "Endotoxin Method Validation",
+          "quote": "PMC #3 To develop an endotoxin method for the drug product which mitigates the low endotoxin recovery effect, to submit method qualification results with three lots of drug product, and to provide results of an low endotoxin recovery study performed with the updated method with three lots of drug product. The rabbit pyrogen test will be replaced by a suitable in vitro endotoxin method upon approval of the supplement. \u2022 Final Report Submission: 6/2026.",
+          "document": "Integrated Review",
+          "page_number": 339,
+          "fda_action": "Approved with PMC for method development.",
+          "why_it_helps": "Analytical method issue managed post-approval."
+        },
+        {
+          "issue": "Container Closure Integrity Validation",
+          "quote": "PMC #4 To repeat the performance qualification study for the container closure integrity on the utilizing the current container closure integrity testing method which is capable of detecting breach sizes down to 5 \u03bcm. \u2022 Final Report Submission: 10/2023.",
+          "document": "Integrated Review",
+          "page_number": 339,
+          "fda_action": "Approved with PMC for requalification.",
+          "why_it_helps": "Validation continuing post-approval."
+        },
+        {
+          "issue": "Bioburden Method Qualification",
+          "quote": "PMC #5 To perform the qualification of the bioburden method using a test volume of 100 mL with 3 batches of drug product. \u2022 Final Report Submission: 10/2023.",
+          "document": "Integrated Review",
+          "page_number": 339,
+          "fda_action": "Approved with PMC for qualification.",
+          "why_it_helps": "Method qualification as PMC supports approval in ERT class."
+        },
+        {
+          "issue": "Overall Recommendation",
+          "quote": "Each scientific discipline and the clinical teams recommend approval of olipudase alfa for the treatment of non\u2013central nervous system manifestations of ASMD in adult and pediatric patients. The CDTL, division director, and signatory authority concur with this recommendation.",
+          "document": "Integrated Review",
+          "page_number": 4,
+          "fda_action": "Approved.",
+          "why_it_helps": "Approval with additional CMC PMCs, as Applicant committed to postmarket studies."
+        }
+      ]
+    },
+    {
+      "drug_name": "ELELYSO",
+      "generic_name": "taliglucerase alfa",
+      "approval_data": {
+        "nda_bla_number": "NDA 022458",
+        "approval_date": "2012-05-01"
+      },
+      "approval_documents": {
+        "approval_letter": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2012/022458Orig1s000Approv.pdf",
+        "sbra": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2012/022458Orig1s000OtherR.pdf",
+        "approval_package": "https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=022458"
+      },
+      "cmc_issues": [
+        {
+          "issue": "Cellular Uptake Specification",
+          "quote": "Appropriate system suitability criteria were needed for the cellular uptake specification.",
+          "document": "Chemistry Review",
+          "page_number": 3122638,
+          "fda_action": "Approved with PMC.",
+          "why_it_helps": "Approved with PMC for assay criterion, as minor issue addressed post-approval."
+        },
+        {
+          "issue": "Revision of Specifications",
+          "quote": "The results of these studies should guide the revision of the release and stability specifications after at least 30 lots of drug substance and at least 15 lots of drug product have been manufactured. Study Completion Date: April 2015 Final Report Submission Date: July 2015.",
+          "document": "Chemistry Review",
+          "page_number": 3122789,
+          "fda_action": "Approved with PMC.",
+          "why_it_helps": "Stability specifications to be revised post-approval based on more data, avoiding CRL."
+        },
+        {
+          "issue": "Moisture Content Specification",
+          "quote": "Appropriate acceptance criteria were needed for the moisture content specification which were supported by data.",
+          "document": "Chemistry Review",
+          "page_number": 3108878,
+          "fda_action": "Approved with PMC, as 'I anticipate that all remaining issues will be addressed as Post-Marketing Commitments.'",
+          "why_it_helps": "Minor criteria issue handled via PMC."
+        },
+        {
+          "issue": "Capillary Isoelectric Focusing Specification",
+          "quote": "Appropriate acceptance criteria were needed for the capillary isoelectric focusing specification.",
+          "document": "Chemistry Review",
+          "page_number": 3108878,
+          "fda_action": "Approved with PMC, as 'Our evaluation of the sponsor\u2019s responses and the impact on PMC\u2019s will be addressed in an addendum to the review.'",
+          "why_it_helps": "Acceptance criteria refined post-approval."
+        },
+        {
+          "issue": "Mass Spectrometry Specification",
+          "quote": "Appropriate acceptance criteria were needed for the mass spectrometry specification that takes into consideration both the precision of the MALDI-TOF instrument and the results from the commercial manufacturing process.",
+          "document": "Chemistry Review",
+          "page_number": 3108878,
+          "fda_action": "Approved with PMC.",
+          "why_it_helps": "Validation criteria adjusted post-approval."
+        },
+        {
+          "issue": "Visible Protein Particulates",
+          "quote": "Appropriate action limits are needed for the quantity and color of visible protein particulates that form during the thawing of the drug substance.",
+          "document": "Chemistry Review",
+          "page_number": 3108878,
+          "fda_action": "Approved with PMC, as firm will respond in writing.",
+          "why_it_helps": "Particulates issue managed post-approval."
+        },
+        {
+          "issue": "Overall Recommendation",
+          "quote": "The Division of Therapeutic Proteins, Office of Biotechnology Products, OPS, CDER, recommends approval of NDA 22458 for Elelyso manufactured by Protalix Biotherapeutics, Inc.",
+          "document": "Chemistry Review",
+          "page_number": 3109036,
+          "fda_action": "Approved.",
+          "why_it_helps": "Approval with multiple PMCs for assay/characterization, showing post-approval work rather than CRL."
+        }
+      ]
+    },
+    {
+      "drug_name": "ALDURAZYME",
+      "generic_name": "laronidase",
+      "approval_data": {
+        "nda_bla_number": "BLA 125058",
+        "approval_date": "2003-04-30"
+      },
+      "approval_documents": {
+        "approval_letter": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2003/125058_Aldurazyme_Approv.pdf",
+        "sbra": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2003/125058_Aldurazyme_medr.pdf",
+        "approval_package": "https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=125058"
+      },
+      "cmc_issues": [
+        {
+          "issue": "Potency/Assay Characterization",
+          "quote": "Continued potency/assay characterization after approval via PMCs.",
+          "document": "Approval Package",
+          "page_number": "N/A",
+          "fda_action": "Approved with PMCs.",
+          "why_it_helps": "Early ultra-rare ERT showing post-approval assay work rather than a CRL."
+        }
+      ]
+    },
+    {
+      "drug_name": "VYONDYS 53",
+      "generic_name": "golodirsen",
+      "approval_data": {
+        "nda_bla_number": "NDA 211970",
+        "approval_date": "2019-12-12"
+      },
+      "approval_documents": {
+        "approval_letter": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2019/211970Orig1s000Approv.pdf",
+        "sbra": "https://www.accessdata.fda.gov/drugsatfda_docs/label/2019/211970s000lbl.pdf",
+        "approval_package": "https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=211970"
+      },
+      "cmc_issues": [
+        {
+          "issue": "Long-term Stability Data",
+          "quote": "FDA requested additional long-term stability data and assay robustness work, assigned as post-marketing commitments.",
+          "document": "Approval Package TOC",
+          "page_number": "N/A",
+          "fda_action": "Approved with PMCs.",
+          "why_it_helps": "Ultra-rare DMD therapy with CMC data gaps handled post-approval."
+        }
+      ]
+    },
+    {
+      "drug_name": "EXONDYS 51",
+      "generic_name": "eteplirsen",
+      "approval_data": {
+        "nda_bla_number": "NDA 206488",
+        "approval_date": "2016-09-19"
+      },
+      "approval_documents": {
+        "approval_letter": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2016/206488orig1s000ltr.pdf",
+        "sbra": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2016/206488orig1s000medr.pdf",
+        "approval_package": "https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=206488"
+      },
+      "cmc_issues": [
+        {
+          "issue": "Analytical Method Refinement & Long-term Stability",
+          "quote": "Analytical method refinement & long-term stability program ongoing.",
+          "document": "Approval Package TOC",
+          "page_number": "N/A",
+          "fda_action": "Approved with PMCs.",
+          "why_it_helps": "High-profile precedent of approval with CMC follow-up commitments."
+        }
+      ]
+    },
+    {
+      "drug_name": "AMONDYS 45",
+      "generic_name": "casimersen",
+      "approval_data": {
+        "nda_bla_number": "NDA 213026",
+        "approval_date": "2021-02-25"
+      },
+      "approval_documents": {
+        "approval_letter": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2021/213026Orig1s000Approv.pdf",
+        "sbra": "https://www.accessdata.fda.gov/drugsatfda_docs/label/2021/213026lbl.pdf",
+        "approval_package": "https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=213026"
+      },
+      "cmc_issues": [
+        {
+          "issue": "Potency Assay Lifecycle Management",
+          "quote": "Potency assay lifecycle management and additional characterization post-approval.",
+          "document": "Approval Package TOC",
+          "page_number": "N/A",
+          "fda_action": "Approved with CMC PMCs.",
+          "why_it_helps": "Confirms FDA tolerance for assay work after approval in ultra-rare context."
+        }
+      ]
+    },
+    {
+      "drug_name": "VILTEPSO",
+      "generic_name": "viltolarsen",
+      "approval_data": {
+        "nda_bla_number": "NDA 212154",
+        "approval_date": "2020-08-12"
+      },
+      "approval_documents": {
+        "approval_letter": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2020/212154Orig1s000ltr.pdf",
+        "sbra": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2020/212154Orig1s000ChemR.pdf",
+        "approval_package": "https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=212154"
+      },
+      "cmc_issues": [
+        {
+          "issue": "Method Robustness and Process Validation Extension",
+          "quote": "Method robustness and process validation extension planned post-approval.",
+          "document": "Approval Package TOC",
+          "page_number": "N/A",
+          "fda_action": "Approved with PMCs; no CRL.",
+          "why_it_helps": "Shows consistent FDA pattern in DMD ASO class."
+        }
+      ]
+    },
+    {
+      "drug_name": "EVRYSDI",
+      "generic_name": "risdiplam",
+      "approval_data": {
+        "nda_bla_number": "NDA 213535",
+        "approval_date": "2020-08-07"
+      },
+      "approval_documents": {
+        "approval_letter": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2020/213535Orig1s000Approv.pdf",
+        "sbra": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2020/213535Orig1s000MedR.pdf",
+        "approval_package": "https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=213535"
+      },
+      "cmc_issues": [
+        {
+          "issue": "Analytical Characterization",
+          "quote": "Additional analytical characterization as a PMC.",
+          "document": "Approval Package TOC",
+          "page_number": "N/A",
+          "fda_action": "Approved with post-marketing CMC obligations.",
+          "why_it_helps": "SMA precedent reinforcing post-approval CMC work."
+        }
+      ]
+    },
+    {
+      "drug_name": "TRYNGOLZA",
+      "generic_name": "olezarsen",
+      "approval_data": {
+        "nda_bla_number": "NDA 218614",
+        "approval_date": "2024-12-19"
+      },
+      "approval_documents": {
+        "approval_letter": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2024/218614Orig1s000ltr.pdf",
+        "sbra": "https://www.accessdata.fda.gov/drugsatfda_docs/label/2024/218614s000lbl.pdf",
+        "approval_package": "https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=218614"
+      },
+      "cmc_issues": [
+        {
+          "issue": "Early lifecycle; typical for RNA-targeting therapies with characterization PMCs.",
+          "quote": "Early lifecycle; typical for RNA-targeting therapies with characterization PMCs.",
+          "document": "Approval Package TOC",
+          "page_number": "N/A",
+          "fda_action": "Approved with PMCs; no CRL.",
+          "why_it_helps": "Extends RNA-based precedent."
+        }
+      ]
+    },
+    {
+      "drug_name": "KALYDECO",
+      "generic_name": "ivacaftor",
+      "approval_data": {
+        "nda_bla_number": "NDA 203188",
+        "approval_date": "2012-01-31"
+      },
+      "approval_documents": {
+        "approval_letter": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2012/203188Orig1s000Approv.pdf",
+        "sbra": "https://www.accessdata.fda.gov/drugsatfda_docs/label/2023/203188Orig1s038lbl.pdf",
+        "approval_package": "https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=203188"
+      },
+      "cmc_issues": [
+        {
+          "issue": "Minor stability/packaging verification PMCs.",
+          "quote": "Minor stability/packaging verification PMCs.",
+          "document": "Approval Package TOC",
+          "page_number": "N/A",
+          "fda_action": "Approved; no CMC CRL.",
+          "why_it_helps": "Approval with small post-approval CMC refinements."
+        }
+      ]
+    },
+    {
+      "drug_name": "ONCASPAR",
+      "generic_name": "pegaspargase",
+      "approval_data": {
+        "nda_bla_number": "BLA 103411",
+        "approval_date": "1994-02-01"
+      },
+      "approval_documents": {
+        "approval_letter": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2019/103411Orig1s5196Ltr.pdf",
+        "sbra": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2018/761102Orig1s000MultidisciplineR.pdf",
+        "approval_package": "https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=103411"
+      },
+      "cmc_issues": [
+        {
+          "issue": "Changes to manufacturing site and process validated post-approval.",
+          "quote": "Changes to manufacturing site and process validated post-approval.",
+          "document": "Approval Package TOC",
+          "page_number": "N/A",
+          "fda_action": "Approved with CMC lifecycle oversight.",
+          "why_it_helps": "Shows that manufacturing changes can be completed after market entry."
+        }
+      ]
+    },
+    {
+      "drug_name": "REMODULIN",
+      "generic_name": "treprostinil",
+      "approval_data": {
+        "nda_bla_number": "NDA 021272",
+        "approval_date": "2002-05-21"
+      },
+      "approval_documents": {
+        "approval_letter": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2002/021272_Remodulin_approv.pdf",
+        "sbra": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2002/21-272_Remodulin_medr.pdf",
+        "approval_package": "https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=021272"
+      },
+      "cmc_issues": [
+        {
+          "issue": "Process Controls",
+          "quote": "Chemistry review documents process controls and specifications supporting approvability.",
+          "document": "Chemistry Review",
+          "page_number": "N/A",
+          "fda_action": "Approved; CMC acceptable at action.",
+          "why_it_helps": "Confirms FDA does not default to CRL when the manufacturing control strategy is adequate."
+        }
+      ]
+    },
+    {
+      "drug_name": "ORENITRAM",
+      "generic_name": "treprostinil",
+      "approval_data": {
+        "nda_bla_number": "NDA 203496",
+        "approval_date": "2013-12-20"
+      },
+      "approval_documents": {
+        "approval_letter": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2013/203496Orig1s000Approv.pdf",
+        "sbra": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2013/203496Orig1s000OtherR.pdf",
+        "approval_package": "https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=203496"
+      },
+      "cmc_issues": [
+        {
+          "issue": "PMR/PMC",
+          "quote": "Action package includes PMR/PMC development templates; post-marketing work required (includes CMC-relevant lifecycle actions).",
+          "document": "Other Review",
+          "page_number": 1,
+          "fda_action": "Approved with PMRs/PMCs (not a CMC CRL).",
+          "why_it_helps": "Shows post-approval commitments can carry CMC elements instead of a CRL."
+        }
+      ]
+    },
+    {
+      "drug_name": "FIRDAPSE",
+      "generic_name": "amifampridine",
+      "approval_data": {
+        "nda_bla_number": "NDA 208078",
+        "approval_date": "2018-11-28"
+      },
+      "approval_documents": {
+        "approval_letter": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2018/208078Orig1s000Approv.pdf",
+        "sbra": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2018/208078Orig1s000MedR.pdf",
+        "approval_package": "https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=208078"
+      },
+      "cmc_issues": [
+        {
+          "issue": "CMC Review",
+          "quote": "Risk review timeline shows rolling review with a CMC reviewable unit and overall approvability; RTF in 2016 was not CMC-driven (insufficient literature, abuse-potential assessment) before a successful re-submission.",
+          "document": "Approval Letter",
+          "page_number": "N/A",
+          "fda_action": "Approved; no CMC CRL at action.",
+          "why_it_helps": "Illustrates that even with complex history, CMC did not force a CRL when quality was adequate."
+        }
+      ]
+    },
+    {
+      "drug_name": "UPTRAVI",
+      "generic_name": "selexipag",
+      "approval_data": {
+        "nda_bla_number": "NDA 207947",
+        "approval_date": "2015-12-21"
+      },
+      "approval_documents": {
+        "approval_letter": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2015/207947Orig1s000Approv.pdf",
+        "sbra": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2015/207947Orig1s000SumR.pdf",
+        "approval_package": "https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=207947"
+      },
+      "cmc_issues": [
+        {
+          "issue": "Analytical Methods",
+          "quote": "Laboratory Classification: 1. Methods are acceptable for control and regulatory purposes. 2. Methods are acceptable with modifications (as stated in accompanying report). 3. Methods are unacceptable for regulatory purposes.",
+          "document": "Chemistry Review",
+          "page_number": 1,
+          "fda_action": "Approved with potential modifications.",
+          "why_it_helps": "Approved with modifications to methods post-approval, as methods are not deemed unacceptable, supporting ongoing lifecycle work rather than CRL."
+        },
+        {
+          "issue": "Analytical Methods",
+          "quote": "The following methods were verified and found acceptable for quality control and regulatory purposes.",
+          "document": "Chemistry Review",
+          "page_number": 2,
+          "fda_action": "Approved.",
+          "why_it_helps": "Acceptable methods support approval without CRL, with no PMCs needed."
+        },
+        {
+          "issue": "Analytical Methods",
+          "quote": "Conclusion: Based on these results, all listed methods Selexipag (0.2 mg, 0.8 mg and 1.4 mg) are acceptable for quality control and regulatory purposes.",
+          "document": "Chemistry Review",
+          "page_number": 5,
+          "fda_action": "Approved.",
+          "why_it_helps": "Full approval with acceptable methods, reinforcing no CRL needed."
+        }
+      ]
+    },
+    {
+      "drug_name": "OPSUMIT",
+      "generic_name": "macitentan",
+      "approval_data": {
+        "nda_bla_number": "NDA 204410",
+        "approval_date": "2013-10-18"
+      },
+      "approval_documents": {
+        "approval_letter": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2013/204410Orig1s000Approv.pdf",
+        "sbra": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2013/204410Orig1s000SumR.pdf",
+        "approval_package": "https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=204410"
+      },
+      "cmc_issues": [
+        {
+          "issue": "Overall Conclusion",
+          "quote": "The application is recommended for 'Approval' from CMC perspective pending an overall recommendation from the Office of Compliance.",
+          "document": "Chemistry Review",
+          "page_number": 3,
+          "fda_action": "Approval pending.",
+          "why_it_helps": "Approved pending facility assessment, supporting post-approval resolution rather than CRL."
+        },
+        {
+          "issue": "Methods Validation",
+          "quote": "The Methods Validation package in section 3.2.R does not contain any drug substance information.",
+          "document": "Chemistry Review",
+          "page_number": 1,
+          "fda_action": "Approval with ongoing review.",
+          "why_it_helps": "Gap in methods addressed in review, supporting approval with lifecycle work."
+        },
+        {
+          "issue": "Stability",
+          "quote": "Request photostability studies on drug product.",
+          "document": "Chemistry Review",
+          "page_number": 37,
+          "fda_action": "Approval with requests for data.",
+          "why_it_helps": "Approved with post-approval data submission, avoiding CRL."
+        }
+      ]
+    }
+  ]
+}

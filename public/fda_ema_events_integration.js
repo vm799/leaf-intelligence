@@ -692,7 +692,7 @@ function addRealOnlyRecentEventsToSummary() {
                               <span class="text-xs text-gray-500">${formatDisplayDate(event.date)}</span>
                             </div>
                           </div>
-                          <div class="flex flex-col items-end gap-1 ml-2">
+                          <div class="hidden flex flex-col items-end gap-1 ml-2">
                             ${event.importance ? `
                               <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getImportanceBadge(event.importance)}">
                                 ${event.importance.toUpperCase()}

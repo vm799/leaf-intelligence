@@ -1,0 +1,1205 @@
+{
+    "total": 100,
+    "drugs": [
+        {
+            "drug": "cyclophosphamide",
+            "company": "Accentia Biopharmaceuticals, Inc.",
+            "designation": "Prevention of graft versus host disease following allogeneic hematopoietic stem cell transplant",
+            "crlCount": 9,
+            "topMatch": {
+                "nda": "N/A",
+                "application": "Cyclophosphamide Injection",
+                "matchType": "partial",
+                "score": 49.23076923076923
+            }
+        },
+        {
+            "drug": "phenobarbitol sodium injection",
+            "company": "Fera Pharmaceuticals, LLC",
+            "designation": "Treatment of hypoxic-ischemic encephalopathy to prevent siezures in neonates",
+            "crlCount": 6,
+            "topMatch": {
+                "nda": "NDA for Avaclyr (acyclovir ophthalmic ointment) 3%",
+                "application": "Avaclyr",
+                "matchType": "company",
+                "score": 50
+            }
+        },
+        {
+            "drug": "Echothiophate iodide",
+            "company": "Fera Pharmaceuticals, LLC",
+            "designation": "Treatment of Stargardt Disease",
+            "crlCount": 6,
+            "topMatch": {
+                "nda": "NDA for Avaclyr (acyclovir ophthalmic ointment) 3%",
+                "application": "Avaclyr",
+                "matchType": "company",
+                "score": 50
+            }
+        },
+        {
+            "drug": "levothyroxine sodium",
+            "company": "Fera Pharmaceuticals, LLC",
+            "designation": "The preservation of organ function in brain-dead organ donors.",
+            "crlCount": 6,
+            "topMatch": {
+                "nda": "NDA for Avaclyr (acyclovir ophthalmic ointment) 3%",
+                "application": "Avaclyr",
+                "matchType": "company",
+                "score": 50
+            }
+        },
+        {
+            "drug": "methylene blue",
+            "company": "Fera Pharmaceuticals, LLC",
+            "designation": "Treatment of methemoglobinemia",
+            "crlCount": 6,
+            "topMatch": {
+                "nda": "NDA for Avaclyr (acyclovir ophthalmic ointment) 3%",
+                "application": "Avaclyr",
+                "matchType": "company",
+                "score": 50
+            }
+        },
+        {
+            "drug": "naproxcinod",
+            "company": "Fera Pharmaceuticals, LLC",
+            "designation": "Treatment of sickle cell disease",
+            "crlCount": 6,
+            "topMatch": {
+                "nda": "NDA for Avaclyr (acyclovir ophthalmic ointment) 3%",
+                "application": "Avaclyr",
+                "matchType": "company",
+                "score": 50
+            }
+        },
+        {
+            "drug": "acyclovir",
+            "company": "Cumulus Pharmaceuticals LLC",
+            "designation": "Treatment of herpetic keratitis.",
+            "crlCount": 5,
+            "topMatch": {
+                "nda": "NDA123456",
+                "application": "Avaclyr (acyclovir ophthalmic ointment) 3.0%",
+                "matchType": "text",
+                "score": 30
+            }
+        },
+        {
+            "drug": "Romiplostim",
+            "company": "Amgen Inc.",
+            "designation": "Treatment of aplastic anemia",
+            "crlCount": 4,
+            "topMatch": {
+                "nda": null,
+                "application": "Biologics License Application",
+                "matchType": "company",
+                "score": 50
+            }
+        },
+        {
+            "drug": "tarlatamab-dlle",
+            "company": "Amgen Inc.",
+            "designation": "Treatment of small cell lung cancer (SCLC)",
+            "crlCount": 4,
+            "topMatch": {
+                "nda": null,
+                "application": "Biologics License Application",
+                "matchType": "company",
+                "score": 50
+            }
+        },
+        {
+            "drug": "tenofovir disoproxil fumarate",
+            "company": "Gilead Sciences, Inc.",
+            "designation": "Prevention of mother to child transmission of hepatitis B virus",
+            "crlCount": 4,
+            "topMatch": {
+                "nda": "N/A",
+                "application": "lenacapavir injection",
+                "matchType": "company",
+                "score": 50
+            }
+        },
+        {
+            "drug": "carfilzomib",
+            "company": "Amgen Inc.",
+            "designation": "Treatment of Acute Lymphoblastic Leukemia",
+            "crlCount": 4,
+            "topMatch": {
+                "nda": null,
+                "application": "Biologics License Application",
+                "matchType": "company",
+                "score": 50
+            }
+        },
+        {
+            "drug": "small molecule PRMT5/MTA cooperative inhibitor",
+            "company": "Amgen Inc.",
+            "designation": "Treatment of Biliary Tract Cancers",
+            "crlCount": 4,
+            "topMatch": {
+                "nda": null,
+                "application": "Biologics License Application",
+                "matchType": "company",
+                "score": 50
+            }
+        },
+        {
+            "drug": "small molecule inhibitor of the pro-survival protein Myeloid Cell Leukemia sequence 1 (MCL 1)",
+            "company": "Amgen Inc.",
+            "designation": "Treatment of Multiple Myeloma",
+            "crlCount": 4,
+            "topMatch": {
+                "nda": null,
+                "application": "Biologics License Application",
+                "matchType": "company",
+                "score": 50
+            }
+        },
+        {
+            "drug": "small molecule inhibitor of the pro-survival protein Myeloid Cell Leukemia sequence 1 (MCL1)",
+            "company": "Amgen Inc.",
+            "designation": "Treatment of Multiple Myeloma",
+            "crlCount": 4,
+            "topMatch": {
+                "nda": null,
+                "application": "Biologics License Application",
+                "matchType": "company",
+                "score": 50
+            }
+        },
+        {
+            "drug": "sotorasib",
+            "company": "Amgen Inc.",
+            "designation": "Treatment of KRAS (Kirsten rat sarcoma viral oncogene homolog) p.G12C-positive Colorectal Cancer.",
+            "crlCount": 4,
+            "topMatch": {
+                "nda": null,
+                "application": "Biologics License Application",
+                "matchType": "company",
+                "score": 50
+            }
+        },
+        {
+            "drug": "Glatiramer acetate for injection",
+            "company": "Teva Pharmaceuticals USA",
+            "designation": "Treatment of primary-progressive multiple sclerosis",
+            "crlCount": 4,
+            "topMatch": {
+                "nda": "NDA for buprenorphine and naloxone sublingual film, 16 mg/4 mg",
+                "application": "Teva Pharmaceuticals USA",
+                "matchType": "company",
+                "score": 50
+            }
+        },
+        {
+            "drug": "Testosterone",
+            "company": "Watson Laboratories",
+            "designation": "For use as physiologic testosterone replacement in androgen deficient HIV+ patients with an associated weight loss.",
+            "crlCount": 4,
+            "topMatch": {
+                "nda": "123456",
+                "application": "Testosterone Undecanoate (Oral)",
+                "matchType": "partial",
+                "score": 33.10344827586207
+            }
+        },
+        {
+            "drug": "tenofovir",
+            "company": "Gilead Sciences, Inc.",
+            "designation": "Treatment of pediatric HIV infection.",
+            "crlCount": 4,
+            "topMatch": {
+                "nda": "N/A",
+                "application": "lenacapavir injection",
+                "matchType": "company",
+                "score": 50
+            }
+        },
+        {
+            "drug": "bispecific T-cell engager antibody with a single chain Fc moiety that binds to B cell maturation antigen surface receptor and CD3",
+            "company": "Amgen Inc.",
+            "designation": "Treatment of multiple myeloma",
+            "crlCount": 4,
+            "topMatch": {
+                "nda": null,
+                "application": "Biologics License Application",
+                "matchType": "company",
+                "score": 50
+            }
+        },
+        {
+            "drug": "adoptive, anti-FLT3 chimeric antigen receptor T cell therapy generated through transduction of autologous T-cells with a self-inactivating human immunodeficiency virus-1 based lentiviral vector",
+            "company": "Amgen Inc.",
+            "designation": "Treatment of acute myeloid leukemia",
+            "crlCount": 4,
+            "topMatch": {
+                "nda": null,
+                "application": "Biologics License Application",
+                "matchType": "company",
+                "score": 50
+            }
+        },
+        {
+            "drug": "romiplostim",
+            "company": "Amgen Inc.",
+            "designation": "Treatment of chemotherapy-induced thrombocytopenia",
+            "crlCount": 4,
+            "topMatch": {
+                "nda": null,
+                "application": "Biologics License Application",
+                "matchType": "company",
+                "score": 50
+            }
+        },
+        {
+            "drug": "Recombinant secretory leucocyte protease inhibitor",
+            "company": "Amgen Inc.",
+            "designation": "Treatment of congenital alpha-1 antitrypsin deficiency.",
+            "crlCount": 4,
+            "topMatch": {
+                "nda": null,
+                "application": "Biologics License Application",
+                "matchType": "company",
+                "score": 50
+            }
+        },
+        {
+            "drug": "anti-EGFRvIII x anti-CD3 bispecific T cell engager antibody construct",
+            "company": "Amgen Inc.",
+            "designation": "Treatment of glioblastoma",
+            "crlCount": 4,
+            "topMatch": {
+                "nda": null,
+                "application": "Biologics License Application",
+                "matchType": "company",
+                "score": 50
+            }
+        },
+        {
+            "drug": "naloxone",
+            "company": "Elorac, Inc.",
+            "designation": "Topical treatment of pruritus associated with mycosis fungoides",
+            "crlCount": 4,
+            "topMatch": {
+                "nda": "212045",
+                "application": "Naloxone Nasal Spray",
+                "matchType": "partial",
+                "score": 32
+            }
+        },
+        {
+            "drug": "MANNITOL",
+            "company": "Pharmaxis Europe Limited",
+            "designation": "For use to facilitate clearance of mucus in patients with bronchiectasis and in patients with cystic fibrosis at risk for bronchiectasis",
+            "crlCount": 4,
+            "topMatch": {
+                "nda": "N/A",
+                "application": "Bronchitol (mannitol) Inhalation Powder",
+                "matchType": "index",
+                "score": 90
+            }
+        },
+        {
+            "drug": "blinatumomab",
+            "company": "Amgen Inc.",
+            "designation": "Treatment of diffuse large B-cell lymphoma (DLBCL)",
+            "crlCount": 4,
+            "topMatch": {
+                "nda": null,
+                "application": "Biologics License Application",
+                "matchType": "company",
+                "score": 50
+            }
+        },
+        {
+            "drug": "bispecific T-cell engager (BiTE) antibody targeting CD33 and CD3",
+            "company": "Amgen Inc.",
+            "designation": "Treatment of Acute Myeloid Leukemia",
+            "crlCount": 4,
+            "topMatch": {
+                "nda": null,
+                "application": "Biologics License Application",
+                "matchType": "company",
+                "score": 50
+            }
+        },
+        {
+            "drug": "half-life extended bispecific T-cell engager antibody construct targeting MUC17 and CD3",
+            "company": "Amgen Inc.",
+            "designation": "Treatment of gastric cancer, including cancer of gastroesophageal junction",
+            "crlCount": 4,
+            "topMatch": {
+                "nda": null,
+                "application": "Biologics License Application",
+                "matchType": "company",
+                "score": 50
+            }
+        },
+        {
+            "drug": "autologous T cells expressing a transmembrane chimeric antigen receptor (CAR) to target anti-delta-like ligand 3",
+            "company": "Amgen Inc.",
+            "designation": "Treatment of small cell lung cancer",
+            "crlCount": 4,
+            "topMatch": {
+                "nda": null,
+                "application": "Biologics License Application",
+                "matchType": "company",
+                "score": 50
+            }
+        },
+        {
+            "drug": "Gavilimomab",
+            "company": "Amgen",
+            "designation": "Acute graft-versus-host disease (aGVHD)",
+            "crlCount": 4,
+            "topMatch": {
+                "nda": null,
+                "application": "Biologics License Application",
+                "matchType": "partial",
+                "score": 0
+            }
+        },
+        {
+            "drug": "bispecific T cell engager antibody construct with a half-life extension Fc moiety capable of binding to the neonatal Fc receptor",
+            "company": "Amgen Inc.",
+            "designation": "Treatment of Acute Myeloid Leukemia",
+            "crlCount": 4,
+            "topMatch": {
+                "nda": null,
+                "application": "Biologics License Application",
+                "matchType": "company",
+                "score": 50
+            }
+        },
+        {
+            "drug": "romosozumab",
+            "company": "Amgen Inc.",
+            "designation": "Treatment of Osteogenesis Imperfecta",
+            "crlCount": 4,
+            "topMatch": {
+                "nda": "BLA",
+                "application": "romosozumab",
+                "matchType": "exact",
+                "score": 100
+            }
+        },
+        {
+            "drug": "small molecule MTAP-cooperative PRMT5 inhibitor",
+            "company": "Amgen Inc.",
+            "designation": "treatment of pancreatic cancer",
+            "crlCount": 4,
+            "topMatch": {
+                "nda": null,
+                "application": "Biologics License Application",
+                "matchType": "company",
+                "score": 50
+            }
+        },
+        {
+            "drug": "evolocumab",
+            "company": "Amgen Inc.",
+            "designation": "Treatment of homozygous familial hypercholesterolemia",
+            "crlCount": 4,
+            "topMatch": {
+                "nda": null,
+                "application": "Biologics License Application",
+                "matchType": "company",
+                "score": 50
+            }
+        },
+        {
+            "drug": "testosterone",
+            "company": "Sarcomed AB",
+            "designation": "Treatment of Duchenne Muscular Dystrophy",
+            "crlCount": 4,
+            "topMatch": {
+                "nda": "123456",
+                "application": "Testosterone Undecanoate (Oral)",
+                "matchType": "partial",
+                "score": 33.10344827586207
+            }
+        },
+        {
+            "drug": "denosumab",
+            "company": "Amgen Inc.",
+            "designation": "Treatment of Osteogenesis Imperfecta",
+            "crlCount": 4,
+            "topMatch": {
+                "nda": null,
+                "application": "Biologics License Application",
+                "matchType": "company",
+                "score": 50
+            }
+        },
+        {
+            "drug": "human immunoglobulin (IgG1K) monoclonal antibody that binds to interleukin 15",
+            "company": "Amgen Inc.",
+            "designation": "Treatment of refractory celiac disease.",
+            "crlCount": 4,
+            "topMatch": {
+                "nda": null,
+                "application": "Biologics License Application",
+                "matchType": "company",
+                "score": 50
+            }
+        },
+        {
+            "drug": "A small molecule inhibitor of the pro-survival protein Myeloid Cell Leukemia sequence 1 (MCL 1)",
+            "company": "Amgen Inc.",
+            "designation": "Treatment of Acute Myeloid Leukemia",
+            "crlCount": 4,
+            "topMatch": {
+                "nda": null,
+                "application": "Biologics License Application",
+                "matchType": "company",
+                "score": 50
+            }
+        },
+        {
+            "drug": "Secalciferol",
+            "company": "Teva Pharmaceuticals USA",
+            "designation": "Treatment of familial hypophosphatemic rickets.",
+            "crlCount": 4,
+            "topMatch": {
+                "nda": "NDA for buprenorphine and naloxone sublingual film, 16 mg/4 mg",
+                "application": "Teva Pharmaceuticals USA",
+                "matchType": "company",
+                "score": 50
+            }
+        },
+        {
+            "drug": "deutetrabenazine",
+            "company": "TEVA Pharmaceuticals",
+            "designation": "Treatment of Tourette syndrome in the pediatric population (defined as 0 through 16 years of age)",
+            "crlCount": 4,
+            "topMatch": {
+                "nda": "NDA for buprenorphine and naloxone sublingual film, 16 mg/4 mg",
+                "application": "Teva Pharmaceuticals USA",
+                "matchType": "partial",
+                "score": 0
+            }
+        },
+        {
+            "drug": "apremilast",
+            "company": "Amgen Inc.",
+            "designation": "Treatment of pediatric patients with ulcerative colitis",
+            "crlCount": 4,
+            "topMatch": {
+                "nda": null,
+                "application": "Biologics License Application",
+                "matchType": "company",
+                "score": 50
+            }
+        },
+        {
+            "drug": "interleukin mutein fused to the C-terminus of an immunoglobulin G Fc domain by way of a G4S linker",
+            "company": "Amgen Inc.",
+            "designation": "Treatment of Graft-Versus-Host-Disease",
+            "crlCount": 4,
+            "topMatch": {
+                "nda": null,
+                "application": "Biologics License Application",
+                "matchType": "company",
+                "score": 50
+            }
+        },
+        {
+            "drug": "(2R,4R)-1-(3-chloro-2-fluorobenzyl)-4-((3-fluoro-6-((5-methyl-1H-pyrazol-3-yl)amino)pyridin-2-yl)methyl)-2-methylpiperidine-4-carboxylic acid; 2- methylpropan-2-amine",
+            "company": "Eli Lilly and Company",
+            "designation": "Treatment of Neuroblastoma",
+            "crlCount": 3,
+            "topMatch": {
+                "nda": "BLA-XXXXX",
+                "application": "Rezvoglar (insulin glargine-aglr) injection",
+                "matchType": "company",
+                "score": 50
+            }
+        },
+        {
+            "drug": "necitumumab",
+            "company": "Eli Lilly and Company",
+            "designation": "Treatment of squamous non-small cell lung cancer",
+            "crlCount": 3,
+            "topMatch": {
+                "nda": "BLA-XXXXX",
+                "application": "Rezvoglar (insulin glargine-aglr) injection",
+                "matchType": "company",
+                "score": 50
+            }
+        },
+        {
+            "drug": "pegylated recombinant human interleukin-10",
+            "company": "Eli Lilly and Company",
+            "designation": "Treatment of pancreatic cancer",
+            "crlCount": 3,
+            "topMatch": {
+                "nda": "BLA-XXXXX",
+                "application": "Rezvoglar (insulin glargine-aglr) injection",
+                "matchType": "company",
+                "score": 50
+            }
+        },
+        {
+            "drug": "alpha-CD39 IgG4 monoclonal antibody",
+            "company": "Coherus BioSciences, Inc.",
+            "designation": "Treatment of pancreatic cancer",
+            "crlCount": 3,
+            "topMatch": {
+                "nda": "CHS-1701",
+                "application": "Biologics License Application",
+                "matchType": "company",
+                "score": 50
+            }
+        },
+        {
+            "drug": "pemetrexed disodium",
+            "company": "Eli Lilly and Company",
+            "designation": "Treatment of malignant pleural mesothelioma",
+            "crlCount": 3,
+            "topMatch": {
+                "nda": "BLA-XXXXX",
+                "application": "Rezvoglar (insulin glargine-aglr) injection",
+                "matchType": "company",
+                "score": 50
+            }
+        },
+        {
+            "drug": "merestinib",
+            "company": "Eli Lilly and Company",
+            "designation": "Treatment of biliary tract cancer",
+            "crlCount": 3,
+            "topMatch": {
+                "nda": "BLA-XXXXX",
+                "application": "Rezvoglar (insulin glargine-aglr) injection",
+                "matchType": "company",
+                "score": 50
+            }
+        },
+        {
+            "drug": "tasisulam sodium",
+            "company": "Eli Lilly and Company",
+            "designation": "Treatment of melanoma stages IIB through IV",
+            "crlCount": 3,
+            "topMatch": {
+                "nda": "BLA-XXXXX",
+                "application": "Rezvoglar (insulin glargine-aglr) injection",
+                "matchType": "company",
+                "score": 50
+            }
+        },
+        {
+            "drug": "raloxifene",
+            "company": "Eli Lilly and Company",
+            "designation": "Reduction of the risk of breast cancer in postmenopausal women",
+            "crlCount": 3,
+            "topMatch": {
+                "nda": "BLA-XXXXX",
+                "application": "Rezvoglar (insulin glargine-aglr) injection",
+                "matchType": "company",
+                "score": 50
+            }
+        },
+        {
+            "drug": "levetiracetam",
+            "company": "University of California",
+            "designation": "Treatment of neonatal seizures",
+            "crlCount": 3,
+            "topMatch": {
+                "nda": "123456",
+                "application": "Elepsia XR (levetiracetam) extended-release tablets",
+                "matchType": "index",
+                "score": 90
+            }
+        },
+        {
+            "drug": "Adenosine triphosphate type 1 competitive inhibitor of JAK2 V617F tyrosine kinase",
+            "company": "Eli Lilly and Company",
+            "designation": "Treatment of myeloproliferative disorders (polycythemia vera, essential throbocythemia, and myelofibrosis)",
+            "crlCount": 3,
+            "topMatch": {
+                "nda": "BLA-XXXXX",
+                "application": "Rezvoglar (insulin glargine-aglr) injection",
+                "matchType": "company",
+                "score": 50
+            }
+        },
+        {
+            "drug": "tabalumab",
+            "company": "Eli Lilly and Company",
+            "designation": "Treatment of multiple myeloma",
+            "crlCount": 3,
+            "topMatch": {
+                "nda": "BLA-XXXXX",
+                "application": "Rezvoglar (insulin glargine-aglr) injection",
+                "matchType": "company",
+                "score": 50
+            }
+        },
+        {
+            "drug": "baricitinib",
+            "company": "Eli Lilly and Company",
+            "designation": "Treatment of pediatric systemic lupus erythematosus",
+            "crlCount": 3,
+            "topMatch": {
+                "nda": "BLA-XXXXX",
+                "application": "Rezvoglar (insulin glargine-aglr) injection",
+                "matchType": "company",
+                "score": 50
+            }
+        },
+        {
+            "drug": "ramucirumab",
+            "company": "Eli Lilly and Company",
+            "designation": "Treatment of gastric cancer",
+            "crlCount": 3,
+            "topMatch": {
+                "nda": "BLA-XXXXX",
+                "application": "Rezvoglar (insulin glargine-aglr) injection",
+                "matchType": "company",
+                "score": 50
+            }
+        },
+        {
+            "drug": "transforming growth factor-beta receptor 1 kinase inhibitor",
+            "company": "Eli Lilly and Company",
+            "designation": "Treatment of hepatocellular carcinoma",
+            "crlCount": 3,
+            "topMatch": {
+                "nda": "BLA-XXXXX",
+                "application": "Rezvoglar (insulin glargine-aglr) injection",
+                "matchType": "company",
+                "score": 50
+            }
+        },
+        {
+            "drug": "sacituzumab govitecan",
+            "company": "Gilead Sciences, Inc.",
+            "designation": "Treatment of pancreatic cancer.",
+            "crlCount": 3,
+            "topMatch": {
+                "nda": "N/A",
+                "application": "lenacapavir injection",
+                "matchType": "company",
+                "score": 50
+            }
+        },
+        {
+            "drug": "casdozokitug",
+            "company": "Coherus BioSciences, Inc.",
+            "designation": "Treatment of hepatocellular carcinoma (HCC)",
+            "crlCount": 3,
+            "topMatch": {
+                "nda": "CHS-1701",
+                "application": "Biologics License Application",
+                "matchType": "company",
+                "score": 50
+            }
+        },
+        {
+            "drug": "toripalimab-tpzi",
+            "company": "Coherus BioSciences, Inc.",
+            "designation": "Treatment of nasopharyngeal carcinoma",
+            "crlCount": 3,
+            "topMatch": {
+                "nda": "CHS-1701",
+                "application": "Biologics License Application",
+                "matchType": "company",
+                "score": 50
+            }
+        },
+        {
+            "drug": "romidepsin",
+            "company": "Celgene Corporation",
+            "designation": "Treatment of non-Hodgkin T-cell lymphomas",
+            "crlCount": 3,
+            "topMatch": {
+                "nda": "N/A",
+                "application": "Romidepsin Injection",
+                "matchType": "partial",
+                "score": 40
+            }
+        },
+        {
+            "drug": "tadalafil",
+            "company": "Eli Lilly and Company",
+            "designation": "Treatment of Duchenne Muscular Dystrophy (DMD)",
+            "crlCount": 3,
+            "topMatch": {
+                "nda": "BLA-XXXXX",
+                "application": "Rezvoglar (insulin glargine-aglr) injection",
+                "matchType": "company",
+                "score": 50
+            }
+        },
+        {
+            "drug": "olomorasib",
+            "company": "Eli Lilly and Company",
+            "designation": "treatment of KRAS G12C-mutant NSCLC",
+            "crlCount": 3,
+            "topMatch": {
+                "nda": "BLA-XXXXX",
+                "application": "Rezvoglar (insulin glargine-aglr) injection",
+                "matchType": "company",
+                "score": 50
+            }
+        },
+        {
+            "drug": "olaratumab",
+            "company": "Eli Lilly and Company",
+            "designation": "Treatment of soft tissue sarcoma",
+            "crlCount": 3,
+            "topMatch": {
+                "nda": "BLA-XXXXX",
+                "application": "Rezvoglar (insulin glargine-aglr) injection",
+                "matchType": "company",
+                "score": 50
+            }
+        },
+        {
+            "drug": "prasugrel hydrochloride",
+            "company": "Eli Lilly",
+            "designation": "Treatment of sickle cell disease",
+            "crlCount": 3,
+            "topMatch": {
+                "nda": "BLA-XXXXX",
+                "application": "Rezvoglar (insulin glargine-aglr) injection",
+                "matchType": "partial",
+                "score": 0
+            }
+        },
+        {
+            "drug": "rovalpituzumab tesirine",
+            "company": "AbbVie Inc.",
+            "designation": "Treatment of small cell lung cancer",
+            "crlCount": 2,
+            "topMatch": {
+                "nda": "N/A",
+                "application": "Vyalev (foscarbidopa and foslevodopa) injection",
+                "matchType": "company",
+                "score": 50
+            }
+        },
+        {
+            "drug": "elezanumab",
+            "company": "AbbVie Inc.",
+            "designation": "Treatment of acute spinal cord injury",
+            "crlCount": 2,
+            "topMatch": {
+                "nda": "N/A",
+                "application": "Vyalev (foscarbidopa and foslevodopa) injection",
+                "matchType": "company",
+                "score": 50
+            }
+        },
+        {
+            "drug": "gemcitabine",
+            "company": "InnoPharmax, Inc.",
+            "designation": "Treatment of cholangiocarcinoma.",
+            "crlCount": 2,
+            "topMatch": {
+                "nda": "123456",
+                "application": "INFUGEM (gemcitabine injection), 10 mg/mL",
+                "matchType": "text",
+                "score": 30
+            }
+        },
+        {
+            "drug": "Ombitasvir/Paritaprevir/Ritonavir",
+            "company": "AbbVie Inc.",
+            "designation": "Treatment of pediatric patients with chronic hepatitis C virus infection",
+            "crlCount": 2,
+            "topMatch": {
+                "nda": "N/A",
+                "application": "Vyalev (foscarbidopa and foslevodopa) injection",
+                "matchType": "company",
+                "score": 50
+            }
+        },
+        {
+            "drug": "marstacimab-hncq",
+            "company": "Pfizer Inc.",
+            "designation": "Treatment of hemophilia A and hemophilia B patients with or without inhibitors, which includes routine prophylaxis to prevent or reduce the frequency of bleeding in hemophilia A and hemophilia B patients.",
+            "crlCount": 2,
+            "topMatch": {
+                "nda": "N/A",
+                "application": "Biologics License Application (BLA) for Trazimera (PF-05280014)",
+                "matchType": "company",
+                "score": 50
+            }
+        },
+        {
+            "drug": "Magrolimab",
+            "company": "Gilead Sciences, Inc.",
+            "designation": "Treatment of Myelodysplastic Syndrome",
+            "crlCount": 2,
+            "topMatch": {
+                "nda": "N/A",
+                "application": "lenacapavir injection",
+                "matchType": "company",
+                "score": 50
+            }
+        },
+        {
+            "drug": "fidanacogene elaparvovec-dzkt",
+            "company": "Pfizer Inc.",
+            "designation": "Treatment of hemophilia B.",
+            "crlCount": 2,
+            "topMatch": {
+                "nda": "N/A",
+                "application": "Biologics License Application (BLA) for Trazimera (PF-05280014)",
+                "matchType": "company",
+                "score": 50
+            }
+        },
+        {
+            "drug": "small molecule inhibitor of B-cell lymphoma 2 (Bcl-2) protein",
+            "company": "AbbVie Inc.",
+            "designation": "treatment of multiple myeloma",
+            "crlCount": 2,
+            "topMatch": {
+                "nda": "N/A",
+                "application": "Vyalev (foscarbidopa and foslevodopa) injection",
+                "matchType": "company",
+                "score": 50
+            }
+        },
+        {
+            "drug": "an antibody-drug conjugate (ADC) (mAb/N-acetyl-y-calicheamicin)",
+            "company": "AbbVie Inc.",
+            "designation": "Treatment of Small Cell Lung Cancer (SCLC)",
+            "crlCount": 2,
+            "topMatch": {
+                "nda": "N/A",
+                "application": "Vyalev (foscarbidopa and foslevodopa) injection",
+                "matchType": "company",
+                "score": 50
+            }
+        },
+        {
+            "drug": "sutimlimab-jome",
+            "company": "Recordati Rare Diseases Inc.",
+            "designation": "Treatment of autoimmune hemolytic anemia",
+            "crlCount": 2,
+            "topMatch": {
+                "nda": "NOA",
+                "application": "Cystadrops (cysteamine ophthalmic solution) 0.37%",
+                "matchType": "company",
+                "score": 50
+            }
+        },
+        {
+            "drug": "navitoclax",
+            "company": "AbbVie Inc.",
+            "designation": "Treatment of myelofibrosis",
+            "crlCount": 2,
+            "topMatch": {
+                "nda": "N/A",
+                "application": "Vyalev (foscarbidopa and foslevodopa) injection",
+                "matchType": "company",
+                "score": 50
+            }
+        },
+        {
+            "drug": "ambrisentan/tadalafil fixed combination",
+            "company": "Gilead Sciences, Inc.",
+            "designation": "Treatment of pulmonary arterial hypertension",
+            "crlCount": 2,
+            "topMatch": {
+                "nda": "N/A",
+                "application": "lenacapavir injection",
+                "matchType": "company",
+                "score": 50
+            }
+        },
+        {
+            "drug": "Atrasentan",
+            "company": "AbbVie Inc.",
+            "designation": "Treatment of pediatric nephrotic syndrome",
+            "crlCount": 2,
+            "topMatch": {
+                "nda": "N/A",
+                "application": "Vyalev (foscarbidopa and foslevodopa) injection",
+                "matchType": "company",
+                "score": 50
+            }
+        },
+        {
+            "drug": "ledipasvir/sofosbuvir",
+            "company": "Gilead Sciences, Inc.",
+            "designation": "Treatment of chronic hepatitis C virus (HCV) infection in pediatric patients",
+            "crlCount": 2,
+            "topMatch": {
+                "nda": "N/A",
+                "application": "lenacapavir injection",
+                "matchType": "company",
+                "score": 50
+            }
+        },
+        {
+            "drug": "Remdesivir",
+            "company": "Gilead Sciences, Inc.",
+            "designation": "Treatment of Ebola virus disease",
+            "crlCount": 2,
+            "topMatch": {
+                "nda": "N/A",
+                "application": "lenacapavir injection",
+                "matchType": "company",
+                "score": 50
+            }
+        },
+        {
+            "drug": "bortezomib",
+            "company": "BioXcel Corporation",
+            "designation": "Treatment of neurofibromatosis type 2 (NF2)",
+            "crlCount": 2,
+            "topMatch": {
+                "nda": "123456",
+                "application": "Bortezomib for Injection, 2.5 mg/vial",
+                "matchType": "text",
+                "score": 30
+            }
+        },
+        {
+            "drug": "dinutuximab beta",
+            "company": "Recordati Rare Diseases Inc.",
+            "designation": "treatment of Ewing sarcoma",
+            "crlCount": 2,
+            "topMatch": {
+                "nda": "NOA",
+                "application": "Cystadrops (cysteamine ophthalmic solution) 0.37%",
+                "matchType": "company",
+                "score": 50
+            }
+        },
+        {
+            "drug": "an antibody drug conjugate (ADC) comprising monoclonal antibody anti-SEZ6 IgG1 antibody conjugated to a Top1 inhibitor",
+            "company": "AbbVie Inc.",
+            "designation": "treatment of small cell lung cancer",
+            "crlCount": 2,
+            "topMatch": {
+                "nda": "N/A",
+                "application": "Vyalev (foscarbidopa and foslevodopa) injection",
+                "matchType": "company",
+                "score": 50
+            }
+        },
+        {
+            "drug": "risankizumab",
+            "company": "AbbVie Inc.",
+            "designation": "Treatment of pediatric Crohn's disease",
+            "crlCount": 2,
+            "topMatch": {
+                "nda": "N/A",
+                "application": "Vyalev (foscarbidopa and foslevodopa) injection",
+                "matchType": "company",
+                "score": 50
+            }
+        },
+        {
+            "drug": "seladelpar",
+            "company": "Gilead Sciences, Inc.",
+            "designation": "Treatment of primary biliary cholangitis",
+            "crlCount": 2,
+            "topMatch": {
+                "nda": "N/A",
+                "application": "lenacapavir injection",
+                "matchType": "company",
+                "score": 50
+            }
+        },
+        {
+            "drug": "a recombinant human IgG1 with minimized Fc effector function that selectively binds to BMP9 with high affinity and inhibits its interaction with Type II receptors on endothelial cells thereby blocking downstream signaling",
+            "company": "Pfizer Inc.",
+            "designation": "Treatment of Pulmonary Arterial Hypertension",
+            "crlCount": 2,
+            "topMatch": {
+                "nda": "N/A",
+                "application": "Biologics License Application (BLA) for Trazimera (PF-05280014)",
+                "matchType": "company",
+                "score": 50
+            }
+        },
+        {
+            "drug": "dexamethasone",
+            "company": "TherOptix, Inc.",
+            "designation": "Prevention of Proliferative Vitreoretinopathy (PVR)",
+            "crlCount": 2,
+            "topMatch": {
+                "nda": "123456",
+                "application": "Dexamethasone Insert 0.4mg",
+                "matchType": "partial",
+                "score": 41.6
+            }
+        },
+        {
+            "drug": "veliparib",
+            "company": "AbbVie Inc.",
+            "designation": "Treatment of squamous non-small cell lung cancer",
+            "crlCount": 2,
+            "topMatch": {
+                "nda": "N/A",
+                "application": "Vyalev (foscarbidopa and foslevodopa) injection",
+                "matchType": "company",
+                "score": 50
+            }
+        },
+        {
+            "drug": "Ritonavir powder for oral suspension",
+            "company": "AbbVie Inc.",
+            "designation": "Use with other antiretroviral agents for the treatment of pediatric HIV-1 infection",
+            "crlCount": 2,
+            "topMatch": {
+                "nda": "N/A",
+                "application": "Vyalev (foscarbidopa and foslevodopa) injection",
+                "matchType": "company",
+                "score": 50
+            }
+        },
+        {
+            "drug": "sofosbuvir and velpatasvir",
+            "company": "Gilead Sciences, Inc.",
+            "designation": "Treatment of pediatric chronic hepatitis C virus (HCV) infection",
+            "crlCount": 2,
+            "topMatch": {
+                "nda": "N/A",
+                "application": "lenacapavir injection",
+                "matchType": "company",
+                "score": 50
+            }
+        },
+        {
+            "drug": "Nitric Oxide",
+            "company": "Mallinckrodt Pharmaceuticals",
+            "designation": "To selectively reduce pulmonary arterial pressures in patients at elevated risk for developing hemodynamically unstable pulmonary hypertension after cardiovascular surgery",
+            "crlCount": 2,
+            "topMatch": {
+                "nda": "N/A",
+                "application": "GeNOsyl® Delivery System (Nitric Oxide)",
+                "matchType": "index",
+                "score": 90
+            }
+        },
+        {
+            "drug": "Recombinant human fibroblast growth factor receptor 3",
+            "company": "Pfizer Inc.",
+            "designation": "Treatment of achondroplasia.",
+            "crlCount": 2,
+            "topMatch": {
+                "nda": "N/A",
+                "application": "Biologics License Application (BLA) for Trazimera (PF-05280014)",
+                "matchType": "company",
+                "score": 50
+            }
+        },
+        {
+            "drug": "baclofen",
+            "company": "Saol Therapeutics Research Limited",
+            "designation": "Prevention of baclofen withdrawal syndrome",
+            "crlCount": 2,
+            "topMatch": {
+                "nda": "123456",
+                "application": "Ozobax (baclofen) oral solution 1mg/mL",
+                "matchType": "index",
+                "score": 90
+            }
+        },
+        {
+            "drug": "bictegravir, emtricitabine, and tenofovir alafenamide",
+            "company": "Gilead Sciences, Inc.",
+            "designation": "Treatment of Human Immunodeficiency Virus type 1 infection in pediatric patients",
+            "crlCount": 2,
+            "topMatch": {
+                "nda": "N/A",
+                "application": "lenacapavir injection",
+                "matchType": "company",
+                "score": 50
+            }
+        },
+        {
+            "drug": "brodalumab",
+            "company": "Bausch Health",
+            "designation": "Treatment of systemic sclerosis",
+            "crlCount": 2,
+            "topMatch": {
+                "nda": "NDA-2018-0924",
+                "application": "Fluorescein Sodium and Benoxinate Hydrochloride Ophthalmic Solution",
+                "matchType": "partial",
+                "score": 0
+            }
+        },
+        {
+            "drug": "Treprostinil",
+            "company": "United Therapeutics Corporation",
+            "designation": "Treatment of Idiopathic Pulmonary Fibrosis",
+            "crlCount": 2,
+            "topMatch": {
+                "nda": "N/A",
+                "application": "Remodulin (treprostinil) Implantable System",
+                "matchType": "index",
+                "score": 90
+            }
+        },
+        {
+            "drug": "nitric oxide",
+            "company": "Novoteris, LLC",
+            "designation": "Treatment of non-tuberculous mycobacterial lung disease",
+            "crlCount": 2,
+            "topMatch": {
+                "nda": "N/A",
+                "application": "GeNOsyl® Delivery System (Nitric Oxide)",
+                "matchType": "index",
+                "score": 90
+            }
+        },
+        {
+            "drug": "4߭(p-fluorobenzyl)tylosin A",
+            "company": "AbbVie Inc.",
+            "designation": "Treatment of onchocerciasis",
+            "crlCount": 2,
+            "topMatch": {
+                "nda": "N/A",
+                "application": "Vyalev (foscarbidopa and foslevodopa) injection",
+                "matchType": "company",
+                "score": 50
+            }
+        },
+        {
+            "drug": "cobicistat",
+            "company": "Gilead Sciences, Inc.",
+            "designation": "Treatment of human immunodeficiency virus type 1 (HIV-1) infection in pediatric patients",
+            "crlCount": 2,
+            "topMatch": {
+                "nda": "N/A",
+                "application": "lenacapavir injection",
+                "matchType": "company",
+                "score": 50
+            }
+        },
+        {
+            "drug": "humanized monoclonal antibody of the IgG4 kappa isotype targeting CD47",
+            "company": "Gilead Sciences, Inc.",
+            "designation": "Treatment of acute myeloid (myelogenous) leukemia.",
+            "crlCount": 2,
+            "topMatch": {
+                "nda": "N/A",
+                "application": "lenacapavir injection",
+                "matchType": "company",
+                "score": 50
+            }
+        },
+        {
+            "drug": "sofosbuvir",
+            "company": "Gilead Sciences, Inc.",
+            "designation": "Treatment of pediatric chronic hepatitis C virus infection",
+            "crlCount": 2,
+            "topMatch": {
+                "nda": "N/A",
+                "application": "lenacapavir injection",
+                "matchType": "company",
+                "score": 50
+            }
+        }
+    ]
+}

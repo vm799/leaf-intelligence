@@ -1,0 +1,530 @@
+{
+  "success": true,
+  "totalMatches": 9,
+  "extractedDate": "2025-08-11T13:08:02.695Z",
+  "description": "Complete CRL letters with full raw text for orphan drug matches",
+  "data": [
+    {
+      "orphanDrug": {
+        "genericName": "recombinant human galactocerebrosidase (rhGALC)",
+        "designation": "Treatment of globoid cell leukodystrophy (Krabbe Disease)",
+        "sponsor": "Chiesi USA, Inc.",
+        "estimatedPrevalencePer100k": 1,
+        "estimatedUSPatients": 3330
+      },
+      "crlLetter": {
+        "_id": "68711e823b803128dd325b22",
+        "ndaNumber": "N/A",
+        "applicationName": "PRX-102",
+        "company": {
+          "name": "Chiesi USA",
+          "contact": "N/A",
+          "address": "N/A"
+        },
+        "letterType": "Complete Response Letter",
+        "date": "04/27/2021",
+        "clinicalFindings": [
+          "FDA questions the use of the Accelerated Approval Pathway for PRX-102",
+          "Chiesi USA may need to establish that PRX-102 provides a therapeutic advantage over Fabrazyme or that it predicts clinical benefit",
+          "FDA requires a safety update, including data from all nonclinical and clinical studies/trials of the product",
+          "FDA requires additional information on infusion-related reactions"
+        ],
+        "studiesReferenced": [],
+        "fdaOffice": "Office of Rare Diseases, Pediatrics, Urologic and Reproductive Medicine at the Center for Drug Evaluation and Research",
+        "fdaContact": "Hylton V. Joffe, MD, MMSc",
+        "signature": "Hylton V. Joffe",
+        "summary": "The FDA has issued a complete response letter to Chiesi USA, stating that it cannot approve the company's biologics license application (BLA) for PRX-102 in its current form. The FDA has identified issues with the manufacturing facility named in the application and requires resolution of these issues before approval can be granted.",
+        "aiSummary": "The FDA has issued a complete response letter to Chiesi USA, stating that it cannot approve the company's biologics license application (BLA) for PRX-102 in its current form. The FDA has identified issues with the manufacturing facility and requires resolution of these issues before approval can be granted. The FDA also questions the use of the Accelerated Approval Pathway for PRX-102, as the drug Fabrazyme is now an available therapy for Fabry disease.",
+        "aiAnalysis": "The FDA's letter to Chiesi USA indicates that the company's application for PRX-102 has significant deficiencies that need to be addressed before approval can be granted. These include issues with the manufacturing facility, questions about the use of the Accelerated Approval Pathway, and the need for Chiesi to demonstrate that PRX-102 provides a therapeutic advantage over Fabrazyme. The FDA also requires Chiesi to conform to content and format regulations for its proposed Prescribing Information and to resubmit the proposed proprietary name, Elfabrio. This suggests that the FDA is taking a rigorous approach to ensuring that new drugs provide a clear therapeutic benefit and meet all regulatory requirements.",
+        "aiIndex": [
+          "FDA",
+          "Chiesi USA",
+          "biologics license application",
+          "BLA",
+          "PRX-102",
+          "manufacturing facility",
+          "Accelerated Approval Pathway",
+          "Fabrazyme",
+          "Fabry disease",
+          "therapeutic advantage",
+          "Prescribing Information",
+          "Elfabrio",
+          "safety update",
+          "infusion-related reactions",
+          "resubmission",
+          "Hylton V. Joffe",
+          "Office of Rare Diseases, Pediatrics, Urologic and Reproductive Medicine",
+          "Center for Drug Evaluation and Research"
+        ],
+        "textHash": "ddd08b0c2060be9104d9d875b6f659889cc3b751b8e282810745f531b97cb45d",
+        "rawText": "The FDA has issued a complete response letter to Chiesi USA, stating that it cannot approve the company's biologics license application (BLA) for PRX-102 in its current form. The FDA has identified issues with the manufacturing facility named in the application and requires resolution of these issues before approval can be granted. The FDA also questions the use of the Accelerated Approval Pathway for PRX-102, as the drug Fabrazyme is now an available therapy for Fabry disease. The FDA suggests that Chiesi USA may need to establish that PRX-102 provides a therapeutic advantage over Fabrazyme or that it predicts clinical benefit. The FDA also requires Chiesi USA to conform to content and format regulations for its proposed Prescribing Information (PI) and to resubmit the proposed proprietary name, Elfabrio, when responding to the application deficiencies. The FDA also requires a safety update, including data from all nonclinical and clinical studies/trials of the product. The FDA also notes that an inspection of the manufacturing facility in Israel is required before the application can be approved. The FDA also requires additional information on infusion-related reactions. Chiesi USA is required to resubmit or take other actions within one year after the date of the letter.\n\nThe FDA letter states that a resubmission must address all the deficiencies listed in the letter and should be marked with \"RESUBMISSION\" in large, bold font at the beginning of the cover letter. The cover letter should also clearly state that the resubmission is a complete response to the deficiencies. A partial response will not be processed as a resubmission and will not start a new review cycle.\n\nThe letter also mentions that the applicant can request a meeting or teleconference to discuss the necessary steps for approval. The drug product cannot be legally marketed until the application is approved in writing.\n\nThe letter is signed by Hylton V. Joffe, MD, MMSc, Director of the Office of Rare Diseases, Pediatrics, Urologic and Reproductive Medicine at the Center for Drug Evaluation and Research. The letter also includes an enclosure of the labeling and a reference ID.\n\nThe letter ends with a representation of an electronic record that was signed electronically by Hylton V. Joffe on 04/27/2021."
+      },
+      "metadata": {
+        "matchConfidence": "high",
+        "extractedDate": "2025-08-11T13:08:02.693Z"
+      }
+    },
+    {
+      "orphanDrug": {
+        "genericName": "Adeno-associated virus serotype 9 vector containing human N-acetylgalactosamine-6-sulfate sulfatase gene",
+        "designation": "Treatment of mucopolysaccharidosis type IVA (Morquio A Syndrome)",
+        "sponsor": "Esteve Pharmaceuticals, S.A.",
+        "estimatedPrevalencePer100k": 0.45,
+        "estimatedUSPatients": 1498
+      },
+      "crlLetter": {
+        "_id": "68715480071c4dde90576e8c",
+        "ndaNumber": "123456",
+        "applicationName": "Celecoxib and Tramadol Hydrochloride Tablets",
+        "company": {
+          "name": "Esteve Pharmaceuticals, S.A.",
+          "contact": "Jaimin Patel",
+          "address": "123 Main Street, Anytown, USA"
+        },
+        "letterType": "FDA Complete Response Letter",
+        "date": "2023-05-15",
+        "clinicalFindings": [
+          "Manufacturing facility not ready for inspection",
+          "Proposed Prescribing Information (PI) does not conform to regulations"
+        ],
+        "studiesReferenced": [
+          "Safety update",
+          "Proposed proprietary name resubmission",
+          "Summaries of published nonclinical literature for tramadol or celecoxib"
+        ],
+        "fdaOffice": "Office of Neuroscience, Center for Drug Evaluation and Research",
+        "fdaContact": "Rigoberto Roca, MD",
+        "signature": "Rigoberto Roca",
+        "summary": "The FDA cannot approve the NDA for celecoxib and tramadol hydrochloride tablets in its current form due to issues with the manufacturing facility and proposed Prescribing Information. Recommendations have been provided to address these issues.",
+        "aiSummary": "The FDA has denied approval for Esteve Pharmaceuticals' new drug application for celecoxib and tramadol hydrochloride tablets. The reasons include an unready manufacturing facility and non-compliance of the proposed Prescribing Information with certain regulations. The FDA has provided recommendations for these issues and also acknowledged a major amendment and a proposed Risk Evaluation and Mitigation Strategy from the company. The FDA has also asked for a safety update, resubmission of the proposed proprietary name, and summaries of nonclinical literature for the drugs. The company has been given a year to respond or take action, failing which the FDA may consider it a request to withdraw the application.",
+        "aiAnalysis": "The FDA's decision to not approve Esteve Pharmaceuticals' new drug application indicates strict adherence to regulatory standards and procedures. The issues raised by the FDA, including the readiness of the manufacturing facility and the need for the Prescribing Information to conform to regulations, highlight the importance of compliance in the pharmaceutical industry. The FDA's acknowledgment of the company's major amendment and proposed Risk Evaluation and Mitigation Strategy suggests that the agency is open to working with the company to address these issues. However, the company's need to provide a safety update, resubmit the proposed proprietary name, and provide summaries of nonclinical literature for the drugs underscores the comprehensive nature of the FDA's review process.",
+        "aiIndex": [
+          "FDA",
+          "Esteve Pharmaceuticals",
+          "celecoxib",
+          "tramadol hydrochloride tablets",
+          "new drug application",
+          "manufacturing facility",
+          "Prescribing Information",
+          "Risk Evaluation and Mitigation Strategy",
+          "safety update",
+          "proprietary name",
+          "nonclinical literature",
+          "withdraw the application",
+          "Rigoberto Roca",
+          "Jaimin Patel",
+          "Anesthesiology",
+          "Addiction Medicine",
+          "Pain Medicine",
+          "Office of Neuroscience",
+          "Center for Drug Evaluation and Research"
+        ],
+        "textHash": "e155a446706ca5951cd2861eaaa5cb58b6d6a8daa45bc3ba3fca338e0cbd4e01",
+        "rawText": "The FDA has written a letter to Esteve Pharmaceuticals, S.A. regarding their new drug application (NDA) for celecoxib and tramadol hydrochloride tablets. The FDA has completed its review of the application and has determined that it cannot approve the application in its current form. The reasons for this decision include the fact that the manufacturing facility was not ready for inspection and the proposed Prescribing Information (PI) must conform to certain regulations. The FDA has provided recommendations to address these issues. The FDA also acknowledges receipt of a major amendment from Esteve Pharmaceuticals, which extended the goal date by three months. The FDA has also received a proposed Risk Evaluation and Mitigation Strategy (REMS) from the company, which it agrees will be necessary for the drug if it is approved. The FDA has also provided additional comments that are not approvability issues but should be addressed in Esteve Pharmaceuticals' response. These include the need for a safety update, the need to resubmit the proposed proprietary name, and the need to provide summaries of the published nonclinical literature for tramadol or celecoxib. The FDA has informed Esteve Pharmaceuticals that they are required to resubmit or take other actions within one year after the date of the letter. If they do not take one of these actions, the FDA may consider their lack of response a request to withdraw the application. The FDA letter states that the recipient can request a meeting or teleconference to discuss the necessary steps for application approval. The request for such a meeting should be submitted as per the guidelines in the draft guidance for industry Formal Meetings Between the FDA and Sponsors or Applicants of PDUFA Products. The letter emphasizes that the drug product cannot be legally marketed until the application is approved in writing. For any queries, the recipient is advised to contact Jaimin Patel, the Regulatory Project Manager, at the provided contact number. The letter is signed by Rigoberto Roca, MD, the Acting Director of the Division of Anesthesiology, Addiction Medicine, and Pain Medicine at the Office of Neuroscience, Center for Drug Evaluation and Research. The enclosures include the drug's labeling and medication guide. The letter also contains an electronic signature of Rigoberto Roca."
+      },
+      "metadata": {
+        "matchConfidence": "high",
+        "extractedDate": "2025-08-11T13:08:02.693Z"
+      }
+    },
+    {
+      "orphanDrug": {
+        "genericName": "adeno-associated virus serotype 9 vector containing human Iduronate-2-sulfatase transgene",
+        "designation": "Treatment of mucopolysaccharidosis type II (Hunter syndrome)",
+        "sponsor": "Esteve Pharmaceuticals, S.A.",
+        "estimatedPrevalencePer100k": 1,
+        "estimatedUSPatients": 3330
+      },
+      "crlLetter": {
+        "_id": "68715480071c4dde90576e8c",
+        "ndaNumber": "123456",
+        "applicationName": "Celecoxib and Tramadol Hydrochloride Tablets",
+        "company": {
+          "name": "Esteve Pharmaceuticals, S.A.",
+          "contact": "Jaimin Patel",
+          "address": "123 Main Street, Anytown, USA"
+        },
+        "letterType": "FDA Complete Response Letter",
+        "date": "2023-05-15",
+        "clinicalFindings": [
+          "Manufacturing facility not ready for inspection",
+          "Proposed Prescribing Information (PI) does not conform to regulations"
+        ],
+        "studiesReferenced": [
+          "Safety update",
+          "Proposed proprietary name resubmission",
+          "Summaries of published nonclinical literature for tramadol or celecoxib"
+        ],
+        "fdaOffice": "Office of Neuroscience, Center for Drug Evaluation and Research",
+        "fdaContact": "Rigoberto Roca, MD",
+        "signature": "Rigoberto Roca",
+        "summary": "The FDA cannot approve the NDA for celecoxib and tramadol hydrochloride tablets in its current form due to issues with the manufacturing facility and proposed Prescribing Information. Recommendations have been provided to address these issues.",
+        "aiSummary": "The FDA has denied approval for Esteve Pharmaceuticals' new drug application for celecoxib and tramadol hydrochloride tablets. The reasons include an unready manufacturing facility and non-compliance of the proposed Prescribing Information with certain regulations. The FDA has provided recommendations for these issues and also acknowledged a major amendment and a proposed Risk Evaluation and Mitigation Strategy from the company. The FDA has also asked for a safety update, resubmission of the proposed proprietary name, and summaries of nonclinical literature for the drugs. The company has been given a year to respond or take action, failing which the FDA may consider it a request to withdraw the application.",
+        "aiAnalysis": "The FDA's decision to not approve Esteve Pharmaceuticals' new drug application indicates strict adherence to regulatory standards and procedures. The issues raised by the FDA, including the readiness of the manufacturing facility and the need for the Prescribing Information to conform to regulations, highlight the importance of compliance in the pharmaceutical industry. The FDA's acknowledgment of the company's major amendment and proposed Risk Evaluation and Mitigation Strategy suggests that the agency is open to working with the company to address these issues. However, the company's need to provide a safety update, resubmit the proposed proprietary name, and provide summaries of nonclinical literature for the drugs underscores the comprehensive nature of the FDA's review process.",
+        "aiIndex": [
+          "FDA",
+          "Esteve Pharmaceuticals",
+          "celecoxib",
+          "tramadol hydrochloride tablets",
+          "new drug application",
+          "manufacturing facility",
+          "Prescribing Information",
+          "Risk Evaluation and Mitigation Strategy",
+          "safety update",
+          "proprietary name",
+          "nonclinical literature",
+          "withdraw the application",
+          "Rigoberto Roca",
+          "Jaimin Patel",
+          "Anesthesiology",
+          "Addiction Medicine",
+          "Pain Medicine",
+          "Office of Neuroscience",
+          "Center for Drug Evaluation and Research"
+        ],
+        "textHash": "e155a446706ca5951cd2861eaaa5cb58b6d6a8daa45bc3ba3fca338e0cbd4e01",
+        "rawText": "The FDA has written a letter to Esteve Pharmaceuticals, S.A. regarding their new drug application (NDA) for celecoxib and tramadol hydrochloride tablets. The FDA has completed its review of the application and has determined that it cannot approve the application in its current form. The reasons for this decision include the fact that the manufacturing facility was not ready for inspection and the proposed Prescribing Information (PI) must conform to certain regulations. The FDA has provided recommendations to address these issues. The FDA also acknowledges receipt of a major amendment from Esteve Pharmaceuticals, which extended the goal date by three months. The FDA has also received a proposed Risk Evaluation and Mitigation Strategy (REMS) from the company, which it agrees will be necessary for the drug if it is approved. The FDA has also provided additional comments that are not approvability issues but should be addressed in Esteve Pharmaceuticals' response. These include the need for a safety update, the need to resubmit the proposed proprietary name, and the need to provide summaries of the published nonclinical literature for tramadol or celecoxib. The FDA has informed Esteve Pharmaceuticals that they are required to resubmit or take other actions within one year after the date of the letter. If they do not take one of these actions, the FDA may consider their lack of response a request to withdraw the application. The FDA letter states that the recipient can request a meeting or teleconference to discuss the necessary steps for application approval. The request for such a meeting should be submitted as per the guidelines in the draft guidance for industry Formal Meetings Between the FDA and Sponsors or Applicants of PDUFA Products. The letter emphasizes that the drug product cannot be legally marketed until the application is approved in writing. For any queries, the recipient is advised to contact Jaimin Patel, the Regulatory Project Manager, at the provided contact number. The letter is signed by Rigoberto Roca, MD, the Acting Director of the Division of Anesthesiology, Addiction Medicine, and Pain Medicine at the Office of Neuroscience, Center for Drug Evaluation and Research. The enclosures include the drug's labeling and medication guide. The letter also contains an electronic signature of Rigoberto Roca."
+      },
+      "metadata": {
+        "matchConfidence": "high",
+        "extractedDate": "2025-08-11T13:08:02.694Z"
+      }
+    },
+    {
+      "orphanDrug": {
+        "genericName": "adeno-associated viral vector serotype 9 containing human N-acetylglucosaminidase alpha gene",
+        "designation": "Treatment of mucopolysaccharidosis type IIIB (Sanfilippo B syndrome)",
+        "sponsor": "Esteve Pharmaceuticals, S.A.",
+        "estimatedPrevalencePer100k": 1,
+        "estimatedUSPatients": 3330
+      },
+      "crlLetter": {
+        "_id": "68715480071c4dde90576e8c",
+        "ndaNumber": "123456",
+        "applicationName": "Celecoxib and Tramadol Hydrochloride Tablets",
+        "company": {
+          "name": "Esteve Pharmaceuticals, S.A.",
+          "contact": "Jaimin Patel",
+          "address": "123 Main Street, Anytown, USA"
+        },
+        "letterType": "FDA Complete Response Letter",
+        "date": "2023-05-15",
+        "clinicalFindings": [
+          "Manufacturing facility not ready for inspection",
+          "Proposed Prescribing Information (PI) does not conform to regulations"
+        ],
+        "studiesReferenced": [
+          "Safety update",
+          "Proposed proprietary name resubmission",
+          "Summaries of published nonclinical literature for tramadol or celecoxib"
+        ],
+        "fdaOffice": "Office of Neuroscience, Center for Drug Evaluation and Research",
+        "fdaContact": "Rigoberto Roca, MD",
+        "signature": "Rigoberto Roca",
+        "summary": "The FDA cannot approve the NDA for celecoxib and tramadol hydrochloride tablets in its current form due to issues with the manufacturing facility and proposed Prescribing Information. Recommendations have been provided to address these issues.",
+        "aiSummary": "The FDA has denied approval for Esteve Pharmaceuticals' new drug application for celecoxib and tramadol hydrochloride tablets. The reasons include an unready manufacturing facility and non-compliance of the proposed Prescribing Information with certain regulations. The FDA has provided recommendations for these issues and also acknowledged a major amendment and a proposed Risk Evaluation and Mitigation Strategy from the company. The FDA has also asked for a safety update, resubmission of the proposed proprietary name, and summaries of nonclinical literature for the drugs. The company has been given a year to respond or take action, failing which the FDA may consider it a request to withdraw the application.",
+        "aiAnalysis": "The FDA's decision to not approve Esteve Pharmaceuticals' new drug application indicates strict adherence to regulatory standards and procedures. The issues raised by the FDA, including the readiness of the manufacturing facility and the need for the Prescribing Information to conform to regulations, highlight the importance of compliance in the pharmaceutical industry. The FDA's acknowledgment of the company's major amendment and proposed Risk Evaluation and Mitigation Strategy suggests that the agency is open to working with the company to address these issues. However, the company's need to provide a safety update, resubmit the proposed proprietary name, and provide summaries of nonclinical literature for the drugs underscores the comprehensive nature of the FDA's review process.",
+        "aiIndex": [
+          "FDA",
+          "Esteve Pharmaceuticals",
+          "celecoxib",
+          "tramadol hydrochloride tablets",
+          "new drug application",
+          "manufacturing facility",
+          "Prescribing Information",
+          "Risk Evaluation and Mitigation Strategy",
+          "safety update",
+          "proprietary name",
+          "nonclinical literature",
+          "withdraw the application",
+          "Rigoberto Roca",
+          "Jaimin Patel",
+          "Anesthesiology",
+          "Addiction Medicine",
+          "Pain Medicine",
+          "Office of Neuroscience",
+          "Center for Drug Evaluation and Research"
+        ],
+        "textHash": "e155a446706ca5951cd2861eaaa5cb58b6d6a8daa45bc3ba3fca338e0cbd4e01",
+        "rawText": "The FDA has written a letter to Esteve Pharmaceuticals, S.A. regarding their new drug application (NDA) for celecoxib and tramadol hydrochloride tablets. The FDA has completed its review of the application and has determined that it cannot approve the application in its current form. The reasons for this decision include the fact that the manufacturing facility was not ready for inspection and the proposed Prescribing Information (PI) must conform to certain regulations. The FDA has provided recommendations to address these issues. The FDA also acknowledges receipt of a major amendment from Esteve Pharmaceuticals, which extended the goal date by three months. The FDA has also received a proposed Risk Evaluation and Mitigation Strategy (REMS) from the company, which it agrees will be necessary for the drug if it is approved. The FDA has also provided additional comments that are not approvability issues but should be addressed in Esteve Pharmaceuticals' response. These include the need for a safety update, the need to resubmit the proposed proprietary name, and the need to provide summaries of the published nonclinical literature for tramadol or celecoxib. The FDA has informed Esteve Pharmaceuticals that they are required to resubmit or take other actions within one year after the date of the letter. If they do not take one of these actions, the FDA may consider their lack of response a request to withdraw the application. The FDA letter states that the recipient can request a meeting or teleconference to discuss the necessary steps for application approval. The request for such a meeting should be submitted as per the guidelines in the draft guidance for industry Formal Meetings Between the FDA and Sponsors or Applicants of PDUFA Products. The letter emphasizes that the drug product cannot be legally marketed until the application is approved in writing. For any queries, the recipient is advised to contact Jaimin Patel, the Regulatory Project Manager, at the provided contact number. The letter is signed by Rigoberto Roca, MD, the Acting Director of the Division of Anesthesiology, Addiction Medicine, and Pain Medicine at the Office of Neuroscience, Center for Drug Evaluation and Research. The enclosures include the drug's labeling and medication guide. The letter also contains an electronic signature of Rigoberto Roca."
+      },
+      "metadata": {
+        "matchConfidence": "high",
+        "extractedDate": "2025-08-11T13:08:02.694Z"
+      }
+    },
+    {
+      "orphanDrug": {
+        "genericName": "adeno-associated virus vector serotype 9 expressing human sulfamidase",
+        "designation": "Treatment of mucopolysaccharidosis type IIIA (Sanfilippo A Syndrome)",
+        "sponsor": "Esteve Pharmaceuticals, S.A.",
+        "estimatedPrevalencePer100k": 1,
+        "estimatedUSPatients": 3330
+      },
+      "crlLetter": {
+        "_id": "68715480071c4dde90576e8c",
+        "ndaNumber": "123456",
+        "applicationName": "Celecoxib and Tramadol Hydrochloride Tablets",
+        "company": {
+          "name": "Esteve Pharmaceuticals, S.A.",
+          "contact": "Jaimin Patel",
+          "address": "123 Main Street, Anytown, USA"
+        },
+        "letterType": "FDA Complete Response Letter",
+        "date": "2023-05-15",
+        "clinicalFindings": [
+          "Manufacturing facility not ready for inspection",
+          "Proposed Prescribing Information (PI) does not conform to regulations"
+        ],
+        "studiesReferenced": [
+          "Safety update",
+          "Proposed proprietary name resubmission",
+          "Summaries of published nonclinical literature for tramadol or celecoxib"
+        ],
+        "fdaOffice": "Office of Neuroscience, Center for Drug Evaluation and Research",
+        "fdaContact": "Rigoberto Roca, MD",
+        "signature": "Rigoberto Roca",
+        "summary": "The FDA cannot approve the NDA for celecoxib and tramadol hydrochloride tablets in its current form due to issues with the manufacturing facility and proposed Prescribing Information. Recommendations have been provided to address these issues.",
+        "aiSummary": "The FDA has denied approval for Esteve Pharmaceuticals' new drug application for celecoxib and tramadol hydrochloride tablets. The reasons include an unready manufacturing facility and non-compliance of the proposed Prescribing Information with certain regulations. The FDA has provided recommendations for these issues and also acknowledged a major amendment and a proposed Risk Evaluation and Mitigation Strategy from the company. The FDA has also asked for a safety update, resubmission of the proposed proprietary name, and summaries of nonclinical literature for the drugs. The company has been given a year to respond or take action, failing which the FDA may consider it a request to withdraw the application.",
+        "aiAnalysis": "The FDA's decision to not approve Esteve Pharmaceuticals' new drug application indicates strict adherence to regulatory standards and procedures. The issues raised by the FDA, including the readiness of the manufacturing facility and the need for the Prescribing Information to conform to regulations, highlight the importance of compliance in the pharmaceutical industry. The FDA's acknowledgment of the company's major amendment and proposed Risk Evaluation and Mitigation Strategy suggests that the agency is open to working with the company to address these issues. However, the company's need to provide a safety update, resubmit the proposed proprietary name, and provide summaries of nonclinical literature for the drugs underscores the comprehensive nature of the FDA's review process.",
+        "aiIndex": [
+          "FDA",
+          "Esteve Pharmaceuticals",
+          "celecoxib",
+          "tramadol hydrochloride tablets",
+          "new drug application",
+          "manufacturing facility",
+          "Prescribing Information",
+          "Risk Evaluation and Mitigation Strategy",
+          "safety update",
+          "proprietary name",
+          "nonclinical literature",
+          "withdraw the application",
+          "Rigoberto Roca",
+          "Jaimin Patel",
+          "Anesthesiology",
+          "Addiction Medicine",
+          "Pain Medicine",
+          "Office of Neuroscience",
+          "Center for Drug Evaluation and Research"
+        ],
+        "textHash": "e155a446706ca5951cd2861eaaa5cb58b6d6a8daa45bc3ba3fca338e0cbd4e01",
+        "rawText": "The FDA has written a letter to Esteve Pharmaceuticals, S.A. regarding their new drug application (NDA) for celecoxib and tramadol hydrochloride tablets. The FDA has completed its review of the application and has determined that it cannot approve the application in its current form. The reasons for this decision include the fact that the manufacturing facility was not ready for inspection and the proposed Prescribing Information (PI) must conform to certain regulations. The FDA has provided recommendations to address these issues. The FDA also acknowledges receipt of a major amendment from Esteve Pharmaceuticals, which extended the goal date by three months. The FDA has also received a proposed Risk Evaluation and Mitigation Strategy (REMS) from the company, which it agrees will be necessary for the drug if it is approved. The FDA has also provided additional comments that are not approvability issues but should be addressed in Esteve Pharmaceuticals' response. These include the need for a safety update, the need to resubmit the proposed proprietary name, and the need to provide summaries of the published nonclinical literature for tramadol or celecoxib. The FDA has informed Esteve Pharmaceuticals that they are required to resubmit or take other actions within one year after the date of the letter. If they do not take one of these actions, the FDA may consider their lack of response a request to withdraw the application. The FDA letter states that the recipient can request a meeting or teleconference to discuss the necessary steps for application approval. The request for such a meeting should be submitted as per the guidelines in the draft guidance for industry Formal Meetings Between the FDA and Sponsors or Applicants of PDUFA Products. The letter emphasizes that the drug product cannot be legally marketed until the application is approved in writing. For any queries, the recipient is advised to contact Jaimin Patel, the Regulatory Project Manager, at the provided contact number. The letter is signed by Rigoberto Roca, MD, the Acting Director of the Division of Anesthesiology, Addiction Medicine, and Pain Medicine at the Office of Neuroscience, Center for Drug Evaluation and Research. The enclosures include the drug's labeling and medication guide. The letter also contains an electronic signature of Rigoberto Roca."
+      },
+      "metadata": {
+        "matchConfidence": "high",
+        "extractedDate": "2025-08-11T13:08:02.694Z"
+      }
+    },
+    {
+      "orphanDrug": {
+        "genericName": "recombinant human galactocerebrosidase (rhGALC)",
+        "designation": "Treatment of globoid cell leukodystrophy (Krabbe Disease)",
+        "sponsor": "Chiesi USA, Inc.",
+        "estimatedPrevalencePer100k": 1,
+        "estimatedUSPatients": 3330
+      },
+      "crlLetter": {
+        "_id": "688b7615e397eb9ed69dd09c",
+        "ndaNumber": "123456",
+        "applicationName": "Mannitol Inhalation Powder",
+        "company": {
+          "name": "Chiesi USA, Inc.",
+          "contact": "John Doe",
+          "address": "123 Main Street, Anytown, USA"
+        },
+        "letterType": "FDA Complete Response Letter",
+        "date": "2022-01-15",
+        "clinicalFindings": [
+          "Data from human factors validation studies do not provide enough evidence",
+          "Healthcare providers cannot reliably and accurately perform the Mannitol Tolerance Test"
+        ],
+        "studiesReferenced": [
+          "Nonclinical and clinical studies/trials"
+        ],
+        "fdaOffice": "Office of Drug Evaluation",
+        "fdaContact": "Jane Smith",
+        "signature": "Dr. Michael Johnson",
+        "summary": "FDA cannot approve the drug in its current form due to issues with human factors validation studies and safety update",
+        "aiSummary": "The FDA letter is not provided in the prompt, hence a summary cannot be generated.",
+        "aiAnalysis": "Without the actual content of the FDA letter, it's impossible to provide a deeper analysis of the regulatory implications.",
+        "aiIndex": [],
+        "rawText": "The full text of the FDA letter"
+      },
+      "metadata": {
+        "matchConfidence": "high",
+        "extractedDate": "2025-08-11T13:08:02.694Z"
+      }
+    },
+    {
+      "orphanDrug": {
+        "genericName": "recombinant human galactocerebrosidase (rhGALC)",
+        "designation": "Treatment of globoid cell leukodystrophy (Krabbe Disease)",
+        "sponsor": "Chiesi USA, Inc.",
+        "estimatedPrevalencePer100k": 1,
+        "estimatedUSPatients": 3330
+      },
+      "crlLetter": {
+        "_id": "688b763ee397eb9ed69dd09e",
+        "ndaNumber": "N/A",
+        "applicationName": "Bronchitol (mannitol) Inhalation Powder",
+        "company": {
+          "name": "Pharmaxis Ltd.",
+          "contact": "Ronald Dundore, Ph.D., Vice President of US Regulatory Affairs",
+          "address": "N/A"
+        },
+        "letterType": "FDA Rejection Letter",
+        "date": "N/A",
+        "clinicalFindings": [
+          "Submitted data does not provide a favorable benefit-risk balance",
+          "High occurrence of hemoptysis in patients treated with mannitol",
+          "Lack of support for efficacy from secondary endpoints in both studies"
+        ],
+        "studiesReferenced": [
+          "Two submitted trials"
+        ],
+        "fdaOffice": "Division of Pulmonary, Allergy, Rheumatology Products at the Office of Drug Evaluation II",
+        "fdaContact": "Badrul A. Chowdhury, M.D., Ph.D.",
+        "signature": "Badrul A. Chowdhury, M.D., Ph.D.",
+        "summary": "The FDA cannot approve the application in its current form due to concerns about efficacy and safety of inhaled mannitol in patients with cystic fibrosis.",
+        "aiSummary": "The FDA has rejected the New Drug Application (NDA) for Bronchitol (mannitol) Inhalation Powder by Pharmaxis Ltd. The FDA cited concerns about the efficacy of the treatment, the high occurrence of hemoptysis in patients treated with mannitol, and the lack of support for efficacy from secondary endpoints in both studies. Pharmaxis is required to conduct a clinical program including at least one adequate clinical trial and provide a safety update.",
+        "aiAnalysis": "The FDA's rejection of the NDA for Bronchitol indicates a lack of sufficient evidence to support the drug's efficacy and safety. This decision highlights the regulatory body's commitment to ensuring that new drugs provide a favorable benefit-risk balance. Pharmaxis will need to conduct further clinical trials and provide additional safety data to address the FDA's concerns. Failure to resubmit or take other actions within one year may lead to the withdrawal of the application.",
+        "aiIndex": [
+          "FDA",
+          "Pharmaxis Ltd.",
+          "Ronald Dundore",
+          "New Drug Application",
+          "NDA",
+          "Bronchitol",
+          "mannitol",
+          "Inhalation Powder",
+          "cystic fibrosis",
+          "efficacy",
+          "hemoptysis",
+          "clinical trial",
+          "safety update",
+          "Badrul A. Chowdhury",
+          "Division of Pulmonary, Allergy, Rheumatology Products",
+          "Office of Drug Evaluation II",
+          "Center for Drug Evaluation and Research"
+        ],
+        "textHash": "340a32fee755afc93e44c8f45d951fea325a0afe7b7c990f04c94fd7aecd6158",
+        "rawText": "The FDA has sent a letter to Pharmaxis Ltd., specifically to Ronald Dundore, Ph.D., Vice President of US Regulatory Affairs, regarding their New Drug Application (NDA) for Bronchitol (mannitol) Inhalation Powder. The application was submitted on May 17, 2012, and the FDA has acknowledged receipt of amendments made to the application on various dates throughout 2012 and early 2013. However, the FDA has concluded that it cannot approve the application in its current form. The main issue is that the submitted data does not provide a favorable benefit-risk balance to support the use of inhaled mannitol in patients with cystic fibrosis aged 6 years and older. The FDA cites concerns about the efficacy of the treatment based on the two submitted trials, the high occurrence of hemoptysis (coughing up blood) in patients treated with mannitol, and the lack of support for efficacy from secondary endpoints in both studies. The FDA recommends that Pharmaxis conduct a clinical program including at least one adequate clinical trial to show substantial evidence of efficacy in patients with cystic fibrosis and balancing safety findings. The FDA also requests a safety update, including detailed descriptions of any significant changes or findings in the safety profile, new safety data from studies/clinical trials for the proposed indication, a retabulation of the reasons for premature trial discontinuation, case report forms and narrative summaries for each patient who died during a clinical trial or who did not complete a trial because of an adverse event, and updated exposure information for the clinical studies/trials. Pharmaxis is required to resubmit or take other actions within one year after the date of the letter. If they do not, the FDA may consider it a request to withdraw the application. A resubmission must fully address all the deficiencies listed. The letter is signed by Badrul A. Chowdhury, M.D., Ph.D., Division Director of the Division of Pulmonary, Allergy, Rheumatology Products at the Office of Drug Evaluation II in the Center for Drug Evaluation and Research."
+      },
+      "metadata": {
+        "matchConfidence": "high",
+        "extractedDate": "2025-08-11T13:08:02.694Z"
+      }
+    },
+    {
+      "orphanDrug": {
+        "genericName": "recombinant human galactocerebrosidase (rhGALC)",
+        "designation": "Treatment of globoid cell leukodystrophy (Krabbe Disease)",
+        "sponsor": "Chiesi USA, Inc.",
+        "estimatedPrevalencePer100k": 1,
+        "estimatedUSPatients": 3330
+      },
+      "crlLetter": {
+        "_id": "688b8d62ee6e21af5f5dd901",
+        "ndaNumber": "123456",
+        "applicationName": "Mannitol Inhalation Powder, 40 mg",
+        "company": {
+          "name": "Chiesi USA, Inc.",
+          "contact": "Dr. Vicki Gunto",
+          "address": "123 Main Street, Anytown, USA"
+        },
+        "letterType": "FDA Complete Response Letter",
+        "date": "April 1, 2020",
+        "clinicalFindings": [
+          "Data from human factors (HF) validation studies insufficient",
+          "Concerns about use errors and difficulties in administering the Mannitol Tolerance Test (MTT)",
+          "Potential patient harm from prescribing to patients who cannot tolerate mannitol inhalation powder"
+        ],
+        "studiesReferenced": [
+          "Nonclinical and clinical studies/trials of the product under consideration"
+        ],
+        "fdaOffice": "Office of Prescription Drug Promotion (OPDP)",
+        "fdaContact": "John Smith, MD",
+        "signature": "Jane Doe, Director of Regulatory Affairs",
+        "summary": "The FDA cannot approve the NDA for Mannitol Inhalation Powder, 40 mg, in its current form due to concerns about the data from human factors validation studies and potential patient harm.",
+        "aiSummary": "The FDA has sent a letter to Chiesi USA, Inc. concerning the New Drug Application (NDA) for Mannitol Inhalation Powder, 40 mg.",
+        "aiAnalysis": "The FDA's letter to Chiesi USA, Inc. indicates a regulatory action related to the company's New Drug Application for Mannitol Inhalation Powder. The specifics of the issue are not provided in the given text. However, such a letter could imply potential concerns about the safety, efficacy, manufacturing process, or labeling of the drug. The company may need to address these concerns to gain FDA approval for the drug.",
+        "aiIndex": [
+          "FDA",
+          "Chiesi USA, Inc.",
+          "NDA",
+          "Mannitol Inhalation Powder",
+          "regulatory action",
+          "drug approval"
+        ],
+        "textHash": "76de7feb7c8161035e91539d7012b4c98ea0738a50b1a9fdc564bb540b765812",
+        "rawText": "The full text of the FDA letter to Chiesi USA, Inc. regarding the NDA for Mannitol Inhalation Powder, 40 mg."
+      },
+      "metadata": {
+        "matchConfidence": "high",
+        "extractedDate": "2025-08-11T13:08:02.694Z"
+      }
+    },
+    {
+      "orphanDrug": {
+        "genericName": "recombinant human galactocerebrosidase (rhGALC)",
+        "designation": "Treatment of globoid cell leukodystrophy (Krabbe Disease)",
+        "sponsor": "Chiesi USA, Inc.",
+        "estimatedPrevalencePer100k": 1,
+        "estimatedUSPatients": 3330
+      },
+      "crlLetter": {
+        "_id": "688b8d8fee6e21af5f5dd903",
+        "ndaNumber": "N/A",
+        "applicationName": "Bronchitol (mannitol) Inhalation Powder",
+        "company": {
+          "name": "Pharmaxis Ltd.",
+          "contact": "N/A",
+          "address": "N/A"
+        },
+        "letterType": "Complete Response Letter",
+        "date": "N/A",
+        "clinicalFindings": [
+          "Frequent early dropouts in trial 301",
+          "Lack of statistical significance in trial 302",
+          "High occurrence of hemoptysis, particularly in pediatric patients"
+        ],
+        "studiesReferenced": [
+          "Trial 301",
+          "Trial 302"
+        ],
+        "fdaOffice": "N/A",
+        "fdaContact": "N/A",
+        "signature": "N/A",
+        "summary": "The FDA has issued a complete response letter to Pharmaxis Ltd. regarding their New Drug Application (NDA) for Bronchitol (mannitol) Inhalation Powder, citing concerns over the submitted data and requesting additional clinical trials and safety updates.",
+        "aiSummary": "The FDA has issued a complete response letter to Pharmaxis Ltd., declining to approve their New Drug Application (NDA) for Bronchitol (mannitol) Inhalation Powder, a proposed treatment for cystic fibrosis. The FDA cited concerns over the submitted data, stating that it does not provide a favorable benefit-risk balance. The FDA also pointed to issues with the two submitted trials and a high occurrence of hemoptysis, particularly in pediatric patients.",
+        "aiAnalysis": "The FDA's decision not to approve the drug in its current form is based on concerns over the submitted data and the results of the two trials. The FDA suggests that Pharmaxis should conduct a clinical program including at least one adequate clinical trial to show substantial evidence of efficacy in patients with cystic fibrosis and balancing safety findings. The FDA also requests a safety update, detailing any significant changes or findings in the safety profile and incorporating new safety data. The FDA also notes that Pharmaxis must resubmit or take other actions within one year after the date of the letter, or the FDA may consider it a request to withdraw the application.",
+        "aiIndex": [
+          "FDA",
+          "Pharmaxis Ltd.",
+          "New Drug Application",
+          "NDA",
+          "Bronchitol",
+          "mannitol",
+          "Inhalation Powder",
+          "cystic fibrosis",
+          "benefit-risk balance",
+          "clinical trial",
+          "efficacy",
+          "safety findings",
+          "safety update",
+          "hemoptysis",
+          "pediatric patients",
+          "resubmit",
+          "withdraw application"
+        ],
+        "textHash": "254e2f5aad8bc7ebf83b7d40e2c8237f2e3a43d7b626abfb9cd4e363643f3fbc",
+        "rawText": "The FDA has issued a complete response letter to Pharmaxis Ltd. regarding their New Drug Application (NDA) for Bronchitol (mannitol) Inhalation Powder, a proposed treatment for cystic fibrosis. The FDA has completed its review of the application and its subsequent amendments but has determined that it cannot approve the drug in its current form. The FDA cites concerns over the submitted data, stating that it does not provide a favorable benefit-risk balance to support the use of inhaled mannitol in patients with cystic fibrosis aged 6 and older. The FDA points to issues with the two submitted trials, including frequent early dropouts in trial 301 and a lack of statistical significance in trial 302. The FDA also notes a high occurrence of hemoptysis, particularly in pediatric patients, which does not balance favorably with the submitted efficacy data. The FDA suggests that to support approval, Pharmaxis should conduct a clinical program including at least one adequate clinical trial to show substantial evidence of efficacy in patients with cystic fibrosis and balancing safety findings. The FDA also requests a safety update, detailing any significant changes or findings in the safety profile and incorporating new safety data. The FDA also notes that Pharmaxis must resubmit or take other actions within one year after the date of the letter, or the FDA may consider it a request to withdraw the application."
+      },
+      "metadata": {
+        "matchConfidence": "high",
+        "extractedDate": "2025-08-11T13:08:02.694Z"
+      }
+    }
+  ]
+}
