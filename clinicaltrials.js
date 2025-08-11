@@ -182,7 +182,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json({ limit: '10mb' }));
 // Custom delay function (returns a promise that resolves after a specified time)
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-
+app.set('trust proxy', true);
 // Rate limiter configuration (tracks requests without rejecting)
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 , // 15 minutes
