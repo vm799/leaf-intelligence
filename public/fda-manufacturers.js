@@ -915,109 +915,217 @@ const FDAManufacturers = (function() {
     return badges;
   }
 
+  // function renderItemDetails(item, type) {
+  //   const fieldLabels = {
+  //     // Common fields
+  //     FEINumber: 'FEI Number',
+      
+  //     // Inspection Classification fields
+  //     InspectionID: 'Inspection ID',
+  //     InspectionStartDate: 'Inspection Start Date',
+  //     InspectionEndDate: 'Inspection End Date',
+  //     Classification: 'Classification Code',
+  //     ClassificationDescription: 'Classification Description',
+      
+  //     // Citation fields
+  //     CitationID: 'Citation ID',
+  //     CitationDescription: 'Citation Description',
+      
+  //     // Compliance Action fields
+  //     ActionType: 'Action Type',
+  //     ActionTakenDate: 'Action Taken Date',
+  //     CaseNumber: 'Case Number',
+  //     ProductCategory: 'Product Category',
+  //     CaseStatus: 'Case Status',
+  //     RecallNumber: 'Recall Number',
+  //     VoluntaryMandated: 'Voluntary/Mandated',
+  //     InitialFirmNotificationDate: 'Initial Firm Notification',
+  //     DistributionPattern: 'Distribution Pattern',
+      
+  //     // Import Refusal fields
+  //     ShipmentID: 'Shipment ID',
+  //     RefusalDate: 'Refusal Date',
+  //     ProductCodeDescription: 'Product Code Description',
+  //     RefusalCharges: 'Refusal Charges',
+  //     FDASampleAnalysis: 'FDA Sample Analysis',
+  //     PrivateLabAnalysis: 'Private Lab Analysis',
+  //     ShipmentDescription: 'Shipment Description',
+  //     ManufacturerName: 'Manufacturer Name',
+  //     ShipperName: 'Shipper Name',
+  //     ConsigneeName: 'Consignee Name',
+  //     CountryCode: 'Country Code',
+  //     EntryNumber: 'Entry Number',
+  //     LineNumber: 'Line Number',
+  //     PortOfEntry: 'Port of Entry',
+  //     Quantity: 'Quantity',
+  //     QuantityUnit: 'Quantity Unit',
+  //     Value: 'Value'
+  //   };
+    
+  //   const fullWidthFields = [
+  //     'ClassificationDescription',
+  //     'CitationDescription',
+  //     'RefusalCharges',
+  //     'ProductCodeDescription',
+  //     'ShipmentDescription',
+  //     'ReasonDescription',
+  //     'DistributionPattern'
+  //   ];
+    
+  //   const importantFields = [
+  //     'InspectionID',
+  //     'Classification',
+  //     'CitationID',
+  //     'ActionType',
+  //     'ShipmentID',
+  //     'CaseNumber',
+  //     'RecallNumber'
+  //   ];
+    
+  //   const allFields = Object.entries(item)
+  //     .filter(([key, value]) => key !== 'FEINumber' && value !== null && value !== undefined && value !== '')
+  //     .map(([key, value]) => ({
+  //       key,
+  //       value,
+  //       label: fieldLabels[key] || key.replace(/([A-Z])/g, ' $1').trim(),
+  //       isFullWidth: fullWidthFields.includes(key),
+  //       isImportant: importantFields.includes(key)
+  //     }));
+    
+  //   const regularFields = allFields.filter(f => !f.isFullWidth);
+  //   const fullWidth = allFields.filter(f => f.isFullWidth);
+    
+  //   return `
+  //     <div class="info-grid">
+  //       ${regularFields.map(field => `
+  //         <div class="info-item">
+  //           <div class="info-label">${field.label}</div>
+  //           <div class="info-value ${field.isImportant ? 'font-semibold text-gray-900' : ''}">${field.value}</div>
+  //         </div>
+  //       `).join('')}
+  //     </div>
+      
+  //     ${fullWidth.length > 0 ? `
+  //       <div class="mt-6">
+  //         <h5 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Detailed Information</h5>
+  //         ${fullWidth.map(field => `
+  //           <div class="mt-4 p-4 bg-gray-50 rounded-lg">
+  //             <div class="info-label mb-2">${field.label}</div>
+  //             <div class="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">${field.value}</div>
+  //           </div>
+  //         `).join('')}
+  //       </div>
+  //     ` : ''}
+  //   `;
+  // }
+
+
   function renderItemDetails(item, type) {
-    const fieldLabels = {
-      // Common fields
-      FEINumber: 'FEI Number',
-      
-      // Inspection Classification fields
-      InspectionID: 'Inspection ID',
-      InspectionStartDate: 'Inspection Start Date',
-      InspectionEndDate: 'Inspection End Date',
-      Classification: 'Classification Code',
-      ClassificationDescription: 'Classification Description',
-      
-      // Citation fields
-      CitationID: 'Citation ID',
-      CitationDescription: 'Citation Description',
-      
-      // Compliance Action fields
-      ActionType: 'Action Type',
-      ActionTakenDate: 'Action Taken Date',
-      CaseNumber: 'Case Number',
-      ProductCategory: 'Product Category',
-      CaseStatus: 'Case Status',
-      RecallNumber: 'Recall Number',
-      VoluntaryMandated: 'Voluntary/Mandated',
-      InitialFirmNotificationDate: 'Initial Firm Notification',
-      DistributionPattern: 'Distribution Pattern',
-      
-      // Import Refusal fields
-      ShipmentID: 'Shipment ID',
-      RefusalDate: 'Refusal Date',
-      ProductCodeDescription: 'Product Code Description',
-      RefusalCharges: 'Refusal Charges',
-      FDASampleAnalysis: 'FDA Sample Analysis',
-      PrivateLabAnalysis: 'Private Lab Analysis',
-      ShipmentDescription: 'Shipment Description',
-      ManufacturerName: 'Manufacturer Name',
-      ShipperName: 'Shipper Name',
-      ConsigneeName: 'Consignee Name',
-      CountryCode: 'Country Code',
-      EntryNumber: 'Entry Number',
-      LineNumber: 'Line Number',
-      PortOfEntry: 'Port of Entry',
-      Quantity: 'Quantity',
-      QuantityUnit: 'Quantity Unit',
-      Value: 'Value'
-    };
+  const fieldLabels = {
+    // Common fields
+    FEINumber: 'FEI Number',
     
-    const fullWidthFields = [
-      'ClassificationDescription',
-      'CitationDescription',
-      'RefusalCharges',
-      'ProductCodeDescription',
-      'ShipmentDescription',
-      'ReasonDescription',
-      'DistributionPattern'
-    ];
+    // Inspection Classification fields
+    InspectionID: 'Inspection ID',
+    InspectionStartDate: 'Inspection Start Date',
+    InspectionEndDate: 'Inspection End Date',
+    Classification: 'Classification Code',
+    ClassificationDescription: 'Classification Description',
     
-    const importantFields = [
-      'InspectionID',
-      'Classification',
-      'CitationID',
-      'ActionType',
-      'ShipmentID',
-      'CaseNumber',
-      'RecallNumber'
-    ];
+    // Citation fields
+    CitationID: 'Citation ID',
+    CitationDescription: 'Citation Description',
     
-    const allFields = Object.entries(item)
-      .filter(([key, value]) => key !== 'FEINumber' && value !== null && value !== undefined && value !== '')
-      .map(([key, value]) => ({
-        key,
-        value,
-        label: fieldLabels[key] || key.replace(/([A-Z])/g, ' $1').trim(),
-        isFullWidth: fullWidthFields.includes(key),
-        isImportant: importantFields.includes(key)
-      }));
+    // Compliance Action fields
+    ActionType: 'Action Type',
+    ActionTakenDate: 'Action Taken Date',
+    CaseNumber: 'Case Number',
+    ProductCategory: 'Product Category',
+    CaseStatus: 'Case Status',
+    RecallNumber: 'Recall Number',
+    VoluntaryMandated: 'Voluntary/Mandated',
+    InitialFirmNotificationDate: 'Initial Firm Notification',
+    DistributionPattern: 'Distribution Pattern',
     
-    const regularFields = allFields.filter(f => !f.isFullWidth);
-    const fullWidth = allFields.filter(f => f.isFullWidth);
-    
-    return `
-      <div class="info-grid">
-        ${regularFields.map(field => `
-          <div class="info-item">
-            <div class="info-label">${field.label}</div>
-            <div class="info-value ${field.isImportant ? 'font-semibold text-gray-900' : ''}">${field.value}</div>
-          </div>
-        `).join('')}
-      </div>
-      
-      ${fullWidth.length > 0 ? `
-        <div class="mt-6">
-          <h5 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Detailed Information</h5>
-          ${fullWidth.map(field => `
-            <div class="mt-4 p-4 bg-gray-50 rounded-lg">
-              <div class="info-label mb-2">${field.label}</div>
-              <div class="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">${field.value}</div>
+    // Import Refusal fields
+    ShipmentID: 'Shipment ID',
+    RefusalDate: 'Refusal Date',
+    ProductCodeDescription: 'Product Code Description',
+    RefusalCharges: 'Refusal Charges',
+    FDASampleAnalysis: 'FDA Sample Analysis',
+    PrivateLabAnalysis: 'Private Lab Analysis',
+    ShipmentDescription: 'Shipment Description',
+    ManufacturerName: 'Manufacturer Name',
+    ShipperName: 'Shipper Name',
+    ConsigneeName: 'Consignee Name',
+    CountryCode: 'Country Code',
+    EntryNumber: 'Entry Number',
+    LineNumber: 'Line Number',
+    PortOfEntry: 'Port of Entry',
+    Quantity: 'Quantity',
+    QuantityUnit: 'Quantity Unit',
+    Value: 'Value'
+  };
+
+  const fullWidthFields = [
+    'ClassificationDescription',
+    'CitationDescription',
+    'RefusalCharges',
+    'ProductCodeDescription',
+    'ShipmentDescription',
+    'ReasonDescription',
+    'DistributionPattern'
+  ];
+
+  const importantFields = [
+    'InspectionID',
+    'Classification',
+    'CitationID',
+    'ActionType',
+    'ShipmentID',
+    'CaseNumber',
+    'RecallNumber'
+  ];
+
+  const allFields = Object.entries(item)
+    .filter(([key, value]) => key !== 'FEINumber' && value !== null && value !== undefined && value !== '')
+    .map(([key, value]) => ({
+      key,
+      value,
+      label: fieldLabels[key] || key.replace(/([A-Z])/g, ' $1').trim(),
+      isFullWidth: fullWidthFields.includes(key),
+      isImportant: importantFields.includes(key)
+    }));
+
+  const regularFields = allFields.filter(f => !f.isFullWidth);
+  const fullWidth = allFields.filter(f => f.isFullWidth);
+
+  return `
+    <div class="border border-gray-200 rounded-lg bg-white">
+      <div class="p-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          ${regularFields.map(field => `
+            <div class="bg-gray-50 rounded-lg p-3 border border-gray-100">
+              <div class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">${field.label}</div>
+              <div class="text-sm ${field.isImportant ? 'font-semibold text-gray-900' : 'text-gray-700'} break-words">${field.value}</div>
             </div>
           `).join('')}
         </div>
-      ` : ''}
-    `;
-  }
+        
+        ${fullWidth.length > 0 ? `
+          <div class="mt-4 space-y-3">
+            ${fullWidth.map(field => `
+              <div class="bg-blue-50 border border-blue-100 rounded-lg p-4">
+                <div class="text-xs font-medium text-blue-700 uppercase tracking-wide mb-2">${field.label}</div>
+                <div class="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap break-words">${field.value}</div>
+              </div>
+            `).join('')}
+          </div>
+        ` : ''}
+      </div>
+    </div>
+  `;
+}
 
   function getClassificationExplanation() {
     return `
