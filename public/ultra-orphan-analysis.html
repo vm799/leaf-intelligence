@@ -3,8 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FDA Ultra-Orphan Drug Approval Analysis | Manufacturing Flexibility Precedents</title>
+    <title>FDA Ultra-Orphan Drug Approval Analysis</title>
     <script src="https://cdn.tailwindcss.com"></script>
+
+    <link rel="icon" type="image/x-icon" href="./favicon/favicon.ico">
+
+<!-- PNG favicons for different sizes -->
+<link rel="icon" type="image/png" sizes="16x16" href="./favicon/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="./favicon/favicon-32x32.png">
+
+<!-- Apple Touch Icons for iOS devices -->
+<link rel="apple-touch-icon" sizes="180x180" href="./favicon/apple-touch-icon.png">
+
+<!-- Android Chrome icons -->
+<link rel="icon" type="image/png" sizes="192x192" href="./favicon/android-chrome-192x192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="./favicon/android-chrome-512x512.png">
+
+<!-- Web App Manifest -->
+<link rel="manifest" href="site.webmanifest">
+
+<!-- Fallback for older browsers -->
+<link rel="shortcut icon" href="./favicon/favicon.ico">
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
         
@@ -106,10 +126,12 @@
         <div class="container mx-auto relative z-10">
             <nav class="flex justify-between items-center px-4 py-4">
                 <!-- Logo/Brand section -->
-                <div class="flex items-center space-x-3">
+                <div class="flex items-center space-x-3" >
+                    <a href="/" class="block">
                     <div class="flex items-center">
                         <div class="relative">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" viewBox="0 0 24 24" fill="none">
+                               <img src="leaf.png" alt="Leaf Intelligence" class="h-14 w-14 object-contain">
+                            <!-- <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" viewBox="0 0 24 24" fill="none">
                                 <defs>
                                     <linearGradient id="leaf-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
                                         <stop offset="0%" stop-color="#10b981" />
@@ -126,7 +148,7 @@
                                       stroke-width="1" 
                                       stroke-linecap="round" 
                                       opacity="0.6"/>
-                            </svg>
+                            </svg> -->
                             <div class="absolute inset-0 bg-gradient-to-r from-emerald-400 to-cyan-400 opacity-20 blur-lg rounded-full"></div>
                         </div>
                         <div class="ml-3">
@@ -136,6 +158,7 @@
                             <div class="text-xs text-gray-600 font-medium tracking-wide">AI Research Platform</div>
                         </div>
                     </div>
+                    </a>
                 </div>
 
                 <div class="absolute inset-0 bg-gradient-to-r from-emerald-500/20 via-blue-500/20 to-purple-500/20 rounded-lg blur opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
