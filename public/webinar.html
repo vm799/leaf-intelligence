@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cracking the FDA Code: How Regulatory Intelligence Helps Pharma Leaders Move Faster in 2025</title>
-    <meta name="description" content="Join our exclusive webinar on July 31st to learn how senior pharma teams use FDA analytics to reduce submission risks, predict trial costs, and stay ahead of regulatory changes.">
+    <meta name="description" content="Join our exclusive webinar on September 3rd to learn how senior pharma teams use FDA analytics to reduce submission risks, predict trial costs, and stay ahead of regulatory changes.">
      <meta property="og:image" content="./image/image.png" />
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
@@ -337,11 +337,37 @@
                 </div>
                 
                 <!-- Main Headline -->
-                <h1 class="hero-title text-4xl sm:text-5xl lg:text-6xl font-extrabold mb-6 animate-slide-in-left">
-                    <span class="block text-gray-900">Cracking the</span>
-                    <span class="text-gradient block">FDA Code</span>
-                    <span class="block text-gray-900">in 2025</span>
-                </h1>
+<h1 class="hero-title text-4xl sm:text-5xl lg:text-6xl font-extrabold mb-6 animate-slide-in-left">
+    <span class="block text-gray-900">Cracking the</span>
+    <span class="text-gradient block">FDA Code</span>
+    <span class="block text-gray-900">in 2025</span>
+    <span class="block shimmer-text">Part II</span>
+</h1>
+
+<style>
+.shimmer-text {
+    background: linear-gradient(
+        90deg,
+        #6a27c0 0%,
+        #5e3cbd 50%,
+        #4fb1cf 100%
+    );
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shimmer 2s linear infinite;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: -200% center;
+    }
+    100% {
+        background-position: 200% center;
+    }
+}
+</style>
+
                 
                 <!-- Subheadline -->
                 <p class="text-xl sm:text-2xl text-gray-600 mb-8 max-w-4xl mx-auto animate-slide-in-right">
@@ -354,7 +380,7 @@
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                         </svg>
-                        <span class="font-semibold">Thursday, July 31st</span>
+                        <span class="font-semibold">Wednesday, September 3rd</span>
                     </div>
                     <div class="flex items-center text-gray-700">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -366,7 +392,7 @@
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
                         </svg>
-                        <span class="font-semibold">45 Minutes</span>
+                        <span class="font-semibold">45 Minutes + Live Q&A</span>
                     </div>
                 </div>
                 
@@ -778,7 +804,7 @@
                             🎉 <strong>Congratulations!</strong> Your seat is reserved for the webinar.
                         </p>
                         <p class="text-gray-600">
-                            We've sent a calendar invite and reminder to your email. You'll receive the Google Meet link 1 hour before the session.
+                            We've sent a calendar invite and reminder to your email. Can't wait to see you on September 3rd!
                         </p>
                     </div>
                     
@@ -796,7 +822,7 @@
                             </div>
                             <div class="flex items-start">
                                 <span class="inline-block w-6 h-6 bg-primary-600 text-white text-sm rounded-full flex items-center justify-center mr-3 mt-0.5">3</span>
-                                <p class="text-gray-700">Join us on July 31st at 2:00 PM EST</p>
+                                <p class="text-gray-700">Join us on September 3rd at 2:00 PM EST</p>
                             </div>
                         </div>
                     </div>
@@ -904,7 +930,7 @@
                         <div x-show="activeAccordion === 4" 
                              x-collapse 
                              class="px-6 pb-4">
-                            <p class="text-gray-600">The webinar is 45 minutes total: 30 minutes of presentation followed by 15 minutes of live Q&A where you can ask our experts specific questions about regulatory intelligence.</p>
+                            <p class="text-gray-600">The webinar is 1 Hour total: 45 minutes of presentation followed by 15 minutes of live Q&A where you can ask our experts specific questions about regulatory intelligence.</p>
                         </div>
                     </div>
                     
@@ -924,7 +950,7 @@
                         <div x-show="activeAccordion === 5" 
                              x-collapse 
                              class="px-6 pb-4">
-                            <p class="text-gray-600">We'll be using Google Meet for the webinar. You'll receive the meeting link in your confirmation email and a reminder 1 hour before the session starts.</p>
+                            <p class="text-gray-600">We'll be using Google Meet for the webinar. You'll receive the meeting link in your confirmation email.</p>
                         </div>
                     </div>
                 </div>
@@ -1013,7 +1039,7 @@
 
             // Countdown Timer
             function updateCountdown() {
-                const webinarDate = new Date('July 31, 2025 14:00:00 EST').getTime();
+                const webinarDate = new Date('September 3, 2025 14:00:00 EST').getTime();
                 const now = new Date().getTime();
                 const distance = webinarDate - now;
 
@@ -1314,7 +1340,7 @@ I thought you might be interested in this free webinar about regulatory intellig
 
 "Cracking the FDA Code: How Regulatory Intelligence Helps Pharma Leaders Move Faster in 2025"
 
-Date: Thursday, July 31st
+Date: Wednesday, September 3rd
 Time: 2:00 PM EST / 11:00 AM PST
 Duration: 45 minutes (including Q&A)
 

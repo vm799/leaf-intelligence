@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Webinar Replay - Cracking the FDA Code | Leaf Intelligence</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Alpine.js for interactions -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'inter': ['Inter', 'sans-serif'],
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        
+        /* Video player custom styles */
+        .video-wrapper {
+            position: relative;
+            padding-bottom: 56.25%;
+            height: 0;
+            overflow: hidden;
+        }
+        
+        .video-wrapper iframe,
+        .video-wrapper video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        
+        /* Smooth transitions */
+        .tab-content {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Progress bar animation */
+        .progress-animation {
+            transition: width 0.3s ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-gray-50" x-data="replayApp()">
+    
+    <!-- Header -->
+    <header class="bg-white border-b border-gray-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex items-center space-x-3">
+                    <div class="flex items-center">
+                        <!-- Beautiful gradient leaf icon -->
+                        <div class="relative">
+                            <!-- <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" viewBox="0 0 24 24" fill="none">
+                                <defs>
+                                    <linearGradient id="leaf-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" stop-color="#10b981" /> 
+                                        <stop offset="50%" stop-color="#06b6d4" /> 
+                                        <stop offset="100%" stop-color="#8b5cf6" /> 
+                                    </linearGradient>
+                                </defs>
+                                
+                                <path d="M12 2C8 2 5 5 5 9c0 2.5 1 4.5 2.5 6L12 22l4.5-7C18 13.5 19 11.5 19 9c0-4-3-7-7-7z" 
+                                      fill="url(#leaf-gradient)" 
+                                      stroke="url(#leaf-gradient)" 
+                                      stroke-width="0.5"/>
+                               
+                                <path d="M12 6v10M10 8l4 2M10 12l4 2" 
+                                      stroke="white" 
+                                      stroke-width="1" 
+                                      stroke-linecap="round" 
+                                      opacity="0.6"/>
+                            </svg> -->
+                            <img src="leaf.png" alt="Leaf Intelligence" class="h-14 w-14 object-contain">
+                            <!-- Subtle glow effect -->
+                            <div class="absolute inset-0 bg-gradient-to-r from-emerald-400 to-cyan-400 opacity-20 blur-lg rounded-full"></div>
+                        </div>
+                        <div class="ml-3">
+                            <span class="text-xl font-bold bg-gradient-to-r from-emerald-600 via-blue-600 to-purple-600 bg-clip-text text-transparent">
+                                Leaf Intelligence
+                            </span>
+                            <div class="text-xs text-gray-600 font-medium tracking-wide">AI Research Platform</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Countdown Timer -->
+                <div class="flex items-center space-x-2 bg-amber-50 px-4 py-2 rounded-full border border-amber-200">
+                    <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <span class="text-sm font-medium text-gray-700">Expires in:</span>
+                    <span class="text-sm font-bold text-amber-600" x-text="countdown"></span>
+                </div>
+            </div>
+        </div>
+    </header>
+    
+    <!-- Alert Banner -->
+    <div class="bg-gradient-to-r from-amber-50 to-orange-50 border-b border-amber-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            <div class="flex items-center justify-center space-x-2">
+                <svg class="w-5 h-5 text-amber-600 animate-pulse-slow" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                </svg>
+                <p class="text-sm font-medium text-gray-800">
+                    <span class="font-semibold">Limited Access:</span> This replay expires in 48 hours. Special offer available at the end!
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- Video Section -->
+        <div class="bg-white rounded-xl shadow-sm overflow-hidden mb-8">
+            <div class="video-wrapper bg-gray-900">
+                <div class="absolute inset-0 flex items-center justify-center bg-gray-900">
+                    <!-- Video Placeholder -->
+                    <div class="text-center">
+                        <button @click="playVideo = true" class="group relative">
+                            <div class="absolute inset-0 bg-white/20 rounded-full blur-xl group-hover:bg-white/30 transition-all"></div>
+                            <div class="relative bg-white rounded-full p-6 shadow-2xl transform group-hover:scale-110 transition-transform">
+                                <svg class="w-12 h-12 text-gray-900 ml-1" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M8 5v14l11-7z"/>
+                                </svg>
+                            </div>
+                        </button>
+                        <h2 class="text-white text-2xl font-bold mt-6">Cracking the FDA Code: Part II</h2>
+                        <p class="text-gray-400 mt-2">45-minute masterclass + Live Q&A</p>
+                    </div>
+                </div>
+                
+                <!-- Mock Video Controls -->
+                <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
+                    <div class="flex items-center space-x-4">
+                        <button class="text-white hover:text-gray-300">
+                            <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M8 5v14l11-7z"/>
+                            </svg>
+                        </button>
+                        <div class="flex-1">
+                            <div class="bg-white/30 rounded-full h-1">
+                                <div class="bg-white h-1 rounded-full" style="width: 35%"></div>
+                            </div>
+                        </div>
+                        <span class="text-white text-sm font-medium">15:47 / 45:00</span>
+                        <button class="text-white hover:text-gray-300">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path>
+                            </svg>
+                        </button>
+                        <button class="text-white hover:text-gray-300">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-5h-4m4 0v4m0-4l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Content Tabs -->
+        <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+            <!-- Tab Navigation -->
+            <div class="border-b border-gray-200">
+                <nav class="flex -mb-px">
+                    <button @click="activeTab = 'insights'" 
+                            :class="{'border-emerald-500 text-emerald-600': activeTab === 'insights', 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300': activeTab !== 'insights'}"
+                            class="py-4 px-6 border-b-2 font-medium text-sm transition-colors">
+                        AI Insights
+                    </button>
+                    <button @click="activeTab = 'transcript'" 
+                            :class="{'border-emerald-500 text-emerald-600': activeTab === 'transcript', 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300': activeTab !== 'transcript'}"
+                            class="py-4 px-6 border-b-2 font-medium text-sm transition-colors">
+                        Transcript
+                    </button>
+                    <button @click="activeTab = 'takeaways'" 
+                            :class="{'border-emerald-500 text-emerald-600': activeTab === 'takeaways', 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300': activeTab !== 'takeaways'}"
+                            class="py-4 px-6 border-b-2 font-medium text-sm transition-colors">
+                        Key Takeaways
+                    </button>
+                    <button @click="activeTab = 'resources'" 
+                            :class="{'border-emerald-500 text-emerald-600': activeTab === 'resources', 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300': activeTab !== 'resources'}"
+                            class="py-4 px-6 border-b-2 font-medium text-sm transition-colors">
+                        Resources
+                    </button>
+                </nav>
+            </div>
+            
+            <!-- Tab Content -->
+            <div class="p-6">
+                <!-- AI Insights Tab -->
+                <div x-show="activeTab === 'insights'" class="tab-content space-y-6">
+                    <div class="bg-gradient-to-r from-emerald-50 to-cyan-50 rounded-lg p-6 border border-emerald-200">
+                        <div class="flex items-start space-x-4">
+                            <div class="flex-shrink-0">
+                                <div class="w-10 h-10 bg-emerald-500 rounded-lg flex items-center justify-center">
+                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="text-lg font-semibold text-gray-900 mb-2">Strategic Overview</h3>
+                                <p class="text-gray-600 mb-4">Our AI analysis identifies 3 critical regulatory intelligence strategies that can reduce FDA submission timelines by up to 40%.</p>
+                                <ul class="space-y-2">
+                                    <li class="flex items-start">
+                                        <svg class="w-5 h-5 text-emerald-500 mt-0.5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                        </svg>
+                                        <span class="text-gray-700">Predictive analytics for regulatory pathway optimization</span>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <svg class="w-5 h-5 text-emerald-500 mt-0.5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                        </svg>
+                                        <span class="text-gray-700">Competitive intelligence through AI monitoring</span>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <svg class="w-5 h-5 text-emerald-500 mt-0.5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                        </svg>
+                                        <span class="text-gray-700">Risk mitigation using historical FDA patterns</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div class="bg-gray-50 rounded-lg p-6">
+                            <div class="flex items-center space-x-3 mb-4">
+                                <div class="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
+                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                                    </svg>
+                                </div>
+                                <h3 class="text-lg font-semibold text-gray-900">Action Items</h3>
+                            </div>
+                            <ul class="space-y-3">
+                                <li class="flex items-start">
+                                    <span class="text-blue-500 mr-2">•</span>
+                                    <span class="text-gray-700 text-sm">Implement automated FDA guidance tracking</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="text-blue-500 mr-2">•</span>
+                                    <span class="text-gray-700 text-sm">Build cross-functional intelligence teams</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="text-blue-500 mr-2">•</span>
+                                    <span class="text-gray-700 text-sm">Deploy competitive landscape monitoring</span>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <div class="bg-gray-50 rounded-lg p-6">
+                            <div class="flex items-center space-x-3 mb-4">
+                                <div class="w-10 h-10 bg-purple-500 rounded-lg flex items-center justify-center">
+                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                                    </svg>
+                                </div>
+                                <h3 class="text-lg font-semibold text-gray-900">ROI Metrics</h3>
+                            </div>
+                            <ul class="space-y-3">
+                                <li class="flex items-start">
+                                    <span class="text-purple-500 mr-2">↑</span>
+                                    <span class="text-gray-700 text-sm">40% reduction in review cycles</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="text-purple-500 mr-2">↑</span>
+                                    <span class="text-gray-700 text-sm">$2.3M average cost savings</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="text-purple-500 mr-2">↑</span>
+                                    <span class="text-gray-700 text-sm">65% better approval rates</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Transcript Tab -->
+                <div x-show="activeTab === 'transcript'" class="tab-content">
+                    <div class="mb-4">
+                        <div class="relative">
+                            <input type="text" placeholder="Search transcript..." 
+                                   class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent">
+                            <svg class="w-5 h-5 text-gray-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-4 max-h-96 overflow-y-auto">
+                        <div class="border-l-4 border-emerald-500 pl-4 py-2 hover:bg-gray-50 cursor-pointer rounded">
+                            <div class="text-xs text-emerald-600 font-semibold mb-1">00:00</div>
+                            <div class="text-sm font-medium text-gray-900 mb-1">Rohan Mehmi</div>
+                            <div class="text-sm text-gray-600">Welcome to Part II of Cracking the FDA Code. Today we're diving deep into advanced regulatory intelligence strategies.</div>
+                        </div>
+                        
+                        <div class="border-l-4 border-transparent pl-4 py-2 hover:bg-gray-50 cursor-pointer rounded">
+                            <div class="text-xs text-gray-500 font-semibold mb-1">00:45</div>
+                            <div class="text-sm font-medium text-gray-900 mb-1">Alexander Macgregor</div>
+                            <div class="text-sm text-gray-600">Let's address the elephant in the room: regulatory uncertainty costs organizations millions annually.</div>
+                        </div>
+                        
+                        <div class="border-l-4 border-transparent pl-4 py-2 hover:bg-gray-50 cursor-pointer rounded">
+                            <div class="text-xs text-gray-500 font-semibold mb-1">02:00</div>
+                            <div class="text-sm font-medium text-gray-900 mb-1">Mark Paxton</div>
+                            <div class="text-sm text-gray-600">From a legal perspective, FDA's evolving guidance presents both challenges and opportunities.</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Key Takeaways Tab -->
+                <div x-show="activeTab === 'takeaways'" class="tab-content">
+                    <div class="grid gap-4">
+                        <div class="bg-gradient-to-r from-gray-50 to-gray-100 rounded-lg p-6 border border-gray-200 hover:shadow-md transition-shadow">
+                            <div class="flex items-start space-x-4">
+                                <span class="flex-shrink-0 w-8 h-8 bg-emerald-500 text-white rounded-full flex items-center justify-center font-bold text-sm">1</span>
+                                <div>
+                                    <h4 class="font-semibold text-gray-900 mb-2">Implement Predictive Analytics</h4>
+                                    <p class="text-sm text-gray-600">Use AI-powered tools to analyze historical FDA submissions and predict potential roadblocks.</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-gray-50 to-gray-100 rounded-lg p-6 border border-gray-200 hover:shadow-md transition-shadow">
+                            <div class="flex items-start space-x-4">
+                                <span class="flex-shrink-0 w-8 h-8 bg-emerald-500 text-white rounded-full flex items-center justify-center font-bold text-sm">2</span>
+                                <div>
+                                    <h4 class="font-semibold text-gray-900 mb-2">Build Intelligence Teams</h4>
+                                    <p class="text-sm text-gray-600">Create cross-functional teams combining regulatory, clinical, and data science expertise.</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-gray-50 to-gray-100 rounded-lg p-6 border border-gray-200 hover:shadow-md transition-shadow">
+                            <div class="flex items-start space-x-4">
+                                <span class="flex-shrink-0 w-8 h-8 bg-emerald-500 text-white rounded-full flex items-center justify-center font-bold text-sm">3</span>
+                                <div>
+                                    <h4 class="font-semibold text-gray-900 mb-2">Automate Competitive Intelligence</h4>
+                                    <p class="text-sm text-gray-600">Deploy systems to track competitor submissions and FDA response patterns.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Resources Tab -->
+                <div x-show="activeTab === 'resources'" class="tab-content">
+                    <div class="grid md:grid-cols-3 gap-4">
+                        <div class="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-lg transition-shadow cursor-pointer">
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-1 rounded">PDF</span>
+                                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"></path>
+                                </svg>
+                            </div>
+                            <h4 class="font-semibold text-gray-900 mb-1">Presentation Slides</h4>
+                            <p class="text-xs text-gray-500">Complete deck with charts</p>
+                        </div>
+                        
+                        <div class="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-lg transition-shadow cursor-pointer">
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="text-xs font-semibold text-blue-600 bg-blue-50 px-2 py-1 rounded">Guide</span>
+                                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"></path>
+                                </svg>
+                            </div>
+                            <h4 class="font-semibold text-gray-900 mb-1">FDA Intelligence Guide</h4>
+                            <p class="text-xs text-gray-500">Comprehensive 40-page guide</p>
+                        </div>
+                        
+                        <div class="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-lg transition-shadow cursor-pointer">
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="text-xs font-semibold text-purple-600 bg-purple-50 px-2 py-1 rounded">Template</span>
+                                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"></path>
+                                </svg>
+                            </div>
+                            <h4 class="font-semibold text-gray-900 mb-1">Risk Assessment Matrix</h4>
+                            <p class="text-xs text-gray-500">Customizable Excel template</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Speakers Section -->
+        <div class="mt-8 bg-white rounded-xl shadow-sm p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Your Expert Speakers</h3>
+            <div class="grid md:grid-cols-3 gap-4">
+                <div class="flex items-center space-x-3">
+                    <div class="w-12 h-12 bg-gradient-to-br from-emerald-400 to-cyan-500 rounded-full flex items-center justify-center text-white font-bold">RM</div>
+                    <div>
+                        <div class="font-medium text-gray-900">Rohan Mehmi</div>
+                        <div class="text-xs text-gray-500">Co-Founder, Leaf Intelligence</div>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <div class="w-12 h-12 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center text-white font-bold">AM</div>
+                    <div>
+                        <div class="font-medium text-gray-900">Alexander Macgregor</div>
+                        <div class="text-xs text-gray-500">Co-Founder, Leaf Intelligence</div>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <div class="w-12 h-12 bg-gradient-to-br from-purple-400 to-pink-500 rounded-full flex items-center justify-center text-white font-bold">MP</div>
+                    <div>
+                        <div class="font-medium text-gray-900">Mark Paxton</div>
+                        <div class="text-xs text-gray-500">Founder, White Oak AI Law</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- CTA Section -->
+        <div class="mt-8 bg-gradient-to-r from-emerald-600 to-cyan-600 rounded-xl shadow-lg p-8 text-center text-white">
+            <h2 class="text-3xl font-bold mb-4">Ready to Transform Your Regulatory Process?</h2>
+            <p class="text-lg mb-8 opacity-95">See how Leaf Intelligence can reduce your submission timelines by 40%</p>
+            
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <button class="bg-white text-emerald-600 px-8 py-3 rounded-lg font-semibold hover:shadow-xl transform hover:-translate-y-1 transition-all">
+                    Schedule Your Demo
+                </button>
+                <button class="bg-white/20 backdrop-blur text-white border-2 border-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-emerald-600 transition-all">
+                    Download Report
+                </button>
+            </div>
+            
+            <div class="mt-6 inline-flex items-center space-x-2 bg-white/20 backdrop-blur px-4 py-2 rounded-full">
+                <svg class="w-5 h-5 text-yellow-300" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                </svg>
+                <span class="text-sm font-medium">Limited Time: 20% off for webinar attendees</span>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="text-center">
+                <div class="flex items-center justify-center space-x-2 mb-4">
+                    <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none">
+                        <defs>
+                            <linearGradient id="footer-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#10b981" />
+                                <stop offset="100%" stop-color="#06b6d4" />
+                            </linearGradient>
+                        </defs>
+                        <path d="M12 2C8 2 5 5 5 9c0 2.5 1 4.5 2.5 6L12 22l4.5-7C18 13.5 19 11.5 19 9c0-4-3-7-7-7z" 
+                              fill="url(#footer-gradient)"/>
+                    </svg>
+                    <span class="text-lg font-semibold text-gray-900">Leaf Intelligence</span>
+                </div>
+                <p class="text-sm text-gray-500 mb-4">Accelerating pharmaceutical development with AI-powered regulatory intelligence</p>
+                <div class="flex items-center justify-center space-x-6 text-sm">
+                    <a href="#" class="text-gray-500 hover:text-emerald-600 transition-colors">support@leafintelligence.com</a>
+                    <span class="text-gray-300">|</span>
+                    <a href="#" class="text-gray-500 hover:text-emerald-600 transition-colors">leafintelligence.com</a>
+                    <span class="text-gray-300">|</span>
+                    <a href="#" class="text-gray-500 hover:text-emerald-600 transition-colors">Privacy</a>
+                    <span class="text-gray-300">|</span>
+                    <a href="#" class="text-gray-500 hover:text-emerald-600 transition-colors">Terms</a>
+                </div>
+                <p class="text-xs text-gray-400 mt-4">© 2025 Leaf Intelligence. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+    
+    <script>
+        function replayApp() {
+            return {
+                activeTab: 'insights',
+                playVideo: false,
+                countdown: '47:59:59',
+                
+                init() {
+                    this.startCountdown();
+                },
+                
+                startCountdown() {
+                    let hours = 47;
+                    let minutes = 59;
+                    let seconds = 59;
+                    
+                    setInterval(() => {
+                        if (seconds > 0) {
+                            seconds--;
+                        } else if (minutes > 0) {
+                            minutes--;
+                            seconds = 59;
+                        } else if (hours > 0) {
+                            hours--;
+                            minutes = 59;
+                            seconds = 59;
+                        }
+                        
+                        this.countdown = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+                    }, 1000);
+                }
+            }
+        }
+    </script>
+</body>
+</html>

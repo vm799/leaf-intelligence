@@ -8401,147 +8401,811 @@ const emailhost = process.env.smtphost
 
 
 
+// Mongoose Schema for Sept 3rd Webinar Leads
+const sept3LeadSchema = new mongoose.Schema({
+  // Personal Information
+  fullName: {
+    type: String,
+    required: true,
+    trim: true
+  },
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+    lowercase: true,
+    trim: true,
+    match: [/^[^\s@]+@[^\s@]+\.[^\s@]+$/, 'Please provide a valid email address']
+  },
+  company: {
+    type: String,
+    trim: true,
+    default: ''
+  },
+  jobTitle: {
+    type: String,
+    trim: true,
+    default: ''
+  },
+  
+  // Webinar Details
+  webinarName: {
+    type: String,
+    default: 'Cracking the FDA Code Part II'
+  },
+  webinarDate: {
+    type: Date,
+    default: new Date('2025-09-03T18:00:00Z')
+  },
+  
+  // Registration Metadata
+  registrationDate: {
+    type: Date,
+    default: Date.now,
+    required: true
+  },
+  registrationId: {
+    type: String,
+    unique: true,
+    required: true
+  },
+  
+  // UTM Parameters for Marketing Attribution
+  utmSource: {
+    type: String,
+    default: ''
+  },
+  utmMedium: {
+    type: String,
+    default: ''
+  },
+  utmCampaign: {
+    type: String,
+    default: ''
+  },
+  utmContent: {
+    type: String,
+    default: ''
+  },
+  utmTerm: {
+    type: String,
+    default: ''
+  },
+  
+  // Email Status
+  emailSent: {
+    type: Boolean,
+    default: false
+  },
+  emailSentAt: {
+    type: Date
+  },
+  emailError: {
+    type: String
+  },
+  
+  // Engagement Tracking
+  hasAttended: {
+    type: Boolean,
+    default: false
+  },
+  attendanceConfirmedAt: {
+    type: Date
+  },
+  
+  // Additional Fields
+  ipAddress: {
+    type: String
+  },
+  userAgent: {
+    type: String
+  },
+  referrerUrl: {
+    type: String
+  },
+  tags: [{
+    type: String
+  }],
+  notes: {
+    type: String
+  }
+}, {
+  timestamps: true, // Adds createdAt and updatedAt automatically
+  collection: '3rdseptleads' // Specify collection name
+});
 
+// Add indexes for better query performance
+sept3LeadSchema.index({ email: 1 });
+sept3LeadSchema.index({ registrationDate: -1 });
+sept3LeadSchema.index({ company: 1 });
+sept3LeadSchema.index({ utmSource: 1, utmCampaign: 1 });
 
-
+// Create the model
+const Sept3Lead = mongoose.model('Sept3Lead', sept3LeadSchema);
 
 // Google Meet Link (replace with your actual link)
-const GOOGLE_MEET_LINK = process.env.GOOGLE_MEET_LINK 
-
-// In-memory storage (replace with database in production)
-const registrations = [];
+const GOOGLE_MEET_LINK =  'https://meet.google.com/mwf-gcng-bnt';
 
 // Helper function to generate calendar links
 function generateCalendarLinks() {
-  const startDate = '20250731T190000Z'; // July 31, 2025 2:00 PM EST in EST
-  const endDate = '20250731T194500Z';   // 45 minutes later
-  const title = encodeURIComponent('Cracking the FDA Code Webinar');
+  const startDate = '20250903T180000Z'; // September 3, 2025 2:00 PM EDT
+  const endDate =  '20250903T190000Z'; // 45 minutes later
+  const title = encodeURIComponent('Cracking the FDA Code Webinar Part II');
   const description = encodeURIComponent(`Join us for this exclusive webinar on regulatory intelligence. Meeting Link: ${GOOGLE_MEET_LINK}`);
   
   const googleCalendar = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${startDate}/${endDate}&details=${description}&location=${encodeURIComponent(GOOGLE_MEET_LINK)}`;
   
-  const outlookCalendar = `https://outlook.live.com/calendar/0/deeplink/compose?subject=${title}&startdt=${startDate}&enddt=${endDate}&body=${description}&location=${encodeURIComponent(GOOGLE_MEET_LINK)}`;
+  // const outlookCalendar = `https://outlook.live.com/calendar/0/deeplink/compose?subject=${title}&startdt=${startDate}&enddt=${endDate}&body=${description}&location=${encodeURIComponent(GOOGLE_MEET_LINK)}`;
   
-  return { googleCalendar, outlookCalendar };
+  return { googleCalendar};
 }
 
-// Email templates
+// Email template function (using the professional template from earlier)
 const getConfirmationEmailHTML = (userData, calendarLinks) => {
   return `
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Webinar Confirmation</title>
+    <meta name="x-apple-disable-message-reformatting">
+    <meta name="format-detection" content="telephone=no">
+    <title>You're registered for Cracking the FDA Code</title>
+    <!--[if mso]>
+    <noscript>
+        <xml>
+            <o:OfficeDocumentSettings>
+                <o:PixelsPerInch>96</o:PixelsPerInch>
+            </o:OfficeDocumentSettings>
+        </xml>
+    </noscript>
+    <![endif]-->
     <style>
-        body { font-family: 'Arial', sans-serif; margin: 0; padding: 0; background-color: #f8f9fa; }
-        .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; }
-        .header { background: linear-gradient(135deg, #3b82f6, #a855f7); padding: 40px 20px; text-align: center; }
-        .header h1 { color: white; margin: 0; font-size: 28px; font-weight: bold; }
-        .content { padding: 40px 30px; }
-        .event-details { background: #f8f9fa; padding: 25px; border-radius: 12px; margin: 30px 0; border-left: 4px solid #3b82f6; }
-        .button { display: inline-block; padding: 12px 24px; background: #3b82f6; color: white; text-decoration: none; border-radius: 8px; margin: 5px; font-weight: bold; }
-        .button:hover { background: #2563eb; }
-        .calendar-buttons { text-align: center; margin: 30px 0; }
-        .footer { background: #f8f9fa; padding: 20px; text-align: center; color: #666; font-size: 14px; }
-        .checkmark { width: 60px; height: 60px; background: #22c55e; border-radius: 50%; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; }
-        .meet-link { background: #e8f5e8; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: center; }
-        .meet-link a { color: #059669; font-weight: bold; text-decoration: none; font-size: 18px; }
+        /* Reset and base styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+            font-size: 16px;
+            line-height: 1.5;
+            color: #111827;
+            background-color: #ffffff;
+            -webkit-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
+            mso-line-height-rule: exactly;
+        }
+        
+        table {
+            border-collapse: collapse;
+            border-spacing: 0;
+            mso-table-lspace: 0pt;
+            mso-table-rspace: 0pt;
+        }
+        
+        td {
+            padding: 0;
+        }
+        
+        img {
+            border: 0;
+            height: auto;
+            line-height: 100%;
+            outline: none;
+            text-decoration: none;
+            -ms-interpolation-mode: bicubic;
+            display: block;
+        }
+        
+        /* Main styles */
+        .wrapper {
+            width: 100%;
+            table-layout: fixed;
+            background-color: #ffffff;
+            padding: 0;
+        }
+        
+        .main {
+            background-color: #ffffff;
+            margin: 0 auto;
+            width: 100%;
+            max-width: 600px;
+            border-spacing: 0;
+        }
+        
+        /* Logo section */
+        .logo-section {
+            padding: 32px 24px 24px 24px;
+            text-align: center;
+            border-bottom: 1px solid #f3f4f6;
+        }
+        
+        .logo-text {
+            font-size: 20px;
+            font-weight: 700;
+            color: #111827;
+            letter-spacing: -0.5px;
+        }
+        
+        /* Hero section */
+        .hero-section {
+            padding: 48px 24px 32px 24px;
+            text-align: center;
+        }
+        
+        .success-icon {
+            width: 56px;
+            height: 56px;
+            margin: 0 auto 24px auto;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            border-radius: 50%;
+            display: block;
+        }
+        
+        .hero-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: #111827;
+            margin: 0 0 12px 0;
+            letter-spacing: -0.75px;
+            line-height: 1.2;
+        }
+        
+        .hero-subtitle {
+            font-size: 18px;
+            color: #6b7280;
+            margin: 0;
+            font-weight: 400;
+        }
+        
+        /* Content section */
+        .content-section {
+            padding: 32px 24px;
+        }
+        
+        .greeting {
+            font-size: 17px;
+            color: #374151;
+            margin-bottom: 24px;
+            line-height: 1.6;
+        }
+        
+        /* Event card - Modern card design */
+        .event-card {
+            background: #fafbfc;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 24px;
+            margin: 32px 0;
+        }
+        
+        .event-header {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #6b7280;
+            margin-bottom: 20px;
+            display: block;
+        }
+        
+        .event-row {
+            padding: 12px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .event-row:last-child {
+            border-bottom: none;
+        }
+        
+        .event-label {
+            font-size: 14px;
+            color: #6b7280;
+            margin-bottom: 4px;
+        }
+        
+        .event-value {
+            font-size: 16px;
+            color: #111827;
+            font-weight: 600;
+        }
+        
+        /* Primary CTA button */
+        .cta-container {
+            text-align: center;
+            padding: 32px 24px;
+        }
+        
+        .cta-primary {
+            display: inline-block;
+            background: #111827;
+            color: #ffffff !important;
+            text-decoration: none;
+            padding: 14px 32px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            letter-spacing: -0.2px;
+            mso-padding-alt: 14px 32px;
+        }
+        
+        .cta-primary:hover {
+            background: #000000;
+        }
+        
+        .cta-helper-text {
+            font-size: 13px;
+            color: #6b7280;
+            margin-top: 12px;
+        }
+        
+        /* Calendar buttons - Clean design */
+        .calendar-section {
+            padding: 24px;
+            text-align: center;
+            background: #fafbfc;
+            border-top: 1px solid #f3f4f6;
+            border-bottom: 1px solid #f3f4f6;
+        }
+        
+        .calendar-title {
+            font-size: 14px;
+            color: #374151;
+            margin-bottom: 16px;
+            font-weight: 500;
+        }
+        
+        .calendar-buttons {
+            text-align: center;
+        }
+        
+        .calendar-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 0 8px;
+            background: #ffffff;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            color: #374151 !important;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .calendar-btn:hover {
+            border-color: #9ca3af;
+            background: #f9fafb;
+        }
+        
+        /* Benefits section - Cleaner design */
+        .benefits-section {
+            padding: 40px 24px;
+        }
+        
+        .benefits-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 24px;
+            letter-spacing: -0.4px;
+        }
+        
+        .benefit-item {
+            display: table;
+            width: 100%;
+            margin-bottom: 16px;
+        }
+        
+        .benefit-icon {
+            display: table-cell;
+            vertical-align: top;
+            width: 24px;
+            padding-top: 2px;
+        }
+        
+        .benefit-check {
+            width: 20px;
+            height: 20px;
+            background: #10b981;
+            border-radius: 50%;
+            display: block;
+        }
+        
+        .benefit-text {
+            display: table-cell;
+            padding-left: 12px;
+            font-size: 15px;
+            color: #374151;
+            line-height: 1.6;
+        }
+        
+        /* Speakers section - Professional cards */
+        .speakers-section {
+            padding: 32px 24px;
+            background: #fafbfc;
+            border-top: 1px solid #f3f4f6;
+        }
+        
+        .speakers-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 20px;
+        }
+        
+        .speaker-item {
+            margin-bottom: 16px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .speaker-item:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+        
+        .speaker-name {
+            font-size: 15px;
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 2px;
+        }
+        
+        .speaker-title {
+            font-size: 14px;
+            color: #6b7280;
+        }
+        
+        /* Footer - Minimal and clean */
+        .footer-section {
+            padding: 40px 24px;
+            text-align: center;
+            border-top: 1px solid #f3f4f6;
+        }
+        
+        .footer-tagline {
+            font-size: 14px;
+            color: #6b7280;
+            margin-bottom: 16px;
+            font-style: italic;
+        }
+        
+        .footer-divider {
+            width: 40px;
+            height: 1px;
+            background: #e5e7eb;
+            margin: 24px auto;
+        }
+        
+        .footer-company {
+            font-size: 14px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+        
+        .footer-links {
+            font-size: 13px;
+            color: #6b7280;
+            margin-top: 16px;
+        }
+        
+        .footer-link {
+            color: #6b7280 !important;
+            text-decoration: none;
+            margin: 0 8px;
+        }
+        
+        .footer-link:hover {
+            color: #111827 !important;
+        }
+        
+        .footer-copyright {
+            font-size: 12px;
+            color: #9ca3af;
+            margin-top: 16px;
+        }
+        
+        /* Responsive design */
+        @media screen and (max-width: 600px) {
+            .hero-title {
+                font-size: 28px !important;
+            }
+            
+            .hero-subtitle {
+                font-size: 16px !important;
+            }
+            
+            .content-section {
+                padding: 24px 20px !important;
+            }
+            
+            .calendar-btn {
+                display: block;
+                width: 100%;
+                margin: 8px 0;
+            }
+            
+            .cta-primary {
+                display: block;
+                width: 100%;
+            }
+        }
+        
+        /* Dark mode support */
+        @media (prefers-color-scheme: dark) {
+            body {
+                background-color: #111827 !important;
+                color: #f9fafb !important;
+            }
+            
+            .wrapper {
+                background-color: #111827 !important;
+            }
+            
+            .main {
+                background-color: #1f2937 !important;
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <div class="checkmark">
-                <svg width="30" height="30" fill="white" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                </svg>
-            </div>
-            <h1>You're Registered!</h1>
-            <p style="color: rgba(255,255,255,0.9); margin: 10px 0 0 0; font-size: 18px;">Cracking the FDA Code Webinar</p>
-        </div>
-        
-        <div class="content">
-            <p>Hi ${userData.fullName},</p>
+    <div class="wrapper">
+        <table class="main" role="presentation">
+            <!-- Logo -->
+            <tr>
+                <td class="logo-section">
+                    <div class="logo-text">SyneticX</div>
+                </td>
+            </tr>
             
-            <p>🎉 <strong>Congratulations!</strong> Your seat is reserved for our exclusive webinar on regulatory intelligence.</p>
+            <!-- Hero Section -->
+            <tr>
+                <td class="hero-section">
+                    <table role="presentation" width="100%">
+                        <tr>
+                            <td align="center">
+                                <div class="success-icon">
+                                    <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
+                                        <circle cx="28" cy="28" r="28" fill="url(#gradient)"/>
+                                        <path d="M39 20L24 35L17 28" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <defs>
+                                            <linearGradient id="gradient" x1="0" y1="0" x2="56" y2="56">
+                                                <stop offset="0%" stop-color="#10b981"/>
+                                                <stop offset="100%" stop-color="#059669"/>
+                                            </linearGradient>
+                                        </defs>
+                                    </svg>
+                                </div>
+                                <h1 class="hero-title">You're all set!</h1>
+                                <p class="hero-subtitle">Your seat is confirmed for the webinar</p>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
             
-            <div class="event-details">
-                <h3 style="margin-top: 0; color: #1f2937;">📅 Event Details</h3>
-                <p><strong>Event:</strong> Cracking the FDA Code: How Regulatory Intelligence Helps Pharma Leaders Move Faster in 2025</p>
-                <p><strong>Date:</strong> Wednesday, July 31st, 2025</p>
-                <p><strong>Time:</strong> 2:00 PM EST / 11:00 AM PST</p>
-                <p><strong>Duration:</strong> 45 minutes + Live Q&A</p>
-                <p><strong>Platform:</strong> Google Meet</p>
-            </div>
+            <!-- Content Section -->
+            <tr>
+                <td class="content-section">
+                    <div class="greeting">
+                        Hi ${userData.fullName},<br><br>
+                        Thanks for registering! We're looking forward to sharing game-changing insights on how regulatory intelligence is revolutionizing FDA submissions in 2025.
+                    </div>
+                    
+                    <!-- Event Details Card -->
+                    <div class="event-card">
+                        <span class="event-header">Event Details</span>
+                        
+                        <div class="event-row">
+                            <div class="event-label">What</div>
+                            <div class="event-value">Cracking the FDA Code Part II</div>
+                        </div>
+                        
+                        <div class="event-row">
+                            <div class="event-label">When</div>
+                            <div class="event-value">Wednesday, September 3rd, 2025</div>
+                        </div>
+                        
+                        <div class="event-row">
+                            <div class="event-label">Time</div>
+                            <div class="event-value">2:00 PM EDT / 11:00 AM PDT</div>
+                        </div>
+                        
+                        <div class="event-row">
+                            <div class="event-label">Duration</div>
+                            <div class="event-value">45 minutes + Live Q&A</div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
             
-            <div class="meet-link">
-                <h4 style="margin-top: 0; color: #059669;">🔗 Join the Webinar</h4>
-                <a href="${GOOGLE_MEET_LINK}" target="_blank">${GOOGLE_MEET_LINK}</a>
-                <p style="margin: 10px 0 0 0; font-size: 14px; color: #666;">Save this link - you'll need it to join the webinar!</p>
-            </div>
+            <!-- Primary CTA -->
+            <tr>
+                <td class="cta-container">
+                    <a href="${GOOGLE_MEET_LINK}" class="cta-primary">Join Webinar →</a>
+                    <div class="cta-helper-text">Save this link to join on September 3rd ( https://meet.google.com/mwf-gcng-bnt )</div>
+                </td>
+            </tr>
             
-            <div class="calendar-buttons">
-                <h4>Add to Your Calendar:</h4>
-                <a href="${calendarLinks.googleCalendar}" class="button" target="_blank">📅 Google Calendar</a>
-                <a href="${calendarLinks.outlookCalendar}" class="button" target="_blank">📅 Outlook</a>
-            </div>
+            <!-- Calendar Section -->
+            <tr>
+                <td class="calendar-section">
+                    <div class="calendar-title">Add to your calendar</div>
+                    <div class="calendar-buttons">
+                        <a href="${calendarLinks.googleCalendar}" class="calendar-btn">Google</a>
+                    </div>
+                </td>
+            </tr>
             
-            <h3>What to Expect:</h3>
-            <ul>
-                <li>✅ Reduce submission risks by up to 40%</li>
-                <li>✅ Predict trial costs with AI analytics</li>
-                <li>✅ Stay ahead of regulatory changes</li>
-                <li>✅ Track competitor activities in real-time</li>
-                <li>✅ Live Q&A with our expert panel</li>
-            </ul>
+            <!-- Benefits Section -->
+            <tr>
+                <td class="benefits-section">
+                    <h2 class="benefits-title">What you'll learn</h2>
+                    
+                    <table role="presentation" width="100%">
+                        <tr>
+                            <td class="benefit-item">
+                                <table role="presentation">
+                                    <tr>
+                                        <td class="benefit-icon">
+                                            <div class="benefit-check">
+                                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                                    <path d="M7 10L9 12L13 8" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                </svg>
+                                            </div>
+                                        </td>
+                                        <td class="benefit-text">
+                                            Cut FDA submission risks by up to 40% using predictive analytics
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="benefit-item">
+                                <table role="presentation">
+                                    <tr>
+                                        <td class="benefit-icon">
+                                            <div class="benefit-check">
+                                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                                    <path d="M7 10L9 12L13 8" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                </svg>
+                                            </div>
+                                        </td>
+                                        <td class="benefit-text">
+                                            Forecast trial costs with AI-powered analytics and modeling
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="benefit-item">
+                                <table role="presentation">
+                                    <tr>
+                                        <td class="benefit-icon">
+                                            <div class="benefit-check">
+                                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                                    <path d="M7 10L9 12L13 8" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                </svg>
+                                            </div>
+                                        </td>
+                                        <td class="benefit-text">
+                                            Monitor regulatory changes in real-time across global markets
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="benefit-item">
+                                <table role="presentation">
+                                    <tr>
+                                        <td class="benefit-icon">
+                                            <div class="benefit-check">
+                                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                                    <path d="M7 10L9 12L13 8" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                </svg>
+                                            </div>
+                                        </td>
+                                        <td class="benefit-text">
+                                            Track competitor activities and FDA interactions automatically
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="benefit-item">
+                                <table role="presentation">
+                                    <tr>
+                                        <td class="benefit-icon">
+                                            <div class="benefit-check">
+                                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                                    <path d="M7 10L9 12L13 8" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                </svg>
+                                            </div>
+                                        </td>
+                                        <td class="benefit-text">
+                                            Get your questions answered during our live Q&A session
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
             
-            <h3>Your Expert Panel:</h3>
-            <p><strong>Rohan Mehmi</strong> - Co-Founder, SyneticX</p>
-            <p><strong>Alexander Macgregor</strong> - Co-Founder, SyneticX</p>
-            <p><strong>Mark Paxton</strong> - Regulatory Expert, Founder of White Oak AI Law</p>
+            <!-- Speakers Section -->
+            <tr>
+                <td class="speakers-section">
+                    <h3 class="speakers-title">Your expert speakers</h3>
+                    
+                    <div class="speaker-item">
+                        <div class="speaker-name">Rohan Mehmi</div>
+                        <div class="speaker-title">Co-Founder, SyneticX</div>
+                    </div>
+                    
+                    <div class="speaker-item">
+                        <div class="speaker-name">Alexander Macgregor</div>
+                        <div class="speaker-title">Co-Founder, SyneticX</div>
+                    </div>
+                    
+                    <div class="speaker-item">
+                        <div class="speaker-name">Mark Paxton</div>
+                        <div class="speaker-title">Regulatory Expert, Founder of White Oak AI Law</div>
+                    </div>
+                </td>
+            </tr>
             
-            <p style="margin-top: 30px;">If you have any questions before the webinar, feel free to reply to this email.</p>
-            
-            <p>Looking forward to seeing you there!</p>
-            
-            <p>Best regards,<br>
-            <strong>The SyneticX Team</strong></p>
-        </div>
-        
-        <div class="footer">
-            <p>© 2025 SyneticX. All rights reserved.</p>
-            <p>Questions? Reply to this email or contact us at support@syneticx.com</p>
-        </div>
+            <!-- Footer -->
+            <tr>
+                <td class="footer-section">
+                    <div class="footer-tagline">
+                        Questions? Just reply to this email and we'll help you out.
+                    </div>
+                    
+                    <div class="footer-divider"></div>
+                    
+                    <div class="footer-company">SyneticX</div>
+                    <div class="footer-links">
+                        <a href="mailto:alex@syneticx.com" class="footer-link">alex@syneticx.com</a>
+                        <span style="color: #e5e7eb;">•</span>
+                        <a href="https://syneticx.com" class="footer-link">syneticx.com</a>
+                    </div>
+                    <div class="footer-copyright">
+                        © 2025 SyneticX. All rights reserved.
+                    </div>
+                </td>
+            </tr>
+        </table>
     </div>
 </body>
 </html>
   `;
 };
 
-
-
 // Webinar registration endpoint
 app.post('/api/webinar/register', async (req, res) => {
   try {
-    const { fullName, email, company, jobTitle, utm_source, utm_medium, utm_campaign, utm_content, utm_term } = req.body;
-
-const transporter = nodemailer.createTransport({
-//   service: 'gmail',
-//   auth: {
-//     user: process.env.smtphost,
-//     pass: process.env.smtppassword
-//   }
-// });
-        host:  'smtp.gmail.com',
-        port:  587,
-        secure: false,
-          auth: {
-    user: process.env.smtphost,
-    pass: process.env.smtppassword
-  }
-      });
+    const { 
+      fullName, 
+      email, 
+      company, 
+      jobTitle, 
+      utm_source, 
+      utm_medium, 
+      utm_campaign, 
+      utm_content, 
+      utm_term 
+    } = req.body;
 
     // Basic validation
     if (!fullName || !email) {
@@ -8560,47 +9224,68 @@ const transporter = nodemailer.createTransport({
       });
     }
 
-    // Check if already registered
-    const existingRegistration = registrations.find(reg => reg.email === email);
-    if (existingRegistration) {
+    // Check if already registered in MongoDB
+    const existingLead = await Sept3Lead.findOne({ email: email.toLowerCase() });
+    if (existingLead) {
       return res.status(409).json({
         success: false,
         message: 'This email is already registered for the webinar'
       });
     }
 
-    // Create registration record
-    const registration = {
-      id: Date.now().toString(),
+    // Generate unique registration ID
+    const registrationId = `SEPT3-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`.toUpperCase();
+
+    // Create new lead document
+    const newLead = new Sept3Lead({
       fullName,
-      email,
+      email: email.toLowerCase(),
       company: company || '',
       jobTitle: jobTitle || '',
-      registrationDate: new Date().toISOString(),
-      utm_source: utm_source || '',
-      utm_medium: utm_medium || '',
-      utm_campaign: utm_campaign || '',
-      utm_content: utm_content || '',
-      utm_term: utm_term || '',
+      registrationId,
+      utmSource: utm_source || '',
+      utmMedium: utm_medium || '',
+      utmCampaign: utm_campaign || '',
+      utmContent: utm_content || '',
+      utmTerm: utm_term || '',
+      ipAddress: req.ip || req.connection.remoteAddress,
+      userAgent: req.headers['user-agent'] || '',
+      referrerUrl: req.headers.referer || '',
+      tags: ['webinar-sept3', 'fda-code-part2', '2025'],
       emailSent: false
-    };
+    });
+
+    // Save to MongoDB first
+    const savedLead = await newLead.save();
+    console.log(`New lead saved to MongoDB: ${fullName} (${email}) - ID: ${registrationId}`);
 
     // Generate calendar links
     const calendarLinks = generateCalendarLinks();
 
+    // Setup email transporter
+    const transporter = nodemailer.createTransport({
+      host: 'smtp.gmail.com',
+      port: 587,
+      secure: false,
+      auth: {
+        user: process.env.smtphost,
+        pass: process.env.smtppassword
+      }
+    });
+
     // Send confirmation email
     const mailOptions = {
-      from: `"SyneticX Webinar" <${process.env.SMTP_FROM || process.env.SMTP_USER}>`,
+      from: `"SyneticX Webinar" <${process.env.SMTP_FROM || process.env.smtphost}>`,
       to: email,
-      subject: '🎉 You\'re In! FDA Code Webinar Details Inside',
-      html: getConfirmationEmailHTML(registration, calendarLinks),
+      subject: '🎉 You\'re Registered! FDA Code Part II Webinar - Sept 3rd',
+      html: getConfirmationEmailHTML(savedLead, calendarLinks),
       text: `Hi ${fullName},
 
-You're registered for "Cracking the FDA Code" webinar!
+You're registered for "Cracking the FDA Code Part II" webinar!
 
 Event Details:
-- Date: Wednesday, July 31st, 2025
-- Time: 2:00 PM EST / 11:00 AM PST
+- Date: Wednesday, September 3rd, 2025
+- Time: 2:00 PM EDT / 11:00 AM PDT
 - Duration: 45 minutes + Q&A
 - Platform: Google Meet
 
@@ -8608,7 +9293,6 @@ Meeting Link: ${GOOGLE_MEET_LINK}
 
 Add to Calendar:
 - Google: ${calendarLinks.googleCalendar}
-- Outlook: ${calendarLinks.outlookCalendar}
 
 Looking forward to seeing you there!
 
@@ -8616,21 +9300,33 @@ Best regards,
 The SyneticX Team`
     };
 
-    // Send email
-    await transporter.sendMail(mailOptions);
-    
-    // Mark email as sent and save registration
-    registration.emailSent = true;
-    registrations.push(registration);
-
-    console.log(`New registration: ${fullName} (${email})`);
+    try {
+      // Send email
+      await transporter.sendMail(mailOptions);
+      
+      // Update MongoDB document to mark email as sent
+      savedLead.emailSent = true;
+      savedLead.emailSentAt = new Date();
+      await savedLead.save();
+      
+      console.log(`Confirmation email sent to ${email}`);
+    } catch (emailError) {
+      console.error('Email sending error:', emailError);
+      
+      // Update MongoDB document with email error
+      savedLead.emailError = emailError.message;
+      await savedLead.save();
+      
+      // Don't fail the registration if email fails
+      // The lead is still saved in the database
+    }
 
     // Return success response
     res.json({
       success: true,
       message: 'Registration successful! Check your email for confirmation.',
       data: {
-        registrationId: registration.id,
+        registrationId: savedLead.registrationId,
         calendarLinks,
         meetingLink: GOOGLE_MEET_LINK
       }
@@ -8638,21 +9334,818 @@ The SyneticX Team`
 
   } catch (error) {
     console.error('Registration error:', error);
+    
+    // Check if it's a MongoDB duplicate key error
+    if (error.code === 11000) {
+      return res.status(409).json({
+        success: false,
+        message: 'This email is already registered for the webinar'
+      });
+    }
+    
     res.status(500).json({
       success: false,
-      message: 'Registration failed. Please try again.'
+      message: 'Registration failed. Please try again.',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 });
 
-// Get registration stats (optional admin endpoint)
-app.get('/api/webinar/stats', (req, res) => {
-  res.json({
-    totalRegistrations: registrations.length,
-    emailsSent: registrations.filter(r => r.emailSent).length,
-    recentRegistrations: registrations.slice(-10)
-  });
+// Get registration stats endpoint
+app.get('/api/webinar/stats', async (req, res) => {
+  try {
+    const totalRegistrations = await Sept3Lead.countDocuments();
+    const emailsSent = await Sept3Lead.countDocuments({ emailSent: true });
+    const recentRegistrations = await Sept3Lead.find()
+      .sort({ registrationDate: -1 })
+      .limit(10)
+      .select('fullName email company registrationDate emailSent');
+    
+    // Get UTM campaign stats
+    const utmStats = await Sept3Lead.aggregate([
+      {
+        $group: {
+          _id: {
+            source: '$utmSource',
+            campaign: '$utmCampaign'
+          },
+          count: { $sum: 1 }
+        }
+      },
+      { $sort: { count: -1 } }
+    ]);
+    
+    res.json({
+      totalRegistrations,
+      emailsSent,
+      emailsFailed: totalRegistrations - emailsSent,
+      recentRegistrations,
+      utmStats,
+      collectionName: '3rdseptleads'
+    });
+  } catch (error) {
+    console.error('Stats error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch statistics'
+    });
+  }
 });
+
+// Optional: Endpoint to check if email exists
+app.get('/api/webinar/check-email/:email', async (req, res) => {
+  try {
+    const email = req.params.email.toLowerCase();
+    const exists = await Sept3Lead.exists({ email });
+    
+    res.json({
+      exists: !!exists,
+      message: exists ? 'Email already registered' : 'Email available'
+    });
+  } catch (error) {
+    console.error('Email check error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to check email'
+    });
+  }
+});
+
+// Optional: Admin endpoint to update attendance
+app.patch('/api/webinar/attendance/:registrationId', async (req, res) => {
+  try {
+    const { registrationId } = req.params;
+    const { attended } = req.body;
+    
+    const lead = await Sept3Lead.findOneAndUpdate(
+      { registrationId },
+      { 
+        hasAttended: attended,
+        attendanceConfirmedAt: attended ? new Date() : null
+      },
+      { new: true }
+    );
+    
+    if (!lead) {
+      return res.status(404).json({
+        success: false,
+        message: 'Registration not found'
+      });
+    }
+    
+    res.json({
+      success: true,
+      message: `Attendance ${attended ? 'confirmed' : 'removed'}`,
+      data: lead
+    });
+  } catch (error) {
+    console.error('Attendance update error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to update attendance'
+    });
+  }
+});
+
+
+
+// // Google Meet Link (replace with your actual link)
+// const GOOGLE_MEET_LINK = process.env.GOOGLE_MEET_LINK 
+
+// // In-memory storage (replace with database in production)
+// const registrations = [];
+
+// // Helper function to generate calendar links
+// function generateCalendarLinks() {
+// const startDate = '20250903T180000Z'; // September 3, 2025 2:00 PM EDT
+// const endDate   = '20250903T184500Z'; // 45 minutes later
+//   const title = encodeURIComponent('Cracking the FDA Code Webinar Part II');
+//   const description = encodeURIComponent(`Join us for this exclusive webinar on regulatory intelligence. Meeting Link: ${GOOGLE_MEET_LINK}`);
+  
+//   const googleCalendar = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${startDate}/${endDate}&details=${description}&location=${encodeURIComponent(GOOGLE_MEET_LINK)}`;
+  
+//   const outlookCalendar = `https://outlook.live.com/calendar/0/deeplink/compose?subject=${title}&startdt=${startDate}&enddt=${endDate}&body=${description}&location=${encodeURIComponent(GOOGLE_MEET_LINK)}`;
+  
+//   return { googleCalendar, outlookCalendar };
+// }
+
+// // Email templates
+// // const getConfirmationEmailHTML = (userData, calendarLinks) => {
+// //   return `
+// // <!DOCTYPE html>
+// // <html>
+// // <head>
+// //     <meta charset="UTF-8">
+// //     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+// //     <title>Webinar Confirmation</title>
+// //     <style>
+// //         body { font-family: 'Arial', sans-serif; margin: 0; padding: 0; background-color: #f8f9fa; }
+// //         .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; }
+// //         .header { background: linear-gradient(135deg, #3b82f6, #a855f7); padding: 40px 20px; text-align: center; }
+// //         .header h1 { color: white; margin: 0; font-size: 28px; font-weight: bold; }
+// //         .content { padding: 40px 30px; }
+// //         .event-details { background: #f8f9fa; padding: 25px; border-radius: 12px; margin: 30px 0; border-left: 4px solid #3b82f6; }
+// //         .button { display: inline-block; padding: 12px 24px; background: #3b82f6; color: white; text-decoration: none; border-radius: 8px; margin: 5px; font-weight: bold; }
+// //         .button:hover { background: #2563eb; }
+// //         .calendar-buttons { text-align: center; margin: 30px 0; }
+// //         .footer { background: #f8f9fa; padding: 20px; text-align: center; color: #666; font-size: 14px; }
+// //         .checkmark { width: 60px; height: 60px; background: #22c55e; border-radius: 50%; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; }
+// //         .meet-link { background: #e8f5e8; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: center; }
+// //         .meet-link a { color: #059669; font-weight: bold; text-decoration: none; font-size: 18px; }
+// //     </style>
+// // </head>
+// // <body>
+// //     <div class="container">
+// //         <div class="header">
+// //             <div class="checkmark">
+// //                 <svg width="30" height="30" fill="white" viewBox="0 0 20 20">
+// //                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+// //                 </svg>
+// //             </div>
+// //             <h1>You're Registered!</h1>
+// //             <p style="color: rgba(255,255,255,0.9); margin: 10px 0 0 0; font-size: 18px;">Cracking the FDA Code Webinar</p>
+// //         </div>
+        
+// //         <div class="content">
+// //             <p>Hi ${userData.fullName},</p>
+            
+// //             <p>🎉 <strong>Congratulations!</strong> Your seat is reserved for our exclusive webinar on regulatory intelligence.</p>
+            
+// //             <div class="event-details">
+// //                 <h3 style="margin-top: 0; color: #1f2937;">📅 Event Details</h3>
+// //                 <p><strong>Event:</strong> Cracking the FDA Code: How Regulatory Intelligence Helps Pharma Leaders Move Faster in 2025</p>
+// //                 <p><strong>Date:</strong> Wednesday, July 31st, 2025</p>
+// //                 <p><strong>Time:</strong> 2:00 PM EST / 11:00 AM PST</p>
+// //                 <p><strong>Duration:</strong> 45 minutes + Live Q&A</p>
+// //                 <p><strong>Platform:</strong> Google Meet</p>
+// //             </div>
+            
+// //             <div class="meet-link">
+// //                 <h4 style="margin-top: 0; color: #059669;">🔗 Join the Webinar</h4>
+// //                 <a href="${GOOGLE_MEET_LINK}" target="_blank">${GOOGLE_MEET_LINK}</a>
+// //                 <p style="margin: 10px 0 0 0; font-size: 14px; color: #666;">Save this link - you'll need it to join the webinar!</p>
+// //             </div>
+            
+// //             <div class="calendar-buttons">
+// //                 <h4>Add to Your Calendar:</h4>
+// //                 <a href="${calendarLinks.googleCalendar}" class="button" target="_blank">📅 Google Calendar</a>
+// //                 <a href="${calendarLinks.outlookCalendar}" class="button" target="_blank">📅 Outlook</a>
+// //             </div>
+            
+// //             <h3>What to Expect:</h3>
+// //             <ul>
+// //                 <li>✅ Reduce submission risks by up to 40%</li>
+// //                 <li>✅ Predict trial costs with AI analytics</li>
+// //                 <li>✅ Stay ahead of regulatory changes</li>
+// //                 <li>✅ Track competitor activities in real-time</li>
+// //                 <li>✅ Live Q&A with our expert panel</li>
+// //             </ul>
+            
+// //             <h3>Your Expert Panel:</h3>
+// //             <p><strong>Rohan Mehmi</strong> - Co-Founder, SyneticX</p>
+// //             <p><strong>Alexander Macgregor</strong> - Co-Founder, SyneticX</p>
+// //             <p><strong>Mark Paxton</strong> - Regulatory Expert, Founder of White Oak AI Law</p>
+            
+// //             <p style="margin-top: 30px;">If you have any questions before the webinar, feel free to reply to this email.</p>
+            
+// //             <p>Looking forward to seeing you there!</p>
+            
+// //             <p>Best regards,<br>
+// //             <strong>The SyneticX Team</strong></p>
+// //         </div>
+        
+// //         <div class="footer">
+// //             <p>© 2025 SyneticX. All rights reserved.</p>
+// //             <p>Questions? Reply to this email or contact us at support@syneticx.com</p>
+// //         </div>
+// //     </div>
+// // </body>
+// // </html>
+// //   `;
+// // };
+
+// const getConfirmationEmailHTML = (userData, calendarLinks) => {
+//   return `
+// <!DOCTYPE html>
+// <html>
+// <head>
+//     <meta charset="UTF-8">
+//     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+//     <title>Webinar Confirmation - SyneticX</title>
+//     <style>
+//         * { margin: 0; padding: 0; box-sizing: border-box; }
+//         body { 
+//             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+//             line-height: 1.6;
+//             color: #1a1a1a;
+//             background-color: #f5f5f5;
+//         }
+//         .wrapper { padding: 20px 0; background-color: #f5f5f5; }
+//         .container { 
+//             max-width: 600px; 
+//             margin: 0 auto; 
+//             background-color: #ffffff;
+//             border-radius: 8px;
+//             overflow: hidden;
+//             box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+//         }
+        
+//         /* Header */
+//         .header { 
+//             background: linear-gradient(135deg, #2563eb, #7c3aed);
+//             padding: 48px 32px;
+//             text-align: center;
+//         }
+//         .success-badge {
+//             display: inline-flex;
+//             align-items: center;
+//             justify-content: center;
+//             width: 56px;
+//             height: 56px;
+//             background: rgba(255,255,255,0.2);
+//             border-radius: 50%;
+//             margin-bottom: 16px;
+//         }
+//         .header h1 { 
+//             color: white; 
+//             font-size: 24px; 
+//             font-weight: 600;
+//             margin-bottom: 8px;
+//             letter-spacing: -0.5px;
+//         }
+//         .header p { 
+//             color: rgba(255,255,255,0.95); 
+//             font-size: 16px;
+//         }
+        
+//         /* Content */
+//         .content { padding: 40px 32px; }
+//         .greeting {
+//             font-size: 16px;
+//             color: #4b5563;
+//             margin-bottom: 24px;
+//         }
+//         .greeting strong { color: #1a1a1a; }
+        
+//         /* Event Card */
+//         .event-card {
+//             background: #fafafa;
+//             border: 1px solid #e5e7eb;
+//             border-radius: 8px;
+//             padding: 24px;
+//             margin: 32px 0;
+//         }
+//         .event-card h3 {
+//             font-size: 14px;
+//             text-transform: uppercase;
+//             color: #6b7280;
+//             font-weight: 600;
+//             letter-spacing: 0.5px;
+//             margin-bottom: 16px;
+//         }
+//         .event-detail {
+//             display: flex;
+//             align-items: flex-start;
+//             margin-bottom: 12px;
+//         }
+//         .event-detail:last-child { margin-bottom: 0; }
+//         .event-icon {
+//             width: 20px;
+//             height: 20px;
+//             margin-right: 12px;
+//             color: #6b7280;
+//             flex-shrink: 0;
+//         }
+//         .event-detail-content {
+//             flex: 1;
+//         }
+//         .event-label {
+//             font-size: 12px;
+//             color: #6b7280;
+//             margin-bottom: 2px;
+//         }
+//         .event-value {
+//             font-size: 15px;
+//             color: #1a1a1a;
+//             font-weight: 500;
+//         }
+        
+//         /* Meeting Link */
+//         .meeting-link-card {
+//             background: linear-gradient(135deg, #eff6ff, #f0f9ff);
+//             border: 1px solid #bfdbfe;
+//             border-radius: 8px;
+//             padding: 24px;
+//             margin: 24px 0;
+//             text-align: center;
+//         }
+//         .meeting-link-card h4 {
+//             font-size: 14px;
+//             color: #1e40af;
+//             margin-bottom: 12px;
+//             font-weight: 600;
+//         }
+//         .meet-url {
+//             display: inline-block;
+//             background: white;
+//             padding: 12px 20px;
+//             border-radius: 6px;
+//             color: #2563eb;
+//             text-decoration: none;
+//             font-weight: 500;
+//             font-size: 14px;
+//             border: 1px solid #dbeafe;
+//             transition: all 0.2s;
+//         }
+//         .meet-url:hover {
+//             background: #2563eb;
+//             color: white;
+//             border-color: #2563eb;
+//         }
+//         .meeting-note {
+//             margin-top: 12px;
+//             font-size: 13px;
+//             color: #64748b;
+//         }
+        
+//         /* Calendar Actions */
+//         .calendar-actions {
+//             text-align: center;
+//             margin: 32px 0;
+//             padding: 24px;
+//             background: #fafafa;
+//             border-radius: 8px;
+//         }
+//         .calendar-actions h4 {
+//             font-size: 14px;
+//             color: #4b5563;
+//             margin-bottom: 16px;
+//             font-weight: 500;
+//         }
+//         .calendar-buttons {
+//             display: flex;
+//             justify-content: center;
+//             gap: 12px;
+//         }
+//         .cal-btn {
+//             display: inline-flex;
+//             align-items: center;
+//             padding: 10px 20px;
+//             background: white;
+//             color: #4b5563;
+//             text-decoration: none;
+//             border-radius: 6px;
+//             font-size: 14px;
+//             font-weight: 500;
+//             border: 1px solid #e5e7eb;
+//             transition: all 0.2s;
+//         }
+//         .cal-btn:hover {
+//             background: #f9fafb;
+//             border-color: #9ca3af;
+//         }
+        
+//         /* Benefits List */
+//         .benefits {
+//             margin: 32px 0;
+//         }
+//         .benefits h3 {
+//             font-size: 16px;
+//             color: #1a1a1a;
+//             margin-bottom: 16px;
+//             font-weight: 600;
+//         }
+//         .benefit-list {
+//             list-style: none;
+//         }
+//         .benefit-item {
+//             display: flex;
+//             align-items: flex-start;
+//             margin-bottom: 12px;
+//             font-size: 15px;
+//             color: #4b5563;
+//         }
+//         .check-icon {
+//             width: 20px;
+//             height: 20px;
+//             margin-right: 12px;
+//             flex-shrink: 0;
+//             color: #10b981;
+//         }
+        
+//         /* Speakers */
+//         .speakers {
+//             margin: 32px 0;
+//             padding: 24px;
+//             background: #fafafa;
+//             border-radius: 8px;
+//         }
+//         .speakers h3 {
+//             font-size: 16px;
+//             color: #1a1a1a;
+//             margin-bottom: 16px;
+//             font-weight: 600;
+//         }
+//         .speaker {
+//             margin-bottom: 12px;
+//         }
+//         .speaker-name {
+//             font-weight: 600;
+//             color: #1a1a1a;
+//             font-size: 15px;
+//         }
+//         .speaker-title {
+//             color: #6b7280;
+//             font-size: 14px;
+//         }
+        
+//         /* Footer */
+//         .footer {
+//             background: #fafafa;
+//             padding: 32px;
+//             text-align: center;
+//             border-top: 1px solid #e5e7eb;
+//         }
+//         .footer-logo {
+//             font-size: 18px;
+//             font-weight: 600;
+//             color: #1a1a1a;
+//             margin-bottom: 16px;
+//         }
+//         .footer-text {
+//             font-size: 13px;
+//             color: #6b7280;
+//             margin-bottom: 8px;
+//         }
+//         .footer-links {
+//             margin-top: 16px;
+//         }
+//         .footer-link {
+//             color: #2563eb;
+//             text-decoration: none;
+//             font-size: 13px;
+//             margin: 0 8px;
+//         }
+//         .footer-link:hover {
+//             text-decoration: underline;
+//         }
+        
+//         /* Responsive */
+//         @media (max-width: 600px) {
+//             .content { padding: 32px 24px; }
+//             .header { padding: 40px 24px; }
+//             .calendar-buttons { 
+//                 flex-direction: column; 
+//                 align-items: stretch;
+//             }
+//             .cal-btn { width: 100%; justify-content: center; }
+//         }
+//     </style>
+// </head>
+// <body>
+//     <div class="wrapper">
+//         <div class="container">
+//             <div class="header">
+//                 <div class="success-badge">
+//                     <svg width="32" height="32" fill="white" viewBox="0 0 20 20">
+//                         <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+//                     </svg>
+//                 </div>
+//                 <h1>Registration Confirmed</h1>
+//                 <p>Your spot is secured for the webinar</p>
+//             </div>
+            
+//             <div class="content">
+//                 <div class="greeting">
+//                     Hello <strong>${userData.fullName}</strong>,
+//                 </div>
+                
+//                 <p style="color: #4b5563; margin-bottom: 24px;">
+//                     Thank you for registering! We're excited to have you join us for this exclusive webinar on how regulatory intelligence is transforming pharma development in 2025.
+//                 </p>
+                
+//                 <div class="event-card">
+//                     <h3>Event Details</h3>
+                    
+//                     <div class="event-detail">
+//                         <svg class="event-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+//                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+//                         </svg>
+//                         <div class="event-detail-content">
+//                             <div class="event-label">Webinar Title</div>
+//                             <div class="event-value">Cracking the FDA Code: How Regulatory Intelligence Helps Pharma Leaders Move Faster in 2025</div>
+//                         </div>
+//                     </div>
+                    
+//                     <div class="event-detail">
+//                         <svg class="event-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+//                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+//                         </svg>
+//                         <div class="event-detail-content">
+//                             <div class="event-label">Date</div>
+//                             <div class="event-value">Wednesday, July 31st, 2025</div>
+//                         </div>
+//                     </div>
+                    
+//                     <div class="event-detail">
+//                         <svg class="event-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+//                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+//                         </svg>
+//                         <div class="event-detail-content">
+//                             <div class="event-label">Time</div>
+//                             <div class="event-value">2:00 PM EST / 11:00 AM PST</div>
+//                         </div>
+//                     </div>
+                    
+//                     <div class="event-detail">
+//                         <svg class="event-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+//                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+//                         </svg>
+//                         <div class="event-detail-content">
+//                             <div class="event-label">Duration</div>
+//                             <div class="event-value">45 minutes + Live Q&A</div>
+//                         </div>
+//                     </div>
+//                 </div>
+                
+//                 <div class="meeting-link-card">
+//                     <h4>Join via Google Meet</h4>
+//                     <a href="${GOOGLE_MEET_LINK}" class="meet-url" target="_blank">Join Webinar →</a>
+//                     <div class="meeting-note">Save this link to join on the day of the event</div>
+//                 </div>
+                
+//                 <div class="calendar-actions">
+//                     <h4>Add to your calendar so you don't miss it</h4>
+//                     <div class="calendar-buttons">
+//                         <a href="${calendarLinks.googleCalendar}" class="cal-btn" target="_blank">
+//                             <svg width="16" height="16" fill="currentColor" style="margin-right: 8px;" viewBox="0 0 24 24">
+//                                 <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/>
+//                             </svg>
+//                             Google Calendar
+//                         </a>
+//                         <a href="${calendarLinks.outlookCalendar}" class="cal-btn" target="_blank">
+//                             <svg width="16" height="16" fill="currentColor" style="margin-right: 8px;" viewBox="0 0 24 24">
+//                                 <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/>
+//                             </svg>
+//                             Outlook
+//                         </a>
+//                     </div>
+//                 </div>
+                
+//                 <div class="benefits">
+//                     <h3>What You'll Learn</h3>
+//                     <ul class="benefit-list">
+//                         <li class="benefit-item">
+//                             <svg class="check-icon" fill="currentColor" viewBox="0 0 20 20">
+//                                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+//                             </svg>
+//                             Reduce submission risks by up to 40%
+//                         </li>
+//                         <li class="benefit-item">
+//                             <svg class="check-icon" fill="currentColor" viewBox="0 0 20 20">
+//                                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+//                             </svg>
+//                             Predict trial costs with AI analytics
+//                         </li>
+//                         <li class="benefit-item">
+//                             <svg class="check-icon" fill="currentColor" viewBox="0 0 20 20">
+//                                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+//                             </svg>
+//                             Stay ahead of regulatory changes
+//                         </li>
+//                         <li class="benefit-item">
+//                             <svg class="check-icon" fill="currentColor" viewBox="0 0 20 20">
+//                                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+//                             </svg>
+//                             Track competitor activities in real-time
+//                         </li>
+//                         <li class="benefit-item">
+//                             <svg class="check-icon" fill="currentColor" viewBox="0 0 20 20">
+//                                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+//                             </svg>
+//                             Live Q&A with our expert panel
+//                         </li>
+//                     </ul>
+//                 </div>
+                
+//                 <div class="speakers">
+//                     <h3>Your Expert Speakers</h3>
+//                     <div class="speaker">
+//                         <div class="speaker-name">Rohan Mehmi</div>
+//                         <div class="speaker-title">Co-Founder, SyneticX</div>
+//                     </div>
+//                     <div class="speaker">
+//                         <div class="speaker-name">Alexander Macgregor</div>
+//                         <div class="speaker-title">Co-Founder, SyneticX</div>
+//                     </div>
+//                     <div class="speaker">
+//                         <div class="speaker-name">Mark Paxton</div>
+//                         <div class="speaker-title">Regulatory Expert, Founder of White Oak AI Law</div>
+//                     </div>
+//                 </div>
+                
+//                 <p style="margin-top: 32px; font-size: 15px; color: #4b5563;">
+//                     Have questions before the webinar? Simply reply to this email and our team will be happy to help.
+//                 </p>
+                
+//                 <p style="margin-top: 24px; font-size: 15px; color: #4b5563;">
+//                     We look forward to seeing you at the webinar!
+//                 </p>
+                
+//                 <p style="margin-top: 24px; font-size: 15px; color: #1a1a1a;">
+//                     Best regards,<br>
+//                     <strong>The SyneticX Team</strong>
+//                 </p>
+//             </div>
+            
+//             <div class="footer">
+//                 <div class="footer-logo">SyneticX</div>
+//                 <div class="footer-text">© 2025 SyneticX. All rights reserved.</div>
+//                 <div class="footer-text">Accelerating pharmaceutical development with AI-powered regulatory intelligence</div>
+//                 <div class="footer-links">
+//                     <a href="mailto:support@syneticx.com" class="footer-link">support@syneticx.com</a>
+//                     <span style="color: #cbd5e1;">•</span>
+//                     <a href="https://syneticx.com" class="footer-link">syneticx.com</a>
+//                 </div>
+//             </div>
+//         </div>
+//     </div>
+// </body>
+// </html>
+//   `;
+// };
+
+// // Webinar registration endpoint
+// app.post('/api/webinar/register', async (req, res) => {
+//   try {
+//     const { fullName, email, company, jobTitle, utm_source, utm_medium, utm_campaign, utm_content, utm_term } = req.body;
+
+// const transporter = nodemailer.createTransport({
+// //   service: 'gmail',
+// //   auth: {
+// //     user: process.env.smtphost,
+// //     pass: process.env.smtppassword
+// //   }
+// // });
+//         host:  'smtp.gmail.com',
+//         port:  587,
+//         secure: false,
+//           auth: {
+//     user: process.env.smtphost,
+//     pass: process.env.smtppassword
+//   }
+//       });
+
+//     // Basic validation
+//     if (!fullName || !email) {
+//       return res.status(400).json({
+//         success: false,
+//         message: 'Name and email are required'
+//       });
+//     }
+
+//     // Email validation
+//     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+//     if (!emailRegex.test(email)) {
+//       return res.status(400).json({
+//         success: false,
+//         message: 'Please provide a valid email address'
+//       });
+//     }
+
+//     // Check if already registered
+//     const existingRegistration = registrations.find(reg => reg.email === email);
+//     if (existingRegistration) {
+//       return res.status(409).json({
+//         success: false,
+//         message: 'This email is already registered for the webinar'
+//       });
+//     }
+
+//     // Create registration record
+//     const registration = {
+//       id: Date.now().toString(),
+//       fullName,
+//       email,
+//       company: company || '',
+//       jobTitle: jobTitle || '',
+//       registrationDate: new Date().toISOString(),
+//       utm_source: utm_source || '',
+//       utm_medium: utm_medium || '',
+//       utm_campaign: utm_campaign || '',
+//       utm_content: utm_content || '',
+//       utm_term: utm_term || '',
+//       emailSent: false
+//     };
+
+//     // Generate calendar links
+//     const calendarLinks = generateCalendarLinks();
+
+//     // Send confirmation email
+//     const mailOptions = {
+//       from: `"SyneticX Webinar" <${process.env.SMTP_FROM || process.env.SMTP_USER}>`,
+//       to: email,
+//       subject: '🎉 You\'re In! FDA Code Webinar Details Inside',
+//       html: getConfirmationEmailHTML(registration, calendarLinks),
+//       text: `Hi ${fullName},
+
+// You're registered for "Cracking the FDA Code" webinar!
+
+// Event Details:
+// - Date: Wednesday, July 31st, 2025
+// - Time: 2:00 PM EST / 11:00 AM PST
+// - Duration: 45 minutes + Q&A
+// - Platform: Google Meet
+
+// Meeting Link: ${GOOGLE_MEET_LINK}
+
+// Add to Calendar:
+// - Google: ${calendarLinks.googleCalendar}
+// - Outlook: ${calendarLinks.outlookCalendar}
+
+// Looking forward to seeing you there!
+
+// Best regards,
+// The SyneticX Team`
+//     };
+
+//     // Send email
+//     await transporter.sendMail(mailOptions);
+    
+//     // Mark email as sent and save registration
+//     registration.emailSent = true;
+//     registrations.push(registration);
+
+//     console.log(`New registration: ${fullName} (${email})`);
+
+//     // Return success response
+//     res.json({
+//       success: true,
+//       message: 'Registration successful! Check your email for confirmation.',
+//       data: {
+//         registrationId: registration.id,
+//         calendarLinks,
+//         meetingLink: GOOGLE_MEET_LINK
+//       }
+//     });
+
+//   } catch (error) {
+//     console.error('Registration error:', error);
+//     res.status(500).json({
+//       success: false,
+//       message: 'Registration failed. Please try again.'
+//     });
+//   }
+// });
+
+// // Get registration stats (optional admin endpoint)
+// app.get('/api/webinar/stats', (req, res) => {
+//   res.json({
+//     totalRegistrations: registrations.length,
+//     emailsSent: registrations.filter(r => r.emailSent).length,
+//     recentRegistrations: registrations.slice(-10)
+//   });
+// });
 
 
 
