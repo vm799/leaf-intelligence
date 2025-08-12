@@ -83412,85 +83412,90 @@ function initializeMinimizedSearchBar() {
     // Expand button
     document.getElementById('expandBtn').addEventListener('click', expandSearch);
     
-    // New search button
-    document.getElementById('newSearchBtn').addEventListener('click', function() {
-        // Clear search fields
-        elements.drugSearch.value = '';
-        elements.conditionSearch.value = '';
-        document.getElementById('timelineSlider').value = '7';
+    // // New search button
+    // document.getElementById('newSearchBtn').addEventListener('click', function() {
+    //     // Clear search fields
+    //     elements.drugSearch.value = '';
+    //     elements.conditionSearch.value = '';
+    //     document.getElementById('timelineSlider').value = '7';
         
-        // Update slider display (call your existing updateSlider function)
-        if (typeof updateSlider === 'function') {
-            updateSlider();
-        }
+    //     // Update slider display (call your existing updateSlider function)
+    //     if (typeof updateSlider === 'function') {
+    //         updateSlider();
+    //     }
         
-        // Hide search results sections
-        showSection(elements.summarySection, false);
-        showSection(elements.studiesSection, false);
-        showSection(elements.resultsOverview, false);
-        showSection(elements.fdaDataSection, false);
-        showSection(elements.ema, false);
-        showSection(elements.pubmedSection, false);
-        showSection(elements.sectionNavigationBar, false);
+    //     // Hide search results sections
+    //     showSection(elements.summarySection, false);
+    //     showSection(elements.studiesSection, false);
+    //     showSection(elements.resultsOverview, false);
+    //     showSection(elements.fdaDataSection, false);
+    //     showSection(elements.ema, false);
+    //     showSection(elements.pubmedSection, false);
+    //     showSection(elements.sectionNavigationBar, false);
         
-        // Show placeholder message
-        showSection(elements.placeholderMessage, true);
+    //     // Show placeholder message
+    //     showSection(elements.placeholderMessage, true);
 
-            // 1. CLOSE INDIVIDUAL TRIAL VIEWS FIRST (NEW FIX)
-    try {
-        // Hide study detail section
-        const studyDetailSection = elements.studyDetailSection || document.getElementById('studyDetailSection');
-        if (studyDetailSection) {
-            showSection(studyDetailSection, false);
-        }
+    //         // 1. CLOSE INDIVIDUAL TRIAL VIEWS FIRST (NEW FIX)
+    // try {
+    //     // Hide study detail section
+    //     const studyDetailSection = elements.studyDetailSection || document.getElementById('studyDetailSection');
+    //     if (studyDetailSection) {
+    //         showSection(studyDetailSection, false);
+    //     }
         
-        // Hide any enhanced trial tabs
-        const enhancedTrialContent = document.querySelectorAll('.enhanced-tab-content');
-        enhancedTrialContent.forEach(content => {
-            content.classList.add('hidden');
-        });
+    //     // Hide any enhanced trial tabs
+    //     const enhancedTrialContent = document.querySelectorAll('.enhanced-tab-content');
+    //     enhancedTrialContent.forEach(content => {
+    //         content.classList.add('hidden');
+    //     });
         
-        // Reset enhanced tab buttons
-        const enhancedTabButtons = document.querySelectorAll('.enhanced-tab-btn');
-        enhancedTabButtons.forEach(btn => {
-            btn.classList.remove('active', 'border-blue-500', 'text-blue-600');
-            btn.classList.add('border-transparent', 'text-gray-500');
-        });
+    //     // Reset enhanced tab buttons
+    //     const enhancedTabButtons = document.querySelectorAll('.enhanced-tab-btn');
+    //     enhancedTabButtons.forEach(btn => {
+    //         btn.classList.remove('active', 'border-blue-500', 'text-blue-600');
+    //         btn.classList.add('border-transparent', 'text-gray-500');
+    //     });
         
-        // Close any trial modals
-        const trialModals = document.querySelectorAll('.trial-detail-modal, .study-detail-modal, .fixed.inset-0');
-        trialModals.forEach(modal => {
-            if (modal && modal.style) {
-                modal.style.display = 'none';
-            }
-            if (modal && modal.remove) {
-                modal.remove(); // Remove modal entirely from DOM
-            }
-        });
+    //     // Close any trial modals
+    //     const trialModals = document.querySelectorAll('.trial-detail-modal, .study-detail-modal, .fixed.inset-0');
+    //     trialModals.forEach(modal => {
+    //         if (modal && modal.style) {
+    //             modal.style.display = 'none';
+    //         }
+    //         if (modal && modal.remove) {
+    //             modal.remove(); // Remove modal entirely from DOM
+    //         }
+    //     });
         
-        // Hide any phase3 tab content
-        const phase3TabContent = document.querySelectorAll('.phase3-tab-content');
-        phase3TabContent.forEach(content => {
-            content.classList.add('hidden');
-        });
+    //     // Hide any phase3 tab content
+    //     const phase3TabContent = document.querySelectorAll('.phase3-tab-content');
+    //     phase3TabContent.forEach(content => {
+    //         content.classList.add('hidden');
+    //     });
         
-        // Reset phase3 tab buttons
-        const phase3TabButtons = document.querySelectorAll('.phase3-tab-btn');
-        phase3TabButtons.forEach(btn => {
-            btn.classList.remove('active', 'border-blue-500', 'text-blue-600');
-            btn.classList.add('border-transparent', 'text-gray-500');
-        });
+    //     // Reset phase3 tab buttons
+    //     const phase3TabButtons = document.querySelectorAll('.phase3-tab-btn');
+    //     phase3TabButtons.forEach(btn => {
+    //         btn.classList.remove('active', 'border-blue-500', 'text-blue-600');
+    //         btn.classList.add('border-transparent', 'text-gray-500');
+    //     });
 
-        console.log('✅ Individual trial views closed');
-    } catch (error) {
-        console.warn('Error closing individual trial views:', error);
-    }
+    //     console.log('✅ Individual trial views closed');
+    // } catch (error) {
+    //     console.warn('Error closing individual trial views:', error);
+    // }
 
 
-        // newsearch()
-        // Expand search
-        expandSearch();
-    });
+    //     // newsearch()
+    //     // Expand search
+    //     expandSearch();
+    // });
+    
+ document.getElementById('newSearchBtn').addEventListener('click', function() {
+    location.reload();
+ })
+
     
     // Export dropdown functionality
     const exportBtn = document.getElementById('exportBtn');
@@ -83535,6 +83540,10 @@ function initializeMinimizedSearchBar() {
     });
     // newearch()
 }
+
+
+
+
 
 // Placeholder functions for export actions (replace with your actual implementations)
 function handlePDFExport() {
@@ -98931,7 +98940,528 @@ document.addEventListener('DOMContentLoaded', function() {
 //   PubMedModule.init();
 // });
 
+function completeUIReset() {
+    console.log('🔄 Starting Complete UI Reset...');
+    
+    // ========================================
+    // 1. CLEAR ALL SEARCH INPUTS
+    // ========================================
+    try {
+        // Main search inputs
+        if (elements.drugSearch) elements.drugSearch.value = '';
+        if (elements.conditionSearch) elements.conditionSearch.value = '';
+        
+        // Advanced search inputs
+        document.querySelectorAll('#advancedSearch input[type="text"], #advancedSearch textarea').forEach(input => {
+            input.value = '';
+        });
+        
+        // Timeline slider
+        const timelineSlider = document.getElementById('timelineSlider');
+        if (timelineSlider) {
+            timelineSlider.value = '7';
+            if (typeof updateSlider === 'function') {
+                updateSlider();
+            }
+        }
+        
+        // PubMed search inputs
+        if (elements.pubmedSearchBox) elements.pubmedSearchBox.value = '';
+        if (elements.pubmedLocalSearchBox) elements.pubmedLocalSearchBox.value = '';
+        if (elements.pubmedCustomQuery) elements.pubmedCustomQuery.value = '';
+        
+        // Study search input
+        if (elements.studySearch) {
+            elements.studySearch.value = '';
+            if (elements.clearSearch) {
+                elements.clearSearch.classList.add('hidden');
+            }
+        }
+        
+        console.log('✅ Search inputs cleared');
+    } catch (error) {
+        console.warn('Error clearing search inputs:', error);
+    }
 
+    // ========================================
+    // 2. RESET GLOBAL STATE VARIABLES
+    // ========================================
+    try {
+        // Reset appState
+        if (typeof appState !== 'undefined') {
+            appState.studies = [];
+            appState.allStudies = [];
+            appState.filteredStudies = null;
+            appState.currentPage = 1;
+            appState.currentStudyId = null;
+            appState.currentPhaseFilter = 'all';
+            appState.allOutcomeMeasures = [];
+            appState.collatedOutcomes = [];
+            appState.hasResultsOnly = false;
+            appState.trdFocusOnly = false;
+            appState.studyDetails = {};
+            appState.outcomeMetrics = [];
+            appState.currentOutcomeMetric = '';
+            appState.currentOutcomeIds = [];
+            appState.failedStudyIds = new Set();
+            
+            // Reset filter states
+            appState.filters = {
+                phaseFilters: {
+                    'PRE_PHASE': true,
+                    'PHASE1': true,
+                    'PHASE1_PHASE2': true,
+                    'PHASE2': true,
+                    'PHASE3': true,
+                    'PHASE4': true
+                },
+                hasResults: false,
+                isCompleted: false
+            };
+            
+            // Reset FDA data
+            appState.fdaData = {
+                documents: [],
+                orangeBook: [],
+                dailyMed: [],
+                warningLetters: []
+            };
+            
+            // Reset window.appState if different
+            if (window.appState) {
+                window.appState.trialsData = null;
+                window.appState.fdaData = null;
+                window.appState.emaData = null;
+                window.appState.pubmedData = null;
+                window.appState.currentDrug = null;
+                window.appState.currentCondition = null;
+                window.appState.lastSearchType = null;
+            }
+        }
+        
+        // Clear SearchTermManager
+        if (typeof SearchTermManager !== 'undefined' && SearchTermManager.clearSearchTerm) {
+            SearchTermManager.clearSearchTerm();
+        } else if (typeof SearchTermManager !== 'undefined' && SearchTermManager.setSearchTerm) {
+            SearchTermManager.setSearchTerm('');
+        }
+        
+        console.log('✅ Global state variables reset');
+    } catch (error) {
+        console.warn('Error resetting state variables:', error);
+    }
+
+    // ========================================
+    // 3. HIDE ALL SECTIONS & SHOW DEFAULT
+    // ========================================
+    try {
+        // Hide all result sections
+        const sectionsToHide = [
+            'ctSummary', 'ema', 'resultsOverview', 'pubmedSection',
+            'studiesSection', 'studyDetailSection', 'fdaDataSection',
+            'companySummarySection', 'inspectionDataSection', 'advancedSearch',
+            'pubmedAI', 'clinicalai', 'warningLetters', 'fda-reg-section',
+            'wl-reg-section', 'company-summary-section', 'inspection-data'
+        ];
+        
+        sectionsToHide.forEach(sectionId => {
+            const section = document.getElementById(sectionId) || elements[sectionId];
+            if (section) {
+                showSection(section, false);
+                section.style.display = 'none';
+                section.classList.add('hidden');
+            }
+        });
+        
+        // Hide all elements with class 'results-section'
+        document.querySelectorAll('.results-section').forEach(section => {
+            section.style.display = 'none';
+            section.classList.add('hidden');
+        });
+        
+        // Show default sections
+        if (elements.mainSearch) {
+            showSection(elements.mainSearch, true);
+            elements.mainSearch.style.display = '';
+            elements.mainSearch.classList.remove('hidden');
+        }
+        
+        if (elements.placeholderMessage) {
+            showSection(elements.placeholderMessage, true);
+            elements.placeholderMessage.style.display = '';
+            elements.placeholderMessage.classList.remove('hidden');
+        }
+        
+        // Hide navigation bar initially
+        if (elements.sectionNavigationBar) {
+            showSection(elements.sectionNavigationBar, false);
+            elements.sectionNavigationBar.style.display = 'none';
+            elements.sectionNavigationBar.classList.add('hidden');
+        }
+        
+        // Hide summary section
+        if (elements.summarySection) {
+            showSection(elements.summarySection, false);
+            elements.summarySection.style.display = 'none';
+            elements.summarySection.classList.add('hidden');
+        }
+        
+        console.log('✅ Sections visibility reset');
+    } catch (error) {
+        console.warn('Error resetting sections:', error);
+    }
+
+    // ========================================
+    // 4. CLEAR ALL CONTENT CONTAINERS
+    // ========================================
+    try {
+        const containersToEmpty = [
+            'studiesList', 'pubmedResults', 'fdaDocuments', 'orangeBookData',
+            'dailyMedData', 'warningLettersData', 'emaResults', 'summaryContent',
+            'pubmedArticlesList', 'pubmedTreatmentsContent', 'pubmedDrugInfoContent',
+            'pubmedAISummaryContent', 'pubmedCollectionSummary', 'pubmedThematicAnalysis',
+            'companyTableBody', 'enhancedWLContainer', 'fda-documents-container',
+            'orange-book-container', 'daily-med-container', 'warning-letters-container'
+        ];
+        
+        containersToEmpty.forEach(containerId => {
+            const container = document.getElementById(containerId) || elements[containerId];
+            if (container) {
+                container.innerHTML = '';
+            }
+        });
+        
+        // Clear summary section content specifically
+        const summarySection = document.getElementById('summarySection');
+        if (summarySection) {
+            const contentAreas = summarySection.querySelectorAll(
+                '.summary-content, .generated-summary, .analysis-content, .ai-summary'
+            );
+            contentAreas.forEach(area => {
+                area.innerHTML = '';
+            });
+        }
+        
+        // Clear any dynamically injected content
+        document.querySelectorAll('[data-dynamic-content="true"]').forEach(el => {
+            el.remove();
+        });
+        
+        console.log('✅ Content containers cleared');
+    } catch (error) {
+        console.warn('Error clearing content containers:', error);
+    }
+
+    // ========================================
+    // 5. RESET STATUS INDICATORS
+    // ========================================
+    try {
+        const sections = ['trials', 'fda', 'ema', 'pubmed'];
+        sections.forEach(section => {
+            if (typeof updateSectionStatus === 'function') {
+                updateSectionStatus(section, 'idle', '-', 0);
+            }
+        });
+        
+        // Reset loading indicators
+        document.querySelectorAll('.loading-indicator, .spinner, .animate-spin').forEach(el => {
+            el.classList.add('hidden');
+        });
+        
+        console.log('✅ Status indicators reset');
+    } catch (error) {
+        console.warn('Error resetting status indicators:', error);
+    }
+
+    // ========================================
+    // 6. RESET FILTERS AND CHECKBOXES
+    // ========================================
+    try {
+        // Reset phase filter buttons
+        document.querySelectorAll('.phase-filter').forEach(btn => {
+            btn.classList.remove('bg-primary', 'text-white', 'active');
+            btn.classList.add('bg-gray-200', 'hover:bg-gray-300');
+        });
+        
+        // Set "All" phase button as active
+        const allPhaseBtn = document.querySelector('.phase-filter[data-phase="all"]');
+        if (allPhaseBtn) {
+            allPhaseBtn.classList.remove('bg-gray-200', 'hover:bg-gray-300');
+            allPhaseBtn.classList.add('bg-primary', 'text-white', 'active');
+        }
+        
+        // Reset enhanced phase buttons
+        const phaseIds = ['PRE_PHASE', 'PHASE1', 'PHASE1_PHASE2', 'PHASE2', 'PHASE3', 'PHASE4'];
+        phaseIds.forEach(phase => {
+            const button = elements.phaseButtons?.[phase];
+            if (button) {
+                button.classList.add('active');
+                button.classList.remove('bg-red-100', 'border-red-300', 'inactive');
+            }
+        });
+        
+        // Reset all checkboxes
+        document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+            checkbox.checked = false;
+        });
+        
+        // Reset all radio buttons to default
+        document.querySelectorAll('input[type="radio"]').forEach(radio => {
+            radio.checked = radio.hasAttribute('checked');
+        });
+        
+        // Reset filter dropdowns
+        document.querySelectorAll('select').forEach(select => {
+            select.selectedIndex = 0;
+        });
+        
+        // Specific filter resets
+        if (elements.hasResultsCheckbox) elements.hasResultsCheckbox.checked = false;
+        if (elements.completedCheckbox) elements.completedCheckbox.checked = false;
+        if (elements.pubmedFullTextOnly) elements.pubmedFullTextOnly.checked = false;
+        if (elements.pubmedSort) elements.pubmedSort.value = 'relevance';
+        if (elements.pubmedYearRange) elements.pubmedYearRange.value = '5';
+        if (elements.pubmedJournalFilter) elements.pubmedJournalFilter.value = '';
+        
+        console.log('✅ Filters and checkboxes reset');
+    } catch (error) {
+        console.warn('Error resetting filters:', error);
+    }
+
+    // ========================================
+    // 7. RESET COUNTERS AND PAGINATION
+    // ========================================
+    try {
+        // Reset all counters
+        const counters = [
+            'studyCount', 'fdaDocCount', 'orangeBookCount',
+            'dailyMedCount', 'warningLettersCount', 'pubmedResultCount',
+            'totalWarningLetters', 'emaResultCount', 'selectedCount'
+        ];
+        
+        counters.forEach(counterId => {
+            const counter = document.getElementById(counterId) || elements[counterId];
+            if (counter) {
+                counter.textContent = '0';
+            }
+        });
+        
+        // Hide and reset pagination controls
+        const paginationControls = document.querySelectorAll(
+            '.pagination-controls, #paginationControls, #pubmedPagination'
+        );
+        paginationControls.forEach(control => {
+            control.classList.add('hidden');
+            control.innerHTML = '';
+        });
+        
+        // Reset page indicators
+        if (elements.currentPage) elements.currentPage.textContent = '1';
+        if (elements.totalPages) elements.totalPages.textContent = '1';
+        
+        console.log('✅ Counters and pagination reset');
+    } catch (error) {
+        console.warn('Error resetting counters:', error);
+    }
+
+    // ========================================
+    // 8. RESET MODULE STATES
+    // ========================================
+    try {
+        // Reset PubMed module
+        if (typeof resetPubMedModule === 'function') {
+            resetPubMedModule();
+        } else if (window.PubMedModule && typeof window.PubMedModule.reset === 'function') {
+            window.PubMedModule.reset();
+        }
+        
+        // Reset EMA module
+        if (window.EmaDataModulePerfect && typeof window.EmaDataModulePerfect.reset === 'function') {
+            window.EmaDataModulePerfect.reset();
+        }
+        
+        // Reset FDA Manufacturers module
+        if (window.FDAManufacturers && typeof window.FDAManufacturers.reset === 'function') {
+            window.FDAManufacturers.reset();
+        }
+        
+        // Reset Enhanced Warning Letters
+        if (window.enhancedWarningLettersFixed && typeof window.enhancedWarningLettersFixed.reset === 'function') {
+            window.enhancedWarningLettersFixed.reset();
+        }
+        
+        console.log('✅ Module states reset');
+    } catch (error) {
+        console.warn('Error resetting modules:', error);
+    }
+
+    // ========================================
+    // 9. CLEAR TABS AND TAB STATES
+    // ========================================
+    try {
+        // Reset all tab states
+        document.querySelectorAll('.tab-button, .tab-btn, [role="tab"]').forEach(tab => {
+            tab.classList.remove('active', 'bg-blue-500', 'text-white', 'border-b-2');
+            tab.setAttribute('aria-selected', 'false');
+        });
+        
+        // Reset all tab panels
+        document.querySelectorAll('.tab-panel, .tab-content, [role="tabpanel"]').forEach(panel => {
+            panel.classList.add('hidden');
+            panel.setAttribute('aria-hidden', 'true');
+        });
+        
+        // Activate first tab in each tab group if exists
+        document.querySelectorAll('[role="tablist"]').forEach(tablist => {
+            const firstTab = tablist.querySelector('[role="tab"]');
+            const firstPanel = document.querySelector(firstTab?.getAttribute('aria-controls'));
+            if (firstTab && firstPanel) {
+                firstTab.classList.add('active');
+                firstTab.setAttribute('aria-selected', 'true');
+                firstPanel.classList.remove('hidden');
+                firstPanel.setAttribute('aria-hidden', 'false');
+            }
+        });
+        
+        console.log('✅ Tabs reset');
+    } catch (error) {
+        console.warn('Error resetting tabs:', error);
+    }
+
+    // ========================================
+    // 10. CLEAR INTERVALS AND TIMEOUTS
+    // ========================================
+    try {
+        // Clear any running intervals/timeouts (aggressive but ensures clean state)
+        const highestId = setTimeout(() => {}, 0);
+        for (let i = 0; i < highestId; i++) {
+            clearTimeout(i);
+            clearInterval(i);
+        }
+        console.log('✅ Intervals and timeouts cleared');
+    } catch (error) {
+        console.warn('Error clearing intervals:', error);
+    }
+
+    // ========================================
+    // 11. REMOVE EVENT LISTENERS (for dynamic elements)
+    // ========================================
+    try {
+        // Clone and replace elements to remove all event listeners
+        const elementsWithListeners = document.querySelectorAll('[data-has-listener="true"]');
+        elementsWithListeners.forEach(el => {
+            const newEl = el.cloneNode(true);
+            el.parentNode.replaceChild(newEl, el);
+        });
+        
+        console.log('✅ Event listeners cleaned');
+    } catch (error) {
+        console.warn('Error cleaning event listeners:', error);
+    }
+
+    // ========================================
+    // 12. CLEAR LOCAL/SESSION STORAGE (if used)
+    // ========================================
+    try {
+        // Clear any search-related data from storage
+        const keysToRemove = [
+            'lastSearch', 'searchHistory', 'filters', 'selectedArticles',
+            'currentDrug', 'currentCondition', 'searchResults'
+        ];
+        
+        keysToRemove.forEach(key => {
+            localStorage.removeItem(key);
+            sessionStorage.removeItem(key);
+        });
+        
+        console.log('✅ Storage cleared');
+    } catch (error) {
+        console.warn('Error clearing storage:', error);
+    }
+
+    // ========================================
+    // 13. DISPATCH RESET EVENT
+    // ========================================
+    try {
+        const resetEvent = new CustomEvent('searchReset', {
+            detail: { 
+                timestamp: new Date().toISOString(),
+                source: 'completeUIReset'
+            }
+        });
+        document.dispatchEvent(resetEvent);
+        
+        console.log('✅ Reset event dispatched');
+    } catch (error) {
+        console.warn('Error dispatching reset event:', error);
+    }
+
+    // ========================================
+    // 14. EXPAND SEARCH BAR (if minimized)
+    // ========================================
+    try {
+        if (typeof expandSearch === 'function') {
+            expandSearch();
+        }
+        
+        // Ensure search bar is visible
+        const searchBar = document.getElementById('searchBar');
+        if (searchBar) {
+            searchBar.classList.remove('minimized', 'hidden');
+            searchBar.style.display = '';
+        }
+        
+        console.log('✅ Search bar expanded');
+    } catch (error) {
+        console.warn('Error expanding search bar:', error);
+    }
+
+    // ========================================
+    // 15. FINAL UI CLEANUP
+    // ========================================
+    try {
+        // Remove any error messages
+        document.querySelectorAll('.error-message, .alert-danger, .text-red-500').forEach(el => {
+            if (el.classList.contains('error-message') || 
+                el.classList.contains('alert-danger')) {
+                el.remove();
+            }
+        });
+        
+        // Remove any loading overlays
+        document.querySelectorAll('.loading-overlay, .modal-backdrop').forEach(el => {
+            el.remove();
+        });
+        
+        // Close any open modals
+        document.querySelectorAll('.modal, [role="dialog"]').forEach(modal => {
+            modal.classList.add('hidden');
+            modal.style.display = 'none';
+        });
+        
+        // Scroll to top
+        window.scrollTo(0, 0);
+        
+        console.log('✅ Final UI cleanup complete');
+    } catch (error) {
+        console.warn('Error in final cleanup:', error);
+    }
+
+    // ========================================
+    // 16. FOCUS ON MAIN SEARCH INPUT
+    // ========================================
+    setTimeout(() => {
+        const mainInput = elements.drugSearch || 
+                         elements.conditionSearch || 
+                         document.getElementById('drugSearch') ||
+                         document.getElementById('conditionSearch');
+        if (mainInput && typeof mainInput.focus === 'function') {
+            mainInput.focus();
+        }
+    }, 100);
+
+    console.log('✅✅✅ Complete UI Reset Finished Successfully!');
+}
 
 // Enhanced PubMed Module
 // Includes: Grok AI integration, abstract annotation, summarization, and thematic analysis
