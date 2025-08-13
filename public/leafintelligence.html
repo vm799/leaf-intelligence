@@ -63792,59 +63792,59 @@ function generateApplicationsContentWithTags(fdaData, drugName, drugsCount) {
 //   }
 // }
 
-async function autoLoadFDADocuments(products, showProgress = true) {
-  if (!products || products.length === 0) return;
+// async function autoLoadFDADocuments(products, showProgress = true) {
+//   if (!products || products.length === 0) return;
   
-  console.log(`Starting to load documents for ${products.length} applications...`);
+//   console.log(`Starting to load documents for ${products.length} applications...`);
   
-  // Show loading status if available
-  const loadingStatus = document.getElementById('fda-doc-loading-status');
-  const progressElement = document.getElementById('fda-loading-progress');
+//   // Show loading status if available
+//   const loadingStatus = document.getElementById('fda-doc-loading-status');
+//   const progressElement = document.getElementById('fda-loading-progress');
   
-  if (showProgress && loadingStatus) {
-    loadingStatus.classList.remove('hidden');
-  }
+//   if (showProgress && loadingStatus) {
+//     loadingStatus.classList.remove('hidden');
+//   }
   
-  let completed = 0;
-  const total = products.length;
+//   let completed = 0;
+//   const total = products.length;
   
-  const updateProgress = () => {
-    completed++;
-    if (progressElement) {
-      progressElement.textContent = `(${completed}/${total})`;
-    }
-    if (completed === total && loadingStatus) {
-      setTimeout(() => {
-        loadingStatus.classList.add('hidden');
-      }, 2000);
-    }
-  };
+//   const updateProgress = () => {
+//     completed++;
+//     if (progressElement) {
+//       progressElement.textContent = `(${completed}/${total})`;
+//     }
+//     if (completed === total && loadingStatus) {
+//       setTimeout(() => {
+//         loadingStatus.classList.add('hidden');
+//       }, 2000);
+//     }
+//   };
   
-  // Process in batches with rate limiting
-  const promises = [];
+//   // Process in batches with rate limiting
+//   const promises = [];
   
-  for (let i = 0; i < products.length; i++) {
-    const product = products[i];
-    const delay = Math.floor(i / FDA_DOC_LOADER_CONFIG.maxConcurrentRequests) * FDA_DOC_LOADER_CONFIG.delayBetweenRequests;
+//   for (let i = 0; i < products.length; i++) {
+//     const product = products[i];
+//     const delay = Math.floor(i / FDA_DOC_LOADER_CONFIG.maxConcurrentRequests) * FDA_DOC_LOADER_CONFIG.delayBetweenRequests;
     
-    const promise = new Promise(async (resolve) => {
-      // Add delay for rate limiting
-      if (delay > 0) {
-        await new Promise(r => setTimeout(r, delay));
-      }
+//     const promise = new Promise(async (resolve) => {
+//       // Add delay for rate limiting
+//       if (delay > 0) {
+//         await new Promise(r => setTimeout(r, delay));
+//       }
       
-      await loadDocumentsForProduct(product.applicationNumber);
-      updateProgress();
-      resolve();
-    });
+//       await loadDocumentsForProduct(product.applicationNumber);
+//       updateProgress();
+//       resolve();
+//     });
     
-    promises.push(promise);
-  }
+//     promises.push(promise);
+//   }
   
-  // Wait for all to complete
-  await Promise.all(promises);
-  console.log('✅ Finished loading all documents');
-}
+//   // Wait for all to complete
+//   await Promise.all(promises);
+//   console.log('✅ Finished loading all documents');
+// }
 
 const FDA_DOC_LOADER_CONFIG = {
   delayBetweenBatches: 1000,    // Delay between batches
@@ -63998,16 +63998,11 @@ const fdaDocumentCache = new DocumentCache();
 //     updateDocumentStatusUI(applicationNumber, cacheData);
 //   }
 // }
+
+
 async function loadDocumentsForProduct(applicationNumber, retryCount = 0) {
   if (!applicationNumber || applicationNumber === 'UNKNOWN') {
     console.warn(`Invalid application number: ${applicationNumber}`);
-    return;
-  }
-
-  // Check cache first
-  const cached = fdaDocumentCache.get(applicationNumber);
-  if (cached && retryCount === 0) {
-    updateDocumentStatusUI(applicationNumber, cached);
     return;
   }
 
@@ -64018,87 +64013,61 @@ async function loadDocumentsForProduct(applicationNumber, retryCount = 0) {
   }
   
   // Show loading state
-  if (retryCount === 0) {
-    showLoadingState(statusDiv);
-  }
+  showLoadingState(statusDiv);
   
-  return requestQueue.add(async () => {
-    try {
-      const appNo = applicationNumber.replace(/[^0-9]/g, '');
-      if (!appNo) {
-        throw new Error('Invalid application number format');
-      }
-      
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), FDA_DOC_LOADER_CONFIG.timeout);
-      
-      const response = await fetch(`/api/fda-pdfs/${appNo}`, {
-        signal: controller.signal,
-        headers: {
-          'Accept': 'application/json'
-        }
-      });
-      
-      clearTimeout(timeoutId);
-      
-      if (!response.ok) {
-        if (response.status === 404) {
-          const result = { error: 'none', documents: [], status: 404 };
-          console.log("ERROR 4040 FOR :", applicationNumber)
-        //   fdaDocumentCache.set(applicationNumber, result);
-          updateDocumentStatusUI(applicationNumber, result);
-          return;
-        } else if (response.status === 429) {
-          // Rate limited
-          if (retryCount < FDA_DOC_LOADER_CONFIG.maxRetries) {
-            console.log(`Rate limited for ${applicationNumber}, retrying...`);
-            await new Promise(r => setTimeout(r, FDA_DOC_LOADER_CONFIG.retryDelay * (retryCount + 1)));
-            return loadDocumentsForProduct(applicationNumber, retryCount + 1);
-          }
-          throw new Error('Rate limited');
-        }
-        throw new Error(`HTTP ${response.status}`);
-      }
-      
-      const data = await response.json();
-      const documentLinks = data.results || data.documents || [];
-      
-      const result = { error: null, documents: documentLinks, status: 200 };
-      fdaDocumentCache.set(applicationNumber, result);
-      updateDocumentStatusUI(applicationNumber, result);
-      
-    } catch (error) {
-      console.log(`Error for ${applicationNumber} (attempt ${retryCount + 1}):`, error.message);
-      
-      // Retry on timeout
-      if (error.name === 'AbortError' && retryCount < FDA_DOC_LOADER_CONFIG.maxRetries) {
-        await new Promise(r => setTimeout(r, FDA_DOC_LOADER_CONFIG.retryDelay));
-        return loadDocumentsForProduct(applicationNumber, retryCount + 1);
-      }
-      
-      let errorType = 'failed';
-      if (error.name === 'AbortError') errorType = 'timeout';
-      else if (error.message.includes('Rate limited')) errorType = 'rate-limited';
-      
-      const result = { error: errorType, documents: [], status: 0 };
-      fdaDocumentCache.set(applicationNumber, result);
-      updateDocumentStatusUI(applicationNumber, result);
+  try {
+    const appNo = applicationNumber.replace(/[^0-9]/g, '');
+    if (!appNo) {
+      throw new Error('Invalid application number format');
     }
-  });
+    
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 20000);
+    
+    const response = await fetch(`/api/fda-pdfs/${appNo}`, {
+      signal: controller.signal
+    });
+    
+    clearTimeout(timeoutId);
+    
+    if (!response.ok) {
+      if (response.status === 404) {
+        // 404 is normal - no documents available
+        updateDocumentStatusUI(applicationNumber, { error: 'none', documents: [] });
+        return;
+      } else {
+        // For all other errors, show "No documents found" gracefully
+        console.log(`⚠️ HTTP ${response.status} for ${applicationNumber}, showing as no documents`);
+        updateDocumentStatusUI(applicationNumber, { error: 'none', documents: [] });
+        return;
+      }
+    }
+    
+    const data = await response.json();
+    const documentLinks = data.results || [];
+    
+    // Cache the results if cache exists
+    if (window.fdaDocumentCache) {
+      window.fdaDocumentCache.set(applicationNumber, { error: null, documents: documentLinks });
+    }
+    
+    // Update UI
+    updateDocumentStatusUI(applicationNumber, { error: null, documents: documentLinks });
+    
+  } catch (error) {
+    console.error(`❌ Error loading documents for ${applicationNumber}:`, error);
+    
+    // Always show "No documents found" instead of error for graceful handling
+    updateDocumentStatusUI(applicationNumber, { error: 'none', documents: [] });
+  }
 }
+// Helper function to show loading state
 function showLoadingState(statusDiv) {
   const spinnerDiv = statusDiv.querySelector('.doc-spinner');
   const resultDiv = statusDiv.querySelector('.doc-result');
   
   if (spinnerDiv) {
     spinnerDiv.classList.remove('hidden');
-    spinnerDiv.innerHTML = `
-      <svg class="animate-spin h-3 w-3 text-blue-500 mr-1" fill="none" viewBox="0 0 24 24">
-        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-      </svg>
-      <span class="text-gray-600">Checking...</span>
-    `;
   }
   if (resultDiv) {
     resultDiv.classList.add('hidden');
@@ -64173,70 +64142,60 @@ function showLoadingState(statusDiv) {
 //   }
 // }
 function updateDocumentStatusUI(applicationNumber, result) {
-    console.log('updating status for :', applicationNumber)
   const statusDiv = document.getElementById(`doc-status-${applicationNumber}`);
   if (!statusDiv) {
-        console.log('no place for :', applicationNumber)
+    console.warn(`Status div not found for ${applicationNumber}`);
     return;
   }
+  
   const spinnerDiv = statusDiv.querySelector('.doc-spinner');
   const resultDiv = statusDiv.querySelector('.doc-result');
   
-  if (spinnerDiv) spinnerDiv.classList.add('hidden');
-  if (!resultDiv) return;
+  // Hide spinner
+  if (spinnerDiv) {
+    spinnerDiv.classList.add('hidden');
+  }
   
-  resultDiv.classList.remove('hidden');
-  
-  const statusTemplates = {
-    'none': `
-      <span class="text-gray-500 text-xs">
-        <svg class="inline w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-        </svg>
-        No documents
-      </span>`,
-    'timeout': `
-      <span class="text-orange-600 text-xs cursor-pointer hover:underline" onclick="retryDocumentLoad('${applicationNumber}')" title="Click to retry">
-        <svg class="inline w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-        </svg>
-        Retry
-      </span>`,
-    'rate-limited': `
-      <span class="text-yellow-600 text-xs">
-        <svg class="inline w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-        </svg>
-        Limited
-      </span>`,
-    'failed': `
-      <span class="text-red-500 text-xs cursor-pointer hover:underline" onclick="retryDocumentLoad('${applicationNumber}')" title="Click to retry">
-        <svg class="inline w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-        </svg>
-        Retry
-      </span>`
-  };
-  
-  if (result.error && statusTemplates[result.error]) {
-    resultDiv.innerHTML = statusTemplates[result.error];
-  } else if (result.documents && result.documents.length > 0) {
-    const count = result.documents.length;
-    resultDiv.innerHTML = `
-      <span class="text-green-600 text-xs">
-        <svg class="inline w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-        </svg>
-        ${count} doc${count !== 1 ? 's' : ''}
-      </span>`;
-  } else if (result.status === 404 || result.error === 'none') {
-    resultDiv.innerHTML = `statusTemplates[none]`;
-
-  } else {
-    resultDiv.innerHTML = `<span class="text-gray-400 text-xs">—</span>`;
+  // Show result
+  if (resultDiv) {
+    resultDiv.classList.remove('hidden');
+    
+    if (result.error === 'none' || (result.documents && result.documents.length === 0)) {
+      // No documents (graceful display for 404s and errors)
+      resultDiv.innerHTML = `
+        <span class="text-gray-500 text-xs">
+          <svg class="inline w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+          </svg>
+          No documents
+        </span>`;
+    } else if (result.documents && result.documents.length > 0) {
+      // Has documents
+      const count = result.documents.length;
+      const typeCounts = {};
+      result.documents.forEach(link => {
+        typeCounts[link.type] = (typeCounts[link.type] || 0) + 1;
+      });
+      
+      const summary = Object.entries(typeCounts)
+        .map(([type, count]) => `${count} ${type}`)
+        .slice(0, 2)
+        .join(', ');
+      
+      resultDiv.innerHTML = `
+        <span class="text-green-600 text-xs">
+          <svg class="inline w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+          </svg>
+          ${count} doc${count > 1 ? 's' : ''}
+        </span>
+        <span class="text-xs text-gray-500 block">${summary}</span>`;
+    } else {
+      // Unknown state
+      resultDiv.innerHTML = `<span class="text-gray-400 text-xs">—</span>`;
+    }
   }
 }
-
 window.retryDocumentLoad = async function(applicationNumber) {
   fdaDocumentCache.delete(applicationNumber);
   const statusDiv = document.getElementById(`doc-status-${applicationNumber}`);
@@ -64246,11 +64205,65 @@ window.retryDocumentLoad = async function(applicationNumber) {
   await loadDocumentsForProduct(applicationNumber, 0);
 };
 
-// 8. Batch loading with better control
-async function autoLoadFDADocuments(products, showProgress = true) {
-  if (!products || products.length === 0) return;
+// // 8. Batch loading with better control
+// async function autoLoadFDADocuments(products, showProgress = true) {
+//   if (!products || products.length === 0) return;
   
-  console.log(`Loading documents for ${products.length} applications...`);
+//   console.log(`Loading documents for ${products.length} applications...`);
+  
+//   const validProducts = products.filter(p => p.applicationNumber && p.applicationNumber !== 'UNKNOWN');
+  
+//   if (validProducts.length === 0) {
+//     console.log('No valid application numbers to load');
+//     return;
+//   }
+  
+//   const loadingStatus = document.getElementById('fda-doc-loading-status');
+//   const progressElement = document.getElementById('fda-loading-progress');
+  
+//   if (showProgress && loadingStatus) {
+//     loadingStatus.classList.remove('hidden');
+//   }
+  
+//   let completed = 0;
+//   const total = validProducts.length;
+  
+//   const updateProgress = () => {
+//     completed++;
+//     if (progressElement) {
+//       progressElement.textContent = `(${completed}/${total})`;
+//     }
+//     if (completed === total && loadingStatus) {
+//       setTimeout(() => loadingStatus.classList.add('hidden'), 2000);
+//     }
+//   };
+  
+//   // Process in controlled batches
+//   for (let i = 0; i < validProducts.length; i += FDA_DOC_LOADER_CONFIG.batchSize) {
+//     const batch = validProducts.slice(i, i + FDA_DOC_LOADER_CONFIG.batchSize);
+    
+//     // Process batch
+//     await Promise.all(batch.map(async (product) => {
+//       await loadDocumentsForProduct(product.applicationNumber);
+//       updateProgress();
+//     }));
+    
+//     // Delay between batches
+//     if (i + FDA_DOC_LOADER_CONFIG.batchSize < validProducts.length) {
+//       await new Promise(r => setTimeout(r, FDA_DOC_LOADER_CONFIG.delayBetweenBatches));
+//     }
+//   }
+  
+//   console.log('✅ Document loading complete');
+// }
+
+async function autoLoadFDADocuments(products, showProgress = true) {
+  if (!products || products.length === 0) {
+    console.log('No products provided for document loading');
+    return;
+  }
+  
+  console.log(`🔄 Loading documents for ${products.length} applications...`);
   
   const validProducts = products.filter(p => p.applicationNumber && p.applicationNumber !== 'UNKNOWN');
   
@@ -64259,11 +64272,9 @@ async function autoLoadFDADocuments(products, showProgress = true) {
     return;
   }
   
-  const loadingStatus = document.getElementById('fda-doc-loading-status');
-  const progressElement = document.getElementById('fda-loading-progress');
-  
-  if (showProgress && loadingStatus) {
-    loadingStatus.classList.remove('hidden');
+  // Show global progress indicator if requested
+  if (showProgress) {
+    showGlobalDocumentLoadingIndicator(validProducts.length);
   }
   
   let completed = 0;
@@ -64271,32 +64282,49 @@ async function autoLoadFDADocuments(products, showProgress = true) {
   
   const updateProgress = () => {
     completed++;
-    if (progressElement) {
-      progressElement.textContent = `(${completed}/${total})`;
+    if (showProgress) {
+      updateGlobalDocumentProgress(completed, total);
     }
-    if (completed === total && loadingStatus) {
-      setTimeout(() => loadingStatus.classList.add('hidden'), 2000);
+    if (completed === total && showProgress) {
+      setTimeout(() => hideGlobalDocumentLoadingIndicator(), 2000);
     }
   };
   
-  // Process in controlled batches
-  for (let i = 0; i < validProducts.length; i += FDA_DOC_LOADER_CONFIG.batchSize) {
-    const batch = validProducts.slice(i, i + FDA_DOC_LOADER_CONFIG.batchSize);
+  // Enhanced configuration
+  const config = {
+    batchSize: 3,
+    delayBetweenBatches: 1000,
+    timeout: 20000
+  };
+  
+  // Process ALL applications in controlled batches (no limit to 9)
+  for (let i = 0; i < validProducts.length; i += config.batchSize) {
+    const batch = validProducts.slice(i, i + config.batchSize);
+    
+    console.log(`📦 Processing batch ${Math.floor(i / config.batchSize) + 1} with ${batch.length} applications`);
     
     // Process batch
     await Promise.all(batch.map(async (product) => {
-      await loadDocumentsForProduct(product.applicationNumber);
-      updateProgress();
+      try {
+        await loadDocumentsForProduct(product.applicationNumber);
+        updateProgress();
+      } catch (error) {
+        console.error(`❌ Error loading docs for ${product.applicationNumber}:`, error);
+        // Show "No documents found" instead of error for graceful handling
+        updateDocumentStatusUI(product.applicationNumber, { error: 'none', documents: [] });
+        updateProgress();
+      }
     }));
     
     // Delay between batches
-    if (i + FDA_DOC_LOADER_CONFIG.batchSize < validProducts.length) {
-      await new Promise(r => setTimeout(r, FDA_DOC_LOADER_CONFIG.delayBetweenBatches));
+    if (i + config.batchSize < validProducts.length) {
+      await new Promise(r => setTimeout(r, config.delayBetweenBatches));
     }
   }
   
   console.log('✅ Document loading complete');
 }
+
 const initializeFDADocumentLoading = () => {
   // Only initialize once
   if (window.fdaDocLoaderInitialized) return;
@@ -64465,7 +64493,42 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
+function showGlobalDocumentLoadingIndicator(total) {
+  // Remove existing indicator
+  hideGlobalDocumentLoadingIndicator();
+  
+  const indicator = document.createElement('div');
+  indicator.id = 'global-doc-loading-indicator';
+  indicator.className = 'fixed top-4 right-4 bg-blue-500 text-white px-4 py-3 rounded-lg shadow-lg z-50';
+  indicator.innerHTML = `
+    <div class="flex items-center space-x-3">
+      <svg class="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 714 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+      </svg>
+      <div>
+        <div class="font-medium">Loading FDA Documents</div>
+        <div class="text-sm opacity-90" id="global-doc-progress-text">0/${total} applications</div>
+      </div>
+    </div>
+  `;
+  
+  document.body.appendChild(indicator);
+}
 
+function updateGlobalDocumentProgress(completed, total) {
+  const progressText = document.getElementById('global-doc-progress-text');
+  if (progressText) {
+    progressText.textContent = `${completed}/${total} applications`;
+  }
+}
+
+function hideGlobalDocumentLoadingIndicator() {
+  const indicator = document.getElementById('global-doc-loading-indicator');
+  if (indicator) {
+    indicator.remove();
+  }
+}
 
 function generateApplicationsContent(fdaData, drugName, drugsCount) {
   let html = `
