@@ -89,12 +89,145 @@
 </head>
 <body class="bg-gray-50" x-data="replayApp()">
     
+    <!-- Glassmorphic Countdown Overlay -->
+    <div x-show="showCountdownOverlay" 
+         x-transition:enter="transition ease-out duration-500"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-300"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         class="fixed inset-0 z-[100] flex items-center justify-center p-4"
+         @click.self="showCountdownOverlay = false">
+        
+        <!-- Blurred Background -->
+        <div class="absolute inset-0 bg-gray-900/40 backdrop-blur-xl"></div>
+        
+        <!-- Glassmorphic Card -->
+        <div class="relative max-w-2xl w-full"
+             x-transition:enter="transition ease-out duration-500 delay-200"
+             x-transition:enter-start="opacity-0 scale-95 translate-y-4"
+             x-transition:enter-end="opacity-100 scale-100 translate-y-0">
+            
+            <!-- Animated Gradient Background -->
+            <div class="absolute inset-0 bg-gradient-to-r from-emerald-500 via-cyan-500 to-purple-500 rounded-3xl opacity-30 blur-2xl animate-pulse"></div>
+            
+            <!-- Glass Card Content -->
+            <div class="relative bg-white/10 backdrop-blur-2xl rounded-3xl border border-white/20 shadow-2xl overflow-hidden">
+                
+                <!-- Close Button -->
+                <button @click="showCountdownOverlay = false" 
+                        class="absolute top-6 right-6 text-white/60 hover:text-white transition-colors z-10">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+                
+                <!-- Header Section -->
+                <div class="p-8 pb-0">
+                    <div class="text-center">
+                        <!-- Badge -->
+                        <div class="inline-flex items-center space-x-2 bg-white/10 backdrop-blur px-4 py-2 rounded-full border border-white/20 mb-6">
+                            <div class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
+                            <span class="text-white/90 text-sm font-medium">EXCLUSIVE WEBINAR</span>
+                        </div>
+                        
+                        <!-- Title -->
+                        <h1 class="text-4xl md:text-5xl font-bold text-white mb-4">
+                            <span class="bg-gradient-to-r from-white via-emerald-200 to-cyan-200 bg-clip-text text-transparent">
+                                Cracking the FDA Code
+                            </span>
+                        </h1>
+                        <p class="text-xl text-white/80 mb-8">Part II: Advanced Regulatory Intelligence</p>
+                    </div>
+                </div>
+                
+                <!-- Countdown Section -->
+                <div class="px-8 pb-8">
+                    <div class="bg-white/5 backdrop-blur rounded-2xl p-6 border border-white/10">
+                        <p class="text-center text-white/60 text-sm mb-4">WEBINAR STARTS IN</p>
+                        
+                        <!-- Countdown Display -->
+                        <div class="grid grid-cols-4 gap-3 mb-6">
+                            <div class="text-center">
+                                <div class="bg-white/10 backdrop-blur rounded-xl p-3 border border-white/20">
+                                    <div class="text-3xl font-bold text-white" x-text="webinarCountdown.days">00</div>
+                                    <div class="text-xs text-white/60 uppercase tracking-wider mt-1">Days</div>
+                                </div>
+                            </div>
+                            <div class="text-center">
+                                <div class="bg-white/10 backdrop-blur rounded-xl p-3 border border-white/20">
+                                    <div class="text-3xl font-bold text-white" x-text="webinarCountdown.hours">00</div>
+                                    <div class="text-xs text-white/60 uppercase tracking-wider mt-1">Hours</div>
+                                </div>
+                            </div>
+                            <div class="text-center">
+                                <div class="bg-white/10 backdrop-blur rounded-xl p-3 border border-white/20">
+                                    <div class="text-3xl font-bold text-white" x-text="webinarCountdown.minutes">00</div>
+                                    <div class="text-xs text-white/60 uppercase tracking-wider mt-1">Minutes</div>
+                                </div>
+                            </div>
+                            <div class="text-center">
+                                <div class="bg-white/10 backdrop-blur rounded-xl p-3 border border-white/20">
+                                    <div class="text-3xl font-bold text-white" x-text="webinarCountdown.seconds">00</div>
+                                    <div class="text-xs text-white/60 uppercase tracking-wider mt-1">Seconds</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Event Details -->
+                        <div class="space-y-3 mb-6">
+                            <div class="flex items-center justify-center space-x-4 text-white/80">
+                                <div class="flex items-center space-x-2">
+                                    <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                    </svg>
+                                    <span class="text-sm">September 3rd, 2025</span>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    <span class="text-sm">2:00 PM EST</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- CTAs -->
+                        <div class="flex flex-col sm:flex-row gap-3">
+                            <!-- <button @click="showCountdownOverlay = false" 
+                                    class="flex-1 bg-gradient-to-r from-emerald-500 to-cyan-500 text-white px-6 py-3 rounded-xl font-semibold hover:shadow-lg hover:shadow-emerald-500/25 transform hover:-translate-y-0.5 transition-all">
+                                Watch Replay Now
+                            </button> -->
+                            <button @click="addToCalendar()" 
+                                    class="flex-1 bg-white/10 backdrop-blur text-white border border-white/20 px-6 py-3 rounded-xl font-semibold hover:bg-white/20 transition-all">
+                                Add to Calendar
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Bottom Info -->
+                    <div class="mt-6 text-center">
+                        <p class="text-white/60 text-sm">
+                            Can't make it? Register anyway and we'll send you the recording
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- Decorative Elements -->
+                <div class="absolute top-0 left-0 w-32 h-32 bg-gradient-to-br from-emerald-500/20 to-transparent rounded-full blur-2xl"></div>
+                <div class="absolute bottom-0 right-0 w-32 h-32 bg-gradient-to-tl from-cyan-500/20 to-transparent rounded-full blur-2xl"></div>
+            </div>
+        </div>
+    </div>
+    
     <!-- Header -->
     <header class="bg-white border-b border-gray-200 sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
                 <!-- Logo -->
                 <div class="flex items-center space-x-3">
+                <!-- <div class="flex items-center space-x-3"> -->
                     <div class="flex items-center">
                         <!-- Beautiful gradient leaf icon -->
                         <div class="relative">
@@ -129,6 +262,7 @@
                             <div class="text-xs text-gray-600 font-medium tracking-wide">AI Research Platform</div>
                         </div>
                     </div>
+                <!-- </div> -->
                 </div>
                 
                 <!-- Countdown Timer -->
@@ -526,9 +660,17 @@
                 activeTab: 'insights',
                 playVideo: false,
                 countdown: '47:59:59',
+                showCountdownOverlay: true,
+                webinarCountdown: {
+                    days: '00',
+                    hours: '00',
+                    minutes: '00',
+                    seconds: '00'
+                },
                 
                 init() {
                     this.startCountdown();
+                    this.startWebinarCountdown();
                 },
                 
                 startCountdown() {
@@ -550,6 +692,58 @@
                         
                         this.countdown = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
                     }, 1000);
+                },
+                
+                startWebinarCountdown() {
+                    // Target date: September 3rd, 2025, 2:00 PM EST
+                    const targetDate = new Date('2025-09-03T14:00:00-04:00').getTime();
+                    
+                    const updateCountdown = () => {
+                        const now = new Date().getTime();
+                        const distance = targetDate - now;
+                        
+                        if (distance > 0) {
+                            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                            
+                            this.webinarCountdown = {
+                                days: String(days).padStart(2, '0'),
+                                hours: String(hours).padStart(2, '0'),
+                                minutes: String(minutes).padStart(2, '0'),
+                                seconds: String(seconds).padStart(2, '0')
+                            };
+                        } else {
+                            // Webinar has started or passed - automatically close overlay
+                            this.webinarCountdown = {
+                                days: '00',
+                                hours: '00',
+                                minutes: '00',
+                                seconds: '00'
+                            };
+                            this.showCountdownOverlay = false;
+                        }
+                    };
+                    
+                    // Update immediately and then every second
+                    updateCountdown();
+                    setInterval(updateCountdown, 1000);
+                },
+                
+                addToCalendar() {
+                    // Create calendar event
+                    const startDate = '20250903T140000';
+                    const endDate = '20250903T150000';
+                    const title = encodeURIComponent('Cracking the FDA Code Part II - Leaf Intelligence Webinar');
+                    const details = encodeURIComponent('Join us for an exclusive webinar on advanced regulatory intelligence strategies.');
+                    const location = encodeURIComponent('Online');
+                    
+                    // Google Calendar URL
+                    const googleCalendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${startDate}/${endDate}&details=${details}&location=${location}`;
+                    
+                    // Open in new tab
+                    window.open(googleCalendarUrl, '_blank');
                 }
             }
         }

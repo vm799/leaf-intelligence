@@ -8427,7 +8427,27 @@ const sept3LeadSchema = new mongoose.Schema({
     trim: true,
     default: ''
   },
-  
+  addedToMailchimp: {
+  type: Boolean,
+  default: false
+},
+// Mailchipm
+mailchimpId: {
+  type: String,
+  default: ''
+},
+mailchimpStatus: {
+  type: String,
+  default: ''
+},
+mailchimpError: {
+  type: String,
+  default: ''
+},
+mailchimpNote: {
+  type: String,
+  default: ''
+},
   // Webinar Details
   webinarName: {
     type: String,
@@ -9192,7 +9212,175 @@ const getConfirmationEmailHTML = (userData, calendarLinks) => {
   `;
 };
 
-// Webinar registration endpoint
+// // Webinar registration endpoint
+// app.post('/api/webinar/register', async (req, res) => {
+//   try {
+//     const { 
+//       fullName, 
+//       email, 
+//       company, 
+//       jobTitle, 
+//       utm_source, 
+//       utm_medium, 
+//       utm_campaign, 
+//       utm_content, 
+//       utm_term 
+//     } = req.body;
+
+//     // Basic validation
+//     if (!fullName || !email) {
+//       return res.status(400).json({
+//         success: false,
+//         message: 'Name and email are required'
+//       });
+//     }
+
+//     // Email validation
+//     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+//     if (!emailRegex.test(email)) {
+//       return res.status(400).json({
+//         success: false,
+//         message: 'Please provide a valid email address'
+//       });
+//     }
+
+//     // Check if already registered in MongoDB
+//     const existingLead = await Sept3Lead.findOne({ email: email.toLowerCase() });
+//     if (existingLead) {
+//       return res.status(409).json({
+//         success: false,
+//         message: 'This email is already registered for the webinar'
+//       });
+//     }
+
+//     // Generate unique registration ID
+//     const registrationId = `SEPT3-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`.toUpperCase();
+
+//     // Create new lead document
+//     const newLead = new Sept3Lead({
+//       fullName,
+//       email: email.toLowerCase(),
+//       company: company || '',
+//       jobTitle: jobTitle || '',
+//       registrationId,
+//       utmSource: utm_source || '',
+//       utmMedium: utm_medium || '',
+//       utmCampaign: utm_campaign || '',
+//       utmContent: utm_content || '',
+//       utmTerm: utm_term || '',
+//       ipAddress: req.ip || req.connection.remoteAddress,
+//       userAgent: req.headers['user-agent'] || '',
+//       referrerUrl: req.headers.referer || '',
+//       tags: ['webinar-sept3', 'fda-code-part2', '2025'],
+//       emailSent: false
+//     });
+
+//     // Save to MongoDB first
+//     const savedLead = await newLead.save();
+//     console.log(`New lead saved to MongoDB: ${fullName} (${email}) - ID: ${registrationId}`);
+
+//     // Generate calendar links
+//     const calendarLinks = generateCalendarLinks();
+
+//     // Setup email transporter
+//     const transporter = nodemailer.createTransport({
+//       host: 'smtp.gmail.com',
+//       port: 587,
+//       secure: false,
+//       auth: {
+//         user: process.env.smtphost,
+//         pass: process.env.smtppassword
+//       }
+//     });
+
+//     // Send confirmation email
+//     const mailOptions = {
+//       from: `"SyneticX Webinar" <${process.env.SMTP_FROM || process.env.smtphost}>`,
+//       to: email,
+//       subject: '🎉 You\'re Registered! FDA Code Part II Webinar - Sept 3rd',
+//       html: getConfirmationEmailHTML(savedLead, calendarLinks),
+//       text: `Hi ${fullName},
+
+// You're registered for "Cracking the FDA Code Part II" webinar!
+
+// Event Details:
+// - Date: Wednesday, September 3rd, 2025
+// - Time: 2:00 PM EDT / 11:00 AM PDT
+// - Duration: 45 minutes + Q&A
+// - Platform: Google Meet
+
+// Meeting Link: ${GOOGLE_MEET_LINK}
+
+// Add to Calendar:
+// - Google: ${calendarLinks.googleCalendar}
+
+// Looking forward to seeing you there!
+
+// Best regards,
+// The SyneticX Team`
+//     };
+
+//     try {
+//       // Send email
+//       await transporter.sendMail(mailOptions);
+      
+//       // Update MongoDB document to mark email as sent
+//       savedLead.emailSent = true;
+//       savedLead.emailSentAt = new Date();
+//       await savedLead.save();
+      
+//       console.log(`Confirmation email sent to ${email}`);
+//     } catch (emailError) {
+//       console.error('Email sending error:', emailError);
+      
+//       // Update MongoDB document with email error
+//       savedLead.emailError = emailError.message;
+//       await savedLead.save();
+      
+//       // Don't fail the registration if email fails
+//       // The lead is still saved in the database
+//     }
+
+//     // Return success response
+//     res.json({
+//       success: true,
+//       message: 'Registration successful! Check your email for confirmation.',
+//       data: {
+//         registrationId: savedLead.registrationId,
+//         calendarLinks,
+//         meetingLink: GOOGLE_MEET_LINK
+//       }
+//     });
+
+//   } catch (error) {
+//     console.error('Registration error:', error);
+    
+//     // Check if it's a MongoDB duplicate key error
+//     if (error.code === 11000) {
+//       return res.status(409).json({
+//         success: false,
+//         message: 'This email is already registered for the webinar'
+//       });
+//     }
+    
+//     res.status(500).json({
+//       success: false,
+//       message: 'Registration failed. Please try again.',
+//       error: process.env.NODE_ENV === 'development' ? error.message : undefined
+//     });
+//   }
+// });
+
+// Add this at the top of your file with other imports
+const mailchimp = require("@mailchimp/mailchimp_marketing");
+
+// Configure Mailchimp (add this after your other configurations)
+mailchimp.setConfig({
+  apiKey: 'ab0a7e2014d2cf129fce814ac5258dc6-us13',
+  server: 'us13', // e.g., "us21" - the part after the dash in your API key
+});
+
+// Webinar registration endpoint with Mailchimp integration
 app.post('/api/webinar/register', async (req, res) => {
   try {
     const { 
@@ -9252,12 +9440,91 @@ app.post('/api/webinar/register', async (req, res) => {
       userAgent: req.headers['user-agent'] || '',
       referrerUrl: req.headers.referer || '',
       tags: ['webinar-sept3', 'fda-code-part2', '2025'],
-      emailSent: false
+      emailSent: false,
+      addedToMailchimp: false
     });
 
     // Save to MongoDB first
     const savedLead = await newLead.save();
     console.log(`New lead saved to MongoDB: ${fullName} (${email}) - ID: ${registrationId}`);
+
+    // Add to Mailchimp audience
+    try {
+      // Split full name into first and last name
+      const nameParts = fullName.trim().split(' ');
+      const firstName = nameParts[0] || '';
+      const lastName = nameParts.slice(1).join(' ') || '';
+
+      // Build merge fields object - only include standard fields that exist
+      const mergeFields = {
+        FNAME: firstName,
+        LNAME: lastName
+      };
+      
+      // Only add custom fields if they're set up in your Mailchimp audience
+      // Comment out any that don't exist in your audience
+      if (company) mergeFields.COMPANY = company;
+      if (jobTitle) mergeFields.JOBTITLE = jobTitle;
+
+      const mailchimpResponse = await mailchimp.lists.addListMember(
+        '2de139c183', // Your Mailchimp audience/list ID
+        {
+          email_address: email.toLowerCase(),
+          status: "subscribed", // or "pending" if you want double opt-in
+          merge_fields: mergeFields,
+          tags: ['webinar-sept3', 'fda-code-part2', '2025'],
+          ip_signup: req.ip || req.connection.remoteAddress
+        }
+      );
+
+      console.log(`Successfully added ${email} to Mailchimp audience`);
+      
+      // Update MongoDB to indicate successful Mailchimp addition
+      savedLead.addedToMailchimp = true;
+      savedLead.mailchimpId = mailchimpResponse.id;
+      savedLead.mailchimpStatus = mailchimpResponse.status;
+      await savedLead.save();
+
+    } catch (mailchimpError) {
+      console.error('Mailchimp error:', mailchimpError);
+      
+      // Check if it's because the email already exists in Mailchimp
+      if (mailchimpError.status === 400 && mailchimpError.response?.body?.title === 'Member Exists') {
+        console.log(`Email ${email} already exists in Mailchimp, updating tags...`);
+        
+        try {
+          // Update existing member's tags
+          const subscriberHash = require('crypto')
+            .createHash('md5')
+            .update(email.toLowerCase())
+            .digest('hex');
+          
+          await mailchimp.lists.updateListMemberTags(
+            '2de139c183',
+            subscriberHash,
+            {
+              tags: [
+                { name: 'webinar-sept3', status: 'active' },
+                { name: 'fda-code-part2', status: 'active' },
+                { name: '2025', status: 'active' }
+              ]
+            }
+          );
+          
+          savedLead.addedToMailchimp = true;
+          savedLead.mailchimpNote = 'Updated existing subscriber';
+          await savedLead.save();
+        } catch (updateError) {
+          console.error('Failed to update Mailchimp tags:', updateError);
+          savedLead.mailchimpError = updateError.message;
+          await savedLead.save();
+        }
+      } else {
+        // Save the error but don't fail the registration
+        savedLead.mailchimpError = mailchimpError.message;
+        await savedLead.save();
+      }
+    }
 
     // Generate calendar links
     const calendarLinks = generateCalendarLinks();
@@ -9275,7 +9542,7 @@ app.post('/api/webinar/register', async (req, res) => {
 
     // Send confirmation email
     const mailOptions = {
-      from: `"SyneticX Webinar" <${process.env.SMTP_FROM || process.env.smtphost}>`,
+      from: `"SyneticX Webinar" <${ process.env.smtphost}>`,
       to: email,
       subject: '🎉 You\'re Registered! FDA Code Part II Webinar - Sept 3rd',
       html: getConfirmationEmailHTML(savedLead, calendarLinks),
@@ -9350,6 +9617,7 @@ The SyneticX Team`
     });
   }
 });
+
 
 // Get registration stats endpoint
 app.get('/api/webinar/stats', async (req, res) => {

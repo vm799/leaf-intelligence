@@ -10,6 +10,7 @@
   "license": "ISC",
   "keywords": [],
   "dependencies": {
+    "@mailchimp/mailchimp_marketing": "^3.0.80",
     "axios": "^1.11.0",
     "bottleneck": "^2.19.5",
     "cheerio": "^1.0.0-rc.12",
