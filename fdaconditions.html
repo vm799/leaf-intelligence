@@ -3,152 +3,243 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Medical Research Platform | Advanced Drug & Condition Database</title>
+    <title>Regulatory Intelligence Platform | Advanced FDA Analysis Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
         
         :root {
-            /* Primary color palette - medical/health focused */
-            --primary: 200 89% 61%;
-            --primary-foreground: 200 100% 98%;
-            --primary-gradient: linear-gradient(135deg, hsl(200, 89%, 61%), hsl(210, 85%, 55%));
-            
-            /* Secondary - emerald/teal for health */
-            --secondary: 160 60% 45%;
-            --secondary-foreground: 160 60% 98%;
-            --secondary-gradient: linear-gradient(135deg, hsl(160, 60%, 45%), hsl(170, 55%, 40%));
-            
-            /* Accent - purple for technology */
-            --accent: 280 60% 60%;
-            --accent-foreground: 280 60% 98%;
-            --accent-gradient: linear-gradient(135deg, hsl(280, 60%, 60%), hsl(290, 55%, 55%));
-            
-            /* Background and foreground */
-            --background: 210 20% 98%;
-            --foreground: 210 20% 10%;
-            
-            /* Card styling */
-            --card: 0 0% 100%;
-            --card-foreground: 210 20% 10%;
-            
-            /* Muted colors */
-            --muted: 210 15% 95%;
-            --muted-foreground: 210 10% 40%;
-            
-            /* Border and input */
-            --border: 210 20% 90%;
-            --input: 210 20% 95%;
-            
-            /* Status colors */
-            --success: 142 71% 45%;
+            /* Professional color scheme */
+            --primary: 220 90% 45%;
+            --primary-dark: 220 90% 35%;
+            --secondary: 200 85% 45%;
+            --accent: 280 70% 50%;
+            --success: 142 71% 40%;
             --warning: 38 92% 50%;
-            --error: 0 84% 60%;
+            --danger: 0 84% 50%;
             --info: 199 89% 48%;
             
-            /* Gradients */
-            --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)));
-            --gradient-hero: linear-gradient(180deg, hsl(var(--background)), hsl(210, 25%, 95%));
-            --gradient-card: linear-gradient(145deg, hsl(var(--card)), hsl(210, 15%, 98%));
+            /* Neutrals */
+            --background: 0 0% 98%;
+            --surface: 0 0% 100%;
+            --surface-variant: 220 13% 95%;
+            --text-primary: 220 20% 10%;
+            --text-secondary: 220 10% 40%;
+            --text-muted: 220 10% 60%;
+            --border: 220 13% 91%;
             
             /* Shadows */
             --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
             --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
             --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-            --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
-            --shadow-glow: 0 0 30px hsl(var(--primary) / 0.3);
-            
-            /* Animations */
-            --transition-fast: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
-            --transition-base: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            --transition-slow: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
         * {
-            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
         }
         
         body {
-            background: var(--gradient-hero);
-            color: hsl(var(--foreground));
+            background: hsl(var(--background));
+            color: hsl(var(--text-primary));
+            font-size: 14px;
+            line-height: 1.5;
         }
         
-        /* Custom animations */
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
-        }
-        
-        @keyframes shimmer {
-            0% { background-position: -1000px 0; }
-            100% { background-position: 1000px 0; }
-        }
-        
-        .animate-slide-up {
-            animation: slideUp 0.5s ease-out;
-        }
-        
-        .animate-pulse {
-            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-        }
-        
-        .shimmer {
-            background: linear-gradient(90deg, transparent, hsl(var(--primary) / 0.1), transparent);
-            background-size: 1000px 100%;
-            animation: shimmer 2s infinite;
-        }
-        
-        /* Glass morphism effects */
-        .glass {
-            background: hsl(var(--card) / 0.8);
-            backdrop-filter: blur(10px);
-            border: 1px solid hsl(var(--border) / 0.5);
-        }
-        
-        .glass-subtle {
-            background: hsl(var(--card) / 0.6);
-            backdrop-filter: blur(5px);
-            border: 1px solid hsl(var(--border) / 0.3);
-        }
-        
-        /* Custom scrollbar */
+        /* Professional scrollbar */
         ::-webkit-scrollbar {
-            width: 10px;
-            height: 10px;
+            width: 8px;
+            height: 8px;
         }
         
         ::-webkit-scrollbar-track {
-            background: hsl(var(--muted));
-            border-radius: 5px;
+            background: hsl(var(--surface-variant));
         }
         
         ::-webkit-scrollbar-thumb {
-            background: var(--gradient-primary);
-            border-radius: 5px;
+            background: hsl(var(--text-muted));
+            border-radius: 4px;
         }
         
         ::-webkit-scrollbar-thumb:hover {
+            background: hsl(var(--text-secondary));
+        }
+        
+        /* Professional button styles */
+        .btn {
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            font-weight: 500;
+            transition: all 0.15s ease;
+            cursor: pointer;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-primary {
             background: hsl(var(--primary));
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: hsl(var(--primary-dark));
+        }
+        
+        .btn-outline {
+            background: transparent;
+            border: 1px solid hsl(var(--border));
+            color: hsl(var(--text-primary));
+        }
+        
+        .btn-outline:hover {
+            background: hsl(var(--surface-variant));
+        }
+        
+        /* Card styles */
+        .card {
+            background: hsl(var(--surface));
+            border: 1px solid hsl(var(--border));
+            border-radius: 0.5rem;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .card-hover:hover {
+            box-shadow: var(--shadow-md);
+            border-color: hsl(var(--primary) / 0.3);
+            transition: all 0.15s ease;
+        }
+        
+        /* Badge styles */
+        .badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        
+        .badge-success {
+            background: hsl(var(--success) / 0.1);
+            color: hsl(var(--success));
+            border: 1px solid hsl(var(--success) / 0.2);
+        }
+        
+        .badge-warning {
+            background: hsl(var(--warning) / 0.1);
+            color: hsl(var(--warning));
+            border: 1px solid hsl(var(--warning) / 0.2);
+        }
+        
+        .badge-danger {
+            background: hsl(var(--danger) / 0.1);
+            color: hsl(var(--danger));
+            border: 1px solid hsl(var(--danger) / 0.2);
+        }
+        
+        .badge-info {
+            background: hsl(var(--info) / 0.1);
+            color: hsl(var(--info));
+            border: 1px solid hsl(var(--info) / 0.2);
+        }
+        
+        /* Tab styles */
+        .tab {
+            padding: 0.75rem 1.5rem;
+            border-bottom: 2px solid transparent;
+            color: hsl(var(--text-secondary));
+            font-weight: 500;
+            transition: all 0.15s ease;
+            cursor: pointer;
+            background: transparent;
+            border: none;
+            outline: none;
+        }
+        
+        .tab:hover {
+            color: hsl(var(--text-primary));
+            background: hsl(var(--surface-variant) / 0.5);
+        }
+        
+        .tab.active {
+            color: hsl(var(--primary));
+            border-bottom-color: hsl(var(--primary));
+            background: transparent;
+        }
+        
+        /* Data table styles */
+        .data-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+        
+        .data-table th {
+            background: hsl(var(--surface-variant));
+            padding: 0.75rem;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: hsl(var(--text-secondary));
+            border-bottom: 1px solid hsl(var(--border));
+        }
+        
+        .data-table td {
+            padding: 0.75rem;
+            border-bottom: 1px solid hsl(var(--border));
+        }
+        
+        .data-table tbody tr:hover {
+            background: hsl(var(--surface-variant) / 0.5);
+        }
+        
+        /* Metric card styles */
+        .metric-card {
+            padding: 1.5rem;
+            background: hsl(var(--surface));
+            border: 1px solid hsl(var(--border));
+            border-radius: 0.5rem;
+            transition: all 0.15s ease;
+        }
+        
+        .metric-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 700;
+            line-height: 1;
+        }
+        
+        .metric-label {
+            font-size: 0.875rem;
+            color: hsl(var(--text-secondary));
+            margin-top: 0.5rem;
+        }
+        
+        .metric-change {
+            font-size: 0.75rem;
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
         }
         
         /* Loading spinner */
         .spinner {
-            border: 3px solid hsl(var(--muted));
-            border-top: 3px solid hsl(var(--primary));
+            border: 2px solid hsl(var(--border));
+            border-top: 2px solid hsl(var(--primary));
             border-radius: 50%;
-            width: 40px;
-            height: 40px;
+            width: 20px;
+            height: 20px;
             animation: spin 1s linear infinite;
         }
         
@@ -157,130 +248,136 @@
             100% { transform: rotate(360deg); }
         }
         
-        /* Card hover effects */
-        .card-hover {
-            transition: var(--transition-base);
-            cursor: pointer;
+        /* Regulatory status colors */
+        .status-approved { color: hsl(var(--success)); }
+        .status-pending { color: hsl(var(--warning)); }
+        .status-rejected { color: hsl(var(--danger)); }
+        .status-withdrawn { color: hsl(var(--text-muted)); }
+        
+        /* Failure category styles */
+        .failure-category-funding { 
+            background: #fef3c7; 
+            color: #92400e;
+            border-left: 4px solid #f59e0b;
         }
         
-        .card-hover:hover {
-            transform: translateY(-4px);
-            box-shadow: var(--shadow-xl);
-            border-color: hsl(var(--primary) / 0.3);
+        .failure-category-enrollment { 
+            background: #dbeafe; 
+            color: #1e3a8a;
+            border-left: 4px solid #3b82f6;
         }
         
-        /* Status badges */
-        .status-active { 
-            background: hsl(var(--success) / 0.1); 
-            color: hsl(var(--success)); 
-            border: 1px solid hsl(var(--success) / 0.3);
+        .failure-category-safety { 
+            background: #fee2e2; 
+            color: #991b1b;
+            border-left: 4px solid #ef4444;
         }
         
-        .status-pending { 
-            background: hsl(var(--warning) / 0.1); 
-            color: hsl(var(--warning)); 
-            border: 1px solid hsl(var(--warning) / 0.3);
+        .failure-category-business { 
+            background: #e9d5ff; 
+            color: #581c87;
+            border-left: 4px solid #a855f7;
         }
         
-        .status-completed { 
-            background: hsl(var(--muted)); 
-            color: hsl(var(--muted-foreground)); 
-            border: 1px solid hsl(var(--border));
+        .failure-category-other { 
+            background: #f3f4f6; 
+            color: #374151;
+            border-left: 4px solid #9ca3af;
         }
         
-        /* Button variants */
-        .btn-primary {
-            background: var(--gradient-primary);
-            color: hsl(var(--primary-foreground));
-            transition: var(--transition-base);
+        .insight-card {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border: 1px solid #0284c7;
+        }
+        
+        .risk-indicator {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        
+        .risk-high { background: #fee2e2; color: #991b1b; }
+        .risk-medium { background: #fef3c7; color: #92400e; }
+        .risk-low { background: #dcfce7; color: #166534; }
+        
+        /* Timeline styles */
+        .timeline-item {
             position: relative;
-            overflow: hidden;
+            padding-left: 2rem;
+            padding-bottom: 1.5rem;
         }
         
-        .btn-primary::before {
+        .timeline-item::before {
             content: '';
             position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, hsl(var(--primary-foreground) / 0.2), transparent);
-            transition: left 0.5s;
+            left: 0.5rem;
+            top: 0.5rem;
+            width: 0.5rem;
+            height: 0.5rem;
+            background: hsl(var(--primary));
+            border-radius: 50%;
         }
         
-        .btn-primary:hover::before {
-            left: 100%;
+        .timeline-item::after {
+            content: '';
+            position: absolute;
+            left: 0.688rem;
+            top: 1rem;
+            width: 2px;
+            height: calc(100% - 0.5rem);
+            background: hsl(var(--border));
         }
         
-        .btn-primary:hover {
-            transform: scale(1.02);
-            box-shadow: var(--shadow-glow);
+        .timeline-item:last-child::after {
+            display: none;
         }
         
-        .btn-secondary {
-            background: hsl(var(--muted));
-            color: hsl(var(--foreground));
-            border: 1px solid hsl(var(--border));
-            transition: var(--transition-base);
-        }
-        
-        .btn-secondary:hover {
-            background: hsl(var(--muted) / 0.8);
-            border-color: hsl(var(--primary) / 0.3);
-        }
-        
-        /* Input styling */
-        .input-modern {
-            background: hsl(var(--card));
-            border: 2px solid hsl(var(--border));
-            transition: var(--transition-fast);
-        }
-        
-        .input-modern:focus {
-            border-color: hsl(var(--primary));
-            box-shadow: 0 0 0 3px hsl(var(--primary) / 0.1);
-            outline: none;
-        }
-        
-        /* Gradient text */
-        .gradient-text {
-            background: var(--gradient-primary);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+        /* Print styles */
+        @media print {
+            .no-print { display: none !important; }
+            body { font-size: 12px; }
+            .card { border: 1px solid #ddd; box-shadow: none; }
         }
     </style>
 </head>
-<body class="min-h-screen">
+<body>
     <!-- Header -->
-    <header class="glass sticky top-0 z-40 border-b border-slate-200/50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <header class="bg-white border-b border-gray-200 sticky top-0 z-50">
+        <div class="container mx-auto px-4">
             <div class="flex items-center justify-between h-16">
-                <div class="flex items-center space-x-3">
-                    <!-- Logo -->
-                    <div class="relative">
-                        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-teal-500 flex items-center justify-center shadow-lg">
-                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
+                <div class="flex items-center space-x-8">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-8 h-8 bg-blue-600 rounded flex items-center justify-center">
+                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                             </svg>
                         </div>
-                        <div class="absolute -inset-1 bg-gradient-to-r from-blue-500 to-teal-500 rounded-xl blur opacity-20"></div>
+                        <div>
+                            <h1 class="text-lg font-semibold">Regulatory Intelligence Platform</h1>
+                            <p class="text-xs text-gray-500">FDA Compliance & Analysis Dashboard</p>
+                        </div>
                     </div>
-                    <div>
-                        <h1 class="text-xl font-semibold gradient-text">Medical Research Platform</h1>
-                        <p class="text-xs text-slate-600">Advanced Drug & Condition Database</p>
-                    </div>
+                    
+                    <nav class="flex space-x-6">
+                        <a href="#" class="text-sm font-medium text-blue-600">Dashboard</a>
+                        <a href="#" class="text-sm font-medium text-gray-700 hover:text-blue-600">Submissions</a>
+                        <a href="#" class="text-sm font-medium text-gray-700 hover:text-blue-600">Reports</a>
+                        <a href="#" class="text-sm font-medium text-gray-700 hover:text-blue-600">Compliance</a>
+                    </nav>
                 </div>
                 
-                <!-- Status Indicator -->
                 <div class="flex items-center space-x-4">
-                    <div class="hidden sm:flex items-center space-x-2 px-3 py-1.5 rounded-full bg-green-50 border border-green-200">
+                    <div class="flex items-center space-x-2 px-3 py-1 rounded-full bg-green-50 border border-green-200">
                         <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                        <span class="text-xs font-medium text-green-700">4 Data Sources Active</span>
+                        <span class="text-xs font-medium text-green-700">10 Data Sources Active</span>
                     </div>
-                    <button class="p-2 rounded-lg hover:bg-slate-100 transition-colors">
-                        <svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    <button class="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+                        <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                         </svg>
                     </button>
                 </div>
@@ -288,81 +385,45 @@
         </div>
     </header>
 
-    <!-- Hero Section with Search -->
-    <section class="relative overflow-hidden">
-        <div class="absolute inset-0 bg-gradient-to-br from-blue-50 via-transparent to-teal-50 opacity-50"></div>
-        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-            <div class="text-center mb-10 animate-slide-up">
-                <h2 class="text-3xl sm:text-4xl font-bold mb-4">
-                    <span class="gradient-text">Discover Medical Intelligence</span>
-                </h2>
-                <p class="text-lg text-slate-600 max-w-2xl mx-auto">
-                    Search across FDA drug databases, clinical trials, and medical literature to find comprehensive information about any medical condition.
-                </p>
-            </div>
-            
-            <!-- Search Box -->
-            <div class="max-w-3xl mx-auto">
-                <div class="glass rounded-2xl p-6 shadow-xl">
-                    <div class="relative">
+    <!-- Search Section -->
+    <section class="bg-gray-50 border-b border-gray-200 py-6">
+        <div class="container mx-auto px-4">
+            <div class="max-w-4xl mx-auto">
+                <div class="flex space-x-4">
+                    <div class="flex-1 relative">
                         <input 
                             type="text" 
                             id="searchInput"
-                            placeholder="Enter a medical condition (e.g., diabetes, hypertension)"
-                            class="w-full h-14 pl-12 pr-32 text-lg input-modern rounded-xl"
+                            placeholder="Enter medical condition or drug name for comprehensive regulatory analysis..."
+                            class="w-full h-12 pl-12 pr-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             onkeypress="handleKeyPress(event)"
                         >
-                        <svg class="absolute left-4 top-4 w-6 h-6 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="absolute left-4 top-3.5 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                         </svg>
-                        <button 
-                            id="searchBtn"
-                            onclick="searchCondition()" 
-                            class="absolute right-2 top-2 h-10 px-6 btn-primary rounded-lg font-medium"
-                        >
-                            Search
-                        </button>
                     </div>
-                    
-                    <!-- Quick Search Pills -->
-                    <div class="flex flex-wrap gap-2 mt-6">
-                        <span class="text-xs text-slate-500 font-medium mr-2">Popular:</span>
-                        <button onclick="quickSearch('diabetes')" class="px-4 py-2 text-sm glass-subtle rounded-full hover:bg-blue-50 hover:text-blue-600 transition-all">
-                            Diabetes
-                        </button>
-                        <button onclick="quickSearch('hypertension')" class="px-4 py-2 text-sm glass-subtle rounded-full hover:bg-blue-50 hover:text-blue-600 transition-all">
-                            Hypertension
-                        </button>
-                        <button onclick="quickSearch('depression')" class="px-4 py-2 text-sm glass-subtle rounded-full hover:bg-blue-50 hover:text-blue-600 transition-all">
-                            Depression
-                        </button>
-                        <button onclick="quickSearch('cancer')" class="px-4 py-2 text-sm glass-subtle rounded-full hover:bg-blue-50 hover:text-blue-600 transition-all">
-                            Cancer
-                        </button>
-                        <button onclick="quickSearch('alzheimer')" class="px-4 py-2 text-sm glass-subtle rounded-full hover:bg-blue-50 hover:text-blue-600 transition-all">
-                            Alzheimer's
-                        </button>
-                    </div>
+                    <button onclick="searchCondition()" class="btn btn-primary px-6">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                        </svg>
+                        Analyze
+                    </button>
+                    <button onclick="exportReport()" class="btn btn-outline">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        Export
+                    </button>
                 </div>
-            </div>
-
-            <!-- Data Sources -->
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-8 max-w-3xl mx-auto">
-                <div class="glass-subtle rounded-lg p-3 text-center">
-                    <div class="text-2xl font-bold gradient-text">FDA</div>
-                    <div class="text-xs text-slate-600">Drug Database</div>
-                </div>
-                <div class="glass-subtle rounded-lg p-3 text-center">
-                    <div class="text-2xl font-bold gradient-text">NIH</div>
-                    <div class="text-xs text-slate-600">Clinical Trials</div>
-                </div>
-                <div class="glass-subtle rounded-lg p-3 text-center">
-                    <div class="text-2xl font-bold gradient-text">MeSH</div>
-                    <div class="text-xs text-slate-600">Medical Terms</div>
-                </div>
-                <div class="glass-subtle rounded-lg p-3 text-center">
-                    <div class="text-2xl font-bold gradient-text">PubMed</div>
-                    <div class="text-xs text-slate-600">Literature</div>
+                
+                <!-- Quick Access -->
+                <div class="flex items-center space-x-4 mt-4">
+                    <span class="text-xs text-gray-500 font-medium">Quick Access:</span>
+                    <button onclick="quickSearch('diabetes')" class="text-xs px-3 py-1 bg-white border border-gray-200 rounded-md hover:bg-gray-50">Diabetes</button>
+                    <button onclick="quickSearch('hypertension')" class="text-xs px-3 py-1 bg-white border border-gray-200 rounded-md hover:bg-gray-50">Hypertension</button>
+                    <button onclick="quickSearch('oncology')" class="text-xs px-3 py-1 bg-white border border-gray-200 rounded-md hover:bg-gray-50">Oncology</button>
+                    <button onclick="quickSearch('covid-19')" class="text-xs px-3 py-1 bg-white border border-gray-200 rounded-md hover:bg-gray-50">COVID-19</button>
+                    <button onclick="quickSearch('alzheimer')" class="text-xs px-3 py-1 bg-white border border-gray-200 rounded-md hover:bg-gray-50">Alzheimer's</button>
                 </div>
             </div>
         </div>
@@ -370,134 +431,328 @@
 
     <!-- Loading State -->
     <div id="loadingState" class="hidden">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+        <div class="container mx-auto px-4 py-20">
             <div class="flex flex-col items-center justify-center">
                 <div class="spinner mb-4"></div>
-                <p class="text-slate-600 font-medium">Searching medical databases...</p>
-                <div class="flex space-x-2 mt-4">
-                    <div class="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style="animation-delay: 0s"></div>
-                    <div class="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
-                    <div class="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
-                </div>
+                <p class="text-gray-600 font-medium">Aggregating regulatory data from multiple sources...</p>
+                <p class="text-xs text-gray-500 mt-2">FDA • ClinicalTrials.gov • DailyMed • RxNorm • PubChem • PubMed</p>
             </div>
         </div>
     </div>
 
     <!-- Results Section -->
     <div id="resultsSection" class="hidden">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <!-- Summary Card -->
-            <div id="summarySection" class="mb-10">
+        <div class="container mx-auto px-4 py-6">
+            <!-- Executive Summary -->
+            <div id="executiveSummary" class="mb-6">
                 <!-- Dynamic content -->
             </div>
 
-            <!-- Results Grid -->
-            <div class="space-y-8">
-                <!-- FDA Drugs Section -->
-                <section id="drugsSection" class="hidden animate-slide-up">
-                    <div class="flex items-center justify-between mb-6">
-                        <div class="flex items-center space-x-3">
-                            <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
-                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path>
-                                </svg>
-                            </div>
-                            <h2 class="text-2xl font-bold">FDA Approved Drugs</h2>
-                        </div>
-                        <span id="drugsCount" class="text-sm text-slate-500 font-medium"></span>
-                    </div>
-                    <div id="drugsGrid" class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                        <!-- Dynamic content -->
-                    </div>
-                </section>
+            <!-- Key Metrics -->
+            <div id="keyMetrics" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 mb-6">
+                <!-- Dynamic metrics -->
+            </div>
 
-                <!-- Clinical Trials Section -->
-                <section id="trialsSection" class="hidden animate-slide-up">
-                    <div class="flex items-center justify-between mb-6">
-                        <div class="flex items-center space-x-3">
-                            <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-teal-500 to-teal-600 flex items-center justify-center">
-                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                                </svg>
-                            </div>
-                            <h2 class="text-2xl font-bold">Clinical Trials</h2>
-                        </div>
-                        <span id="trialsCount" class="text-sm text-slate-500 font-medium"></span>
+            <!-- Main Tabs -->
+            <div class="bg-white border border-gray-200 rounded-lg mb-6">
+                <div class="border-b border-gray-200">
+                    <div class="flex space-x-0 overflow-x-auto">
+                        <button onclick="switchTab('regulatory')" id="tab-regulatory" class="tab active whitespace-nowrap">
+                            Regulatory Overview
+                        </button>
+                        <button onclick="switchTab('clinical')" id="tab-clinical" class="tab whitespace-nowrap">
+                            Clinical Trials
+                        </button>
+                        <button onclick="switchTab('safety')" id="tab-safety" class="tab whitespace-nowrap">
+                            Safety Profile
+                        </button>
+                        <button onclick="switchTab('chemistry')" id="tab-chemistry" class="tab whitespace-nowrap">
+                            Chemistry & Manufacturing
+                        </button>
+                        <button onclick="switchTab('literature')" id="tab-literature" class="tab whitespace-nowrap">
+                            Scientific Literature
+                        </button>
+                        <button onclick="switchTab('failed')" id="tab-failed" class="tab whitespace-nowrap">
+                            Failed/Withdrawn
+                        </button>
                     </div>
-                    <div id="trialsGrid" class="grid gap-4 lg:grid-cols-2">
-                        <!-- Dynamic content -->
-                    </div>
-                </section>
+                </div>
 
-                <!-- Related Conditions Section -->
-                <section id="conditionsSection" class="hidden animate-slide-up">
-                    <div class="flex items-center justify-between mb-6">
-                        <div class="flex items-center space-x-3">
-                            <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center">
-                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
-                                </svg>
+                <!-- Tab Content -->
+                <div class="p-6">
+                    <!-- Regulatory Overview Tab -->
+                    <div id="content-regulatory" class="tab-content">
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                            <!-- FDA Approved Drugs -->
+                            <div class="lg:col-span-2">
+                                <div class="mb-4 flex items-center justify-between">
+                                    <h3 class="text-lg font-semibold">FDA Approved Drugs</h3>
+                                    <div class="flex space-x-2">
+                                        <span class="badge badge-success">Active</span>
+                                        <span class="badge badge-info">Recently Approved</span>
+                                    </div>
+                                </div>
+                                <div id="fdaDrugsTable" class="overflow-x-auto">
+                                    <!-- Dynamic table -->
+                                </div>
                             </div>
-                            <h2 class="text-2xl font-bold">Related Medical Terms</h2>
+                            
+                            <!-- Regulatory Timeline -->
+                            <div>
+                                <h3 class="text-lg font-semibold mb-4">Regulatory Milestones</h3>
+                                <div id="regulatoryTimeline" class="space-y-4">
+                                    <!-- Dynamic timeline -->
+                                </div>
+                                <div class="mt-6">
+                                    <h4 class="text-sm font-semibold text-gray-700 mb-3">Approval Statistics</h4>
+                                    <canvas id="approvalChart" width="300" height="200"></canvas>
+                                </div>
+                            </div>
                         </div>
-                        <span id="conditionsCount" class="text-sm text-slate-500 font-medium"></span>
                     </div>
-                    <div id="conditionsGrid" class="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-                        <!-- Dynamic content -->
+
+                    <!-- Clinical Trials Tab -->
+                    <div id="content-clinical" class="tab-content hidden">
+                        <div class="mb-6">
+                            <!-- Clinical Trials Summary -->
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                                <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                                    <div class="text-2xl font-bold text-green-900" id="recruitingCount">0</div>
+                                    <div class="text-sm text-green-700">Recruiting</div>
+                                </div>
+                                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                    <div class="text-2xl font-bold text-blue-900" id="activeCount">0</div>
+                                    <div class="text-sm text-blue-700">Active</div>
+                                </div>
+                                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                                    <div class="text-2xl font-bold text-yellow-900" id="completedCount">0</div>
+                                    <div class="text-sm text-yellow-700">Completed</div>
+                                </div>
+                                <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                                    <div class="text-2xl font-bold text-gray-900" id="totalTrialsCount">0</div>
+                                    <div class="text-sm text-gray-700">Total Trials</div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-lg font-semibold">Active Clinical Trials Analysis</h3>
+                                <select id="trialPhaseFilter" onchange="filterTrials()" class="text-sm px-3 py-1 border border-gray-300 rounded-lg">
+                                    <option value="">All Phases</option>
+                                    <option value="PHASE1">Phase 1</option>
+                                    <option value="PHASE2">Phase 2</option>
+                                    <option value="PHASE3">Phase 3</option>
+                                    <option value="PHASE4">Phase 4</option>
+                                </select>
+                            </div>
+                            <div id="clinicalTrialsTable" class="overflow-x-auto">
+                                <!-- Dynamic table -->
+                            </div>
+                            
+                            <!-- Phase Distribution Chart -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                                <div class="bg-white border border-gray-200 rounded-lg p-4">
+                                    <h4 class="text-sm font-semibold text-gray-700 mb-3">Phase Distribution</h4>
+                                    <canvas id="phaseChart" width="300" height="200"></canvas>
+                                </div>
+                                <div class="bg-white border border-gray-200 rounded-lg p-4">
+                                    <h4 class="text-sm font-semibold text-gray-700 mb-3">Enrollment Trends</h4>
+                                    <canvas id="enrollmentChart" width="300" height="200"></canvas>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </section>
+
+                    <!-- Safety Profile Tab -->
+                    <div id="content-safety" class="tab-content hidden">
+                        <!-- Safety Alerts -->
+                        <div id="safetyAlerts" class="mb-6">
+                            <!-- Dynamic safety alerts -->
+                        </div>
+                        
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <div>
+                                <h3 class="text-lg font-semibold mb-4">Adverse Events Analysis</h3>
+                                <div class="bg-white border border-gray-200 rounded-lg p-4">
+                                    <canvas id="aeChart" width="400" height="300"></canvas>
+                                </div>
+                                <div id="adverseEventsList" class="mt-4">
+                                    <!-- Dynamic AE list -->
+                                </div>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-semibold mb-4">Drug Interactions Matrix</h3>
+                                <div id="drugInteractionsTable" class="bg-white border border-gray-200 rounded-lg p-4">
+                                    <!-- Dynamic interactions -->
+                                </div>
+                                <div class="mt-4">
+                                    <h4 class="text-sm font-semibold text-gray-700 mb-3">Severity Distribution</h4>
+                                    <canvas id="severityChart" width="300" height="200"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chemistry Tab -->
+                    <div id="content-chemistry" class="tab-content hidden">
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <div>
+                                <h3 class="text-lg font-semibold mb-4">Chemical Compounds Analysis</h3>
+                                <div id="compoundsTable">
+                                    <!-- Dynamic content -->
+                                </div>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-semibold mb-4">Manufacturing & Formulation</h3>
+                                <div id="manufacturingInfo">
+                                    <!-- Dynamic content -->
+                                </div>
+                                <div class="mt-6">
+                                    <h4 class="text-sm font-semibold text-gray-700 mb-3">Dosage Forms Distribution</h4>
+                                    <canvas id="dosageFormChart" width="300" height="200"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Literature Tab -->
+                    <div id="content-literature" class="tab-content hidden">
+                        <div class="mb-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-lg font-semibold">Recent Scientific Publications</h3>
+                                <div class="flex space-x-2">
+                                    <button class="text-xs px-3 py-1 bg-blue-50 text-blue-700 rounded-lg">Clinical Trials</button>
+                                    <button class="text-xs px-3 py-1 bg-gray-50 text-gray-700 rounded-lg">Reviews</button>
+                                    <button class="text-xs px-3 py-1 bg-gray-50 text-gray-700 rounded-lg">Meta-Analysis</button>
+                                </div>
+                            </div>
+                            
+                            <!-- Publication Metrics -->
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                    <div class="text-2xl font-bold text-blue-900" id="totalPublications">0</div>
+                                    <div class="text-sm text-blue-700">Total Publications</div>
+                                </div>
+                                <div class="bg-purple-50 border border-purple-200 rounded-lg p-4">
+                                    <div class="text-2xl font-bold text-purple-900" id="avgCitations">0</div>
+                                    <div class="text-sm text-purple-700">Avg Citations</div>
+                                </div>
+                                <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                                    <div class="text-2xl font-bold text-green-900" id="recentArticles">0</div>
+                                    <div class="text-sm text-green-700">Last 12 Months</div>
+                                </div>
+                            </div>
+                            
+                            <div id="publicationsTable">
+                                <!-- Dynamic table -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Failed/Withdrawn Tab -->
+                    <div id="content-failed" class="tab-content hidden">
+                        <!-- Failure Analysis Summary -->
+                        <div class="mb-6">
+                            <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                                <div class="flex items-start">
+                                    <svg class="w-5 h-5 text-red-600 mt-0.5 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    <div id="safetyAlertContent" class="flex-1">
+                                        <!-- Dynamic safety alerts -->
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Failure Metrics -->
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                                <div class="insight-card p-4 rounded-lg">
+                                    <div class="text-3xl font-bold text-blue-900" id="totalFailedCount">0</div>
+                                    <div class="text-sm text-blue-700 font-medium">Total Failed/Withdrawn</div>
+                                </div>
+                                
+                                <div class="bg-red-50 p-4 rounded-lg border border-red-200">
+                                    <div class="text-3xl font-bold text-red-900" id="safetyFailureCount">0</div>
+                                    <div class="text-sm text-red-700 font-medium">Safety Concerns</div>
+                                </div>
+                                
+                                <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+                                    <div class="text-3xl font-bold text-yellow-900" id="enrollmentFailureCount">0</div>
+                                    <div class="text-sm text-yellow-700 font-medium">Enrollment Issues</div>
+                                </div>
+                                
+                                <div class="bg-purple-50 p-4 rounded-lg border border-purple-200">
+                                    <div class="text-3xl font-bold text-purple-900" id="businessFailureCount">0</div>
+                                    <div class="text-sm text-purple-700 font-medium">Business Decisions</div>
+                                </div>
+                            </div>
+
+                            <!-- Failure Analysis Charts -->
+                            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                                <div class="bg-white p-4 rounded-lg border border-gray-200">
+                                    <h3 class="text-sm font-semibold text-gray-900 mb-3">Termination Reasons</h3>
+                                    <canvas id="failureReasonsChart" width="300" height="300"></canvas>
+                                </div>
+                                <div class="bg-white p-4 rounded-lg border border-gray-200">
+                                    <h3 class="text-sm font-semibold text-gray-900 mb-3">Phase Distribution</h3>
+                                    <canvas id="failedPhaseChart" width="300" height="300"></canvas>
+                                </div>
+                                <div class="bg-white p-4 rounded-lg border border-gray-200">
+                                    <h3 class="text-sm font-semibold text-gray-900 mb-3">Sponsor Analysis</h3>
+                                    <div id="sponsorRiskAnalysis" class="space-y-2">
+                                        <!-- Dynamic sponsor list -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <h3 class="text-lg font-semibold mb-4">Terminated & Withdrawn Studies Details</h3>
+                        <div id="failedDrugsTable" class="overflow-x-auto">
+                            <!-- Dynamic table -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Data Sources Footer -->
+            <div class="bg-white border border-gray-200 rounded-lg p-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-6">
+                        <span class="text-xs text-gray-500 font-medium">Data Sources:</span>
+                        <div class="flex space-x-4 text-xs">
+                            <span class="flex items-center"><span class="w-2 h-2 bg-green-500 rounded-full mr-1"></span> FDA</span>
+                            <span class="flex items-center"><span class="w-2 h-2 bg-green-500 rounded-full mr-1"></span> ClinicalTrials.gov</span>
+                            <span class="flex items-center"><span class="w-2 h-2 bg-green-500 rounded-full mr-1"></span> DailyMed</span>
+                            <span class="flex items-center"><span class="w-2 h-2 bg-green-500 rounded-full mr-1"></span> RxNorm</span>
+                            <span class="flex items-center"><span class="w-2 h-2 bg-green-500 rounded-full mr-1"></span> PubChem</span>
+                            <span class="flex items-center"><span class="w-2 h-2 bg-green-500 rounded-full mr-1"></span> PubMed</span>
+                        </div>
+                    </div>
+                    <span class="text-xs text-gray-500">Last updated: <span id="lastUpdated">-</span></span>
+                </div>
             </div>
         </div>
     </div>
 
     <!-- No Results State -->
     <div id="noResultsState" class="hidden">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+        <div class="container mx-auto px-4 py-20">
             <div class="text-center">
-                <div class="w-20 h-20 bg-gradient-to-br from-slate-100 to-slate-200 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <svg class="w-10 h-10 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
                 </div>
-                <h3 class="text-2xl font-bold mb-2">No Results Found</h3>
-                <p class="text-slate-600 mb-8 max-w-md mx-auto">
-                    We couldn't find any information for that search term. Try searching for a different medical condition or check your spelling.
-                </p>
-                <button onclick="clearSearch()" class="px-6 py-3 btn-primary rounded-lg font-medium">
-                    Try Another Search
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Detail Modal -->
-    <div id="detailModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
-        <div class="glass bg-white/95 rounded-2xl max-w-3xl w-full max-h-[80vh] overflow-hidden shadow-2xl animate-slide-up">
-            <div class="flex items-center justify-between p-6 border-b border-slate-200">
-                <h3 id="modalTitle" class="text-xl font-bold"></h3>
-                <button onclick="closeModal()" class="p-2 rounded-lg hover:bg-slate-100 transition-colors">
-                    <svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                </button>
-            </div>
-            <div id="modalContent" class="p-6 overflow-y-auto max-h-[60vh]">
-                <!-- Dynamic content -->
-            </div>
-            <div class="flex justify-end space-x-3 p-6 border-t border-slate-200 bg-slate-50/50">
-                <button onclick="closeModal()" class="px-4 py-2 btn-secondary rounded-lg font-medium">
-                    Close
-                </button>
-                <a id="modalLink" href="#" target="_blank" class="px-4 py-2 btn-primary rounded-lg font-medium hidden">
-                    View Full Details →
-                </a>
+                <h3 class="text-lg font-semibold mb-2">No Regulatory Data Found</h3>
+                <p class="text-gray-600 mb-6">Unable to find regulatory information for that search term.</p>
+                <button onclick="clearSearch()" class="btn btn-primary">New Search</button>
             </div>
         </div>
     </div>
 
     <script>
         let currentResults = null;
-        const API_BASE_URL = 'http://localhost:3000';
+        let allCharts = {};
+        const API_BASE_URL = 'http://localhost:4000';
 
         function handleKeyPress(event) {
             if (event.key === 'Enter') {
@@ -515,6 +770,12 @@
             if (!condition) return;
 
             showState('loading');
+            
+            // Clear all existing charts
+            Object.values(allCharts).forEach(chart => {
+                if (chart) chart.destroy();
+            });
+            allCharts = {};
 
             try {
                 const response = await fetch(`${API_BASE_URL}/api/condition/${encodeURIComponent(condition)}`);
@@ -549,343 +810,1012 @@
         function displayResults() {
             if (!currentResults) return;
 
-            displaySummary();
-            displayDrugs();
-            displayTrials();
-            displayConditions();
+            displayExecutiveSummary();
+            displayKeyMetrics();
+            displayRegulatoryOverview();
+            displayClinicalTrials();
+            displaySafetyProfile();
+            displayChemistry();
+            displayLiterature();
+            displayFailedDrugs();
+            
+            // Update last updated time
+            document.getElementById('lastUpdated').textContent = new Date().toLocaleString();
             
             showState('results');
         }
 
-        function displaySummary() {
+        function displayExecutiveSummary() {
             const summary = currentResults.summary;
-            const summarySection = document.getElementById('summarySection');
-            
-            summarySection.innerHTML = `
-                <div class="glass rounded-2xl p-8 shadow-xl border border-slate-200/50">
-                    <div class="text-center mb-8">
-                        <h1 class="text-4xl font-bold mb-2 gradient-text">${currentResults.condition}</h1>
-                        <p class="text-slate-600">Comprehensive medical data analysis</p>
-                    </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                        <div class="text-center p-6 rounded-xl bg-gradient-to-br from-blue-50 to-blue-100/50 border border-blue-200/50">
-                            <div class="text-4xl font-bold text-blue-600 mb-2">${summary.total_drugs}</div>
-                            <div class="text-sm font-medium text-blue-700">FDA Approved Drugs</div>
+            const summaryHtml = `
+                <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-6">
+                    <div class="flex items-start justify-between">
+                        <div>
+                            <h2 class="text-2xl font-bold text-gray-900 mb-2">
+                                ${currentResults.condition.toUpperCase()} - Regulatory Intelligence Report
+                            </h2>
+                            <p class="text-gray-600">
+                                Comprehensive analysis from ${Object.keys(currentResults.sources).length} regulatory and scientific databases
+                            </p>
+                            <div class="mt-4 flex space-x-6">
+                                <div class="flex items-center">
+                                    <svg class="w-5 h-5 text-green-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    <span class="text-sm"><strong>${summary.total_drugs}</strong> Approved Drugs</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <svg class="w-5 h-5 text-blue-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z"></path>
+                                    </svg>
+                                    <span class="text-sm"><strong>${summary.research_articles}</strong> Research Articles</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <svg class="w-5 h-5 text-yellow-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    <span class="text-sm"><strong>${summary.failed_drugs}</strong> Failed/Withdrawn</span>
+                                </div>
+                            </div>
                         </div>
-                        <div class="text-center p-6 rounded-xl bg-gradient-to-br from-teal-50 to-teal-100/50 border border-teal-200/50">
-                            <div class="text-4xl font-bold text-teal-600 mb-2">${summary.active_trials}</div>
-                            <div class="text-sm font-medium text-teal-700">Active Clinical Trials</div>
-                        </div>
-                        <div class="text-center p-6 rounded-xl bg-gradient-to-br from-purple-50 to-purple-100/50 border border-purple-200/50">
-                            <div class="text-4xl font-bold text-purple-600 mb-2">${summary.related_conditions.length}</div>
-                            <div class="text-sm font-medium text-purple-700">Related Medical Terms</div>
+                        <div class="text-right">
+                            <div class="text-3xl font-bold text-blue-600">${summary.total_drugs + summary.active_trials}</div>
+                            <div class="text-sm text-gray-600">Total Regulatory Items</div>
                         </div>
                     </div>
                 </div>
             `;
+            document.getElementById('executiveSummary').innerHTML = summaryHtml;
         }
 
-        function displayDrugs() {
-            const drugs = currentResults.sources.fda_drugs;
-            const section = document.getElementById('drugsSection');
-            const grid = document.getElementById('drugsGrid');
-            const count = document.getElementById('drugsCount');
-
-            if (drugs.count === 0) {
-                section.classList.add('hidden');
-                return;
-            }
-
-            count.textContent = `${drugs.count} drugs found`;
+        function displayKeyMetrics() {
+            const summary = currentResults.summary;
+            const sources = currentResults.sources;
             
-            // Group drugs by name to avoid duplicates
-            const uniqueDrugs = {};
-            drugs.data.forEach(drug => {
-                const name = drug.drug_name;
-                if (!uniqueDrugs[name]) {
-                    uniqueDrugs[name] = drug;
+            const metrics = [
+                {
+                    label: 'FDA Drugs',
+                    value: sources.fda_drugs.count,
+                    icon: '💊',
+                    color: 'blue'
+                },
+                {
+                    label: 'Active Trials',
+                    value: summary.active_trials,
+                    icon: '🔬',
+                    color: 'green'
+                },
+                {
+                    label: 'Failed/Withdrawn',
+                    value: summary.failed_drugs,
+                    icon: '⚠️',
+                    color: 'red'
+                },
+                {
+                    label: 'Publications',
+                    value: sources.pubmed_articles.count,
+                    icon: '📚',
+                    color: 'purple'
+                },
+                {
+                    label: 'Compounds',
+                    value: summary.compounds_identified,
+                    icon: '🧪',
+                    color: 'indigo'
+                },
+                {
+                    label: 'Safety Events',
+                    value: sources.adverse_events.count,
+                    icon: '🚨',
+                    color: 'yellow'
                 }
-            });
+            ];
 
-            grid.innerHTML = Object.values(uniqueDrugs).slice(0, 12).map(drug => `
-                <div class="glass rounded-xl p-6 border border-slate-200/50 card-hover" onclick="showDrugModal('${drug.drug_name}', ${JSON.stringify(drug).replace(/"/g, '&quot;')})">
-                    <div class="flex items-start justify-between mb-4">
-                        <h3 class="font-semibold text-lg text-slate-900">${drug.drug_name}</h3>
-                        <span class="text-xs px-2 py-1 rounded-full ${drug.source === 'labels' ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'} font-medium">
-                            ${drug.source === 'labels' ? 'Label' : 'NDC'}
-                        </span>
-                    </div>
-                    ${drug.openfda?.manufacturer_name?.[0] ? `
-                        <p class="text-sm text-slate-600 mb-2">
-                            <span class="font-medium">Manufacturer:</span> ${drug.openfda.manufacturer_name[0]}
-                        </p>` : ''}
-                    ${drug.brand_name && drug.brand_name !== drug.drug_name ? `
-                        <p class="text-sm text-slate-600 mb-2">
-                            <span class="font-medium">Brand:</span> ${drug.brand_name}
-                        </p>` : ''}
-                    ${drug.dosage_form ? `
-                        <p class="text-sm text-slate-600">
-                            <span class="font-medium">Form:</span> ${drug.dosage_form}
-                        </p>` : ''}
-                    <div class="mt-4 pt-4 border-t border-slate-100">
-                        <span class="text-xs font-medium text-blue-600 flex items-center">
-                            View details 
-                            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                            </svg>
-                        </span>
+            const metricsHtml = metrics.map(metric => `
+                <div class="metric-card">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <div class="metric-value">${metric.value.toLocaleString()}</div>
+                            <div class="metric-label">${metric.label}</div>
+                        </div>
+                        <div class="text-2xl opacity-50">${metric.icon}</div>
                     </div>
                 </div>
             `).join('');
 
-            section.classList.remove('hidden');
+            document.getElementById('keyMetrics').innerHTML = metricsHtml;
         }
 
-        function displayTrials() {
-            const trials = currentResults.sources.clinical_trials;
-            const section = document.getElementById('trialsSection');
-            const grid = document.getElementById('trialsGrid');
-            const count = document.getElementById('trialsCount');
-
-            if (trials.count === 0) {
-                section.classList.add('hidden');
-                return;
-            }
-
-            count.textContent = `${trials.count} trials found`;
+        function displayRegulatoryOverview() {
+            const drugs = currentResults.sources.fda_drugs.data.slice(0, 10);
+            const dailymed = currentResults.sources.dailymed_labels.data.slice(0, 5);
+            const rxnorm = currentResults.sources.rxnorm_drugs.data.slice(0, 5);
             
-            grid.innerHTML = trials.data.slice(0, 8).map(trial => `
-                <div class="glass rounded-xl p-6 border border-slate-200/50 card-hover" onclick="showTrialModal('${trial.nct_id}', ${JSON.stringify(trial).replace(/"/g, '&quot;')})">
-                    <div class="mb-4">
-                        <h3 class="font-semibold text-lg text-slate-900 mb-3 line-clamp-2">${trial.title || 'Clinical Trial'}</h3>
-                        <div class="flex flex-wrap gap-2">
-                            <span class="text-xs px-3 py-1 rounded-full font-medium ${getStatusStyle(trial.status)}">
-                                ${trial.status || 'Unknown'}
-                            </span>
-                            ${trial.phase ? `<span class="text-xs px-3 py-1 rounded-full bg-slate-100 text-slate-700 font-medium">${trial.phase}</span>` : ''}
+            // FDA Drugs Table
+            const drugsTableHtml = drugs.length > 0 ? `
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Drug Name</th>
+                            <th>Manufacturer</th>
+                            <th>Type</th>
+                            <th>Route</th>
+                            <th>Status</th>
+                            <th>NDC</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${drugs.map(drug => `
+                            <tr>
+                                <td class="font-medium">${drug.drug_name || 'N/A'}</td>
+                                <td class="text-gray-600">${drug.manufacturer || 'Unknown'}</td>
+                                <td><span class="badge badge-info">${drug.dosage_form || 'N/A'}</span></td>
+                                <td>${drug.route || 'N/A'}</td>
+                                <td><span class="badge badge-success">Approved</span></td>
+                                <td class="font-mono text-xs">${drug.ndc || 'N/A'}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            ` : '<p class="text-gray-500">No FDA drug data available</p>';
+            
+            document.getElementById('fdaDrugsTable').innerHTML = drugsTableHtml;
+            
+            // Regulatory Timeline
+            const timelineHtml = [...dailymed, ...rxnorm].slice(0, 5).map(item => `
+                <div class="timeline-item">
+                    <div class="card p-3">
+                        <h4 class="font-medium text-sm">${item.drug_name || item.name || item.title || 'Unknown'}</h4>
+                        <p class="text-xs text-gray-600 mt-1">${item.labeler || item.manufacturer || 'Unknown Manufacturer'}</p>
+                        ${item.last_updated ? `<p class="text-xs text-gray-500 mt-1">Updated: ${new Date(item.last_updated).toLocaleDateString()}</p>` : ''}
+                    </div>
+                </div>
+            `).join('') || '<p class="text-gray-500">No timeline data available</p>';
+            
+            document.getElementById('regulatoryTimeline').innerHTML = timelineHtml;
+            
+            // Create approval chart
+            if (drugs.length > 0) {
+                const ctx = document.getElementById('approvalChart');
+                if (ctx) {
+                    allCharts.approval = new Chart(ctx.getContext('2d'), {
+                        type: 'doughnut',
+                        data: {
+                            labels: ['Prescription', 'OTC', 'Other'],
+                            datasets: [{
+                                data: [
+                                    drugs.filter(d => d.route?.includes('ORAL')).length,
+                                    drugs.filter(d => d.route?.includes('TOPICAL')).length,
+                                    drugs.filter(d => !d.route?.includes('ORAL') && !d.route?.includes('TOPICAL')).length
+                                ],
+                                backgroundColor: ['#3b82f6', '#10b981', '#f59e0b']
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: true,
+                            plugins: {
+                                legend: {
+                                    position: 'bottom',
+                                    labels: {
+                                        padding: 10,
+                                        font: { size: 11 }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+            }
+        }
+
+        function displayClinicalTrials() {
+            const trials = currentResults.sources.clinical_trials.data;
+            
+            // Calculate counts
+            const recruiting = trials.filter(t => t.status === 'RECRUITING').length;
+            const active = trials.filter(t => t.status === 'ACTIVE_NOT_RECRUITING').length;
+            const completed = trials.filter(t => t.status === 'COMPLETED').length;
+            
+            // Update counts
+            document.getElementById('recruitingCount').textContent = recruiting;
+            document.getElementById('activeCount').textContent = active;
+            document.getElementById('completedCount').textContent = completed;
+            document.getElementById('totalTrialsCount').textContent = trials.length;
+            
+            // Trials table
+            const trialsTableHtml = trials.length > 0 ? `
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>NCT ID</th>
+                            <th>Title</th>
+                            <th>Phase</th>
+                            <th>Status</th>
+                            <th>Sponsor</th>
+                            <th>Enrollment</th>
+                            <th>Start Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${trials.slice(0, 15).map(trial => `
+                            <tr>
+                                <td>
+                                    <a href="https://clinicaltrials.gov/study/${trial.nct_id}" target="_blank" class="text-blue-600 hover:underline font-medium">
+                                        ${trial.nct_id}
+                                    </a>
+                                </td>
+                                <td class="max-w-xs truncate" title="${trial.title}">${trial.title}</td>
+                                <td><span class="badge badge-info">${trial.phase || 'N/A'}</span></td>
+                                <td><span class="badge badge-${getStatusBadgeClass(trial.status)}">${trial.status}</span></td>
+                                <td>${trial.sponsor}</td>
+                                <td>${trial.enrollment || 'N/A'}</td>
+                                <td>${trial.start_date || 'N/A'}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            ` : '<p class="text-gray-500">No clinical trials data available</p>';
+            
+            document.getElementById('clinicalTrialsTable').innerHTML = trialsTableHtml;
+            
+            // Phase distribution chart
+            const phaseCtx = document.getElementById('phaseChart');
+            if (phaseCtx && trials.length > 0) {
+                const phaseCounts = {
+                    'Phase 1': trials.filter(t => t.phase?.includes('1')).length,
+                    'Phase 2': trials.filter(t => t.phase?.includes('2')).length,
+                    'Phase 3': trials.filter(t => t.phase?.includes('3')).length,
+                    'Phase 4': trials.filter(t => t.phase?.includes('4')).length,
+                    'N/A': trials.filter(t => !t.phase || t.phase === 'N/A').length
+                };
+                
+                allCharts.phase = new Chart(phaseCtx.getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: Object.keys(phaseCounts),
+                        datasets: [{
+                            label: 'Trials',
+                            data: Object.values(phaseCounts),
+                            backgroundColor: '#3b82f6'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        plugins: {
+                            legend: { display: false }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: { stepSize: 1 }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Enrollment chart
+            const enrollCtx = document.getElementById('enrollmentChart');
+            if (enrollCtx && trials.length > 0) {
+                const enrollmentData = trials
+                    .filter(t => t.enrollment)
+                    .slice(0, 10)
+                    .map(t => ({
+                        label: t.nct_id,
+                        value: t.enrollment
+                    }));
+                
+                if (enrollmentData.length > 0) {
+                    allCharts.enrollment = new Chart(enrollCtx.getContext('2d'), {
+                        type: 'line',
+                        data: {
+                            labels: enrollmentData.map(d => d.label),
+                            datasets: [{
+                                label: 'Enrollment',
+                                data: enrollmentData.map(d => d.value),
+                                borderColor: '#10b981',
+                                backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                                tension: 0.4
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: true,
+                            plugins: {
+                                legend: { display: false }
+                            },
+                            scales: {
+                                y: { beginAtZero: true }
+                            }
+                        }
+                    });
+                }
+            }
+        }
+
+        function displaySafetyProfile() {
+            const adverseEvents = currentResults.sources.adverse_events.data;
+            const interactions = currentResults.sources.drug_interactions.data;
+            
+            // Safety alerts
+            const safetyAlertsHtml = adverseEvents.filter(ae => ae.severity_category === 'Severe').length > 0 ? `
+                <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                    <div class="flex items-start">
+                        <svg class="w-5 h-5 text-red-600 mt-0.5 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                        </svg>
+                        <div>
+                            <h3 class="text-sm font-semibold text-red-900">Critical Safety Signals Detected</h3>
+                            <p class="text-sm text-red-700 mt-1">
+                                ${adverseEvents.filter(ae => ae.severity_category === 'Severe').length} severe adverse events reported.
+                                Review required for regulatory compliance.
+                            </p>
                         </div>
                     </div>
-                    ${trial.sponsor ? `<p class="text-sm text-slate-600 mb-3"><span class="font-medium">Sponsor:</span> ${trial.sponsor}</p>` : ''}
-                    <div class="flex justify-between items-center pt-4 border-t border-slate-100">
-                        <span class="text-xs text-slate-500 font-medium">${trial.nct_id}</span>
-                        <span class="text-xs font-medium text-teal-600 flex items-center">
-                            View trial 
-                            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                            </svg>
-                        </span>
-                    </div>
                 </div>
-            `).join('');
-
-            section.classList.remove('hidden');
-        }
-
-        function displayConditions() {
-            const conditions = currentResults.sources.mesh_terms;
-            const section = document.getElementById('conditionsSection');
-            const grid = document.getElementById('conditionsGrid');
-            const count = document.getElementById('conditionsCount');
-
-            if (conditions.count === 0) {
-                section.classList.add('hidden');
-                return;
+            ` : '';
+            
+            document.getElementById('safetyAlerts').innerHTML = safetyAlertsHtml;
+            
+            // Adverse Events Chart
+            if (adverseEvents.length > 0) {
+                const aeCtx = document.getElementById('aeChart');
+                if (aeCtx) {
+                    const aeData = adverseEvents.slice(0, 10);
+                    
+                    allCharts.ae = new Chart(aeCtx.getContext('2d'), {
+                        type: 'horizontalBar',
+                        data: {
+                            labels: aeData.map(ae => ae.reaction.substring(0, 30)),
+                            datasets: [{
+                                label: 'Reported Events',
+                                data: aeData.map(ae => ae.count),
+                                backgroundColor: aeData.map(ae => 
+                                    ae.severity_category === 'Severe' ? 'rgba(239, 68, 68, 0.5)' :
+                                    ae.severity_category === 'Moderate' ? 'rgba(251, 191, 36, 0.5)' :
+                                    'rgba(34, 197, 94, 0.5)'
+                                ),
+                                borderColor: aeData.map(ae => 
+                                    ae.severity_category === 'Severe' ? 'rgba(239, 68, 68, 1)' :
+                                    ae.severity_category === 'Moderate' ? 'rgba(251, 191, 36, 1)' :
+                                    'rgba(34, 197, 94, 1)'
+                                ),
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: true,
+                             plugins: {
+                                legend: { display: false }
+                            },
+                            scales: {
+                                x: {
+                                    beginAtZero: true
+                                }
+                            }
+                        }
+                    });
+                }
             }
-
-            count.textContent = `${conditions.count} terms found`;
             
-            grid.innerHTML = conditions.data.map(term => `
-                <div class="glass rounded-xl p-5 border border-slate-200/50 card-hover" onclick="showConditionModal('${term.term}', ${JSON.stringify(term).replace(/"/g, '&quot;')})">
-                    <h3 class="font-semibold text-slate-900 mb-2">${term.term}</h3>
-                    <div class="flex justify-between items-center">
-                        <span class="text-xs text-slate-500">MeSH: ${term.mesh_id}</span>
-                        <span class="text-xs font-medium text-purple-600">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                            </svg>
+            // Adverse Events List
+            const aeListHtml = adverseEvents.length > 0 ? `
+                <div class="bg-white border border-gray-200 rounded-lg p-4">
+                    <h4 class="font-semibold text-sm mb-3">Top Adverse Events by Category</h4>
+                    <div class="space-y-2">
+                        ${adverseEvents.slice(0, 5).map(ae => `
+                            <div class="flex items-center justify-between p-2 bg-gray-50 rounded">
+                                <div>
+                                    <span class="text-sm font-medium">${ae.drug_name}</span>
+                                    <span class="text-xs text-gray-600 ml-2">${ae.reaction}</span>
+                                </div>
+                                <span class="badge badge-${ae.severity_category === 'Severe' ? 'danger' : ae.severity_category === 'Moderate' ? 'warning' : 'success'}">
+                                    ${ae.frequency}
+                                </span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            ` : '';
+            
+            document.getElementById('adverseEventsList').innerHTML = aeListHtml;
+            
+            // Drug Interactions Table
+            const interactionsHtml = interactions.length > 0 ? `
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Drug 1</th>
+                            <th>Drug 2</th>
+                            <th>Severity</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${interactions.slice(0, 10).map(interaction => `
+                            <tr>
+                                <td class="font-medium">${interaction.drug1}</td>
+                                <td>${interaction.drug2}</td>
+                                <td>
+                                    <span class="risk-indicator risk-${
+                                        interaction.severity?.toLowerCase() === 'high' ? 'high' :
+                                        interaction.severity?.toLowerCase() === 'moderate' ? 'medium' : 'low'
+                                    }">
+                                        ${interaction.severity || 'Unknown'}
+                                    </span>
+                                </td>
+                                <td class="text-xs">${interaction.description || 'Interaction detected'}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            ` : '<p class="text-gray-500">No drug interaction data available</p>';
+            
+            document.getElementById('drugInteractionsTable').innerHTML = interactionsHtml;
+            
+            // Severity Distribution Chart
+            const severityCtx = document.getElementById('severityChart');
+            if (severityCtx && adverseEvents.length > 0) {
+                const severityCounts = {
+                    'Severe': adverseEvents.filter(ae => ae.severity_category === 'Severe').length,
+                    'Moderate': adverseEvents.filter(ae => ae.severity_category === 'Moderate').length,
+                    'Mild': adverseEvents.filter(ae => ae.severity_category === 'Mild').length
+                };
+                
+                allCharts.severity = new Chart(severityCtx.getContext('2d'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: Object.keys(severityCounts),
+                        datasets: [{
+                            data: Object.values(severityCounts),
+                            backgroundColor: ['#ef4444', '#f59e0b', '#10b981']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    padding: 10,
+                                    font: { size: 11 }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        function displayChemistry() {
+            const compounds = currentResults.sources.pubchem_compounds.data;
+            const rxnorm = currentResults.sources.rxnorm_drugs.data.slice(0, 5);
+            const dailymed = currentResults.sources.dailymed_labels.data.slice(0, 5);
+            
+            // Compounds Table
+            const compoundsHtml = compounds.length > 0 ? compounds.map(compound => `
+                <div class="card p-4 mb-4 card-hover">
+                    <h4 class="font-medium mb-2">${compound.drug_name}</h4>
+                    <div class="grid grid-cols-2 gap-2 text-xs">
+                        <div>
+                            <span class="text-gray-500">Formula:</span>
+                            <span class="font-mono font-semibold">${compound.molecular_formula}</span>
+                        </div>
+                        <div>
+                            <span class="text-gray-500">MW:</span>
+                            <span class="font-semibold">${compound.molecular_weight}</span>
+                        </div>
+                        <div class="col-span-2">
+                            <span class="text-gray-500">CID:</span>
+                            <span class="font-mono">${compound.cid}</span>
+                        </div>
+                        <div class="col-span-2">
+                            <span class="text-gray-500">InChI:</span>
+                            <span class="font-mono text-xs break-all">${compound.inchi_key}</span>
+                        </div>
+                    </div>
+                    <div class="mt-3 flex space-x-3">
+                        <a href="${compound.pubchem_url}" target="_blank" class="text-blue-600 hover:underline text-xs">
+                            View in PubChem →
+                        </a>
+                        <a href="${compound.structure_image}" target="_blank" class="text-purple-600 hover:underline text-xs">
+                            View Structure →
+                        </a>
+                    </div>
+                </div>
+            `).join('') : '<p class="text-gray-500">No compound data available</p>';
+            
+            document.getElementById('compoundsTable').innerHTML = compoundsHtml;
+            
+            // Manufacturing Info
+            const manufacturingHtml = `
+                <div class="space-y-4">
+                    ${rxnorm.map(drug => `
+                        <div class="card p-4 card-hover">
+                            <h4 class="font-medium mb-2">${drug.name}</h4>
+                            <div class="text-xs space-y-1 text-gray-600">
+                                <div><span class="font-semibold">RxCUI:</span> ${drug.rxcui}</div>
+                                <div><span class="font-semibold">Type:</span> ${drug.tty}</div>
+                                ${drug.dose_form ? `<div><span class="font-semibold">Form:</span> ${drug.dose_form}</div>` : ''}
+                                ${drug.strength ? `<div><span class="font-semibold">Strength:</span> ${drug.strength}</div>` : ''}
+                            </div>
+                            <a href="${drug.rxnorm_url}" target="_blank" class="text-blue-600 hover:underline text-xs mt-2 inline-block">
+                                View in RxNorm →
+                            </a>
+                        </div>
+                    `).join('')}
+                    ${dailymed.slice(0, 3).map(label => `
+                        <div class="card p-4 card-hover">
+                            <h4 class="font-medium mb-2">${label.drug_name || label.title}</h4>
+                            <div class="text-xs space-y-1 text-gray-600">
+                                <div><span class="font-semibold">Labeler:</span> ${label.labeler || 'Unknown'}</div>
+                                <div><span class="font-semibold">Status:</span> ${label.marketing_status || 'Active'}</div>
+                                ${label.dosage_form ? `<div><span class="font-semibold">Form:</span> ${label.dosage_form}</div>` : ''}
+                                ${label.route ? `<div><span class="font-semibold">Route:</span> ${label.route}</div>` : ''}
+                            </div>
+                            ${label.label_url ? `
+                                <a href="${label.label_url}" target="_blank" class="text-blue-600 hover:underline text-xs mt-2 inline-block">
+                                    View Label →
+                                </a>
+                            ` : ''}
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            
+            document.getElementById('manufacturingInfo').innerHTML = manufacturingHtml || '<p class="text-gray-500">No manufacturing data available</p>';
+            
+            // Dosage Form Chart
+            const dosageCtx = document.getElementById('dosageFormChart');
+            if (dosageCtx) {
+                const allDrugs = [...currentResults.sources.fda_drugs.data, ...dailymed];
+                const dosageForms = {};
+                
+                allDrugs.forEach(drug => {
+                    const form = drug.dosage_form || 'Other';
+                    dosageForms[form] = (dosageForms[form] || 0) + 1;
+                });
+                
+                const topForms = Object.entries(dosageForms)
+                    .sort((a, b) => b[1] - a[1])
+                    .slice(0, 5);
+                
+                if (topForms.length > 0) {
+                    allCharts.dosage = new Chart(dosageCtx.getContext('2d'), {
+                        type: 'pie',
+                        data: {
+                            labels: topForms.map(f => f[0]),
+                            datasets: [{
+                                data: topForms.map(f => f[1]),
+                                backgroundColor: [
+                                    '#3b82f6', '#10b981', '#f59e0b', 
+                                    '#ef4444', '#8b5cf6'
+                                ]
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: true,
+                            plugins: {
+                                legend: {
+                                    position: 'bottom',
+                                    labels: {
+                                        padding: 10,
+                                        font: { size: 11 }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+            }
+        }
+
+        function displayLiterature() {
+            const articles = currentResults.sources.pubmed_articles.data;
+            
+            // Calculate metrics
+            const totalPubs = currentResults.sources.pubmed_articles.count || articles.length;
+            const avgCitations = articles.length > 0 
+                ? Math.round(articles.reduce((sum, a) => sum + (a.citation_count || 0), 0) / articles.length)
+                : 0;
+            const recentArticles = articles.filter(a => {
+                const pubYear = new Date(a.publication_date).getFullYear();
+                const currentYear = new Date().getFullYear();
+                return currentYear - pubYear <= 1;
+            }).length;
+            
+            // Update metrics
+            document.getElementById('totalPublications').textContent = totalPubs;
+            document.getElementById('avgCitations').textContent = avgCitations;
+            document.getElementById('recentArticles').textContent = recentArticles;
+            
+            // Publications table
+            const articlesHtml = articles.length > 0 ? `
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Authors</th>
+                            <th>Journal</th>
+                            <th>Date</th>
+                            <th>Type</th>
+                            <th>Citations</th>
+                            <th>PMID</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${articles.map(article => `
+                            <tr>
+                                <td class="max-w-md">
+                                    <a href="${article.pubmed_url}" target="_blank" class="text-blue-600 hover:underline">
+                                        ${article.title}
+                                    </a>
+                                </td>
+                                <td class="text-xs text-gray-600">${article.authors || 'Unknown'}</td>
+                                <td class="text-xs">${article.journal}</td>
+                                <td class="text-xs">${article.publication_date}</td>
+                                <td>
+                                    <span class="badge badge-info">
+                                        ${article.publication_type || 'Research'}
+                                    </span>
+                                </td>
+                                <td class="text-center">${article.citation_count || 0}</td>
+                                <td class="font-mono text-xs">${article.pmid}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            ` : '<p class="text-gray-500">No literature data available</p>';
+            
+            document.getElementById('publicationsTable').innerHTML = articlesHtml;
+        }
+
+        function displayFailedDrugs() {
+            const failed = currentResults.sources.failed_drugs.data;
+            
+            // Categorize failures
+            const categorizeFailure = (reason) => {
+                const reasonLower = (reason || '').toLowerCase();
+                if (reasonLower.includes('safety') || reasonLower.includes('adverse') || reasonLower.includes('death')) {
+                    return 'safety';
+                } else if (reasonLower.includes('enrollment') || reasonLower.includes('recruitment')) {
+                    return 'enrollment';
+                } else if (reasonLower.includes('funding') || reasonLower.includes('financial')) {
+                    return 'funding';
+                } else if (reasonLower.includes('business')) {
+                    return 'business';
+                } else {
+                    return 'other';
+                }
+            };
+            
+            const failureCategories = {
+                safety: 0,
+                enrollment: 0,
+                funding: 0,
+                business: 0,
+                other: 0
+            };
+            
+            failed.forEach(trial => {
+                const category = categorizeFailure(trial.why_stopped);
+                failureCategories[category]++;
+            });
+            
+            // Update metrics
+            document.getElementById('totalFailedCount').textContent = failed.length;
+            document.getElementById('safetyFailureCount').textContent = failureCategories.safety;
+            document.getElementById('enrollmentFailureCount').textContent = failureCategories.enrollment;
+            document.getElementById('businessFailureCount').textContent = failureCategories.business;
+            
+            // Safety alert for failed drugs
+            const safetyFailures = failed.filter(t => categorizeFailure(t.why_stopped) === 'safety');
+            if (safetyFailures.length > 0) {
+                const alertHtml = `
+                    <div>
+                        <h3 class="text-sm font-semibold text-red-900">Regulatory Alert: Safety-Related Terminations</h3>
+                        ${safetyFailures.slice(0, 2).map(trial => `
+                            <p class="text-sm text-red-700 mt-2">
+                                <strong>${trial.nct_id}</strong> (${trial.drug_name}) - 
+                                ${trial.phase} terminated: "${trial.why_stopped}"
+                            </p>
+                        `).join('')}
+                    </div>
+                `;
+                document.getElementById('safetyAlertContent').innerHTML = alertHtml;
+            }
+            
+            // Failure reasons chart
+            const failureCtx = document.getElementById('failureReasonsChart');
+            if (failureCtx && failed.length > 0) {
+                allCharts.failureReasons = new Chart(failureCtx.getContext('2d'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Safety', 'Enrollment', 'Funding', 'Business', 'Other'],
+                        datasets: [{
+                            data: Object.values(failureCategories),
+                            backgroundColor: ['#ef4444', '#3b82f6', '#f59e0b', '#a855f7', '#9ca3af']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    padding: 10,
+                                    font: { size: 11 }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Failed phase chart
+            const failedPhaseCtx = document.getElementById('failedPhaseChart');
+            if (failedPhaseCtx && failed.length > 0) {
+                const phaseCounts = {
+                    'Phase 1': failed.filter(t => t.phase?.includes('1')).length,
+                    'Phase 2': failed.filter(t => t.phase?.includes('2')).length,
+                    'Phase 3': failed.filter(t => t.phase?.includes('3')).length,
+                    'Phase 4': failed.filter(t => t.phase?.includes('4')).length,
+                    'N/A': failed.filter(t => !t.phase || t.phase === 'Unknown').length
+                };
+                
+                allCharts.failedPhase = new Chart(failedPhaseCtx.getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: Object.keys(phaseCounts),
+                        datasets: [{
+                            label: 'Failed Trials',
+                            data: Object.values(phaseCounts),
+                            backgroundColor: '#ef4444'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        plugins: {
+                            legend: { display: false }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: { stepSize: 1 }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Sponsor risk analysis
+            const sponsorCounts = {};
+            failed.forEach(trial => {
+                const sponsor = trial.sponsor || 'Unknown';
+                sponsorCounts[sponsor] = (sponsorCounts[sponsor] || 0) + 1;
+            });
+            
+            const topSponsors = Object.entries(sponsorCounts)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 5);
+            
+            const sponsorHtml = topSponsors.map(([sponsor, count]) => `
+                <div class="flex items-center justify-between p-2 bg-gray-50 rounded">
+                    <span class="text-sm font-medium">${sponsor}</span>
+                    <div class="flex items-center space-x-2">
+                        <span class="text-xs text-gray-600">${count} failures</span>
+                        <span class="risk-indicator risk-${count > 2 ? 'high' : count > 1 ? 'medium' : 'low'}">
+                            ${count > 2 ? 'HIGH' : count > 1 ? 'MEDIUM' : 'LOW'}
                         </span>
                     </div>
                 </div>
             `).join('');
-
-            section.classList.remove('hidden');
+            
+            document.getElementById('sponsorRiskAnalysis').innerHTML = sponsorHtml || '<p class="text-gray-500 text-sm">No sponsor data available</p>';
+            
+            // Failed drugs table
+            const failedHtml = failed.length > 0 ? `
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>NCT ID</th>
+                            <th>Drug/Study</th>
+                            <th>Phase</th>
+                            <th>Status</th>
+                            <th>Sponsor</th>
+                            <th>Reason for Termination</th>
+                            <th>Risk</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${failed.map(trial => {
+                            const category = categorizeFailure(trial.why_stopped);
+                            const categoryClass = `failure-category-${category}`;
+                            const risk = category === 'safety' ? 'high' : 
+                                        category === 'enrollment' ? 'medium' : 'low';
+                            
+                            return `
+                                <tr>
+                                    <td>
+                                        <span class="px-2 py-1 text-xs font-medium ${categoryClass} rounded">
+                                            ${category.charAt(0).toUpperCase() + category.slice(1)}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a href="https://clinicaltrials.gov/study/${trial.nct_id}" 
+                                           target="_blank" 
+                                           class="text-blue-600 hover:underline font-medium">
+                                            ${trial.nct_id}
+                                        </a>
+                                    </td>
+                                    <td class="max-w-xs truncate" title="${trial.drug_name}">
+                                        ${trial.drug_name}
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-info">${trial.phase || 'N/A'}</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-danger">${trial.status}</span>
+                                    </td>
+                                    <td>${trial.sponsor}</td>
+                                    <td class="max-w-md">
+                                        <span class="${category === 'safety' ? 'text-red-600 font-medium' : ''}">
+                                            ${trial.why_stopped || 'Not specified'}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="risk-indicator risk-${risk}">${risk.toUpperCase()}</span>
+                                    </td>
+                                </tr>
+                            `;
+                        }).join('')}
+                    </tbody>
+                </table>
+            ` : '<p class="text-gray-500">No failed/withdrawn trials found</p>';
+            
+            document.getElementById('failedDrugsTable').innerHTML = failedHtml;
         }
 
-        function getStatusStyle(status) {
-            const styles = {
-                'RECRUITING': 'status-active',
-                'ACTIVE_NOT_RECRUITING': 'status-active',
-                'COMPLETED': 'status-completed',
-                'ENROLLING_BY_INVITATION': 'status-pending'
+        function switchTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.add('hidden');
+            });
+            
+            // Remove active class from all tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab content
+            document.getElementById(`content-${tabName}`).classList.remove('hidden');
+            
+            // Add active class to selected tab
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+        }
+
+        function filterTrials() {
+            // Implementation for filtering trials by phase
+            const filter = document.getElementById('trialPhaseFilter').value;
+            // Re-display trials based on filter
+            displayClinicalTrials();
+        }
+
+        function getStatusBadgeClass(status) {
+            const statusMap = {
+                'RECRUITING': 'success',
+                'ACTIVE_NOT_RECRUITING': 'info',
+                'COMPLETED': 'warning',
+                'TERMINATED': 'danger',
+                'WITHDRAWN': 'danger',
+                'SUSPENDED': 'warning',
+                'ENROLLING_BY_INVITATION': 'info'
             };
-            return styles[status] || 'status-completed';
-        }
-
-        function showDrugModal(drugName, drugData) {
-            const drug = typeof drugData === 'string' ? JSON.parse(drugData.replace(/&quot;/g, '"')) : drugData;
-            
-            document.getElementById('modalTitle').textContent = drugName;
-            document.getElementById('modalContent').innerHTML = `
-                <div class="space-y-4">
-                    ${drug.openfda?.brand_name ? `
-                        <div class="p-4 rounded-lg bg-slate-50">
-                            <h4 class="font-semibold text-slate-900 mb-1">Brand Names</h4>
-                            <p class="text-slate-700">${drug.openfda.brand_name.join(', ')}</p>
-                        </div>` : ''}
-                    ${drug.openfda?.generic_name ? `
-                        <div class="p-4 rounded-lg bg-slate-50">
-                            <h4 class="font-semibold text-slate-900 mb-1">Generic Names</h4>
-                            <p class="text-slate-700">${drug.openfda.generic_name.join(', ')}</p>
-                        </div>` : ''}
-                    ${drug.openfda?.manufacturer_name ? `
-                        <div class="p-4 rounded-lg bg-slate-50">
-                            <h4 class="font-semibold text-slate-900 mb-1">Manufacturer</h4>
-                            <p class="text-slate-700">${drug.openfda.manufacturer_name.join(', ')}</p>
-                        </div>` : ''}
-                    ${drug.dosage_form ? `
-                        <div class="p-4 rounded-lg bg-slate-50">
-                            <h4 class="font-semibold text-slate-900 mb-1">Dosage Form</h4>
-                            <p class="text-slate-700">${drug.dosage_form}</p>
-                        </div>` : ''}
-                    ${drug.route ? `
-                        <div class="p-4 rounded-lg bg-slate-50">
-                            <h4 class="font-semibold text-slate-900 mb-1">Administration Route</h4>
-                            <p class="text-slate-700">${drug.route}</p>
-                        </div>` : ''}
-                    ${drug.indications_and_usage ? `
-                        <div class="p-4 rounded-lg bg-blue-50 border border-blue-200">
-                            <h4 class="font-semibold text-slate-900 mb-2">Indications & Usage</h4>
-                            <p class="text-slate-700 text-sm leading-relaxed">${drug.indications_and_usage[0]?.substring(0, 500)}...</p>
-                        </div>` : ''}
-                </div>
-            `;
-            
-            const link = document.getElementById('modalLink');
-            link.href = 'https://www.fda.gov/drugs';
-            link.classList.remove('hidden');
-            
-            document.getElementById('detailModal').classList.remove('hidden');
-        }
-
-        function showTrialModal(trialId, trialData) {
-            const trial = typeof trialData === 'string' ? JSON.parse(trialData.replace(/&quot;/g, '"')) : trialData;
-            
-            document.getElementById('modalTitle').textContent = trial.title || 'Clinical Trial';
-            document.getElementById('modalContent').innerHTML = `
-                <div class="space-y-4">
-                    <div class="p-4 rounded-lg bg-teal-50 border border-teal-200">
-                        <h4 class="font-semibold text-slate-900 mb-1">Trial Identifier</h4>
-                        <p class="text-slate-700 font-mono">${trial.nct_id}</p>
-                    </div>
-                    <div class="p-4 rounded-lg bg-slate-50">
-                        <h4 class="font-semibold text-slate-900 mb-1">Status</h4>
-                        <span class="px-3 py-1 rounded-full text-sm font-medium ${getStatusStyle(trial.status)}">
-                            ${trial.status}
-                        </span>
-                    </div>
-                    ${trial.phase ? `
-                        <div class="p-4 rounded-lg bg-slate-50">
-                            <h4 class="font-semibold text-slate-900 mb-1">Phase</h4>
-                            <p class="text-slate-700">${trial.phase}</p>
-                        </div>` : ''}
-                    ${trial.sponsor ? `
-                        <div class="p-4 rounded-lg bg-slate-50">
-                            <h4 class="font-semibold text-slate-900 mb-1">Sponsor</h4>
-                            <p class="text-slate-700">${trial.sponsor}</p>
-                        </div>` : ''}
-                    ${trial.start_date ? `
-                        <div class="p-4 rounded-lg bg-slate-50">
-                            <h4 class="font-semibold text-slate-900 mb-1">Start Date</h4>
-                            <p class="text-slate-700">${trial.start_date}</p>
-                        </div>` : ''}
-                    ${trial.condition ? `
-                        <div class="p-4 rounded-lg bg-slate-50">
-                            <h4 class="font-semibold text-slate-900 mb-1">Conditions</h4>
-                            <p class="text-slate-700">${trial.condition.join(', ')}</p>
-                        </div>` : ''}
-                    ${trial.intervention ? `
-                        <div class="p-4 rounded-lg bg-slate-50">
-                            <h4 class="font-semibold text-slate-900 mb-1">Intervention</h4>
-                            <p class="text-slate-700">${trial.intervention.name}</p>
-                        </div>` : ''}
-                </div>
-            `;
-            
-            const link = document.getElementById('modalLink');
-            link.href = `https://clinicaltrials.gov/ct2/show/${trial.nct_id}`;
-            link.classList.remove('hidden');
-            
-            document.getElementById('detailModal').classList.remove('hidden');
-        }
-
-        function showConditionModal(termName, termData) {
-            const term = typeof termData === 'string' ? JSON.parse(termData.replace(/&quot;/g, '"')) : termData;
-            
-            document.getElementById('modalTitle').textContent = termName;
-            document.getElementById('modalContent').innerHTML = `
-                <div class="space-y-4">
-                    <div class="p-4 rounded-lg bg-purple-50 border border-purple-200">
-                        <h4 class="font-semibold text-slate-900 mb-1">MeSH Identifier</h4>
-                        <p class="text-slate-700 font-mono">${term.mesh_id}</p>
-                    </div>
-                    <div class="p-4 rounded-lg bg-slate-50">
-                        <h4 class="font-semibold text-slate-900 mb-1">Medical Term</h4>
-                        <p class="text-slate-700">${term.term}</p>
-                    </div>
-                    ${term.scope_note ? `
-                        <div class="p-4 rounded-lg bg-slate-50">
-                            <h4 class="font-semibold text-slate-900 mb-2">Description</h4>
-                            <p class="text-slate-700 text-sm leading-relaxed">${term.scope_note}</p>
-                        </div>` : ''}
-                </div>
-            `;
-            
-            const link = document.getElementById('modalLink');
-            link.href = `https://www.ncbi.nlm.nih.gov/mesh/${term.mesh_id}`;
-            link.classList.remove('hidden');
-            
-            document.getElementById('detailModal').classList.remove('hidden');
-        }
-
-        function closeModal() {
-            document.getElementById('detailModal').classList.add('hidden');
+            return statusMap[status] || 'info';
         }
 
         function clearSearch() {
             document.getElementById('searchInput').value = '';
             currentResults = null;
+            // Clear all charts
+            Object.values(allCharts).forEach(chart => {
+                if (chart) chart.destroy();
+            });
+            allCharts = {};
             showState('');
-            document.getElementById('searchInput').focus();
         }
 
-        // Initialize
+        function exportReport() {
+            if (!currentResults) {
+                alert('No data to export. Please perform a search first.');
+                return;
+            }
+            
+            // Create comprehensive report
+            const report = {
+                metadata: {
+                    condition: currentResults.condition,
+                    generated: new Date().toISOString(),
+                    version: '2.0',
+                    sources: Object.keys(currentResults.sources).length
+                },
+                executive_summary: currentResults.summary,
+                regulatory_data: {
+                    fda_drugs: {
+                        count: currentResults.sources.fda_drugs.count,
+                        drugs: currentResults.sources.fda_drugs.data.slice(0, 20)
+                    },
+                    clinical_trials: {
+                        total: currentResults.sources.clinical_trials.count,
+                        active: currentResults.summary.active_trials,
+                        data: currentResults.sources.clinical_trials.data.slice(0, 20)
+                    },
+                    failed_withdrawn: {
+                        total: currentResults.sources.failed_drugs.count,
+                        safety_concerns: currentResults.sources.failed_drugs.data.filter(d => 
+                            d.why_stopped?.toLowerCase().includes('safety')).length,
+                        data: currentResults.sources.failed_drugs.data
+                    }
+                },
+                safety_profile: {
+                    adverse_events: currentResults.sources.adverse_events.data,
+                    drug_interactions: currentResults.sources.drug_interactions.data
+                },
+                chemistry: {
+                    compounds: currentResults.sources.pubchem_compounds.data,
+                    rxnorm: currentResults.sources.rxnorm_drugs.data
+                },
+                literature: {
+                    total_articles: currentResults.sources.pubmed_articles.count,
+                    recent_articles: currentResults.sources.pubmed_articles.data
+                }
+            };
+            
+            // Download as JSON
+            const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `regulatory-report-${currentResults.condition}-${Date.now()}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            // Show success message
+            const successDiv = document.createElement('div');
+            successDiv.className = 'fixed top-4 right-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded z-50';
+            successDiv.innerHTML = 'Report exported successfully!';
+            document.body.appendChild(successDiv);
+            setTimeout(() => successDiv.remove(), 3000);
+        }
+
+        // Initialize on page load
         document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('searchInput').focus();
             
-            // Add smooth scroll behavior
-            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-                anchor.addEventListener('click', function (e) {
+            // Add keyboard shortcuts
+            document.addEventListener('keydown', function(e) {
+                // Ctrl/Cmd + K to focus search
+                if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
                     e.preventDefault();
-                    document.querySelector(this.getAttribute('href')).scrollIntoView({
-                        behavior: 'smooth'
-                    });
-                });
+                    document.getElementById('searchInput').focus();
+                }
+                
+                // Ctrl/Cmd + E to export
+                if ((e.ctrlKey || e.metaKey) && e.key === 'e') {
+                    e.preventDefault();
+                    exportReport();
+                }
             });
-        });
-
-        // Close modal on outside click
-        window.onclick = function(event) {
-            const modal = document.getElementById('detailModal');
-            if (event.target === modal) {
-                closeModal();
-            }
-        }
-
-        // Handle escape key for modal
-        document.addEventListener('keydown', function(event) {
-            if (event.key === 'Escape') {
-                closeModal();
-            }
         });
     </script>
 </body>

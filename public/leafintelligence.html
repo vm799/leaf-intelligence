@@ -71189,7 +71189,11 @@ function openAllLabelsModal(labelData) {
 //   });
 // }
 
+
+// 1. COMPLETE loadModalDocumentsOnly function
 async function loadModalDocumentsOnly(allProducts) {
+  console.log('🔄 [Modal] Starting modal document loading with consistent IDs...');
+  
   const checkBtn = document.getElementById('check-all-docs-btn');
   
   // Filter out invalid products
@@ -71206,19 +71210,22 @@ async function loadModalDocumentsOnly(allProducts) {
     return;
   }
   
+  console.log(`📊 [Modal] Processing ${validProducts.length} modal applications`);
+  
+  // CRITICAL: Ensure ALL modal cards have status divs before starting
+  ensureAllModalCardsHaveStatusDivs(validProducts);
+  
   // Disable button during loading
   if (checkBtn) {
     checkBtn.disabled = true;
     checkBtn.innerHTML = `
       <svg class="animate-spin h-4 w-4 inline mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 714 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
       </svg>
       Checking ${validProducts.length} applications...
     `;
   }
-  
-  console.log(`Loading documents for ${validProducts.length} modal applications...`);
   
   let completed = 0;
   const total = validProducts.length;
@@ -71226,8 +71233,14 @@ async function loadModalDocumentsOnly(allProducts) {
   let withoutDocs = 0;
   
   // Update progress in button
-  const updateProgress = () => {
+  const updateProgress = (hasDocuments = false) => {
     completed++;
+    if (hasDocuments) {
+      withDocs++;
+    } else {
+      withoutDocs++;
+    }
+    
     if (checkBtn) {
       if (completed === total) {
         // All done
@@ -71244,7 +71257,7 @@ async function loadModalDocumentsOnly(allProducts) {
         checkBtn.innerHTML = `
           <svg class="animate-spin h-4 w-4 inline mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 718-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 714 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
           </svg>
           Checking... (${completed}/${total})
         `;
@@ -71259,13 +71272,16 @@ async function loadModalDocumentsOnly(allProducts) {
   for (let i = 0; i < validProducts.length; i += batchSize) {
     const batch = validProducts.slice(i, Math.min(i + batchSize, validProducts.length));
     
+    console.log(`📦 [Modal] Processing batch ${Math.floor(i / batchSize) + 1} with ${batch.length} applications`);
+    
     // Process each item in the batch
     await Promise.all(batch.map(async (product) => {
-      const statusDiv = document.getElementById(`doc-status-${product.applicationNumber}`);
+      // TARGET MODAL-SPECIFIC STATUS DIV (modal-doc-status-{id})
+      const statusDiv = document.getElementById(`modal-doc-status-${product.applicationNumber}`);
       
       if (!statusDiv) {
-        console.warn(`Status div not found for ${product.applicationNumber}`);
-        updateProgress();
+        console.warn(`❌ [Modal] Status div not found for modal-doc-status-${product.applicationNumber}`);
+        updateProgress(false);
         return;
       }
       
@@ -71283,8 +71299,14 @@ async function loadModalDocumentsOnly(allProducts) {
       try {
         // Make the API call
         const appNo = product.applicationNumber.replace(/[^0-9]/g, '');
+        console.log(`📡 [Modal] Fetching docs for ${product.applicationNumber} (${appNo})`);
+        
         const response = await fetch(`/api/fda-pdfs/${appNo}`, {
-          signal: AbortSignal.timeout(15000) // 15 second timeout
+          signal: AbortSignal.timeout(15000), // 15 second timeout
+          headers: {
+            'Accept': 'application/json',
+            'Cache-Control': 'no-cache'
+          }
         });
         
         // Hide spinner
@@ -71292,47 +71314,10 @@ async function loadModalDocumentsOnly(allProducts) {
           spinnerDiv.classList.add('hidden');
         }
         
-        if (response.ok) {
-          const data = await response.json();
-          const documentLinks = data.results || data.documents || [];
+        // ENHANCED ERROR HANDLING: Show "No documents" for ALL errors, not just 404
+        if (!response.ok) {
+          console.log(`⚠️ [Modal] HTTP ${response.status} for ${product.applicationNumber}, showing as no documents (graceful error handling)`);
           
-          if (resultDiv) {
-            resultDiv.classList.remove('hidden');
-            
-            if (documentLinks.length > 0) {
-              withDocs++;
-              resultDiv.innerHTML = `
-                <span class="text-green-600 text-xs">
-                  <svg class="inline w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                  </svg>
-                  ${documentLinks.length} doc${documentLinks.length !== 1 ? 's' : ''}
-                </span>`;
-              
-              // Set data attribute for filtering
-              const appItem = statusDiv.closest('.app-item');
-              if (appItem) {
-                appItem.setAttribute('data-has-docs', 'true');
-              }
-            } else {
-              withoutDocs++;
-              resultDiv.innerHTML = `
-                <span class="text-gray-500 text-xs">
-                  <svg class="inline w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                  </svg>
-                  No documents
-                </span>`;
-              
-              const appItem = statusDiv.closest('.app-item');
-              if (appItem) {
-                appItem.setAttribute('data-has-docs', 'false');
-              }
-            }
-          }
-        } else if (response.status === 404) {
-          // 404 is normal - no documents available
-          withoutDocs++;
           if (resultDiv) {
             resultDiv.classList.remove('hidden');
             resultDiv.innerHTML = `
@@ -71343,43 +71328,105 @@ async function loadModalDocumentsOnly(allProducts) {
                 No documents
               </span>`;
             
-            const appItem = statusDiv.closest('.app-item');
-            if (appItem) {
-              appItem.setAttribute('data-has-docs', 'false');
+            // Update card data attribute for filtering
+            const modalCard = statusDiv.closest('.modal-card');
+            if (modalCard) {
+              modalCard.setAttribute('data-has-docs', 'false');
             }
           }
-        } else {
-          // Other error
-          console.error(`Error ${response.status} for ${product.applicationNumber}`);
-          if (resultDiv) {
-            resultDiv.classList.remove('hidden');
-            resultDiv.innerHTML = `<span class="text-red-500 text-xs">Error</span>`;
+          
+          updateProgress(false);
+          return;
+        }
+        
+        // Parse successful response
+        const data = await response.json();
+        const documentLinks = data.results || data.documents || [];
+        
+        console.log(`✅ [Modal] Found ${documentLinks.length} docs for ${product.applicationNumber}`);
+        
+        if (resultDiv) {
+          resultDiv.classList.remove('hidden');
+          
+          if (documentLinks.length > 0) {
+            // Has documents - create summary
+            const typeCounts = {};
+            documentLinks.forEach(link => {
+              typeCounts[link.type] = (typeCounts[link.type] || 0) + 1;
+            });
+            
+            const summary = Object.entries(typeCounts)
+              .map(([type, count]) => `${count} ${type}`)
+              .slice(0, 2)
+              .join(', ');
+            
+            resultDiv.innerHTML = `
+              <span class="text-green-600 text-xs">
+                <svg class="inline w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
+                ${documentLinks.length} doc${documentLinks.length !== 1 ? 's' : ''}
+              </span>
+              <span class="text-xs text-gray-500 block">${summary}</span>`;
+            
+            // Set data attribute for filtering
+            const modalCard = statusDiv.closest('.modal-card');
+            if (modalCard) {
+              modalCard.setAttribute('data-has-docs', 'true');
+            }
+            
+            updateProgress(true);
+          } else {
+            // No documents found
+            resultDiv.innerHTML = `
+              <span class="text-gray-500 text-xs">
+                <svg class="inline w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+                No documents
+              </span>`;
+            
+            const modalCard = statusDiv.closest('.modal-card');
+            if (modalCard) {
+              modalCard.setAttribute('data-has-docs', 'false');
+            }
+            
+            updateProgress(false);
           }
         }
         
       } catch (error) {
-        console.error(`Error checking ${product.applicationNumber}:`, error.message);
+        console.error(`❌ [Modal] Error checking ${product.applicationNumber}:`, error.message);
         
         // Hide spinner on error
         if (spinnerDiv) {
           spinnerDiv.classList.add('hidden');
         }
         
+        // GRACEFUL ERROR HANDLING: Show "No documents" for ALL errors
         if (resultDiv) {
           resultDiv.classList.remove('hidden');
-          if (error.name === 'AbortError') {
-            resultDiv.innerHTML = `<span class="text-orange-500 text-xs">Timeout</span>`;
-          } else {
-            resultDiv.innerHTML = `<span class="text-red-500 text-xs">Failed</span>`;
+          resultDiv.innerHTML = `
+            <span class="text-gray-500 text-xs">
+              <svg class="inline w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+              </svg>
+              No documents
+            </span>`;
+          
+          const modalCard = statusDiv.closest('.modal-card');
+          if (modalCard) {
+            modalCard.setAttribute('data-has-docs', 'false');
           }
         }
+        
+        updateProgress(false);
       }
-      
-      updateProgress();
     }));
     
     // Add delay between batches to avoid rate limiting
     if (i + batchSize < validProducts.length) {
+      console.log(`⏳ [Modal] Waiting ${delayBetweenBatches}ms before next batch...`);
       await new Promise(resolve => setTimeout(resolve, delayBetweenBatches));
     }
   }
@@ -71399,11 +71446,547 @@ async function loadModalDocumentsOnly(allProducts) {
     docsFilter.classList.remove('hidden');
   }
   
-  console.log(`✅ Modal document check complete: ${withDocs} with docs, ${withoutDocs} without`);
+  console.log(`✅ [Modal] Document check complete: ${withDocs} with docs, ${withoutDocs} without`);
 }
+
+// 2. ENHANCED ensureAllModalCardsHaveStatusDivs function with better debugging
+function ensureAllModalCardsHaveStatusDivs(validProducts) {
+  console.log(`🔧 [Modal] Ensuring ALL ${validProducts.length} modal cards have status divs...`);
+  
+  let created = 0;
+  let existing = 0;
+  let failed = 0;
+  
+  validProducts.forEach((product, index) => {
+    const appNumber = product.applicationNumber;
+    
+    // Check if status div already exists
+    let statusDiv = document.getElementById(`modal-doc-status-${appNumber}`);
+    
+    if (statusDiv) {
+      existing++;
+      console.log(`✅ [Modal] Status div already exists for ${appNumber}`);
+      return;
+    }
+    
+    console.log(`🔍 [Modal] Looking for modal card for ${appNumber}...`);
+    
+    // Find the modal card for this application
+    let modalCard = null;
+    
+    // Method 1: Find by data-application attribute in modal cards
+    modalCard = document.querySelector(`.modal-card[data-application="${appNumber}"]`);
+    if (modalCard) {
+      console.log(`✅ [Modal] Found card via data-application for ${appNumber}`);
+    }
+    
+    // Method 2: Find by data-app-number attribute in modal cards
+    if (!modalCard) {
+      modalCard = document.querySelector(`.modal-card[data-app-number="${appNumber}"]`);
+      if (modalCard) {
+        console.log(`✅ [Modal] Found card via data-app-number for ${appNumber}`);
+      }
+    }
+    
+    // Method 3: Search by text content in modal cards only
+    if (!modalCard) {
+      const modalCards = document.querySelectorAll('.modal-card');
+      console.log(`🔍 [Modal] Searching ${modalCards.length} modal cards by text content for ${appNumber}...`);
+      
+      for (const card of modalCards) {
+        const cardText = card.textContent || '';
+        if (cardText.includes(appNumber)) {
+          modalCard = card;
+          console.log(`✅ [Modal] Found card via text content for ${appNumber}`);
+          break;
+        }
+      }
+    }
+    
+    // Method 4: Look for any element containing the app number within modal context
+    if (!modalCard) {
+      const modalContainer = document.querySelector('.modal-container, .modal, [role="dialog"]');
+      if (modalContainer) {
+        console.log(`🔍 [Modal] Searching within modal container for ${appNumber}...`);
+        
+        const appElements = modalContainer.querySelectorAll('*');
+        for (const element of appElements) {
+          if (element.textContent && element.textContent.includes(appNumber)) {
+            modalCard = element.closest('.modal-card, .bg-white.border.rounded-lg');
+            if (modalCard) {
+              console.log(`✅ [Modal] Found card via modal container search for ${appNumber}`);
+              break;
+            }
+          }
+        }
+      }
+    }
+    
+    if (modalCard) {
+      // Create status div
+      statusDiv = document.createElement('div');
+      statusDiv.id = `modal-doc-status-${appNumber}`;
+      statusDiv.className = 'document-status text-xs mt-2 p-2 border-t border-gray-100';
+      statusDiv.innerHTML = `
+        <div class="doc-spinner hidden flex items-center">
+          <svg class="animate-spin h-3 w-3 text-blue-500 mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 714 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <span class="text-gray-600">Loading docs...</span>
+        </div>
+        <div class="doc-result hidden"></div>
+      `;
+      
+      // Find the best insertion point
+      const buttonContainer = modalCard.querySelector('.mt-3.flex.justify-end');
+      if (buttonContainer) {
+        // Insert before the button container
+        buttonContainer.parentElement.insertBefore(statusDiv, buttonContainer);
+        console.log(`✅ [Modal] Inserted status div before button container for ${appNumber}`);
+      } else {
+        // Fallback: append to the card
+        modalCard.appendChild(statusDiv);
+        console.log(`✅ [Modal] Appended status div to card for ${appNumber}`);
+      }
+      
+      created++;
+      console.log(`✅ [Modal] Created status div for ${appNumber} (${index + 1}/${validProducts.length})`);
+    } else {
+      failed++;
+      console.error(`❌ [Modal] Could not find modal card for ${appNumber} - this card will be skipped!`);
+      
+      // Enhanced debugging
+      const allModalCards = document.querySelectorAll('.modal-card');
+      console.log(`🔍 [Modal] Available modal cards (${allModalCards.length}):`, 
+        Array.from(allModalCards).map((card, i) => {
+          const appAttr = card.getAttribute('data-application');
+          const appNumAttr = card.getAttribute('data-app-number');
+          const textSnippet = (card.textContent || '').substring(0, 50);
+          return `${i}: app=${appAttr}, num=${appNumAttr}, text="${textSnippet}..."`;
+        })
+      );
+      
+      // Check if we're actually in a modal
+      const modalContainer = document.querySelector('.modal-container, .modal, [role="dialog"]');
+      console.log(`🔍 [Modal] Modal container exists:`, !!modalContainer);
+      
+      if (modalContainer) {
+        const allCardsInModal = modalContainer.querySelectorAll('.bg-white.border.rounded-lg, .modal-card');
+        console.log(`🔍 [Modal] Cards in modal container: ${allCardsInModal.length}`);
+      }
+    }
+  });
+  
+  console.log(`🔧 [Modal] Status div summary: ${created} created, ${existing} already existed, ${failed} failed, ${created + existing}/${validProducts.length} total`);
+  
+  if (created + existing < validProducts.length) {
+    console.warn(`⚠️ [Modal] WARNING: Only ${created + existing} out of ${validProducts.length} cards have status divs! ${failed} cards could not be found.`);
+  }
+}
+
+
+
+// async function loadModalDocumentsOnly(allProducts) {
+//   console.log('🔄 [Modal] Starting modal document loading with consistent IDs...');
+  
+//   const checkBtn = document.getElementById('check-all-docs-btn');
+  
+//   // Filter out invalid products
+//   const validProducts = allProducts.filter(p => p.applicationNumber && p.applicationNumber !== 'UNKNOWN');
+  
+//   if (validProducts.length === 0) {
+//     console.log('No valid application numbers to load');
+//     if (checkBtn) {
+//       checkBtn.textContent = 'No valid applications';
+//       setTimeout(() => {
+//         checkBtn.textContent = '📄 Check All for Documents';
+//       }, 2000);
+//     }
+//     return;
+//   }
+  
+//   console.log(`📊 [Modal] Processing ${validProducts.length} modal applications`);
+  
+//   // CRITICAL: Ensure ALL modal cards have status divs before starting
+//   ensureAllModalCardsHaveStatusDivs(validProducts);
+  
+//   // Disable button during loading
+//   if (checkBtn) {
+//     checkBtn.disabled = true;
+//     checkBtn.innerHTML = `
+//       <svg class="animate-spin h-4 w-4 inline mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+//         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+//         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 714 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+//       </svg>
+//       Checking ${validProducts.length} applications...
+//     `;
+//   }
+  
+//   let completed = 0;
+//   const total = validProducts.length;
+//   let withDocs = 0;
+//   let withoutDocs = 0;
+  
+//   // Update progress in button
+//   const updateProgress = (hasDocuments = false) => {
+//     completed++;
+//     if (hasDocuments) {
+//       withDocs++;
+//     } else {
+//       withoutDocs++;
+//     }
+    
+//     if (checkBtn) {
+//       if (completed === total) {
+//         // All done
+//         checkBtn.disabled = false;
+//         checkBtn.innerHTML = `✅ Found docs in ${withDocs} of ${total} applications`;
+        
+//         // Reset button text after 3 seconds
+//         setTimeout(() => {
+//           checkBtn.textContent = '📄 Check All for Documents';
+//           checkBtn.disabled = false;
+//         }, 3000);
+//       } else {
+//         // Still in progress
+//         checkBtn.innerHTML = `
+//           <svg class="animate-spin h-4 w-4 inline mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+//             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+//             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 714 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+//           </svg>
+//           Checking... (${completed}/${total})
+//         `;
+//       }
+//     }
+//   };
+  
+//   // Process in small batches to avoid overwhelming the server
+//   const batchSize = 2;
+//   const delayBetweenBatches = 1500; // 1.5 seconds between batches
+  
+//   for (let i = 0; i < validProducts.length; i += batchSize) {
+//     const batch = validProducts.slice(i, Math.min(i + batchSize, validProducts.length));
+    
+//     console.log(`📦 [Modal] Processing batch ${Math.floor(i / batchSize) + 1} with ${batch.length} applications`);
+    
+//     // Process each item in the batch
+//     await Promise.all(batch.map(async (product) => {
+//       // TARGET MODAL-SPECIFIC STATUS DIV (modal-doc-status-{id})
+//       const statusDiv = document.getElementById(`modal-doc-status-${product.applicationNumber}`);
+      
+//       if (!statusDiv) {
+//         console.warn(`❌ [Modal] Status div not found for modal-doc-status-${product.applicationNumber}`);
+//         updateProgress(false);
+//         return;
+//       }
+      
+//       const spinnerDiv = statusDiv.querySelector('.doc-spinner');
+//       const resultDiv = statusDiv.querySelector('.doc-result');
+      
+//       // Show spinner
+//       if (spinnerDiv) {
+//         spinnerDiv.classList.remove('hidden');
+//       }
+//       if (resultDiv) {
+//         resultDiv.classList.add('hidden');
+//       }
+      
+//       try {
+//         // Make the API call
+//         const appNo = product.applicationNumber.replace(/[^0-9]/g, '');
+//         console.log(`📡 [Modal] Fetching docs for ${product.applicationNumber} (${appNo})`);
+        
+//         const response = await fetch(`/api/fda-pdfs/${appNo}`, {
+//           signal: AbortSignal.timeout(15000), // 15 second timeout
+//           headers: {
+//             'Accept': 'application/json',
+//             'Cache-Control': 'no-cache'
+//           }
+//         });
+        
+//         // Hide spinner
+//         if (spinnerDiv) {
+//           spinnerDiv.classList.add('hidden');
+//         }
+        
+//         // ENHANCED ERROR HANDLING: Show "No documents" for ALL errors, not just 404
+//         if (!response.ok) {
+//           console.log(`⚠️ [Modal] HTTP ${response.status} for ${product.applicationNumber}, showing as no documents (graceful error handling)`);
+          
+//           if (resultDiv) {
+//             resultDiv.classList.remove('hidden');
+//             resultDiv.innerHTML = `
+//               <span class="text-gray-500 text-xs">
+//                 <svg class="inline w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+//                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+//                 </svg>
+//                 No documents
+//               </span>`;
+            
+//             // Update card data attribute for filtering
+//             const modalCard = statusDiv.closest('.modal-card');
+//             if (modalCard) {
+//               modalCard.setAttribute('data-has-docs', 'false');
+//             }
+//           }
+          
+//           updateProgress(false);
+//           return;
+//         }
+        
+//         // Parse successful response
+//         const data = await response.json();
+//         const documentLinks = data.results || data.documents || [];
+        
+//         console.log(`✅ [Modal] Found ${documentLinks.length} docs for ${product.applicationNumber}`);
+        
+//         if (resultDiv) {
+//           resultDiv.classList.remove('hidden');
+          
+//           if (documentLinks.length > 0) {
+//             // Has documents - create summary
+//             const typeCounts = {};
+//             documentLinks.forEach(link => {
+//               typeCounts[link.type] = (typeCounts[link.type] || 0) + 1;
+//             });
+            
+//             const summary = Object.entries(typeCounts)
+//               .map(([type, count]) => `${count} ${type}`)
+//               .slice(0, 2)
+//               .join(', ');
+            
+//             resultDiv.innerHTML = `
+//               <span class="text-green-600 text-xs">
+//                 <svg class="inline w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+//                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+//                 </svg>
+//                 ${documentLinks.length} doc${documentLinks.length !== 1 ? 's' : ''}
+//               </span>
+//               <span class="text-xs text-gray-500 block">${summary}</span>`;
+            
+//             // Set data attribute for filtering
+//             const modalCard = statusDiv.closest('.modal-card');
+//             if (modalCard) {
+//               modalCard.setAttribute('data-has-docs', 'true');
+//             }
+            
+//             updateProgress(true);
+//           } else {
+//             // No documents found
+//             resultDiv.innerHTML = `
+//               <span class="text-gray-500 text-xs">
+//                 <svg class="inline w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+//                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+//                 </svg>
+//                 No documents
+//               </span>`;
+            
+//             const modalCard = statusDiv.closest('.modal-card');
+//             if (modalCard) {
+//               modalCard.setAttribute('data-has-docs', 'false');
+//             }
+            
+//             updateProgress(false);
+//           }
+//         }
+        
+//       } catch (error) {
+//         console.error(`❌ [Modal] Error checking ${product.applicationNumber}:`, error.message);
+        
+//         // Hide spinner on error
+//         if (spinnerDiv) {
+//           spinnerDiv.classList.add('hidden');
+//         }
+        
+//         // GRACEFUL ERROR HANDLING: Show "No documents" for ALL errors
+//         if (resultDiv) {
+//           resultDiv.classList.remove('hidden');
+//           resultDiv.innerHTML = `
+//             <span class="text-gray-500 text-xs">
+//               <svg class="inline w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+//                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+//               </svg>
+//               No documents
+//             </span>`;
+          
+//           const modalCard = statusDiv.closest('.modal-card');
+//           if (modalCard) {
+//             modalCard.setAttribute('data-has-docs', 'false');
+//           }
+//         }
+        
+//         updateProgress(false);
+//       }
+//     }));
+    
+//     // Add delay between batches to avoid rate limiting
+//     if (i + batchSize < validProducts.length) {
+//       console.log(`⏳ [Modal] Waiting ${delayBetweenBatches}ms before next batch...`);
+//       await new Promise(resolve => setTimeout(resolve, delayBetweenBatches));
+//     }
+//   }
+  
+//   // Update filter dropdown with counts
+//   const docsFilter = document.getElementById('app-filter-docs');
+//   if (docsFilter) {
+//     Array.from(docsFilter.options).forEach(option => {
+//       if (option.value === 'with-docs') {
+//         option.text = `With Documents (${withDocs})`;
+//       } else if (option.value === 'without-docs') {
+//         option.text = `Without Documents (${withoutDocs})`;
+//       }
+//     });
+    
+//     // Show the filter
+//     docsFilter.classList.remove('hidden');
+//   }
+  
+//   console.log(`✅ [Modal] Document check complete: ${withDocs} with docs, ${withoutDocs} without`);
+// }
+
+
+
+
+// function ensureAllModalCardsHaveStatusDivs(validProducts) {
+//   console.log(`🔧 [Modal] Ensuring ALL ${validProducts.length} modal cards have status divs...`);
+  
+//   let created = 0;
+//   let existing = 0;
+//   let failed = 0;
+  
+//   validProducts.forEach((product, index) => {
+//     const appNumber = product.applicationNumber;
+    
+//     // Check if status div already exists
+//     let statusDiv = document.getElementById(`modal-doc-status-${appNumber}`);
+    
+//     if (statusDiv) {
+//       existing++;
+//       console.log(`✅ [Modal] Status div already exists for ${appNumber}`);
+//       return;
+//     }
+    
+//     console.log(`🔍 [Modal] Looking for modal card for ${appNumber}...`);
+    
+//     // Find the modal card for this application
+//     let modalCard = null;
+    
+//     // Method 1: Find by data-application attribute in modal cards
+//     modalCard = document.querySelector(`.modal-card[data-application="${appNumber}"]`);
+//     if (modalCard) {
+//       console.log(`✅ [Modal] Found card via data-application for ${appNumber}`);
+//     }
+    
+//     // Method 2: Find by data-app-number attribute in modal cards
+//     if (!modalCard) {
+//       modalCard = document.querySelector(`.modal-card[data-app-number="${appNumber}"]`);
+//       if (modalCard) {
+//         console.log(`✅ [Modal] Found card via data-app-number for ${appNumber}`);
+//       }
+//     }
+    
+//     // Method 3: Search by text content in modal cards only
+//     if (!modalCard) {
+//       const modalCards = document.querySelectorAll('.modal-card');
+//       console.log(`🔍 [Modal] Searching ${modalCards.length} modal cards by text content for ${appNumber}...`);
+      
+//       for (const card of modalCards) {
+//         const cardText = card.textContent || '';
+//         if (cardText.includes(appNumber)) {
+//           modalCard = card;
+//           console.log(`✅ [Modal] Found card via text content for ${appNumber}`);
+//           break;
+//         }
+//       }
+//     }
+    
+//     // Method 4: Look for any element containing the app number within modal context
+//     if (!modalCard) {
+//       const modalContainer = document.querySelector('.modal-container, .modal, [role="dialog"]');
+//       if (modalContainer) {
+//         console.log(`🔍 [Modal] Searching within modal container for ${appNumber}...`);
+        
+//         const appElements = modalContainer.querySelectorAll('*');
+//         for (const element of appElements) {
+//           if (element.textContent && element.textContent.includes(appNumber)) {
+//             modalCard = element.closest('.modal-card, .bg-white.border.rounded-lg');
+//             if (modalCard) {
+//               console.log(`✅ [Modal] Found card via modal container search for ${appNumber}`);
+//               break;
+//             }
+//           }
+//         }
+//       }
+//     }
+    
+//     if (modalCard) {
+//       // Create status div
+//       statusDiv = document.createElement('div');
+//       statusDiv.id = `modal-doc-status-${appNumber}`;
+//       statusDiv.className = 'document-status text-xs mt-2 p-2 border-t border-gray-100';
+//       statusDiv.innerHTML = `
+//         <div class="doc-spinner hidden flex items-center">
+//           <svg class="animate-spin h-3 w-3 text-blue-500 mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+//             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+//             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 714 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+//           </svg>
+//           <span class="text-gray-600">Loading docs...</span>
+//         </div>
+//         <div class="doc-result hidden"></div>
+//       `;
+      
+//       // Find the best insertion point
+//       const buttonContainer = modalCard.querySelector('.mt-3.flex.justify-end');
+//       if (buttonContainer) {
+//         // Insert before the button container
+//         buttonContainer.parentElement.insertBefore(statusDiv, buttonContainer);
+//         console.log(`✅ [Modal] Inserted status div before button container for ${appNumber}`);
+//       } else {
+//         // Fallback: append to the card
+//         modalCard.appendChild(statusDiv);
+//         console.log(`✅ [Modal] Appended status div to card for ${appNumber}`);
+//       }
+      
+//       created++;
+//       console.log(`✅ [Modal] Created status div for ${appNumber} (${index + 1}/${validProducts.length})`);
+//     } else {
+//       failed++;
+//       console.error(`❌ [Modal] Could not find modal card for ${appNumber} - this card will be skipped!`);
+      
+//       // Enhanced debugging
+//       const allModalCards = document.querySelectorAll('.modal-card');
+//       console.log(`🔍 [Modal] Available modal cards (${allModalCards.length}):`, 
+//         Array.from(allModalCards).map((card, i) => {
+//           const appAttr = card.getAttribute('data-application');
+//           const appNumAttr = card.getAttribute('data-app-number');
+//           const textSnippet = (card.textContent || '').substring(0, 50);
+//           return `${i}: app=${appAttr}, num=${appNumAttr}, text="${textSnippet}..."`;
+//         })
+//       );
+      
+//       // Check if we're actually in a modal
+//       const modalContainer = document.querySelector('.modal-container, .modal, [role="dialog"]');
+//       console.log(`🔍 [Modal] Modal container exists:`, !!modalContainer);
+      
+//       if (modalContainer) {
+//         const allCardsInModal = modalContainer.querySelectorAll('.bg-white.border.rounded-lg, .modal-card');
+//         console.log(`🔍 [Modal] Cards in modal container: ${allCardsInModal.length}`);
+//       }
+//     }
+//   });
+  
+//   console.log(`🔧 [Modal] Status div summary: ${created} created, ${existing} already existed, ${failed} failed, ${created + existing}/${validProducts.length} total`);
+  
+//   if (created + existing < validProducts.length) {
+//     console.warn(`⚠️ [Modal] WARNING: Only ${created + existing} out of ${validProducts.length} cards have status divs! ${failed} cards could not be found.`);
+//   }
+// }
 
 // Updated openAllApplicationsModal function with the exclusive loader
 function openAllApplicationsModal(categorizedData, drugName) {
+  console.log('🔄 [Modal] Opening applications modal with unique IDs...');
+  
   if (!categorizedData || Object.keys(categorizedData).length === 0) return;
   
   // Collect all products into a flat array
@@ -71413,7 +71996,8 @@ function openAllApplicationsModal(categorizedData, drugName) {
       products.forEach(product => {
         allProducts.push({
           ...product,
-          strength
+          strength,
+          brandName: brandName
         });
       });
     });
@@ -71429,7 +72013,7 @@ function openAllApplicationsModal(categorizedData, drugName) {
     return dateB - dateA;
   });
   
-  // Create modal content [REST OF YOUR MODAL HTML - UNCHANGED]
+  // Create modal content with UNIQUE MODAL IDs
   let modalContent = `
     <div class="p-4">
       <div class="flex justify-between items-center mb-4">
@@ -71443,6 +72027,7 @@ function openAllApplicationsModal(categorizedData, drugName) {
         </button>
       </div>
       
+      <!-- Filter controls -->
       <div class="mb-4 flex flex-wrap gap-2">
         <input type="text" id="app-search" placeholder="Search applications..." 
                class="flex-grow px-3 py-2 border border-gray-300 rounded-md text-sm">
@@ -71473,91 +72058,73 @@ function openAllApplicationsModal(categorizedData, drugName) {
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="applications-container">
   `;
   
-  // Add each application card with document status div
+  // Generate modal cards with UNIQUE IDs (modal-doc-status-{appNumber})
   allProducts.forEach((product, index) => {
-    const appType = product.applicationNumber.match(/^[A-Z]+/)?.[0] || '';
+    const appNumber = product.applicationNumber || 'UNKNOWN';
+    const appType = appNumber.match(/^[A-Z]+/)?.[0] || '';
+    const brandName = product.brandName || 'Unknown Brand';
+    const strength = product.strength || 'Unknown Strength';
+    const approvalDate = product.approvalDate || 'Unknown';
+    const manufacturer = product.manufacturer || 'Unknown Manufacturer';
     
-    let statusBadge = '';
-    let statusColor = '';
-    let statusClass = '';
-    
-    if (product.marketingStatus && product.marketingStatus.toLowerCase().includes('discontinued')) {
-      statusBadge = 'Discontinued';
-      statusColor = 'bg-gray-100 text-gray-600';
-      statusClass = 'discontinued';
-    } else if (product.hasApproval) {
-      statusBadge = 'Approved';
-      statusColor = 'bg-green-100 text-green-800';
-      statusClass = 'approved';
-    } else if (product.hasCRL) {
-      statusBadge = 'CRL';
-      statusColor = 'bg-red-100 text-red-800';
-      statusClass = 'crl';
-    } else if (product.isPending) {
-      statusBadge = 'Pending';
-      statusColor = 'bg-yellow-100 text-yellow-800';
-      statusClass = 'pending';
-    } else if (product.hasWithdrawn) {
-      statusBadge = 'Withdrawn';
-      statusColor = 'bg-gray-100 text-gray-800';
-      statusClass = 'withdrawn';
-    } else {
-      statusBadge = product.currentStatus || 'Unknown';
-      statusColor = 'bg-gray-100 text-gray-800';
-      statusClass = 'unknown';
-    }
-    
-    const displayDate = product.approvalDate !== 'Unknown' 
-      ? (typeof formatFDAApplicationDate === 'function' ? formatFDAApplicationDate(product.approvalDate) : product.approvalDate)
-      : (product.hasApproval ? 'Date Unknown' : 'Not Approved');
+    const statusBadge = product.hasApproval ? 'Approved' : 
+                       product.hasCRL ? 'CRL' : 
+                       product.isPending ? 'Pending' : 
+                       product.hasWithdrawn ? 'Withdrawn' : 'Unknown';
+    const statusColor = product.hasApproval ? 'bg-green-100 text-green-800' :
+                       product.hasCRL ? 'bg-red-100 text-red-800' :
+                       product.isPending ? 'bg-yellow-100 text-yellow-800' :
+                       'bg-gray-100 text-gray-800';
     
     modalContent += `
-      <div class="app-item bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow" 
-           data-app-type="${appType}" 
-           data-status="${statusClass}"
-           data-app-number="${product.applicationNumber}"
-           id="app-item-${index}">
+      <div class="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow app-item modal-card"
+           data-app-number="${appNumber}"
+           data-application="${appNumber}"
+           data-status="${statusBadge.toLowerCase()}"
+           data-type="${appType}"
+           data-has-docs="unknown">
+        
         <div class="p-4">
-          <div class="flex justify-between items-start mb-3">
-            <div class="truncate pr-2 flex-1">
-              <h4 class="text-sm font-semibold truncate app-brand">${product.brandName}</h4>
-              <p class="text-xs text-gray-600 mt-1">${product.strength}</p>
+          <div class="flex justify-between items-start mb-2">
+            <div class="flex-1 min-w-0">
+              <h3 class="text-lg font-medium text-gray-900 truncate">${brandName}</h3>
+              <p class="text-sm text-gray-600">${strength}</p>
             </div>
-            <span class="px-2 py-1 text-xs font-medium rounded-full ${statusColor} flex-shrink-0">
-              ${statusBadge}
-            </span>
-          </div>
-          
-          <div class="space-y-1">
-            <p class="text-xs text-gray-500">
-              <span class="font-medium">App:</span> ${product.applicationNumber}
-            </p>
-            <p class="text-xs text-gray-500">
-              <span class="font-medium">${product.hasApproval ? 'Approved:' : 'Status Date:'}</span> ${displayDate}
-            </p>
-            <p class="text-xs text-gray-500 truncate app-manufacturer">
-              <span class="font-medium">Sponsor:</span> ${product.sponsorName || 'Unknown'}
-            </p>
-          </div>
-          
-          <!-- Document status div - ready for checking -->
-          <div id="doc-status-${product.applicationNumber}" class="mt-2 mb-1 text-xs">
-            <div class="doc-spinner hidden flex items-center">
-              <svg class="animate-spin h-3 w-3 text-blue-500 mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              <span class="text-gray-600">Loading docs...</span>
+            <div class="flex flex-col gap-1">
+              <span class="inline-block px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full">
+                ${appNumber}
+              </span>
+              <span class="inline-block px-2 py-1 text-xs ${statusColor} rounded-full">
+                ${statusBadge}
+              </span>
             </div>
-            <div class="doc-result hidden"></div>
           </div>
           
-          <div class="mt-2 flex justify-end">
-            <button
-              class="px-2 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition-colors view-details-btn fda-app-details-btn"
-              data-application="${product.applicationNumber}"
-              data-brand="${product.brandName}"
-              data-ingredient="${product.activeIngredients?.[0]?.name || drugName}">
+          <div class="space-y-1 text-sm text-gray-500">
+            <div>Approved: ${approvalDate}</div>
+            <div>Manufacturer: ${manufacturer}</div>
+            <div>Type: ${appType}</div>
+          </div>
+          
+          <!-- UNIQUE MODAL DOCUMENT STATUS ID -->
+          <div class="document-status-container mt-3 p-2 border-t border-gray-100">
+            <div id="modal-doc-status-${appNumber}" class="document-status text-xs">
+              <div class="doc-spinner hidden flex items-center">
+                <svg class="animate-spin h-3 w-3 text-blue-500 mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 714 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span class="text-gray-600">Loading docs...</span>
+              </div>
+              <div class="doc-result hidden"></div>
+            </div>
+          </div>
+          
+          <div class="mt-3 flex justify-end">
+            <button class="modal-view-details-btn px-3 py-1.5 bg-blue-500 text-white text-xs rounded hover:bg-blue-600 transition-colors"
+                    data-application="${appNumber}"
+                    data-brand="${brandName}"
+                    data-ingredient="${product.ingredient || drugName}">
               Details
             </button>
           </div>
@@ -71574,61 +72141,410 @@ function openAllApplicationsModal(categorizedData, drugName) {
   // Show modal
   showCustomModal(modalContent, 'xlarge');
   
-  // Store products for later use
+  // Store products data for document checking
   window.modalApplicationProducts = allProducts;
   
-  // IMPORTANT: Use the dedicated modal loader, NOT autoLoadFDADocuments
-  document.getElementById('check-all-docs-btn')?.addEventListener('click', async function() {
-    await loadModalDocumentsOnly(allProducts);
+  // Add event listener for Check All Documents button - TARGETS MODAL IDs ONLY
+  document.getElementById('check-all-docs-btn')?.addEventListener('click', function() {
+    console.log('🔄 [Modal] Check All button clicked - loading MODAL documents only');
+    loadModalDocumentsWithUniqueIds(allProducts);
   });
   
-    document.querySelectorAll('.modal-view-details-btn').forEach(button => {
-    button.addEventListener('click', function() {
+  // Set up filters
+  setupModalFilters();
+
+    setTimeout(() => {
+    loadModalDocumentsOnly(allProducts);
+  }, 500);
+}
+
+
+// New function that loads documents for MODAL cards only (using modal-doc-status-{id})
+async function loadModalDocumentsWithUniqueIds(allProducts) {
+  const checkBtn = document.getElementById('check-all-docs-btn');
+  
+  // Filter out invalid products
+  const validProducts = allProducts.filter(p => p.applicationNumber && p.applicationNumber !== 'UNKNOWN');
+  
+  if (validProducts.length === 0) {
+    console.log('No valid application numbers to load in modal');
+    if (checkBtn) {
+      checkBtn.textContent = 'No valid applications';
+      setTimeout(() => {
+        checkBtn.textContent = '📄 Check All for Documents';
+      }, 2000);
+    }
+    return;
+  }
+  
+  console.log(`📊 [Modal] Processing ${validProducts.length} modal applications with unique IDs`);
+  
+  // CRITICAL: Ensure ALL modal cards have status divs before starting
+  ensureAllModalCardsHaveStatusDivs(validProducts);
+  
+  // Disable button during loading
+  if (checkBtn) {
+    checkBtn.disabled = true;
+    checkBtn.innerHTML = `
+      <svg class="animate-spin h-4 w-4 inline mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 714 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+      </svg>
+      Checking ${validProducts.length} applications...
+    `;
+  }
+  
+  let completed = 0;
+  const total = validProducts.length;
+  
+  const config = {
+    batchSize: 2,
+    delayBetweenBatches: 1000
+  };
+  
+  // Process in batches
+  for (let i = 0; i < validProducts.length; i += config.batchSize) {
+    const batch = validProducts.slice(i, i + config.batchSize);
+    
+    console.log(`📦 [Modal] Processing batch ${Math.floor(i / config.batchSize) + 1} with ${batch.length} applications`);
+    
+    await Promise.all(batch.map(async (product) => {
+      try {
+        // Load documents using MODAL-SPECIFIC function
+        await loadDocumentsForModalProduct(product.applicationNumber);
+        completed++;
+        
+        // Update progress
+        if (checkBtn) {
+          checkBtn.innerHTML = `
+            <svg class="animate-spin h-4 w-4 inline mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 714 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Checking... (${completed}/${total})
+          `;
+        }
+      } catch (error) {
+        console.error(`❌ [Modal] Error loading docs for ${product.applicationNumber}:`, error);
+        // GRACEFUL ERROR HANDLING: Show "No documents found" for ALL errors
+        updateModalDocumentStatusUI(product.applicationNumber, { error: 'none', documents: [] });
+        completed++;
+      }
+    }));
+    
+    // Delay between batches
+    if (i + config.batchSize < validProducts.length) {
+      await new Promise(r => setTimeout(r, config.delayBetweenBatches));
+    }
+  }
+  
+  // Reset button
+  if (checkBtn) {
+    checkBtn.disabled = false;
+    checkBtn.innerHTML = `✅ Checked ${total} applications`;
+    
+    setTimeout(() => {
+      checkBtn.textContent = '📄 Check All for Documents';
+      checkBtn.disabled = false;
+    }, 3000);
+  }
+  
+  // Update filter counts
+  setTimeout(() => {
+    updateModalDocumentFilter(validProducts);
+  }, 500);
+  
+  console.log('✅ [Modal] Document loading complete');
+}
+// New function that loads documents for a MODAL product (uses modal-doc-status-{id})
+async function loadDocumentsForModalProduct(applicationNumber, retryCount = 0) {
+  if (!applicationNumber || applicationNumber === 'UNKNOWN') {
+    console.warn(`[Modal] Invalid application number: ${applicationNumber}`);
+    return;
+  }
+
+  // Target MODAL-SPECIFIC status div (modal-doc-status-{id})
+  const statusDiv = document.getElementById(`modal-doc-status-${applicationNumber}`);
+  if (!statusDiv) {
+    console.warn(`[Modal] No modal status div found for ${applicationNumber}`);
+    return;
+  }
+  
+  // Show loading state
+  showModalLoadingState(statusDiv);
+  
+  try {
+    const appNo = applicationNumber.replace(/[^0-9]/g, '');
+    if (!appNo) {
+      throw new Error('Invalid application number format');
+    }
+    
+    console.log(`📡 [Modal] Fetching docs for ${applicationNumber} (modal-specific)`);
+    
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => {
+      console.warn(`⏰ [Modal] Request timeout for ${applicationNumber}`);
+      controller.abort();
+    }, 20000);
+    
+    const response = await fetch(`/api/fda-pdfs/${appNo}`, {
+      signal: controller.signal,
+      headers: {
+        'Accept': 'application/json',
+        'Cache-Control': 'no-cache'
+      }
+    });
+    
+    clearTimeout(timeoutId);
+    
+    if (!response.ok) {
+      if (response.status === 404) {
+        console.log(`📭 [Modal] No documents for ${applicationNumber} (404)`);
+        updateModalDocumentStatusUI(applicationNumber, { error: 'none', documents: [] });
+        return;
+      } else {
+        console.log(`⚠️ [Modal] HTTP ${response.status} for ${applicationNumber}, showing as no documents`);
+        updateModalDocumentStatusUI(applicationNumber, { error: 'none', documents: [] });
+        return;
+      }
+    }
+    
+    const data = await response.json();
+    const documentLinks = data.results || [];
+    
+    console.log(`✅ [Modal] Found ${documentLinks.length} docs for ${applicationNumber}`);
+    
+    // Update UI
+    updateModalDocumentStatusUI(applicationNumber, { error: null, documents: documentLinks });
+    
+  } catch (error) {
+    console.error(`❌ [Modal] Error loading documents for ${applicationNumber}:`, error);
+    
+    // Always show "No documents found" instead of error for graceful handling
+    updateModalDocumentStatusUI(applicationNumber, { error: 'none', documents: [] });
+  }
+}
+
+// Show loading state for MODAL status div
+function showModalLoadingState(statusDiv) {
+  const spinnerDiv = statusDiv.querySelector('.doc-spinner');
+  const resultDiv = statusDiv.querySelector('.doc-result');
+  
+  if (spinnerDiv) {
+    spinnerDiv.classList.remove('hidden');
+  }
+  if (resultDiv) {
+    resultDiv.classList.add('hidden');
+  }
+}
+
+// Update document status UI for MODAL cards (uses modal-doc-status-{id})
+function updateModalDocumentStatusUI(applicationNumber, result) {
+  // Target MODAL-SPECIFIC status div
+  const statusDiv = document.getElementById(`modal-doc-status-${applicationNumber}`);
+  if (!statusDiv) {
+    console.warn(`[Modal] Status div not found for modal-doc-status-${applicationNumber}`);
+    return;
+  }
+  
+  const spinnerDiv = statusDiv.querySelector('.doc-spinner');
+  const resultDiv = statusDiv.querySelector('.doc-result');
+  
+  // Hide spinner
+  if (spinnerDiv) {
+    spinnerDiv.classList.add('hidden');
+  }
+  
+  // Show result
+  if (resultDiv) {
+    resultDiv.classList.remove('hidden');
+    
+    if (result.error === 'none' || (result.documents && result.documents.length === 0)) {
+      // No documents
+      resultDiv.innerHTML = `
+        <span class="text-gray-500 text-xs">
+          <svg class="inline w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+          </svg>
+          No documents
+        </span>`;
+      
+      // Update card data attribute for filtering
+      const card = statusDiv.closest('.modal-card');
+      if (card) {
+        card.setAttribute('data-has-docs', 'false');
+      }
+    } else if (result.documents && result.documents.length > 0) {
+      // Has documents
+      const count = result.documents.length;
+      const typeCounts = {};
+      result.documents.forEach(link => {
+        typeCounts[link.type] = (typeCounts[link.type] || 0) + 1;
+      });
+      
+      const summary = Object.entries(typeCounts)
+        .map(([type, count]) => `${count} ${type}`)
+        .slice(0, 2)
+        .join(', ');
+      
+      resultDiv.innerHTML = `
+        <span class="text-green-600 text-xs">
+          <svg class="inline w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+          </svg>
+          ${count} doc${count > 1 ? 's' : ''}
+        </span>
+        <span class="text-xs text-gray-500 block">${summary}</span>`;
+      
+      // Update card data attribute for filtering
+      const card = statusDiv.closest('.modal-card');
+      if (card) {
+        card.setAttribute('data-has-docs', 'true');
+      }
+    } else {
+      // Unknown state
+      resultDiv.innerHTML = `<span class="text-gray-400 text-xs">—</span>`;
+    }
+  }
+}
+
+// Helper function to update modal document filter
+function updateModalDocumentFilter(validProducts) {
+  let withDocs = 0;
+  let withoutDocs = 0;
+  
+  validProducts.forEach(product => {
+    const card = document.querySelector(`[data-application="${product.applicationNumber}"].modal-card`);
+    if (card) {
+      const hasDocuments = card.getAttribute('data-has-docs');
+      if (hasDocuments === 'true') {
+        withDocs++;
+      } else if (hasDocuments === 'false') {
+        withoutDocs++;
+      }
+    }
+  });
+  
+  console.log(`📊 [Modal] Document filter update: ${withDocs} with docs, ${withoutDocs} without docs`);
+  
+  // Update filter if it exists
+  const docsFilter = document.getElementById('app-filter-docs');
+  if (docsFilter && docsFilter.options) {
+    Array.from(docsFilter.options).forEach(option => {
+      if (option.value === 'with-docs') {
+        option.text = `With Documents (${withDocs})`;
+      } else if (option.value === 'without-docs') {
+        option.text = `Without Documents (${withoutDocs})`;
+      }
+    });
+    
+    docsFilter.classList.remove('hidden');
+  }
+}
+
+// Helper function to set up modal filters
+function setupModalFilters() {
+  // Initialize search functionality
+  document.getElementById('app-search')?.addEventListener('input', function() {
+    applyModalApplicationFilters();
+  });
+  
+  // Initialize status filter
+  document.getElementById('app-filter-status')?.addEventListener('change', function() {
+    applyModalApplicationFilters();
+  });
+  
+  // Initialize application type filter
+  document.getElementById('app-filter-type')?.addEventListener('change', function() {
+    applyModalApplicationFilters();
+  });
+  
+  // Initialize document filter
+  document.getElementById('app-filter-docs')?.addEventListener('change', function() {
+    applyModalApplicationFilters();
+  });
+}
+
+// Helper function to apply modal filters
+function applyModalApplicationFilters() {
+  const searchTerm = document.getElementById('app-search')?.value.toLowerCase() || '';
+  const statusFilter = document.getElementById('app-filter-status')?.value || '';
+  const typeFilter = document.getElementById('app-filter-type')?.value || '';
+  const docsFilter = document.getElementById('app-filter-docs')?.value || '';
+  
+  const cards = document.querySelectorAll('.modal-card');
+  
+  cards.forEach(card => {
+    const brandName = card.querySelector('h3')?.textContent.toLowerCase() || '';
+    const appNumber = card.getAttribute('data-app-number')?.toLowerCase() || '';
+    const status = card.getAttribute('data-status') || '';
+    const type = card.getAttribute('data-type') || '';
+    const hasDocuments = card.getAttribute('data-has-docs') || 'unknown';
+    
+    let show = true;
+    
+    // Apply search filter
+    if (searchTerm && !brandName.includes(searchTerm) && !appNumber.includes(searchTerm)) {
+      show = false;
+    }
+    
+    // Apply status filter
+    if (statusFilter && status !== statusFilter) {
+      show = false;
+    }
+    
+    // Apply type filter
+    if (typeFilter && type !== typeFilter) {
+      show = false;
+    }
+    
+    // Apply documents filter
+    if (docsFilter) {
+      if (docsFilter === 'with-docs' && hasDocuments !== 'true') {
+        show = false;
+      } else if (docsFilter === 'without-docs' && hasDocuments !== 'false') {
+        show = false;
+      }
+    }
+    
+    card.style.display = show ? 'block' : 'none';
+  });
+}
+
+
+// FIXED: Setup modal detail button handlers
+function setupModalDetailHandlers() {
+  // Remove any existing handlers first (prevents duplicates)
+  document.querySelectorAll('.modal-view-details-btn').forEach(btn => {
+    const newBtn = btn.cloneNode(true);
+    btn.parentNode.replaceChild(newBtn, btn);
+  });
+  
+  // Add new handlers
+  document.querySelectorAll('.modal-view-details-btn').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      
       const applicationNumber = this.getAttribute('data-application');
       const brandName = this.getAttribute('data-brand');
       const ingredient = this.getAttribute('data-ingredient');
-      openDetailsModal(applicationNumber, brandName, ingredient);
-    });
-  });
-
-  // Setup other event listeners
-  if (typeof setupApplicationDetailHandlers === 'function') {
-    setTimeout(setupApplicationDetailHandlers, 100);
-  }
-  
-  // Filter event listeners
-  document.getElementById('app-search')?.addEventListener('input', applyApplicationFilters);
-  document.getElementById('app-filter-status')?.addEventListener('change', applyApplicationFilters);
-  document.getElementById('app-filter-type')?.addEventListener('change', applyApplicationFilters);
-  document.getElementById('app-filter-docs')?.addEventListener('change', applyApplicationFilters);
-  
-  function applyApplicationFilters() {
-    const searchTerm = document.getElementById('app-search').value.toLowerCase();
-    const statusFilter = document.getElementById('app-filter-status').value;
-    const typeFilter = document.getElementById('app-filter-type').value;
-    const docsFilter = document.getElementById('app-filter-docs').value;
-    
-    document.querySelectorAll('.app-item').forEach(item => {
-      const brand = item.querySelector('.app-brand').textContent.toLowerCase();
-      const manufacturer = item.querySelector('.app-manufacturer')?.textContent.toLowerCase() || '';
-      const appType = item.getAttribute('data-app-type');
-      const status = item.getAttribute('data-status');
-      const hasDocs = item.getAttribute('data-has-docs');
       
-      const matchesSearch = brand.includes(searchTerm) || manufacturer.includes(searchTerm);
-      const matchesStatus = !statusFilter || status === statusFilter;
-      const matchesType = !typeFilter || appType.includes(typeFilter);
-      
-      let matchesDocs = true;
-      if (docsFilter) {
-        if (docsFilter === 'with-docs') matchesDocs = hasDocs === 'true';
-        else if (docsFilter === 'without-docs') matchesDocs = hasDocs === 'false';
+      // Close current modal first
+      if (typeof closeModal === 'function') {
+        closeModal();
       }
       
-      item.style.display = (matchesSearch && matchesStatus && matchesType && matchesDocs) ? 'block' : 'none';
+      // Open application detail modal after delay
+      setTimeout(() => {
+        openApplicationModal(applicationNumber, brandName, ingredient);
+      }, 300);
     });
-  }
+  });
 }
+console.log('✅ Simple Modal ID Fix loaded - uses modal-doc-status-{id} for modal cards');
+
+
 async function checkAllModalApplicationDocuments(allProducts) {
   const checkBtn = document.getElementById('check-all-docs-btn');
   
