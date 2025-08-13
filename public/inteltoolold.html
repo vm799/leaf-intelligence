@@ -43674,7 +43674,8 @@ function displayStudies(studies, drug, condition) {
         displayStudiesWithTimeline(studies, drug, 'drug');
     } else if (drug && (drug.toLowerCase() == condition.toLowerCase())){
         console.log("Displaying drug timeline for:", drug);
-        displayStudiesWithTimeline(studies, drug, 'drug');
+        console.log("BOTH PRESENT NO DISPLAY ")
+        // displayStudiesWithTimeline(studies, drug, 'drug');
     } else if (drug && condition){
         const existingTimeline = document.getElementById('entity-usage-timeline');
         if (existingTimeline) {
@@ -78006,7 +78007,7 @@ async function enhancedHandleSearch(isAISearch = false, aiQuery = '') {
                 
                 // Display the results
 if (typeof displayStudies === 'function') {
-    const searchTerm = drug || condition || '';
+    const searchTerm = drug || '';
     const conditionParam = condition || '';
     displayStudies(filteredStudies, searchTerm, conditionParam);
 }
