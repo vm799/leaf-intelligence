@@ -9376,7 +9376,7 @@ const mailchimp = require("@mailchimp/mailchimp_marketing");
 
 // Configure Mailchimp (add this after your other configurations)
 mailchimp.setConfig({
-  apiKey: 'ab0a7e2014d2cf129fce814ac5258dc6-us13',
+  apiKey: process.env.MAILCHIMP_API_KEY,
   server: 'us13', // e.g., "us21" - the part after the dash in your API key
 });
 

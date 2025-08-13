@@ -3,7 +3,7 @@ const fs = require('fs');
 const Papa = require('papaparse');
 
 // Configuration
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://syneticslz:gMN1GUBtevSaw8DE@synetictest.bl3xxux.mongodb.net/?retryWrites=true&w=majority&appName=SyneticTest';
+// const MONGODB_URI = process.env.MONGODB_URI || ;
 const DATABASE_NAME = process.env.DB_NAME || 'medicines_database';
 const COLLECTION_NAME = process.env.COLLECTION_NAME || 'psusa_assessments';
 const CSV_FILE_PATH = process.env.CSV_FILE || './medicines_output_periodic_safety_update_report_single_assessments_en (1)(PSUSA).csv';

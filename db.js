@@ -1371,7 +1371,7 @@ module.exports = { connectDB, User, Lead, DrugWatch, DrugWatchResult, migrateWat
 // // MongoDB Connection
 // const connectDB = async () => {
 //   try {
-//     await mongoose.connect('mongodb+srv://syneticslz:gMN1GUBtevSaw8DE@synetictest.bl3xxux.mongodb.net/?retryWrites=true&w=majority&appName=SyneticTest');
+//    
 //     console.log('MongoDB connected successfully');
 //   } catch (error) {
 //     console.error('MongoDB connection error:', error);

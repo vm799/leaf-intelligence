@@ -11,7 +11,6 @@
 // app.use(express.json());
 
 // // MongoDB connection
-// const MONGO_URI = 'mongodb+srv://syneticslz:gMN1GUBtevSaw8DE@synetictest.bl3xxux.mongodb.net/?retryWrites=true&w=majority&appName=SyneticTest';
 
 // // MongoDB Schema (updated for simplified observations)
 // const fda483Schema = new mongoose.Schema({
@@ -2124,7 +2123,7 @@ const puppeteer = require('puppeteer');
 
 // const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/fda_database';
 
-const MONGO_URI = 'mongodb+srv://syneticslz:gMN1GUBtevSaw8DE@synetictest.bl3xxux.mongodb.net/?retryWrites=true&w=majority&appName=SyneticTest';
+
 const PORT = process.env.PORT || 3000;
 
 // ===========================
