@@ -5290,7 +5290,28 @@ tailwind.config = {
     </div>
 </div>
 
+<!-- Top Navigation Bar -->
+<div id="conditionsectionNavigationBar" class="hidden bg-white border-b border-gray-200 mb-6 rounded-lg shadow-sm">
+    <div class="flex flex-wrap gap-2 p-4">
+        <button onclick="showOnlySection('summarySection')" 
+                class="nav-btn px-4 py-2 text-sm font-medium rounded-lg border border-gray-300 bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+                data-section="summary">
+            📊 Summary
+        </button>
+        <button onclick="showOnlySection('trials')" 
+                class="nav-btn px-4 py-2 text-sm font-medium rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 transition-colors"
+                data-section="trials">
+            🔬 Clinical Trials
+        </button>
 
+        <button onclick="showOnlySection('tabpubmedSection')" 
+                class="nav-btn px-4 py-2 text-sm font-medium rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 transition-colors"
+                data-section="pubmed">
+            📚 PubMed
+        </button>
+
+    </div>
+</div>
 
 
 
@@ -13025,6 +13046,7 @@ appState.allTrialOutcomes = [];
 
         };
         elements.sectionNavigationBar = document.getElementById('sectionNavigationBar')
+         elements.conditionsectionNavigationBar = document.getElementById('conditionsectionNavigationBar')
         elements.summarySection = document.getElementById('summarySection');
         elements.pubmedCustomQuery = document.getElementById('pubmedCustomQuery');
         elements.companySummarySection = document.getElementById('company-summary-section');
@@ -13378,7 +13400,7 @@ function  showLoading(type = 'device') {
                 const progressBar = document.getElementById('progress-bar');
                 document.getElementById('quick').classList.add('hidden');
                 document.getElementById('sectionNavigationBar').classList.add('hidden');
-
+document.getElementById('conditionsectionNavigationBar').classList.add('hidden');
                 loadingState.classList.remove('hidden');
                 // document.getElementById('results-container').classList.add('hidden');
                 
@@ -13403,7 +13425,33 @@ function  showLoading(type = 'device') {
 
 function hideLoading() {
                   document.getElementById('quick').classList.remove('hidden');
-                document.getElementById('sectionNavigationBar').classList.remove('hidden');
+
+    const drug = elements.drugSearch.value.trim();
+    const condition = elements.conditionSearch.value.trim();
+    
+
+    if(!drug){
+                document.getElementById('conditionsectionNavigationBar').classList.remove('hidden');
+    }else{
+                        document.getElementById('sectionNavigationBar').classList.remove('hidden');
+
+    }
+                if (this.loadingInterval) {
+                    clearInterval(this.loadingInterval);
+                    this.loadingInterval = null;
+                }
+                
+                const progressBar = document.getElementById('progress-bar');
+                progressBar.style.width = '100%';
+                
+                setTimeout(() => {
+                    document.getElementById('loading-state').classList.add('hidden');
+                }, 300);
+            }
+
+function conditionhideLoading() {
+                  document.getElementById('quick').classList.remove('hidden');
+                document.getElementById('conditionsectionNavigationBar').classList.remove('hidden');
                 if (this.loadingInterval) {
                     clearInterval(this.loadingInterval);
                     this.loadingInterval = null;
@@ -85912,11 +85960,17 @@ autostartComprehensiveAnalysis(drug, true)
                     } else if (condition) {
                         console.log("Searching PubMed for condition:", condition);
                         
-                        if (PubMedModule.searchPubMedByCondition) {
-                            pubmedResults = await PubMedModule.searchPubMedByCondition(condition, pubmedOptions);
+                        if (PubMedModule.performPubMedSearch) {
+                            pubmedResults = await PubMedModule.performPubMedSearch(condition, pubmedOptions);
+autostartComprehensiveAnalysis(condition, true)
+                        } else if (PubMedModule.searchPubMedByDrug) {
+                            pubmedResults = await PubMedModule.searchPubMedByDrug(condition, pubmedOptions);
+autostartComprehensiveAnalysis(condition, true)
                         } else if (PubMedModule.searchPubMed) {
                             pubmedResults = await PubMedModule.searchPubMed(condition, pubmedOptions);
+autostartComprehensiveAnalysis(condition, true)
                         }
+                        
                     }
                     
                     // NEW: Store results in app state for summary
