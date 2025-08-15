@@ -1,0 +1,1781 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Regulatory Intelligence Platform | FDA & Clinical Data Analytics</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .loader {
+            border-top-color: #3b82f6;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .drug-card {
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        .drug-card:hover {
+            transform: translateY(-4px);
+            border-color: #3b82f6;
+            box-shadow: 0 20px 25px -5px rgb(59 130 246 / 0.1);
+        }
+        .status-badge {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: .5; }
+        }
+        .modal-content {
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+        }
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+        .risk-indicator {
+            transition: all 0.3s ease;
+        }
+        .tab-active {
+            border-bottom: 3px solid #3b82f6;
+            color: #3b82f6;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow-lg border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center">
+                    <i class="fas fa-microscope text-3xl text-blue-600 mr-3"></i>
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-900">Regulatory Intelligence Platform</h1>
+                        <p class="text-sm text-gray-600">FDA, Clinical Trials & Market Analytics</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm text-gray-500">API Status: <span id="apiStatus" class="text-green-600 font-semibold">Connected</span></span>
+                    <button onclick="checkHealth()" class="px-3 py-1 bg-blue-100 text-blue-700 rounded-lg text-sm hover:bg-blue-200">
+                        <i class="fas fa-sync-alt mr-1"></i> Refresh
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Search Section -->
+    <div class="bg-gradient-to-r from-blue-600 to-indigo-700 py-12">
+        <div class="max-w-4xl mx-auto px-4">
+            <h2 class="text-3xl font-bold text-white mb-2 text-center">Search Medical Conditions</h2>
+            <p class="text-blue-100 text-center mb-8">Access comprehensive regulatory data from 20+ authoritative sources</p>
+            <div class="relative">
+                <input 
+                    type="text" 
+                    id="conditionInput" 
+                    placeholder="Enter condition (e.g., diabetes, hypertension, depression)"
+                    class="w-full px-6 py-4 pr-12 text-lg rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-300"
+                    onkeypress="if(event.key === 'Enter') searchCondition()"
+                >
+                <button 
+                    onclick="searchCondition()" 
+                    id="searchBtn"
+                    class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                    <i class="fas fa-search mr-2"></i> Search
+                </button>
+            </div>
+            <div class="mt-4 flex flex-wrap gap-2 justify-center">
+                <button onclick="quickSearch('diabetes')" class="px-4 py-2 bg-white/20 text-white rounded-lg hover:bg-white/30 backdrop-blur text-sm">
+                    Diabetes
+                </button>
+                <button onclick="quickSearch('hypertension')" class="px-4 py-2 bg-white/20 text-white rounded-lg hover:bg-white/30 backdrop-blur text-sm">
+                    Hypertension
+                </button>
+                <button onclick="quickSearch('depression')" class="px-4 py-2 bg-white/20 text-white rounded-lg hover:bg-white/30 backdrop-blur text-sm">
+                    Depression
+                </button>
+                <button onclick="quickSearch('alzheimer')" class="px-4 py-2 bg-white/20 text-white rounded-lg hover:bg-white/30 backdrop-blur text-sm">
+                    Alzheimer's
+                </button>
+                <button onclick="quickSearch('cancer')" class="px-4 py-2 bg-white/20 text-white rounded-lg hover:bg-white/30 backdrop-blur text-sm">
+                    Cancer
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading State -->
+    <div id="loadingState" class="hidden">
+        <div class="max-w-7xl mx-auto px-4 py-12">
+            <div class="text-center">
+                <div class="inline-block loader border-4 border-gray-200 rounded-full w-16 h-16 mb-4"></div>
+                <h3 class="text-xl font-semibold text-gray-700 mb-2">Analyzing Regulatory Data...</h3>
+                <p class="text-gray-500">Aggregating data from FDA, Clinical Trials, PubChem, NIH, and more...</p>
+                <div class="mt-6 max-w-md mx-auto">
+                    <div class="space-y-2" id="loadingSteps"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Results Container -->
+    <div id="resultsContainer" class="hidden">
+        <!-- Overview Stats -->
+        <div class="bg-white border-b">
+            <div class="max-w-7xl mx-auto px-4 py-6">
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h2 class="text-3xl font-bold text-gray-900">
+                            <span id="conditionName" class="uppercase"></span> - Regulatory Intelligence Report
+                        </h2>
+                        <p class="text-gray-600 mt-1">Comprehensive analysis from 20+ regulatory and scientific databases</p>
+                    </div>
+                    <button onclick="exportReport()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                        <i class="fas fa-download mr-2"></i> Export Report
+                    </button>
+                </div>
+                
+                <!-- Key Metrics -->
+                <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4" id="keyMetrics"></div>
+            </div>
+        </div>
+
+        <!-- Tabs Navigation -->
+        <div class="bg-white sticky top-0 z-40 shadow-sm">
+            <div class="max-w-7xl mx-auto px-4">
+                <div class="flex space-x-8 overflow-x-auto">
+                    <button onclick="switchTab('overview')" class="tab-btn py-4 px-2 font-medium text-gray-700 whitespace-nowrap tab-active" data-tab="overview">
+                        <i class="fas fa-chart-pie mr-2"></i> Overview
+                    </button>
+                    <button onclick="switchTab('drugs')" class="tab-btn py-4 px-2 font-medium text-gray-700 whitespace-nowrap" data-tab="drugs">
+                        <i class="fas fa-pills mr-2"></i> Approved Drugs
+                    </button>
+                    <button onclick="switchTab('trials')" class="tab-btn py-4 px-2 font-medium text-gray-700 whitespace-nowrap" data-tab="trials">
+                        <i class="fas fa-flask mr-2"></i> Clinical Trials
+                    </button>
+                    <button onclick="switchTab('failed')" class="tab-btn py-4 px-2 font-medium text-gray-700 whitespace-nowrap" data-tab="failed">
+                        <i class="fas fa-exclamation-triangle mr-2"></i> Failed/Withdrawn
+                    </button>
+                    <button onclick="switchTab('companies')" class="tab-btn py-4 px-2 font-medium text-gray-700 whitespace-nowrap" data-tab="companies">
+                        <i class="fas fa-building mr-2"></i> Companies
+                    </button>
+                    <button onclick="switchTab('safety')" class="tab-btn py-4 px-2 font-medium text-gray-700 whitespace-nowrap" data-tab="safety">
+                        <i class="fas fa-shield-alt mr-2"></i> Safety & Risk
+                    </button>
+                    <button onclick="switchTab('financial')" class="tab-btn py-4 px-2 font-medium text-gray-700 whitespace-nowrap" data-tab="financial">
+                        <i class="fas fa-dollar-sign mr-2"></i> Financial
+                    </button>
+                    <button onclick="switchTab('research')" class="tab-btn py-4 px-2 font-medium text-gray-700 whitespace-nowrap" data-tab="research">
+                        <i class="fas fa-microscope mr-2"></i> Research
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab Content -->
+        <div class="max-w-7xl mx-auto px-4 py-8">
+            <!-- Overview Tab -->
+            <div id="overview-tab" class="tab-content">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Regulatory Risk Score -->
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                            <i class="fas fa-exclamation-circle text-yellow-500 mr-2"></i> Regulatory Risk Assessment
+                        </h3>
+                        <div id="riskScore" class="mb-4"></div>
+                        <div id="riskFactors" class="space-y-2 text-sm"></div>
+                    </div>
+
+                    <!-- Market Opportunity -->
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                            <i class="fas fa-chart-line text-green-500 mr-2"></i> Market Opportunity
+                        </h3>
+                        <div id="marketOpportunity"></div>
+                    </div>
+
+                    <!-- Competitive Landscape -->
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                            <i class="fas fa-users text-blue-500 mr-2"></i> Competitive Landscape
+                        </h3>
+                        <div id="competitiveLandscape"></div>
+                    </div>
+                </div>
+
+                <!-- Quick Insights -->
+                <div class="mt-6 bg-white rounded-xl shadow-lg p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                        <i class="fas fa-lightbulb text-yellow-400 mr-2"></i> Key Insights & Alerts
+                    </h3>
+                    <div id="keyInsights" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+                </div>
+            </div>
+
+            <!-- Drugs Tab -->
+            <div id="drugs-tab" class="tab-content hidden">
+                <div class="mb-6 flex items-center justify-between">
+                    <h3 class="text-xl font-semibold text-gray-900">FDA Approved Drugs</h3>
+                    <div class="flex gap-2">
+                        <select id="drugSort" onchange="sortDrugs()" class="px-4 py-2 border rounded-lg">
+                            <option value="name">Sort by Name</option>
+                            <option value="approval">Sort by Approval Date</option>
+                            <option value="manufacturer">Sort by Manufacturer</option>
+                        </select>
+                        <input type="text" id="drugFilter" placeholder="Filter drugs..." onkeyup="filterDrugs()" 
+                               class="px-4 py-2 border rounded-lg">
+                    </div>
+                </div>
+                <div id="drugCards" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+            </div>
+
+            <!-- Clinical Trials Tab -->
+            <div id="trials-tab" class="tab-content hidden">
+                <div class="mb-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-xl font-semibold text-gray-900">Active Clinical Trials</h3>
+                        <div class="flex gap-2">
+                            <button onclick="filterTrials('all')" class="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg">All</button>
+                            <button onclick="filterTrials('recruiting')" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg">Recruiting</button>
+                            <button onclick="filterTrials('phase3')" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg">Phase 3</button>
+                        </div>
+                    </div>
+                    <div id="trialsList" class="space-y-4"></div>
+                </div>
+            </div>
+
+            <!-- Failed Drugs Tab -->
+            <div id="failed-tab" class="tab-content hidden">
+                <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-6">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-exclamation-triangle text-red-500 text-xl"></i>
+                        </div>
+                        <div class="ml-3">
+                            <h3 class="text-lg font-semibold text-red-900">Regulatory Alert: Safety-Related Terminations</h3>
+                            <p class="text-red-700 mt-1">The following trials were terminated or withdrawn. Critical safety signals detected.</p>
+                        </div>
+                    </div>
+                </div>
+                <div id="failedDrugsList" class="space-y-4"></div>
+            </div>
+
+            <!-- Companies Tab -->
+            <div id="companies-tab" class="tab-content hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Market Leaders</h3>
+                        <div id="marketLeaders" class="space-y-3"></div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Companies in Clinical Trials</h3>
+                        <div id="trialCompanies" class="space-y-3"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Safety Tab -->
+            <div id="safety-tab" class="tab-content hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                            <i class="fas fa-exclamation-triangle text-yellow-500 mr-2"></i> Adverse Events
+                        </h3>
+                        <div id="adverseEvents" class="space-y-3"></div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                            <i class="fas fa-ban text-red-500 mr-2"></i> FDA Recalls
+                        </h3>
+                        <div id="fdaRecalls" class="space-y-3"></div>
+                    </div>
+                </div>
+                <div class="mt-6 bg-white rounded-xl shadow-lg p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                        <i class="fas fa-pills text-blue-500 mr-2"></i> Drug Interactions
+                    </h3>
+                    <div id="drugInteractions" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+                </div>
+            </div>
+
+            <!-- Financial Tab -->
+            <div id="financial-tab" class="tab-content hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                            <i class="fas fa-university text-blue-500 mr-2"></i> NIH Funding
+                        </h3>
+                        <div id="nihFunding"></div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                            <i class="fas fa-dollar-sign text-green-500 mr-2"></i> Medicare Spending
+                        </h3>
+                        <div id="medicareSpending"></div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                            <i class="fas fa-file-invoice-dollar text-purple-500 mr-2"></i> CMS Payments
+                        </h3>
+                        <div id="cmsPayments"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Research Tab -->
+            <div id="research-tab" class="tab-content hidden">
+                <div class="mb-6">
+                    <h3 class="text-xl font-semibold text-gray-900 mb-4">Recent Research Articles</h3>
+                    <div id="researchArticles" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+                </div>
+                <div class="mt-8">
+                    <h3 class="text-xl font-semibold text-gray-900 mb-4">Chemical Compounds</h3>
+                    <div id="chemicalCompounds" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Drug Detail Modal -->
+    <div id="drugModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 overflow-y-auto">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-xl shadow-2xl max-w-6xl w-full modal-content">
+                <div class="sticky top-0 bg-white border-b px-6 py-4 flex justify-between items-center">
+                    <h2 class="text-2xl font-bold text-gray-900" id="modalDrugName"></h2>
+                    <button onclick="closeDrugModal()" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times text-2xl"></i>
+                    </button>
+                </div>
+                <div class="p-6">
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <!-- Left Column - Basic Info -->
+                        <div class="lg:col-span-2 space-y-6">
+                            <div id="modalBasicInfo"></div>
+                            <div id="modalLabeling"></div>
+                            <div id="modalClinicalStudies"></div>
+                            <div id="modalAdverseEvents"></div>
+                        </div>
+                        <!-- Right Column - Additional Data -->
+                        <div class="space-y-6">
+                            <div id="modalChemicalInfo"></div>
+                            <div id="modalPatentInfo"></div>
+                            <div id="modalFinancialInfo"></div>
+                            <div id="modalInteractions"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-8 mt-12">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="text-center">
+                <p class="text-gray-400">Regulatory Intelligence Platform v4.0 | Data sources: FDA, ClinicalTrials.gov, NIH, PubChem, CMS, USPTO</p>
+                <p class="text-gray-500 text-sm mt-2">Last updated: <span id="lastUpdated"></span></p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Global variables
+        let currentData = null;
+        let currentCondition = '';
+        const API_BASE = 'http://localhost:4000/api';
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            checkHealth();
+            document.getElementById('lastUpdated').textContent = new Date().toLocaleString();
+        });
+
+        // Health check
+        async function checkHealth() {
+            try {
+                const response = await fetch(`${API_BASE}/health`);
+                const data = await response.json();
+                const statusEl = document.getElementById('apiStatus');
+                if (data.status === 'healthy') {
+                    statusEl.textContent = 'Connected';
+                    statusEl.className = 'text-green-600 font-semibold';
+                } else {
+                    statusEl.textContent = 'Degraded';
+                    statusEl.className = 'text-yellow-600 font-semibold';
+                }
+            } catch (error) {
+                document.getElementById('apiStatus').textContent = 'Disconnected';
+                document.getElementById('apiStatus').className = 'text-red-600 font-semibold';
+            }
+        }
+
+        // Quick search
+        function quickSearch(condition) {
+            document.getElementById('conditionInput').value = condition;
+            searchCondition();
+        }
+
+        // Main search function
+        async function searchCondition() {
+            const condition = document.getElementById('conditionInput').value.trim();
+            if (!condition) {
+                alert('Please enter a medical condition');
+                return;
+            }
+
+            currentCondition = condition;
+            
+            // Show loading state
+            document.getElementById('loadingState').classList.remove('hidden');
+            document.getElementById('resultsContainer').classList.add('hidden');
+            document.getElementById('searchBtn').disabled = true;
+            document.getElementById('searchBtn').innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Searching...';
+
+            // Update loading steps
+            const loadingSteps = document.getElementById('loadingSteps');
+            loadingSteps.innerHTML = `
+                <div class="flex items-center text-sm text-gray-600">
+                    <i class="fas fa-check-circle text-green-500 mr-2"></i> Connecting to FDA database...
+                </div>
+                <div class="flex items-center text-sm text-gray-600">
+                    <i class="fas fa-spinner fa-spin text-blue-500 mr-2"></i> Searching clinical trials...
+                </div>
+                <div class="flex items-center text-sm text-gray-500">
+                    <i class="fas fa-circle text-gray-300 mr-2"></i> Analyzing chemical compounds...
+                </div>
+                <div class="flex items-center text-sm text-gray-500">
+                    <i class="fas fa-circle text-gray-300 mr-2"></i> Gathering financial data...
+                </div>
+            `;
+
+            try {
+                const response = await fetch(`${API_BASE}/condition/${encodeURIComponent(condition)}`);
+                const data = await response.json();
+                
+                if (data.success && data.results) {
+                    currentData = data.results;
+                    displayResults(data.results);
+                } else {
+                    throw new Error('No data received');
+                }
+            } catch (error) {
+                console.error('Search error:', error);
+                alert('Error fetching data. Please ensure the backend is running on port 4000.');
+            } finally {
+                document.getElementById('searchBtn').disabled = false;
+                document.getElementById('searchBtn').innerHTML = '<i class="fas fa-search mr-2"></i> Search';
+                document.getElementById('loadingState').classList.add('hidden');
+            }
+        }
+
+        // Display main results
+        function displayResults(data) {
+            document.getElementById('resultsContainer').classList.remove('hidden');
+            document.getElementById('conditionName').textContent = data.condition;
+
+            // Display key metrics
+            displayKeyMetrics(data);
+            
+            // Display each tab's content
+            displayOverviewTab(data);
+            displayDrugsTab(data);
+            displayTrialsTab(data);
+            displayFailedDrugsTab(data);
+            displayCompaniesTab(data);
+            displaySafetyTab(data);
+            displayFinancialTab(data);
+            displayResearchTab(data);
+        }
+
+        // Display key metrics
+        function displayKeyMetrics(data) {
+            const metrics = [
+                { label: 'Approved Drugs', value: data.sources.fda_drugs.count, icon: 'fa-pills', color: 'blue' },
+                { label: 'Active Trials', value: data.sources.clinical_trials.count, icon: 'fa-flask', color: 'green' },
+                { label: 'Failed/Withdrawn', value: data.sources.failed_drugs.count, icon: 'fa-times-circle', color: 'red' },
+                { label: 'Research Articles', value: data.sources.pubmed_articles.count, icon: 'fa-file-alt', color: 'purple' },
+                { label: 'Patents', value: data.sources.patents?.count || 0, icon: 'fa-certificate', color: 'indigo' },
+                { label: 'Safety Events', value: data.sources.adverse_events.count, icon: 'fa-exclamation-triangle', color: 'yellow' }
+            ];
+
+            const metricsHtml = metrics.map(m => `
+                <div class="bg-white rounded-lg shadow p-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-600">${m.label}</p>
+                            <p class="text-2xl font-bold text-gray-900">${m.value.toLocaleString()}</p>
+                        </div>
+                        <i class="fas ${m.icon} text-2xl text-${m.color}-500"></i>
+                    </div>
+                </div>
+            `).join('');
+
+            document.getElementById('keyMetrics').innerHTML = metricsHtml;
+        }
+
+        // Display Overview Tab
+        function displayOverviewTab(data) {
+            // Risk Score
+            const risk = data.analytics?.regulatory_risk_score;
+            if (risk) {
+                const riskColor = risk.score < 30 ? 'green' : risk.score < 70 ? 'yellow' : 'red';
+                document.getElementById('riskScore').innerHTML = `
+                    <div class="text-center">
+                        <div class="text-4xl font-bold text-${riskColor}-600">${risk.score}/100</div>
+                        <div class="text-sm text-gray-600 mt-1">${risk.level} Risk</div>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-3 mt-3">
+                        <div class="bg-${riskColor}-500 h-3 rounded-full" style="width: ${risk.score}%"></div>
+                    </div>
+                `;
+                
+                const factorsHtml = Object.entries(risk.factors || {}).map(([key, value]) => `
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">${key.replace(/_/g, ' ')}</span>
+                        <span class="font-semibold ${value > 0 ? 'text-red-600' : 'text-green-600'}">${value > 0 ? '+' : ''}${value}</span>
+                    </div>
+                `).join('');
+                document.getElementById('riskFactors').innerHTML = factorsHtml;
+            }
+
+            // Market Opportunity
+            const market = data.analytics?.market_opportunity;
+            if (market) {
+                document.getElementById('marketOpportunity').innerHTML = `
+                    <div class="space-y-3">
+                        <div>
+                            <p class="text-sm text-gray-600">Total Addressable Market</p>
+                            <p class="text-xl font-bold text-green-600">$${(market.total_addressable_market / 1000000).toFixed(1)}M</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Medicare Spending</p>
+                            <p class="text-lg font-semibold">$${(market.current_medicare_spending / 1000000).toFixed(1)}M</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Pipeline Drugs</p>
+                            <p class="text-lg font-semibold">${market.pipeline_drugs}</p>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Competitive Landscape
+            const competitive = data.analytics?.competitive_landscape;
+            if (competitive) {
+                const leadersHtml = (competitive.market_leaders || []).slice(0, 3).map(leader => `
+                    <div class="flex justify-between items-center py-2 border-b">
+                        <span class="font-medium">${leader.name}</span>
+                        <span class="text-sm text-gray-600">${leader.approved_drugs.length} drugs</span>
+                    </div>
+                `).join('');
+                
+                document.getElementById('competitiveLandscape').innerHTML = `
+                    <div class="mb-3">
+                        <p class="text-sm text-gray-600">Total Competitors</p>
+                        <p class="text-2xl font-bold">${competitive.total_competitors}</p>
+                    </div>
+                    <div class="space-y-1">${leadersHtml}</div>
+                `;
+            }
+
+            // Key Insights
+            const insights = [];
+            if (data.sources.failed_drugs.count > 5) {
+                insights.push({
+                    type: 'warning',
+                    icon: 'fa-exclamation-triangle',
+                    color: 'yellow',
+                    title: 'High Failure Rate',
+                    text: `${data.sources.failed_drugs.count} trials have been terminated or withdrawn`
+                });
+            }
+            if (data.sources.fda_recalls?.count > 0) {
+                insights.push({
+                    type: 'danger',
+                    icon: 'fa-ban',
+                    color: 'red',
+                    title: 'FDA Recalls',
+                    text: `${data.sources.fda_recalls.count} recalls identified for related products`
+                });
+            }
+            if (data.sources.nih_grants?.total_funding > 10000000) {
+                insights.push({
+                    type: 'success',
+                    icon: 'fa-money-bill-wave',
+                    color: 'green',
+                    title: 'High NIH Investment',
+                    text: `$${(data.sources.nih_grants.total_funding / 1000000).toFixed(1)}M in research funding`
+                });
+            }
+            if (data.sources.patents?.count > 10) {
+                insights.push({
+                    type: 'info',
+                    icon: 'fa-certificate',
+                    color: 'blue',
+                    title: 'Patent Activity',
+                    text: `${data.sources.patents.count} patents filed in this space`
+                });
+            }
+
+            const insightsHtml = insights.map(insight => `
+                <div class="bg-${insight.color}-50 border-l-4 border-${insight.color}-500 p-4 rounded">
+                    <div class="flex">
+                        <i class="fas ${insight.icon} text-${insight.color}-500 mr-3"></i>
+                        <div>
+                            <h4 class="font-semibold text-${insight.color}-900">${insight.title}</h4>
+                            <p class="text-${insight.color}-700 text-sm mt-1">${insight.text}</p>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            document.getElementById('keyInsights').innerHTML = insightsHtml || '<p class="text-gray-500">No critical insights at this time</p>';
+        }
+
+        // Display Drugs Tab
+        function displayDrugsTab(data) {
+            const drugs = data.sources.fda_drugs.data || [];
+            const drugsHtml = drugs.map((drug, index) => `
+                <div class="drug-card bg-white rounded-xl shadow-lg p-6 cursor-pointer" onclick="showDrugDetails(${index})">
+                    <div class="flex justify-between items-start mb-3">
+                        <h3 class="text-lg font-bold text-gray-900">${drug.drug_name || drug.brand_name || 'Unknown Drug'}</h3>
+                        <span class="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full">${drug.dosage_form || 'N/A'}</span>
+                    </div>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Generic:</span>
+                            <span class="font-medium">${drug.generic_name || 'N/A'}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Manufacturer:</span>
+                            <span class="font-medium">${drug.manufacturer || 'Unknown'}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Route:</span>
+                            <span class="font-medium">${drug.route || 'N/A'}</span>
+                        </div>
+                        ${drug.approval_date ? `
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Approval:</span>
+                            <span class="font-medium">${new Date(drug.approval_date).getFullYear()}</span>
+                        </div>
+                        ` : ''}
+                    </div>
+                    <div class="mt-4 pt-4 border-t">
+                        <button class="text-blue-600 hover:text-blue-800 font-medium text-sm">
+                            View Full Details <i class="fas fa-arrow-right ml-1"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+
+            document.getElementById('drugCards').innerHTML = drugsHtml || '<p class="text-gray-500">No approved drugs found</p>';
+        }
+
+        // Display Trials Tab
+        function displayTrialsTab(data) {
+            const trials = data.sources.clinical_trials.data || [];
+            const trialsHtml = trials.map(trial => {
+                const statusColor = trial.status === 'RECRUITING' ? 'green' : 
+                                  trial.status === 'COMPLETED' ? 'blue' : 
+                                  trial.status === 'TERMINATED' ? 'red' : 'gray';
+                
+                return `
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <div class="flex justify-between items-start mb-3">
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-900">${trial.title}</h3>
+                                <p class="text-sm text-gray-600 mt-1">NCT ID: ${trial.nct_id}</p>
+                            </div>
+                            <span class="px-3 py-1 bg-${statusColor}-100 text-${statusColor}-700 text-sm rounded-full font-medium">
+                                ${trial.status}
+                            </span>
+                        </div>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                            <div>
+                                <p class="text-xs text-gray-600">Phase</p>
+                                <p class="font-semibold">${trial.phase || 'N/A'}</p>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-600">Enrollment</p>
+                                <p class="font-semibold">${trial.enrollment || 'N/A'}</p>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-600">Sponsor</p>
+                                <p class="font-semibold text-sm">${trial.lead_sponsor || trial.sponsor || 'Unknown'}</p>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-600">Start Date</p>
+                                <p class="font-semibold text-sm">${trial.start_date || 'N/A'}</p>
+                            </div>
+                        </div>
+                        ${trial.primary_outcomes && trial.primary_outcomes.length > 0 ? `
+                        <div class="pt-4 border-t">
+                            <p class="text-sm text-gray-600 mb-2">Primary Outcome:</p>
+                            <p class="text-sm">${trial.primary_outcomes[0].measure}</p>
+                        </div>
+                        ` : ''}
+                        <div class="mt-4 flex gap-2">
+                            <a href="https://clinicaltrials.gov/study/${trial.nct_id}" target="_blank" 
+                               class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                                View on ClinicalTrials.gov <i class="fas fa-external-link-alt ml-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('trialsList').innerHTML = trialsHtml || '<p class="text-gray-500">No clinical trials found</p>';
+        }
+
+        // Display Failed Drugs Tab
+        function displayFailedDrugsTab(data) {
+            const failed = data.sources.failed_drugs.data || [];
+            const failedHtml = failed.map(trial => `
+                <div class="bg-red-50 border border-red-200 rounded-xl p-6">
+                    <div class="flex items-start">
+                        <i class="fas fa-exclamation-circle text-red-500 text-xl mr-3 mt-1"></i>
+                        <div class="flex-1">
+                            <div class="flex justify-between items-start mb-2">
+                                <h3 class="text-lg font-semibold text-gray-900">${trial.drug_name}</h3>
+                                <span class="px-3 py-1 bg-red-600 text-white text-xs rounded-full">
+                                    ${trial.status}
+                                </span>
+                            </div>
+                            <p class="text-sm text-gray-600 mb-3">
+                                <strong>NCT ID:</strong> ${trial.nct_id} | 
+                                <strong>Phase:</strong> ${trial.phase} | 
+                                <strong>Sponsor:</strong> ${trial.sponsor}
+                            </p>
+                            <div class="bg-white rounded-lg p-4 mb-3">
+                                <p class="text-sm font-semibold text-red-900 mb-1">Reason for Termination:</p>
+                                <p class="text-red-700">${trial.why_stopped || 'Reason not provided'}</p>
+                            </div>
+                            <div class="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
+                                <div>
+                                    <span class="text-gray-600">Start Date:</span>
+                                    <span class="font-medium ml-1">${trial.start_date}</span>
+                                </div>
+                                <div>
+                                    <span class="text-gray-600">Stop Date:</span>
+                                    <span class="font-medium ml-1">${trial.stop_date}</span>
+                                </div>
+                                <div>
+                                    <span class="text-gray-600">Enrollment:</span>
+                                    <span class="font-medium ml-1">${trial.enrollment}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            document.getElementById('failedDrugsList').innerHTML = failedHtml || '<p class="text-gray-500">No failed trials found</p>';
+        }
+
+        // Display Companies Tab
+        function displayCompaniesTab(data) {
+            const companies = {};
+            
+            // Aggregate companies from drugs
+            (data.sources.fda_drugs.data || []).forEach(drug => {
+                const company = drug.manufacturer || 'Unknown';
+                if (!companies[company]) {
+                    companies[company] = { drugs: [], trials: [] };
+                }
+                companies[company].drugs.push(drug.drug_name || drug.brand_name);
+            });
+
+            // Aggregate companies from trials
+            (data.sources.clinical_trials.data || []).forEach(trial => {
+                const company = trial.lead_sponsor || trial.sponsor || 'Unknown';
+                if (!companies[company]) {
+                    companies[company] = { drugs: [], trials: [] };
+                }
+                companies[company].trials.push(trial.nct_id);
+            });
+
+            // Sort by total involvement
+            const sortedCompanies = Object.entries(companies)
+                .map(([name, data]) => ({
+                    name,
+                    drugs: data.drugs,
+                    trials: data.trials,
+                    total: data.drugs.length + data.trials.length
+                }))
+                .sort((a, b) => b.total - a.total);
+
+            // Market Leaders
+            const leadersHtml = sortedCompanies.filter(c => c.drugs.length > 0).slice(0, 5).map(company => `
+                <div class="flex justify-between items-center py-3 border-b">
+                    <div>
+                        <p class="font-semibold text-gray-900">${company.name}</p>
+                        <p class="text-sm text-gray-600">${company.drugs.length} approved drugs</p>
+                    </div>
+                    <div class="text-right">
+                        <span class="px-3 py-1 bg-blue-100 text-blue-700 text-xs rounded-full">
+                            ${company.trials.length} trials
+                        </span>
+                    </div>
+                </div>
+            `).join('');
+
+            document.getElementById('marketLeaders').innerHTML = leadersHtml || '<p class="text-gray-500">No data available</p>';
+
+            // Trial Companies
+            const trialCompaniesHtml = sortedCompanies.filter(c => c.trials.length > 0).slice(0, 5).map(company => `
+                <div class="flex justify-between items-center py-3 border-b">
+                    <div>
+                        <p class="font-semibold text-gray-900">${company.name}</p>
+                        <p class="text-sm text-gray-600">${company.trials.length} active trials</p>
+                    </div>
+                </div>
+            `).join('');
+
+            document.getElementById('trialCompanies').innerHTML = trialCompaniesHtml || '<p class="text-gray-500">No data available</p>';
+        }
+
+        // Display Safety Tab
+        function displaySafetyTab(data) {
+            // Adverse Events
+            const adverseEvents = data.sources.adverse_events.data || [];
+            const aeHtml = adverseEvents.slice(0, 10).map(event => {
+                const severityColor = event.severity_category === 'Severe' ? 'red' :
+                                     event.severity_category === 'Moderate' ? 'yellow' : 'green';
+                return `
+                    <div class="flex justify-between items-center py-2 border-b">
+                        <div>
+                            <p class="font-medium">${event.reaction}</p>
+                            <p class="text-sm text-gray-600">${event.drug_name}</p>
+                        </div>
+                        <div class="text-right">
+                            <span class="px-2 py-1 bg-${severityColor}-100 text-${severityColor}-700 text-xs rounded">
+                                ${event.severity_category}
+                            </span>
+                            <p class="text-sm text-gray-600 mt-1">${event.count} reports</p>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('adverseEvents').innerHTML = aeHtml || '<p class="text-gray-500">No adverse events found</p>';
+
+            // FDA Recalls
+            const recalls = data.sources.fda_recalls?.data || [];
+            const recallsHtml = recalls.slice(0, 5).map(recall => `
+                <div class="bg-red-50 rounded-lg p-3 mb-2">
+                    <p class="font-medium text-red-900">${recall.product_description}</p>
+                    <p class="text-sm text-red-700 mt-1">${recall.reason_for_recall}</p>
+                    <p class="text-xs text-gray-600 mt-2">
+                        Date: ${recall.recall_initiation_date} | 
+                        Class: ${recall.classification}
+                    </p>
+                </div>
+            `).join('');
+
+            document.getElementById('fdaRecalls').innerHTML = recallsHtml || '<p class="text-gray-500">No recalls found</p>';
+
+            // Drug Interactions
+            const interactions = data.sources.drug_interactions.data || [];
+            const interactionsHtml = interactions.slice(0, 6).map(interaction => `
+                <div class="bg-yellow-50 rounded-lg p-3">
+                    <p class="font-medium">${interaction.drug1} + ${interaction.drug2}</p>
+                    <p class="text-sm text-gray-700 mt-1">${interaction.description}</p>
+                    <span class="text-xs px-2 py-1 bg-yellow-200 text-yellow-800 rounded mt-2 inline-block">
+                        ${interaction.severity}
+                    </span>
+                </div>
+            `).join('');
+
+            document.getElementById('drugInteractions').innerHTML = interactionsHtml || '<p class="text-gray-500">No interactions found</p>';
+        }
+
+        // Display Financial Tab
+        function displayFinancialTab(data) {
+            // NIH Funding
+            const nihGrants = data.sources.nih_grants || {};
+            const nihHtml = nihGrants.data ? `
+                <div class="text-center mb-4">
+                    <p class="text-3xl font-bold text-blue-600">$${(nihGrants.total_funding / 1000000).toFixed(1)}M</p>
+                    <p class="text-sm text-gray-600">Total Funding</p>
+                </div>
+                <div class="space-y-2">
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-600">Active Grants:</span>
+                        <span class="font-semibold">${nihGrants.count}</span>
+                    </div>
+                    ${(nihGrants.data || []).slice(0, 3).map(grant => `
+                        <div class="bg-gray-50 rounded p-2 text-xs">
+                            <p class="font-medium truncate">${grant.project_title}</p>
+                            <p class="text-gray-600">$${(grant.total_cost / 1000000).toFixed(1)}M - ${grant.organization}</p>
+                        </div>
+                    `).join('')}
+                </div>
+            ` : '<p class="text-gray-500">No NIH funding data available</p>';
+
+            document.getElementById('nihFunding').innerHTML = nihHtml;
+
+            // Medicare Spending
+            const medicareData = data.sources.medicare_spending || {};
+            const medicareHtml = medicareData.data && medicareData.data.length > 0 ? `
+                <div class="text-center mb-4">
+                    <p class="text-3xl font-bold text-green-600">$${(medicareData.total_spending / 1000000).toFixed(1)}M</p>
+                    <p class="text-sm text-gray-600">Annual Spending</p>
+                </div>
+                <div class="space-y-2">
+                    ${(medicareData.data || []).slice(0, 3).map(item => `
+                        <div class="bg-gray-50 rounded p-2">
+                            <p class="font-medium text-sm">${item.drug_name}</p>
+                            <div class="flex justify-between text-xs text-gray-600">
+                                <span>$${(item.total_spending / 1000000).toFixed(1)}M</span>
+                                <span>${item.total_beneficiaries?.toLocaleString()} patients</span>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            ` : '<p class="text-gray-500">No Medicare spending data available</p>';
+
+            document.getElementById('medicareSpending').innerHTML = medicareHtml;
+
+            // CMS Payments
+            const cmsPayments = data.sources.cms_payments || {};
+            const cmsHtml = cmsPayments.data && cmsPayments.data.length > 0 ? `
+                <div class="text-center mb-4">
+                    <p class="text-3xl font-bold text-purple-600">$${((cmsPayments.total_amount || 0) / 1000000).toFixed(1)}M</p>
+                    <p class="text-sm text-gray-600">Industry Payments</p>
+                </div>
+                <div class="space-y-2">
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-600">Total Payments:</span>
+                        <span class="font-semibold">${cmsPayments.count}</span>
+                    </div>
+                    ${(cmsPayments.top_recipients || []).slice(0, 3).map(recipient => `
+                        <div class="bg-gray-50 rounded p-2 text-xs">
+                            <p class="font-medium">${recipient.name}</p>
+                            <p class="text-gray-600">$${(recipient.total / 1000).toFixed(1)}K - ${recipient.count} payments</p>
+                        </div>
+                    `).join('')}
+                </div>
+            ` : '<p class="text-gray-500">No CMS payment data available</p>';
+
+            document.getElementById('cmsPayments').innerHTML = cmsHtml;
+        }
+
+        // Display Research Tab
+        function displayResearchTab(data) {
+            // Research Articles
+            const articles = data.sources.pubmed_articles.data || [];
+            const articlesHtml = articles.slice(0, 6).map(article => `
+                <div class="bg-white border rounded-lg p-4">
+                    <h4 class="font-semibold text-gray-900 mb-2 line-clamp-2">${article.title}</h4>
+                    <p class="text-sm text-gray-600 mb-2">${article.authors} - ${article.journal}</p>
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs text-gray-500">${article.publication_date}</span>
+                        <a href="${article.pubmed_url}" target="_blank" class="text-blue-600 hover:text-blue-800 text-sm">
+                            View <i class="fas fa-external-link-alt ml-1"></i>
+                        </a>
+                    </div>
+                </div>
+            `).join('');
+
+            document.getElementById('researchArticles').innerHTML = articlesHtml || '<p class="text-gray-500">No research articles found</p>';
+
+            // Chemical Compounds
+            const compounds = data.sources.pubchem_compounds.data || [];
+            const compoundsHtml = compounds.map(compound => `
+                <div class="bg-white border rounded-lg p-4">
+                    <h4 class="font-semibold text-gray-900 mb-2">${compound.drug_name}</h4>
+                    <img src="${compound.structure_image}" alt="Structure" class="w-full h-32 object-contain mb-2">
+                    <div class="space-y-1 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Formula:</span>
+                            <span class="font-mono">${compound.molecular_formula}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Weight:</span>
+                            <span>${compound.molecular_weight}</span>
+                        </div>
+                    </div>
+                    <a href="${compound.pubchem_url}" target="_blank" class="text-blue-600 hover:text-blue-800 text-sm mt-2 inline-block">
+                        View in PubChem <i class="fas fa-external-link-alt ml-1"></i>
+                    </a>
+                </div>
+            `).join('');
+
+            document.getElementById('chemicalCompounds').innerHTML = compoundsHtml || '<p class="text-gray-500">No compound data available</p>';
+        }
+
+        // Show drug details modal
+        async function showDrugDetails(index) {
+            const drug = currentData.sources.fda_drugs.data[index];
+            document.getElementById('modalDrugName').textContent = drug.drug_name || drug.brand_name;
+            
+            // Basic Information
+            document.getElementById('modalBasicInfo').innerHTML = `
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <h3 class="font-semibold text-gray-900 mb-3">Basic Information</h3>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Generic Name:</span>
+                            <span class="font-medium">${drug.generic_name || 'N/A'}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Brand Name:</span>
+                            <span class="font-medium">${drug.brand_name || 'N/A'}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Manufacturer:</span>
+                            <span class="font-medium">${drug.manufacturer || 'Unknown'}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Dosage Form:</span>
+                            <span class="font-medium">${drug.dosage_form || 'N/A'}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Route:</span>
+                            <span class="font-medium">${drug.route || 'N/A'}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">NDC:</span>
+                            <span class="font-medium">${drug.ndc || 'N/A'}</span>
+                        </div>
+                        ${drug.approval_date ? `
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Approval Date:</span>
+                            <span class="font-medium">${new Date(drug.approval_date).toLocaleDateString()}</span>
+                        </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+
+            // Labeling Information
+            if (drug.indications || drug.warnings) {
+                document.getElementById('modalLabeling').innerHTML = `
+                    <div class="bg-blue-50 rounded-lg p-4">
+                        <h3 class="font-semibold text-gray-900 mb-3">FDA Labeling</h3>
+                        ${drug.indications ? `
+                        <div class="mb-3">
+                            <h4 class="font-medium text-gray-700 mb-1">Indications & Usage:</h4>
+                            <p class="text-sm text-gray-600">${drug.indications.substring(0, 300)}...</p>
+                        </div>
+                        ` : ''}
+                        ${drug.warnings ? `
+                        <div>
+                            <h4 class="font-medium text-gray-700 mb-1">Warnings:</h4>
+                            <p class="text-sm text-gray-600">${drug.warnings.substring(0, 300)}...</p>
+                        </div>
+                        ` : ''}
+                    </div>
+                `;
+            }
+
+            // Chemical Information from PubChem
+            const compound = currentData.sources.pubchem_compounds.data?.find(c => 
+                c.drug_name === drug.generic_name || c.drug_name === drug.substance
+            );
+            
+            if (compound) {
+                document.getElementById('modalChemicalInfo').innerHTML = `
+                    <div class="bg-green-50 rounded-lg p-4">
+                        <h3 class="font-semibold text-gray-900 mb-3">Chemical Information</h3>
+                        <img src="${compound.structure_image}" alt="Chemical Structure" class="w-full mb-3">
+                        <div class="space-y-2 text-sm">
+                            <div>
+                                <span class="text-gray-600">Formula:</span>
+                                <p class="font-mono font-medium">${compound.molecular_formula}</p>
+                            </div>
+                            <div>
+                                <span class="text-gray-600">Weight:</span>
+                                <p class="font-medium">${compound.molecular_weight} g/mol</p>
+                            </div>
+                            <a href="${compound.pubchem_url}" target="_blank" class="text-blue-600 hover:text-blue-800">
+                                View in PubChem <i class="fas fa-external-link-alt"></i>
+                            </a>
+                        </div>
+                    </div>
+                `;
+            }
+
+    // Patent Information
+    const patents = currentData.sources.patents?.data?.filter(p => 
+        p.search_term === drug.drug_name || p.search_term === drug.generic_name
+    ) || [];
+    
+    if (patents.length > 0) {
+        document.getElementById('modalPatentInfo').innerHTML = `
+            <div class="bg-purple-50 rounded-lg p-4">
+                <h3 class="font-semibold text-gray-900 mb-3">Patent Information</h3>
+                <div class="space-y-2">
+                    ${patents.slice(0, 3).map(patent => `
+                        <div class="border-b pb-2">
+                            <p class="text-sm font-medium">${patent.title}</p>
+                            <p class="text-xs text-gray-600">
+                                Patent #${patent.patent_number}<br>
+                                Expires: ${patent.expiration_date || 'N/A'}
+                            </p>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    }
+
+    // Financial Information
+    const medicareSpending = currentData.sources.medicare_spending?.data?.find(m => 
+        m.drug_name === drug.drug_name || m.generic_name === drug.generic_name
+    );
+    
+    if (medicareSpending) {
+        document.getElementById('modalFinancialInfo').innerHTML = `
+            <div class="bg-yellow-50 rounded-lg p-4">
+                <h3 class="font-semibold text-gray-900 mb-3">Medicare Spending</h3>
+                <div class="space-y-2 text-sm">
+                    <div>
+                        <span class="text-gray-600">Total Spending:</span>
+                        <p class="font-bold text-lg">$${(medicareSpending.total_spending / 1000000).toFixed(2)}M</p>
+                    </div>
+                    <div>
+                        <span class="text-gray-600">Beneficiaries:</span>
+                        <p class="font-medium">${medicareSpending.total_beneficiaries?.toLocaleString()}</p>
+                    </div>
+                    <div>
+                        <span class="text-gray-600">Avg Cost/Claim:</span>
+                        <p class="font-medium">$${medicareSpending.average_cost_per_claim?.toFixed(2)}</p>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    // Adverse Events for this drug
+    const adverseEvents = currentData.sources.adverse_events.data?.filter(ae => 
+        ae.drug_name === drug.drug_name
+    ) || [];
+    
+    if (adverseEvents.length > 0) {
+        document.getElementById('modalAdverseEvents').innerHTML = `
+            <div class="bg-red-50 rounded-lg p-4">
+                <h3 class="font-semibold text-gray-900 mb-3">Adverse Events</h3>
+                <div class="space-y-2">
+                    ${adverseEvents.slice(0, 5).map(event => {
+                        const severityColor = event.severity_category === 'Severe' ? 'red' :
+                                             event.severity_category === 'Moderate' ? 'yellow' : 'green';
+                        return `
+                            <div class="flex justify-between items-center py-1">
+                                <span class="text-sm">${event.reaction}</span>
+                                <div class="text-right">
+                                    <span class="px-2 py-1 bg-${severityColor}-100 text-${severityColor}-700 text-xs rounded">
+                                        ${event.severity_category}
+                                    </span>
+                                    <span class="text-xs text-gray-600 ml-2">${event.count} reports</span>
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            </div>
+        `;
+    }
+
+    // Drug Interactions
+    const interactions = currentData.sources.drug_interactions.data?.filter(i => 
+        i.drug1 === drug.drug_name
+    ) || [];
+    
+    if (interactions.length > 0) {
+        document.getElementById('modalInteractions').innerHTML = `
+            <div class="bg-orange-50 rounded-lg p-4">
+                <h3 class="font-semibold text-gray-900 mb-3">Drug Interactions</h3>
+                <div class="space-y-2">
+                    ${interactions.slice(0, 4).map(interaction => `
+                        <div class="text-sm">
+                            <p class="font-medium">${interaction.drug2}</p>
+                            <p class="text-xs text-gray-600">${interaction.description}</p>
+                            <span class="text-xs px-2 py-1 bg-orange-200 text-orange-800 rounded">
+                                ${interaction.severity}
+                            </span>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    }
+
+    // Clinical Studies
+    const relatedTrials = currentData.sources.clinical_trials.data?.filter(trial => 
+        trial.intervention?.name?.toLowerCase().includes(drug.drug_name?.toLowerCase()) ||
+        trial.intervention?.name?.toLowerCase().includes(drug.generic_name?.toLowerCase())
+    ) || [];
+    
+    if (relatedTrials.length > 0) {
+        document.getElementById('modalClinicalStudies').innerHTML = `
+            <div class="bg-indigo-50 rounded-lg p-4">
+                <h3 class="font-semibold text-gray-900 mb-3">Related Clinical Trials</h3>
+                <div class="space-y-2">
+                    ${relatedTrials.slice(0, 3).map(trial => `
+                        <div class="border-b pb-2">
+                            <p class="text-sm font-medium">${trial.title}</p>
+                            <p class="text-xs text-gray-600">
+                                ${trial.nct_id} - ${trial.status} - Phase ${trial.phase}
+                            </p>
+                            <a href="https://clinicaltrials.gov/study/${trial.nct_id}" target="_blank" 
+                               class="text-xs text-blue-600 hover:text-blue-800">
+                                View Trial <i class="fas fa-external-link-alt"></i>
+                            </a>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    }
+
+    // Show modal
+    document.getElementById('drugModal').classList.remove('hidden');
+}
+
+// Close drug modal
+function closeDrugModal() {
+    document.getElementById('drugModal').classList.add('hidden');
+}
+
+// Switch tabs
+function switchTab(tabName) {
+    // Hide all tabs
+    document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.add('hidden');
+    });
+    
+    // Remove active class from all tab buttons
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('tab-active');
+    });
+    
+    // Show selected tab
+    document.getElementById(`${tabName}-tab`).classList.remove('hidden');
+    
+    // Add active class to selected button
+    document.querySelector(`[data-tab="${tabName}"]`).classList.add('tab-active');
+}
+
+// Filter drugs
+function filterDrugs() {
+    const filterValue = document.getElementById('drugFilter').value.toLowerCase();
+    const drugCards = document.querySelectorAll('.drug-card');
+    
+    drugCards.forEach(card => {
+        const text = card.textContent.toLowerCase();
+        if (text.includes(filterValue)) {
+            card.style.display = 'block';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+}
+
+// Sort drugs
+function sortDrugs() {
+    const sortBy = document.getElementById('drugSort').value;
+    const drugs = currentData.sources.fda_drugs.data || [];
+    
+    let sortedDrugs = [...drugs];
+    
+    switch(sortBy) {
+        case 'name':
+            sortedDrugs.sort((a, b) => (a.drug_name || '').localeCompare(b.drug_name || ''));
+            break;
+        case 'approval':
+            sortedDrugs.sort((a, b) => new Date(b.approval_date || 0) - new Date(a.approval_date || 0));
+            break;
+        case 'manufacturer':
+            sortedDrugs.sort((a, b) => (a.manufacturer || '').localeCompare(b.manufacturer || ''));
+            break;
+    }
+    
+    // Re-render drug cards with sorted data
+    currentData.sources.fda_drugs.data = sortedDrugs;
+    displayDrugsTab(currentData);
+}
+
+// Filter trials
+function filterTrials(filterType) {
+    const trials = currentData.sources.clinical_trials.data || [];
+    let filteredTrials = [...trials];
+    
+    // Update button styles
+    document.querySelectorAll('#trials-tab button').forEach(btn => {
+        btn.className = btn.className.replace('bg-blue-100 text-blue-700', 'bg-gray-100 text-gray-700');
+    });
+    event.target.className = event.target.className.replace('bg-gray-100 text-gray-700', 'bg-blue-100 text-blue-700');
+    
+    switch(filterType) {
+        case 'recruiting':
+            filteredTrials = trials.filter(t => t.status === 'RECRUITING');
+            break;
+        case 'phase3':
+            filteredTrials = trials.filter(t => t.phase === 'PHASE3' || t.phase === 'Phase 3');
+            break;
+        case 'all':
+        default:
+            // Show all trials
+            break;
+    }
+    
+    // Re-render trials
+    const trialsHtml = filteredTrials.map(trial => {
+        const statusColor = trial.status === 'RECRUITING' ? 'green' : 
+                          trial.status === 'COMPLETED' ? 'blue' : 
+                          trial.status === 'TERMINATED' ? 'red' : 'gray';
+        
+        return `
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <div class="flex justify-between items-start mb-3">
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-900">${trial.title}</h3>
+                        <p class="text-sm text-gray-600 mt-1">NCT ID: ${trial.nct_id}</p>
+                    </div>
+                    <span class="px-3 py-1 bg-${statusColor}-100 text-${statusColor}-700 text-sm rounded-full font-medium">
+                        ${trial.status}
+                    </span>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                    <div>
+                        <p class="text-xs text-gray-600">Phase</p>
+                        <p class="font-semibold">${trial.phase || 'N/A'}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-600">Enrollment</p>
+                        <p class="font-semibold">${trial.enrollment || 'N/A'}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-600">Sponsor</p>
+                        <p class="font-semibold text-sm">${trial.lead_sponsor || trial.sponsor || 'Unknown'}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-600">Start Date</p>
+                        <p class="font-semibold text-sm">${trial.start_date || 'N/A'}</p>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <a href="https://clinicaltrials.gov/study/${trial.nct_id}" target="_blank" 
+                       class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                        View on ClinicalTrials.gov <i class="fas fa-external-link-alt ml-1"></i>
+                    </a>
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    document.getElementById('trialsList').innerHTML = trialsHtml || '<p class="text-gray-500">No trials match your filter</p>';
+}
+
+// Export report
+function exportReport() {
+    if (!currentData) {
+        alert('No data to export');
+        return;
+    }
+    
+    // Create comprehensive report
+    let report = `REGULATORY INTELLIGENCE REPORT\n`;
+    report += `Condition: ${currentData.condition.toUpperCase()}\n`;
+    report += `Generated: ${new Date().toLocaleString()}\n`;
+    report += `${'='.repeat(60)}\n\n`;
+    
+    // Summary Statistics
+    report += `SUMMARY STATISTICS\n`;
+    report += `${'='.repeat(60)}\n`;
+    report += `Approved Drugs: ${currentData.sources.fda_drugs.count}\n`;
+    report += `Active Clinical Trials: ${currentData.sources.clinical_trials.count}\n`;
+    report += `Failed/Withdrawn Trials: ${currentData.sources.failed_drugs.count}\n`;
+    report += `Research Articles: ${currentData.sources.pubmed_articles.count}\n`;
+    report += `Patents: ${currentData.sources.patents?.count || 0}\n`;
+    report += `Adverse Events: ${currentData.sources.adverse_events.count}\n\n`;
+    
+    // Risk Assessment
+    if (currentData.analytics?.regulatory_risk_score) {
+        const risk = currentData.analytics.regulatory_risk_score;
+        report += `REGULATORY RISK ASSESSMENT\n`;
+        report += `${'='.repeat(60)}\n`;
+        report += `Risk Score: ${risk.score}/100 (${risk.level})\n`;
+        report += `Interpretation: ${risk.interpretation}\n\n`;
+    }
+    
+    // FDA Approved Drugs
+    report += `FDA APPROVED DRUGS\n`;
+    report += `${'='.repeat(60)}\n`;
+    currentData.sources.fda_drugs.data.forEach((drug, i) => {
+        report += `${i + 1}. ${drug.drug_name || drug.brand_name}\n`;
+        report += `   Generic: ${drug.generic_name || 'N/A'}\n`;
+        report += `   Manufacturer: ${drug.manufacturer || 'Unknown'}\n`;
+        report += `   Dosage Form: ${drug.dosage_form || 'N/A'}\n`;
+        report += `   Route: ${drug.route || 'N/A'}\n`;
+        report += `   NDC: ${drug.ndc || 'N/A'}\n\n`;
+    });
+    
+    // Active Clinical Trials
+    report += `ACTIVE CLINICAL TRIALS\n`;
+    report += `${'='.repeat(60)}\n`;
+    currentData.sources.clinical_trials.data.slice(0, 10).forEach((trial, i) => {
+        report += `${i + 1}. ${trial.title}\n`;
+        report += `   NCT ID: ${trial.nct_id}\n`;
+        report += `   Status: ${trial.status}\n`;
+        report += `   Phase: ${trial.phase}\n`;
+        report += `   Sponsor: ${trial.lead_sponsor || trial.sponsor}\n`;
+        report += `   Enrollment: ${trial.enrollment || 'N/A'}\n\n`;
+    });
+    
+    // Failed/Terminated Trials
+    if (currentData.sources.failed_drugs.count > 0) {
+        report += `FAILED/TERMINATED TRIALS (SAFETY ALERTS)\n`;
+        report += `${'='.repeat(60)}\n`;
+        currentData.sources.failed_drugs.data.forEach((trial, i) => {
+            report += `${i + 1}. ${trial.drug_name}\n`;
+            report += `   NCT ID: ${trial.nct_id}\n`;
+            report += `   Status: ${trial.status}\n`;
+            report += `   Reason: ${trial.why_stopped || 'Not provided'}\n\n`;
+        });
+    }
+    
+    // Market Analysis
+    if (currentData.analytics?.market_opportunity) {
+        const market = currentData.analytics.market_opportunity;
+        report += `MARKET ANALYSIS\n`;
+        report += `${'='.repeat(60)}\n`;
+        report += `Total Addressable Market: $${(market.total_addressable_market / 1000000).toFixed(1)}M\n`;
+        report += `Medicare Spending: $${(market.current_medicare_spending / 1000000).toFixed(1)}M\n`;
+        report += `Estimated Patient Population: ${market.estimated_patient_population?.toLocaleString()}\n\n`;
+    }
+    
+    // Financial Data
+    if (currentData.sources.nih_grants?.total_funding) {
+        report += `FINANCIAL DATA\n`;
+        report += `${'='.repeat(60)}\n`;
+        report += `NIH Research Funding: $${(currentData.sources.nih_grants.total_funding / 1000000).toFixed(1)}M\n`;
+        report += `Active NIH Grants: ${currentData.sources.nih_grants.count}\n`;
+        
+        if (currentData.sources.medicare_spending?.total_spending) {
+            report += `Medicare Drug Spending: $${(currentData.sources.medicare_spending.total_spending / 1000000).toFixed(1)}M\n`;
+        }
+        report += '\n';
+    }
+    
+    // Safety Information
+    report += `SAFETY INFORMATION\n`;
+    report += `${'='.repeat(60)}\n`;
+    report += `Total Adverse Events: ${currentData.sources.adverse_events.count}\n`;
+    const severeEvents = currentData.sources.adverse_events.data.filter(ae => ae.severity_category === 'Severe');
+    report += `Severe Events: ${severeEvents.length}\n`;
+    
+    if (currentData.sources.fda_recalls?.count > 0) {
+        report += `FDA Recalls: ${currentData.sources.fda_recalls.count}\n`;
+    }
+    
+    // Top Adverse Events
+    if (currentData.sources.adverse_events.data.length > 0) {
+        report += `\nTop Adverse Events:\n`;
+        currentData.sources.adverse_events.data.slice(0, 5).forEach((event, i) => {
+            report += `${i + 1}. ${event.reaction} - ${event.drug_name} (${event.severity_category}, ${event.count} reports)\n`;
+        });
+    }
+    
+    // Research Publications
+    report += `\nRESEARCH PUBLICATIONS\n`;
+    report += `${'='.repeat(60)}\n`;
+    report += `Total Articles: ${currentData.sources.pubmed_articles.count}\n\n`;
+    currentData.sources.pubmed_articles.data.slice(0, 5).forEach((article, i) => {
+        report += `${i + 1}. ${article.title}\n`;
+        report += `   Authors: ${article.authors}\n`;
+        report += `   Journal: ${article.journal}\n`;
+        report += `   Date: ${article.publication_date}\n`;
+        report += `   PMID: ${article.pmid}\n\n`;
+    });
+    
+    // Download the report
+    const blob = new Blob([report], { type: 'text/plain' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `regulatory_report_${currentCondition}_${new Date().toISOString().split('T')[0]}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+    
+    // Show success message
+    alert('Report exported successfully!');
+}
+
+// Additional helper functions for analytics
+
+// Calculate aggregate statistics
+function calculateAggregateStats(data) {
+    const stats = {
+        totalRegulatoryCitations: 0,
+        averageTrialEnrollment: 0,
+        medianApprovalTime: 0,
+        patentExpirations: [],
+        upcomingMilestones: []
+    };
+    
+    // Calculate average enrollment
+    const enrollments = data.sources.clinical_trials.data
+        .map(t => t.enrollment)
+        .filter(e => e && e > 0);
+    
+    if (enrollments.length > 0) {
+        stats.averageTrialEnrollment = Math.round(
+            enrollments.reduce((a, b) => a + b, 0) / enrollments.length
+        );
+    }
+    
+    // Find upcoming patent expirations
+    if (data.sources.patents?.data) {
+        stats.patentExpirations = data.sources.patents.data
+            .filter(p => p.expiration_date)
+            .map(p => ({
+                patent: p.patent_number,
+                expiry: p.expiration_date,
+                title: p.title
+            }))
+            .sort((a, b) => new Date(a.expiry) - new Date(b.expiry));
+    }
+    
+    return stats;
+}
+
+// Generate risk recommendations
+function generateRiskRecommendations(riskScore, factors) {
+    const recommendations = [];
+    
+    if (riskScore > 70) {
+        recommendations.push('⚠️ High regulatory risk detected. Consider additional safety monitoring.');
+    }
+    
+    if (factors.failed_drugs > 10) {
+        recommendations.push('📊 High failure rate in this indication. Recommend thorough competitive analysis.');
+    }
+    
+    if (factors.severe_adverse_events > 5) {
+        recommendations.push('🔍 Multiple severe adverse events reported. Enhanced pharmacovigilance recommended.');
+    }
+    
+    return recommendations;
+}
+
+// Identify market opportunities
+function identifyMarketOpportunities(data) {
+    const opportunities = [];
+    
+    // Check for biosimilar opportunities
+    const biologics = data.sources.purple_book?.data || [];
+    if (biologics.length > 0 && !biologics.some(b => b.biosimilar)) {
+        opportunities.push('Potential biosimilar development opportunity');
+    }
+    
+    // Check for orphan drug opportunities
+    if (data.sources.clinical_trials.count < 5) {
+        opportunities.push('Limited competition - potential orphan drug designation');
+    }
+    
+    // Check for combination therapy opportunities
+    if (data.sources.fda_drugs.count > 5) {
+        opportunities.push('Multiple approved drugs - combination therapy potential');
+    }
+    
+    return opportunities;
+}
+
+// Aggregate top recipients for CMS payments
+function aggregateTopRecipients(payments) {
+    const recipients = {};
+    
+    payments.forEach(payment => {
+        const key = payment.physician_name;
+        if (!recipients[key]) {
+            recipients[key] = {
+                name: key,
+                specialty: payment.physician_specialty,
+                total: 0,
+                count: 0
+            };
+        }
+        recipients[key].total += payment.payment_amount;
+        recipients[key].count++;
+    });
+    
+    return Object.values(recipients)
+        .sort((a, b) => b.total - a.total)
+        .slice(0, 5);
+}
+
+// Extract drug name from complex FDA data
+function extractDrugName(item) {
+    return item.openfda?.brand_name?.[0] || 
+           item.openfda?.generic_name?.[0] || 
+           item.brand_name || 
+           item.generic_name ||
+           item.openfda?.substance_name?.[0] || 
+           'Unknown Drug';
+}
+
+// Calculate patent expiry
+function calculatePatentExpiry(filingDate) {
+    if (!filingDate) return null;
+    const filing = new Date(filingDate);
+    filing.setFullYear(filing.getFullYear() + 20);
+    return filing.toISOString().split('T')[0];
+}
+
+// Extract latest patent expiry
+function extractLatestPatentExpiry(patents) {
+    if (!patents || patents.length === 0) return null;
+    // Patent data would need proper parsing
+    return null;
+}
+
+// Extract latest exclusivity
+function extractLatestExclusivity(exclusivity) {
+    if (!exclusivity || exclusivity.length === 0) return null;
+    // Exclusivity data would need proper parsing
+    return null;
+}
+
+// Identify emerging competitors
+function identifyEmergingCompetitors(data) {
+    const companies = {};
+    
+    // Look for companies only in trials (not yet approved drugs)
+    data.sources.clinical_trials.data.forEach(trial => {
+        const sponsor = trial.lead_sponsor || trial.sponsor;
+        if (sponsor && !data.sources.fda_drugs.data.some(d => d.manufacturer === sponsor)) {
+            if (!companies[sponsor]) {
+                companies[sponsor] = { name: sponsor, trials: 0 };
+            }
+            companies[sponsor].trials++;
+        }
+    });
+    
+    return Object.values(companies)
+        .sort((a, b) => b.trials - a.trials)
+        .slice(0, 3);
+}
+
+// Identify competitive advantages
+function identifyCompetitiveAdvantages(data) {
+    const advantages = [];
+    
+    // Check for first-in-class potential
+    if (data.sources.fda_drugs.count === 0 && data.sources.clinical_trials.count > 0) {
+        advantages.push('First-in-class potential - no approved drugs');
+    }
+    
+    // Check for improved safety profile opportunity
+    if (data.sources.adverse_events.data.some(ae => ae.severity_category === 'Severe')) {
+        advantages.push('Opportunity for improved safety profile');
+    }
+    
+    return advantages;
+}
+
+// Identify market threats
+function identifyMarketThreats(data) {
+    const threats = [];
+    
+    // Check for generic competition
+    const recentGenerics = data.sources.orange_book?.data?.filter(d => d.generic_available) || [];
+    if (recentGenerics.length > 0) {
+        threats.push(`${recentGenerics.length} drugs facing generic competition`);
+    }
+    
+    // Check for biosimilar threats
+    const biosimilars = data.sources.purple_book?.data?.filter(d => d.biosimilar) || [];
+    if (biosimilars.length > 0) {
+        threats.push(`${biosimilars.length} biosimilars in market`);
+    }
+    
+    return threats;
+}
+
+// Get risk interpretation
+function getRiskInterpretation(score) {
+    if (score < 30) {
+        return 'Low regulatory risk. Favorable development environment.';
+    } else if (score < 50) {
+        return 'Moderate regulatory risk. Standard development considerations apply.';
+    } else if (score < 70) {
+        return 'Elevated regulatory risk. Enhanced monitoring recommended.';
+    } else {
+        return 'High regulatory risk. Significant safety or efficacy concerns identified.';
+    }
+}
+
+// Get risk recommendations
+function getRiskRecommendations(score, factors) {
+    const recs = [];
+    
+    if (factors.failed_drugs > 10) {
+        recs.push('Review failed trial data for common failure modes');
+    }
+    if (factors.severe_adverse_events > 5) {
+        recs.push('Implement enhanced safety monitoring protocols');
+    }
+    if (factors.recalls > 0) {
+        recs.push('Review recall reasons for quality considerations');
+    }
+    
+    return recs;
+}
+
+// Identify market barriers
+function identifyMarketBarriers(data) {
+    const barriers = [];
+    
+    if (data.sources.fda_drugs.count > 10) {
+        barriers.push('Highly competitive market with multiple approved drugs');
+    }
+    
+    if (data.sources.failed_drugs.count > 20) {
+        barriers.push('High historical failure rate indicates development challenges');
+    }
+    
+    return barriers;
+}
+
+// Initialize keyboard shortcuts
+document.addEventListener('keydown', function(e) {
+    // Ctrl+K or Cmd+K to focus search
+    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        document.getElementById('conditionInput').focus();
+    }
+    
+    // Escape to close modal
+    if (e.key === 'Escape') {
+        closeDrugModal();
+    }
+});
+
+// Auto-refresh health status every 30 seconds
+setInterval(checkHealth, 30000);
+
+console.log('Regulatory Intelligence Platform loaded successfully');
+console.log('Backend API expected at: http://localhost:4000');
+console.log('Use Ctrl+K to focus search, Escape to close modals');
+</script>
+</body>

@@ -53,6 +53,8 @@ const {
 } = DataIntegration;
 const stripeRoutes = require('./stripe-routes');
 const stripeWebhook = require('./stripe-webhook');
+const conditionRouter = require('./newconditions.js');
+
 // Add these imports at the top
 // const PostCheckoutHandler = require('./stripe-post-checkout-handler');
 // const postCheckoutRoutes = require('./stripe-post-checkout-routes');
@@ -265,6 +267,11 @@ async function checkSearchAccess(user, searchQuery) {
   // Check feature-specific access for free tier
   return { hasAccess: false, reason: 'payment_required' };
 }
+
+
+app.use('/api/condition', conditionRouter);
+
+
 
 // Check user's access level for frontend
 // Check user's access level for frontend

@@ -1166,7 +1166,7 @@
                     const aeData = adverseEvents.slice(0, 10);
                     
                     allCharts.ae = new Chart(aeCtx.getContext('2d'), {
-                        type: 'horizontalBar',
+                        type: 'bar',
                         data: {
                             labels: aeData.map(ae => ae.reaction.substring(0, 30)),
                             datasets: [{
@@ -1186,6 +1186,7 @@
                             }]
                         },
                         options: {
+                             indexAxis: 'y',
                             responsive: true,
                             maintainAspectRatio: true,
                              plugins: {
@@ -1291,129 +1292,270 @@
             }
         }
 
-        function displayChemistry() {
-            const compounds = currentResults.sources.pubchem_compounds.data;
-            const rxnorm = currentResults.sources.rxnorm_drugs.data.slice(0, 5);
-            const dailymed = currentResults.sources.dailymed_labels.data.slice(0, 5);
-            
-            // Compounds Table
-            const compoundsHtml = compounds.length > 0 ? compounds.map(compound => `
-                <div class="card p-4 mb-4 card-hover">
-                    <h4 class="font-medium mb-2">${compound.drug_name}</h4>
-                    <div class="grid grid-cols-2 gap-2 text-xs">
+// REPLACE the displayChemistry() function in your fdaconditions.html file
+
+function displayChemistry() {
+    const compounds = currentResults.sources.pubchem_compounds.data;
+    const rxnorm = currentResults.sources.rxnorm_drugs.data.slice(0, 5);
+    const dailymed = currentResults.sources.dailymed_labels.data.slice(0, 5);
+    
+    // Enhanced Compounds Display with Visualization
+    const compoundsHtml = compounds.length > 0 ? `
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            ${compounds.map(compound => `
+                <div class="card p-4 card-hover">
+                    <div class="flex justify-between items-start mb-3">
                         <div>
-                            <span class="text-gray-500">Formula:</span>
-                            <span class="font-mono font-semibold">${compound.molecular_formula}</span>
+                            <h4 class="font-semibold text-lg">${compound.drug_name}</h4>
+                            <p class="text-xs text-gray-500">PubChem CID: ${compound.cid}</p>
                         </div>
-                        <div>
-                            <span class="text-gray-500">MW:</span>
-                            <span class="font-semibold">${compound.molecular_weight}</span>
-                        </div>
-                        <div class="col-span-2">
-                            <span class="text-gray-500">CID:</span>
-                            <span class="font-mono">${compound.cid}</span>
-                        </div>
-                        <div class="col-span-2">
-                            <span class="text-gray-500">InChI:</span>
-                            <span class="font-mono text-xs break-all">${compound.inchi_key}</span>
-                        </div>
+                        <a href="${compound.pubchem_url}" target="_blank" 
+                           class="text-blue-600 hover:text-blue-800">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                      d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                            </svg>
+                        </a>
                     </div>
-                    <div class="mt-3 flex space-x-3">
-                        <a href="${compound.pubchem_url}" target="_blank" class="text-blue-600 hover:underline text-xs">
+                    
+                    <!-- Structure Image -->
+                    <div class="bg-gray-50 rounded-lg p-3 mb-3">
+                        <img src="${compound.structure_image}" 
+                             alt="${compound.drug_name} structure" 
+                             class="w-full h-48 object-contain"
+                             onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjE1MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjE1MCIgZmlsbD0iI2Y3ZjdmNyIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiM5OTkiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5TdHJ1Y3R1cmUgTm90IEF2YWlsYWJsZTwvdGV4dD48L3N2Zz4='">
+                    </div>
+                    
+                    <!-- Chemical Properties -->
+                    <div class="grid grid-cols-2 gap-2 text-xs">
+                        <div class="bg-blue-50 rounded p-2">
+                            <span class="text-gray-600">Formula:</span>
+                            <span class="font-mono font-semibold block">${compound.molecular_formula}</span>
+                        </div>
+                        <div class="bg-green-50 rounded p-2">
+                            <span class="text-gray-600">MW:</span>
+                            <span class="font-semibold block">${compound.molecular_weight}</span>
+                        </div>
+                        ${compound.xlogp !== 'N/A' ? `
+                        <div class="bg-purple-50 rounded p-2">
+                            <span class="text-gray-600">XLogP:</span>
+                            <span class="font-semibold block">${compound.xlogp}</span>
+                        </div>
+                        ` : ''}
+                        ${compound.tpsa !== 'N/A' ? `
+                        <div class="bg-yellow-50 rounded p-2">
+                            <span class="text-gray-600">TPSA:</span>
+                            <span class="font-semibold block">${compound.tpsa} Ų</span>
+                        </div>
+                        ` : ''}
+                    </div>
+                    
+                    <!-- InChI Key -->
+                    <div class="mt-3 p-2 bg-gray-50 rounded">
+                        <span class="text-xs text-gray-500">InChI Key:</span>
+                        <div class="font-mono text-xs break-all mt-1">${compound.inchi_key}</div>
+                    </div>
+                    
+                    <!-- Actions -->
+                    <div class="mt-3 flex space-x-2">
+                        <a href="${compound.pubchem_url}" target="_blank" 
+                           class="text-blue-600 hover:underline text-xs">
                             View in PubChem →
                         </a>
-                        <a href="${compound.structure_image}" target="_blank" class="text-purple-600 hover:underline text-xs">
-                            View Structure →
+                        <a href="${compound.structure_3d}" target="_blank" 
+                           class="text-purple-600 hover:underline text-xs">
+                            View 3D Structure →
                         </a>
                     </div>
                 </div>
-            `).join('') : '<p class="text-gray-500">No compound data available</p>';
-            
-            document.getElementById('compoundsTable').innerHTML = compoundsHtml;
-            
-            // Manufacturing Info
-            const manufacturingHtml = `
-                <div class="space-y-4">
-                    ${rxnorm.map(drug => `
-                        <div class="card p-4 card-hover">
-                            <h4 class="font-medium mb-2">${drug.name}</h4>
-                            <div class="text-xs space-y-1 text-gray-600">
-                                <div><span class="font-semibold">RxCUI:</span> ${drug.rxcui}</div>
-                                <div><span class="font-semibold">Type:</span> ${drug.tty}</div>
-                                ${drug.dose_form ? `<div><span class="font-semibold">Form:</span> ${drug.dose_form}</div>` : ''}
-                                ${drug.strength ? `<div><span class="font-semibold">Strength:</span> ${drug.strength}</div>` : ''}
-                            </div>
-                            <a href="${drug.rxnorm_url}" target="_blank" class="text-blue-600 hover:underline text-xs mt-2 inline-block">
-                                View in RxNorm →
-                            </a>
-                        </div>
-                    `).join('')}
-                    ${dailymed.slice(0, 3).map(label => `
-                        <div class="card p-4 card-hover">
-                            <h4 class="font-medium mb-2">${label.drug_name || label.title}</h4>
-                            <div class="text-xs space-y-1 text-gray-600">
-                                <div><span class="font-semibold">Labeler:</span> ${label.labeler || 'Unknown'}</div>
-                                <div><span class="font-semibold">Status:</span> ${label.marketing_status || 'Active'}</div>
-                                ${label.dosage_form ? `<div><span class="font-semibold">Form:</span> ${label.dosage_form}</div>` : ''}
-                                ${label.route ? `<div><span class="font-semibold">Route:</span> ${label.route}</div>` : ''}
-                            </div>
-                            ${label.label_url ? `
-                                <a href="${label.label_url}" target="_blank" class="text-blue-600 hover:underline text-xs mt-2 inline-block">
-                                    View Label →
-                                </a>
-                            ` : ''}
+            `).join('')}
+        </div>
+        
+        ${compounds.length > 2 ? `
+        <div class="mt-6">
+            <h4 class="text-sm font-semibold text-gray-700 mb-3">Structural Comparison</h4>
+            <div class="bg-gray-50 rounded-lg p-4">
+                <div class="grid grid-cols-2 md:grid-cols-${Math.min(compounds.length, 4)} gap-4">
+                    ${compounds.slice(0, 4).map(c => `
+                        <div class="text-center">
+                            <img src="${c.structure_image}" 
+                                 alt="${c.drug_name}" 
+                                 class="w-full h-32 object-contain mb-2">
+                            <p class="text-xs font-medium">${c.drug_name}</p>
+                            <p class="text-xs text-gray-500">${c.molecular_formula}</p>
                         </div>
                     `).join('')}
                 </div>
-            `;
+            </div>
+        </div>
+        ` : ''}
+    ` : `
+        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+            <p class="text-yellow-800">No chemical compound data available. This may be because:</p>
+            <ul class="list-disc list-inside text-sm text-yellow-700 mt-2">
+                <li>The condition name doesn't match specific drug compounds</li>
+                <li>PubChem API is temporarily unavailable</li>
+                <li>Try searching for a specific drug name instead</li>
+            </ul>
+        </div>
+    `;
+    
+    document.getElementById('compoundsTable').innerHTML = compoundsHtml;
+    
+    // Manufacturing Info - Enhanced Display
+    const manufacturingHtml = `
+        <div class="space-y-4">
+            ${rxnorm.length > 0 ? `
+                <h4 class="text-sm font-semibold text-gray-700">RxNorm Drug Products</h4>
+                ${rxnorm.map(drug => `
+                    <div class="card p-4 card-hover">
+                        <h5 class="font-medium mb-2">${drug.name}</h5>
+                        <div class="text-xs space-y-1 text-gray-600">
+                            <div class="flex justify-between">
+                                <span class="font-semibold">RxCUI:</span>
+                                <span class="font-mono">${drug.rxcui}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="font-semibold">Type:</span>
+                                <span>${drug.tty}</span>
+                            </div>
+                            ${drug.dose_form ? `
+                            <div class="flex justify-between">
+                                <span class="font-semibold">Form:</span>
+                                <span>${drug.dose_form}</span>
+                            </div>
+                            ` : ''}
+                            ${drug.strength ? `
+                            <div class="flex justify-between">
+                                <span class="font-semibold">Strength:</span>
+                                <span>${drug.strength}</span>
+                            </div>
+                            ` : ''}
+                        </div>
+                        <a href="${drug.rxnorm_url}" target="_blank" 
+                           class="text-blue-600 hover:underline text-xs mt-2 inline-block">
+                            View in RxNorm →
+                        </a>
+                    </div>
+                `).join('')}
+            ` : ''}
             
-            document.getElementById('manufacturingInfo').innerHTML = manufacturingHtml || '<p class="text-gray-500">No manufacturing data available</p>';
+            ${dailymed.length > 0 ? `
+                <h4 class="text-sm font-semibold text-gray-700 mt-4">Product Labels</h4>
+                ${dailymed.map(label => `
+                    <div class="card p-4 card-hover">
+                        <h5 class="font-medium mb-2">${label.drug_name}</h5>
+                        <div class="text-xs space-y-1 text-gray-600">
+                            <div class="flex justify-between">
+                                <span class="font-semibold">Labeler:</span>
+                                <span>${label.labeler}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="font-semibold">Status:</span>
+                                <span class="badge badge-success">${label.marketing_status}</span>
+                            </div>
+                            ${label.dosage_form ? `
+                            <div class="flex justify-between">
+                                <span class="font-semibold">Form:</span>
+                                <span>${label.dosage_form}</span>
+                            </div>
+                            ` : ''}
+                            ${label.route ? `
+                            <div class="flex justify-between">
+                                <span class="font-semibold">Route:</span>
+                                <span>${label.route}</span>
+                            </div>
+                            ` : ''}
+                        </div>
+                        ${label.label_url !== '#' ? `
+                            <a href="${label.label_url}" target="_blank" 
+                               class="text-blue-600 hover:underline text-xs mt-2 inline-block">
+                                View Label →
+                            </a>
+                        ` : ''}
+                    </div>
+                `).join('')}
+            ` : ''}
             
-            // Dosage Form Chart
-            const dosageCtx = document.getElementById('dosageFormChart');
-            if (dosageCtx) {
-                const allDrugs = [...currentResults.sources.fda_drugs.data, ...dailymed];
-                const dosageForms = {};
-                
-                allDrugs.forEach(drug => {
-                    const form = drug.dosage_form || 'Other';
-                    dosageForms[form] = (dosageForms[form] || 0) + 1;
-                });
-                
-                const topForms = Object.entries(dosageForms)
-                    .sort((a, b) => b[1] - a[1])
-                    .slice(0, 5);
-                
-                if (topForms.length > 0) {
-                    allCharts.dosage = new Chart(dosageCtx.getContext('2d'), {
-                        type: 'pie',
-                        data: {
-                            labels: topForms.map(f => f[0]),
-                            datasets: [{
-                                data: topForms.map(f => f[1]),
-                                backgroundColor: [
-                                    '#3b82f6', '#10b981', '#f59e0b', 
-                                    '#ef4444', '#8b5cf6'
-                                ]
-                            }]
+            ${rxnorm.length === 0 && dailymed.length === 0 ? `
+                <p class="text-gray-500">No manufacturing data available</p>
+            ` : ''}
+        </div>
+    `;
+    
+    document.getElementById('manufacturingInfo').innerHTML = manufacturingHtml;
+    
+    // Dosage Form Chart - Enhanced
+    const dosageCtx = document.getElementById('dosageFormChart');
+    if (dosageCtx) {
+        const allDrugs = [...currentResults.sources.fda_drugs.data, ...dailymed];
+        const dosageForms = {};
+        
+        allDrugs.forEach(drug => {
+            const form = drug.dosage_form || 'Other';
+            // Clean up the form name
+            const cleanForm = form.split(',')[0].split(';')[0].trim();
+            dosageForms[cleanForm] = (dosageForms[cleanForm] || 0) + 1;
+        });
+        
+        const topForms = Object.entries(dosageForms)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 6);
+        
+        if (topForms.length > 0) {
+            if (allCharts.dosage) allCharts.dosage.destroy();
+            
+            allCharts.dosage = new Chart(dosageCtx.getContext('2d'), {
+                type: 'doughnut',
+                data: {
+                    labels: topForms.map(f => f[0]),
+                    datasets: [{
+                        data: topForms.map(f => f[1]),
+                        backgroundColor: [
+                            '#3b82f6', '#10b981', '#f59e0b', 
+                            '#ef4444', '#8b5cf6', '#ec4899'
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 10,
+                                font: { size: 11 },
+                                generateLabels: function(chart) {
+                                    const data = chart.data;
+                                    return data.labels.map((label, i) => ({
+                                        text: `${label} (${data.datasets[0].data[i]})`,
+                                        fillStyle: data.datasets[0].backgroundColor[i],
+                                        hidden: false,
+                                        index: i
+                                    }));
+                                }
+                            }
                         },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: true,
-                            plugins: {
-                                legend: {
-                                    position: 'bottom',
-                                    labels: {
-                                        padding: 10,
-                                        font: { size: 11 }
-                                    }
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.raw;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = ((value / total) * 100).toFixed(1);
+                                    return `${label}: ${value} (${percentage}%)`;
                                 }
                             }
                         }
-                    });
+                    }
                 }
-            }
+            });
         }
+    }
+}
 
         function displayLiterature() {
             const articles = currentResults.sources.pubmed_articles.data;
