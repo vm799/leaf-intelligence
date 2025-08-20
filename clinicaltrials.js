@@ -9041,7 +9041,7 @@ const getConfirmationEmailHTML = (userData, calendarLinks) => {
                         
                         <div class="event-row">
                             <div class="event-label">Time</div>
-                            <div class="event-value">2:00 PM EDT / 11:00 AM PDT</div>
+                            <div class="event-value">2:00 PM EST / 11:00 AM PST</div>
                         </div>
                         
                         <div class="event-row">
@@ -9559,7 +9559,7 @@ You're registered for "Cracking the FDA Code Part II" webinar!
 
 Event Details:
 - Date: Wednesday, September 3rd, 2025
-- Time: 2:00 PM EDT / 11:00 AM PDT
+- Time: 2:00 PM EST / 11:00 AM PST
 - Duration: 45 minutes + Q&A
 - Platform: Google Meet
 
