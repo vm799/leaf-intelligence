@@ -1,5 +1,5 @@
         // Add this at the very beginning of your script section
-const API_BASE = 'http://localhost:3000/api/advanced-label';
+const API_BASE = '/api/advanced-label';
 
 // Enhanced state management for uploads
 const enhancedState = {
