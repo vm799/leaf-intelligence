@@ -62,6 +62,125 @@ document.addEventListener('DOMContentLoaded', () => {
     loadUploadedLabels();
     setupDragAndDrop();
 });
+// function updateCompareOptionsEnhanced() {
+//     const select1 = document.getElementById('compareLabel1');
+//     const select2 = document.getElementById('compareLabel2');
+    
+//     if (!select1 || !select2) return;
+    
+//     // Clear and rebuild options
+//     select1.innerHTML = '<option value="">Select first label...</option>';
+//     select2.innerHTML = '<option value="">Select second label...</option>';
+    
+//     // Add FDA labels if available
+//     if (state.labels && state.labels.length > 0) {
+//         const fdaGroup1 = document.createElement('optgroup');
+//         fdaGroup1.label = 'FDA Labels';
+//         const fdaGroup2 = document.createElement('optgroup');
+//         fdaGroup2.label = 'FDA Labels';
+        
+//         state.labels.forEach(label => {
+//             const brandName = label.openfda?.brand_name?.[0] || 'Unknown';
+//             const option1 = new Option(brandName, label.id);
+//             const option2 = new Option(brandName, label.id);
+//             fdaGroup1.appendChild(option1);
+//             fdaGroup2.appendChild(option2);
+//         });
+        
+//         select1.appendChild(fdaGroup1);
+//         select2.appendChild(fdaGroup2);
+//     }
+    
+//     // Add uploaded labels
+//     if (enhancedState.uploadedLabels.size > 0) {
+//         const uploadGroup1 = document.createElement('optgroup');
+//         uploadGroup1.label = 'Uploaded Labels';
+//         const uploadGroup2 = document.createElement('optgroup');
+//         uploadGroup2.label = 'Uploaded Labels';
+        
+//         enhancedState.uploadedLabels.forEach(label => {
+//             const labelText = `${label.name} - v${label.metadata?.versionNumber || 'N/A'}`;
+//             const option1 = new Option(labelText, label.id);
+//             const option2 = new Option(labelText, label.id);
+//             uploadGroup1.appendChild(option1);
+//             uploadGroup2.appendChild(option2);
+//         });
+        
+//         select1.appendChild(uploadGroup1);
+//         select2.appendChild(uploadGroup2);
+//     }
+// }
+
+function populateCompareOptions() {
+    const select1 = document.getElementById('compareLabel1');
+    const select2 = document.getElementById('compareLabel2');
+    
+    const options = ['<option value="">Select a label...</option>'];
+    
+    // Process state.labels - these come from your backend
+    state.labels.forEach(label => {
+        // The new backend structure has data nested differently
+        // Try multiple paths to find the product name
+        let productName = 'Unknown';
+        let version = 'N/A';
+        let effectiveDate = '';
+        
+        // Check if the label has the enhanced structure from the new backend
+        if (label.data) {
+            // New structure: label.data.metadata, label.data.productInfo, etc.
+            productName = label.data.metadata?.title || 
+                         label.data.metadata?.brandName ||
+                         label.data.productInfo?.productName ||
+                         label.productName ||
+                         'Unknown';
+            
+            version = label.data.metadata?.versionNumber || 
+                     label.version || 
+                     'N/A';
+            
+            effectiveDate = label.data.metadata?.effectiveDate || 
+                           label.effectiveDate || 
+                           '';
+        } else {
+            // Fallback to direct properties
+            productName = label.productName || 
+                         label.title || 
+                         label.name || 
+                         label.brandName ||
+                         'Unknown';
+            
+            version = label.version || 
+                     label.versionNumber || 
+                     'N/A';
+            
+            effectiveDate = label.effectiveDate || '';
+        }
+        
+        // Clean up the label ID (remove 'label_' prefix if it exists)
+        const labelId = label.id?.replace(/^label_/, '') || label.id;
+        
+        options.push(`
+            <option value="label_${labelId}">
+                ${productName} - v${version} (${formatDate(effectiveDate)})
+            </option>
+        `);
+    });
+    
+    // Add uploaded labels
+    state.uploadedLabels.forEach((label, index) => {
+        options.push(`
+            <option value="upload_${index}">
+                [Uploaded] ${label.name}
+            </option>
+        `);
+    });
+    
+    select1.innerHTML = options.join('');
+    select2.innerHTML = options.join('');
+    
+    console.log(`Populated compare options with ${state.labels.length} FDA labels and ${state.uploadedLabels.length} uploaded labels`);
+}
+
 function updateCompareOptionsEnhanced() {
     const select1 = document.getElementById('compareLabel1');
     const select2 = document.getElementById('compareLabel2');
@@ -80,7 +199,36 @@ function updateCompareOptionsEnhanced() {
         fdaGroup2.label = 'FDA Labels';
         
         state.labels.forEach(label => {
-            const brandName = label.openfda?.brand_name?.[0] || 'Unknown';
+            let brandName = 'Unknown';
+            
+            // Handle the new backend structure
+            if (label.data) {
+                // New enhanced structure from your backend
+                brandName = label.data.metadata?.title ||
+                           label.data.metadata?.brandName ||
+                           label.data.productInfo?.productName ||
+                           'Unknown';
+                
+                // Add manufacturer if available
+                const manufacturer = label.data.metadata?.manufacturer || 
+                                   label.data.metadata?.manufacturerName;
+                if (manufacturer) {
+                    brandName += ` (${manufacturer})`;
+                }
+            } else if (label.openfda) {
+                // Original FDA API structure
+                brandName = label.openfda.brand_name?.[0] || 
+                           label.openfda.generic_name?.[0] || 
+                           'Unknown';
+            } else {
+                // Direct properties fallback
+                brandName = label.productName || 
+                           label.brandName || 
+                           label.name || 
+                           label.title || 
+                           'Unknown';
+            }
+            
             const option1 = new Option(brandName, label.id);
             const option2 = new Option(brandName, label.id);
             fdaGroup1.appendChild(option1);
@@ -99,7 +247,21 @@ function updateCompareOptionsEnhanced() {
         uploadGroup2.label = 'Uploaded Labels';
         
         enhancedState.uploadedLabels.forEach(label => {
-            const labelText = `${label.name} - v${label.metadata?.versionNumber || 'N/A'}`;
+            let labelText = label.name || 'Unnamed';
+            
+            // Check for metadata in uploaded labels
+            if (label.metadata) {
+                const version = label.metadata.versionNumber || label.metadata.version;
+                if (version) {
+                    labelText += ` - v${version}`;
+                }
+                
+                // Add manufacturer if available
+                if (label.metadata.manufacturer || label.metadata.manufacturerName) {
+                    labelText += ` (${label.metadata.manufacturer || label.metadata.manufacturerName})`;
+                }
+            }
+            
             const option1 = new Option(labelText, label.id);
             const option2 = new Option(labelText, label.id);
             uploadGroup1.appendChild(option1);
@@ -109,7 +271,80 @@ function updateCompareOptionsEnhanced() {
         select1.appendChild(uploadGroup1);
         select2.appendChild(uploadGroup2);
     }
+    
+    console.log('Updated compare options with enhanced structure');
 }
+
+// Debug function to check the actual structure of your labels
+function debugLabelStructure() {
+    if (state.labels && state.labels.length > 0) {
+        console.log('Sample label structure from state:');
+        console.log('First label:', state.labels[0]);
+        
+        // Check what fields are actually present
+        const firstLabel = state.labels[0];
+        console.log('Direct properties:', Object.keys(firstLabel));
+        
+        if (firstLabel.data) {
+            console.log('Data properties:', Object.keys(firstLabel.data));
+            if (firstLabel.data.metadata) {
+                console.log('Metadata properties:', Object.keys(firstLabel.data.metadata));
+            }
+            if (firstLabel.data.productInfo) {
+                console.log('ProductInfo properties:', Object.keys(firstLabel.data.productInfo));
+            }
+        }
+        
+        // Check multiple labels to see consistency
+        console.log('\nChecking all labels for product name fields:');
+        state.labels.slice(0, 5).forEach((label, index) => {
+            const productName = label.data?.metadata?.title ||
+                              label.data?.metadata?.brandName ||
+                              label.data?.productInfo?.productName ||
+                              label.productName ||
+                              label.title ||
+                              label.name ||
+                              label.brandName ||
+                              'NOT FOUND';
+            console.log(`Label ${index}: ${productName}`);
+        });
+    } else {
+        console.log('No labels in state to debug');
+    }
+}
+
+// Function to manually refresh the dropdowns after loading new data
+async function refreshCompareDropdowns() {
+    // Check if we need to fetch the labels first
+    if (!state.labels || state.labels.length === 0) {
+        console.log('No labels in state, fetching from backend...');
+        
+        try {
+            const response = await fetch(`${API_BASE}/labels`);
+            if (response.ok) {
+                const labels = await response.json();
+                state.labels = labels;
+                console.log(`Loaded ${labels.length} labels from backend`);
+            }
+        } catch (error) {
+            console.error('Error fetching labels:', error);
+        }
+    }
+    
+    // Now populate the dropdowns
+    if (typeof updateCompareOptionsEnhanced === 'function') {
+        updateCompareOptionsEnhanced();
+    } else {
+        populateCompareOptions();
+    }
+}
+
+// Make functions available globally
+window.populateCompareOptions = populateCompareOptions;
+window.updateCompareOptionsEnhanced = updateCompareOptionsEnhanced;
+window.debugLabelStructure = debugLabelStructure;
+window.refreshCompareDropdowns = refreshCompareDropdowns;
+
 
 function displayLabelDetails(label) {
     // Reuse existing label viewing logic
@@ -4530,31 +4765,102 @@ function viewApplicationDetails(applicationNumber) {
         }
 
         // Populate compare options
+        // function populateCompareOptions() {
+        //     const select1 = document.getElementById('compareLabel1');
+        //     const select2 = document.getElementById('compareLabel2');
+            
+        //     const options = ['<option value="">Select a label...</option>'];
+            
+        //     state.labels.forEach(label => {
+        //         options.push(`
+        //             <option value="label_${label.id}">
+        //                 ${label.productName || 'Unknown'} - v${label.version || 'N/A'} (${formatDate(label.effectiveDate)})
+        //             </option>
+        //         `);
+        //     });
+            
+        //     state.uploadedLabels.forEach((label, index) => {
+        //         options.push(`
+        //             <option value="upload_${index}">
+        //                 [Uploaded] ${label.name}
+        //             </option>
+        //         `);
+        //     });
+            
+        //     select1.innerHTML = options.join('');
+        //     select2.innerHTML = options.join('');
+        // }#
+
         function populateCompareOptions() {
-            const select1 = document.getElementById('compareLabel1');
-            const select2 = document.getElementById('compareLabel2');
+    const select1 = document.getElementById('compareLabel1');
+    const select2 = document.getElementById('compareLabel2');
+    
+    const options = ['<option value="">Select a label...</option>'];
+    
+    // Process state.labels - these come from your backend
+    state.labels.forEach(label => {
+        // The new backend structure has data nested differently
+        // Try multiple paths to find the product name
+        let productName = 'Unknown';
+        let version = 'N/A';
+        let effectiveDate = '';
+        
+        // Check if the label has the enhanced structure from the new backend
+        if (label.data) {
+            // New structure: label.data.metadata, label.data.productInfo, etc.
+            productName = label.data.metadata?.title || 
+                         label.data.metadata?.brandName ||
+                         label.data.productInfo?.productName ||
+                         label.productName ||
+                         'Unknown';
             
-            const options = ['<option value="">Select a label...</option>'];
+            version = label.data.metadata?.versionNumber || 
+                     label.version || 
+                     'N/A';
             
-            state.labels.forEach(label => {
-                options.push(`
-                    <option value="label_${label.id}">
-                        ${label.productName || 'Unknown'} - v${label.version || 'N/A'} (${formatDate(label.effectiveDate)})
-                    </option>
-                `);
-            });
+            effectiveDate = label.data.metadata?.effectiveDate || 
+                           label.effectiveDate || 
+                           '';
+        } else {
+            // Fallback to direct properties
+            productName = label.productName || 
+                         label.title || 
+                         label.name || 
+                         label.brandName ||
+                         'Unknown';
             
-            state.uploadedLabels.forEach((label, index) => {
-                options.push(`
-                    <option value="upload_${index}">
-                        [Uploaded] ${label.name}
-                    </option>
-                `);
-            });
+            version = label.version || 
+                     label.versionNumber || 
+                     'N/A';
             
-            select1.innerHTML = options.join('');
-            select2.innerHTML = options.join('');
+            effectiveDate = label.effectiveDate || '';
         }
+        
+        // Clean up the label ID (remove 'label_' prefix if it exists)
+        const labelId = label.id?.replace(/^label_/, '') || label.id;
+        
+        options.push(`
+            <option value="label_${labelId}">
+                ${productName} - v${version} (${formatDate(effectiveDate)})
+            </option>
+        `);
+    });
+    
+    // Add uploaded labels
+    state.uploadedLabels.forEach((label, index) => {
+        options.push(`
+            <option value="upload_${index}">
+                [Uploaded] ${label.name}
+            </option>
+        `);
+    });
+    
+    select1.innerHTML = options.join('');
+    select2.innerHTML = options.join('');
+    
+    console.log(`Populated compare options with ${state.labels.length} FDA labels and ${state.uploadedLabels.length} uploaded labels`);
+}
+
 
         // Populate labels tab
         function populateLabels() {

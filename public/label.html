@@ -1062,18 +1062,685 @@ function renderUploadedLabels() {
 }
 
 // View uploaded label details
+// async function viewUploadedLabel(labelId) {
+//     try {
+//         const response = await fetch(`${API_BASE}/uploaded-label/${labelId}`);
+//         const data = await response.json();
+        
+//         // Display label details in a modal
+//         displayLabelDetails(data.label);
+//     } catch (error) {
+//         console.error('Error viewing label:', error);
+//         showNotification('Error loading label details', 'error');
+//     }
+// }
+function displayLabelDetailsWithXML(label, rawXML) {
+    // Check if we have raw XML to display
+    const hasXML = rawXML && rawXML.trim().length > 0;
+    
+    // Format the content based on what's available
+    let formattedContent = '';
+    
+    if (hasXML) {
+        // Use the pharmaceutical XML formatter for rich display
+        formattedContent = formatPharmaceuticalXML(rawXML);
+    } else {
+        // Fallback to displaying label metadata if no XML
+        formattedContent = formatLabelMetadata(label);
+    }
+    
+    // Create the modal with the formatted content
+    const modalHtml = `
+        <div class="fixed inset-0 modal-backdrop flex items-center justify-center z-50" id="labelDetailModal">
+            <div class="bg-white rounded-2xl shadow-2xl max-w-7xl w-full max-h-[95vh] flex flex-col">
+                <!-- Modal Header -->
+                <div class="modal-header-bar">
+                    <div class="modal-header-content">
+                        <div class="modal-title-section">
+                            <h2 class="modal-title">
+                                <i class="fas fa-file-medical"></i>
+                                ${label.name || 'Pharmaceutical Label'}
+                            </h2>
+                            <div class="modal-subtitle">
+                                <span class="label-id-badge">ID: ${label.id || 'N/A'}</span>
+                                ${label.uploadDate ? `<span class="upload-date">Uploaded: ${formatDate(label.uploadDate)}</span>` : ''}
+                                ${label.status ? `<span class="status-badge status-${label.status.toLowerCase()}">${label.status}</span>` : ''}
+                            </div>
+                        </div>
+                        <div class="modal-actions">
+                            <button onclick="toggleXMLView()" class="action-btn view-toggle-btn" id="viewToggleBtn">
+                                <i class="fas fa-code"></i>
+                                <span id="viewToggleText">View Raw XML</span>
+                            </button>
+                            <button onclick="downloadLabelXML('${label.id}', '${label.name}')" class="action-btn download-btn">
+                                <i class="fas fa-download"></i>
+                                Download
+                            </button>
+                            <button onclick="copyLabelXML()" class="action-btn copy-btn">
+                                <i class="fas fa-copy"></i>
+                                Copy XML
+                            </button>
+                            <button onclick="document.getElementById('labelDetailModal').remove()" 
+                                    class="close-btn">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Content Container -->
+                <div class="modal-content-container">
+                    <!-- Formatted View -->
+                    <div id="formattedView" class="content-view active">
+                        ${formattedContent}
+                    </div>
+                    
+                    <!-- Raw XML View (Hidden by default) -->
+                    <div id="rawXMLView" class="content-view" style="display: none;">
+                        <div class="xml-viewer-container">
+                            <div class="xml-viewer-header">
+                                <h3 class="xml-viewer-title">Raw XML Content</h3>
+                                <div class="xml-viewer-actions">
+                                    <button onclick="formatXMLDisplay()" class="xml-action-btn">
+                                        <i class="fas fa-indent"></i> Format
+                                    </button>
+                                    <button onclick="collapseXMLDisplay()" class="xml-action-btn">
+                                        <i class="fas fa-compress"></i> Collapse
+                                    </button>
+                                    <button onclick="searchInXML()" class="xml-action-btn">
+                                        <i class="fas fa-search"></i> Search
+                                    </button>
+                                </div>
+                            </div>
+                            <pre class="xml-content" id="xmlContent">${escapeHtml(rawXML || 'No XML content available')}</pre>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Footer -->
+                <div class="modal-footer">
+                    <div class="footer-info">
+                        ${hasXML ? `<span class="xml-size">XML Size: ${formatFileSize(rawXML.length)}</span>` : ''}
+                        ${label.version ? `<span class="version-info">Version: ${label.version}</span>` : ''}
+                    </div>
+                    <button onclick="document.getElementById('labelDetailModal').remove()" 
+                            class="footer-close-btn">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        ${getModalStyles()}
+    `;
+    
+    // Remove any existing modal
+    const existingModal = document.getElementById('labelDetailModal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+    
+    // Add the modal to the page
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+    
+    // Store the raw XML for other functions to use
+    window.currentLabelXML = rawXML;
+}
+
+function formatLabelMetadata(label) {
+    // Fallback formatter when no XML is available
+    return `
+        <div class="metadata-container">
+            <div class="metadata-header">
+                <h3 class="metadata-title">Label Information</h3>
+                <p class="metadata-subtitle">No XML content available for this label</p>
+            </div>
+            <div class="metadata-grid">
+                ${Object.entries(label).map(([key, value]) => {
+                    if (key === 'raw' || !value) return '';
+                    return `
+                        <div class="metadata-item">
+                            <span class="metadata-key">${formatKey(key)}</span>
+                            <span class="metadata-value">${formatValue(value)}</span>
+                        </div>
+                    `;
+                }).join('')}
+            </div>
+        </div>
+    `;
+}
+
+function toggleXMLView() {
+    const formattedView = document.getElementById('formattedView');
+    const rawXMLView = document.getElementById('rawXMLView');
+    const toggleBtn = document.getElementById('viewToggleBtn');
+    const toggleText = document.getElementById('viewToggleText');
+    
+    if (formattedView.style.display === 'none') {
+        // Show formatted view
+        formattedView.style.display = 'block';
+        rawXMLView.style.display = 'none';
+        toggleText.textContent = 'View Raw XML';
+        toggleBtn.innerHTML = '<i class="fas fa-code"></i> <span id="viewToggleText">View Raw XML</span>';
+    } else {
+        // Show raw XML view
+        formattedView.style.display = 'none';
+        rawXMLView.style.display = 'block';
+        toggleText.textContent = 'View Formatted';
+        toggleBtn.innerHTML = '<i class="fas fa-file-alt"></i> <span id="viewToggleText">View Formatted</span>';
+    }
+}
+
+function downloadLabelXML(labelId, labelName) {
+    if (!window.currentLabelXML) {
+        showNotification('No XML content to download', 'error');
+        return;
+    }
+    
+    const blob = new Blob([window.currentLabelXML], { type: 'application/xml' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${labelName || labelId}_label.xml`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+function copyLabelXML() {
+    if (!window.currentLabelXML) {
+        showNotification('No XML content to copy', 'error');
+        return;
+    }
+    
+    navigator.clipboard.writeText(window.currentLabelXML).then(() => {
+        const btn = event.target.closest('button');
+        const originalHTML = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+        btn.classList.add('success');
+        setTimeout(() => {
+            btn.innerHTML = originalHTML;
+            btn.classList.remove('success');
+        }, 2000);
+    }).catch(err => {
+        showNotification('Failed to copy XML', 'error');
+    });
+}
+
+function formatXMLDisplay() {
+    const xmlContent = document.getElementById('xmlContent');
+    if (window.currentLabelXML) {
+        // Pretty print the XML
+        const formatted = formatXMLString(window.currentLabelXML);
+        xmlContent.innerHTML = escapeHtml(formatted);
+    }
+}
+
+function formatXMLString(xml) {
+    let formatted = '';
+    let indent = '';
+    const tab = '  ';
+    
+    xml.split(/>\s*</).forEach(node => {
+        if (node.match(/^\/\w/)) {
+            indent = indent.substring(tab.length);
+        }
+        formatted += indent + '<' + node + '>\r\n';
+        if (node.match(/^<?\w[^>]*[^\/]$/) && !node.startsWith("?")) {
+            indent += tab;
+        }
+    });
+    
+    return formatted.substring(1, formatted.length - 3);
+}
+
+function collapseXMLDisplay() {
+    const xmlContent = document.getElementById('xmlContent');
+    if (window.currentLabelXML) {
+        // Minify the XML
+        const minified = window.currentLabelXML.replace(/>\s+</g, '><').trim();
+        xmlContent.innerHTML = escapeHtml(minified);
+    }
+}
+
+function searchInXML() {
+    const searchTerm = prompt('Enter search term:');
+    if (!searchTerm) return;
+    
+    const xmlContent = document.getElementById('xmlContent');
+    const content = xmlContent.textContent;
+    
+    // Highlight search terms
+    const regex = new RegExp(searchTerm, 'gi');
+    const highlighted = content.replace(regex, match => `<mark class="search-highlight">${match}</mark>`);
+    xmlContent.innerHTML = highlighted;
+}
+
+function formatFileSize(bytes) {
+    if (bytes < 1024) return bytes + ' bytes';
+    else if (bytes < 1048576) return Math.round(bytes / 1024) + ' KB';
+    else return Math.round(bytes / 1048576) + ' MB';
+}
+
+function formatKey(key) {
+    // Convert camelCase or snake_case to Title Case
+    return key
+        .replace(/([A-Z])/g, ' $1')
+        .replace(/_/g, ' ')
+        .replace(/^./, str => str.toUpperCase())
+        .trim();
+}
+
+function formatValue(value) {
+    if (typeof value === 'object') {
+        return JSON.stringify(value, null, 2);
+    }
+    if (typeof value === 'boolean') {
+        return value ? 'Yes' : 'No';
+    }
+    if (value instanceof Date || !isNaN(Date.parse(value))) {
+        return formatDate(value);
+    }
+    return value;
+}
+
+function formatDate(dateStr) {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('en-US', { 
+        year: 'numeric', 
+        month: 'short', 
+        day: 'numeric' 
+    });
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function getModalStyles() {
+    return `
+        <style>
+            .modal-backdrop {
+                background: rgba(0, 0, 0, 0.5);
+                backdrop-filter: blur(4px);
+            }
+            
+            /* Modal Header */
+            .modal-header-bar {
+                background: white;
+                border-bottom: 1px solid #dee2e6;
+                padding: 20px 30px;
+            }
+            
+            .modal-header-content {
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+                gap: 20px;
+            }
+            
+            .modal-title-section {
+                flex: 1;
+            }
+            
+            .modal-title {
+                margin: 0;
+                font-size: 1.8em;
+                font-weight: 600;
+                color: #212529;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+            
+            .modal-title i {
+                color: #0066cc;
+                font-size: 0.9em;
+            }
+            
+            .modal-subtitle {
+                display: flex;
+                gap: 15px;
+                margin-top: 8px;
+                align-items: center;
+            }
+            
+            .label-id-badge {
+                display: inline-block;
+                padding: 3px 10px;
+                background: #e7f3ff;
+                color: #004085;
+                border-radius: 4px;
+                font-family: monospace;
+                font-size: 0.85em;
+            }
+            
+            .upload-date {
+                color: #6c757d;
+                font-size: 0.9em;
+            }
+            
+            .status-badge {
+                padding: 3px 10px;
+                border-radius: 4px;
+                font-size: 0.85em;
+                font-weight: 500;
+                text-transform: uppercase;
+            }
+            
+            .status-active {
+                background: #d4edda;
+                color: #155724;
+            }
+            
+            .status-pending {
+                background: #fff3cd;
+                color: #856404;
+            }
+            
+            .status-inactive {
+                background: #f8d7da;
+                color: #721c24;
+            }
+            
+            /* Modal Actions */
+            .modal-actions {
+                display: flex;
+                gap: 10px;
+                align-items: center;
+            }
+            
+            .action-btn {
+                padding: 8px 16px;
+                background: #f8f9fa;
+                border: 1px solid #dee2e6;
+                border-radius: 6px;
+                color: #495057;
+                cursor: pointer;
+                transition: all 0.2s ease;
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                font-size: 0.9em;
+            }
+            
+            .action-btn:hover {
+                background: #e9ecef;
+                border-color: #adb5bd;
+                transform: translateY(-1px);
+            }
+            
+            .action-btn i {
+                font-size: 0.9em;
+            }
+            
+            .action-btn.success {
+                background: #d4edda;
+                color: #155724;
+                border-color: #28a745;
+            }
+            
+            .close-btn {
+                width: 36px;
+                height: 36px;
+                border-radius: 50%;
+                border: none;
+                background: #f8f9fa;
+                color: #6c757d;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: all 0.2s ease;
+            }
+            
+            .close-btn:hover {
+                background: #dc3545;
+                color: white;
+                transform: rotate(90deg);
+            }
+            
+            /* Content Container */
+            .modal-content-container {
+                flex: 1;
+                overflow-y: auto;
+                background: #f8f9fa;
+                max-height: calc(100vh - 200px);
+            }
+            
+            .content-view {
+                min-height: 400px;
+            }
+            
+            /* XML Viewer */
+            .xml-viewer-container {
+                background: white;
+                height: 100%;
+            }
+            
+            .xml-viewer-header {
+                padding: 15px 20px;
+                background: #f8f9fa;
+                border-bottom: 1px solid #dee2e6;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                position: sticky;
+                top: 0;
+                z-index: 10;
+            }
+            
+            .xml-viewer-title {
+                margin: 0;
+                font-size: 1.1em;
+                color: #495057;
+                font-weight: 600;
+            }
+            
+            .xml-viewer-actions {
+                display: flex;
+                gap: 8px;
+            }
+            
+            .xml-action-btn {
+                padding: 6px 12px;
+                background: white;
+                border: 1px solid #dee2e6;
+                border-radius: 4px;
+                color: #495057;
+                cursor: pointer;
+                font-size: 0.85em;
+                transition: all 0.2s ease;
+            }
+            
+            .xml-action-btn:hover {
+                background: #0066cc;
+                color: white;
+                border-color: #0066cc;
+            }
+            
+            .xml-action-btn i {
+                margin-right: 4px;
+            }
+            
+            .xml-content {
+                padding: 20px;
+                font-family: 'Courier New', monospace;
+                font-size: 0.9em;
+                line-height: 1.6;
+                color: #212529;
+                white-space: pre-wrap;
+                word-wrap: break-word;
+                background: white;
+                margin: 0;
+                max-height: calc(100vh - 300px);
+                overflow-y: auto;
+            }
+            
+            .search-highlight {
+                background: #ffeb3b;
+                padding: 2px;
+                border-radius: 2px;
+            }
+            
+            /* Metadata Container (Fallback) */
+            .metadata-container {
+                padding: 30px;
+                background: white;
+            }
+            
+            .metadata-header {
+                text-align: center;
+                margin-bottom: 30px;
+                padding-bottom: 20px;
+                border-bottom: 2px solid #dee2e6;
+            }
+            
+            .metadata-title {
+                margin: 0 0 10px 0;
+                font-size: 1.5em;
+                color: #212529;
+            }
+            
+            .metadata-subtitle {
+                color: #6c757d;
+                font-size: 0.95em;
+            }
+            
+            .metadata-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                gap: 20px;
+            }
+            
+            .metadata-item {
+                display: flex;
+                padding: 15px;
+                background: #f8f9fa;
+                border-radius: 8px;
+                border: 1px solid #e9ecef;
+            }
+            
+            .metadata-key {
+                font-weight: 600;
+                color: #495057;
+                min-width: 140px;
+                margin-right: 15px;
+            }
+            
+            .metadata-value {
+                color: #212529;
+                word-break: break-word;
+                flex: 1;
+            }
+            
+            /* Modal Footer */
+            .modal-footer {
+                background: white;
+                border-top: 1px solid #dee2e6;
+                padding: 15px 30px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+            
+            .footer-info {
+                display: flex;
+                gap: 20px;
+                color: #6c757d;
+                font-size: 0.9em;
+            }
+            
+            .xml-size {
+                display: flex;
+                align-items: center;
+                gap: 5px;
+            }
+            
+            .version-info {
+                display: flex;
+                align-items: center;
+                gap: 5px;
+            }
+            
+            .footer-close-btn {
+                padding: 8px 24px;
+                background: #6c757d;
+                color: white;
+                border: none;
+                border-radius: 6px;
+                cursor: pointer;
+                font-size: 0.95em;
+                transition: all 0.2s ease;
+            }
+            
+            .footer-close-btn:hover {
+                background: #5a6268;
+                transform: translateY(-1px);
+            }
+            
+            /* Responsive Design */
+            @media (max-width: 768px) {
+                .modal-header-content {
+                    flex-direction: column;
+                }
+                
+                .modal-actions {
+                    width: 100%;
+                    justify-content: flex-start;
+                }
+                
+                .metadata-grid {
+                    grid-template-columns: 1fr;
+                }
+            }
+        </style>
+    `;
+}
+
+// Helper function to show notifications (if not already defined)
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.textContent = message;
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 12px 20px;
+        border-radius: 6px;
+        background: ${type === 'error' ? '#dc3545' : '#28a745'};
+        color: white;
+        z-index: 10000;
+        animation: slideIn 0.3s ease;
+    `;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.remove();
+    }, 3000);
+}
 async function viewUploadedLabel(labelId) {
     try {
         const response = await fetch(`${API_BASE}/uploaded-label/${labelId}`);
         const data = await response.json();
         
-        // Display label details in a modal
-        displayLabelDetails(data.label);
+        // The raw XML is available in data.label.raw
+        const rawXML = data.label.raw;
+        
+        // Display label details with raw XML in a modal
+        displayLabelDetailsWithXML(data.label, rawXML);
     } catch (error) {
         console.error('Error viewing label:', error);
         showNotification('Error loading label details', 'error');
     }
 }
+
 
 // Delete uploaded label
 async function deleteUploadedLabel(labelId) {
