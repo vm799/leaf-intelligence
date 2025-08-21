@@ -54,7 +54,7 @@ const {
 const stripeRoutes = require('./stripe-routes');
 const stripeWebhook = require('./stripe-webhook');
 const conditionRouter = require('./newconditions.js');
-
+const newadvancedlabellingrouter = require('./advancedlabelling.js');
 // Add these imports at the top
 // const PostCheckoutHandler = require('./stripe-post-checkout-handler');
 // const postCheckoutRoutes = require('./stripe-post-checkout-routes');
@@ -270,6 +270,7 @@ async function checkSearchAccess(user, searchQuery) {
 
 
 app.use('/api/condition', conditionRouter);
+app.use('/api/advanced-label', newadvancedlabellingrouter);
 
 
 

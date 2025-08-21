@@ -827,7 +827,311 @@ function addRealOnlyRecentEventsToSummary() {
     
   }, 800); // Wait for original summary to load
 }
+// Add these functions to your code
 
+// Function to show detailed event modal
+function showRecentEventDetails(eventId, eventData) {
+  // Parse the event data if it's a string
+  if (typeof eventData === 'string') {
+    try {
+      eventData = JSON.parse(eventData.replace(/&quot;/g, '"'));
+    } catch (e) {
+      console.error('Failed to parse event data:', e);
+      return;
+    }
+  }
+  
+  // Create modal overlay
+  const modal = document.createElement('div');
+  modal.className = 'fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4';
+  modal.id = 'event-detail-modal';
+  
+  // Close modal when clicking overlay
+  modal.onclick = (e) => {
+    if (e.target === modal) {
+      modal.remove();
+    }
+  };
+  
+  // Determine agency colors and styling
+  const isEMA = eventData.sourceType === 'ema' || eventData.agency === 'EMA';
+  const agencyColor = isEMA ? 'purple' : 'blue';
+  const agencyName = isEMA ? 'EMA' : 'FDA';
+  const agencyIcon = isEMA ? '🇪🇺' : '🇺🇸';
+  
+  // Format details object for display
+  const formatDetails = () => {
+    if (!eventData.details || Object.keys(eventData.details).length === 0) {
+      return '';
+    }
+    
+    const detailRows = Object.entries(eventData.details)
+      .filter(([key, value]) => value && value !== 'Unknown' && value !== '')
+      .map(([key, value]) => {
+        // Format the key to be more readable
+        const formattedKey = key
+          .replace(/([A-Z])/g, ' $1')
+          .replace(/^./, str => str.toUpperCase())
+          .replace(/_/g, ' ')
+          .trim();
+        
+        // Format the value
+        let formattedValue = value;
+        if (Array.isArray(value)) {
+          formattedValue = value.join(', ');
+        } else if (typeof value === 'boolean') {
+          formattedValue = value ? 'Yes' : 'No';
+        }
+        
+        return `
+          <div class="flex justify-between py-2 border-b border-gray-100 last:border-0">
+            <span class="text-sm font-medium text-gray-600 mr-4">${formattedKey}:</span>
+            <span class="text-sm text-gray-900 text-right flex-1">${formattedValue}</span>
+          </div>
+        `;
+      })
+      .join('');
+    
+    return detailRows ? `
+      <div class="mt-6">
+        <h4 class="text-sm font-semibold text-gray-900 mb-3 flex items-center">
+          <svg class="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+          </svg>
+          Additional Details
+        </h4>
+        <div class="bg-gray-50 rounded-lg p-4">
+          ${detailRows}
+        </div>
+      </div>
+    ` : '';
+  };
+  
+  // Create modal content
+  modal.innerHTML = `
+    <div class="bg-white rounded-xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-hidden animate-modal-enter">
+      <!-- Header -->
+      <div class="bg-gradient-to-r from-${agencyColor}-500 to-${agencyColor}-600 px-6 py-4">
+        <div class="flex items-start justify-between">
+          <div class="flex items-center space-x-3">
+            <div class="w-12 h-12 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
+              <span class="text-2xl">${eventData.icon || agencyIcon}</span>
+            </div>
+            <div>
+              <h3 class="text-xl font-semibold text-white">${eventData.title}</h3>
+              <div class="flex items-center space-x-2 mt-1">
+                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-white bg-opacity-20 text-white">
+                  ${agencyName}
+                </span>
+                <span class="text-xs text-white text-opacity-90">•</span>
+                <span class="text-xs text-white text-opacity-90">${formatDisplayDate(eventData.date)}</span>
+              </div>
+            </div>
+          </div>
+          <button 
+            onclick="document.getElementById('event-detail-modal').remove()" 
+            class="text-white text-opacity-80 hover:text-white transition-colors p-1">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+      
+      <!-- Body -->
+      <div class="p-6 overflow-y-auto max-h-[calc(90vh-8rem)]">
+        <!-- Company and Product Info -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          <div class="bg-gradient-to-r from-gray-50 to-gray-100 rounded-lg p-4">
+            <div class="flex items-center space-x-2 mb-2">
+              <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+              </svg>
+              <span class="text-xs font-medium text-gray-600 uppercase tracking-wider">Company</span>
+            </div>
+            <p class="text-sm font-semibold text-gray-900">${eventData.company}</p>
+          </div>
+          
+          <div class="bg-gradient-to-r from-${agencyColor}-50 to-${agencyColor}-100 rounded-lg p-4">
+            <div class="flex items-center space-x-2 mb-2">
+              <svg class="w-4 h-4 text-${agencyColor}-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+              </svg>
+              <span class="text-xs font-medium text-${agencyColor}-600 uppercase tracking-wider">Product/Compound</span>
+            </div>
+            <p class="text-sm font-semibold text-gray-900">${eventData.subtitle || 'Not specified'}</p>
+          </div>
+        </div>
+        
+        <!-- Description -->
+        <div class="mb-6">
+          <h4 class="text-sm font-semibold text-gray-900 mb-3 flex items-center">
+            <svg class="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"/>
+            </svg>
+            Description
+          </h4>
+          <div class="bg-gray-50 rounded-lg p-4">
+            <p class="text-sm text-gray-700 leading-relaxed">${eventData.description || 'No description available'}</p>
+          </div>
+        </div>
+        
+        <!-- Event Metadata -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+          ${eventData.type ? `
+            <div class="text-center p-3 bg-gray-50 rounded-lg">
+              <p class="text-xs text-gray-500 mb-1">Type</p>
+              <p class="text-sm font-medium text-gray-900">${eventData.type.replace(/_/g, ' ').toUpperCase()}</p>
+            </div>
+          ` : ''}
+          
+          ${eventData.importance ? `
+            <div class="text-center p-3 bg-gray-50 rounded-lg">
+              <p class="text-xs text-gray-500 mb-1">Importance</p>
+              <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getImportanceBadge(eventData.importance)}">
+                ${eventData.importance.toUpperCase()}
+              </span>
+            </div>
+          ` : ''}
+          
+          ${eventData.endpoint ? `
+            <div class="text-center p-3 bg-gray-50 rounded-lg">
+              <p class="text-xs text-gray-500 mb-1">Data Source</p>
+              <p class="text-sm font-medium text-gray-900">${eventData.endpoint}</p>
+            </div>
+          ` : ''}
+          
+          <div class="text-center p-3 bg-green-50 rounded-lg">
+            <p class="text-xs text-green-600 mb-1">Status</p>
+            <p class="text-sm font-medium text-green-700 flex items-center justify-center">
+              <span class="w-2 h-2 bg-green-500 rounded-full mr-1 animate-pulse"></span>
+              Live Data
+            </p>
+          </div>
+        </div>
+        
+        <!-- Additional Details -->
+        ${formatDetails()}
+        
+        <!-- Footer Actions -->
+        <div class="mt-8 pt-6 border-t border-gray-200 flex justify-between items-center">
+          <div class="text-xs text-gray-500">
+            Event ID: ${eventData.id || `${eventData.sourceType}-${Date.now()}`}
+          </div>
+          <div class="flex space-x-3">
+            <button 
+              onclick="exportSingleEvent('${eventId}', ${JSON.stringify(eventData).replace(/"/g, '&quot;')})"
+              class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium flex items-center">
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+              </svg>
+              Export
+            </button>
+            <button 
+              onclick="document.getElementById('event-detail-modal').remove()" 
+              class="px-4 py-2 bg-${agencyColor}-500 text-white rounded-lg hover:bg-${agencyColor}-600 transition-colors text-sm font-medium">
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  // Add modal to body
+  document.body.appendChild(modal);
+}
+
+// Function to export a single event
+function exportSingleEvent(eventId, eventData) {
+  // Parse the event data if it's a string
+  if (typeof eventData === 'string') {
+    try {
+      eventData = JSON.parse(eventData.replace(/&quot;/g, '"'));
+    } catch (e) {
+      console.error('Failed to parse event data:', e);
+      return;
+    }
+  }
+  
+  const exportData = {
+    exportDate: new Date().toISOString(),
+    eventId: eventId,
+    agency: eventData.agency || eventData.sourceType?.toUpperCase(),
+    company: eventData.company,
+    event: {
+      date: eventData.date,
+      type: eventData.type,
+      title: eventData.title,
+      subtitle: eventData.subtitle,
+      description: eventData.description,
+      importance: eventData.importance,
+      endpoint: eventData.endpoint,
+      details: eventData.details
+    }
+  };
+  
+  const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `event_${eventData.sourceType}_${eventData.company.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+// Add animation styles if not already present
+if (!document.getElementById('modal-animation-styles')) {
+  const styles = document.createElement('style');
+  styles.id = 'modal-animation-styles';
+  styles.textContent = `
+    @keyframes modalEnter {
+      from {
+        opacity: 0;
+        transform: scale(0.95) translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+    
+    .animate-modal-enter {
+      animation: modalEnter 0.2s ease-out;
+    }
+    
+    /* Ensure proper z-index stacking */
+    #event-detail-modal {
+      z-index: 9999;
+    }
+    
+    /* Smooth scrollbar for modal content */
+    #event-detail-modal .overflow-y-auto::-webkit-scrollbar {
+      width: 6px;
+    }
+    
+    #event-detail-modal .overflow-y-auto::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 3px;
+    }
+    
+    #event-detail-modal .overflow-y-auto::-webkit-scrollbar-thumb {
+      background: #888;
+      border-radius: 3px;
+    }
+    
+    #event-detail-modal .overflow-y-auto::-webkit-scrollbar-thumb:hover {
+      background: #555;
+    }
+  `;
+  document.head.appendChild(styles);
+}
+
+// Make functions globally available
+window.showRecentEventDetails = showRecentEventDetails;
+window.exportSingleEvent = exportSingleEvent;
 // Initialize filters for recent events
 function initializeRecentEventFilters() {
   const companyFilter = document.getElementById('companyFilterRecent');
@@ -904,11 +1208,7 @@ function getImportanceBadge(importance) {
   return colors[importance] || 'bg-gray-100 text-gray-800';
 }
 
-// Event details function
-function showRecentEventDetails(eventId, eventData) {
-  console.log('Recent event details:', eventData);
-  // You can implement a modal here if needed
-}
+
 
 // Export functionality
 function exportAllRecentEvents() {

@@ -11,6 +11,8 @@
     <!-- Axios for API requests -->
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/diff_match_patch/20121119/diff_match_patch.js"></script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Favicon -->
 <!-- <link rel="icon" type="image/svg+xml" href="favicon.svg"> -->
 <!-- Fallback for browsers that don't support SVG favicons -->
@@ -2371,10 +2373,30 @@ tailwind.config = {
                           class="flex-1 block w-full px-3 py-2.5 bg-transparent focus:outline-none focus:ring-0 rounded-lg">
                   </div>
               </div>
+
+                         <div class="flex items-start">
+                    <input
+                        type="checkbox"
+                        id="acceptPrivacyPolicy"
+                        name="acceptPrivacyPolicy"
+                        required
+                        class="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                    />
+                    <label for="acceptPrivacyPolicy" class="ml-2 block text-sm text-gray-700">
+                        I accept the 
+                        <a href="/Privacy-Policy.pdf" target="_blank" class="text-blue-600 hover:text-blue-500 underline">
+                            Privacy Policy
+                        </a>
+                        and 
+                        <a href="/Terms-of-use.pdf" target="_blank" class="text-blue-600 hover:text-blue-500 underline">
+                            Terms of Service
+                        </a>
+                    </label>
+                </div>
               <div>
                   <button type="submit" 
                       class="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-300 hover:shadow-lg">
-                      <span id="signupButtonText">Start 30-Day Trial</span>
+                      <span id="signupButtonText">Get Started</span>
                       <div id="signupSpinner" class="spinner ml-2 hidden">
                           <div class="w-4 h-4 border-2 border-white rounded-full border-t-transparent animate-spin"></div>
                       </div>
@@ -2659,7 +2681,7 @@ tailwind.config = {
 </section> -->
 
 <!-- Minimized Search Bar (initially hidden) -->
-        <div id="minimizedSearchBar" class="flex flex-col md:flex-row gap-3  z-50 slide-down search-transition rounded-lg">
+        <div id="minimizedSearchBar" class="hidden flex flex-col md:flex-row gap-3  z-50 slide-down search-transition rounded-lg">
         <div class="max-w-7xl mx-auto px-4 py-3">
             <div class="flex items-center justify-between gap-4">
                 <!-- Search Summary -->
@@ -5607,7 +5629,7 @@ tailwind.config = {
         </button>
                 <!-- NEW FDA Complete Response Letters Button -->
         <button onclick="showOnlySection('responseLettersSection')"  id='crltabp'
-                class=" pro-feature nav-btn px-4 py-2 text-sm font-medium rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 transition-colors"
+                class="nav-btn px-4 py-2 text-sm font-medium rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 transition-colors"
                 data-section="fda">
             📋 Response Letters <span class="ml-1 px-1.5 py-0.5 bg-gray-100 text-gray-800 rounded-full text-xs" id="nav-response-letters-count">0</span>
         </button>
@@ -5622,7 +5644,7 @@ tailwind.config = {
                 data-section="fda">
           📙  Orangebook
         </button>
-          <button onclick="showOnlySection('LabellingSection')" 
+                  <button onclick="showOnlySection('NewLabellingSection')" 
                 class="nav-btn px-4 py-2 text-sm font-medium rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 transition-colors"
                 data-section="fda">
            🏷️ Labelling
@@ -5989,7 +6011,7 @@ tailwind.config = {
     
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6" id='cardmetric'>
      
-        <div class="border border-gray-200 rounded-lg p-4">
+        <div class="border border-gray-200 rounded-lg p-4" onclick="showOnlySection('trials')" >
             <div class="flex items-center justify-between mb-2">
                 <h3 class="font-semibold text-gray-700">Clinical Trials</h3>
                 <div id="trialsStatus" class="w-3 h-3 rounded-full bg-gray-300"></div>
@@ -6002,7 +6024,7 @@ tailwind.config = {
         </div>
         
      
-        <div class="border border-gray-200 rounded-lg p-4">
+        <div class="border border-gray-200 rounded-lg p-4" onclick="showOnlySection('fdaDataSection')" >
             <div class="flex items-center justify-between mb-2">
                 <h3 class="font-semibold text-gray-700">FDA Data</h3>
                 <div id="fdaStatus" class="w-3 h-3 rounded-full bg-gray-300"></div>
@@ -6015,7 +6037,7 @@ tailwind.config = {
         </div>
         
        
-        <div class="border border-gray-200 rounded-lg p-4">
+        <div class="border border-gray-200 rounded-lg p-4" onclick="showOnlySection('emaDataSection')" >
             <div class="flex items-center justify-between mb-2">
                 <h3 class="font-semibold text-gray-700">EMA Data</h3>
                 <div id="emaStatus" class="w-3 h-3 rounded-full bg-gray-300"></div>
@@ -6028,7 +6050,7 @@ tailwind.config = {
         </div>
         
      
-        <div class="border border-gray-200 rounded-lg p-4">
+        <div class="border border-gray-200 rounded-lg p-4" onclick="showOnlySection('tabpubmedSection')" >
             <div class="flex items-center justify-between mb-2">
                 <h3 class="font-semibold text-gray-700">PubMed</h3>
                 <div id="pubmedStatus" class="w-3 h-3 rounded-full bg-gray-300"></div>
@@ -8018,6 +8040,521 @@ tailwind.config = {
 
 <!-- Replace your existing LabellingSection with this complete HTML -->
 
+    <section id="NewLabellingSection" class="hidden mb-8" >
+            <!-- Application Detail Modal -->
+<div id="applicationModal" class="hidden fixed inset-0 modal-backdrop flex items-center justify-center z-50">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col">
+        <div class="flex justify-between items-center p-6 border-b bg-gradient-to-r from-blue-50 to-purple-50 flex-shrink-0">
+            <div>
+                <h3 class="text-2xl font-bold text-gray-900" id="appModalTitle">Application Details</h3>
+                <p class="text-sm text-gray-600 mt-1" id="appModalSubtitle"></p>
+            </div>
+           <button onclick="window.closeApplicationModal()" 
+                    class="p-2 rounded-lg bg-white shadow-md hover:shadow-lg hover:bg-gray-50 transition-all duration-200 group">
+                <i class="fas fa-times text-xl text-gray-500 group-hover:text-gray-700"></i>
+            </button>
+        </div>
+        <div id="appModalContent" class="p-6 overflow-y-auto custom-scrollbar flex-1 min-h-0">
+            <!-- Application details will be rendered here -->
+        </div>
+    </div>
+</div>
+
+<!-- Company Analysis Modal -->
+<div id="companyModal" class="hidden fixed inset-0 modal-backdrop flex items-center justify-center z-50">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-5xl w-full max-h-[90vh] flex flex-col">
+        <div class="flex justify-between items-center p-6 border-b bg-gradient-to-r from-purple-50 to-blue-50 flex-shrink-0">
+            <div>
+                <h3 class="text-2xl font-bold text-gray-900" id="companyModalTitle">Company Analysis</h3>
+                <p class="text-sm text-gray-600 mt-1" id="companyModalSubtitle"></p>
+            </div>
+            <button onclick="closeCompanyModal()" class="text-gray-400 hover:text-gray-600">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+        <div id="companyModalContent" class="p-6 overflow-y-auto custom-scrollbar flex-1 min-h-0">
+            <!-- Company analysis will be rendered here -->
+        </div>
+    </div>
+</div>
+
+<!-- Notes Panel -->
+<div id="notesPanel" class="hidden fixed right-0 top-0 h-full w-96 bg-white shadow-2xl z-50 flex flex-col">
+    <div class="p-6 border-b bg-gradient-to-r from-yellow-50 to-orange-50 flex-shrink-0">
+        <div class="flex justify-between items-center">
+            <h3 class="text-xl font-bold text-gray-900">Notes & Annotations</h3>
+            <button onclick="closeNotesPanel()" class="text-gray-400 hover:text-gray-600">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+    </div>
+    <div id="notesList" class="p-6 overflow-y-auto custom-scrollbar flex-1 min-h-0">
+        <!-- Notes will be displayed here -->
+    </div>
+    <div class="p-4 border-t bg-white flex-shrink-0">
+        <textarea id="newNote" placeholder="Add a new note..." class="w-full px-3 py-2 border rounded-lg resize-none" rows="3"></textarea>
+        <button onclick="addNote()" class="mt-2 w-full px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700">
+            <i class="fas fa-plus mr-2"></i>Add Note
+        </button>
+    </div>
+</div>
+
+<!-- Upload Modal -->
+<div id="uploadModal" class="hidden fixed inset-0 modal-backdrop flex items-center justify-center z-50">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] flex flex-col">
+        <div class="flex justify-between items-center p-6 border-b flex-shrink-0">
+            <h3 class="text-2xl font-bold text-gray-900">Upload Label</h3>
+            <button onclick="document.getElementById('uploadModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+        <div class="p-6 overflow-y-auto custom-scrollbar flex-1 min-h-0">
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Select File</label>
+                    <input type="file" id="uploadFile" accept=".pdf,.xml,.txt,.doc,.docx" class="w-full">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Label Name</label>
+                    <input type="text" id="uploadName" placeholder="e.g., My Product Label v2.0" class="w-full px-4 py-2 border rounded-lg">
+                </div>
+                <button onclick="handleUpload()" class="w-full py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all font-semibold">
+                    <i class="fas fa-cloud-upload-alt mr-2"></i>Upload Label
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="enhancedUploadModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col">
+        <div class="flex justify-between items-center p-6 border-b bg-gradient-to-r from-green-50 to-blue-50">
+            <h3 class="text-2xl font-bold text-gray-900">
+                <i class="fas fa-file-code mr-2 text-green-600"></i>XML Label Management
+            </h3>
+            <button onclick="closeEnhancedUploadModal()" class="text-gray-400 hover:text-gray-600">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+        
+        <div class="p-6 overflow-y-auto flex-1">
+            <!-- Upload Section -->
+            <div class="mb-6 bg-gray-50 rounded-lg p-4">
+                <h4 class="font-semibold text-gray-900 mb-4">Upload New XML Label</h4>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Select XML File</label>
+                        <input type="file" id="xmlUploadFile" accept=".xml" class="w-full p-2 border rounded-lg">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Label Name</label>
+                            <input type="text" id="xmlLabelName" placeholder="e.g., Product Name v2.0" 
+                                   class="w-full px-4 py-2 border rounded-lg">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                            <input type="text" id="xmlLabelDescription" placeholder="Optional description" 
+                                   class="w-full px-4 py-2 border rounded-lg">
+                        </div>
+                    </div>
+                    <!-- <button onclick="uploadXMLLabel()" class="w-full py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all font-semibold">
+                        <i class="fas fa-cloud-upload-alt mr-2"></i>Upload XML Label
+                    </button> -->
+                    <button type="button" onclick="return uploadXMLLabel(event)" 
+        class="w-full py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all font-semibold">
+    <i class="fas fa-cloud-upload-alt mr-2"></i>Upload XML Label
+</button>
+                </div>
+            </div>
+            
+            <!-- Uploaded Labels Management -->
+            <div>
+                <h4 class="font-semibold text-gray-900 mb-4">Uploaded Labels</h4>
+                <div id="uploadedLabelsList" class="space-y-3 max-h-64 overflow-y-auto">
+                    <!-- Uploaded labels will be displayed here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Enhanced Comparison Modal -->
+<div id="enhancedComparisonModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-7xl w-full max-h-[95vh] flex flex-col">
+        <div class="flex justify-between items-center p-4 border-b bg-gradient-to-r from-blue-50 to-purple-50">
+            <div>
+                <h3 class="text-xl font-bold text-gray-900">Label Comparison</h3>
+                <p class="text-sm text-gray-600" id="comparisonHeader"></p>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="toggleDiffView()" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700">
+                    <i class="fas fa-columns mr-2"></i>Toggle View
+                </button>
+                <button onclick="exportComparison()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                    <i class="fas fa-download mr-2"></i>Export
+                </button>
+                <button onclick="closeComparisonModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Comparison Stats -->
+        <div class="px-6 py-3 bg-gray-50 border-b">
+            <div class="grid grid-cols-5 gap-4">
+                <div class="text-center">
+                    <p class="text-2xl font-bold text-green-600" id="statsAdded">0</p>
+                    <p class="text-xs text-gray-600">Added</p>
+                </div>
+                <div class="text-center">
+                    <p class="text-2xl font-bold text-red-600" id="statsRemoved">0</p>
+                    <p class="text-xs text-gray-600">Removed</p>
+                </div>
+                <div class="text-center">
+                    <p class="text-2xl font-bold text-yellow-600" id="statsModified">0</p>
+                    <p class="text-xs text-gray-600">Modified</p>
+                </div>
+                <div class="text-center">
+                    <p class="text-2xl font-bold text-gray-600" id="statsUnchanged">0</p>
+                    <p class="text-xs text-gray-600">Unchanged</p>
+                </div>
+                <div class="text-center">
+                    <p class="text-2xl font-bold text-purple-600" id="statsTotal">0</p>
+                    <p class="text-xs text-gray-600">Total Changes</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Section Filter -->
+        <div class="px-6 py-3 border-b bg-white">
+            <div class="flex gap-2 items-center">
+                <span class="text-sm font-medium text-gray-700">Show:</span>
+                <button onclick="filterComparisonSections('all')" class="px-3 py-1 bg-blue-600 text-white rounded-full text-sm">All</button>
+                <button onclick="filterComparisonSections('changed')" class="px-3 py-1 bg-gray-200 text-gray-700 rounded-full text-sm hover:bg-gray-300">Changed Only</button>
+                <button onclick="filterComparisonSections('added')" class="px-3 py-1 bg-gray-200 text-gray-700 rounded-full text-sm hover:bg-gray-300">Added</button>
+                <button onclick="filterComparisonSections('removed')" class="px-3 py-1 bg-gray-200 text-gray-700 rounded-full text-sm hover:bg-gray-300">Removed</button>
+                <button onclick="filterComparisonSections('modified')" class="px-3 py-1 bg-gray-200 text-gray-700 rounded-full text-sm hover:bg-gray-300">Modified</button>
+            </div>
+        </div>
+        
+        <!-- Comparison Content -->
+        <div id="comparisonContent" class="flex-1 overflow-hidden">
+            <!-- Content will be rendered here -->
+        </div>
+    </div>
+</div>
+
+
+        <!-- Search Bar -->
+        <div class="glass-effect rounded-2xl shadow-xl p-6 mb-6 hidden">
+            <div class="flex items-center gap-4">
+                <div class="flex-1">
+                    <div class="relative">
+                        <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                        <input type="text" id="mainSearch" 
+                               placeholder="Search drug name, compound, company, or application number..." 
+                               class="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-lg">
+                    </div>
+                </div>
+                <button onclick="performSearch()" class="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:shadow-lg transform hover:-translate-y-0.5 transition-all font-semibold">
+                    <i class="fas fa-search mr-2"></i>Search All Databases
+                </button>
+                <button onclick="openEnhancedUploadModal()" class="px-6 py-4 bg-green-600 text-white rounded-xl hover:shadow-lg transform hover:-translate-y-0.5 transition-all">
+                    <i class="fas fa-upload mr-2"></i>Upload
+                </button>
+            </div>
+            
+            <!-- Quick Filters -->
+            <div class="flex gap-2 mt-4">
+                <span class="text-sm text-gray-600">Quick search:</span>
+                <button onclick="quickSearch('lisinopril')" class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm hover:bg-blue-200">Lisinopril</button>
+                <button onclick="quickSearch('metformin')" class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm hover:bg-blue-200">Metformin</button>
+                <button onclick="quickSearch('atorvastatin')" class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm hover:bg-blue-200">Atorvastatin</button>
+            </div>
+        </div>
+
+        <!-- Loading State -->
+        <div id="LabelLoadingState" class="hidden">
+             <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+            <div class="p-6">
+                <h3 class="text-lg font-semibold text-gray-700 mb-4">Scanner Style Loader</h3>
+                
+                <div class="relative bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg p-6 overflow-hidden">
+                    <!-- Scanner line - lightweight -->
+                    <div class="absolute inset-y-0 w-1 scanner-line slide-scanner"></div>
+                    
+                    <div class="relative flex items-center space-x-4">
+                        <!-- Rotating icon -->
+                        <div class="w-14 h-14 bg-white rounded-xl shadow-sm flex items-center justify-center">
+                            <i class="fas fa-tablets text-2xl text-indigo-600 rotate-smooth"></i>
+                        </div>
+                        
+                        <!-- Content -->
+                        <div class="flex-1">
+                            <h4 class="font-semibold text-gray-800">Analyzing Pharmaceutical Label</h4>
+                            <p class="text-sm text-gray-600 mt-1">
+                                <span class="inline-block">Extracting: </span>
+                                <span class="inline-block font-mono text-xs bg-white px-2 py-0.5 rounded" id="loadingField">Active Ingredients</span>
+                            </p>
+                        </div>
+                        
+                        <!-- Status indicator -->
+                        <div class="text-sm text-gray-500">
+                            <i class="fas fa-circle-notch fa-spin"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+
+        <!-- Main Content -->
+        <div id="mainContent" class="hidden">
+            <!-- Statistics -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+                <div class="company-metric hover-lift cursor-pointer">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-xs text-gray-600 uppercase tracking-wide">Applications</p>
+                            <p class="text-2xl font-bold text-gray-900" id="statApps">0</p>
+                        </div>
+                        <i class="fas fa-file-medical text-blue-600 text-2xl"></i>
+                    </div>
+                </div>
+                <div class="company-metric hover-lift cursor-pointer">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-xs text-gray-600 uppercase tracking-wide">Companies</p>
+                            <p class="text-2xl font-bold text-gray-900" id="statCompanies">0</p>
+                        </div>
+                        <i class="fas fa-building text-purple-600 text-2xl"></i>
+                    </div>
+                </div>
+                <div class="company-metric hover-lift cursor-pointer">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-xs text-gray-600 uppercase tracking-wide">Label Versions</p>
+                            <p class="text-2xl font-bold text-gray-900" id="statLabels">0</p>
+                        </div>
+                        <i class="fas fa-tags text-green-600 text-2xl"></i>
+                    </div>
+                </div>
+                <div class="company-metric hover-lift cursor-pointer">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-xs text-gray-600 uppercase tracking-wide">Changes</p>
+                            <p class="text-2xl font-bold text-gray-900" id="statChanges">0</p>
+                        </div>
+                        <i class="fas fa-exchange-alt text-orange-600 text-2xl"></i>
+                    </div>
+                </div>
+                <div class="company-metric hover-lift cursor-pointer">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-xs text-gray-600 uppercase tracking-wide">Latest Update</p>
+                            <p class="text-sm font-bold text-gray-900" id="statUpdate">-</p>
+                        </div>
+                        <i class="fas fa-clock text-red-600 text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Enhanced Tabs -->
+            <div class="glass-effect rounded-2xl shadow-xl overflow-hidden">
+                <div class="border-b border-gray-200 bg-gray-50">
+                    <div class="flex space-x-1 p-1">
+                        <button onclick="switchLabelTab('overview')" id="LabeltabOverview" class="Labeltab-btn flex-1 px-4 py-3 rounded-lg text-sm font-medium transition-all tab-active">
+                            <i class="fas fa-chart-line mr-2"></i>Overview
+                        </button>
+                        <button onclick="switchLabelTab('timeline')" id="LabeltabTimeline" class="Labeltab-btn flex-1 px-4 py-3 rounded-lg text-sm font-medium transition-all">
+                            <i class="fas fa-history mr-2"></i>Timeline
+                        </button>
+                        <button onclick="switchLabelTab('companies')" id="LabeltabCompanies" class="Labeltab-btn flex-1 px-4 py-3 rounded-lg text-sm font-medium transition-all">
+                            <i class="fas fa-building mr-2"></i>Companies
+                        </button>
+                        <button onclick="switchLabelTab('compare')" id="LabeltabCompare" class="Labeltab-btn flex-1 px-4 py-3 rounded-lg text-sm font-medium transition-all">
+                            <i class="fas fa-code-compare mr-2"></i>Compare
+                        </button>
+                        <button onclick="switchLabelTab('labels')" id="LabeltabLabels" class="Labeltab-btn flex-1 px-4 py-3 rounded-lg text-sm font-medium transition-all">
+                            <i class="fas fa-file-alt mr-2"></i>Labels
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tab Content -->
+                <div class="p-6">
+                    <!-- Overview Tab -->
+                    <!-- <div id="contentOverview" class="Labeltab-content">
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                                    <i class="fas fa-clipboard-list text-blue-600 mr-2"></i>FDA Applications
+                                </h3>
+                                <div id="applicationsList" class="space-y-3 max-h-96 overflow-y-auto custom-scrollbar">
+                                </div>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                                    <i class="fas fa-chart-bar text-purple-600 mr-2"></i>Label Changes Analysis
+                                </h3>
+                                <canvas id="changesChart" width="400" height="200"></canvas>
+                            </div>
+                        </div>
+                    </div> -->
+<div id="contentOverview" class="Labeltab-content">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- FDA Applications Column -->
+        <div class="flex flex-col h-full">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4 flex-shrink-0">
+                <i class="fas fa-clipboard-list text-blue-600 mr-2"></i>FDA Applications
+            </h3>
+            <div id="applicationsList" class="space-y-3 overflow-y-auto custom-scrollbar flex-1 min-h-[400px] max-h-[600px]">
+                <!-- Applications populated here -->
+            </div>
+        </div>
+        
+        <!-- Chart Column -->
+        <div>
+ <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                                    <i class="fas fa-chart-bar text-purple-600 mr-2"></i>Label Changes Analysis
+                                </h3>
+            <!-- <div class="relative min-h-[400px]"> -->
+                <canvas id="changesChart"></canvas>
+            <!-- </div> -->
+        </div>
+    </div>
+</div>
+                    <!-- Enhanced Timeline Tab -->
+                    <div id="contentTimeline" class="Labeltab-content hidden">
+                        <div class="mb-4 flex justify-between items-center">
+                            <div class="flex gap-2">
+                                <button onclick="filterTimeline('all')" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm">All Changes</button>
+                                <button onclick="filterTimeline('safety')" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm hover:bg-gray-300">Safety</button>
+                                <button onclick="filterTimeline('efficacy')" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm hover:bg-gray-300">Efficacy</button>
+                                <button onclick="filterTimeline('indication')" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm hover:bg-gray-300">Indication</button>
+                            </div>
+                            <select id="timelineGrouping" onchange="updateTimelineView()" class="px-4 py-2 border rounded-lg">
+                                <option value="all">All Events</option>
+                                <option value="application">Group by Application</option>
+                                <option value="year">Group by Year</option>
+                            </select>
+                        </div>
+                        <div id="timelineContainer" class="timeline-container custom-scrollbar" style="height: 500px; position: relative;">
+                            <!-- Enhanced timeline will be rendered here -->
+                        </div>
+                    </div>
+
+                    <!-- Enhanced Companies Tab -->
+                    <div id="contentCompanies" class="Labeltab-content hidden">
+                        <div id="companiesContent">
+                            <!-- Company analysis will be rendered here -->
+                        </div>
+                    </div>
+
+                    <!-- Enhanced Compare Tab -->
+                    <div id="contentCompare" class="Labeltab-content hidden">
+                        <div class="mb-6">
+                            <!-- <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Reference Label</label>
+                                    <select id="compareLabel1" class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                        <option value="">Select a label...</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Compare With</label>
+                                    <select id="compareLabel2" class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                        <option value="">Select a label...</option>
+                                    </select>
+                                </div>
+                                <button onclick="openEnhancedUploadModal()" class="px-6 py-4 bg-green-600 text-white rounded-xl hover:shadow-lg transform hover:-translate-y-0.5 transition-all">
+                                <i class="fas fa-upload mr-2"></i>Upload
+                                </button>
+                            </div> -->
+
+<!-- Alternative: Compact Header Style Version -->
+<div class="flex items-center gap-3 bg-white rounded-xl shadow-sm border border-gray-200 p-3">
+    <div class="flex items-center flex-1">
+        <div class="flex items-center justify-center w-9 h-9 rounded-lg bg-blue-50 text-blue-600 mr-2">
+            <i class="fas fa-tag text-sm"></i>
+        </div>
+        <div class="flex-1">
+            <label class="block text-xs font-medium text-gray-500 mb-1">Reference Label</label>
+            <select id="compareLabel1" class="w-full px-3 py-2 bg-gray-50 border-0 rounded-lg text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all">
+                <option value="">Select a label...</option>
+            </select>
+        </div>
+    </div>
+    
+    <div class="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 text-white text-xs font-bold">
+        VS
+    </div>
+    
+    <div class="flex items-center flex-1">
+        <div class="flex items-center justify-center w-9 h-9 rounded-lg bg-purple-50 text-purple-600 mr-2">
+            <i class="fas fa-code-compare text-sm"></i>
+        </div>
+        <div class="flex-1">
+            <label class="block text-xs font-medium text-gray-500 mb-1">Compare With</label>
+            <select id="compareLabel2" class="w-full px-3 py-2 bg-gray-50 border-0 rounded-lg text-sm font-medium focus:ring-2 focus:ring-purple-500 focus:bg-white transition-all">
+                <option value="">Select a label...</option>
+            </select>
+        </div>
+    </div>
+    
+    <div class="w-px h-10 bg-gray-200"></div>
+    
+    <button onclick="openEnhancedUploadModal()" class="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg font-medium text-sm hover:shadow-lg transform hover:-translate-y-0.5 transition-all">
+        <i class="fas fa-cloud-arrow-up"></i>
+        <span>Upload</span>
+    </button>
+<button onclick="window.compareLabels()" 
+    class="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg font-medium text-sm hover:shadow-lg transform hover:-translate-y-0.5 transition-all">
+    <i class="fas fa-arrows-left-right"></i>
+    <span>Compare Labels</span>
+</button>
+</div>
+                            <div class="hidden flex gap-4">
+                                <button onclick="window.compareLabels()" class="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:shadow-lg transition-all font-semibold">
+                                    <i class="fas fa-arrows-left-right mr-2"></i>Compare Labels
+                                </button>
+                                <button onclick="toggleCompareView()" class="hidden px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-all">
+                                    <i class="fas fa-columns mr-2"></i>Toggle View
+                                </button>
+                                <button onclick="highlightDifferences()" class="hidden px-6 py-3 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-all">
+                                    <i class="fas fa-highlighter mr-2"></i>Highlight Changes
+                                </button>
+                            </div>
+                        </div>
+                        <div id="comparisonResult" class="mt-6">
+                            <!-- Enhanced comparison view will be rendered here -->
+                        </div>
+                    </div>
+
+                    <!-- Labels Tab -->
+                    <div id="contentLabels" class="Labeltab-content hidden">
+                        <div id="labelsGrid" class="space-y-4">
+                            <!-- Labels populated here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- No Results -->
+        <div id="noResults" class="hidden">
+            <div class="text-center py-20">
+                <i class="fas fa-search text-gray-300 text-6xl mb-4"></i>
+                <h3 class="text-xl font-semibold text-gray-600 mb-2">No results found</h3>
+                <p class="text-gray-500">Try searching with a different drug name or compound</p>
+            </div>
+        </div>
+    </section>
+
+
+
+
+
 <section id="LabellingSection" class="hidden mb-8">
   <div class="mb-6" id="labellingContainer">
     <div class="flex items-center justify-between">
@@ -8220,6 +8757,7 @@ tailwind.config = {
     </div>
   </div>
 </section>
+
 
 <style>
 /* Enhanced Labelling Section Styles - Matching Orange Book Design */
@@ -13622,6 +14160,7 @@ function buildClinicalTrialsQuery() {
 <script src="fda-manufacturers.js"></script>
 <script src="label-enhanced.js"></script>
 <script src="conditions.js"></script>
+<script src="full-label.js"></script>
     <script>
 
         // let emaModuleInstance = null;
@@ -65067,21 +65606,21 @@ async function autoLoadFDADocuments(products, showProgress = true) {
   }
   
   // Show global progress indicator if requested
-  if (showProgress) {
-    showGlobalDocumentLoadingIndicator(validProducts.length);
-  }
+//   if (showProgress) {
+//     showGlobalDocumentLoadingIndicator(validProducts.length);
+//   }
   
   let completed = 0;
   const total = validProducts.length;
   
   const updateProgress = () => {
     completed++;
-    if (showProgress) {
-      updateGlobalDocumentProgress(completed, total);
-    }
-    if (completed === total && showProgress) {
-      setTimeout(() => hideGlobalDocumentLoadingIndicator(), 2000);
-    }
+    // if (showProgress) {
+    //   updateGlobalDocumentProgress(completed, total);
+    // }
+    // if (completed === total && showProgress) {
+    //   setTimeout(() => hideGlobalDocumentLoadingIndicator(), 2000);
+    // }
   };
   
   // Enhanced configuration
@@ -66103,20 +66642,26 @@ try {
 }
         // Continue with DailyMed fetch
         try {
-            if (drug && window.PharmaLabellingModule) {
-            console.log('🏷️ Auto-triggering pharmaceutical labelling search for:', drug);
-            
-            // Set the drug name in the pharma search input
-            const pharmaSearchInput = document.getElementById('pharma-compound-search');
-            if (pharmaSearchInput) {
-                pharmaSearchInput.value = drug;
-                
-                // Trigger the pharmaceutical search
-                setTimeout(() => {
-                    window.PharmaLabellingModule.performSearch();
-                }, 1000); // Small delay to let other searches complete first
-            }
+if (window.quickSearch) {
+            // Now you can safely use it
+            window.quickSearch(drug);
         }
+
+
+        //     if (drug && window.PharmaLabellingModule) {
+        //     console.log('🏷️ Auto-triggering pharmaceutical labelling search for:', drug);
+            
+        //     // Set the drug name in the pharma search input
+        //     const pharmaSearchInput = document.getElementById('pharma-compound-search');
+        //     if (pharmaSearchInput) {
+        //         pharmaSearchInput.value = drug;
+                
+        //         // Trigger the pharmaceutical search
+        //         setTimeout(() => {
+        //             window.PharmaLabellingModule.performSearch();
+        //         }, 1000); // Small delay to let other searches complete first
+        //     }
+        // }
 
             // Fetch data from the DailyMed API
         //     const dailyMedResponse = await fetch(`${API_BASE_URL}/fda/dailymed?name=${encodeURIComponent(drug)}`);
@@ -85293,6 +85838,8 @@ let isMinimized = false;
 
 // Add these functions to handle the minimized search bar
 function updateMinimizedSearchBar(drug, condition, yearsBack) {
+    const minimizedBar = document.getElementById('minimizedSearchBar');
+    minimizedBar.classList.remove('hidden')
     // Update the minimized bar with current search terms
     document.getElementById('minDrugName').textContent = drug || 'Not specified';
     document.getElementById('minConditionName').textContent = condition || 'Not specified';
@@ -118908,7 +119455,7 @@ console.log(username, password)
                     this.signupError.textContent = 'An error occurred. Please try again later.';
                     this.signupError.classList.remove('hidden');
                 } finally {
-                    this.signupButtonText.textContent = 'Start 30-Day Trial';
+                    this.signupButtonText.textContent = 'Get Started';
                     this.signupSpinner.style.display = 'none';
                 }
             }
@@ -126010,7 +126557,7 @@ if (window.afterSearchComplete) {
 
 function showOnlySection(sectionName) {
     // Hide all sections first
-    const sections = ['summarySection', 'trials', 'fdaDataSection', 'responseLettersSection', 'emaDataSection', 'tabpubmedSection', 'fda-manufacturers-tab','OrangeBookSection','LabellingSection'  ];
+    const sections = ['summarySection', 'trials', 'fdaDataSection', 'responseLettersSection', 'emaDataSection', 'tabpubmedSection', 'fda-manufacturers-tab','OrangeBookSection','LabellingSection', 'NewLabellingSection'  ];
     sections.forEach(section => {
         const elementMap = {
             'summarySection': document.getElementById('summarySection'),
@@ -126021,7 +126568,8 @@ function showOnlySection(sectionName) {
             'fda-manufacturers-tab': document.getElementById('fda-manufacturers-tab'),
             'OrangeBookSection' : document.getElementById('OrangeBookSection'),
             'LabellingSection' : document.getElementById('LabellingSection'),
-            'responseLettersSection' : document.getElementById('responseLettersSection')
+            'responseLettersSection' : document.getElementById('responseLettersSection'),
+            'NewLabellingSection' : document.getElementById('NewLabellingSection')
         };
         
         const element = elementMap[section];
@@ -126106,7 +126654,8 @@ function showOnlySection(sectionName) {
         'fda-manufacturers-tab': document.getElementById('fda-manufacturers-tab'),
         'OrangeBookSection' : document.getElementById('OrangeBookSection'),
         'LabellingSection' : document.getElementById('LabellingSection'),
-        'responseLettersSection' : document.getElementById('responseLettersSection')
+        'responseLettersSection' : document.getElementById('responseLettersSection'),
+        'NewLabellingSection' : document.getElementById('NewLabellingSection')
     };
     
     const targetElement = sectionMap[sectionName];
