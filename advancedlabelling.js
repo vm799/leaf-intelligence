@@ -124,52 +124,120 @@ class EnhancedSPLFetcher {
     }
 
     // Strategy 1: Fetch with streaming to handle large files
-    async fetchWithStreaming(labelId) {
-        console.log(`🔍 Trying streaming approach for ${labelId}`);
+    // async fetchWithStreaming(labelId) {
+    //     console.log(`🔍 Trying streaming approach for ${labelId}`);
         
-        const url = `https://dailymed.nlm.nih.gov/dailymed/services/v2/spls/${labelId}.xml`;
+    //     const url = `https://dailymed.nlm.nih.gov/dailymed/services/v2/spls/${labelId}.xml`;
         
-        const response = await axios({
-            method: 'GET',
-            url: url,
-            responseType: 'stream',
-            timeout: 60000,
-            maxContentLength: Infinity,
-            maxBodyLength: Infinity,
-            headers: {
-                'Accept': 'application/xml, text/xml, */*',
-                'User-Agent': 'PharmLabelSystem/2.0',
-                'Accept-Encoding': 'gzip, deflate'
+    //     const response = await axios({
+    //         method: 'GET',
+    //         url: url,
+    //         responseType: 'stream',
+    //         timeout: 60000,
+    //         maxContentLength: Infinity,
+    //         maxBodyLength: Infinity,
+    //         headers: {
+    //             'Accept': 'application/xml, text/xml, */*',
+    //             'User-Agent': 'PharmLabelSystem/2.0',
+    //             'Accept-Encoding': 'gzip, deflate'
+    //         }
+    //     });
+        
+    //     // Collect the stream data
+    //     let xmlData = '';
+        
+    //     return new Promise((resolve, reject) => {
+    //         response.data.on('data', (chunk) => {
+    //             xmlData += chunk.toString();
+    //         });
+            
+    //         response.data.on('end', async () => {
+    //             console.log(`✅ Received complete XML (${xmlData.length} characters)`);
+                
+    //             // Parse the complete XML
+    //             try {
+    //                 const parsed = await this.parseXMLSafely(xmlData);
+    //                 resolve(parsed);
+    //             } catch (error) {
+    //                 console.error('Parse error:', error.message);
+    //                 // Try regex fallback
+    //                 resolve(this.regexExtraction(xmlData));
+    //             }
+    //         });
+            
+    //         response.data.on('error', (error) => {
+    //             reject(error);
+    //         });
+    //     });
+    // }
+
+    // Fix for the fetchWithStreaming method in EnhancedSPLFetcher class
+// Replace the existing fetchWithStreaming method with this one:
+
+async fetchWithStreaming(labelId) {
+    console.log(`🔍 Trying streaming approach for ${labelId}`);
+    
+    const url = `https://dailymed.nlm.nih.gov/dailymed/services/v2/spls/${labelId}.xml`;
+    
+    const response = await axios({
+        method: 'GET',
+        url: url,
+        responseType: 'stream',
+        timeout: 60000,
+        maxContentLength: Infinity,
+        maxBodyLength: Infinity,
+        headers: {
+            'Accept': 'application/xml, text/xml, */*',
+            'User-Agent': 'PharmLabelSystem/2.0',
+            'Accept-Encoding': 'gzip, deflate'
+        }
+    });
+    
+    // Collect the stream data
+    let xmlData = '';
+    
+    return new Promise((resolve, reject) => {
+        response.data.on('data', (chunk) => {
+            xmlData += chunk.toString();
+        });
+        
+        response.data.on('end', async () => {
+            console.log(`✅ Received complete XML (${xmlData.length} characters)`);
+            
+            // Parse the complete XML
+            try {
+                const parsed = await this.parseXMLSafely(xmlData);
+                // IMPORTANT: Add the raw XML to the result HERE
+                const result = {
+                    ...parsed,
+                    rawXML: xmlData,
+                    cleanedXML: parsed.cleanedXML || xmlData,
+                    originalXML: parsed.originalXML || xmlData
+                };
+                console.log(`✅ Successfully parsed ${Object.keys(result.sections).length} sections`);
+                console.log(`✅ XML included in result: ${result.rawXML ? result.rawXML.length : 0} characters`);
+                resolve(result);
+            } catch (error) {
+                console.error('Parse error:', error.message);
+                // Try regex fallback
+                const regexResult = this.regexExtraction(xmlData);
+                // Also add XML to regex result
+                const result = {
+                    ...regexResult,
+                    rawXML: xmlData,
+                    cleanedXML: xmlData,
+                    originalXML: xmlData
+                };
+                console.log(`✅ Regex extraction complete, XML included: ${result.rawXML.length} characters`);
+                resolve(result);
             }
         });
         
-        // Collect the stream data
-        let xmlData = '';
-        
-        return new Promise((resolve, reject) => {
-            response.data.on('data', (chunk) => {
-                xmlData += chunk.toString();
-            });
-            
-            response.data.on('end', async () => {
-                console.log(`✅ Received complete XML (${xmlData.length} characters)`);
-                
-                // Parse the complete XML
-                try {
-                    const parsed = await this.parseXMLSafely(xmlData);
-                    resolve(parsed);
-                } catch (error) {
-                    console.error('Parse error:', error.message);
-                    // Try regex fallback
-                    resolve(this.regexExtraction(xmlData));
-                }
-            });
-            
-            response.data.on('error', (error) => {
-                reject(error);
-            });
+        response.data.on('error', (error) => {
+            reject(error);
         });
-    }
+    });
+}
 
     // Strategy 2: Fetch with chunking
     async fetchWithChunking(labelId) {
@@ -3628,26 +3696,73 @@ async function getOrangeBookData(drugName) {
 router.get('/label-content/:labelId', async (req, res) => {
     try {
         const { labelId } = req.params;
+        console.log(`Fetching label content for: ${labelId}`);
+        
         const fetcher = new EnhancedSPLFetcher();
         const labelData = await fetcher.fetchEnhancedLabelContent(labelId);
         
+        console.log('Label data received:', {
+            hasSections: !!labelData?.sections,
+            sectionCount: labelData?.sections ? Object.keys(labelData.sections).length : 0,
+            hasRawXML: !!labelData?.rawXML,
+            xmlLength: labelData?.rawXML ? labelData.rawXML.length : 0,
+            hasMetadata: !!labelData?.metadata
+        });
+        
         if (labelData && Object.keys(labelData.sections).length > 0) {
-            res.json(labelData);
+            // Successfully fetched and parsed label data
+            const response = {
+                success: true,
+                labelId: labelId,
+                data: {
+                    sections: labelData.sections,
+                    metadata: labelData.metadata,
+                    productInfo: labelData.productInfo
+                },
+                xml: {
+                    raw: labelData.rawXML || null,
+                    cleaned: labelData.cleanedXML || null,
+                    original: labelData.originalXML || null,
+                    hasXML: !!labelData.rawXML
+                }
+            };
+            
+            // Log what we're sending
+            console.log('Sending response with XML:', {
+                hasXML: !!response.xml.raw,
+                xmlLength: response.xml.raw ? response.xml.raw.length : 0
+            });
+            
+            res.json(response);
         } else {
-            res.status(404).json({ 
+            // No content found, but still return available data
+            res.status(404).json({
+                success: false,
                 error: 'Label not found or no content available',
                 labelId: labelId,
-                details: labelData?.error || 'No sections could be extracted'
+                details: labelData?.error || 'No sections could be extracted',
+                xml: {
+                    raw: labelData?.rawXML || null,
+                    cleaned: labelData?.cleanedXML || null,
+                    original: labelData?.originalXML || null,
+                    hasXML: !!labelData?.rawXML
+                },
+                metadata: labelData?.metadata || {},
+                source: labelData?.rawXML ? 'XML' : (labelData?.rawJSON ? 'FDA_API' : 'FAILED')
             });
         }
     } catch (error) {
         console.error('Error fetching label content:', error);
-        res.status(500).json({ 
+        res.status(500).json({
+            success: false,
             error: 'Failed to fetch label content',
-            message: error.message 
+            message: error.message,
+            labelId: req.params.labelId
         });
     }
 });
+
+
 
 // Compare labels endpoint
 router.post('/compare-labels', async (req, res) => {

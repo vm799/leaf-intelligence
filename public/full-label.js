@@ -2539,6 +2539,75 @@ function renderHorizontalTimeline(container, events) {
 //    return performEnhancedComparison();
 // }
 // Fixed compare function with better error handling
+// async function compareLabels() {
+//     const label1Id = document.getElementById('compareLabel1').value;
+//     const label2Id = document.getElementById('compareLabel2').value;
+    
+//     if (!label1Id || !label2Id) {
+//         alert('Please select two labels to compare');
+//         return;
+//     }
+    
+//     if (label1Id === label2Id) {
+//         alert('Please select different labels to compare');
+//         return;
+//     }
+    
+//     const resultDiv = document.getElementById('comparisonResult');
+//     resultDiv.innerHTML = `
+//         <div class="text-center py-8">
+//             <div class="loader mx-auto mb-4"></div>
+//             <p class="text-gray-600">Loading labels for comparison...</p>
+//         </div>
+//     `;
+    
+//     try {
+//         // Clean the label IDs
+//         const cleanLabel1Id = label1Id.replace(/^label_/, '');
+//         const cleanLabel2Id = label2Id.replace(/^label_/, '');
+        
+//         console.log('Fetching label 1:', cleanLabel1Id);
+//         console.log('Fetching label 2:', cleanLabel2Id);
+        
+//         // Fetch both labels
+//         const [response1, response2] = await Promise.all([
+//             fetch(`${API_BASE}/label-content/${cleanLabel1Id}`),
+//             fetch(`${API_BASE}/label-content/${cleanLabel2Id}`)
+//         ]);
+        
+//         let labelData1 = null;
+//         let labelData2 = null;
+        
+//         if (response1.ok) {
+//             labelData1 = await response1.json();
+//         } else {
+//             console.error('Failed to load label 1');
+//         }
+        
+//         if (response2.ok) {
+//             labelData2 = await response2.json();
+//         } else {
+//             console.error('Failed to load label 2');
+//         }
+        
+//         // Display the improved comparison
+//         displayImprovedComparison(labelData1, labelData2, cleanLabel1Id, cleanLabel2Id);
+        
+//     } catch (error) {
+//         console.error('Comparison error:', error);
+//         resultDiv.innerHTML = `
+//             <div class="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+//                 <i class="fas fa-exclamation-triangle text-red-500 text-2xl mb-3"></i>
+//                 <p class="text-red-700 font-semibold">Error loading labels</p>
+//                 <p class="text-sm text-red-600 mt-2">${error.message}</p>
+//                 <button onclick="compareLabels()" class="mt-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">
+//                     <i class="fas fa-redo mr-1"></i>Retry
+//                 </button>
+//             </div>
+//         `;
+//     }
+// }
+
 async function compareLabels() {
     const label1Id = document.getElementById('compareLabel1').value;
     const label2Id = document.getElementById('compareLabel2').value;
@@ -2580,18 +2649,20 @@ async function compareLabels() {
         
         if (response1.ok) {
             labelData1 = await response1.json();
+            console.log('Label 1 XML:', labelData1.xml?.raw ? 'Available' : 'Not available');
         } else {
             console.error('Failed to load label 1');
         }
         
         if (response2.ok) {
             labelData2 = await response2.json();
+            console.log('Label 2 XML:', labelData2.xml?.raw ? 'Available' : 'Not available');
         } else {
             console.error('Failed to load label 2');
         }
         
-        // Display the improved comparison
-        displayImprovedComparison(labelData1, labelData2, cleanLabel1Id, cleanLabel2Id);
+        // Display the labels side by side using the XML formatting
+        displaySideBySideLabels(labelData1, labelData2, cleanLabel1Id, cleanLabel2Id);
         
     } catch (error) {
         console.error('Comparison error:', error);
@@ -2608,7 +2679,546 @@ async function compareLabels() {
     }
 }
 
+function displaySideBySideLabels(labelData1, labelData2, labelId1, labelId2) {
+    const resultDiv = document.getElementById('comparisonResult');
+    
+    // Get the formatted HTML for each label using the XML formatter
+    let formattedLabel1 = '';
+    let formattedLabel2 = '';
+    
+    // Format Label 1
+    if (labelData1?.xml?.raw) {
+        formattedLabel1 = formatPharmaceuticalXML(labelData1.xml.raw);
+    } else if (labelData1?.data) {
+        // Fallback to displaying parsed data if no XML
+        formattedLabel1 = formatParsedLabelData(labelData1.data, labelId1);
+    } else {
+        formattedLabel1 = `
+            <div class="no-data-message">
+                <i class="fas fa-exclamation-circle"></i>
+                <p>No XML data available for this label</p>
+                <p class="label-id">Label ID: ${labelId1}</p>
+            </div>
+        `;
+    }
+    
+    // Format Label 2
+    if (labelData2?.xml?.raw) {
+        formattedLabel2 = formatPharmaceuticalXML(labelData2.xml.raw);
+    } else if (labelData2?.data) {
+        // Fallback to displaying parsed data if no XML
+        formattedLabel2 = formatParsedLabelData(labelData2.data, labelId2);
+    } else {
+        formattedLabel2 = `
+            <div class="no-data-message">
+                <i class="fas fa-exclamation-circle"></i>
+                <p>No XML data available for this label</p>
+                <p class="label-id">Label ID: ${labelId2}</p>
+            </div>
+        `;
+    }
+    
+    // Create the side-by-side layout
+    resultDiv.innerHTML = `
+        <div class="comparison-container">
+            ${getSideBySideStyles()}
+            
+            <!-- Comparison Header -->
+            <div class="comparison-header">
+                <h2 class="comparison-title">
+                    <i class="fas fa-balance-scale"></i>
+                    Label Comparison
+                </h2>
+                <div class="comparison-controls">
+                    <button onclick="syncScroll()" class="sync-btn" id="syncScrollBtn">
+                        <i class="fas fa-link"></i>
+                        Sync Scrolling
+                    </button>
+                    <button onclick="swapLabels()" class="swap-btn">
+                        <i class="fas fa-exchange-alt"></i>
+                        Swap Labels
+                    </button>
+                    <button onclick="exportComparison()" class="export-btn">
+                        <i class="fas fa-download"></i>
+                        Export
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Side by Side Labels -->
+            <div class="labels-grid">
+                <!-- Label 1 Container -->
+                <div class="label-container" id="label1Container">
+                    <div class="label-header-bar">
+                        <span class="label-badge">Label 1</span>
+                        <span class="label-id-display">${labelId1}</span>
+                    </div>
+                    <div class="label-content-wrapper" id="label1Content">
+                        ${formattedLabel1}
+                    </div>
+                </div>
+                
+                <!-- Divider -->
+                <div class="comparison-divider">
+                    <div class="divider-line"></div>
+                </div>
+                
+                <!-- Label 2 Container -->
+                <div class="label-container" id="label2Container">
+                    <div class="label-header-bar">
+                        <span class="label-badge">Label 2</span>
+                        <span class="label-id-display">${labelId2}</span>
+                    </div>
+                    <div class="label-content-wrapper" id="label2Content">
+                        ${formattedLabel2}
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Initialize scroll sync if needed
+    initializeComparisonFeatures();
+}
 
+function formatParsedLabelData(data, labelId) {
+    // Fallback formatter for when XML is not available but parsed data is
+    let html = `
+        <div class="parsed-label-container">
+            <div class="parsed-header">
+                <h2>${data.metadata?.title || 'Pharmaceutical Label'}</h2>
+                <div class="parsed-metadata">
+    `;
+    
+    if (data.metadata) {
+        Object.entries(data.metadata).forEach(([key, value]) => {
+            if (value) {
+                html += `
+                    <div class="meta-row">
+                        <span class="meta-key">${key}:</span>
+                        <span class="meta-value">${value}</span>
+                    </div>
+                `;
+            }
+        });
+    }
+    
+    html += `
+                </div>
+            </div>
+            <div class="parsed-sections">
+    `;
+    
+    if (data.sections) {
+        Object.entries(data.sections).forEach(([sectionTitle, sectionContent]) => {
+            html += `
+                <div class="parsed-section">
+                    <h3 class="parsed-section-title">${sectionTitle}</h3>
+                    <div class="parsed-section-content">
+                        ${sectionContent}
+                    </div>
+                </div>
+            `;
+        });
+    }
+    
+    html += `
+            </div>
+        </div>
+    `;
+    
+    return html;
+}
+
+function getSideBySideStyles() {
+    return `
+        <style>
+            .comparison-container {
+                background: #f8f9fa;
+                border-radius: 10px;
+                overflow: hidden;
+            }
+            
+            .comparison-header {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 20px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+            
+            .comparison-title {
+                font-size: 1.8em;
+                font-weight: 600;
+                margin: 0;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+            
+            .comparison-controls {
+                display: flex;
+                gap: 10px;
+            }
+            
+            .comparison-controls button {
+                padding: 8px 16px;
+                border: none;
+                border-radius: 6px;
+                background: rgba(255,255,255,0.2);
+                color: white;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                font-size: 0.9em;
+                display: flex;
+                align-items: center;
+                gap: 6px;
+            }
+            
+            .comparison-controls button:hover {
+                background: rgba(255,255,255,0.3);
+                transform: translateY(-2px);
+            }
+            
+            .sync-btn.active {
+                background: rgba(76, 175, 80, 0.5);
+            }
+            
+            .labels-grid {
+                display: grid;
+                grid-template-columns: 1fr auto 1fr;
+                background: white;
+                min-height: 600px;
+            }
+            
+            .label-container {
+                display: flex;
+                flex-direction: column;
+                overflow: hidden;
+            }
+            
+            .label-header-bar {
+                background: #f0f0f0;
+                padding: 12px 20px;
+                border-bottom: 2px solid #dee2e6;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                position: sticky;
+                top: 0;
+                z-index: 10;
+            }
+            
+            .label-badge {
+                background: #667eea;
+                color: white;
+                padding: 4px 12px;
+                border-radius: 20px;
+                font-size: 0.85em;
+                font-weight: 600;
+            }
+            
+            .label-id-display {
+                color: #6c757d;
+                font-size: 0.85em;
+                font-family: monospace;
+            }
+            
+            .label-content-wrapper {
+                flex: 1;
+                overflow-y: auto;
+                padding: 20px;
+                max-height: calc(100vh - 300px);
+            }
+            
+            .comparison-divider {
+                width: 2px;
+                background: #dee2e6;
+                position: relative;
+            }
+            
+            .divider-line {
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(180deg, 
+                    transparent 0%, 
+                    #dee2e6 10%, 
+                    #dee2e6 90%, 
+                    transparent 100%);
+            }
+            
+            /* Override pharma label styles for side-by-side view */
+            .label-content-wrapper .pharma-label-container {
+                max-width: none;
+                margin: 0;
+            }
+            
+            .label-content-wrapper .label-header {
+                border-radius: 10px;
+                margin-bottom: 20px;
+            }
+            
+            .label-content-wrapper .content-wrapper {
+                grid-template-columns: 1fr;
+            }
+            
+            .label-content-wrapper .sidebar {
+                display: none;
+            }
+            
+            .label-content-wrapper .main-content {
+                padding: 0;
+                max-height: none;
+                overflow: visible;
+            }
+            
+            /* No data message styles */
+            .no-data-message {
+                text-align: center;
+                padding: 60px 20px;
+                color: #6c757d;
+            }
+            
+            .no-data-message i {
+                font-size: 3em;
+                margin-bottom: 20px;
+                color: #dee2e6;
+            }
+            
+            .no-data-message p {
+                margin: 10px 0;
+                font-size: 1.1em;
+            }
+            
+            .no-data-message .label-id {
+                font-size: 0.9em;
+                font-family: monospace;
+                color: #adb5bd;
+            }
+            
+            /* Parsed data fallback styles */
+            .parsed-label-container {
+                padding: 20px;
+            }
+            
+            .parsed-header {
+                background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+                padding: 20px;
+                border-radius: 10px;
+                margin-bottom: 20px;
+            }
+            
+            .parsed-header h2 {
+                color: #333;
+                margin: 0 0 15px 0;
+            }
+            
+            .parsed-metadata {
+                display: grid;
+                gap: 8px;
+            }
+            
+            .meta-row {
+                display: flex;
+                gap: 10px;
+                font-size: 0.9em;
+            }
+            
+            .meta-key {
+                font-weight: 600;
+                color: #667eea;
+                min-width: 120px;
+            }
+            
+            .meta-value {
+                color: #495057;
+            }
+            
+            .parsed-section {
+                margin-bottom: 30px;
+                padding: 20px;
+                background: #f8f9fa;
+                border-radius: 8px;
+            }
+            
+            .parsed-section-title {
+                color: #667eea;
+                margin: 0 0 15px 0;
+                padding-bottom: 10px;
+                border-bottom: 2px solid #dee2e6;
+            }
+            
+            .parsed-section-content {
+                color: #495057;
+                line-height: 1.6;
+            }
+            
+            /* Responsive design */
+            @media (max-width: 1200px) {
+                .labels-grid {
+                    grid-template-columns: 1fr;
+                    grid-template-rows: auto 1fr auto 1fr;
+                }
+                
+                .comparison-divider {
+                    width: 100%;
+                    height: 2px;
+                    grid-column: 1;
+                }
+                
+                .label-container {
+                    border-bottom: 2px solid #dee2e6;
+                }
+                
+                .label-container:last-child {
+                    border-bottom: none;
+                }
+            }
+            
+            @media print {
+                .comparison-controls {
+                    display: none;
+                }
+                
+                .labels-grid {
+                    display: block;
+                }
+                
+                .label-container {
+                    page-break-after: always;
+                }
+            }
+        </style>
+    `;
+}
+
+function initializeComparisonFeatures() {
+    // Initialize any interactive features
+    window.syncScrollEnabled = false;
+    
+    // Store original label data for swapping
+    window.comparisonData = {
+        label1: document.getElementById('label1Content').innerHTML,
+        label2: document.getElementById('label2Content').innerHTML,
+        label1Id: document.querySelector('#label1Container .label-id-display').textContent,
+        label2Id: document.querySelector('#label2Container .label-id-display').textContent
+    };
+}
+
+function syncScroll() {
+    const btn = document.getElementById('syncScrollBtn');
+    const label1Content = document.getElementById('label1Content');
+    const label2Content = document.getElementById('label2Content');
+    
+    window.syncScrollEnabled = !window.syncScrollEnabled;
+    
+    if (window.syncScrollEnabled) {
+        btn.classList.add('active');
+        
+        // Add scroll listeners
+        label1Content.addEventListener('scroll', syncLabel2);
+        label2Content.addEventListener('scroll', syncLabel1);
+    } else {
+        btn.classList.remove('active');
+        
+        // Remove scroll listeners
+        label1Content.removeEventListener('scroll', syncLabel2);
+        label2Content.removeEventListener('scroll', syncLabel1);
+    }
+    
+    function syncLabel2() {
+        if (window.syncScrollEnabled) {
+            label2Content.scrollTop = label1Content.scrollTop;
+        }
+    }
+    
+    function syncLabel1() {
+        if (window.syncScrollEnabled) {
+            label1Content.scrollTop = label2Content.scrollTop;
+        }
+    }
+}
+
+function swapLabels() {
+    if (!window.comparisonData) return;
+    
+    const label1Content = document.getElementById('label1Content');
+    const label2Content = document.getElementById('label2Content');
+    const label1IdDisplay = document.querySelector('#label1Container .label-id-display');
+    const label2IdDisplay = document.querySelector('#label2Container .label-id-display');
+    
+    // Swap content
+    const tempContent = label1Content.innerHTML;
+    label1Content.innerHTML = label2Content.innerHTML;
+    label2Content.innerHTML = tempContent;
+    
+    // Swap IDs
+    const tempId = label1IdDisplay.textContent;
+    label1IdDisplay.textContent = label2IdDisplay.textContent;
+    label2IdDisplay.textContent = tempId;
+    
+    // Update stored data
+    const tempData = window.comparisonData.label1;
+    window.comparisonData.label1 = window.comparisonData.label2;
+    window.comparisonData.label2 = tempData;
+    
+    const tempDataId = window.comparisonData.label1Id;
+    window.comparisonData.label1Id = window.comparisonData.label2Id;
+    window.comparisonData.label2Id = tempDataId;
+}
+
+function exportComparison() {
+    // Create a combined HTML document for export
+    const label1Content = document.getElementById('label1Content').innerHTML;
+    const label2Content = document.getElementById('label2Content').innerHTML;
+    const label1Id = document.querySelector('#label1Container .label-id-display').textContent;
+    const label2Id = document.querySelector('#label2Container .label-id-display').textContent;
+    
+    const exportHTML = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Label Comparison: ${label1Id} vs ${label2Id}</title>
+            <style>
+                body { font-family: Arial, sans-serif; margin: 20px; }
+                .label-section { page-break-after: always; margin-bottom: 40px; }
+                .label-header { background: #f0f0f0; padding: 10px; margin-bottom: 20px; }
+                h1 { color: #333; }
+            </style>
+        </head>
+        <body>
+            <h1>Label Comparison Export</h1>
+            <p>Generated: ${new Date().toLocaleString()}</p>
+            
+            <div class="label-section">
+                <div class="label-header">
+                    <h2>Label 1: ${label1Id}</h2>
+                </div>
+                ${label1Content}
+            </div>
+            
+            <div class="label-section">
+                <div class="label-header">
+                    <h2>Label 2: ${label2Id}</h2>
+                </div>
+                ${label2Content}
+            </div>
+        </body>
+        </html>
+    `;
+    
+    // Download the file
+    const blob = new Blob([exportHTML], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `label_comparison_${label1Id}_vs_${label2Id}.html`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
 
 window.compareLabels = compareLabels
 
@@ -3990,17 +4600,295 @@ function viewApplicationDetails(applicationNumber) {
         }
 
         // View full label
+// async function viewFullLabel(labelId) {
+//     const label = state.labels.find(l => l.id === labelId);
+//     if (!label) return;
+
+//     const modalHtml = `
+//         <div class="fixed inset-0 modal-backdrop flex items-center justify-center z-50" id="labelViewModal">
+//             <div class="bg-white rounded-2xl shadow-2xl max-w-6xl w-full max-h-[95vh] flex flex-col">
+//                 <!-- Header -->
+//                 <div class="flex justify-between items-center p-6 border-b bg-gradient-to-r from-blue-50 to-green-50 flex-shrink-0">
+//                     <div>
+//                         <h3 class="text-2xl font-bold text-gray-900">${label.productName || 'Label Details'}</h3>
+//                         <div class="flex items-center gap-4 mt-2">
+//                             <span class="text-sm text-gray-600">
+//                                 <i class="fas fa-code-branch mr-1"></i>Version ${label.version || 'N/A'}
+//                             </span>
+//                             <span class="text-sm text-gray-600">
+//                                 <i class="fas fa-calendar mr-1"></i>Effective: ${formatDate(label.effectiveDate)}
+//                             </span>
+//                             <span class="text-sm text-gray-600">
+//                                 <i class="fas fa-building mr-1"></i>${label.manufacturerName || 'Unknown Manufacturer'}
+//                             </span>
+//                         </div>
+//                     </div>
+//                     <button onclick="document.getElementById('labelViewModal').remove()" 
+//                             class="text-gray-400 hover:text-gray-600 transition-colors">
+//                         <i class="fas fa-times text-xl"></i>
+//                     </button>
+//                 </div>
+                
+//                 <!-- Tab Navigation -->
+//                 <div class="border-b px-6 pt-3 bg-gray-50 flex-shrink-0">
+//                     <div class="flex gap-1">
+//                         <button onclick="switchLabelTab('sections')" 
+//                                 id="Labeltab-sections"
+//                                 class="px-4 py-2 text-sm font-medium text-blue-600 border-b-2 border-blue-600 bg-white rounded-t-lg">
+//                             <i class="fas fa-file-medical mr-1"></i>Label Sections
+//                         </button>
+//                         <button onclick="switchLabelTab('metadata')" 
+//                                 id="Labeltab-metadata"
+//                                 class="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-800 hover:bg-white rounded-t-lg transition-colors">
+//                             <i class="fas fa-info-circle mr-1"></i>Metadata
+//                         </button>
+//                         <button onclick="switchLabelTab('raw')" 
+//                                 id="Labeltab-raw"
+//                                 class="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-800 hover:bg-white rounded-t-lg transition-colors">
+//                             <i class="fas fa-code mr-1"></i>Raw XML
+//                         </button>
+//                     </div>
+//                 </div>
+                
+//                 <!-- Content Area -->
+//                 <div class="flex-1 overflow-hidden flex">
+//                     <!-- Section Navigation Sidebar -->
+//                     <div id="sectionNav" class="w-64 border-r bg-gray-50 overflow-y-auto flex-shrink-0">
+//                         <div class="p-4">
+//                             <h4 class="text-sm font-semibold text-gray-700 mb-3">Quick Navigation</h4>
+//                             <div id="sectionLinks" class="space-y-1">
+//                                 <div class="text-center py-4">
+//                                     <div class="loader mx-auto"></div>
+//                                 </div>
+//                             </div>
+//                         </div>
+//                     </div>
+                    
+//                     <!-- Main Content -->
+//                     <div id="labelContent" class="flex-1 overflow-y-auto custom-scrollbar p-6">
+//                         <div class="text-center py-8">
+//                             <div class="loader mx-auto"></div>
+//                             <p class="text-gray-500 mt-4">Loading label content...</p>
+//                         </div>
+//                     </div>
+//                 </div>
+                
+//                 <!-- Footer Actions -->
+//                 <div class="border-t px-6 py-3 bg-gray-50 flex justify-between items-center flex-shrink-0">
+//                     <div class="flex gap-2">
+//                         <button onclick="printLabel('${labelId}')" 
+//                                 class="hidden px-4 py-2 text-sm bg-gray-600 text-white rounded hover:bg-gray-700 transition-colors">
+//                             <i class="fas fa-print mr-1"></i>Print
+//                         </button>
+//                         <button onclick="downloadLabel('${labelId}')" 
+//                                 class="px-4 py-2 text-sm bg-green-600 text-white rounded hover:bg-green-700 transition-colors">
+//                             <i class="fas fa-download mr-1"></i>Download PDF
+//                         </button>
+//                         <button onclick="exportLabelData('${labelId}')" 
+//                                 class="px-4 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors">
+//                             <i class="fas fa-file-export mr-1"></i>Export Data
+//                         </button>
+//                     </div>
+//                     <button onclick="document.getElementById('labelViewModal').remove()" 
+//                             class="px-4 py-2 text-sm bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors">
+//                         Close
+//                     </button>
+//                 </div>
+//             </div>
+//         </div>
+//     `;
+    
+//     document.body.insertAdjacentHTML('beforeend', modalHtml);
+    
+//     try {
+//         const response = await fetch(`${API_BASE}/label-content/${labelId}`);
+//         const reply = await response.json();
+//         const data = reply.data
+//         if (data.sections || data.metadata || data.rawXML) {
+//             renderLabelContent(data, labelId);
+//         } else {
+//             document.getElementById('labelContent').innerHTML = `
+//                 <div class="text-center py-12">
+//                     <i class="fas fa-exclamation-circle text-4xl text-gray-400 mb-4"></i>
+//                     <p class="text-gray-500">Unable to load label content</p>
+//                     <button onclick="retryLoadLabel('${labelId}')" 
+//                             class="mt-4 px-4 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700">
+//                         <i class="fas fa-redo mr-1"></i>Retry
+//                     </button>
+//                 </div>
+//             `;
+//         }
+//     } catch (error) {
+//         console.error('Error loading label:', error);
+//         document.getElementById('labelContent').innerHTML = `
+//             <div class="text-center py-12">
+//                 <i class="fas fa-exclamation-triangle text-4xl text-red-400 mb-4"></i>
+//                 <p class="text-red-500">Error loading label content</p>
+//                 <p class="text-sm text-gray-500 mt-2">${error.message}</p>
+//             </div>
+//         `;
+//     }
+// }
+
+// async function viewFullLabel(labelId) {
+//     const label = state.labels.find(l => l.id === labelId);
+//     if (!label) return;
+
+//     const modalHtml = `
+//         <div class="fixed inset-0 modal-backdrop flex items-center justify-center z-50" id="labelViewModal">
+//             <div class="bg-white rounded-2xl shadow-2xl max-w-6xl w-full max-h-[95vh] flex flex-col">
+//                 <!-- Header -->
+//                 <div class="flex justify-between items-center p-6 border-b bg-gradient-to-r from-blue-50 to-green-50 flex-shrink-0">
+//                     <div>
+//                         <h3 class="text-2xl font-bold text-gray-900">${label.productName || 'Label Details'}</h3>
+//                         <div class="flex items-center gap-4 mt-2">
+//                             <span class="text-sm text-gray-600">
+//                                 <i class="fas fa-code-branch mr-1"></i>Version ${label.version || 'N/A'}
+//                             </span>
+//                             <span class="text-sm text-gray-600">
+//                                 <i class="fas fa-calendar mr-1"></i>Effective: ${formatDate(label.effectiveDate)}
+//                             </span>
+//                             <span class="text-sm text-gray-600">
+//                                 <i class="fas fa-building mr-1"></i>${label.manufacturerName || 'Unknown Manufacturer'}
+//                             </span>
+//                         </div>
+//                     </div>
+//                     <button onclick="document.getElementById('labelViewModal').remove()" 
+//                             class="text-gray-400 hover:text-gray-600 transition-colors">
+//                         <i class="fas fa-times text-xl"></i>
+//                     </button>
+//                 </div>
+                
+//                 <!-- Tab Navigation -->
+//                 <div class="border-b px-6 pt-3 bg-gray-50 flex-shrink-0">
+//                     <div class="flex gap-1">
+//                         <button onclick="switchLabelTab('sections')" 
+//                                 id="Labeltab-sections"
+//                                 class="px-4 py-2 text-sm font-medium text-blue-600 border-b-2 border-blue-600 bg-white rounded-t-lg">
+//                             <i class="fas fa-file-medical mr-1"></i>Label Sections
+//                         </button>
+//                         <button onclick="switchLabelTab('metadata')" 
+//                                 id="Labeltab-metadata"
+//                                 class="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-800 hover:bg-white rounded-t-lg transition-colors">
+//                             <i class="fas fa-info-circle mr-1"></i>Metadata
+//                         </button>
+//                         <button onclick="switchLabelTab('raw')" 
+//                                 id="Labeltab-raw"
+//                                 class="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-800 hover:bg-white rounded-t-lg transition-colors">
+//                             <i class="fas fa-code mr-1"></i>Raw XML
+//                         </button>
+//                     </div>
+//                 </div>
+                
+//                 <!-- Content Area -->
+//                 <div class="flex-1 overflow-hidden flex">
+//                     <!-- Section Navigation Sidebar -->
+//                     <div id="sectionNav" class="w-64 border-r bg-gray-50 overflow-y-auto flex-shrink-0">
+//                         <div class="p-4">
+//                             <h4 class="text-sm font-semibold text-gray-700 mb-3">Quick Navigation</h4>
+//                             <div id="sectionLinks" class="space-y-1">
+//                                 <div class="text-center py-4">
+//                                     <div class="loader mx-auto"></div>
+//                                 </div>
+//                             </div>
+//                         </div>
+//                     </div>
+                    
+//                     <!-- Main Content -->
+//                     <div id="labelContent" class="flex-1 overflow-y-auto custom-scrollbar p-6">
+//                         <div class="text-center py-8">
+//                             <div class="loader mx-auto"></div>
+//                             <p class="text-gray-500 mt-4">Loading label content...</p>
+//                         </div>
+//                     </div>
+//                 </div>
+                
+//                 <!-- Footer Actions -->
+//                 <div class="border-t px-6 py-3 bg-gray-50 flex justify-between items-center flex-shrink-0">
+//                     <div class="flex gap-2">
+//                         <button onclick="printLabel('${labelId}')" 
+//                                 class="hidden px-4 py-2 text-sm bg-gray-600 text-white rounded hover:bg-gray-700 transition-colors">
+//                             <i class="fas fa-print mr-1"></i>Print
+//                         </button>
+//                         <button onclick="downloadLabel('${labelId}')" 
+//                                 class="px-4 py-2 text-sm bg-green-600 text-white rounded hover:bg-green-700 transition-colors">
+//                             <i class="fas fa-download mr-1"></i>Download PDF
+//                         </button>
+//                         <button onclick="exportLabelData('${labelId}')" 
+//                                 class="px-4 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors">
+//                             <i class="fas fa-file-export mr-1"></i>Export Data
+//                         </button>
+//                     </div>
+//                     <button onclick="document.getElementById('labelViewModal').remove()" 
+//                             class="px-4 py-2 text-sm bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors">
+//                         Close
+//                     </button>
+//                 </div>
+//             </div>
+//         </div>
+//     `;
+    
+//     document.body.insertAdjacentHTML('beforeend', modalHtml);
+    
+//     try {
+//         const response = await fetch(`${API_BASE}/label-content/${labelId}`);
+//         const reply = await response.json();
+        
+//         // Console log the XML as requested
+//         if (reply.xml && reply.xml.raw) {
+//             console.log('Full XML Content:', reply.xml.raw);
+//             console.log('XML Length:', reply.xml.raw.length, 'characters');
+//         } else {
+//             console.log('No XML content available in response');
+//         }
+        
+//         // Extract data from the new response structure
+//         const data = reply.data;
+        
+//         // Store the XML in the data object for potential use by other functions
+//         if (reply.xml) {
+//             data.rawXML = reply.xml.raw;
+//             data.cleanedXML = reply.xml.cleaned;
+//             data.originalXML = reply.xml.original;
+//         }
+        
+//         if (data && (data.sections || data.metadata || data.rawXML)) {
+//             renderLabelContent(data, labelId);
+//         } else {
+//             document.getElementById('labelContent').innerHTML = `
+//                 <div class="text-center py-12">
+//                     <i class="fas fa-exclamation-circle text-4xl text-gray-400 mb-4"></i>
+//                     <p class="text-gray-500">Unable to load label content</p>
+//                     <button onclick="retryLoadLabel('${labelId}')" 
+//                             class="mt-4 px-4 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700">
+//                         <i class="fas fa-redo mr-1"></i>Retry
+//                     </button>
+//                 </div>
+//             `;
+//         }
+//     } catch (error) {
+//         console.error('Error loading label:', error);
+//         document.getElementById('labelContent').innerHTML = `
+//             <div class="text-center py-12">
+//                 <i class="fas fa-exclamation-triangle text-4xl text-red-400 mb-4"></i>
+//                 <p class="text-red-500">Error loading label content</p>
+//                 <p class="text-sm text-gray-500 mt-2">${error.message}</p>
+//             </div>
+//         `;
+//     }
+// }
+
 async function viewFullLabel(labelId) {
     const label = state.labels.find(l => l.id === labelId);
     if (!label) return;
 
     const modalHtml = `
         <div class="fixed inset-0 modal-backdrop flex items-center justify-center z-50" id="labelViewModal">
-            <div class="bg-white rounded-2xl shadow-2xl max-w-6xl w-full max-h-[95vh] flex flex-col">
+            <div class="bg-white rounded-2xl shadow-2xl max-w-7xl w-full max-h-[95vh] flex flex-col">
                 <!-- Header -->
                 <div class="flex justify-between items-center p-6 border-b bg-gradient-to-r from-blue-50 to-green-50 flex-shrink-0">
                     <div>
-                        <h3 class="text-2xl font-bold text-gray-900">${label.productName || 'Label Details'}</h3>
+                        <h3 class="text-2xl font-bold text-gray-900">${label.productName || 'Label XML View'}</h3>
                         <div class="flex items-center gap-4 mt-2">
                             <span class="text-sm text-gray-600">
                                 <i class="fas fa-code-branch mr-1"></i>Version ${label.version || 'N/A'}
@@ -4019,46 +4907,42 @@ async function viewFullLabel(labelId) {
                     </button>
                 </div>
                 
-                <!-- Tab Navigation -->
-                <div class="border-b px-6 pt-3 bg-gray-50 flex-shrink-0">
-                    <div class="flex gap-1">
-                        <button onclick="switchLabelTab('sections')" 
-                                id="Labeltab-sections"
-                                class="px-4 py-2 text-sm font-medium text-blue-600 border-b-2 border-blue-600 bg-white rounded-t-lg">
-                            <i class="fas fa-file-medical mr-1"></i>Label Sections
-                        </button>
-                        <button onclick="switchLabelTab('metadata')" 
-                                id="Labeltab-metadata"
-                                class="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-800 hover:bg-white rounded-t-lg transition-colors">
-                            <i class="fas fa-info-circle mr-1"></i>Metadata
-                        </button>
-                        <button onclick="switchLabelTab('raw')" 
-                                id="Labeltab-raw"
-                                class="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-800 hover:bg-white rounded-t-lg transition-colors">
-                            <i class="fas fa-code mr-1"></i>Raw XML
-                        </button>
+                <!-- Metadata Section -->
+                <div id="metadataSection" class="hidden border-b bg-gray-50 px-6 py-4 flex-shrink-0">
+                    <div class="text-center">
+                        <div class="inline-flex items-center">
+                            <div class="loader mr-2"></div>
+                            <span class="text-sm text-gray-600">Loading metadata...</span>
+                        </div>
                     </div>
                 </div>
                 
-                <!-- Content Area -->
-                <div class="flex-1 overflow-hidden flex">
-                    <!-- Section Navigation Sidebar -->
-                    <div id="sectionNav" class="w-64 border-r bg-gray-50 overflow-y-auto flex-shrink-0">
-                        <div class="p-4">
-                            <h4 class="text-sm font-semibold text-gray-700 mb-3">Quick Navigation</h4>
-                            <div id="sectionLinks" class="space-y-1">
-                                <div class="text-center py-4">
-                                    <div class="loader mx-auto"></div>
-                                </div>
-                            </div>
+                <!-- XML Tree Content Area -->
+                <div class="flex-1 overflow-hidden flex flex-col">
+                    <div class="px-6 py-3 bg-gray-100 border-b flex justify-between items-center flex-shrink-0">
+                        <h4 class="text-lg font-semibold text-gray-800">
+                            <i class="fas fa-code mr-2 text-blue-600"></i>XML Structure
+                        </h4>
+                        <div class="flex gap-2">
+                            <button onclick="expandAllXML()" 
+                                    class="px-3 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors">
+                                <i class="fas fa-expand-alt mr-1"></i>Expand All
+                            </button>
+                            <button onclick="collapseAllXML()" 
+                                    class="px-3 py-1 text-xs bg-gray-600 text-white rounded hover:bg-gray-700 transition-colors">
+                                <i class="fas fa-compress-alt mr-1"></i>Collapse All
+                            </button>
+                            <button onclick="copyXMLToClipboard('${labelId}')" 
+                                    class="px-3 py-1 text-xs bg-green-600 text-white rounded hover:bg-green-700 transition-colors">
+                                <i class="fas fa-copy mr-1"></i>Copy XML
+                            </button>
                         </div>
                     </div>
                     
-                    <!-- Main Content -->
-                    <div id="labelContent" class="flex-1 overflow-y-auto custom-scrollbar p-6">
+                    <div id="xmlTreeContent" class="flex-1 overflow-y-auto p-6 bg-white font-mono text-sm">
                         <div class="text-center py-8">
                             <div class="loader mx-auto"></div>
-                            <p class="text-gray-500 mt-4">Loading label content...</p>
+                            <p class="text-gray-500 mt-4">Loading XML content...</p>
                         </div>
                     </div>
                 </div>
@@ -4066,17 +4950,13 @@ async function viewFullLabel(labelId) {
                 <!-- Footer Actions -->
                 <div class="border-t px-6 py-3 bg-gray-50 flex justify-between items-center flex-shrink-0">
                     <div class="flex gap-2">
-                        <button onclick="printLabel('${labelId}')" 
-                                class="hidden px-4 py-2 text-sm bg-gray-600 text-white rounded hover:bg-gray-700 transition-colors">
-                            <i class="fas fa-print mr-1"></i>Print
-                        </button>
-                        <button onclick="downloadLabel('${labelId}')" 
+                        <button onclick="downloadXML('${labelId}')" 
                                 class="px-4 py-2 text-sm bg-green-600 text-white rounded hover:bg-green-700 transition-colors">
-                            <i class="fas fa-download mr-1"></i>Download PDF
+                            <i class="fas fa-download mr-1"></i>Download XML
                         </button>
-                        <button onclick="exportLabelData('${labelId}')" 
+                        <button onclick="downloadParsedData('${labelId}')" 
                                 class="px-4 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors">
-                            <i class="fas fa-file-export mr-1"></i>Export Data
+                            <i class="fas fa-file-export mr-1"></i>Export Parsed Data
                         </button>
                     </div>
                     <button onclick="document.getElementById('labelViewModal').remove()" 
@@ -4092,25 +4972,41 @@ async function viewFullLabel(labelId) {
     
     try {
         const response = await fetch(`${API_BASE}/label-content/${labelId}`);
-        const data = await response.json();
+        const reply = await response.json();
         
-        if (data.sections || data.metadata || data.rawXML) {
-            renderLabelContent(data, labelId);
-        } else {
-            document.getElementById('labelContent').innerHTML = `
+        // Store the data globally for other functions to use
+        window.currentLabelData = reply;
+        
+        // Display metadata
+        if (reply.data && reply.data.metadata) {
+            displayMetadata(reply.data.metadata);
+        }
+
+        if (reply.xml && reply.xml.raw) {
+    const formattedContent = formatPharmaceuticalXML(reply.xml.raw);
+    document.getElementById('xmlTreeContent').innerHTML = formattedContent;
+}
+        
+        // Display XML tree
+        // if (reply.xml && reply.xml.raw) {
+        //     console.log('Full XML Content:', reply.xml.raw);
+        //     console.log('XML Length:', reply.xml.raw.length, 'characters');
+        //     renderXMLTree(reply.xml.raw);
+        // } 
+        else {
+            console.log('No XML content available in response');
+            document.getElementById('xmlTreeContent').innerHTML = `
                 <div class="text-center py-12">
                     <i class="fas fa-exclamation-circle text-4xl text-gray-400 mb-4"></i>
-                    <p class="text-gray-500">Unable to load label content</p>
-                    <button onclick="retryLoadLabel('${labelId}')" 
-                            class="mt-4 px-4 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700">
-                        <i class="fas fa-redo mr-1"></i>Retry
-                    </button>
+                    <p class="text-gray-500">No XML content available</p>
+                    <p class="text-sm text-gray-400 mt-2">The label was loaded from FDA API which doesn't provide XML format</p>
                 </div>
             `;
         }
+        
     } catch (error) {
         console.error('Error loading label:', error);
-        document.getElementById('labelContent').innerHTML = `
+        document.getElementById('xmlTreeContent').innerHTML = `
             <div class="text-center py-12">
                 <i class="fas fa-exclamation-triangle text-4xl text-red-400 mb-4"></i>
                 <p class="text-red-500">Error loading label content</p>
@@ -4119,6 +5015,974 @@ async function viewFullLabel(labelId) {
         `;
     }
 }
+
+
+function formatPharmaceuticalXML(xmlString) {
+    // Parse the XML
+    const parser = new DOMParser();
+    const xmlDoc = parser.parseFromString(xmlString, "application/xml");
+    
+    // Check for parsing errors
+    const parseError = xmlDoc.querySelector('parsererror');
+    if (parseError) {
+        return `
+            <div class="error-container">
+                <h2>Error Parsing XML</h2>
+                <p>${parseError.textContent}</p>
+            </div>
+        `;
+    }
+    
+    // Extract key document information
+    const documentInfo = extractDocumentInfo(xmlDoc);
+    const sections = extractSections(xmlDoc);
+    
+    // Build the formatted HTML
+    let html = `
+        <div class="pharma-label-container">
+            ${buildHeader(documentInfo)}
+            ${buildNavigation(sections)}
+            <div class="content-wrapper">
+                ${buildSidebar(sections)}
+                <main class="main-content">
+                    ${buildSections(sections)}
+                </main>
+            </div>
+        </div>
+        ${getStyles()}
+    `;
+    
+    return html;
+}
+
+function extractDocumentInfo(xmlDoc) {
+    const info = {
+        title: '',
+        setId: '',
+        versionNumber: '',
+        effectiveDate: '',
+        productName: '',
+        manufacturer: '',
+        ndc: '',
+        schedule: '',
+        routes: [],
+        strengths: [],
+        approval: ''
+    };
+    
+    // Extract title
+    const titleNode = xmlDoc.querySelector('title');
+    if (titleNode) {
+        info.title = cleanText(titleNode.textContent);
+    }
+    
+    // Extract document metadata
+    const setIdNode = xmlDoc.querySelector('setId');
+    if (setIdNode) {
+        info.setId = setIdNode.getAttribute('root') || '';
+    }
+    
+    const versionNode = xmlDoc.querySelector('versionNumber');
+    if (versionNode) {
+        info.versionNumber = versionNode.getAttribute('value') || '';
+    }
+    
+    const effectiveNode = xmlDoc.querySelector('effectiveTime');
+    if (effectiveNode) {
+        info.effectiveDate = formatDate(effectiveNode.getAttribute('value'));
+    }
+    
+    // Extract product information
+    const productNode = xmlDoc.querySelector('manufacturedProduct');
+    if (productNode) {
+        const nameNode = productNode.querySelector('name');
+        if (nameNode) {
+            info.productName = cleanText(nameNode.textContent);
+        }
+        
+        const codeNode = productNode.querySelector('code');
+        if (codeNode) {
+            info.ndc = codeNode.getAttribute('code') || '';
+        }
+    }
+    
+    // Extract manufacturer
+    const orgNode = xmlDoc.querySelector('representedOrganization name');
+    if (orgNode) {
+        info.manufacturer = cleanText(orgNode.textContent);
+    }
+    
+    // Extract DEA schedule
+    const scheduleNode = xmlDoc.querySelector('policy[classCode="DEADrugSchedule"] code');
+    if (scheduleNode) {
+        const scheduleCode = scheduleNode.getAttribute('displayName') || scheduleNode.getAttribute('code');
+        info.schedule = scheduleCode;
+    }
+    
+    // Extract approval info
+    const approvalNode = xmlDoc.querySelector('approval id');
+    if (approvalNode) {
+        info.approval = approvalNode.getAttribute('extension') || '';
+    }
+    
+    // Extract routes of administration
+    xmlDoc.querySelectorAll('routeCode').forEach(route => {
+        const routeName = route.getAttribute('displayName') || route.getAttribute('code');
+        if (routeName && !info.routes.includes(routeName)) {
+            info.routes.push(routeName);
+        }
+    });
+    
+    // Extract strengths
+    xmlDoc.querySelectorAll('ingredient[classCode="ACTIM"] quantity').forEach(qty => {
+        const numerator = qty.querySelector('numerator');
+        const denominator = qty.querySelector('denominator');
+        if (numerator && denominator) {
+            const strength = `${numerator.getAttribute('value')} ${numerator.getAttribute('unit')}/${denominator.getAttribute('value')} ${denominator.getAttribute('unit')}`;
+            if (!info.strengths.includes(strength)) {
+                info.strengths.push(strength);
+            }
+        }
+    });
+    
+    return info;
+}
+
+function extractSections(xmlDoc) {
+    const sections = [];
+    const sectionNodes = xmlDoc.querySelectorAll('component > section');
+    
+    sectionNodes.forEach((section, index) => {
+        const sectionData = {
+            id: section.querySelector('id')?.getAttribute('root') || `section-${index}`,
+            code: section.querySelector('code')?.getAttribute('code') || '',
+            displayName: section.querySelector('code')?.getAttribute('displayName') || '',
+            title: '',
+            content: '',
+            subsections: []
+        };
+        
+        // Get section title
+        const titleNode = section.querySelector('title');
+        if (titleNode) {
+            sectionData.title = cleanText(titleNode.textContent);
+        }
+        
+        // Get section text content
+        const textNode = section.querySelector('text');
+        if (textNode) {
+            sectionData.content = parseTextContent(textNode);
+        }
+        
+        // Get highlights/excerpt if available
+        const excerptNode = section.querySelector('excerpt highlight text');
+        if (excerptNode) {
+            sectionData.highlight = parseTextContent(excerptNode);
+        }
+        
+        // Only add sections with content
+        if (sectionData.title || sectionData.content) {
+            sections.push(sectionData);
+        }
+    });
+    
+    return sections;
+}
+
+function parseTextContent(textNode) {
+    let html = '';
+    
+    // Process paragraphs
+    textNode.querySelectorAll('paragraph').forEach(p => {
+        const text = cleanText(p.textContent);
+        if (text) {
+            html += `<p>${text}</p>`;
+        }
+    });
+    
+    // Process lists
+    textNode.querySelectorAll('list').forEach(list => {
+        const listType = list.getAttribute('listType') === 'ordered' ? 'ol' : 'ul';
+        html += `<${listType}>`;
+        list.querySelectorAll('item').forEach(item => {
+            const itemText = cleanText(item.textContent);
+            if (itemText) {
+                html += `<li>${itemText}</li>`;
+            }
+        });
+        html += `</${listType}>`;
+    });
+    
+    // Process tables
+    textNode.querySelectorAll('table').forEach(table => {
+        html += '<table class="data-table">';
+        
+        // Caption
+        const caption = table.querySelector('caption');
+        if (caption) {
+            html += `<caption>${cleanText(caption.textContent)}</caption>`;
+        }
+        
+        // Table body
+        const tbody = table.querySelector('tbody');
+        if (tbody) {
+            html += '<tbody>';
+            tbody.querySelectorAll('tr').forEach((row, rowIndex) => {
+                html += '<tr>';
+                row.querySelectorAll('td, th').forEach(cell => {
+                    const cellTag = rowIndex === 0 ? 'th' : 'td';
+                    html += `<${cellTag}>${cleanText(cell.textContent)}</${cellTag}>`;
+                });
+                html += '</tr>';
+            });
+            html += '</tbody>';
+        }
+        
+        html += '</table>';
+    });
+    
+    // If no structured content found, return cleaned text content
+    if (!html && textNode.textContent) {
+        html = `<p>${cleanText(textNode.textContent)}</p>`;
+    }
+    
+    return html;
+}
+
+function buildHeader(info) {
+    return `
+        <header class="label-header">
+            <h1>${info.productName || 'Pharmaceutical Product'}</h1>
+            ${info.title ? `<p class="subtitle">${info.title}</p>` : ''}
+            
+            <div class="header-metadata">
+                ${info.manufacturer ? `
+                    <div class="meta-item">
+                        <span class="meta-label">Manufacturer</span>
+                        <span class="meta-value">${info.manufacturer}</span>
+                    </div>
+                ` : ''}
+                ${info.ndc ? `
+                    <div class="meta-item">
+                        <span class="meta-label">NDC</span>
+                        <span class="meta-value">${info.ndc}</span>
+                    </div>
+                ` : ''}
+                ${info.schedule ? `
+                    <div class="meta-item">
+                        <span class="meta-label">DEA Schedule</span>
+                        <span class="meta-value">${info.schedule}</span>
+                    </div>
+                ` : ''}
+                ${info.approval ? `
+                    <div class="meta-item">
+                        <span class="meta-label">Approval</span>
+                        <span class="meta-value">${info.approval}</span>
+                    </div>
+                ` : ''}
+                ${info.effectiveDate ? `
+                    <div class="meta-item">
+                        <span class="meta-label">Effective Date</span>
+                        <span class="meta-value">${info.effectiveDate}</span>
+                    </div>
+                ` : ''}
+                ${info.versionNumber ? `
+                    <div class="meta-item">
+                        <span class="meta-label">Version</span>
+                        <span class="meta-value">${info.versionNumber}</span>
+                    </div>
+                ` : ''}
+            </div>
+            
+            ${info.routes.length > 0 ? `
+                <div class="routes-container">
+                    <span class="routes-label">Routes:</span>
+                    ${info.routes.map(route => `<span class="route-badge">${route}</span>`).join('')}
+                </div>
+            ` : ''}
+            
+            ${info.strengths.length > 0 ? `
+                <div class="strengths-container">
+                    <span class="strengths-label">Available Strengths:</span>
+                    ${info.strengths.map(strength => `<span class="strength-badge">${strength}</span>`).join('')}
+                </div>
+            ` : ''}
+        </header>
+    `;
+}
+
+function buildNavigation(sections) {
+    // Group sections by type for better organization
+    const importantSections = ['CONTRAINDICATIONS', 'WARNINGS', 'BOXED WARNING'];
+    const mainSections = [];
+    const highlights = [];
+    
+    sections.forEach(section => {
+        const displayName = section.displayName?.toUpperCase() || section.title?.toUpperCase() || '';
+        
+        if (displayName.includes('HIGHLIGHT') || displayName.includes('RECENT')) {
+            highlights.push(section);
+        } else {
+            mainSections.push(section);
+        }
+    });
+    
+    return ''; // Navigation built in sidebar
+}
+
+function buildSidebar(sections) {
+    // Number the main sections
+    const numberedSections = [];
+    let sectionNumber = 1;
+    
+    sections.forEach(section => {
+        const title = section.title || section.displayName || 'Untitled Section';
+        
+        // Skip metadata sections
+        if (title.includes('SPL UNCLASSIFIED') || title.includes('data elements')) {
+            return;
+        }
+        
+        // Extract section number if present
+        const numberMatch = title.match(/^(\d+)\s+(.+)/);
+        if (numberMatch) {
+            section.number = numberMatch[1];
+            section.displayTitle = numberMatch[2];
+        } else {
+            section.displayTitle = title;
+        }
+        
+        numberedSections.push(section);
+    });
+    
+    return `
+        <aside class="sidebar">
+            <h3>Table of Contents</h3>
+            <nav class="toc">
+                ${numberedSections.map(section => `
+                    <a href="#${section.id}" class="toc-link" onclick="scrollToSection('${section.id}'); return false;">
+                        ${section.number ? `<span class="toc-number">${section.number}</span>` : ''}
+                        <span class="toc-title">${section.displayTitle}</span>
+                    </a>
+                `).join('')}
+            </nav>
+        </aside>
+    `;
+}
+
+function buildSections(sections) {
+    let html = '';
+    
+    sections.forEach(section => {
+        const title = section.title || section.displayName || '';
+        
+        // Skip metadata sections
+        if (title.includes('SPL UNCLASSIFIED') || title.includes('data elements') || !title) {
+            return;
+        }
+        
+        const isWarning = title.toUpperCase().includes('WARNING') || 
+                         title.toUpperCase().includes('CONTRAINDICATION');
+        const isHighlight = title.toUpperCase().includes('HIGHLIGHT');
+        
+        html += `
+            <section id="${section.id}" class="content-section ${isWarning ? 'warning-section' : ''} ${isHighlight ? 'highlight-section' : ''}">
+                <h2 class="section-title">
+                    ${section.number ? `<span class="section-number">${section.number}</span>` : ''}
+                    ${section.displayTitle || title}
+                </h2>
+                
+                ${section.highlight ? `
+                    <div class="section-highlight">
+                        ${section.highlight}
+                    </div>
+                ` : ''}
+                
+                <div class="section-content">
+                    ${section.content}
+                </div>
+            </section>
+        `;
+    });
+    
+    return html;
+}
+
+function cleanText(text) {
+    if (!text) return '';
+    
+    return text
+        .replace(/\s+/g, ' ')
+        .replace(/\n\s*\n/g, '\n')
+        .trim();
+}
+
+function LabelformatDate(dateStr) {
+    if (!dateStr || dateStr.length < 8) return dateStr;
+    
+    const year = dateStr.substring(0, 4);
+    const month = dateStr.substring(4, 6);
+    const day = dateStr.substring(6, 8);
+    
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
+                       'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    
+    return `${monthNames[parseInt(month) - 1]} ${parseInt(day)}, ${year}`;
+}
+
+function scrollToSection(sectionId) {
+    const element = document.getElementById(sectionId);
+    if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        
+        // Update active state in TOC
+        document.querySelectorAll('.toc-link').forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('href') === `#${sectionId}`) {
+                link.classList.add('active');
+            }
+        });
+    }
+}
+
+function getStyles() {
+    return `
+        <style>
+            .pharma-label-container {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                line-height: 1.6;
+                color: #333;
+                max-width: 1400px;
+                margin: 0 auto;
+                background: #fff;
+            }
+            
+            .label-header {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 30px;
+                border-radius: 10px 10px 0 0;
+            }
+            
+            .label-header h1 {
+                margin: 0 0 10px 0;
+                font-size: 2.5em;
+                font-weight: 700;
+            }
+            
+            .subtitle {
+                font-size: 1.1em;
+                opacity: 0.95;
+                margin: 10px 0;
+            }
+            
+            .header-metadata {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 15px;
+                margin-top: 25px;
+            }
+            
+            .meta-item {
+                background: rgba(255,255,255,0.15);
+                padding: 10px 15px;
+                border-radius: 8px;
+                backdrop-filter: blur(10px);
+            }
+            
+            .meta-label {
+                display: block;
+                font-size: 0.85em;
+                opacity: 0.9;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                margin-bottom: 3px;
+            }
+            
+            .meta-value {
+                display: block;
+                font-size: 1.1em;
+                font-weight: 600;
+            }
+            
+            .routes-container, .strengths-container {
+                margin-top: 20px;
+                padding: 15px;
+                background: rgba(255,255,255,0.1);
+                border-radius: 8px;
+            }
+            
+            .routes-label, .strengths-label {
+                font-weight: 600;
+                margin-right: 10px;
+                text-transform: uppercase;
+                font-size: 0.9em;
+                letter-spacing: 1px;
+            }
+            
+            .route-badge, .strength-badge {
+                display: inline-block;
+                background: rgba(255,255,255,0.25);
+                padding: 5px 12px;
+                border-radius: 20px;
+                margin: 5px;
+                font-size: 0.95em;
+            }
+            
+            .content-wrapper {
+                display: grid;
+                grid-template-columns: 280px 1fr;
+                min-height: 600px;
+            }
+            
+            .sidebar {
+                background: #f8f9fa;
+                padding: 25px;
+                border-right: 1px solid #dee2e6;
+            }
+            
+            .sidebar h3 {
+                margin: 0 0 20px 0;
+                color: #667eea;
+                font-size: 1.1em;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+            }
+            
+            .toc {
+                display: flex;
+                flex-direction: column;
+                gap: 5px;
+            }
+            
+            .toc-link {
+                display: flex;
+                align-items: center;
+                padding: 10px 15px;
+                color: #495057;
+                text-decoration: none;
+                border-radius: 8px;
+                transition: all 0.3s ease;
+                font-size: 0.95em;
+            }
+            
+            .toc-link:hover {
+                background: #e9ecef;
+                color: #667eea;
+                transform: translateX(5px);
+            }
+            
+            .toc-link.active {
+                background: #667eea;
+                color: white;
+            }
+            
+            .toc-number {
+                display: inline-block;
+                min-width: 25px;
+                margin-right: 10px;
+                font-weight: 600;
+            }
+            
+            .main-content {
+                padding: 30px;
+                overflow-y: auto;
+                max-height: calc(100vh - 200px);
+            }
+            
+            .content-section {
+                margin-bottom: 40px;
+                padding-bottom: 30px;
+                border-bottom: 1px solid #dee2e6;
+            }
+            
+            .content-section:last-child {
+                border-bottom: none;
+            }
+            
+            .section-title {
+                display: flex;
+                align-items: center;
+                margin: 0 0 20px 0;
+                color: #2c3e50;
+                font-size: 1.8em;
+                font-weight: 600;
+            }
+            
+            .section-number {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                background: #667eea;
+                color: white;
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                margin-right: 15px;
+                font-size: 1.2em;
+                flex-shrink: 0;
+            }
+            
+            .section-content {
+                color: #495057;
+                line-height: 1.8;
+            }
+            
+            .section-content p {
+                margin: 0 0 15px 0;
+            }
+            
+            .section-content ul, .section-content ol {
+                margin: 15px 0;
+                padding-left: 30px;
+            }
+            
+            .section-content li {
+                margin-bottom: 8px;
+            }
+            
+            .section-highlight {
+                background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+                border-left: 4px solid #667eea;
+                padding: 20px;
+                border-radius: 8px;
+                margin-bottom: 20px;
+            }
+            
+            .warning-section .section-title {
+                color: #d32f2f;
+            }
+            
+            .warning-section .section-number {
+                background: #d32f2f;
+            }
+            
+            .warning-section .section-content {
+                background: #fff3e0;
+                padding: 20px;
+                border-radius: 8px;
+                border-left: 4px solid #ff9800;
+            }
+            
+            .highlight-section {
+                background: #f0f4ff;
+                padding: 20px;
+                border-radius: 8px;
+                margin-bottom: 30px;
+            }
+            
+            .data-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin: 20px 0;
+                font-size: 0.95em;
+            }
+            
+            .data-table caption {
+                padding: 10px;
+                font-weight: 600;
+                text-align: left;
+                color: #667eea;
+            }
+            
+            .data-table th {
+                background: #667eea;
+                color: white;
+                padding: 12px;
+                text-align: left;
+                font-weight: 600;
+            }
+            
+            .data-table td {
+                padding: 12px;
+                border-bottom: 1px solid #dee2e6;
+            }
+            
+            .data-table tr:hover {
+                background: #f8f9fa;
+            }
+            
+            @media (max-width: 768px) {
+                .content-wrapper {
+                    grid-template-columns: 1fr;
+                }
+                
+                .sidebar {
+                    display: none;
+                }
+                
+                .header-metadata {
+                    grid-template-columns: 1fr;
+                }
+                
+                .section-title {
+                    font-size: 1.4em;
+                }
+            }
+            
+            @media print {
+                .sidebar {
+                    display: none;
+                }
+                
+                .content-wrapper {
+                    grid-template-columns: 1fr;
+                }
+                
+                .label-header {
+                    background: none;
+                    color: black;
+                    border: 2px solid #333;
+                }
+            }
+        </style>
+    `;
+}
+
+// Usage example for integration with your existing code
+function renderPharmaLabel(xmlString, containerId) {
+    const container = document.getElementById(containerId);
+    if (container) {
+        container.innerHTML = formatPharmaceuticalXML(xmlString);
+    }
+}
+
+// Export for use in other modules
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = { formatPharmaceuticalXML, renderPharmaLabel };
+}
+
+
+function displayMetadata(metadata) {
+    const metadataHtml = `
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="bg-white rounded-lg px-3 py-2 border border-gray-200">
+                <div class="text-xs text-gray-500 uppercase tracking-wider">Set ID</div>
+                <div class="text-sm font-semibold text-gray-900 truncate" title="${metadata.setId || 'N/A'}">
+                    ${metadata.setId || 'N/A'}
+                </div>
+            </div>
+            <div class="bg-white rounded-lg px-3 py-2 border border-gray-200">
+                <div class="text-xs text-gray-500 uppercase tracking-wider">Version</div>
+                <div class="text-sm font-semibold text-gray-900">
+                    ${metadata.versionNumber || 'N/A'}
+                </div>
+            </div>
+            <div class="bg-white rounded-lg px-3 py-2 border border-gray-200">
+                <div class="text-xs text-gray-500 uppercase tracking-wider">Effective Date</div>
+                <div class="text-sm font-semibold text-gray-900">
+                    ${metadata.effectiveDate ? LabelformatDate(metadata.effectiveDate) : 'N/A'}
+                </div>
+            </div>
+            <div class="bg-white rounded-lg px-3 py-2 border border-gray-200">
+                <div class="text-xs text-gray-500 uppercase tracking-wider">Title</div>
+                <div class="text-sm font-semibold text-gray-900 truncate" title="${metadata.title || 'N/A'}">
+                    ${metadata.title || 'N/A'}
+                </div>
+            </div>
+        </div>
+    `;
+    document.getElementById('metadataSection').innerHTML = metadataHtml;
+}
+
+function renderXMLTree(xmlString) {
+    const parser = new DOMParser();
+    const xmlDoc = parser.parseFromString(xmlString, "application/xml");
+    
+    // Check for parsing errors
+    const parseError = xmlDoc.querySelector('parsererror');
+    if (parseError) {
+        document.getElementById('xmlTreeContent').innerHTML = `
+            <div class="text-center py-12">
+                <i class="fas fa-exclamation-triangle text-4xl text-yellow-400 mb-4"></i>
+                <p class="text-yellow-600">XML parsing error</p>
+                <p class="text-sm text-gray-500 mt-2">The XML structure could not be parsed correctly</p>
+                <details class="mt-4 text-left max-w-2xl mx-auto">
+                    <summary class="cursor-pointer text-blue-600 hover:text-blue-700">Show raw XML</summary>
+                    <pre class="mt-2 p-4 bg-gray-100 rounded overflow-x-auto text-xs">${escapeHtml(xmlString.substring(0, 5000))}...</pre>
+                </details>
+            </div>
+        `;
+        return;
+    }
+    
+    let nodeId = 0;
+    
+    function renderNode(node, depth = 0) {
+        if (node.nodeType === 3) { // Text node
+            const text = node.nodeValue.trim();
+            if (!text) return '';
+            return `<span class="text-gray-700">${escapeHtml(text)}</span>`;
+        }
+        
+        if (node.nodeType !== 1) return ''; // Skip non-element nodes
+        
+        const currentNodeId = `node-${nodeId++}`;
+        const hasChildren = node.childNodes.length > 0;
+        const hasElementChildren = [...node.childNodes].some(child => child.nodeType === 1);
+        const indent = depth * 20;
+        
+        let html = `<div class="xml-node" style="margin-left: ${indent}px;">`;
+        
+        // Render opening tag
+        if (hasElementChildren) {
+            html += `
+                <span class="cursor-pointer hover:bg-yellow-50 inline-block" onclick="toggleXMLNode('${currentNodeId}')">
+                    <span class="text-gray-500" id="${currentNodeId}-toggle">▼</span>
+                    <span class="text-blue-600">&lt;</span><span class="text-blue-800 font-semibold">${node.nodeName}</span>`;
+        } else {
+            html += `
+                <span class="inline-block">
+                    <span class="text-blue-600">&lt;</span><span class="text-blue-800 font-semibold">${node.nodeName}</span>`;
+        }
+        
+        // Render attributes
+        if (node.attributes && node.attributes.length > 0) {
+            for (let attr of node.attributes) {
+                html += ` <span class="text-purple-600">${attr.name}</span>=<span class="text-green-600">"${escapeHtml(attr.value)}"</span>`;
+            }
+        }
+        
+        html += `<span class="text-blue-600">&gt;</span></span>`;
+        
+        // Render children
+        if (hasChildren) {
+            const childrenHtml = [...node.childNodes]
+                .map(child => renderNode(child, depth + 1))
+                .filter(h => h)
+                .join('');
+            
+            if (hasElementChildren) {
+                html += `<div id="${currentNodeId}-content" class="xml-children">${childrenHtml}</div>`;
+                html += `<div style="margin-left: ${indent}px;">`;
+            } else {
+                html += childrenHtml;
+            }
+            
+            html += `<span class="text-blue-600">&lt;/</span><span class="text-blue-800 font-semibold">${node.nodeName}</span><span class="text-blue-600">&gt;</span>`;
+            
+            if (hasElementChildren) {
+                html += `</div>`;
+            }
+        } else {
+            html += `<span class="text-blue-600">/&gt;</span>`;
+        }
+        
+        html += `</div>`;
+        return html;
+    }
+    
+    const treeHtml = renderNode(xmlDoc.documentElement);
+    document.getElementById('xmlTreeContent').innerHTML = `
+        <div class="xml-tree">
+            ${treeHtml}
+        </div>
+    `;
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function toggleXMLNode(nodeId) {
+    const content = document.getElementById(`${nodeId}-content`);
+    const toggle = document.getElementById(`${nodeId}-toggle`);
+    
+    if (content.style.display === 'none') {
+        content.style.display = 'block';
+        toggle.textContent = '▼';
+    } else {
+        content.style.display = 'none';
+        toggle.textContent = '▶';
+    }
+}
+
+function expandAllXML() {
+    document.querySelectorAll('.xml-children').forEach(el => {
+        el.style.display = 'block';
+    });
+    document.querySelectorAll('[id$="-toggle"]').forEach(el => {
+        el.textContent = '▼';
+    });
+}
+
+function collapseAllXML() {
+    document.querySelectorAll('.xml-children').forEach(el => {
+        el.style.display = 'none';
+    });
+    document.querySelectorAll('[id$="-toggle"]').forEach(el => {
+        el.textContent = '▶';
+    });
+}
+
+function copyXMLToClipboard(labelId) {
+    if (window.currentLabelData && window.currentLabelData.xml && window.currentLabelData.xml.raw) {
+        navigator.clipboard.writeText(window.currentLabelData.xml.raw).then(() => {
+            // Show success message
+            const btn = event.target.closest('button');
+            const originalHtml = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-check mr-1"></i>Copied!';
+            btn.classList.remove('bg-green-600');
+            btn.classList.add('bg-green-700');
+            setTimeout(() => {
+                btn.innerHTML = originalHtml;
+                btn.classList.remove('bg-green-700');
+                btn.classList.add('bg-green-600');
+            }, 2000);
+        });
+    }
+}
+
+function downloadXML(labelId) {
+    if (window.currentLabelData && window.currentLabelData.xml && window.currentLabelData.xml.raw) {
+        const blob = new Blob([window.currentLabelData.xml.raw], { type: 'application/xml' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `label_${labelId}.xml`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+}
+
+function downloadParsedData(labelId) {
+    if (window.currentLabelData && window.currentLabelData.data) {
+        const blob = new Blob([JSON.stringify(window.currentLabelData.data, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `label_${labelId}_parsed.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+}
+
+// Add some CSS for better XML tree visualization
+const xmlstyle = document.createElement('style');
+xmlstyle.textContent = `
+    .xml-tree {
+        font-family: 'Courier New', Courier, monospace;
+        line-height: 1.6;
+    }
+    .xml-node {
+        margin: 2px 0;
+    }
+    .xml-children {
+        margin-left: 20px;
+        border-left: 1px solid #e5e7eb;
+        padding-left: 4px;
+    }
+    .xml-node:hover > span:first-child {
+        background-color: #fef3c7;
+    }
+`;
+document.head.appendChild(xmlstyle);
 
 function extractValue(value) {
     if (!value) return '';
@@ -4879,7 +6743,7 @@ function renderLabelContent(data, labelId) {
                 ${processedMetadata.effectiveDate && processedMetadata.effectiveDate !== 'N/A' ? `
                     <div>
                         <span class="font-medium text-gray-600">Effective Date:</span>
-                        <span class="text-gray-800 ml-2">${formatDate(processedMetadata.effectiveDate)}</span>
+                        <span class="text-gray-800 ml-2">${LabelformatDate(processedMetadata.effectiveDate)}</span>
                     </div>
                 ` : ''}
                 ${processedMetadata.manufacturer && processedMetadata.manufacturer !== 'Not specified' ? `
