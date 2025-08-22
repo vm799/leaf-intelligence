@@ -17032,7 +17032,7 @@ if (results.endpoints.drugsFda && results.endpoints.drugsFda.status === "success
   }
 });
 
-
+const FDA_API_KEY = process.env.FDA_API_KEY_LIVE ;
 // Main device search endpoint
 app.get('/api/fda/device/:deviceName', validateDeviceName, async (req, res) => {
   console.log("Fetching comprehensive FDA device data");
@@ -17043,7 +17043,8 @@ app.get('/api/fda/device/:deviceName', validateDeviceName, async (req, res) => {
     // Check if FDA API is available first
     try {
       console.log("Checking FDA API availability...");
-      const checkUrl = "https://api.fda.gov/device/510k.json?limit=1";
+      // const checkUrl = "https://api.fda.gov/device/510k.json?limit=1";
+      const checkUrl = `https://api.fda.gov/drug/label.json?api_key=${FDA_API_KEY}&limit=1`;
       await axios.get(checkUrl, { timeout: 10000 });
       console.log("FDA API is available.");
     } catch (apiCheckError) {
@@ -17132,7 +17133,7 @@ app.get('/api/fda/device/:deviceName', validateDeviceName, async (req, res) => {
           
           while (hasMoreResults) {
             // Make the API request with pagination
-            const url = `${baseUrl}?${searchQuery}&limit=${BATCH_SIZE}&skip=${skip}`;
+            const url = `${baseUrl}?api_key=${FDA_API_KEY}&${searchQuery}&limit=${BATCH_SIZE}&skip=${skip}`;
             console.log(`Fetching FDA ${endpointName} with search term: ${variation}, skip: ${skip}`);
             
             try {

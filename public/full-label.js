@@ -2973,10 +2973,7 @@ function displaySideBySideLabels(labelData1, labelData2, labelId1, labelId2) {
                         <i class="fas fa-exchange-alt"></i>
                         Swap Labels
                     </button>
-                    <button onclick="exportComparison()" class="export-btn">
-                        <i class="fas fa-download"></i>
-                        Export
-                    </button>
+
                 </div>
             </div>
             
@@ -4893,10 +4890,7 @@ function viewApplicationDetails(applicationNumber) {
                                         class="px-4 py-2 bg-blue-600 text-white rounded text-sm hover:bg-blue-700">
                                     <i class="fas fa-eye mr-1"></i>View Label
                                 </button>
-                                <button onclick="downloadLabel('${label.id}')" 
-                                        class="px-4 py-2 bg-green-600 text-white rounded text-sm hover:bg-green-700">
-                                    <i class="fas fa-download mr-1"></i>Download
-                                </button>
+
                             </div>
                         </div>
                     `;
@@ -5238,10 +5232,7 @@ async function viewFullLabel(labelId) {
                                     class="px-3 py-1 text-xs bg-gray-600 text-white rounded hover:bg-gray-700 transition-colors">
                                 <i class="fas fa-compress-alt mr-1"></i>Collapse All
                             </button>
-                            <button onclick="copyXMLToClipboard('${labelId}')" 
-                                    class="px-3 py-1 text-xs bg-green-600 text-white rounded hover:bg-green-700 transition-colors">
-                                <i class="fas fa-copy mr-1"></i>Copy XML
-                            </button>
+
                         </div>
                     </div>
                     
@@ -5256,14 +5247,7 @@ async function viewFullLabel(labelId) {
                 <!-- Footer Actions -->
                 <div class="border-t px-6 py-3 bg-gray-50 flex justify-between items-center flex-shrink-0">
                     <div class="flex gap-2">
-                        <button onclick="downloadXML('${labelId}')" 
-                                class="px-4 py-2 text-sm bg-green-600 text-white rounded hover:bg-green-700 transition-colors">
-                            <i class="fas fa-download mr-1"></i>Download XML
-                        </button>
-                        <button onclick="downloadParsedData('${labelId}')" 
-                                class="px-4 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors">
-                            <i class="fas fa-file-export mr-1"></i>Export Parsed Data
-                        </button>
+
                     </div>
                     <button onclick="document.getElementById('labelViewModal').remove()" 
                             class="px-4 py-2 text-sm bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors">

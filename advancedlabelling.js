@@ -3668,35 +3668,62 @@ async function getOrangeBookData(drugName) {
     }
 }
 
-// Get label content endpoint
-// app.get('/api/label-content/:labelId', async (req, res) => {
-//     try {
-//         const { labelId } = req.params;
-//         console.log(`📄 Getting enhanced label content for: ${labelId}`);
-        
-//         const labelData = await fetchEnhancedLabelContent(labelId);
-        
-//         if (labelData && Object.keys(labelData.sections).length > 0) {
-//             res.json(labelData);
-//         } else {
-//             res.status(404).json({ 
-//                 error: 'Label not found or no content available',
-//                 labelId: labelId 
-//             });
-//         }
-//     } catch (error) {
-//         console.error('Error fetching label content:', error);
-//         res.status(500).json({ 
-//             error: 'Failed to fetch label content',
-//             message: error.message 
-//         });
-//     }
-// });
-
 router.get('/label-content/:labelId', async (req, res) => {
     try {
         const { labelId } = req.params;
         console.log(`Fetching label content for: ${labelId}`);
+        
+        // CHECK FOR UPLOADED LABELS FIRST
+        if (labelId.startsWith('upload_')) {
+            console.log(`Retrieving uploaded label: ${labelId}`);
+            const uploadedLabel = uploadedLabelsStorage.get(labelId);
+            
+            if (uploadedLabel) {
+                console.log(`Found uploaded label: ${uploadedLabel.name}`);
+                
+                // Return the uploaded label data in the same format as fetched labels
+                const response = {
+                    success: true,
+                    labelId: labelId,
+                    data: {
+                        sections: uploadedLabel.sections || {},
+                        metadata: uploadedLabel.metadata || {
+                            title: uploadedLabel.name || 'Uploaded Label',
+                            setId: uploadedLabel.id || labelId,
+                            versionNumber: uploadedLabel.metadata?.versionNumber || uploadedLabel.metadata?.version || '1.0',
+                            effectiveDate: uploadedLabel.metadata?.effectiveDate || uploadedLabel.uploadDate || '',
+                            manufacturer: uploadedLabel.metadata?.manufacturer || uploadedLabel.metadata?.manufacturerName || 'Not specified'
+                        },
+                        productInfo: uploadedLabel.productInfo || {}
+                    },
+                    xml: {
+                        raw: uploadedLabel.rawXML || uploadedLabel.raw || uploadedLabel.originalXML || null,
+                        cleaned: uploadedLabel.cleanedXML || null,
+                        original: uploadedLabel.originalXML || uploadedLabel.raw || null,
+                        hasXML: !!(uploadedLabel.rawXML || uploadedLabel.raw || uploadedLabel.originalXML)
+                    }
+                };
+                
+                console.log('Sending uploaded label response with XML:', {
+                    hasXML: response.xml.hasXML,
+                    xmlLength: response.xml.raw ? response.xml.raw.length : 0,
+                    sectionsCount: Object.keys(response.data.sections).length
+                });
+                
+                return res.json(response);
+            } else {
+                console.error(`Uploaded label not found: ${labelId}`);
+                return res.status(404).json({
+                    success: false,
+                    error: 'Uploaded label not found',
+                    labelId: labelId,
+                    details: 'The uploaded label may have been deleted or the session expired'
+                });
+            }
+        }
+        
+        // NOT AN UPLOADED LABEL - Proceed with normal fetching from FDA/DailyMed
+        console.log(`Fetching external label: ${labelId}`);
         
         const fetcher = new EnhancedSPLFetcher();
         const labelData = await fetcher.fetchEnhancedLabelContent(labelId);
@@ -3727,7 +3754,6 @@ router.get('/label-content/:labelId', async (req, res) => {
                 }
             };
             
-            // Log what we're sending
             console.log('Sending response with XML:', {
                 hasXML: !!response.xml.raw,
                 xmlLength: response.xml.raw ? response.xml.raw.length : 0
@@ -3761,6 +3787,75 @@ router.get('/label-content/:labelId', async (req, res) => {
         });
     }
 });
+
+// router.get('/label-content/:labelId', async (req, res) => {
+//     try {
+//         const { labelId } = req.params;
+//         console.log(`Fetching label content for: ${labelId}`);
+        
+//         const fetcher = new EnhancedSPLFetcher();
+//         const labelData = await fetcher.fetchEnhancedLabelContent(labelId);
+        
+//         console.log('Label data received:', {
+//             hasSections: !!labelData?.sections,
+//             sectionCount: labelData?.sections ? Object.keys(labelData.sections).length : 0,
+//             hasRawXML: !!labelData?.rawXML,
+//             xmlLength: labelData?.rawXML ? labelData.rawXML.length : 0,
+//             hasMetadata: !!labelData?.metadata
+//         });
+        
+//         if (labelData && Object.keys(labelData.sections).length > 0) {
+//             // Successfully fetched and parsed label data
+//             const response = {
+//                 success: true,
+//                 labelId: labelId,
+//                 data: {
+//                     sections: labelData.sections,
+//                     metadata: labelData.metadata,
+//                     productInfo: labelData.productInfo
+//                 },
+//                 xml: {
+//                     raw: labelData.rawXML || null,
+//                     cleaned: labelData.cleanedXML || null,
+//                     original: labelData.originalXML || null,
+//                     hasXML: !!labelData.rawXML
+//                 }
+//             };
+            
+//             // Log what we're sending
+//             console.log('Sending response with XML:', {
+//                 hasXML: !!response.xml.raw,
+//                 xmlLength: response.xml.raw ? response.xml.raw.length : 0
+//             });
+            
+//             res.json(response);
+//         } else {
+//             // No content found, but still return available data
+//             res.status(404).json({
+//                 success: false,
+//                 error: 'Label not found or no content available',
+//                 labelId: labelId,
+//                 details: labelData?.error || 'No sections could be extracted',
+//                 xml: {
+//                     raw: labelData?.rawXML || null,
+//                     cleaned: labelData?.cleanedXML || null,
+//                     original: labelData?.originalXML || null,
+//                     hasXML: !!labelData?.rawXML
+//                 },
+//                 metadata: labelData?.metadata || {},
+//                 source: labelData?.rawXML ? 'XML' : (labelData?.rawJSON ? 'FDA_API' : 'FAILED')
+//             });
+//         }
+//     } catch (error) {
+//         console.error('Error fetching label content:', error);
+//         res.status(500).json({
+//             success: false,
+//             error: 'Failed to fetch label content',
+//             message: error.message,
+//             labelId: req.params.labelId
+//         });
+//     }
+// });
 
 
 
