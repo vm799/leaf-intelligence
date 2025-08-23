@@ -7717,10 +7717,14 @@ tailwind.config = {
 <div id="emaDataSection" class="hidden mb-8">
             <style>
         /* Custom styles for EMA section */
+        
+
         .ema-tab-button.tab-active {
-            border-color: #3b82f6;
-            color: #3b82f6;
-        }
+    border-color: #3b82f6;
+    background-color: #3b82f6; /* Solid blue background */
+    color: white; /* White text for contrast */
+}
+
         
         .ema-tab-button.tab-inactive {
             border-color: transparent;
@@ -7881,7 +7885,7 @@ tailwind.config = {
                 <nav class="px-4 py-2" aria-label="EMA Data Tabs">
                     <div class="flex flex-wrap gap-2">
                         <!-- Main Medicines Tab -->
-                        <button class="ema-tab-button tab-active py-2 px-3 border-2 border-blue-500 bg-blue-50 text-blue-600 font-medium text-sm rounded-lg flex items-center gap-2 whitespace-nowrap" data-tab="medicines">
+                        <button class="ema-tab-button tab-active py-2 px-3 border-2 border-blue-500  font-medium text-sm rounded-lg flex items-center gap-2 whitespace-nowrap" data-tab="medicines">
                             <span>💊</span>
                             <span>Medicines</span>
                             <span class="ema-tab-count bg-blue-100 text-blue-600 py-1 px-2 rounded-full text-xs">0</span>
