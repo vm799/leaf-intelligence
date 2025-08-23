@@ -10,61 +10,197 @@ function getDB() {
 }
 
 // Enhanced compound search query builder
+// function buildCompoundSearchQuery(compound) {
+//   const searchTerm = compound.trim();
+//   const regexPattern = new RegExp(searchTerm.split(/\s+/).join('|'), 'i');
+  
+//   return {
+//     $or: [
+//       // Medicine names and active substances
+//       { 'Name of medicine': { $regex: regexPattern } },
+//       { '﻿Name of medicine': { $regex: regexPattern } }, // Handle BOM character
+//       { 'Active substance': { $regex: regexPattern } },
+//       { 'Active substances': { $regex: regexPattern } },
+//       { 'International non-proprietary name (INN) / common name': { $regex: regexPattern } },
+      
+//       // Therapeutic areas and indications
+//       { 'Therapeutic area (MeSH)': { $regex: regexPattern } },
+//       { 'Therapeutic area': { $regex: regexPattern } },
+//       { 'Therapeutic indication': { $regex: regexPattern } },
+//       { 'Pharmacotherapeutic group\n(human)': { $regex: regexPattern } },
+//       { 'Pharmacotherapeutic group\n(veterinary)': { $regex: regexPattern } },
+      
+//       // Manufacturer and sponsor information
+//       { 'Marketing authorisation developer / applicant / holder': { $regex: regexPattern } },
+//       { 'Opinion holder': { $regex: regexPattern } },
+//       { 'sponsor_name': { $regex: regexPattern } },
+      
+//       // For herbal medicines
+//       { 'Latin name': { $regex: regexPattern } },
+//       { 'English common name': { $regex: regexPattern } },
+//       { 'Botanical name': { $regex: regexPattern } },
+      
+//       // For orphan designations
+//       { 'Medicine name': { $regex: regexPattern } },
+//       { 'Intended use': { $regex: regexPattern } },
+      
+//       // For referrals and procedures
+//       { 'Referral name': { $regex: regexPattern } },
+//       { 'Associated names (centrally authorised medicines)': { $regex: regexPattern } },
+//       { 'Associated names (non-centrally authorised medicines)': { $regex: regexPattern } },
+      
+//       // For PSUSA assessments
+//       { 'activeSubstancesInScope': { $regex: regexPattern } },
+//       { 'activeSubstanceRaw': { $regex: regexPattern } },
+      
+//       // Additional product identifiers
+//       { 'EMA product number': { $regex: regexPattern } },
+//       { 'EU designation number': { $regex: regexPattern } },
+//       { 'PIP number': { $regex: regexPattern } },
+//       { 'Reference number': { $regex: regexPattern } },
+//       { 'Procedure number': { $regex: regexPattern } }
+//     ]
+//   };
+// }
 function buildCompoundSearchQuery(compound) {
   const searchTerm = compound.trim();
   const regexPattern = new RegExp(searchTerm.split(/\s+/).join('|'), 'i');
   
   return {
     $or: [
-      // Medicine names and active substances
+      // ===== MEDICINES & GENERAL =====
+      // Medicine names (all variations found in your collections)
       { 'Name of medicine': { $regex: regexPattern } },
       { '﻿Name of medicine': { $regex: regexPattern } }, // Handle BOM character
+      { 'Medicine name': { $regex: regexPattern } },
+      { 'Medicine affected': { $regex: regexPattern } }, // For shortages
+      { 'Invented name': { $regex: regexPattern } }, // For PIP
+      
+      // Active substances (all variations)
       { 'Active substance': { $regex: regexPattern } },
-      { 'Active substances': { $regex: regexPattern } },
+      { 'Active substances': { $regex: regexPattern } }, // Plural for DHPC
+      { 'activeSubstance': { $regex: regexPattern } },
+      { 'activeSubstances': { $regex: regexPattern } },
+      { 'activeSubstancesInScope': { $regex: regexPattern } }, // PSUSA
+      { 'activeSubstanceRaw': { $regex: regexPattern } }, // PSUSA
+      
+      // INN and common names
       { 'International non-proprietary name (INN) / common name': { $regex: regexPattern } },
+      { 'International non-proprietary name (INN) or common name': { $regex: regexPattern } }, // Shortages variation
+      { 'INN': { $regex: regexPattern } },
+      { 'inn': { $regex: regexPattern } },
+      { 'Common name': { $regex: regexPattern } },
+      { 'common name': { $regex: regexPattern } },
       
-      // Therapeutic areas and indications
-      { 'Therapeutic area (MeSH)': { $regex: regexPattern } },
-      { 'Therapeutic area': { $regex: regexPattern } },
-      { 'Therapeutic indication': { $regex: regexPattern } },
-      { 'Pharmacotherapeutic group\n(human)': { $regex: regexPattern } },
-      { 'Pharmacotherapeutic group\n(veterinary)': { $regex: regexPattern } },
-      
-      // Manufacturer and sponsor information
-      { 'Marketing authorisation developer / applicant / holder': { $regex: regexPattern } },
-      { 'Opinion holder': { $regex: regexPattern } },
-      { 'sponsor_name': { $regex: regexPattern } },
-      
-      // For herbal medicines
+      // ===== HERBAL SPECIFIC =====
       { 'Latin name': { $regex: regexPattern } },
       { 'English common name': { $regex: regexPattern } },
       { 'Botanical name': { $regex: regexPattern } },
       
-      // For orphan designations
-      { 'Medicine name': { $regex: regexPattern } },
-      { 'Intended use': { $regex: regexPattern } },
+      // ===== THERAPEUTIC & MEDICAL =====
+      { 'Therapeutic area (MeSH)': { $regex: regexPattern } },
+      { 'Therapeutic area': { $regex: regexPattern } },
+      { 'Therapeutic indication': { $regex: regexPattern } },
+      { 'Condition / indication': { $regex: regexPattern } }, // PIP specific
+      { 'Intended use': { $regex: regexPattern } }, // Orphan specific
       
-      // For referrals and procedures
+      // ===== REFERRALS & PROCEDURES =====
       { 'Referral name': { $regex: regexPattern } },
-      { 'Associated names (centrally authorised medicines)': { $regex: regexPattern } },
-      { 'Associated names (non-centrally authorised medicines)': { $regex: regexPattern } },
+      { 'Procedure number': { $regex: regexPattern } },
+      { 'procedureNumber': { $regex: regexPattern } }, // PSUSA camelCase
       
-      // For PSUSA assessments
-      { 'activeSubstancesInScope': { $regex: regexPattern } },
-      { 'activeSubstanceRaw': { $regex: regexPattern } },
+      // ===== MANUFACTURERS & HOLDERS =====
+      { 'Marketing authorisation developer / applicant / holder': { $regex: regexPattern } },
+      { 'Opinion holder': { $regex: regexPattern } },
+      { 'sponsor_name': { $regex: regexPattern } },
+      { 'Contact for public enquiries.company': { $regex: regexPattern } }, // PIP nested field
       
-      // Additional product identifiers
+      // ===== PRODUCT IDENTIFIERS =====
       { 'EMA product number': { $regex: regexPattern } },
       { 'EU designation number': { $regex: regexPattern } },
       { 'PIP number': { $regex: regexPattern } },
       { 'Reference number': { $regex: regexPattern } },
-      { 'Procedure number': { $regex: regexPattern } }
+      { 'EMA opinion number': { $regex: regexPattern } }, // Outside EU
+      { 'ProductName': { $regex: regexPattern } }, // Product URLs
+      { 'ProductNumber': { $regex: regexPattern } }, // Product URLs
+      
+      // ===== DHPC SPECIFIC =====
+      { 'DHPC type': { $regex: regexPattern } },
+      
+      // ===== ATC CODES =====
+      { 'ATC code (human)': { $regex: regexPattern } },
+      { 'ATCvet code (veterinary)': { $regex: regexPattern } },
+      
+      // ===== CATEGORIES & STATUSES =====
+      { 'Category': { $regex: regexPattern } },
+      { '﻿Category': { $regex: regexPattern } }, // Handle BOM
+      { 'Status': { $regex: regexPattern } },
+      { 'Medicine status': { $regex: regexPattern } },
+      { 'EMA opinion status': { $regex: regexPattern } },
+      { 'Post-authorisation opinion status': { $regex: regexPattern } },
+      { 'Supply shortage status': { $regex: regexPattern } },
+      
+      // ===== REGULATORY OUTCOMES =====
+      { 'Regulatory outcome': { $regex: regexPattern } },
+      { 'regulatoryOutcome': { $regex: regexPattern } }, // PSUSA camelCase
+      { 'Outcome of European assessment': { $regex: regexPattern } }, // Herbal
+      
+      // ===== SPECIES (for veterinary) =====
+      { 'Species': { $regex: regexPattern } },
+      { 'Species\n(veterinary)': { $regex: regexPattern } },
+      
+      // ===== FORMS & ADMINISTRATION =====
+      { 'Pharmaceutical forms': { $regex: regexPattern } },
+      { 'Pharmaceutical forms affected': { $regex: regexPattern } }, // Shortages
+      { 'Routes of administration': { $regex: regexPattern } },
+      { 'Strengths affected': { $regex: regexPattern } }, // Shortages
+      
+      // ===== ASSOCIATED NAMES (referrals) =====
+      { 'Associated names (centrally authorised medicines)': { $regex: regexPattern } },
+      { 'Associated names (non-centrally authorised medicines)': { $regex: regexPattern } },
+      
+      // ===== PHARMACOTHERAPEUTIC GROUPS =====
+      { 'Pharmacotherapeutic group\n(human)': { $regex: regexPattern } },
+      { 'Pharmacotherapeutic group\n(veterinary)': { $regex: regexPattern } },
+      
+      // ===== DECISION & OPINION FIELDS =====
+      { 'Decision type': { $regex: regexPattern } }, // PIP
+      { 'Decision number': { $regex: regexPattern } }, // PIP
+      { 'Compliance outcome': { $regex: regexPattern } }, // PIP
+      
+      // ===== SPECIAL FLAGS =====
+      { 'Orphan medicine': { $regex: regexPattern } },
+      { 'Biosimilar': { $regex: regexPattern } },
+      { 'Advanced therapy': { $regex: regexPattern } },
+      { 'PRIME: priority medicine': { $regex: regexPattern } },
+      { 'Additional monitoring': { $regex: regexPattern } },
+      { 'Conditional approval': { $regex: regexPattern } },
+      { 'Exceptional circumstances': { $regex: regexPattern } },
+      { 'Generic or hybrid': { $regex: regexPattern } },
+      { 'Accelerated assessment': { $regex: regexPattern } }
     ]
   };
 }
-
 // Enhanced mapping functions for each collection type
-
+function mapShortageData(item) {
+  return {
+    id: item._id,
+    medicineName: item['Medicine affected'] || 'N/A',
+    inn: item['International non-proprietary name (INN) or common name'] || 'N/A',
+    category: item['Category'] || 'N/A',
+    status: item['Supply shortage status'] || 'N/A',
+    therapeuticArea: item['Therapeutic area (MeSH)'] || 'N/A',
+    formsAffected: item['Pharmaceutical forms affected'] || 'N/A',
+    strengthsAffected: item['Strengths affected'] || 'N/A',
+    availabilityOfAlternatives: item['Availability of alternatives'] || 'N/A',
+    expectedResolution: item['Expected resolution'] || 'N/A',
+    expectedResolutionDate: item['Expected resolution date'] || null,
+    startOfShortageDate: item['Start of shortage date'] || null,
+    shortageUrl: item['Shortage URL'] || null,
+    firstPublishedDate: item['First published date'] || null,
+    lastUpdatedDate: item['Last updated date'] || null
+  };
+}
 function mapMedicineData(item) {
   return {
     id: item._id,
@@ -422,7 +558,7 @@ router.get('/search/:compound', async (req, res) => {
       referrals: referralsResults.map(mapReferralData),
       
       // Shortages (using referral mapping as structure is similar)
-      shortages: shortagesResults.map(mapReferralData),
+      shortages: shortagesResults.map(mapShortageData),
       
       // Post-authorisation procedures
       postAuth: postAuthResults.map(mapPostAuthData),
