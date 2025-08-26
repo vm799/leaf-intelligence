@@ -1,6 +1,6 @@
 // At the beginning of conditions.js, wrap everything in an IIFE
-(function() {
-    'use strict';
+// (function() {
+//     'use strict';
         let currentResults = null;
         let allCharts = {};
         // const API_BASE= 'http://localhost:4000';
@@ -1327,7 +1327,7 @@ function displayChemistry() {
 
 
         window.quickSearch = quickSearch
-        window.Cswitchtab = Cswitchtab;     
+        window.CswitchTab = CswitchTab;     
 
             // Rest of your code...
-})();
+// })();
