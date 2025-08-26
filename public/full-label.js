@@ -1,6 +1,4 @@
 
-(function() {
-    'use strict';
 // Add this at the very beginning of your script section
 const API_BASE = '/api/advanced-label';
 
@@ -2715,7 +2713,7 @@ function renderHorizontalTimeline(container, events) {
                                     ${company.applications.length} applications • ${company.labels.length} labels • ${company.products.size} products
                                 </p>
                             </div>
-                            <button onclick="openCompanyModal('${company.name}')" 
+                            <button onclick="window.openCompanyModal('${company.name}')" 
                                     class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-all">
                                 <i class="fas fa-chart-line mr-2"></i>Full Analysis
                             </button>
@@ -6368,7 +6366,9 @@ function addSplitViewStyles() {
             
             renderEnhancedTimeline();
         }
-
+window.filterTimeline = filterTimeline
+window.openCompanyModal = openCompanyModal
+window.openEnhancedUploadModal = openEnhancedUploadModal
         // Update timeline view
         function updateTimelineView() {
             state.timelineGrouping = document.getElementById('timelineGrouping').value;
@@ -9153,6 +9153,8 @@ function handleUpload(event) {
             document.getElementById('content' + tabName.charAt(0).toUpperCase() + tabName.slice(1)).classList.remove('hidden');
         }
 
+        window.switchLabelTab = switchLabelTab
+
         // Modal close functions
         function closeApplicationModal() {
             document.getElementById('applicationModal').classList.add('hidden');
@@ -9736,4 +9738,3 @@ window.preloadLabelContent = preloadLabelContent;
 window.addInlineLabelStyles = addInlineLabelStyles;
 window.renderParsedLabelContent = renderParsedLabelContent;
 
-})();

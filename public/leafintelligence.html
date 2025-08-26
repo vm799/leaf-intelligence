@@ -8365,7 +8365,7 @@ tailwind.config = {
                 <button onclick="performSearch()" class="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:shadow-lg transform hover:-translate-y-0.5 transition-all font-semibold">
                     <i class="fas fa-search mr-2"></i>Search All Databases
                 </button>
-                <button onclick="openEnhancedUploadModal()" class="px-6 py-4 bg-green-600 text-white rounded-xl hover:shadow-lg transform hover:-translate-y-0.5 transition-all">
+                <button onclick="window.openEnhancedUploadModal()" class="px-6 py-4 bg-green-600 text-white rounded-xl hover:shadow-lg transform hover:-translate-y-0.5 transition-all">
                     <i class="fas fa-upload mr-2"></i>Upload
                 </button>
             </div>
@@ -8489,7 +8489,7 @@ tailwind.config = {
 
                 <div class="border-b border-gray-200 bg-gray-50">
     <div class="flex space-x-2 p-2">
-        <button onclick="switchLabelTab('overview')" 
+        <button onclick="window.switchLabelTab('overview')" 
                 id="LabeltabOverview" 
                 class="Labeltab-btn flex-1 px-4 py-3 rounded-lg text-sm font-medium transition-all 
                        bg-white hover:bg-blue-50 hover:shadow-md hover:scale-[1.02] 
@@ -8505,7 +8505,7 @@ tailwind.config = {
                         group-hover:animate-shimmer pointer-events-none"></div>
         </button>
         
-        <button onclick="switchLabelTab('timeline')" 
+        <button onclick="window.switchLabelTab('timeline')" 
                 id="LabeltabTimeline" 
                 class="Labeltab-btn flex-1 px-4 py-3 rounded-lg text-sm font-medium transition-all 
                        bg-white hover:bg-purple-50 hover:shadow-md hover:scale-[1.02] 
@@ -8520,7 +8520,7 @@ tailwind.config = {
                         group-hover:animate-shimmer pointer-events-none"></div>
         </button>
         
-        <button onclick="switchLabelTab('companies')" 
+        <button onclick="window.switchLabelTab('companies')" 
                 id="LabeltabCompanies" 
                 class="Labeltab-btn flex-1 px-4 py-3 rounded-lg text-sm font-medium transition-all 
                        bg-white hover:bg-green-50 hover:shadow-md hover:scale-[1.02] 
@@ -8535,7 +8535,7 @@ tailwind.config = {
                         group-hover:animate-shimmer pointer-events-none"></div>
         </button>
         
-        <button onclick="switchLabelTab('compare')" 
+        <button onclick="window.switchLabelTab('compare')" 
                 id="LabeltabCompare" 
                 class="Labeltab-btn flex-1 px-4 py-3 rounded-lg text-sm font-medium transition-all 
                        bg-white hover:bg-orange-50 hover:shadow-md hover:scale-[1.02] 
@@ -8550,7 +8550,7 @@ tailwind.config = {
                         group-hover:animate-shimmer pointer-events-none"></div>
         </button>
         
-        <button onclick="switchLabelTab('labels')" 
+        <button onclick="window.switchLabelTab('labels')" 
                 id="LabeltabLabels" 
                 class="Labeltab-btn flex-1 px-4 py-3 rounded-lg text-sm font-medium transition-all 
                        bg-white hover:bg-indigo-50 hover:shadow-md hover:scale-[1.02] 
@@ -8614,10 +8614,10 @@ tailwind.config = {
                     <div id="contentTimeline" class="Labeltab-content hidden">
                         <div class="mb-4 flex justify-between items-center">
                             <div class="flex gap-2">
-                                <button onclick="filterTimeline('all')" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm">All Changes</button>
-                                <button onclick="filterTimeline('safety')" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm hover:bg-gray-300">Safety</button>
-                                <button onclick="filterTimeline('efficacy')" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm hover:bg-gray-300">Efficacy</button>
-                                <button onclick="filterTimeline('indication')" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm hover:bg-gray-300">Indication</button>
+                                <button onclick="window.filterTimeline('all')" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm">All Changes</button>
+                                <button onclick="window.filterTimeline('safety')" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm hover:bg-gray-300">Safety</button>
+                                <button onclick="window.filterTimeline('efficacy')" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm hover:bg-gray-300">Efficacy</button>
+                                <button onclick="window.filterTimeline('indication')" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm hover:bg-gray-300">Indication</button>
                             </div>
                             <select id="timelineGrouping" onchange="updateTimelineView()" class="px-4 py-2 border rounded-lg">
                                 <option value="all">All Events</option>
@@ -8690,7 +8690,7 @@ tailwind.config = {
     
     <div class="w-px h-10 bg-gray-200"></div>
     
-    <button onclick="openEnhancedUploadModal()" class="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg font-medium text-sm hover:shadow-lg transform hover:-translate-y-0.5 transition-all">
+    <button onclick="window.openEnhancedUploadModal()" class="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg font-medium text-sm hover:shadow-lg transform hover:-translate-y-0.5 transition-all">
         <i class="fas fa-cloud-arrow-up"></i>
         <span>Upload</span>
     </button>
