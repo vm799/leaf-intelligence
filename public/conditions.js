@@ -3,6 +3,11 @@
 //     'use strict';
         let currentResults = null;
         let allCharts = {};
+        let currentPage = 1;
+let totalPages = {};
+let pageSize = 100; // Adjust as needed
+
+
         // const API_BASE= 'http://localhost:4000';
 
         function handleKeyPress(event) {
@@ -15,37 +20,6 @@
             document.getElementById('searchInput').value = condition;
             searchCondition();
         }
-
-async function searchCondition() {
-    const condition = document.getElementById('searchInput').value.trim();
-    if (!condition) return;
-
-    showState('loading');
-    
-    // Clear all existing charts
-    Object.values(allCharts).forEach(chart => {
-        if (chart) chart.destroy();
-    });
-    allCharts = {};
-
-    try {
-        const response = await fetch(`${API_BASE_URL}/condition/condition/${encodeURIComponent(condition)}`);
-        const data = await response.json();
-
-        if (data.success && data.results) {
-            currentResults = data.results;
-            displayResults(); // First display the results
-            showState('results'); // THEN show the results section - THIS IS THE KEY
-            console.log("Results displayed successfully");
-        } else {
-            showState('noResults');
-        }
-    } catch (error) {
-        console.error('Search error:', error);
-        showState('noResults');
-    }
-}
-
 
 // async function searchCondition() {
 //     const condition = document.getElementById('searchInput').value.trim();
@@ -65,8 +39,9 @@ async function searchCondition() {
 
 //         if (data.success && data.results) {
 //             currentResults = data.results;
-//             displayResults();
-//             console.log("SHOIAHOFHSDFHIDFUOGO GDFY AGDFY AGYF GAUYKF GYAKD FGUYAK GYUASF GFYUAKG SYUAF GYUASF GUY F SAGU YF")
+//             displayResults(); // First display the results
+//             showState('results'); // THEN show the results section - THIS IS THE KEY
+//             console.log("Results displayed successfully");
 //         } else {
 //             showState('noResults');
 //         }
@@ -76,20 +51,114 @@ async function searchCondition() {
 //     }
 // }
 
-// function showState(state) {
-//     // Hide all states
-//     document.getElementById('fdaLoadingState').classList.add('hidden');
-//     document.getElementById('resultsSection').classList.add('hidden');
-//     document.getElementById('noResultsState').classList.add('hidden');
 
-//     if (state === 'loading') {
-//         document.getElementById('fdaLoadingState').classList.remove('hidden');
-//     } else if (state === 'results') {
-//         document.getElementById('resultsSection').classList.remove('hidden');
-//     } else if (state === 'noResults') {
-//         document.getElementById('noResultsState').classList.remove('hidden');
-//     }
-// }
+async function searchCondition(page = 1) {
+    const condition = document.getElementById('searchInput').value.trim();
+    if (!condition) return;
+
+    showState('loading');
+    currentPage = page;
+    
+    // Clear all existing charts
+    Object.values(allCharts).forEach(chart => {
+        if (chart) chart.destroy();
+    });
+    allCharts = {};
+
+    try {
+        // ADD PAGINATION PARAMETERS
+        const response = await fetch(
+            `${API_BASE_URL}/condition/condition/${encodeURIComponent(condition)}?page=${page}&pageSize=${pageSize}`
+        );
+        const data = await response.json();
+
+        if (data.success && data.results) {
+            currentResults = data.results;
+            
+            // Store pagination info
+            if (data.pagination) {
+                totalPages = data.pagination.total_pages || {};
+            }
+            
+            displayResults();
+            showState('results');
+            
+            // Add pagination controls
+            displayPaginationControls();
+            
+            console.log(`Results displayed - Page ${page} of ${Math.max(...Object.values(totalPages))}`);
+        } else {
+            showState('noResults');
+        }
+    } catch (error) {
+        console.error('Search error:', error);
+        showState('noResults');
+    }
+}
+
+function displayPaginationControls() {
+    // Find or create pagination container
+    let paginationDiv = document.getElementById('paginationControls');
+    if (!paginationDiv) {
+        paginationDiv = document.createElement('div');
+        paginationDiv.id = 'paginationControls';
+        paginationDiv.className = 'flex justify-center items-center space-x-4 mt-6 p-4 bg-gray-50 rounded-lg';
+        document.getElementById('resultsSection').appendChild(paginationDiv);
+    }
+    
+    const maxPages = Math.max(...Object.values(totalPages), 1);
+    
+    paginationDiv.innerHTML = `
+        <button 
+            onclick="searchCondition(${currentPage - 1})" 
+            class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed"
+            ${currentPage === 1 ? 'disabled' : ''}>
+            Previous
+        </button>
+        <span class="text-gray-700">
+            Page ${currentPage} of ${maxPages}
+        </span>
+        <button 
+            onclick="searchCondition(${currentPage + 1})" 
+            class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed"
+            ${currentPage >= maxPages ? 'disabled' : ''}>
+            Next
+        </button>
+        <select 
+            onchange="changePageSize(this.value)" 
+            class="ml-4 px-3 py-2 border border-gray-300 rounded">
+            <option value="50" ${pageSize === 50 ? 'selected' : ''}>50 per page</option>
+            <option value="100" ${pageSize === 100 ? 'selected' : ''}>100 per page</option>
+            <option value="200" ${pageSize === 200 ? 'selected' : ''}>200 per page</option>
+            <option value="500" ${pageSize === 500 ? 'selected' : ''}>500 per page</option>
+        </select>
+    `;
+    
+    // Add source-specific info
+    if (Object.keys(totalPages).length > 0) {
+        const sourceInfo = document.createElement('div');
+        sourceInfo.className = 'mt-4 text-xs text-gray-600';
+        sourceInfo.innerHTML = `
+            <details class="cursor-pointer">
+                <summary>Data Sources Overview</summary>
+                <div class="mt-2 grid grid-cols-2 md:grid-cols-3 gap-2">
+                    ${Object.entries(currentResults.sources).map(([key, source]) => `
+                        <div class="bg-white p-2 rounded border">
+                            <strong>${key.replace(/_/g, ' ')}:</strong> 
+                            ${source.count} shown / ${source.total || source.count} total
+                        </div>
+                    `).join('')}
+                </div>
+            </details>
+        `;
+        paginationDiv.appendChild(sourceInfo);
+    }
+}
+
+function changePageSize(newSize) {
+    pageSize = parseInt(newSize);
+    searchCondition(1); // Reset to page 1 with new size
+}
 function showState(state) {
     // Get the specific containers for condition search
     const loadingElement = document.getElementById('fdaLoadingState');
@@ -291,15 +360,107 @@ function displayResults() {
             document.getElementById('keyMetrics').innerHTML = metricsHtml;
         }
 
-        function displayRegulatoryOverview() {
-            const drugs = currentResults.sources.fda_drugs.data.slice(0, 10);
-            const dailymed = currentResults.sources.dailymed_labels.data.slice(0, 5);
-            const rxnorm = currentResults.sources.rxnorm_drugs.data.slice(0, 5);
+        // function displayRegulatoryOverview() {
+        //     const drugs = currentResults.sources.fda_drugs.data.slice(0, 10);
+        //     const dailymed = currentResults.sources.dailymed_labels.data.slice(0, 5);
+        //     const rxnorm = currentResults.sources.rxnorm_drugs.data.slice(0, 5);
             
-            // FDA Drugs Table
-            const drugsTableHtml = drugs.length > 0 ? `
+        //     // FDA Drugs Table
+        //     const drugsTableHtml = drugs.length > 0 ? `
+        //         <table class="data-table">
+        //             <thead>
+        //                 <tr>
+        //                     <th>Drug Name</th>
+        //                     <th>Manufacturer</th>
+        //                     <th>Type</th>
+        //                     <th>Route</th>
+        //                     <th>Status</th>
+        //                     <th>NDC</th>
+        //                 </tr>
+        //             </thead>
+        //             <tbody>
+        //                 ${drugs.map(drug => `
+        //                     <tr>
+        //                         <td class="font-medium">${drug.drug_name || 'N/A'}</td>
+        //                         <td class="text-gray-600">${drug.manufacturer || 'Unknown'}</td>
+        //                         <td><span class="badge badge-info">${drug.dosage_form || 'N/A'}</span></td>
+        //                         <td>${drug.route || 'N/A'}</td>
+        //                         <td><span class="badge badge-success">Approved</span></td>
+        //                         <td class="font-mono text-xs">${drug.ndc || 'N/A'}</td>
+        //                     </tr>
+        //                 `).join('')}
+        //             </tbody>
+        //         </table>
+        //     ` : '<p class="text-gray-500">No FDA drug data available</p>';
+            
+        //     document.getElementById('fdaDrugsTable').innerHTML = drugsTableHtml;
+            
+        //     // Regulatory Timeline
+        //     const timelineHtml = [...dailymed, ...rxnorm].slice(0, 5).map(item => `
+        //         <div class="timeline-item">
+        //             <div class="card p-3">
+        //                 <h4 class="font-medium text-sm">${item.drug_name || item.name || item.title || 'Unknown'}</h4>
+        //                 <p class="text-xs text-gray-600 mt-1">${item.labeler || item.manufacturer || 'Unknown Manufacturer'}</p>
+        //                 ${item.last_updated ? `<p class="text-xs text-gray-500 mt-1">Updated: ${new Date(item.last_updated).toLocaleDateString()}</p>` : ''}
+        //             </div>
+        //         </div>
+        //     `).join('') || '<p class="text-gray-500">No timeline data available</p>';
+            
+        //     document.getElementById('regulatoryTimeline').innerHTML = timelineHtml;
+            
+        //     // Create approval chart
+        //     if (drugs.length > 0) {
+        //         const ctx = document.getElementById('approvalChart');
+        //         if (ctx) {
+        //             allCharts.approval = new Chart(ctx.getContext('2d'), {
+        //                 type: 'doughnut',
+        //                 data: {
+        //                     labels: ['Prescription', 'OTC', 'Other'],
+        //                     datasets: [{
+        //                         data: [
+        //                             drugs.filter(d => d.route?.includes('ORAL')).length,
+        //                             drugs.filter(d => d.route?.includes('TOPICAL')).length,
+        //                             drugs.filter(d => !d.route?.includes('ORAL') && !d.route?.includes('TOPICAL')).length
+        //                         ],
+        //                         backgroundColor: ['#3b82f6', '#10b981', '#f59e0b']
+        //                     }]
+        //                 },
+        //                 options: {
+        //                     responsive: true,
+        //                     maintainAspectRatio: true,
+        //                     plugins: {
+        //                         legend: {
+        //                             position: 'bottom',
+        //                             labels: {
+        //                                 padding: 10,
+        //                                 font: { size: 11 }
+        //                             }
+        //                         }
+        //                     }
+        //                 }
+        //             });
+        //         }
+        //     }
+        // }
+
+        function displayRegulatoryOverview() {
+    // REMOVE ALL ARTIFICIAL LIMITS - Use all available data
+    const drugs = currentResults.sources.fda_drugs.data; // No slice limit
+    const dailymed = currentResults.sources.dailymed_labels.data; // No slice limit
+    const rxnorm = currentResults.sources.rxnorm_drugs.data; // No slice limit
+    
+    // FDA Drugs Table - Show ALL drugs with count indicator
+    const drugsTableHtml = drugs.length > 0 ? `
+        <div class="mb-3">
+            <div class="flex justify-between items-center mb-2">
+                <h3 class="text-lg font-semibold">FDA Approved Drugs</h3>
+                <span class="text-sm text-gray-600">
+                    Showing ${drugs.length} of ${currentResults.sources.fda_drugs.total || drugs.length} total drugs
+                </span>
+            </div>
+            <div class="overflow-x-auto max-h-96 overflow-y-auto">
                 <table class="data-table">
-                    <thead>
+                    <thead class="sticky top-0 bg-white">
                         <tr>
                             <th>Drug Name</th>
                             <th>Manufacturer</th>
@@ -310,8 +471,8 @@ function displayResults() {
                         </tr>
                     </thead>
                     <tbody>
-                        ${drugs.map(drug => `
-                            <tr>
+                        ${drugs.map((drug, index) => `
+                            <tr class="${index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}">
                                 <td class="font-medium">${drug.drug_name || 'N/A'}</td>
                                 <td class="text-gray-600">${drug.manufacturer || 'Unknown'}</td>
                                 <td><span class="badge badge-info">${drug.dosage_form || 'N/A'}</span></td>
@@ -322,57 +483,152 @@ function displayResults() {
                         `).join('')}
                     </tbody>
                 </table>
-            ` : '<p class="text-gray-500">No FDA drug data available</p>';
-            
-            document.getElementById('fdaDrugsTable').innerHTML = drugsTableHtml;
-            
-            // Regulatory Timeline
-            const timelineHtml = [...dailymed, ...rxnorm].slice(0, 5).map(item => `
-                <div class="timeline-item">
-                    <div class="card p-3">
-                        <h4 class="font-medium text-sm">${item.drug_name || item.name || item.title || 'Unknown'}</h4>
-                        <p class="text-xs text-gray-600 mt-1">${item.labeler || item.manufacturer || 'Unknown Manufacturer'}</p>
-                        ${item.last_updated ? `<p class="text-xs text-gray-500 mt-1">Updated: ${new Date(item.last_updated).toLocaleDateString()}</p>` : ''}
-                    </div>
+            </div>
+            ${currentResults.sources.fda_drugs.total > drugs.length ? `
+                <div class="mt-2 text-sm text-blue-600">
+                    Note: Showing ${drugs.length} of ${currentResults.sources.fda_drugs.total} total FDA drugs. 
+                    Use pagination controls to see more.
                 </div>
-            `).join('') || '<p class="text-gray-500">No timeline data available</p>';
+            ` : ''}
+        </div>
+    ` : '<p class="text-gray-500">No FDA drug data available</p>';
+    
+    document.getElementById('fdaDrugsTable').innerHTML = drugsTableHtml;
+    
+    // Regulatory Timeline - Show ALL timeline items with scrollable container
+    const allTimelineItems = [...dailymed, ...rxnorm]; // No slice limit
+    const timelineHtml = allTimelineItems.length > 0 ? `
+        <div class="mb-3">
+            <div class="flex justify-between items-center mb-2">
+                <h3 class="text-lg font-semibold">Regulatory Timeline</h3>
+                <span class="text-sm text-gray-600">
+                    ${allTimelineItems.length} items 
+                    (${dailymed.length} DailyMed, ${rxnorm.length} RxNorm)
+                </span>
+            </div>
+            <div class="overflow-y-auto max-h-96 space-y-2">
+                ${allTimelineItems.map((item, index) => `
+                    <div class="timeline-item">
+                        <div class="card p-3 hover:shadow-md transition-shadow">
+                            <div class="flex justify-between items-start">
+                                <div class="flex-1">
+                                    <h4 class="font-medium text-sm">${item.drug_name || item.name || item.title || 'Unknown'}</h4>
+                                    <p class="text-xs text-gray-600 mt-1">${item.labeler || item.manufacturer || 'Unknown Manufacturer'}</p>
+                                    ${item.last_updated ? `<p class="text-xs text-gray-500 mt-1">Updated: ${new Date(item.last_updated).toLocaleDateString()}</p>` : ''}
+                                    ${item.dosage_form ? `<p class="text-xs text-gray-500">Form: ${item.dosage_form}</p>` : ''}
+                                    ${item.route ? `<p class="text-xs text-gray-500">Route: ${item.route}</p>` : ''}
+                                </div>
+                                <span class="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded">
+                                    ${item.source || (dailymed.includes(item) ? 'DailyMed' : 'RxNorm')}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+    ` : '<p class="text-gray-500">No timeline data available</p>';
+    
+    document.getElementById('regulatoryTimeline').innerHTML = timelineHtml;
+    
+    // Create approval chart with ALL drugs data
+    if (drugs.length > 0) {
+        const ctx = document.getElementById('approvalChart');
+        if (ctx) {
+            // Destroy existing chart if it exists
+            if (allCharts.approval) {
+                allCharts.approval.destroy();
+            }
             
-            document.getElementById('regulatoryTimeline').innerHTML = timelineHtml;
+            // More comprehensive categorization using ALL drugs
+            const routeCategories = {};
+            drugs.forEach(drug => {
+                const route = drug.route || 'UNKNOWN';
+                routeCategories[route] = (routeCategories[route] || 0) + 1;
+            });
             
-            // Create approval chart
-            if (drugs.length > 0) {
-                const ctx = document.getElementById('approvalChart');
-                if (ctx) {
-                    allCharts.approval = new Chart(ctx.getContext('2d'), {
-                        type: 'doughnut',
-                        data: {
-                            labels: ['Prescription', 'OTC', 'Other'],
-                            datasets: [{
-                                data: [
-                                    drugs.filter(d => d.route?.includes('ORAL')).length,
-                                    drugs.filter(d => d.route?.includes('TOPICAL')).length,
-                                    drugs.filter(d => !d.route?.includes('ORAL') && !d.route?.includes('TOPICAL')).length
-                                ],
-                                backgroundColor: ['#3b82f6', '#10b981', '#f59e0b']
-                            }]
+            // Get top routes for better visualization
+            const sortedRoutes = Object.entries(routeCategories)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 6); // Show top 6 routes
+            
+            allCharts.approval = new Chart(ctx.getContext('2d'), {
+                type: 'doughnut',
+                data: {
+                    labels: sortedRoutes.map(r => r[0]),
+                    datasets: [{
+                        data: sortedRoutes.map(r => r[1]),
+                        backgroundColor: [
+                            '#3b82f6', '#10b981', '#f59e0b', 
+                            '#ef4444', '#8b5cf6', '#ec4899'
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 10,
+                                font: { size: 11 },
+                                generateLabels: function(chart) {
+                                    const data = chart.data;
+                                    return data.labels.map((label, i) => ({
+                                        text: `${label} (${data.datasets[0].data[i]})`,
+                                        fillStyle: data.datasets[0].backgroundColor[i],
+                                        hidden: false,
+                                        index: i
+                                    }));
+                                }
+                            }
                         },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: true,
-                            plugins: {
-                                legend: {
-                                    position: 'bottom',
-                                    labels: {
-                                        padding: 10,
-                                        font: { size: 11 }
-                                    }
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.raw;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = ((value / total) * 100).toFixed(1);
+                                    return `${label}: ${value} drugs (${percentage}%)`;
                                 }
                             }
                         }
-                    });
+                    }
                 }
+            });
+            
+            // Add summary statistics below the chart
+            const statsDiv = document.createElement('div');
+            statsDiv.className = 'mt-4 grid grid-cols-2 gap-2 text-xs';
+            statsDiv.innerHTML = `
+                <div class="bg-blue-50 p-2 rounded">
+                    <span class="font-semibold">Total Drugs:</span> ${drugs.length}
+                </div>
+                <div class="bg-green-50 p-2 rounded">
+                    <span class="font-semibold">Manufacturers:</span> ${new Set(drugs.map(d => d.manufacturer).filter(m => m)).size}
+                </div>
+                <div class="bg-yellow-50 p-2 rounded">
+                    <span class="font-semibold">Routes:</span> ${Object.keys(routeCategories).length}
+                </div>
+                <div class="bg-purple-50 p-2 rounded">
+                    <span class="font-semibold">Dosage Forms:</span> ${new Set(drugs.map(d => d.dosage_form).filter(f => f)).size}
+                </div>
+            `;
+            
+            // Insert stats after the chart
+            const chartContainer = ctx.parentElement;
+            const existingStats = chartContainer.querySelector('.mt-4');
+            if (existingStats) {
+                existingStats.remove();
             }
+            chartContainer.appendChild(statsDiv);
         }
+    }
+}
 
         function displayClinicalTrials() {
             const trials = currentResults.sources.clinical_trials.data;
@@ -389,41 +645,82 @@ function displayResults() {
             document.getElementById('totalTrialsCount').textContent = trials.length;
             
             // Trials table
-            const trialsTableHtml = trials.length > 0 ? `
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>NCT ID</th>
-                            <th>Title</th>
-                            <th>Phase</th>
-                            <th>Status</th>
-                            <th>Sponsor</th>
-                            <th>Enrollment</th>
-                            <th>Start Date</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${trials.slice(0, 15).map(trial => `
-                            <tr>
-                                <td>
-                                    <a href="https://clinicaltrials.gov/study/${trial.nct_id}" target="_blank" class="text-blue-600 hover:underline font-medium">
-                                        ${trial.nct_id}
-                                    </a>
-                                </td>
-                                <td class="max-w-xs truncate" title="${trial.title}">${trial.title}</td>
-                                <td><span class="badge badge-info">${trial.phase || 'N/A'}</span></td>
-                                <td><span class="badge badge-${getStatusBadgeClass(trial.status)}">${trial.status}</span></td>
-                                <td>${trial.sponsor}</td>
-                                <td>${trial.enrollment || 'N/A'}</td>
-                                <td>${trial.start_date || 'N/A'}</td>
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
-            ` : '<p class="text-gray-500">No clinical trials data available</p>';
+            // const trialsTableHtml = trials.length > 0 ? `
+            //     <table class="data-table">
+            //         <thead>
+            //             <tr>
+            //                 <th>NCT ID</th>
+            //                 <th>Title</th>
+            //                 <th>Phase</th>
+            //                 <th>Status</th>
+            //                 <th>Sponsor</th>
+            //                 <th>Enrollment</th>
+            //                 <th>Start Date</th>
+            //             </tr>
+            //         </thead>
+            //         <tbody>
+            //             ${trials.map(trial => `
+            //                 <tr>
+            //                     <td>
+            //                         <a href="https://clinicaltrials.gov/study/${trial.nct_id}" target="_blank" class="text-blue-600 hover:underline font-medium">
+            //                             ${trial.nct_id}
+            //                         </a>
+            //                     </td>
+            //                     <td class="max-w-xs truncate" title="${trial.title}">${trial.title}</td>
+            //                     <td><span class="badge badge-info">${trial.phase || 'N/A'}</span></td>
+            //                     <td><span class="badge badge-${getStatusBadgeClass(trial.status)}">${trial.status}</span></td>
+            //                     <td>${trial.sponsor}</td>
+            //                     <td>${trial.enrollment || 'N/A'}</td>
+            //                     <td>${trial.start_date || 'N/A'}</td>
+            //                 </tr>
+            //             `).join('')}
+            //         </tbody>
+            //     </table>
+            // ` : '<p class="text-gray-500">No clinical trials data available</p>';
             
-            document.getElementById('clinicalTrialsTable').innerHTML = trialsTableHtml;
+            // document.getElementById('clinicalTrialsTable').innerHTML = trialsTableHtml;
             
+
+             const trialsTableHtml = trials.length > 0 ? `
+        <div class="mb-2 text-sm text-gray-600">
+            Showing ${trials.length} of ${currentResults.sources.clinical_trials.total || trials.length} total trials
+        </div>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>NCT ID</th>
+                    <th>Title</th>
+                    <th>Phase</th>
+                    <th>Status</th>
+                    <th>Sponsor</th>
+                    <th>Enrollment</th>
+                    <th>Start Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${trials.map(trial => `
+                    <tr>
+                        <td>
+                            <a href="https://clinicaltrials.gov/study/${trial.nct_id}" target="_blank" class="text-blue-600 hover:underline font-medium">
+                                ${trial.nct_id}
+                            </a>
+                        </td>
+                        <td class="max-w-xs truncate" title="${trial.title}">${trial.title}</td>
+                        <td><span class="badge badge-info">${trial.phase || 'N/A'}</span></td>
+                        <td><span class="badge badge-${getStatusBadgeClass(trial.status)}">${trial.status}</span></td>
+                        <td>${trial.sponsor}</td>
+                        <td>${trial.enrollment || 'N/A'}</td>
+                        <td>${trial.start_date || 'N/A'}</td>
+                    </tr>
+                `).join('')}
+            </tbody>
+        </table>
+    ` : '<p class="text-gray-500">No clinical trials data available</p>';
+    
+    document.getElementById('clinicalTrialsTable').innerHTML = trialsTableHtml;
+    
+
+
             // Phase distribution chart
             const phaseCtx = document.getElementById('phaseChart');
             if (phaseCtx && trials.length > 0) {

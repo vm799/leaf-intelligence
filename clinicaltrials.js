@@ -5792,10 +5792,10 @@ app.get('/api/pubmed', async (req, res) => {
     };
     
     // Forward to advanced search endpoint
-    const advancedResponse = await axios.post(`http://localhost:${process.env.PORT || 3000}/api/pubmed/advanced-search`, advancedPayload);
-    
+    // const advancedResponse = await axios.post(`/api/pubmed/advanced-search`, advancedPayload);
+    const advancedResponse = await searchPubMedWithAbstracts(advancedPayload.term, advancedPayload.retmax, advancedPayload.sort);
     // Format response for backward compatibility
-    const articles = advancedResponse.data.data?.articles || [];
+    const articles = advancedResponse.articles || [];
     
     res.json({
       articles: articles,
@@ -5814,6 +5814,204 @@ app.get('/api/pubmed', async (req, res) => {
     });
   }
 });
+
+
+
+/**
+ * Shared function to search PubMed and fetch articles with abstracts
+ * Enhanced with better error handling and debugging
+ */
+async function searchPubMedWithAbstracts(term, retmax = 20, sort = 'relevance') {
+  try {
+    if (!term) {
+      throw new Error('Search term is required');
+    }
+
+    console.log(`🔍 PubMed: Searching for: ${term}`);
+
+    // Step 1: Search for article IDs using esearch
+    const searchParams = new URLSearchParams({
+      db: 'pubmed',
+      term: term,
+      retmax: retmax,
+      retmode: 'json'
+      // sort: sort
+    });
+
+    if (process.env.NCBI_API_KEY) {
+      searchParams.append('api_key', process.env.NCBI_API_KEY);
+    }
+
+    const searchUrl = `${PUBMED_EUTILS_BASE}/esearch.fcgi?${searchParams.toString()}`;
+    
+    // Log the URL (without API key for security)
+    console.log(`📍 PubMed Search URL: ${searchUrl.replace(/api_key=[^&]*/, 'api_key=***')}`);
+    
+    const searchResponse = await fetch(searchUrl);
+    
+    // If we get a 500 error, try to get more details
+    if (!searchResponse.ok) {
+      const errorText = await searchResponse.text();
+      console.error(`❌ PubMed API Error Response:`, {
+        status: searchResponse.status,
+        statusText: searchResponse.statusText,
+        body: errorText.substring(0, 500) // First 500 chars of error
+      });
+      
+      // If it's a 500 error, always retry without sorting (PubMed sort is unstable)
+      if (searchResponse.status === 500) {
+        console.log('🔄 PubMed returned 500 error. Retrying without sort parameter...');
+        const retryParams = new URLSearchParams({
+          db: 'pubmed',
+          term: term,
+          retmax: retmax,
+          retmode: 'json'
+          // Removed sort parameter completely
+        });
+        
+        if (process.env.NCBI_API_KEY) {
+          retryParams.append('api_key', process.env.NCBI_API_KEY);
+        }
+        
+        const retryUrl = `${PUBMED_EUTILS_BASE}/esearch.fcgi?${retryParams.toString()}`;
+        console.log(`📍 Retry URL: ${retryUrl.replace(/api_key=[^&]*/, 'api_key=***')}`);
+        
+        const retryResponse = await fetch(retryUrl);
+        
+        if (retryResponse.ok) {
+          console.log('✅ Retry successful without sort parameter');
+          const searchData = await retryResponse.json();
+          const idList = searchData.esearchresult?.idlist || [];
+          const totalCount = parseInt(searchData.esearchresult?.count || 0);
+          
+          console.log(`🔍 PubMed: Found ${idList.length} article IDs, total count: ${totalCount}`);
+          
+          if (idList.length === 0) {
+            return {
+              articles: [],
+              totalCount: 0
+            };
+          }
+          
+          // Continue with the rest of the process
+          return await fetchArticleDetails(idList, totalCount);
+        } else {
+          // If retry also fails, log the error
+          const retryErrorText = await retryResponse.text();
+          console.error(`❌ Retry also failed:`, {
+            status: retryResponse.status,
+            body: retryErrorText.substring(0, 500)
+          });
+        }
+      }
+      
+      throw new Error(`PubMed search failed: ${searchResponse.status} ${searchResponse.statusText}`);
+    }
+    
+    const searchData = await searchResponse.json();
+    const idList = searchData.esearchresult?.idlist || [];
+    const totalCount = parseInt(searchData.esearchresult?.count || 0);
+
+    console.log(`🔍 PubMed: Found ${idList.length} article IDs, total count: ${totalCount}`);
+    
+    if (idList.length === 0) {
+      return {
+        articles: [],
+        totalCount: 0
+      };
+    }
+
+    return await fetchArticleDetails(idList, totalCount);
+
+  } catch (error) {
+    console.error("❌ PubMed search error:", error);
+    throw error;
+  }
+}
+
+/**
+ * Helper function to fetch article details and abstracts
+ * Separated for cleaner code and reusability
+ */
+async function fetchArticleDetails(idList, totalCount) {
+  try {
+    // Step 2: Get basic details using esummary
+    const detailsParams = new URLSearchParams({
+      db: 'pubmed',
+      id: idList.join(','),
+      retmode: 'json'
+    });
+
+    if (process.env.NCBI_API_KEY) {
+      detailsParams.append('api_key', process.env.NCBI_API_KEY);
+    }
+
+    const detailsUrl = `${PUBMED_EUTILS_BASE}/esummary.fcgi?${detailsParams.toString()}`;
+    console.log(`📍 Fetching details for ${idList.length} articles...`);
+    
+    const detailsResponse = await fetch(detailsUrl);
+    
+    if (!detailsResponse.ok) {
+      console.error(`❌ Details fetch failed: ${detailsResponse.status}`);
+      throw new Error(`PubMed details fetch failed: ${detailsResponse.status}`);
+    }
+    
+    const detailsData = await detailsResponse.json();
+    
+    // Step 3: Fetch abstracts using efetch (XML format for abstracts)
+    let abstractsData = {};
+    try {
+      const abstractParams = new URLSearchParams({
+        db: 'pubmed',
+        id: idList.join(','),
+        rettype: 'abstract',
+        retmode: 'xml'
+      });
+
+      if (process.env.NCBI_API_KEY) {
+        abstractParams.append('api_key', process.env.NCBI_API_KEY);
+      }
+
+      const abstractUrl = `${PUBMED_EUTILS_BASE}/efetch.fcgi?${abstractParams.toString()}`;
+      console.log(`📍 Fetching abstracts...`);
+      
+      const abstractResponse = await fetch(abstractUrl);
+      
+      if (abstractResponse.ok) {
+        const xmlData = await abstractResponse.text();
+        abstractsData = await parseAbstractXML(xmlData);
+        console.log(`✅ Fetched abstracts for ${Object.keys(abstractsData).length} articles`);
+      } else {
+        console.warn(`⚠️ PubMed abstracts fetch failed: ${abstractResponse.status}, continuing without abstracts`);
+      }
+    } catch (abstractError) {
+      console.warn('⚠️ Could not fetch abstracts:', abstractError.message);
+    }
+
+    // Step 4: Format articles with abstracts
+    const articles = [];
+    
+    idList.forEach(pmid => {
+      const summary = detailsData.result?.[pmid];
+      
+      if (summary && summary.title) {
+        const article = formatPubMedSummaryWithAbstract(summary, pmid, abstractsData[pmid]);
+        articles.push(article);
+      }
+    });
+
+    console.log(`✅ PubMed: Formatted ${articles.length} articles`);
+
+    return {
+      articles: articles,
+      totalCount: totalCount
+    };
+    
+  } catch (error) {
+    console.error("❌ Error fetching article details:", error);
+    throw error;
+  }
+}
 
 /**
  * Utility endpoint to get PubMed article details by PMID
