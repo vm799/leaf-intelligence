@@ -5772,6 +5772,49 @@ app.get('/api/test/pubmed-connection', async (req, res) => {
  * Enhanced existing PubMed search endpoint for backward compatibility
  * GET /api/pubmed
  */
+// app.get('/api/pubmed', async (req, res) => {
+//   try {
+//     const term = req.query.term;
+//     if (!term) {
+//       return res.status(400).json({ 
+//         success: false,
+//         error: 'Search term is required' 
+//       });
+//     }
+    
+//     console.log(`🔍 PubMed: Legacy search for: ${term}`);
+    
+//     // Convert to advanced search format
+//     const advancedPayload = {
+//       term: term,
+//       retmax: req.query.retmax || 20,
+//       sort: req.query.sort || 'relevance'
+//     };
+    
+//     // Forward to advanced search endpoint
+//     // const advancedResponse = await axios.post(`/api/pubmed/advanced-search`, advancedPayload);
+//     const advancedResponse = await searchPubMedWithAbstracts(advancedPayload.term, advancedPayload.retmax, advancedPayload.sort);
+//     // Format response for backward compatibility
+//     const articles = advancedResponse.articles || [];
+    
+//     res.json({
+//       articles: articles,
+//       totalResults: advancedResponse.data.data?.totalCount || articles.length,
+//       searchTerm: term,
+//       legacy: true
+//     });
+    
+//   } catch (error) {
+//     console.error('PubMed legacy API error:', error);
+//     res.status(500).json({ 
+//       success: false,
+//       error: error.message,
+//       articles: [],
+//       totalResults: 0
+//     });
+//   }
+// });
+
 app.get('/api/pubmed', async (req, res) => {
   try {
     const term = req.query.term;
@@ -5792,10 +5835,10 @@ app.get('/api/pubmed', async (req, res) => {
     };
     
     // Forward to advanced search endpoint
-    // const advancedResponse = await axios.post(`/api/pubmed/advanced-search`, advancedPayload);
-    const advancedResponse = await searchPubMedWithAbstracts(advancedPayload.term, advancedPayload.retmax, advancedPayload.sort);
+    const advancedResponse = await axios.post(`http://localhost:${process.env.PORT || 3000}/api/pubmed/advanced-search`, advancedPayload);
+    
     // Format response for backward compatibility
-    const articles = advancedResponse.articles || [];
+    const articles = advancedResponse.data.data?.articles || [];
     
     res.json({
       articles: articles,
@@ -5814,8 +5857,6 @@ app.get('/api/pubmed', async (req, res) => {
     });
   }
 });
-
-
 
 /**
  * Shared function to search PubMed and fetch articles with abstracts
