@@ -1,4 +1,6 @@
-
+// At the beginning of conditions.js, wrap everything in an IIFE
+(function() {
+    'use strict';
         let currentResults = null;
         let allCharts = {};
         // const API_BASE= 'http://localhost:4000';
@@ -13,35 +15,6 @@
             document.getElementById('searchInput').value = condition;
             searchCondition();
         }
-
-        // async function searchCondition() {
-        //     const condition = document.getElementById('searchInput').value.trim();
-        //     if (!condition) return;
-
-        //     showState('loading');
-            
-        //     // Clear all existing charts
-        //     Object.values(allCharts).forEach(chart => {
-        //         if (chart) chart.destroy();
-        //     });
-        //     allCharts = {};
-
-        //     try {
-        //         const response = await fetch(`${API_BASE_URL}/condition/condition/${encodeURIComponent(condition)}`);
-        //         const data = await response.json();
-
-        //         if (data.success && data.results) {
-        //             currentResults = data.results;
-        //             displayResults();
-        //         } else {
-        //             showState('noResults');
-        //         }
-        //     } catch (error) {
-        //         console.error('Search error:', error);
-        //         showState('noResults');
-        //     }
-        // }
-
 
 async function searchCondition() {
     const condition = document.getElementById('searchInput').value.trim();
@@ -61,7 +34,9 @@ async function searchCondition() {
 
         if (data.success && data.results) {
             currentResults = data.results;
-            displayResults();
+            displayResults(); // First display the results
+            showState('results'); // THEN show the results section - THIS IS THE KEY
+            console.log("Results displayed successfully");
         } else {
             showState('noResults');
         }
@@ -71,21 +46,104 @@ async function searchCondition() {
     }
 }
 
-function showState(state) {
-    // Hide all states
-    document.getElementById('fdaLoadingState').classList.add('hidden');
-    document.getElementById('resultsSection').classList.add('hidden');
-    document.getElementById('noResultsState').classList.add('hidden');
 
-    if (state === 'loading') {
-        document.getElementById('fdaLoadingState').classList.remove('hidden');
-    } else if (state === 'results') {
-        document.getElementById('resultsSection').classList.remove('hidden');
-    } else if (state === 'noResults') {
-        document.getElementById('noResultsState').classList.remove('hidden');
+// async function searchCondition() {
+//     const condition = document.getElementById('searchInput').value.trim();
+//     if (!condition) return;
+
+//     showState('loading');
+    
+//     // Clear all existing charts
+//     Object.values(allCharts).forEach(chart => {
+//         if (chart) chart.destroy();
+//     });
+//     allCharts = {};
+
+//     try {
+//         const response = await fetch(`${API_BASE_URL}/condition/condition/${encodeURIComponent(condition)}`);
+//         const data = await response.json();
+
+//         if (data.success && data.results) {
+//             currentResults = data.results;
+//             displayResults();
+//             console.log("SHOIAHOFHSDFHIDFUOGO GDFY AGDFY AGYF GAUYKF GYAKD FGUYAK GYUASF GFYUAKG SYUAF GYUASF GUY F SAGU YF")
+//         } else {
+//             showState('noResults');
+//         }
+//     } catch (error) {
+//         console.error('Search error:', error);
+//         showState('noResults');
+//     }
+// }
+
+// function showState(state) {
+//     // Hide all states
+//     document.getElementById('fdaLoadingState').classList.add('hidden');
+//     document.getElementById('resultsSection').classList.add('hidden');
+//     document.getElementById('noResultsState').classList.add('hidden');
+
+//     if (state === 'loading') {
+//         document.getElementById('fdaLoadingState').classList.remove('hidden');
+//     } else if (state === 'results') {
+//         document.getElementById('resultsSection').classList.remove('hidden');
+//     } else if (state === 'noResults') {
+//         document.getElementById('noResultsState').classList.remove('hidden');
+//     }
+// }
+function showState(state) {
+    // Get the specific containers for condition search
+    const loadingElement = document.getElementById('fdaLoadingState');
+    const resultsElement = document.getElementById('resultsSection');
+    const noResultsElement = document.getElementById('noResultsState');
+    
+    // Hide all states first
+    if (loadingElement) {
+        loadingElement.classList.add('hidden');
+        loadingElement.style.display = 'none';
+    }
+    if (resultsElement) {
+        resultsElement.classList.add('hidden');
+        resultsElement.style.display = 'none';
+    }
+    if (noResultsElement) {
+        noResultsElement.classList.add('hidden');
+        noResultsElement.style.display = 'none';
+    }
+
+    // Now show the appropriate state
+    if (state === 'loading' && loadingElement) {
+        loadingElement.classList.remove('hidden');
+        loadingElement.style.display = 'block';
+    } else if (state === 'results' && resultsElement) {
+        // CRITICAL: Force the results section to be visible
+        resultsElement.classList.remove('hidden');
+        resultsElement.style.display = 'block';
+        resultsElement.style.visibility = 'visible';
+        resultsElement.style.opacity = '1';
+        
+        // Make sure parent containers are also visible
+        let parent = resultsElement.parentElement;
+        while (parent && parent !== document.body) {
+            parent.classList.remove('hidden');
+            if (parent.style.display === 'none') {
+                parent.style.display = '';
+            }
+            parent = parent.parentElement;
+        }
+        
+        // Force browser to recalculate layout
+        resultsElement.offsetHeight;
+        
+        // Scroll to results
+        setTimeout(() => {
+            resultsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
+        
+    } else if (state === 'noResults' && noResultsElement) {
+        noResultsElement.classList.remove('hidden');
+        noResultsElement.style.display = 'block';
     }
 }
-
 
 
         // function showState(state) {
@@ -102,23 +160,35 @@ function showState(state) {
         //     }
         // }
 
-        function displayResults() {
-            if (!currentResults) return;
+function displayResults() {
+    if (!currentResults) {
+        console.error("No results to display");
+        return;
+    }
 
-            displayExecutiveSummary();
-            displayKeyMetrics();
-            displayRegulatoryOverview();
-            displayClinicalTrials();
-            displaySafetyProfile();
-            displayChemistry();
-            displayLiterature();
-            displayFailedDrugs();
-            
-            // Update last updated time
-            document.getElementById('lastUpdated').textContent = new Date().toLocaleString();
-            
-            showState('results');
-        }
+    console.log("Displaying results for condition:", currentResults.condition);
+    
+    // Display all components
+    displayExecutiveSummary();
+    displayKeyMetrics();
+    displayRegulatoryOverview();
+    displayClinicalTrials();
+    displaySafetyProfile();
+    displayChemistry();
+    displayLiterature();
+    displayFailedDrugs();
+    
+    // Update last updated time
+    const lastUpdatedElement = document.getElementById('lastUpdated');
+    if (lastUpdatedElement) {
+        lastUpdatedElement.textContent = new Date().toLocaleString();
+    }
+    
+    // IMPORTANT: Ensure results are shown AFTER all content is rendered
+    setTimeout(() => {
+        showState('results');
+    }, 50);
+}
 
         function displayExecutiveSummary() {
             const summary = currentResults.summary;
@@ -1121,7 +1191,7 @@ function displayChemistry() {
             document.getElementById('failedDrugsTable').innerHTML = failedHtml;
         }
 
-        function switchTab(tabName) {
+        function CswitchTab(tabName) {
             // Hide all tab contents
             document.querySelectorAll('.tab-content').forEach(content => {
                 content.classList.add('hidden');
@@ -1257,3 +1327,7 @@ function displayChemistry() {
 
 
         window.quickSearch = quickSearch
+        window.Cswitchtab = Cswitchtab;     
+
+            // Rest of your code...
+})();

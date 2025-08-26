@@ -6236,7 +6236,7 @@ tailwind.config = {
       </div> -->
     </div>
 
-    <div id="conditioncontent" class="hidden">
+    <div id="conditioncontentx" class="hidden">
 
     <!-- Search Section -->
     <section class="hidden bg-gray-50 border-b border-gray-200 py-6" >
@@ -6336,22 +6336,22 @@ tailwind.config = {
             <div class="bg-white border border-gray-200 rounded-lg mb-6">
                 <div class="border-b border-gray-200">
                     <div class="flex space-x-0 overflow-x-auto">
-                        <button onclick="switchTab('regulatory')" id="tab-regulatory" class="tab active whitespace-nowrap">
+                        <button onclick="window.CswitchTab('regulatory')" id="tab-regulatory" class="tab active whitespace-nowrap">
                             Regulatory Overview
                         </button>
-                        <button onclick="switchTab('clinical')" id="tab-clinical" class="tab whitespace-nowrap">
+                        <button onclick="window.CswitchTab('clinical')" id="tab-clinical" class="tab whitespace-nowrap">
                             Clinical Trials
                         </button>
-                        <button onclick="switchTab('safety')" id="tab-safety" class="tab whitespace-nowrap">
+                        <button onclick="window.CswitchTab('safety')" id="tab-safety" class="tab whitespace-nowrap">
                             Safety Profile
                         </button>
-                        <button onclick="switchTab('chemistry')" id="tab-chemistry" class="tab whitespace-nowrap">
+                        <button onclick="window.CswitchTab('chemistry')" id="tab-chemistry" class="tab whitespace-nowrap">
                             Chemistry & Manufacturing
                         </button>
-                        <button onclick="switchTab('literature')" id="tab-literature" class="tab whitespace-nowrap">
+                        <button onclick="window.CswitchTab('literature')" id="tab-literature" class="tab whitespace-nowrap">
                             Scientific Literature
                         </button>
-                        <button onclick="switchTab('failed')" id="tab-failed" class="tab whitespace-nowrap">
+                        <button onclick="window.CswitchTab('failed')" id="tab-failed" class="tab whitespace-nowrap">
                             Failed/Withdrawn
                         </button>
                     </div>
@@ -66828,9 +66828,9 @@ try {
 }
         // Continue with DailyMed fetch
         try {
-if (window.quickSearch) {
+if (window.quickSearchL) {
             // Now you can safely use it
-            window.quickSearch(drug);
+            window.quickSearchL(drug);
         }
 
 
@@ -87618,7 +87618,7 @@ autostartComprehensiveAnalysis(condition, true)
               
                const quick = document.getElementById('quick');
             const metrics = document.getElementById('cardmetric');
-            const summarySection = document.getElementById('conditioncontent');
+            const summarySection = document.getElementById('conditioncontentx');
 summarySection.removeAttribute('hidden');
 summarySection.classList.remove('hidden');
 window.quickSearch(condition)

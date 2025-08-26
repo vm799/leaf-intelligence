@@ -1,4 +1,7 @@
-        // Add this at the very beginning of your script section
+
+(function() {
+    'use strict';
+// Add this at the very beginning of your script section
 const API_BASE = '/api/advanced-label';
 
 // Enhanced state management for uploads
@@ -38,7 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const searchInput = document.getElementById('mainSearch');
     if (searchInput) {
         searchInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') performSearch();
+            if (e.key === 'Enter') performSearchL();
         });
     }
     
@@ -2007,14 +2010,17 @@ document.head.appendChild(styleElement);
 
 
         // Quick search
-        function quickSearch(drug) {
+        function quickSearchL(drug) {
             document.getElementById('mainSearch').value = drug;
-            performSearch();
+            performSearchL();
         }
 
         // Enhanced search with better data processing
-        async function performSearch() {
-            const searchTerm = document.getElementById('mainSearch').value.trim();
+        async function performSearchL() {
+            // const searchTerm = document.getElementById('mainSearch').value.trim();
+            const inputEl = document.getElementById('mainSearch');
+const searchTerm = inputEl ? inputEl.value : "";
+
             if (!searchTerm) {
                 alert('Please enter a search term');
                 return;
@@ -2037,7 +2043,8 @@ document.head.appendChild(styleElement);
                 if (state.applications.length === 0 && state.labels.length === 0) {
                     showNoResults();
                 } else {
-                    displayResults();
+                    // displayResults();
+                    displayLabelResults()
                 }
             } catch (error) {
                 console.error('Search error:', error);
@@ -2398,7 +2405,7 @@ function normalizeProductName(name) {
         }
 
         // Display results
-        function displayResults() {
+        function  displayLabelResults() {
             showLabelLoading(false);
             document.getElementById('mainContent').classList.remove('hidden');
             document.getElementById('noResults').classList.add('hidden');
@@ -4204,7 +4211,201 @@ function formatSectionContent(content) {
         }
 
         // View application details
-function viewApplicationDetails(applicationNumber) {
+// function viewApplicationDetails(applicationNumber) {
+//     const app = state.applications.find(a => a.applicationNumber === applicationNumber);
+//     if (!app) return;
+
+//     let modal = document.getElementById('applicationModal');
+//     if (!modal) {
+//         // Create the modal element
+//         modal = document.createElement('div');
+//         modal.id = 'applicationModal';
+//         modal.className = 'hidden fixed inset-0 modal-backdrop flex items-center justify-center z-50';
+        
+//         // Set the innerHTML properly (using = not backticks)
+//         modal.innerHTML = `
+//             <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col">
+//                 <div class="flex justify-between items-center p-6 border-b bg-gradient-to-r from-blue-50 to-purple-50 flex-shrink-0">
+//                     <div>
+//                         <h3 class="text-2xl font-bold text-gray-900" id="appModalTitle">Application Details</h3>
+//                         <p class="text-sm text-gray-600 mt-1" id="appModalSubtitle"></p>
+//                     </div>
+//                       <button onclick="closeApplicationModal()" 
+//                     class="p-2 rounded-lg bg-white shadow-md hover:shadow-lg hover:bg-gray-50 transition-all duration-200 group">
+//                 <i class="fas fa-times text-xl text-gray-500 group-hover:text-gray-700"></i>
+//             </button>
+//                 </div>
+//                 <div id="appModalContent" class="p-6 overflow-y-auto custom-scrollbar flex-1 min-h-0">
+//                     <!-- Application details will be rendered here -->
+//                 </div>
+//             </div>
+//         `;
+        
+//         // Append to body
+//         document.body.appendChild(modal);
+        
+//         // Add the modal backdrop styles if they don't exist
+//         if (!document.getElementById('modalBackdropStyles')) {
+//             const style = document.createElement('style');
+//             style.id = 'modalBackdropStyles';
+//             style.textContent = `
+//                 .modal-backdrop {
+//                     background-color: rgba(0, 0, 0, 0.5);
+//                 }
+//                 .custom-scrollbar::-webkit-scrollbar {
+//                     width: 8px;
+//                 }
+//                 .custom-scrollbar::-webkit-scrollbar-track {
+//                     background: #f1f1f1;
+//                     border-radius: 4px;
+//                 }
+//                 .custom-scrollbar::-webkit-scrollbar-thumb {
+//                     background: #888;
+//                     border-radius: 4px;
+//                 }
+//                 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+//                     background: #555;
+//                 }
+//                 .change-badge {
+//                     padding: 2px 8px;
+//                     border-radius: 4px;
+//                     font-size: 11px;
+//                     font-weight: 600;
+//                     text-transform: uppercase;
+//                 }
+//                 .change-safety {
+//                     background-color: #fee2e2;
+//                     color: #991b1b;
+//                 }
+//                 .change-efficacy {
+//                     background-color: #dbeafe;
+//                     color: #1e40af;
+//                 }
+//                 .change-dosage {
+//                     background-color: #fef3c7;
+//                     color: #92400e;
+//                 }
+//                 .product-timeline {
+//                     position: relative;
+//                     padding-left: 20px;
+//                 }
+//                 .product-event {
+//                     position: relative;
+//                     margin-bottom: 12px;
+//                 }
+//                 .product-event::before {
+//                     content: '';
+//                     position: absolute;
+//                     left: -12px;
+//                     top: 8px;
+//                     width: 8px;
+//                     height: 8px;
+//                     border-radius: 50%;
+//                     background-color: #6b7280;
+//                 }
+//             `;
+//             document.head.appendChild(style);
+//         }
+//     }
+            
+//             document.getElementById('appModalTitle').textContent = app.productName || 'Application Details';
+//             document.getElementById('appModalSubtitle').textContent = `Application ${applicationNumber}`;
+            
+//             const content = document.getElementById('appModalContent');
+//             content.innerHTML = `
+//                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+//                     <div>
+//                         <h4 class="font-semibold text-gray-900 mb-3">Basic Information</h4>
+//                         <div class="space-y-2">
+//                             <div class="flex justify-between py-2 border-b">
+//                                 <span class="text-sm text-gray-600">Product Name</span>
+//                                 <span class="text-sm font-medium">${app.productName || 'N/A'}</span>
+//                             </div>
+//                             <div class="flex justify-between py-2 border-b">
+//                                 <span class="text-sm text-gray-600">Generic Name</span>
+//                                 <span class="text-sm font-medium">${app.genericName || 'N/A'}</span>
+//                             </div>
+//                             <div class="flex justify-between py-2 border-b">
+//                                 <span class="text-sm text-gray-600">Sponsor</span>
+//                                 <span class="text-sm font-medium">${app.sponsorName || 'N/A'}</span>
+//                             </div>
+//                             <div class="flex justify-between py-2 border-b">
+//                                 <span class="text-sm text-gray-600">Approval Date</span>
+//                                 <span class="text-sm font-medium">${formatDate(app.approvalDate)}</span>
+//                             </div>
+//                             <div class="flex justify-between py-2 border-b">
+//                                 <span class="text-sm text-gray-600">Status</span>
+//                                 <span class="text-sm font-medium">${app.status || 'Active'}</span>
+//                             </div>
+//                         </div>
+//                     </div>
+                    
+//                     <div>
+//                         <h4 class="font-semibold text-gray-900 mb-3">Formulation Details</h4>
+//                         <div class="space-y-2">
+//                             <div class="flex justify-between py-2 border-b">
+//                                 <span class="text-sm text-gray-600">Dosage Form</span>
+//                                 <span class="text-sm font-medium">${app.dosageForm || 'N/A'}</span>
+//                             </div>
+//                             <div class="flex justify-between py-2 border-b">
+//                                 <span class="text-sm text-gray-600">Route</span>
+//                                 <span class="text-sm font-medium">${app.route || 'N/A'}</span>
+//                             </div>
+//                             <div class="flex justify-between py-2 border-b">
+//                                 <span class="text-sm text-gray-600">Strength</span>
+//                                 <span class="text-sm font-medium">${app.strength || 'N/A'}</span>
+//                             </div>
+//                         </div>
+//                     </div>
+//                 </div>
+                
+//                 <div class="mt-6">
+//                     <h4 class="font-semibold text-gray-900 mb-3">Associated Labels</h4>
+//                     <div class="space-y-2">
+//                         ${state.labels.filter(l => l.applicationNumber === applicationNumber || l.productName === app.productName)
+//                             .map(label => `
+//                                 <div class="bg-gray-50 rounded-lg p-3 flex justify-between items-center">
+//                                     <div>
+//                                         <p class="text-sm font-medium">${label.productName}</p>
+//                                         <p class="text-xs text-gray-600">Version ${label.version || 'N/A'} - ${formatDate(label.effectiveDate)}</p>
+//                                     </div>
+//                                     <button onclick="viewFullLabel('${label.id}')" class="px-3 py-1 bg-blue-600 text-white rounded text-xs hover:bg-blue-700">
+//                                         View Label
+//                                     </button>
+//                                 </div>
+//                             `).join('') || '<p class="text-gray-500 text-sm">No associated labels found</p>'}
+//                     </div>
+//                 </div>
+                
+//                 <div class="mt-6">
+//                     <h4 class="font-semibold text-gray-900 mb-3">Timeline</h4>
+//                     <div class="product-timeline">
+//                         ${state.timeline.filter(e => e.data?.applicationNumber === applicationNumber)
+//                             .slice(0, 5)
+//                             .map(event => `
+//                                 <div class="product-event">
+//                                     <div class="bg-gray-50 rounded-lg p-3">
+//                                         <div class="flex justify-between items-start">
+//                                             <div>
+//                                                 <p class="text-sm font-medium">${event.title}</p>
+//                                                 <p class="text-xs text-gray-600">${formatDate(event.date)}</p>
+//                                             </div>
+//                                             ${event.changes ? `
+//                                                 <span class="change-badge change-${event.changes[0]?.type || 'safety'}">
+//                                                     ${event.changes[0]?.type || 'update'}
+//                                                 </span>
+//                                             ` : ''}
+//                                         </div>
+//                                     </div>
+//                                 </div>
+//                             `).join('') || '<p class="text-gray-500 text-sm">No timeline events found</p>'}
+//                     </div>
+//                 </div>
+//             `;
+            
+//             document.getElementById('applicationModal').classList.remove('hidden');
+//         }
+async function viewApplicationDetails(applicationNumber) {
     const app = state.applications.find(a => a.applicationNumber === applicationNumber);
     if (!app) return;
 
@@ -4215,190 +4416,1721 @@ function viewApplicationDetails(applicationNumber) {
         modal.id = 'applicationModal';
         modal.className = 'hidden fixed inset-0 modal-backdrop flex items-center justify-center z-50';
         
-        // Set the innerHTML properly (using = not backticks)
         modal.innerHTML = `
-            <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col">
+
+            <div class="bg-white rounded-2xl shadow-2xl w-[95vw] max-w-[1800px] h-[95vh] flex flex-col">
                 <div class="flex justify-between items-center p-6 border-b bg-gradient-to-r from-blue-50 to-purple-50 flex-shrink-0">
                     <div>
                         <h3 class="text-2xl font-bold text-gray-900" id="appModalTitle">Application Details</h3>
                         <p class="text-sm text-gray-600 mt-1" id="appModalSubtitle"></p>
                     </div>
-                      <button onclick="closeApplicationModal()" 
-                    class="p-2 rounded-lg bg-white shadow-md hover:shadow-lg hover:bg-gray-50 transition-all duration-200 group">
-                <i class="fas fa-times text-xl text-gray-500 group-hover:text-gray-700"></i>
-            </button>
+                    <button onclick="closeApplicationModal()" 
+                            class="p-2 rounded-lg bg-white shadow-md hover:shadow-lg hover:bg-gray-50 transition-all duration-200 group">
+                        <i class="fas fa-times text-xl text-gray-500 group-hover:text-gray-700"></i>
+                    </button>
                 </div>
-                <div id="appModalContent" class="p-6 overflow-y-auto custom-scrollbar flex-1 min-h-0">
-                    <!-- Application details will be rendered here -->
+                
+                <!-- Tab Navigation -->
+                <div class="border-b px-6 pt-3 bg-gray-50 flex-shrink-0">
+                    <div class="flex gap-1">
+                        <button onclick="switchAppModalTab('details')" 
+                                id="appTab-details"
+                                class="px-4 py-2 text-sm font-medium text-blue-600 border-b-2 border-blue-600 bg-white rounded-t-lg">
+                            <i class="fas fa-info-circle mr-1"></i>Details
+                        </button>
+                        <button onclick="switchAppModalTab('label')" 
+                                id="appTab-label"
+                                class="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-800 hover:bg-white rounded-t-lg transition-colors">
+                            <i class="fas fa-file-medical mr-1"></i>Current Label
+                        </button>
+                        <button onclick="switchAppModalTab('timeline')" 
+                                id="appTab-timeline"
+                                class="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-800 hover:bg-white rounded-t-lg transition-colors">
+                            <i class="fas fa-history mr-1"></i>Timeline
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="appModalContent" class="flex-1 overflow-hidden flex flex-col">
+                    <!-- Content will be loaded here -->
                 </div>
             </div>
         `;
         
-        // Append to body
         document.body.appendChild(modal);
-        
-        // Add the modal backdrop styles if they don't exist
-        if (!document.getElementById('modalBackdropStyles')) {
-            const style = document.createElement('style');
-            style.id = 'modalBackdropStyles';
-            style.textContent = `
-                .modal-backdrop {
-                    background-color: rgba(0, 0, 0, 0.5);
-                }
-                .custom-scrollbar::-webkit-scrollbar {
-                    width: 8px;
-                }
-                .custom-scrollbar::-webkit-scrollbar-track {
-                    background: #f1f1f1;
-                    border-radius: 4px;
-                }
-                .custom-scrollbar::-webkit-scrollbar-thumb {
-                    background: #888;
-                    border-radius: 4px;
-                }
-                .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-                    background: #555;
-                }
-                .change-badge {
-                    padding: 2px 8px;
-                    border-radius: 4px;
-                    font-size: 11px;
-                    font-weight: 600;
-                    text-transform: uppercase;
-                }
-                .change-safety {
-                    background-color: #fee2e2;
-                    color: #991b1b;
-                }
-                .change-efficacy {
-                    background-color: #dbeafe;
-                    color: #1e40af;
-                }
-                .change-dosage {
-                    background-color: #fef3c7;
-                    color: #92400e;
-                }
-                .product-timeline {
-                    position: relative;
-                    padding-left: 20px;
-                }
-                .product-event {
-                    position: relative;
-                    margin-bottom: 12px;
-                }
-                .product-event::before {
-                    content: '';
-                    position: absolute;
-                    left: -12px;
-                    top: 8px;
-                    width: 8px;
-                    height: 8px;
-                    border-radius: 50%;
-                    background-color: #6b7280;
-                }
-            `;
-            document.head.appendChild(style);
-        }
     }
+    
+    document.getElementById('appModalTitle').textContent = app.productName || 'Application Details';
+    document.getElementById('appModalSubtitle').textContent = `Application ${applicationNumber}`;
+    
+    // Load the details tab by default
+    await loadApplicationDetailsTab(app);
+    
+    // Find and auto-load the latest label
+    const matchingLabels = state.labels.filter(l => 
+        l.applicationNumber === applicationNumber || 
+        l.productName === app.productName
+    ).sort((a, b) => {
+        // Sort by effective date (most recent first)
+        const dateA = new Date(a.effectiveDate || 0);
+        const dateB = new Date(b.effectiveDate || 0);
+        return dateB - dateA;
+    });
+    
+    if (matchingLabels.length > 0) {
+        // Store the latest label ID for use in the label tab
+        modal.dataset.latestLabelId = matchingLabels[0].id;
+        
+        // Pre-load the label content in the background
+        preloadLabelContent(matchingLabels[0].id);
+    }
+    addInlineLabelStyles()
+    document.getElementById('applicationModal').classList.remove('hidden');
+     document.body.classList.add('modal-open');
+}
+
+// New function to handle tab switching
+async function switchAppModalTab(tabName) {
+    // Update tab styles
+    document.querySelectorAll('[id^="appTab-"]').forEach(btn => {
+        btn.className = 'px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-800 hover:bg-white rounded-t-lg transition-colors';
+    });
+    document.getElementById(`appTab-${tabName}`).className = 
+        'px-4 py-2 text-sm font-medium text-blue-600 border-b-2 border-blue-600 bg-white rounded-t-lg';
+    
+    const content = document.getElementById('appModalContent');
+    const modal = document.getElementById('applicationModal');
+    const applicationNumber = document.getElementById('appModalSubtitle').textContent.replace('Application ', '');
+    const app = state.applications.find(a => a.applicationNumber === applicationNumber);
+    
+    switch(tabName) {
+        case 'details':
+            await loadApplicationDetailsTab(app);
+            break;
+        case 'label':
+            await loadApplicationLabelTab(modal.dataset.latestLabelId);
+            break;
+        case 'timeline':
+            loadApplicationTimelineTab(app);
+            break;
+    }
+}
+
+// Load the details tab content
+async function loadApplicationDetailsTab(app) {
+    const content = document.getElementById('appModalContent');
+    
+    content.innerHTML = `
+        <div class="p-6 overflow-y-auto custom-scrollbar">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <h4 class="font-semibold text-gray-900 mb-3">Basic Information</h4>
+                    <div class="space-y-2">
+                        <div class="flex justify-between py-2 border-b">
+                            <span class="text-sm text-gray-600">Product Name</span>
+                            <span class="text-sm font-medium">${app.productName || 'N/A'}</span>
+                        </div>
+                        <div class="flex justify-between py-2 border-b">
+                            <span class="text-sm text-gray-600">Generic Name</span>
+                            <span class="text-sm font-medium">${app.genericName || 'N/A'}</span>
+                        </div>
+                        <div class="flex justify-between py-2 border-b">
+                            <span class="text-sm text-gray-600">Sponsor</span>
+                            <span class="text-sm font-medium">${app.sponsorName || 'N/A'}</span>
+                        </div>
+                        <div class="flex justify-between py-2 border-b">
+                            <span class="text-sm text-gray-600">Approval Date</span>
+                            <span class="text-sm font-medium">${formatDate(app.approvalDate)}</span>
+                        </div>
+                        <div class="flex justify-between py-2 border-b">
+                            <span class="text-sm text-gray-600">Status</span>
+                            <span class="text-sm font-medium">${app.status || 'Active'}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 class="font-semibold text-gray-900 mb-3">Formulation Details</h4>
+                    <div class="space-y-2">
+                        <div class="flex justify-between py-2 border-b">
+                            <span class="text-sm text-gray-600">Dosage Form</span>
+                            <span class="text-sm font-medium">${app.dosageForm || 'N/A'}</span>
+                        </div>
+                        <div class="flex justify-between py-2 border-b">
+                            <span class="text-sm text-gray-600">Route</span>
+                            <span class="text-sm font-medium">${app.route || 'N/A'}</span>
+                        </div>
+                        <div class="flex justify-between py-2 border-b">
+                            <span class="text-sm text-gray-600">Strength</span>
+                            <span class="text-sm font-medium">${app.strength || 'N/A'}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
             
-            document.getElementById('appModalTitle').textContent = app.productName || 'Application Details';
-            document.getElementById('appModalSubtitle').textContent = `Application ${applicationNumber}`;
+            <div class="mt-6">
+                <h4 class="font-semibold text-gray-900 mb-3">Associated Labels</h4>
+                <div class="space-y-2">
+                    ${state.labels.filter(l => 
+                        l.applicationNumber === app.applicationNumber || 
+                        l.productName === app.productName
+                    ).map(label => `
+                        <div class="bg-gray-50 rounded-lg p-3 flex justify-between items-center">
+                            <div>
+                                <p class="text-sm font-medium">${label.productName}</p>
+                                <p class="text-xs text-gray-600">
+                                    Version ${label.version || 'N/A'} - ${formatDate(label.effectiveDate)}
+                                    ${label.id === document.getElementById('applicationModal').dataset.latestLabelId ? 
+                                        '<span class="ml-2 px-2 py-0.5 bg-green-100 text-green-700 rounded text-xs">Latest</span>' : ''}
+                                </p>
+                            </div>
+                            <button onclick="viewFullLabel('${label.id}')" 
+                                    class="px-3 py-1 bg-blue-600 text-white rounded text-xs hover:bg-blue-700">
+                                View Full
+                            </button>
+                        </div>
+                    `).join('') || '<p class="text-gray-500 text-sm">No associated labels found</p>'}
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// // Load the label tab with inline XML view
+// async function loadApplicationLabelTab(labelId) {
+//     const content = document.getElementById('appModalContent');
+    
+//     if (!labelId) {
+//         content.innerHTML = `
+//             <div class="flex items-center justify-center h-full">
+//                 <div class="text-center">
+//                     <i class="fas fa-file-medical text-4xl text-gray-300 mb-4"></i>
+//                     <p class="text-gray-500">No label available for this application</p>
+//                 </div>
+//             </div>
+//         `;
+//         return;
+//     }
+    
+//     // Show loading state
+//     content.innerHTML = `
+//         <div class="flex items-center justify-center h-full">
+//             <div class="text-center">
+//                 <div class="loader mx-auto mb-4"></div>
+//                 <p class="text-gray-600">Loading label content...</p>
+//             </div>
+//         </div>
+//     `;
+    
+//     try {
+//         const response = await fetch(`${API_BASE}/label-content/${labelId}`);
+//         const reply = await response.json();
+        
+//         if (reply.xml && reply.xml.raw) {
+//             // Use your existing XML formatter
+//             const formattedContent = formatPharmaceuticalXML(reply.xml.raw);
             
-            const content = document.getElementById('appModalContent');
-            content.innerHTML = `
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <h4 class="font-semibold text-gray-900 mb-3">Basic Information</h4>
-                        <div class="space-y-2">
-                            <div class="flex justify-between py-2 border-b">
-                                <span class="text-sm text-gray-600">Product Name</span>
-                                <span class="text-sm font-medium">${app.productName || 'N/A'}</span>
-                            </div>
-                            <div class="flex justify-between py-2 border-b">
-                                <span class="text-sm text-gray-600">Generic Name</span>
-                                <span class="text-sm font-medium">${app.genericName || 'N/A'}</span>
-                            </div>
-                            <div class="flex justify-between py-2 border-b">
-                                <span class="text-sm text-gray-600">Sponsor</span>
-                                <span class="text-sm font-medium">${app.sponsorName || 'N/A'}</span>
-                            </div>
-                            <div class="flex justify-between py-2 border-b">
-                                <span class="text-sm text-gray-600">Approval Date</span>
-                                <span class="text-sm font-medium">${formatDate(app.approvalDate)}</span>
-                            </div>
-                            <div class="flex justify-between py-2 border-b">
-                                <span class="text-sm text-gray-600">Status</span>
-                                <span class="text-sm font-medium">${app.status || 'Active'}</span>
-                            </div>
+//             content.innerHTML = `
+//                 <div class="flex flex-col h-full">
+//                     <!-- Label Header Bar -->
+//                     <div class="px-6 py-3 bg-gray-100 border-b flex justify-between items-center flex-shrink-0">
+//                         <div>
+//                             <h4 class="text-lg font-semibold text-gray-800">
+//                                 <i class="fas fa-file-medical mr-2 text-blue-600"></i>Current FDA Label
+//                             </h4>
+//                             ${reply.data?.metadata ? `
+//                                 <div class="flex gap-4 mt-1 text-xs text-gray-600">
+//                                     <span><i class="fas fa-code-branch mr-1"></i>Version: ${extractValue(reply.data.metadata.versionNumber) || 'N/A'}</span>
+//                                     <span><i class="fas fa-calendar mr-1"></i>Effective: ${formatDate(extractValue(reply.data.metadata.effectiveDate))}</span>
+//                                 </div>
+//                             ` : ''}
+//                         </div>
+//                         <div class="flex gap-2">
+//                             <button onclick="viewFullLabel('${labelId}')" 
+//                                     class="px-3 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700">
+//                                 <i class="fas fa-expand mr-1"></i>Full Screen
+//                             </button>
+//                             <button onclick="downloadLabel('${labelId}')" 
+//                                     class="px-3 py-1 text-xs bg-green-600 text-white rounded hover:bg-green-700">
+//                                 <i class="fas fa-download mr-1"></i>Download
+//                             </button>
+//                         </div>
+//                     </div>
+                    
+//                     <!-- Label Content with XML formatting -->
+//                     <div class="flex-1 overflow-y-auto p-6 bg-white">
+//                         <div class="pharma-label-inline max-w-none">
+//                             ${formattedContent}
+//                         </div>
+//                     </div>
+//                 </div>
+//             `;
+            
+//             // Add some CSS adjustments for inline display
+//             addInlineLabelStyles();
+            
+//         } else if (reply.data) {
+//             // Fallback to parsed data display if no XML
+//             content.innerHTML = `
+//                 <div class="p-6 overflow-y-auto">
+//                     ${renderParsedLabelContent(reply.data)}
+//                 </div>
+//             `;
+//         } else {
+//             throw new Error('No label content available');
+//         }
+        
+//     } catch (error) {
+//         console.error('Error loading label:', error);
+//         content.innerHTML = `
+//             <div class="flex items-center justify-center h-full">
+//                 <div class="text-center">
+//                     <i class="fas fa-exclamation-triangle text-4xl text-red-400 mb-4"></i>
+//                     <p class="text-red-500">Error loading label content</p>
+//                     <p class="text-sm text-gray-500 mt-2">${error.message}</p>
+//                     <button onclick="loadApplicationLabelTab('${labelId}')" 
+//                             class="mt-4 px-4 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700">
+//                         <i class="fas fa-redo mr-1"></i>Retry
+//                     </button>
+//                 </div>
+//             </div>
+//         `;
+//     }
+// }
+
+// FIND AND REPLACE your existing loadApplicationLabelTab function with this:
+async function loadApplicationLabelTab(labelId) {
+    const content = document.getElementById('appModalContent');
+    const modal = document.getElementById('applicationModal');
+    const applicationNumber = document.getElementById('appModalSubtitle').textContent.replace('Application ', '');
+    
+    if (!labelId) {
+        content.innerHTML = `
+            <div class="flex items-center justify-center h-full">
+                <div class="text-center">
+                    <i class="fas fa-file-medical text-4xl text-gray-300 mb-4"></i>
+                    <p class="text-gray-500">No label available for this application</p>
+                </div>
+            </div>
+        `;
+        return;
+    }
+    
+    // Show loading state
+    content.innerHTML = `
+        <div class="flex items-center justify-center h-full">
+            <div class="text-center">
+                <div class="loader mx-auto mb-4"></div>
+                <p class="text-gray-600">Loading label and clinical trial data...</p>
+            </div>
+        </div>
+    `;
+    
+    try {
+        // Fetch both label and clinical trials in parallel
+        const [labelResponse, trials] = await Promise.all([
+            fetch(`${API_BASE}/label-content/${labelId}`),
+            fetchClinicalTrials(applicationNumber)
+        ]);
+        
+        const labelReply = await labelResponse.json();
+        
+        // Create split view layout
+        content.innerHTML = `
+            <div class="flex h-full">
+                <!-- Left side: Label Content (60% width) -->
+                <div class="w-3/5 border-r border-gray-200 flex flex-col h-full">
+                    <div class="px-6 py-3 bg-gray-100 border-b flex justify-between items-center flex-shrink-0">
+                        <div>
+                            <h4 class="text-lg font-semibold text-gray-800">
+                                <i class="fas fa-file-medical mr-2 text-blue-600"></i>FDA Approved Label
+                            </h4>
+                            ${labelReply.data?.metadata ? `
+                                <div class="flex gap-4 mt-1 text-xs text-gray-600">
+                                    <span><i class="fas fa-code-branch mr-1"></i>Version: ${extractValue(labelReply.data.metadata.versionNumber) || 'N/A'}</span>
+                                    <span><i class="fas fa-calendar mr-1"></i>Effective: ${formatDate(extractValue(labelReply.data.metadata.effectiveDate))}</span>
+                                </div>
+                            ` : ''}
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="viewFullLabel('${labelId}')" 
+                                    class="px-3 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700">
+                                <i class="fas fa-expand mr-1"></i>Full Screen
+                            </button>
                         </div>
                     </div>
                     
-                    <div>
-                        <h4 class="font-semibold text-gray-900 mb-3">Formulation Details</h4>
-                        <div class="space-y-2">
-                            <div class="flex justify-between py-2 border-b">
-                                <span class="text-sm text-gray-600">Dosage Form</span>
-                                <span class="text-sm font-medium">${app.dosageForm || 'N/A'}</span>
-                            </div>
-                            <div class="flex justify-between py-2 border-b">
-                                <span class="text-sm text-gray-600">Route</span>
-                                <span class="text-sm font-medium">${app.route || 'N/A'}</span>
-                            </div>
-                            <div class="flex justify-between py-2 border-b">
-                                <span class="text-sm text-gray-600">Strength</span>
-                                <span class="text-sm font-medium">${app.strength || 'N/A'}</span>
-                            </div>
+                    <div class="flex-1 overflow-y-auto p-6 bg-white">
+                        <div class="pharma-label-inline max-w-none">
+                            ${labelReply.xml?.raw ? formatPharmaceuticalXML(labelReply.xml.raw) : renderParsedLabelContent(labelReply.data)}
                         </div>
                     </div>
                 </div>
                 
-                <div class="mt-6">
-                    <h4 class="font-semibold text-gray-900 mb-3">Associated Labels</h4>
-                    <div class="space-y-2">
-                        ${state.labels.filter(l => l.applicationNumber === applicationNumber || l.productName === app.productName)
-                            .map(label => `
-                                <div class="bg-gray-50 rounded-lg p-3 flex justify-between items-center">
-                                    <div>
-                                        <p class="text-sm font-medium">${label.productName}</p>
-                                        <p class="text-xs text-gray-600">Version ${label.version || 'N/A'} - ${formatDate(label.effectiveDate)}</p>
-                                    </div>
-                                    <button onclick="viewFullLabel('${label.id}')" class="px-3 py-1 bg-blue-600 text-white rounded text-xs hover:bg-blue-700">
-                                        View Label
-                                    </button>
-                                </div>
-                            `).join('') || '<p class="text-gray-500 text-sm">No associated labels found</p>'}
+                <!-- Right side: Clinical Trials (40% width) -->
+                <div class="w-2/5 flex flex-col h-full bg-gray-50">
+                    <div class="px-6 py-3 bg-gray-100 border-b flex justify-between items-center flex-shrink-0">
+                        <h4 class="text-lg font-semibold text-gray-800">
+                            <i class="fas fa-flask mr-2 text-purple-600"></i>Clinical Trial Evidence
+                        </h4>
+                        <button onclick="refreshClinicalTrials('${applicationNumber}')" 
+                                class="px-3 py-1 text-xs bg-purple-600 text-white rounded hover:bg-purple-700">
+                            <i class="fas fa-sync mr-1"></i>Refresh
+                        </button>
                     </div>
+                    
+                    <div class="flex-1 overflow-y-auto p-4">
+                        ${renderClinicalTrialsPanel(trials, labelReply.data)}
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Add inline styles for split view
+        addSplitViewStyles();
+        
+    } catch (error) {
+        console.error('Error loading label and trials:', error);
+        content.innerHTML = `
+            <div class="flex items-center justify-center h-full">
+                <div class="text-center">
+                    <i class="fas fa-exclamation-triangle text-4xl text-red-400 mb-4"></i>
+                    <p class="text-red-500">Error loading content</p>
+                    <p class="text-sm text-gray-500 mt-2">${error.message}</p>
+                </div>
+            </div>
+        `;
+    }
+}
+
+// ADD these new exports
+window.fetchClinicalTrials = fetchClinicalTrials;
+window.refreshClinicalTrials = refreshClinicalTrials;
+window.renderClinicalTrialsPanel = renderClinicalTrialsPanel;
+window.renderTrialCard = renderTrialCard;
+window.extractIndicationsFromLabel = extractIndicationsFromLabel;
+window.addSplitViewStyles = addSplitViewStyles;
+
+// Load timeline tab
+function loadApplicationTimelineTab(app) {
+    const content = document.getElementById('appModalContent');
+    
+    const appEvents = state.timeline.filter(e => 
+        e.data?.applicationNumber === app.applicationNumber ||
+        e.data?.productName === app.productName
+    );
+    
+    content.innerHTML = `
+        <div class="p-6 overflow-y-auto">
+            <h4 class="font-semibold text-gray-900 mb-4">Application Timeline</h4>
+            <div class="product-timeline">
+                ${appEvents.length > 0 ? appEvents.map(event => `
+                    <div class="product-event">
+                        <div class="bg-gray-50 rounded-lg p-3">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="text-sm font-medium">${event.title}</p>
+                                    <p class="text-xs text-gray-600">${formatDate(event.date)}</p>
+                                    ${event.description ? `
+                                        <p class="text-xs text-gray-500 mt-1">${event.description}</p>
+                                    ` : ''}
+                                </div>
+                                ${event.changes ? `
+                                    <span class="change-badge change-${event.changes[0]?.type || 'safety'}">
+                                        ${event.changes[0]?.type || 'update'}
+                                    </span>
+                                ` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `).join('') : '<p class="text-gray-500 text-sm">No timeline events found</p>'}
+            </div>
+        </div>
+    `;
+}
+
+// Preload label content in background
+async function preloadLabelContent(labelId) {
+    if (!labelId) return;
+    
+    try {
+        const response = await fetch(`${API_BASE}/label-content/${labelId}`);
+        const data = await response.json();
+        
+        // Cache it in memory for quick access
+        if (!window.labelCache) {
+            window.labelCache = new Map();
+        }
+        window.labelCache.set(labelId, data);
+        
+    } catch (error) {
+        console.error('Error preloading label:', error);
+    }
+}
+
+// Add CSS for inline label display
+function addInlineLabelStyles() {
+    if (!document.getElementById('inlineLabelStyles')) {
+        const style = document.createElement('style');
+        style.id = 'inlineLabelStyles';
+        style.textContent = `
+            .pharma-label-inline .pharma-label-container {
+                max-width: none;
+                margin: 0;
+            }
+            
+            .pharma-label-inline .label-header {
+                border-radius: 10px;
+                margin-bottom: 20px;
+            }
+            
+            .pharma-label-inline .content-wrapper {
+                grid-template-columns: 250px 1fr;
+                min-height: auto;
+            }
+            
+            .pharma-label-inline .main-content {
+                max-height: none;
+                overflow: visible;
+                padding: 20px;
+            }
+            
+            .pharma-label-inline .sidebar {
+                position: sticky;
+                top: 0;
+                max-height: calc(100vh - 200px);
+                overflow-y: auto;
+            }
+            
+            @media (max-width: 1024px) {
+                .pharma-label-inline .content-wrapper {
+                    grid-template-columns: 1fr;
+                }
+                
+                .pharma-label-inline .sidebar {
+                    display: none;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+}
+
+// Helper function to render parsed label content (fallback)
+function renderParsedLabelContent(data) {
+    let html = '<div class="space-y-6">';
+    
+    // Metadata section
+    if (data.metadata) {
+        html += `
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <h4 class="font-bold text-blue-900 mb-3">Label Information</h4>
+                <div class="grid grid-cols-2 gap-4 text-sm">
+                    ${Object.entries(data.metadata).map(([key, value]) => `
+                        <div>
+                            <span class="font-medium text-gray-600">${key}:</span>
+                            <span class="text-gray-800 ml-2">${extractValue(value)}</span>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    }
+    
+    // Sections
+    if (data.sections) {
+        Object.entries(data.sections).forEach(([sectionName, content]) => {
+            const cleanContent = extractValue(content);
+            if (cleanContent && cleanContent.length > 10) {
+                html += `
+                    <div>
+                        <h4 class="font-bold text-gray-900 text-lg mb-2">${sectionName}</h4>
+                        <div class="text-gray-700 whitespace-pre-wrap">${cleanContent}</div>
+                    </div>
+                `;
+            }
+        });
+    }
+    
+    html += '</div>';
+    return html;
+}
+
+// Update your existing function to use the new modal
+window.viewApplicationDetails = viewApplicationDetails;
+window.switchAppModalTab = switchAppModalTab;
+window.loadApplicationLabelTab = loadApplicationLabelTab;
+
+// ADD ALL OF THESE NEW FUNCTIONS (they don't exist in your code yet)
+
+// NEW FUNCTION - Fetch clinical trials with drug info from state
+async function fetchClinicalTrials(applicationNumber) {
+    try {
+        const app = state.applications.find(a => a.applicationNumber === applicationNumber);
+        
+        if (!app) {
+            console.log('Application not found in state');
+            return [];
+        }
+        
+        // IMPORTANT: Now passing sponsorName too
+        const drugName = app.productName || '';
+        const genericName = app.genericName || '';
+        const sponsorName = app.sponsorName || ''; // ADD THIS
+        
+        console.log('Fetching trials for:', { drugName, genericName, sponsorName });
+        
+        // UPDATE: Add sponsorName to query params
+        const response = await fetch(
+            `${API_BASE}/clinical-trials/${applicationNumber}?drugName=${encodeURIComponent(drugName)}&genericName=${encodeURIComponent(genericName)}&sponsorName=${encodeURIComponent(sponsorName)}`
+        );
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            console.log(`Found ${data.totalFound} total trials, returning top ${data.trialsReturned} pivotal candidates`);
+            
+            // The trials are already sorted by relevance
+            // Trials with isPivotalCandidate=true are most likely the pivotal trials
+            return data.trials;
+        }
+        return [];
+    } catch (error) {
+        console.error('Error fetching clinical trials:', error);
+        return [];
+    }
+}
+// NEW FUNCTION - Render clinical trials panel
+// function renderClinicalTrialsPanel(trials, labelData) {
+//     if (!trials || trials.length === 0) {
+//         return `
+//             <div class="text-center py-8">
+//                 <i class="fas fa-search text-4xl text-gray-300 mb-4"></i>
+//                 <p class="text-gray-500">No clinical trials found</p>
+//                 <p class="text-xs text-gray-400 mt-2">Trials may be under different names or sponsors</p>
+//             </div>
+//         `;
+//     }
+    
+//     // Extract approved indications from label
+//     const approvedIndications = extractIndicationsFromLabel(labelData);
+    
+//     return `
+//         <div class="space-y-4">
+//             <!-- Quick Comparison Summary -->
+//             <div class="bg-white rounded-lg p-4 border border-purple-200">
+//                 <h5 class="font-semibold text-purple-900 mb-3">
+//                     <i class="fas fa-balance-scale mr-2"></i>Label vs Trial Comparison
+//                 </h5>
+//                 <div class="space-y-2 text-sm">
+//                     <div class="p-2 bg-blue-50 rounded">
+//                         <span class="font-medium text-blue-900">Approved Indication:</span>
+//                         <p class="text-blue-700 mt-1">${approvedIndications || 'See Indications and Usage section'}</p>
+//                     </div>
+//                 </div>
+//             </div>
+            
+//             <!-- Individual Trials -->
+//             ${trials.map((trial, index) => renderTrialCard(trial, index)).join('')}
+//         </div>
+//     `;
+// }
+
+// Enhanced render function for clinical trials panel with detailed outcomes/results
+function renderClinicalTrialsPanel(trials, labelData) {
+    if (!trials || trials.length === 0) {
+        return `
+            <div class="text-center py-8">
+                <i class="fas fa-vial text-4xl text-gray-300 mb-4"></i>
+                <p class="text-gray-500 font-medium">No clinical trials found</p>
+                <div class="mt-4 text-xs text-gray-400 space-y-1">
+                    <p>Possible reasons:</p>
+                    <ul class="mt-2 space-y-1">
+                        <li>• Trials registered under different drug names</li>
+                        <li>• Different sponsor/manufacturer names</li>
+                        <li>• Trials conducted before ClinicalTrials.gov</li>
+                    </ul>
+                </div>
+            </div>
+        `;
+    }
+    
+    // Extract approved indications from label if available
+    const approvedIndications = extractIndicationsFromLabel(labelData);
+    
+    return `
+        <div class="space-y-4">
+            <!-- Trial Statistics Summary -->
+            <div class="bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg p-4 border border-purple-200">
+                <h5 class="font-semibold text-purple-900 mb-3">
+                    <i class="fas fa-chart-bar mr-2"></i>Clinical Evidence Summary
+                </h5>
+                <div class="grid grid-cols-2 gap-3 text-sm">
+                    <div>
+                        <span class="text-gray-600">Potential Pivotal Trials:</span>
+                        <span class="font-bold text-purple-800 ml-2">
+                            ${trials.filter(t => t.isPivotalCandidate).length}
+                        </span>
+                    </div>
+                    <div>
+                        <span class="text-gray-600">With Results:</span>
+                        <span class="font-bold text-green-700 ml-2">
+                            ${trials.filter(t => t.hasResults || t.resultsSection).length}
+                        </span>
+                    </div>
+                </div>
+                ${approvedIndications ? `
+                    <div class="mt-3 pt-3 border-t border-purple-200">
+                        <p class="text-xs text-purple-900 font-medium">FDA Approved Indication:</p>
+                        <p class="text-xs text-purple-700 mt-1">${approvedIndications}</p>
+                    </div>
+                ` : ''}
+            </div>
+            
+            <!-- Individual Trials with Enhanced Display -->
+            ${trials.map((trial, index) => renderEnhancedTrialCard(trial, index)).join('')}
+        </div>
+    `;
+}
+
+// Enhanced trial card with detailed outcomes and results comparison
+// ============= FRONTEND - Enhanced display showing ACTUAL outcomes and results =============
+
+// function renderEnhancedTrialCard(trial, index) {
+//     const study = trial.protocolSection || {};
+//     const identification = study.identificationModule || {};
+//     const design = study.designModule || {};
+//     const status = study.statusModule || {};
+//     const outcomes = study.outcomesModule || {};
+//     const results = trial.resultsSection || null;
+    
+//     // Log what we have for debugging
+//     console.log(`Trial ${identification.nctId}:`, {
+//         hasPrimaryOutcomes: outcomes.primaryOutcomes?.length > 0,
+//         hasSecondaryOutcomes: outcomes.secondaryOutcomes?.length > 0,
+//         hasResults: !!results,
+//         resultsKeys: results ? Object.keys(results) : []
+//     });
+    
+//     return `
+//         <div class="trial-card bg-white rounded-lg border-2 border-purple-300 overflow-hidden mb-4">
+            
+//             <!-- Header -->
+//             <div class="p-4 bg-gradient-to-r from-purple-50 to-blue-50 border-b">
+//                 <h5 class="font-bold text-lg text-gray-900">
+//                     ${identification.nctId || 'Trial'}
+//                     ${results ? '<span class="ml-2 px-2 py-1 text-xs bg-green-600 text-white rounded">HAS RESULTS</span>' : ''}
+//                 </h5>
+//                 <p class="text-sm text-gray-600 mt-1">${identification.briefTitle || ''}</p>
+//             </div>
+            
+//             <!-- Body -->
+//             <div class="p-4">
+                
+//                 <!-- PRIMARY OUTCOMES & RESULTS -->
+//                 <div class="mb-6">
+//                     <h6 class="font-bold text-purple-800 mb-3 text-lg">
+//                         🎯 PRIMARY OUTCOMES & RESULTS
+//                     </h6>
+                    
+//                     ${outcomes.primaryOutcomes && outcomes.primaryOutcomes.length > 0 ? `
+//                         <div class="space-y-4">
+//                             ${outcomes.primaryOutcomes.map((outcome, i) => `
+//                                 <div class="bg-purple-50 rounded-lg p-4 border border-purple-200">
+//                                     <div class="font-semibold text-purple-900 mb-2">
+//                                         Outcome ${i + 1}: ${outcome.measure}
+//                                     </div>
+                                    
+//                                     ${outcome.description ? `
+//                                         <p class="text-sm text-gray-700 mb-2">${outcome.description}</p>
+//                                     ` : ''}
+                                    
+//                                     ${outcome.timeFrame ? `
+//                                         <p class="text-sm text-gray-600 mb-3">
+//                                             <strong>Timeframe:</strong> ${outcome.timeFrame}
+//                                         </p>
+//                                     ` : ''}
+                                    
+//                                     <!-- ACTUAL RESULTS FOR THIS OUTCOME -->
+//                                     ${renderActualResults(results, outcome, i, 'primary')}
+//                                 </div>
+//                             `).join('')}
+//                         </div>
+//                     ` : '<p class="text-gray-500">No primary outcomes listed</p>'}
+//                 </div>
+                
+//                 <!-- SECONDARY OUTCOMES & RESULTS -->
+//                 <div class="mb-6">
+//                     <details open>
+//                         <summary class="font-bold text-blue-800 mb-3 text-lg cursor-pointer">
+//                             📊 SECONDARY OUTCOMES & RESULTS (${outcomes.secondaryOutcomes?.length || 0})
+//                         </summary>
+                        
+//                         ${outcomes.secondaryOutcomes && outcomes.secondaryOutcomes.length > 0 ? `
+//                             <div class="space-y-4 mt-3">
+//                                 ${outcomes.secondaryOutcomes.slice(0, 5).map((outcome, i) => `
+//                                     <div class="bg-blue-50 rounded-lg p-4 border border-blue-200">
+//                                         <div class="font-semibold text-blue-900 mb-2">
+//                                             Outcome ${i + 1}: ${outcome.measure}
+//                                         </div>
+                                        
+//                                         ${outcome.timeFrame ? `
+//                                             <p class="text-sm text-gray-600 mb-3">
+//                                                 <strong>Timeframe:</strong> ${outcome.timeFrame}
+//                                             </p>
+//                                         ` : ''}
+                                        
+//                                         <!-- ACTUAL RESULTS FOR THIS OUTCOME -->
+//                                         ${renderActualResults(results, outcome, i, 'secondary')}
+//                                     </div>
+//                                 `).join('')}
+                                
+//                                 ${outcomes.secondaryOutcomes.length > 5 ? `
+//                                     <p class="text-sm text-gray-500 italic">
+//                                         ... and ${outcomes.secondaryOutcomes.length - 5} more secondary outcomes
+//                                     </p>
+//                                 ` : ''}
+//                             </div>
+//                         ` : '<p class="text-gray-500">No secondary outcomes listed</p>'}
+//                     </details>
+//                 </div>
+                
+//                 <!-- ADVERSE EVENTS if available -->
+//                 ${results?.adverseEventsModule ? renderAdverseEvents(results.adverseEventsModule) : ''}
+                
+//                 <!-- View on ClinicalTrials.gov -->
+//                 <button onclick="window.open('https://clinicaltrials.gov/study/${identification.nctId}', '_blank')" 
+//                         class="w-full mt-4 px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700">
+//                     View Complete Trial on ClinicalTrials.gov →
+//                 </button>
+//             </div>
+//         </div>
+//     `;
+// }
+
+// SIMPLIFIED FRONTEND - Shows trial details and endpoints only (no results)
+
+function renderEnhancedTrialCard(trial, index) {
+    const study = trial.protocolSection || {};
+    const identification = study.identificationModule || {};
+    const design = study.designModule || {};
+    const status = study.statusModule || {};
+    const sponsor = study.sponsorCollaboratorsModule?.leadSponsor;
+    const outcomes = study.outcomesModule || {};
+    const interventions = study.armsInterventionsModule?.interventions || [];
+    const enrollment = design.enrollmentInfo?.count || study.enrollmentModule?.count || 0;
+    
+    // Determine if this is likely a pivotal trial
+    const isPivotal = trial.isPivotalCandidate || trial.relevanceScore >= 70;
+    const hasResults = trial.hasResults || !!trial.resultsSection;
+    
+    return `
+        <div class="trial-card bg-white rounded-lg border-2 ${isPivotal ? 'border-purple-400' : 'border-gray-200'} overflow-hidden mb-4">
+            
+            <!-- Header -->
+            <div class="p-4 ${isPivotal ? 'bg-gradient-to-r from-purple-50 to-blue-50' : 'bg-gray-50'} border-b">
+                <div class="flex justify-between items-start">
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2">
+                            <h5 class="font-bold text-gray-900">
+                                ${identification.nctId || 'NCT ID'}
+                            </h5>
+                            ${isPivotal ? `
+                                <span class="px-2 py-0.5 text-xs bg-purple-600 text-white rounded-full font-bold">
+                                    LIKELY PIVOTAL
+                                </span>
+                            ` : ''}
+                            ${hasResults ? `
+                                <span class="px-2 py-0.5 text-xs bg-green-600 text-white rounded">
+                                    Has Results
+                                </span>
+                            ` : ''}
+                        </div>
+                        <p class="text-sm text-gray-600 mt-1">
+                            ${identification.briefTitle || 'Clinical Trial'}
+                        </p>
+                        ${trial.matchDetails ? `
+                            <p class="text-xs text-purple-600 mt-1 font-medium">
+                                <i class="fas fa-check-circle mr-1"></i>${trial.matchDetails}
+                            </p>
+                        ` : ''}
+                    </div>
+                    <div class="flex flex-col items-end gap-1">
+                        <span class="px-2 py-1 text-xs rounded font-medium ${getStatusBadgeClass(status.overallStatus)}">
+                            ${formatStatus(status.overallStatus)}
+                        </span>
+                        ${design.phases ? `
+                            <span class="px-2 py-1 text-xs bg-indigo-100 text-indigo-700 rounded font-medium">
+                                ${formatPhases(design.phases)}
+                            </span>
+                        ` : ''}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Body -->
+            <div class="p-4 space-y-4">
+                
+                <!-- Key Trial Information Grid -->
+                <div class="grid grid-cols-2 gap-3 text-sm bg-gray-50 rounded p-3">
+                    ${sponsor ? `
+                        <div>
+                            <span class="text-gray-500 font-medium">Sponsor:</span>
+                            <p class="text-gray-900 font-semibold truncate" title="${sponsor.name}">
+                                ${sponsor.name}
+                            </p>
+                        </div>
+                    ` : ''}
+                    
+                    ${enrollment ? `
+                        <div>
+                            <span class="text-gray-500 font-medium">Enrollment:</span>
+                            <p class="text-gray-900 font-semibold">
+                                ${enrollment} patients
+                            </p>
+                        </div>
+                    ` : ''}
+                    
+                    ${status.startDateStruct ? `
+                        <div>
+                            <span class="text-gray-500 font-medium">Started:</span>
+                            <p class="text-gray-900 font-semibold">
+                                ${formatDate(status.startDateStruct.date)}
+                            </p>
+                        </div>
+                    ` : ''}
+                    
+                    ${status.completionDateStruct ? `
+                        <div>
+                            <span class="text-gray-500 font-medium">Completed:</span>
+                            <p class="text-gray-900 font-semibold">
+                                ${formatDate(status.completionDateStruct.date)}
+                            </p>
+                        </div>
+                    ` : ''}
                 </div>
                 
-                <div class="mt-6">
-                    <h4 class="font-semibold text-gray-900 mb-3">Timeline</h4>
-                    <div class="product-timeline">
-                        ${state.timeline.filter(e => e.data?.applicationNumber === applicationNumber)
-                            .slice(0, 5)
-                            .map(event => `
-                                <div class="product-event">
-                                    <div class="bg-gray-50 rounded-lg p-3">
-                                        <div class="flex justify-between items-start">
-                                            <div>
-                                                <p class="text-sm font-medium">${event.title}</p>
-                                                <p class="text-xs text-gray-600">${formatDate(event.date)}</p>
+                <!-- Interventions -->
+                ${interventions.length > 0 ? `
+                    <div>
+                        <p class="text-sm font-semibold text-gray-700 mb-2">
+                            <i class="fas fa-pills mr-1 text-blue-600"></i>Interventions
+                        </p>
+                        <div class="flex flex-wrap gap-1">
+                            ${interventions.slice(0, 3).map(i => `
+                                <span class="px-2 py-1 text-xs bg-blue-50 text-blue-700 rounded border border-blue-200">
+                                    ${i.type}: ${i.name}
+                                </span>
+                            `).join('')}
+                            ${interventions.length > 3 ? `
+                                <span class="px-2 py-1 text-xs text-gray-500">
+                                    +${interventions.length - 3} more
+                                </span>
+                            ` : ''}
+                        </div>
+                    </div>
+                ` : ''}
+                
+                <!-- PRIMARY ENDPOINTS -->
+                ${outcomes.primaryOutcomes && outcomes.primaryOutcomes.length > 0 ? `
+                    <div class="border-t pt-3">
+                        <p class="text-sm font-bold text-purple-800 mb-2">
+                            <i class="fas fa-bullseye mr-1 text-purple-600"></i>
+                            Primary Endpoints (${outcomes.primaryOutcomes.length})
+                        </p>
+                        <div class="space-y-2">
+                            ${outcomes.primaryOutcomes.map((outcome, i) => `
+                                <div class="bg-purple-50 rounded p-3 border-l-4 border-purple-400">
+                                    <p class="text-sm font-medium text-gray-900">
+                                        ${i + 1}. ${outcome.measure}
+                                    </p>
+                                    ${outcome.description ? `
+                                        <p class="text-xs text-gray-600 mt-1">${outcome.description}</p>
+                                    ` : ''}
+                                    ${outcome.timeFrame ? `
+                                        <p class="text-xs text-gray-500 mt-2">
+                                            <i class="fas fa-clock mr-1"></i>Timeframe: ${outcome.timeFrame}
+                                        </p>
+                                    ` : ''}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                ` : `
+                    <div class="border-t pt-3">
+                        <p class="text-sm text-gray-500">No primary endpoints listed</p>
+                    </div>
+                `}
+                
+                <!-- SECONDARY ENDPOINTS -->
+                ${outcomes.secondaryOutcomes && outcomes.secondaryOutcomes.length > 0 ? `
+                    <div class="border-t pt-3">
+                        <details ${outcomes.secondaryOutcomes.length <= 3 ? 'open' : ''}>
+                            <summary class="cursor-pointer text-sm font-bold text-blue-800 hover:text-blue-600">
+                                <i class="fas fa-chart-line mr-1 text-blue-600"></i>
+                                Secondary Endpoints (${outcomes.secondaryOutcomes.length})
+                            </summary>
+                            <div class="mt-2 space-y-2">
+                                ${outcomes.secondaryOutcomes.slice(0, 5).map((outcome, i) => `
+                                    <div class="bg-blue-50 rounded p-3 border-l-4 border-blue-400">
+                                        <p class="text-sm font-medium text-gray-900">
+                                            ${i + 1}. ${outcome.measure}
+                                        </p>
+                                        ${outcome.timeFrame ? `
+                                            <p class="text-xs text-gray-500 mt-1">
+                                                <i class="fas fa-clock mr-1"></i>Timeframe: ${outcome.timeFrame}
+                                            </p>
+                                        ` : ''}
+                                    </div>
+                                `).join('')}
+                                ${outcomes.secondaryOutcomes.length > 5 ? `
+                                    <p class="text-xs text-gray-500 italic pl-3">
+                                        ... and ${outcomes.secondaryOutcomes.length - 5} more endpoints
+                                    </p>
+                                ` : ''}
+                            </div>
+                        </details>
+                    </div>
+                ` : ''}
+                
+                <!-- OTHER ENDPOINTS (if present) -->
+                ${outcomes.otherOutcomes && outcomes.otherOutcomes.length > 0 ? `
+                    <div class="border-t pt-3">
+                        <details>
+                            <summary class="cursor-pointer text-sm font-bold text-gray-700 hover:text-gray-600">
+                                <i class="fas fa-list mr-1 text-gray-600"></i>
+                                Other Endpoints (${outcomes.otherOutcomes.length})
+                            </summary>
+                            <div class="mt-2 space-y-2">
+                                ${outcomes.otherOutcomes.slice(0, 3).map((outcome, i) => `
+                                    <div class="bg-gray-50 rounded p-3 border-l-4 border-gray-400">
+                                        <p class="text-sm font-medium text-gray-900">
+                                            ${i + 1}. ${outcome.measure}
+                                        </p>
+                                        ${outcome.timeFrame ? `
+                                            <p class="text-xs text-gray-500 mt-1">
+                                                <i class="fas fa-clock mr-1"></i>${outcome.timeFrame}
+                                            </p>
+                                        ` : ''}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </details>
+                    </div>
+                ` : ''}
+                
+                <!-- Action Buttons -->
+                <div class="flex gap-2 pt-3 border-t">
+                    <button onclick="window.open('https://clinicaltrials.gov/study/${identification.nctId}', '_blank')" 
+                            class="flex-1 px-3 py-2 bg-purple-600 text-white rounded text-xs hover:bg-purple-700 transition-colors font-medium">
+                        <i class="fas fa-external-link-alt mr-1"></i>View on ClinicalTrials.gov
+                    </button>
+                    ${hasResults ? `
+                        <button onclick="window.open('https://clinicaltrials.gov/study/${identification.nctId}#results', '_blank')" 
+                                class="px-3 py-2 bg-green-600 text-white rounded text-xs hover:bg-green-700 transition-colors font-medium">
+                            <i class="fas fa-chart-bar mr-1"></i>View Results
+                        </button>
+                    ` : ''}
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// Keep your existing helper functions
+function getStatusBadgeClass(status) {
+    const statusClasses = {
+        'COMPLETED': 'bg-green-100 text-green-700',
+        'ACTIVE_NOT_RECRUITING': 'bg-yellow-100 text-yellow-700',
+        'RECRUITING': 'bg-blue-100 text-blue-700',
+        'TERMINATED': 'bg-red-100 text-red-700',
+        'WITHDRAWN': 'bg-gray-100 text-gray-700'
+    };
+    return statusClasses[status] || 'bg-gray-100 text-gray-700';
+}
+
+function formatStatus(status) {
+    if (!status) return 'Unknown';
+    return status.replace(/_/g, ' ').toLowerCase()
+        .replace(/\b\w/g, l => l.toUpperCase());
+}
+
+function formatPhases(phases) {
+    if (!phases || phases.length === 0) return 'N/A';
+    return phases.map(p => p.replace('PHASE', 'Phase ').replace('_', '/')).join(', ');
+}
+
+function formatDate(dateString) {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return 'N/A';
+    return date.toLocaleDateString('en-US', { 
+        month: 'short', 
+        year: 'numeric' 
+    });
+}
+
+// Add simple styles
+const trialCardStyles = `
+<style>
+details summary::-webkit-details-marker {
+    display: none;
+}
+
+details summary::before {
+    content: '▶';
+    display: inline-block;
+    margin-right: 0.5rem;
+    transition: transform 0.2s;
+    font-size: 0.75rem;
+}
+
+details[open] summary::before {
+    transform: rotate(90deg);
+}
+
+.trial-card {
+    transition: all 0.3s ease;
+}
+
+.trial-card:hover {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+</style>
+`;
+
+// Inject styles if not present
+if (!document.getElementById('trial-card-styles')) {
+    const styleElement = document.createElement('style');
+    styleElement.id = 'trial-card-styles';
+    styleElement.textContent = trialCardStyles;
+    document.head.appendChild(styleElement);
+}
+
+function renderActualResults(results, outcome, outcomeIndex, type) {
+    if (!results) {
+        return `
+            <div class="mt-3 p-3 bg-gray-100 rounded">
+                <p class="text-sm text-gray-600">⏳ Results not yet posted</p>
+            </div>
+        `;
+    }
+    
+    // Try to find matching results in the results section
+    const outcomeMeasures = results.outcomeMeasuresModule;
+    
+    if (!outcomeMeasures) {
+        return `
+            <div class="mt-3 p-3 bg-yellow-100 rounded">
+                <p class="text-sm text-gray-700">📊 Results posted but no outcome measures found</p>
+            </div>
+        `;
+    }
+    
+    // Get the appropriate outcome results
+    let outcomeResults = null;
+    if (type === 'primary' && outcomeMeasures.primaryOutcomeMeasures) {
+        outcomeResults = outcomeMeasures.primaryOutcomeMeasures[outcomeIndex];
+    } else if (type === 'secondary' && outcomeMeasures.secondaryOutcomeMeasures) {
+        outcomeResults = outcomeMeasures.secondaryOutcomeMeasures[outcomeIndex];
+    }
+    
+    if (!outcomeResults) {
+        // Try to match by title
+        const allOutcomes = [
+            ...(outcomeMeasures.primaryOutcomeMeasures || []),
+            ...(outcomeMeasures.secondaryOutcomeMeasures || [])
+        ];
+        outcomeResults = allOutcomes.find(r => r.title === outcome.measure);
+    }
+    
+    if (outcomeResults) {
+        return `
+            <div class="mt-4 p-4 bg-green-50 rounded-lg border border-green-300">
+                <p class="font-bold text-green-800 mb-3">✅ ACTUAL RESULTS:</p>
+                
+                ${outcomeResults.description ? `
+                    <p class="text-sm text-gray-700 mb-3">${outcomeResults.description}</p>
+                ` : ''}
+                
+                <!-- Groups/Arms Results -->
+                ${outcomeResults.groups ? `
+                    <div class="space-y-3">
+                        ${outcomeResults.groups.map(group => `
+                            <div class="bg-white p-3 rounded border border-gray-200">
+                                <p class="font-semibold text-gray-800">${group.title || 'Group'}</p>
+                                ${group.description ? `
+                                    <p class="text-sm text-gray-600 mt-1">${group.description}</p>
+                                ` : ''}
+                            </div>
+                        `).join('')}
+                    </div>
+                ` : ''}
+                
+                <!-- Actual Measurements -->
+                ${outcomeResults.classes ? `
+                    <div class="mt-3 space-y-2">
+                        ${outcomeResults.classes.map(cls => `
+                            <div class="bg-white p-3 rounded">
+                                ${cls.title ? `<p class="font-medium text-gray-700">${cls.title}</p>` : ''}
+                                
+                                ${cls.categories ? cls.categories.map(cat => `
+                                    <div class="mt-2 pl-4 border-l-4 border-purple-300">
+                                        ${cat.title ? `<p class="text-sm font-medium">${cat.title}</p>` : ''}
+                                        
+                                        ${cat.measurements ? `
+                                            <div class="mt-1 grid grid-cols-${Math.min(cat.measurements.length, 3)} gap-2">
+                                                ${cat.measurements.map((m, idx) => `
+                                                    <div class="text-sm">
+                                                        <span class="font-bold text-purple-700">
+                                                            ${m.value || 'N/A'}
+                                                        </span>
+                                                        ${m.lowerLimit || m.upperLimit ? `
+                                                            <span class="text-gray-600">
+                                                                (${m.lowerLimit || '?'} - ${m.upperLimit || '?'})
+                                                            </span>
+                                                        ` : ''}
+                                                        ${m.comment ? `<p class="text-xs text-gray-500">${m.comment}</p>` : ''}
+                                                    </div>
+                                                `).join('')}
                                             </div>
-                                            ${event.changes ? `
-                                                <span class="change-badge change-${event.changes[0]?.type || 'safety'}">
-                                                    ${event.changes[0]?.type || 'update'}
-                                                </span>
+                                        ` : ''}
+                                    </div>
+                                `).join('') : ''}
+                            </div>
+                        `).join('')}
+                    </div>
+                ` : ''}
+                
+                <!-- Statistical Analysis -->
+                ${outcomeResults.analyses && outcomeResults.analyses.length > 0 ? `
+                    <div class="mt-3 p-3 bg-yellow-50 rounded">
+                        <p class="font-semibold text-gray-700 mb-2">📈 Statistical Analysis:</p>
+                        ${outcomeResults.analyses.map(analysis => `
+                            <div class="text-sm">
+                                ${analysis.pValue ? `
+                                    <p><strong>P-Value:</strong> ${analysis.pValue}</p>
+                                ` : ''}
+                                ${analysis.statisticalMethod ? `
+                                    <p><strong>Method:</strong> ${analysis.statisticalMethod}</p>
+                                ` : ''}
+                                ${analysis.statisticalComment ? `
+                                    <p class="text-gray-600 mt-1">${analysis.statisticalComment}</p>
+                                ` : ''}
+                            </div>
+                        `).join('')}
+                    </div>
+                ` : ''}
+            </div>
+        `;
+    }
+    
+    return `
+        <div class="mt-3 p-3 bg-yellow-100 rounded">
+            <p class="text-sm text-gray-700">📊 Results structure mismatch - check ClinicalTrials.gov</p>
+        </div>
+    `;
+}
+
+// Function to render adverse events
+function renderAdverseEvents(adverseEvents) {
+    const serious = adverseEvents.seriousEvents || [];
+    const other = adverseEvents.otherEvents || [];
+    
+    return `
+        <div class="mb-6">
+            <details>
+                <summary class="font-bold text-red-800 mb-3 text-lg cursor-pointer">
+                    ⚠️ ADVERSE EVENTS (${serious.length} serious, ${other.length} other)
+                </summary>
+                
+                <div class="mt-3 space-y-3">
+                    ${serious.length > 0 ? `
+                        <div class="bg-red-50 p-4 rounded-lg border border-red-200">
+                            <p class="font-semibold text-red-800 mb-2">Serious Adverse Events:</p>
+                            <div class="space-y-1">
+                                ${serious.slice(0, 5).map(event => `
+                                    <div class="text-sm">
+                                        <span class="font-medium">${event.term}:</span>
+                                        ${event.stats ? event.stats.map(stat => `
+                                            <span class="ml-2 text-gray-700">
+                                                Group ${stat.groupId}: ${stat.numAffected}/${stat.numAtRisk} 
+                                                (${((stat.numAffected/stat.numAtRisk)*100).toFixed(1)}%)
+                                            </span>
+                                        `).join(', ') : ''}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+                    
+                    ${other.length > 0 ? `
+                        <div class="bg-orange-50 p-4 rounded-lg border border-orange-200">
+                            <p class="font-semibold text-orange-800 mb-2">Other Adverse Events (≥5%):</p>
+                            <div class="space-y-1">
+                                ${other.slice(0, 5).map(event => `
+                                    <div class="text-sm">
+                                        <span class="font-medium">${event.term}:</span>
+                                        ${event.stats ? event.stats.map(stat => `
+                                            <span class="ml-2 text-gray-700">
+                                                Group ${stat.groupId}: ${stat.numAffected}/${stat.numAtRisk}
+                                                (${((stat.numAffected/stat.numAtRisk)*100).toFixed(1)}%)
+                                            </span>
+                                        `).join(', ') : ''}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+                </div>
+            </details>
+        </div>
+    `;
+}
+
+// Make sure to export/add these functions
+window.renderEnhancedTrialCard = renderEnhancedTrialCard;
+window.renderActualResults = renderActualResults;
+window.renderAdverseEvents = renderAdverseEvents;
+
+// Function to render outcome with its result
+function renderOutcomeWithResult(outcome, result, type, index) {
+    const isPrimary = type === 'primary';
+    const bgColor = isPrimary ? 'bg-purple-50' : 'bg-blue-50';
+    const borderColor = isPrimary ? 'border-purple-200' : 'border-blue-200';
+    const iconColor = isPrimary ? 'text-purple-600' : 'text-blue-600';
+    
+    return `
+        <div class="${bgColor} rounded-lg p-3 border ${borderColor}">
+            <div class="flex items-start gap-2">
+                <i class="fas ${isPrimary ? 'fa-star' : 'fa-chart-line'} ${iconColor} mt-1"></i>
+                <div class="flex-1">
+                    <!-- Outcome Measure -->
+                    <p class="text-sm font-semibold text-gray-800">
+                        ${outcome.measure}
+                    </p>
+                    
+                    <!-- Description if available -->
+                    ${outcome.description ? `
+                        <p class="text-xs text-gray-600 mt-1">
+                            ${outcome.description}
+                        </p>
+                    ` : ''}
+                    
+                    <!-- Time Frame -->
+                    ${outcome.timeFrame ? `
+                        <p class="text-xs text-gray-500 mt-2">
+                            <i class="fas fa-clock mr-1"></i>
+                            <span class="font-medium">Time Frame:</span> ${outcome.timeFrame}
+                        </p>
+                    ` : ''}
+                    
+                    <!-- RESULTS if available -->
+                    ${result ? `
+                        <div class="mt-3 pt-3 border-t ${isPrimary ? 'border-purple-200' : 'border-blue-200'}">
+                            <p class="text-xs font-bold text-gray-700 mb-2">
+                                <i class="fas fa-check-circle text-green-600 mr-1"></i>RESULTS:
+                            </p>
+                            
+                            ${result.groups ? `
+                                <div class="space-y-2">
+                                    ${result.groups.map(group => `
+                                        <div class="bg-white rounded p-2">
+                                            <p class="text-xs font-medium text-gray-700">${group.title || 'Group'}</p>
+                                            ${group.description ? `
+                                                <p class="text-xs text-gray-600">${group.description}</p>
+                                            ` : ''}
+                                            ${group.result ? `
+                                                <p class="text-sm font-bold text-gray-900 mt-1">
+                                                    ${group.result.value || 'N/A'} 
+                                                    ${group.result.unit ? `<span class="font-normal text-gray-600">${group.result.unit}</span>` : ''}
+                                                </p>
                                             ` : ''}
                                         </div>
-                                    </div>
+                                    `).join('')}
                                 </div>
-                            `).join('') || '<p class="text-gray-500 text-sm">No timeline events found</p>'}
-                    </div>
+                            ` : ''}
+                            
+                            ${result.analyses && result.analyses.length > 0 ? `
+                                <div class="mt-2 p-2 bg-yellow-50 rounded">
+                                    <p class="text-xs font-medium text-gray-700">Statistical Analysis:</p>
+                                    ${result.analyses.map(analysis => `
+                                        <p class="text-xs text-gray-600 mt-1">
+                                            ${analysis.pValue ? `<span class="font-bold">p-value: ${analysis.pValue}</span>` : ''}
+                                            ${analysis.statisticalMethod ? `(${analysis.statisticalMethod})` : ''}
+                                            ${analysis.statisticalComment ? `<br>${analysis.statisticalComment}` : ''}
+                                        </p>
+                                    `).join('')}
+                                </div>
+                            ` : ''}
+                        </div>
+                    ` : `
+                        <div class="mt-3 pt-3 border-t ${isPrimary ? 'border-purple-200' : 'border-blue-200'}">
+                            <p class="text-xs text-gray-500 italic">
+                                <i class="fas fa-info-circle mr-1"></i>Results not yet available
+                            </p>
+                        </div>
+                    `}
                 </div>
-            `;
-            
-            document.getElementById('applicationModal').classList.remove('hidden');
-        }
+            </div>
+        </div>
+    `;
+}
 
+// Function to render results summary
+function renderResultsSummary(results) {
+    const participantFlow = results.participantFlowModule;
+    const baselineChar = results.baselineCharacteristicsModule;
+    const adverseEvents = results.adverseEventsModule;
+    
+    return `
+        <div class="border-t pt-3">
+            <div class="bg-green-50 rounded-lg p-3 border border-green-200">
+                <h6 class="text-sm font-bold text-green-800 mb-2">
+                    <i class="fas fa-chart-pie mr-1"></i>Results Summary
+                </h6>
+                
+                <div class="grid grid-cols-2 gap-2 text-xs">
+                    ${participantFlow ? `
+                        <div>
+                            <span class="text-gray-600">Total Enrolled:</span>
+                            <span class="font-bold text-gray-800 ml-1">
+                                ${participantFlow.recruitment?.actualNumber || 'N/A'}
+                            </span>
+                        </div>
+                    ` : ''}
+                    
+                    ${baselineChar ? `
+                        <div>
+                            <span class="text-gray-600">Analysis Groups:</span>
+                            <span class="font-bold text-gray-800 ml-1">
+                                ${baselineChar.groups?.length || 0}
+                            </span>
+                        </div>
+                    ` : ''}
+                    
+                    ${adverseEvents ? `
+                        <div>
+                            <span class="text-gray-600">Serious AEs:</span>
+                            <span class="font-bold text-red-700 ml-1">
+                                ${adverseEvents.seriousEvents?.length || 0} types
+                            </span>
+                        </div>
+                        <div>
+                            <span class="text-gray-600">Other AEs:</span>
+                            <span class="font-bold text-orange-700 ml-1">
+                                ${adverseEvents.otherEvents?.length || 0} types
+                            </span>
+                        </div>
+                    ` : ''}
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// Helper functions
+function getStatusBadgeClass(status) {
+    const statusClasses = {
+        'COMPLETED': 'bg-green-100 text-green-700',
+        'ACTIVE_NOT_RECRUITING': 'bg-yellow-100 text-yellow-700',
+        'RECRUITING': 'bg-blue-100 text-blue-700',
+        'TERMINATED': 'bg-red-100 text-red-700',
+        'WITHDRAWN': 'bg-gray-100 text-gray-700'
+    };
+    return statusClasses[status] || 'bg-gray-100 text-gray-700';
+}
+
+function formatStatus(status) {
+    if (!status) return 'Unknown';
+    return status.replace(/_/g, ' ').toLowerCase()
+        .replace(/\b\w/g, l => l.toUpperCase());
+}
+
+function formatPhases(phases) {
+    if (!phases || phases.length === 0) return 'N/A';
+    return phases.map(p => p.replace('PHASE', 'Phase ').replace('_', '/')).join(', ');
+}
+
+function formatDate(dateString) {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return 'N/A';
+    return date.toLocaleDateString('en-US', { 
+        month: 'short', 
+        year: 'numeric' 
+    });
+}
+
+// Function to view detailed results in modal
+window.viewDetailedResults = async function(nctId) {
+    // Implement modal to show detailed results
+    alert(`Detailed results view for ${nctId} - implement modal here`);
+    // You can implement a full modal here to show all results
+};
+
+// Function to compare with label
+window.compareWithLabel = function(nctId) {
+    // Implement comparison functionality
+    alert(`Compare trial ${nctId} with FDA label - implement comparison here`);
+};
+
+// Add required styles
+const trialDisplayStyles = `
+<style>
+.trial-card {
+    transition: all 0.3s ease;
+}
+
+.trial-card:hover {
+    transform: translateY(-2px);
+}
+
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.outcomes-section summary::-webkit-details-marker {
+    display: none;
+}
+
+.outcomes-section summary::before {
+    content: '▶';
+    display: inline-block;
+    margin-right: 0.5rem;
+    transition: transform 0.2s;
+    font-size: 0.75rem;
+}
+
+.outcomes-section[open] summary::before {
+    transform: rotate(90deg);
+}
+
+.outcomes-section {
+    transition: all 0.3s ease;
+}
+
+/* Custom scrollbar for long content */
+.max-h-96::-webkit-scrollbar {
+    width: 6px;
+}
+
+.max-h-96::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 3px;
+}
+
+.max-h-96::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+}
+
+.max-h-96::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+</style>
+`;
+
+// Inject styles if not already present
+if (!document.getElementById('trial-display-styles')) {
+    const styleElement = document.createElement('div');
+    styleElement.id = 'trial-display-styles';
+    styleElement.innerHTML = trialDisplayStyles;
+    document.head.appendChild(styleElement.firstElementChild);
+}
+
+// NEW FUNCTION - Render individual trial card
+function renderTrialCard(trial, index) {
+    const study = trial.protocolSection || trial;
+    const outcomes = study.outcomesModule || {};
+    const design = study.designModule || {};
+    const status = study.statusModule || {};
+    const results = trial.resultsSection || null;
+    
+    return `
+        <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+            <div class="p-4 bg-gradient-to-r from-purple-50 to-blue-50">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h5 class="font-semibold text-gray-900">
+                            ${study.identificationModule?.nctId || 'NCT ID'}
+                        </h5>
+                        <p class="text-xs text-gray-600 mt-1">
+                            ${study.identificationModule?.briefTitle || 'Clinical Trial'}
+                        </p>
+                    </div>
+                    <span class="px-2 py-1 text-xs rounded ${
+                        status.overallStatus === 'COMPLETED' ? 'bg-green-100 text-green-700' :
+                        status.overallStatus === 'ACTIVE_NOT_RECRUITING' ? 'bg-yellow-100 text-yellow-700' :
+                        'bg-gray-100 text-gray-700'
+                    }">
+                        ${status.overallStatus?.replace(/_/g, ' ') || 'Unknown'}
+                    </span>
+                </div>
+            </div>
+            
+            <div class="p-4 space-y-3">
+                <!-- Primary Outcomes -->
+                ${outcomes.primaryOutcomes ? `
+                    <div>
+                        <p class="text-xs font-semibold text-gray-700 uppercase tracking-wider mb-2">
+                            Primary Endpoints
+                        </p>
+                        ${outcomes.primaryOutcomes.map(outcome => `
+                            <div class="p-2 bg-blue-50 rounded mb-2">
+                                <p class="text-sm font-medium text-blue-900">${outcome.measure}</p>
+                                ${outcome.description ? `
+                                    <p class="text-xs text-blue-700 mt-1">${outcome.description.substring(0, 150)}...</p>
+                                ` : ''}
+                                ${outcome.timeFrame ? `
+                                    <p class="text-xs text-gray-600 mt-1">
+                                        <i class="fas fa-clock mr-1"></i>${outcome.timeFrame}
+                                    </p>
+                                ` : ''}
+                            </div>
+                        `).join('')}
+                    </div>
+                ` : ''}
+                
+                <!-- Secondary Outcomes -->
+                ${outcomes.secondaryOutcomes && outcomes.secondaryOutcomes.length > 0 ? `
+                    <div>
+                        <details class="cursor-pointer">
+                            <summary class="text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                                Secondary Endpoints (${outcomes.secondaryOutcomes.length})
+                            </summary>
+                            <div class="mt-2 space-y-2">
+                                ${outcomes.secondaryOutcomes.slice(0, 3).map(outcome => `
+                                    <div class="p-2 bg-gray-50 rounded">
+                                        <p class="text-xs font-medium text-gray-700">${outcome.measure}</p>
+                                        ${outcome.timeFrame ? `
+                                            <p class="text-xs text-gray-500 mt-1">
+                                                <i class="fas fa-clock mr-1"></i>${outcome.timeFrame}
+                                            </p>
+                                        ` : ''}
+                                    </div>
+                                `).join('')}
+                                ${outcomes.secondaryOutcomes.length > 3 ? `
+                                    <p class="text-xs text-gray-500 italic">
+                                        +${outcomes.secondaryOutcomes.length - 3} more endpoints
+                                    </p>
+                                ` : ''}
+                            </div>
+                        </details>
+                    </div>
+                ` : ''}
+                
+                <!-- View Full Trial Button -->
+                <button onclick="window.open('https://clinicaltrials.gov/study/${study.identificationModule?.nctId}', '_blank')" 
+                        class="w-full mt-3 px-3 py-2 bg-purple-100 text-purple-700 rounded text-xs hover:bg-purple-200 transition-colors">
+                    <i class="fas fa-external-link-alt mr-1"></i>View Full Trial on ClinicalTrials.gov
+                </button>
+            </div>
+        </div>
+    `;
+}
+
+// NEW FUNCTION - Extract indications from label
+function extractIndicationsFromLabel(labelData) {
+    if (!labelData || !labelData.sections) return null;
+    
+    const indicationsSection = labelData.sections['Indications and Usage'] || 
+                              labelData.sections['INDICATIONS AND USAGE'] ||
+                              labelData.sections['Indications'];
+    
+    if (indicationsSection) {
+        const text = extractValue(indicationsSection);
+        // Get first 200 characters of indications
+        return text.substring(0, 200) + (text.length > 200 ? '...' : '');
+    }
+    
+    return null;
+}
+
+// NEW FUNCTION - Refresh clinical trials
+async function refreshClinicalTrials(applicationNumber) {
+    const trialsContainer = document.querySelector('.w-2/5 .flex-1.overflow-y-auto.p-4');
+    if (trialsContainer) {
+        trialsContainer.innerHTML = `
+            <div class="text-center py-8">
+                <div class="loader mx-auto mb-4"></div>
+                <p class="text-gray-600">Refreshing clinical trials...</p>
+            </div>
+        `;
+        
+        const trials = await fetchClinicalTrials(applicationNumber);
+        const labelData = window.labelCache?.get(document.getElementById('applicationModal').dataset.latestLabelId)?.data;
+        trialsContainer.innerHTML = renderClinicalTrialsPanel(trials, labelData);
+    }
+}
+
+// NEW FUNCTION - Add split view styles
+function addSplitViewStyles() {
+    if (!document.getElementById('splitViewStyles')) {
+        const style = document.createElement('style');
+        style.id = 'splitViewStyles';
+        style.textContent = `
+            /* Split view container */
+            #appModalContent .flex.h-full {
+                height: 100%;
+                overflow: hidden;
+            }
+            
+            /* Left panel (label) */
+            #appModalContent .w-3/5 {
+                display: flex;
+                flex-direction: column;
+                overflow: hidden;
+            }
+            
+            /* Right panel (trials) */
+            #appModalContent .w-2/5 {
+                display: flex;
+                flex-direction: column;
+                overflow: hidden;
+                background: #f9fafb;
+            }
+            
+            /* Scrollable areas */
+            .flex-1.overflow-y-auto {
+                overflow-y: auto !important;
+                scrollbar-width: thin;
+            }
+            
+            /* Custom scrollbar for trials panel */
+            .w-2/5 .overflow-y-auto::-webkit-scrollbar {
+                width: 6px;
+            }
+            
+            .w-2/5 .overflow-y-auto::-webkit-scrollbar-track {
+                background: #f1f5f9;
+            }
+            
+            .w-2/5 .overflow-y-auto::-webkit-scrollbar-thumb {
+                background: #cbd5e1;
+                border-radius: 3px;
+            }
+            
+            .w-2/5 .overflow-y-auto::-webkit-scrollbar-thumb:hover {
+                background: #94a3b8;
+            }
+            
+            /* Responsive */
+            @media (max-width: 1280px) {
+                #appModalContent .w-3/5 {
+                    width: 55%;
+                }
+                #appModalContent .w-2/5 {
+                    width: 45%;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+}
         // View application-specific timeline
         function viewApplicationTimeline(applicationNumber) {
             const app = state.applications.find(a => a.applicationNumber === applicationNumber);
@@ -6880,7 +8612,84 @@ function cleanLabelText(text) {
     
 //     return text;
 // }
-
+// In your viewApplicationDetails function, right after creating the modal, add:
+function addInlineLabelStyles() {
+    if (!document.getElementById('inlineLabelStyles')) {
+        const style = document.createElement('style');
+        style.id = 'inlineLabelStyles';
+        style.textContent = `
+            /* Fix modal scrolling */
+            .modal-backdrop {
+                position: fixed !important;
+                overflow: hidden !important;
+            }
+            
+            /* Prevent body scroll when modal is open */
+            body.modal-open {
+                overflow: hidden !important;
+                width: 100% !important;
+            }
+            
+            /* Make the modal content scrollable */
+            #applicationModal .bg-white.rounded-2xl {
+                max-height: 95vh !important;
+                display: flex !important;
+                flex-direction: column !important;
+            }
+            
+            #appModalContent {
+                overflow-y: auto !important;
+                flex: 1 !important;
+                min-height: 0 !important;
+            }
+            
+            /* Fix label content scrolling */
+            .pharma-label-inline {
+                height: 100%;
+                overflow-y: auto !important;
+            }
+            
+            .pharma-label-inline .pharma-label-container {
+                max-width: none;
+                margin: 0;
+            }
+            
+            .pharma-label-inline .label-header {
+                border-radius: 10px;
+                margin-bottom: 20px;
+            }
+            
+            .pharma-label-inline .content-wrapper {
+                grid-template-columns: 250px 1fr;
+                min-height: auto;
+            }
+            
+            .pharma-label-inline .main-content {
+                max-height: none;
+                overflow: visible;
+                padding: 20px;
+            }
+            
+            .pharma-label-inline .sidebar {
+                position: sticky;
+                top: 0;
+                max-height: calc(100vh - 200px);
+                overflow-y: auto;
+            }
+            
+            @media (max-width: 1024px) {
+                .pharma-label-inline .content-wrapper {
+                    grid-template-columns: 1fr;
+                }
+                
+                .pharma-label-inline .sidebar {
+                    display: none;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+}
 function renderLabelContent(data, labelId) {
     const content = document.getElementById('labelContent');
     const sectionLinks = document.getElementById('sectionLinks');
@@ -7347,6 +9156,7 @@ function handleUpload(event) {
         // Modal close functions
         function closeApplicationModal() {
             document.getElementById('applicationModal').classList.add('hidden');
+              document.body.classList.remove('modal-open');
         }
 
         function closeCompanyModal() {
@@ -7914,5 +9724,16 @@ if (document.readyState === 'loading') {
         document.head.appendChild(styleLABELLOADER);
 
 
-        window.quickSearch = quickSearch;
+        window.quickSearchL = quickSearchL;
         window.closeApplicationModal = closeApplicationModal
+
+        // Add these to make the tab functions work globally
+window.switchAppModalTab = switchAppModalTab;
+window.loadApplicationDetailsTab = loadApplicationDetailsTab;
+window.loadApplicationLabelTab = loadApplicationLabelTab;
+window.loadApplicationTimelineTab = loadApplicationTimelineTab;
+window.preloadLabelContent = preloadLabelContent;
+window.addInlineLabelStyles = addInlineLabelStyles;
+window.renderParsedLabelContent = renderParsedLabelContent;
+
+})();

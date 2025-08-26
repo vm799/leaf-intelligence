@@ -7670,6 +7670,202 @@ function loadOrangeBookData() {
     orangeBookData = { products: [], patents: [], exclusivity: [] };
   }
 }
+// app.get('/api/advanced-label/clinical-trials/:applicationNumber', async (req, res) => {
+//     try {
+//         const { applicationNumber } = req.params;
+//         const drugName = req.query.drugName || '';
+//         const genericName = req.query.genericName || '';
+        
+//         console.log('Searching trials for:', { drugName, genericName });
+        
+//         // Build search query - use simpler search terms
+//         const searchTerm = genericName || drugName;
+//         const cleanSearchTerm = searchTerm.replace(/HYDROCHLORIDE|HCL/gi, '').trim();
+        
+//         // Use the correct API endpoint format
+//         const searchUrl = `https://clinicaltrials.gov/api/v2/studies?query.term=${encodeURIComponent(cleanSearchTerm)}&pageSize=10`;
+        
+//         console.log('API URL:', searchUrl);
+        
+//         const searchResponse = await fetch(searchUrl);
+        
+//         // Check if response is OK
+//         if (!searchResponse.ok) {
+//             console.error('API Error:', searchResponse.status, searchResponse.statusText);
+//             throw new Error(`ClinicalTrials API error: ${searchResponse.status}`);
+//         }
+        
+//         // Check content type
+//         const contentType = searchResponse.headers.get('content-type');
+//         if (!contentType || !contentType.includes('application/json')) {
+//             const text = await searchResponse.text();
+//             console.error('Non-JSON response:', text);
+//             throw new Error('Invalid response from ClinicalTrials API');
+//         }
+        
+//         const searchData = await searchResponse.json();
+        
+//         console.log('Found studies:', searchData.studies?.length || 0);
+        
+//         // Get detailed info for the most relevant trials
+//         const trials = [];
+        
+//         if (searchData.studies && searchData.studies.length > 0) {
+//             // Take only the first 3-5 trials to avoid too many API calls
+//             const studiesToFetch = searchData.studies.slice(0, 3);
+            
+//             for (const study of studiesToFetch) {
+//                 try {
+//                     const nctId = study.protocolSection?.identificationModule?.nctId;
+                    
+//                     if (!nctId) {
+//                         console.log('No NCT ID found for study');
+//                         continue;
+//                     }
+                    
+//                     // Simpler field selection
+//                     const trialUrl = `https://clinicaltrials.gov/api/v2/studies/${nctId}`;
+                    
+//                     console.log('Fetching trial:', nctId);
+                    
+//                     const trialResponse = await fetch(trialUrl);
+                    
+//                     if (trialResponse.ok) {
+//                         const trialData = await trialResponse.json();
+//                         trials.push(trialData);
+//                     } else {
+//                         console.error('Failed to fetch trial:', nctId, trialResponse.status);
+//                     }
+                    
+//                 } catch (trialError) {
+//                     console.error('Error fetching individual trial:', trialError);
+//                     // Continue with other trials
+//                 }
+//             }
+//         }
+        
+//         res.json({
+//             success: true,
+//             applicationNumber,
+//             drugName,
+//             genericName,
+//             searchTerm: cleanSearchTerm,
+//             trialsFound: trials.length,
+//             trials: trials
+//         });
+        
+//     } catch (error) {
+//         console.error('Error in clinical trials endpoint:', error);
+        
+//         // Send a proper error response
+//         res.status(500).json({ 
+//             success: false, 
+//             error: error.message,
+//             trials: [] // Return empty array so frontend can handle gracefully
+//         });
+//     }
+// });
+
+app.get('/api/advanced-label/clinical-trials/:applicationNumber', async (req, res) => {
+    try {
+        const { applicationNumber } = req.params;
+        const drugName = req.query.drugName || '';
+        const genericName = req.query.genericName || '';
+        const sponsorName = req.query.sponsorName || '';
+        
+        console.log('Searching trials for:', { drugName, genericName, sponsorName });
+        
+        // Clean drug name
+        const searchTerm = genericName || drugName;
+        const cleanSearchTerm = searchTerm
+            .replace(/HYDROCHLORIDE|HCL|SODIUM|POTASSIUM|CHLORIDE/gi, '')
+            .replace(/\s+/g, ' ')
+            .trim();
+        
+        let allStudies = [];
+        
+        // Search for trials
+        try {
+            const searchUrl = `https://clinicaltrials.gov/api/v2/studies?query.intr=${encodeURIComponent(cleanSearchTerm)}&pageSize=100&fields=NCTId`;
+            console.log('Searching:', searchUrl);
+            
+            const response = await fetch(searchUrl);
+            if (response.ok) {
+                const data = await response.json();
+                console.log(`Found ${data.studies?.length || 0} studies`);
+                if (data.studies) {
+                    allStudies = data.studies;
+                }
+            }
+        } catch (error) {
+            console.error('Search error:', error);
+        }
+        
+        if (allStudies.length === 0) {
+            return res.json({
+                success: true,
+                trials: [],
+                message: 'No trials found'
+            });
+        }
+        
+        // Fetch COMPLETE details for top trials
+        const detailedTrials = [];
+        const nctIds = allStudies.slice(0, 20).map(s => s.protocolSection?.identificationModule?.nctId).filter(Boolean);
+        
+        for (const nctId of nctIds.slice(0, 5)) { // Get top 5 with FULL details
+            try {
+                // IMPORTANT: Don't specify fields to get EVERYTHING including results
+                const detailUrl = `https://clinicaltrials.gov/api/v2/studies/${nctId}`;
+                console.log(`Fetching FULL data for ${nctId}`);
+                
+                const response = await fetch(detailUrl);
+                if (response.ok) {
+                    const fullTrialData = await response.json();
+                    
+                    // Check if this trial has what we need
+                    const hasOutcomes = fullTrialData.protocolSection?.outcomesModule?.primaryOutcomes?.length > 0;
+                    const hasResults = fullTrialData.resultsSection ? true : false;
+                    
+                    console.log(`${nctId}: Has Outcomes: ${hasOutcomes}, Has Results: ${hasResults}`);
+                    
+                    // Log sample of what we got
+                    if (hasOutcomes) {
+                        console.log('Sample Primary Outcome:', JSON.stringify(fullTrialData.protocolSection.outcomesModule.primaryOutcomes[0], null, 2));
+                    }
+                    if (hasResults) {
+                        console.log('Has Results Section:', Object.keys(fullTrialData.resultsSection));
+                    }
+                    
+                    // Add the full trial data
+                    detailedTrials.push({
+                        ...fullTrialData,
+                        hasOutcomes,
+                        hasResults
+                    });
+                }
+            } catch (error) {
+                console.error(`Error fetching ${nctId}:`, error);
+            }
+        }
+        
+        res.json({
+            success: true,
+            trials: detailedTrials,
+            totalFound: allStudies.length,
+            message: `Found ${detailedTrials.length} trials with full data`
+        });
+        
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).json({
+            success: false,
+            error: error.message,
+            trials: []
+        });
+    }
+});
+
 
 /**
  * Helper function to handle API errors
