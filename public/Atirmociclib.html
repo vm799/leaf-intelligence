@@ -789,7 +789,7 @@
         <!-- Tab Container -->
         <div class="tab-container">
             <div class="tabs">
-                <button class="tab-btn active" onclick="showTab('overview')">Overview</button>
+                <!-- <button class="tab-btn active" onclick="showTab('overview')">Overview</button>
                 <button class="tab-btn" onclick="showTab('ptrs')">PTRS Analysis</button>
                 <button class="tab-btn" onclick="showTab('clinical')">Clinical & Regulatory</button>
                 <button class="tab-btn" onclick="showTab('scientific')">Scientific & IP</button>
@@ -798,7 +798,17 @@
                 <button class="tab-btn" onclick="showTab('operational')">Operational & Legal</button>
                 <button class="tab-btn" onclick="showTab('management')">Management & Team</button>
                 <button class="tab-btn" onclick="showTab('safety')">Safety & Toxicology</button>
-                <button class="tab-btn" onclick="showTab('trials')">Complete Trial Analysis</button>
+                <button class="tab-btn" onclick="showTab('trials')">Complete Trial Analysis</button> -->
+                                <button class="tab-btn active" onclick="showTab('overview')">Overview</button>
+                <button class="tab-btn" onclick="showTab('ptrs')">PTRS Analysis</button>
+                <button class="tab-btn" onclick="showTab('clinical')">Clinical & Regulatory</button>
+                <button class="tab-btn" onclick="showTab('scientific')">Scientific & IP</button>
+                <button class="tab-btn" onclick="showTab('commercial')">Commercial</button>
+                <button class="tab-btn" onclick="showTab('financial')">Financial</button>
+                <button class="tab-btn" onclick="showTab('operational')">Operational & Legal</button>
+                <button class="tab-btn" onclick="showTab('management')">Management</button>
+                <button class="tab-btn" onclick="showTab('safety')">Safety</button>
+                <button class="tab-btn" onclick="showTab('trials')">Trials</button>
                 <button class="tab-btn" onclick="showTab('investment-summary')">Summary</button>
             </div>
 
@@ -4578,7 +4588,7 @@
             </div>
 
             <!-- Complete Trial Analysis Tab -->
-<div id="trials" class="tab-content">
+<div id="newtrials" class="tab-content">
     <div class="section-title">8. Complete Clinical Trial Portfolio Analysis</div>
 <div class="bg-gradient-to-r from-gray-100 to-blue-50 rounded-lg p-4 mb-6 border border-gray-300">
                 <h3 class="text-lg font-bold text-gray-900 mb-3 flex items-center gap-2">
@@ -5246,6 +5256,529 @@
     </table>
 
     <!-- Investment Committee Summary -->
+    <div class="highlight-box mt-6">
+        <h4 class="font-semibold mb-3">Investment Committee Clinical Assessment</h4>
+        <p class="detail-text">
+            <strong>Program Maturity:</strong> Mixed - strong Phase 1/2a signal but strategic uncertainty shown by FourLight-1 downscoping
+            <br><br>
+            <strong>Key Strengths:</strong>
+            <br>• Compelling 1L efficacy (ORR 58.8%, PFS >16 months)
+            <br>• Differentiated safety profile (less neutropenia)
+            <br>• FourLight-3 well-designed with BICR
+            <br><br>
+            <strong>Critical Weaknesses:</strong>
+            <br>• No placebo-controlled data (all vs active or uncontrolled)
+            <br>• Asia site bias not adequately mitigated
+            <br>• Limited value proposition vs generic CDK4/6is
+            <br>• FourLight-1 downscoping signals internal doubts
+            <br><br>
+            <strong>Investment Decision Factors:</strong>
+            <br>• FourLight-3 interim at 50% events (2027) - key inflection
+            <br>• Need HR ≤0.80 or major safety advantage to justify
+            <br>• $300-500M capital requirement through approval
+            <br>• Competition from 3 established CDK4/6is going generic
+        </p>
+    </div>
+</div>
+
+
+<!-- Complete Trial Analysis Tab -->
+<div id="trials" class="tab-content">
+    <div class="section-title">Complete Clinical Trial Portfolio Analysis</div>
+    
+    <!-- Top Summary Box - Matching exact UI style -->
+    <div class="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-lg p-4 mb-6 border border-emerald-300">
+        <h3 class="text-lg font-bold text-gray-900 mb-3 flex items-center gap-2">
+            <span class="text-emerald-600">📋</span> Clinical Trial Portfolio Assessment
+        </h3>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+            <div class="bg-white rounded-lg p-3 shadow-sm">
+                <div class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Phase 3 Status</div>
+                <div class="text-xl font-bold text-green-600">Enrolling</div>
+                <div class="text-xs text-gray-500">FourLight-3</div>
+            </div>
+            
+            <div class="bg-white rounded-lg p-3 shadow-sm">
+                <div class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Control Arms</div>
+                <div class="text-xl font-bold text-yellow-600">Active</div>
+                <div class="text-xs text-gray-500">CDK4/6i SOC</div>
+            </div>
+            
+            <div class="bg-white rounded-lg p-3 shadow-sm">
+                <div class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">BICR</div>
+                <div class="text-xl font-bold text-green-600">Yes</div>
+                <div class="text-xs text-gray-500">For PFS</div>
+            </div>
+            
+            <div class="bg-white rounded-lg p-3 shadow-sm">
+                <div class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Total Patients</div>
+                <div class="text-xl font-bold text-blue-600">~1,800</div>
+                <div class="text-xs text-gray-500">All trials</div>
+            </div>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="space-y-2">
+                <h4 class="font-semibold text-gray-700">Portfolio Status:</h4>
+                <div class="flex items-start gap-2">
+                    <span class="text-green-500 mt-0.5">✓</span>
+                    <span class="text-sm text-gray-700"><strong>FourLight-3:</strong> 1,020 patient pivotal</span>
+                </div>
+                <div class="flex items-start gap-2">
+                    <span class="text-green-500 mt-0.5">✓</span>
+                    <span class="text-sm text-gray-700"><strong>Phase 1/2:</strong> Complete, strong signal</span>
+                </div>
+                <div class="flex items-start gap-2">
+                    <span class="text-yellow-500 mt-0.5">⚠</span>
+                    <span class="text-sm text-gray-700"><strong>TACTIVE-I:</strong> CDK2 combo feasible</span>
+                </div>
+                <div class="flex items-start gap-2">
+                    <span class="text-yellow-500 mt-0.5">⚠</span>
+                    <span class="text-sm text-gray-700"><strong>FourLight-1:</strong> Downscoped to Ph2</span>
+                </div>
+            </div>
+            
+            <div class="space-y-2">
+                <h4 class="font-semibold text-gray-700">Critical Issues:</h4>
+                <div class="flex items-start gap-2">
+                    <span class="text-red-500 mt-0.5">✗</span>
+                    <span class="text-sm text-gray-700"><strong>No placebo data:</strong> All active/uncontrolled</span>
+                </div>
+                <div class="flex items-start gap-2">
+                    <span class="text-yellow-500 mt-0.5">⚠</span>
+                    <span class="text-sm text-gray-700"><strong>Asia bias:</strong> AE under-reporting</span>
+                </div>
+                <div class="flex items-start gap-2">
+                    <span class="text-yellow-500 mt-0.5">⚠</span>
+                    <span class="text-sm text-gray-700"><strong>Heterogeneous control:</strong> Multiple CDK4/6i</span>
+                </div>
+                <div class="flex items-start gap-2">
+                    <span class="text-blue-500 mt-0.5">→</span>
+                    <span class="text-sm text-gray-700"><strong>Key catalyst:</strong> Ph3 interim 2027</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-3 p-3 bg-emerald-50 rounded-lg border border-emerald-200">
+            <p class="text-sm text-emerald-800 font-semibold">
+                🔍 Trial Risk: MEDIUM. Well-designed pivotal with BICR but heterogeneous comparator weakens analysis. 
+                Success requires demonstrating meaningful safety advantage. FourLight-3 50% interim (2027) is key inflection point.
+            </p>
+        </div>
+    </div>
+    
+    <!-- Individual Trial Cards - Using exact expandable-section pattern from report -->
+    <!-- FourLight-3 Phase 3 PIVOTAL -->
+    <div class="expandable-section">
+        <div class="expandable-header" onclick="toggleSection(this)" style="background: linear-gradient(135deg, #d4f4ec 0%, #e6f3f1 100%);">
+            <span><strong>🎯 FourLight-3 Phase 3 PIVOTAL</strong> - NCT06760637 | First-line HR+/HER2- MBC | <span class="status-badge status-recruiting">ENROLLING</span></span>
+            <span>▼</span>
+        </div>
+        <div class="expandable-content active">
+            <div class="highlight-box">
+                <div class="metric-grid">
+                    <div class="metric-card">
+                        <div class="metric-label">Design</div>
+                        <div class="metric-value">Open-label</div>
+                        <div class="metric-detail">Randomized 1:1</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Control</div>
+                        <div class="metric-value">Active</div>
+                        <div class="metric-detail">CDK4/6i + Letrozole</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Primary</div>
+                        <div class="metric-value">PFS (BICR)</div>
+                        <div class="metric-detail">Blinded review</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">N</div>
+                        <div class="metric-value">1,020</div>
+                        <div class="metric-detail">Global enrollment</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="data-card mt-4">
+                <h5 class="font-semibold text-green-700 mb-2">Trial Design Details</h5>
+                <p class="detail-text">
+                    <strong>Arms:</strong>
+                    <br>• Atirmociclib 300mg BID + letrozole 2.5mg QD
+                    <br>• Investigator's choice CDK4/6i (palbo/ribo/abema) + letrozole
+                    <br><strong>Population:</strong> 1st-line HR+/HER2- MBC, no prior systemic therapy for advanced disease
+                    <br><strong>Investment:</strong> $300-500M+ commitment
+                    <br><strong>Timeline:</strong> Primary analysis expected 2027
+                </p>
+            </div>
+            
+            <div class="data-card">
+                <h5 class="font-semibold text-green-700 mb-2">Control Arm Analysis</h5>
+                <p class="detail-text">
+                    <strong>Why Acceptable:</strong> Head-to-head vs true 1L SoC (CDK4/6i + AI)
+                    <br><strong>Squishiness Problem:</strong> Three different CDK4/6is allowed
+                    <br>• Palbociclib: ~25-month median PFS
+                    <br>• Ribociclib: ~25-month median PFS
+                    <br>• Abemaciclib: ~28-month median PFS
+                    <br><strong>Heterogeneity Impact:</strong> Dilutes observed differences
+                </p>
+            </div>
+            
+            <div class="data-card">
+                <h5 class="font-semibold text-green-700 mb-2">Statistical Analysis Plan</h5>
+                <p class="detail-text">
+                    <strong>Primary:</strong> PFS by BICR (mitigates open-label bias)
+                    <br><strong>Design:</strong> Likely non-inferiority → superiority testing
+                    <br><strong>NI Margin:</strong> Not posted (typically HR 1.20-1.30)
+                    <br><strong>Power:</strong> 80-90% for NI, ~50% for superiority
+                    <br><strong>Hierarchy:</strong> PFS → OS → ORR → PROs
+                </p>
+            </div>
+            
+            <div class="risk-item mt-3">
+                <div class="risk-indicator risk-medium"></div>
+                <div>
+                    <strong>Investment Assessment:</strong> Well-designed pivotal with BICR and appropriate control. Heterogeneous comparator and open-label design are weaknesses. Success requires demonstrating meaningful safety advantage.
+                </div>
+            </div>
+            
+            <div class="reference-list">
+                <a href="https://clinicaltrials.gov/study/NCT06760637" target="_blank" class="link-btn">View on ClinicalTrials.gov →</a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Phase 1/2a Dose Escalation -->
+    <div class="expandable-section">
+        <div class="expandable-header" onclick="toggleSection(this)">
+            <span><strong>Phase 1/2a Dose Escalation</strong> - NCT04557449 | First-in-Human | <span class="status-badge status-completed">COMPLETED</span></span>
+            <span>▼</span>
+        </div>
+        <div class="expandable-content">
+            <div class="highlight-box">
+                <div class="metric-grid">
+                    <div class="metric-card">
+                        <div class="metric-label">Design</div>
+                        <div class="metric-value">Open-label</div>
+                        <div class="metric-detail">Dose escalation</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Control</div>
+                        <div class="metric-value">None</div>
+                        <div class="metric-detail">Single-arm</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">ORR</div>
+                        <div class="metric-value">58.8%</div>
+                        <div class="metric-detail">First-line cohort</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">CBR</div>
+                        <div class="metric-value">94.1%</div>
+                        <div class="metric-detail">Clinical benefit</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="data-card mt-4">
+                <h5 class="font-semibold text-green-700 mb-2">Trial Design & Control Strategy</h5>
+                <p class="detail-text">
+                    <strong>Blinding/Control:</strong> Open-label, non-randomized, multicenter dose-escalation → purely signal-finding with no control arm
+                    <br><strong>Comparator Frame:</strong> No placebo anchor or concurrent control. Efficacy contextualized against historical benchmarks
+                    <br><strong>Design Rationale:</strong> Standard Phase 1 approach per FDA guidance
+                </p>
+            </div>
+            
+            <div class="data-card">
+                <h5 class="font-semibold text-green-700 mb-2">DLT/MTD/RP2D Determination</h5>
+                <p class="detail-text">
+                    <strong>DLT Window:</strong> Cycle 1, Day 1-28
+                    <br><strong>Dose Escalation:</strong> Modified 3+3 design, tested 30mg to 500mg BID
+                    <br><strong>MTD:</strong> Not reached (no DLTs up to 500mg BID)
+                    <br><strong>RP2D Selected:</strong> 300mg BID continuous based on optimal efficacy/tolerability balance
+                </p>
+            </div>
+            
+            <div class="data-card">
+                <h5 class="font-semibold text-green-700 mb-2">Key Results - Cohort 2B (1L with Letrozole)</h5>
+                <p class="detail-text">
+                    <strong>n=34 patients:</strong> CDK4/6i-naïve, 1L HR+/HER2- MBC
+                    <br><strong>Efficacy:</strong> ORR 58.8%, CBR 94.1%, Median PFS not reached (74% progression-free at 16.5mo)
+                    <br><strong>Safety:</strong> Grade ≥3 neutropenia 23.5%, Discontinuation <3%, Median RDI 99.3%
+                </p>
+            </div>
+            
+            <div class="risk-item mt-3">
+                <div class="risk-indicator risk-medium"></div>
+                <div>
+                    <strong>Investment Risk:</strong> Uncontrolled design with no placebo anchor. Historical comparisons unreliable. Asian site inclusion without PROs creates systematic bias.
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- FourLight-1 Phase 2 DOWNSCOPED -->
+    <div class="expandable-section">
+        <div class="expandable-header" onclick="toggleSection(this)" style="background: #fff3cd;">
+            <span><strong>⚠️ FourLight-1 Phase 2 - DOWNSCOPED</strong> - NCT06105632 | Second-line | <span class="status-badge" style="background: #fff3cd; color: #856404;">DEPRIORITIZED</span></span>
+            <span>▼</span>
+        </div>
+        <div class="expandable-content">
+            <div class="highlight-box">
+                <div class="metric-grid">
+                    <div class="metric-card">
+                        <div class="metric-label">Design</div>
+                        <div class="metric-value">Open-label</div>
+                        <div class="metric-detail">Randomized</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Control</div>
+                        <div class="metric-value">Active</div>
+                        <div class="metric-detail">Investigator's choice</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Primary</div>
+                        <div class="metric-value">PFS (INV)</div>
+                        <div class="metric-detail">Not BICR</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">N</div>
+                        <div class="metric-value">333</div>
+                        <div class="metric-detail">Reduced from 500</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="data-card mt-4">
+                <h5 class="font-semibold text-green-700 mb-2">Strategic Deprioritization (March 2025)</h5>
+                <p class="detail-text">
+                    <strong>Original Plan:</strong> ~500-patient Phase 3 for 2nd-line post-CDK4/6i
+                    <br><strong>Revised:</strong> ~333-patient Phase 2, no longer registrational
+                    <br><strong>Reason:</strong> "Cycling CDK inhibitors in 2L has limited value"
+                    <br><strong>Arms:</strong> Atirmociclib + fulvestrant vs Investigator's choice
+                </p>
+            </div>
+            
+            <div class="risk-item mt-3">
+                <div class="risk-indicator risk-high"></div>
+                <div>
+                    <strong>Investment Risk:</strong> Downscoping signals lack of confidence. Investigator-assessed PFS without BICR unreliable. Limited commercial value in 2L.
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- TACTIVE-I Phase 1b/2 -->
+    <div class="expandable-section">
+        <div class="expandable-header" onclick="toggleSection(this)">
+            <span><strong>TACTIVE-I Phase 1b/2</strong> - NCT05262400 | CDK4 + CDK2 Combination | <span class="status-badge status-active">ACTIVE</span></span>
+            <span>▼</span>
+        </div>
+        <div class="expandable-content">
+            <div class="highlight-box">
+                <div class="metric-grid">
+                    <div class="metric-card">
+                        <div class="metric-label">Design</div>
+                        <div class="metric-value">Open-label</div>
+                        <div class="metric-detail">Dose escalation</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Control</div>
+                        <div class="metric-value">None</div>
+                        <div class="metric-detail">Single-arm</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Innovation</div>
+                        <div class="metric-value">Dual CDK</div>
+                        <div class="metric-detail">CDK4 + CDK2</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">N</div>
+                        <div class="metric-value">192</div>
+                        <div class="metric-detail">Target enrollment</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="data-card mt-4">
+                <h5 class="font-semibold text-green-700 mb-2">Trial Design & Innovation</h5>
+                <p class="detail-text">
+                    <strong>Innovation:</strong> Dual CDK4 (atirmociclib) + CDK2 (PF-07104091) inhibition
+                    <br><strong>Rationale:</strong> Target Cyclin E/CDK2-mediated resistance after CDK4/6i failure
+                    <br><strong>Population:</strong> ER+/HER2- MBC with prior CDK4/6i (resistant population)
+                    <br><strong>Status:</strong> Dose escalation complete, expansion ongoing
+                </p>
+            </div>
+            
+            <div class="risk-item mt-3">
+                <div class="risk-indicator risk-high"></div>
+                <div>
+                    <strong>Investment Risk:</strong> No biomarker validation, no control arm, no PROs = limited informative value.
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- TACTIVE-K Phase 1b/2 -->
+    <div class="expandable-section">
+        <div class="expandable-header" onclick="toggleSection(this)">
+            <span><strong>TACTIVE-K Phase 1b/2</strong> - NCT06206837 | Atirmociclib + Vepdegestrant | <span class="status-badge status-active">DOSE-FINDING</span></span>
+            <span>▼</span>
+        </div>
+        <div class="expandable-content">
+            <div class="highlight-box">
+                <div class="metric-grid">
+                    <div class="metric-card">
+                        <div class="metric-label">Design</div>
+                        <div class="metric-value">Open-label</div>
+                        <div class="metric-detail">Dose-finding</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Control</div>
+                        <div class="metric-value">None</div>
+                        <div class="metric-detail">Single-arm</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Strategy</div>
+                        <div class="metric-value">CDK4 + PROTAC</div>
+                        <div class="metric-detail">Novel combo</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">N</div>
+                        <div class="metric-value">TBD</div>
+                        <div class="metric-detail">Dose escalation</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="data-card mt-4">
+                <h5 class="font-semibold text-green-700 mb-2">Strategic Combination Rationale</h5>
+                <p class="detail-text">
+                    <strong>Innovation:</strong> CDK4i + PROTAC ER degrader (chemotherapy-free doublet)
+                    <br><strong>Population:</strong> ER+ MBC, enriched for ESR1 mutations
+                    <br><strong>Strategic Value:</strong> Creates proprietary combination beyond generic reach
+                    <br><strong>Future:</strong> If successful, Phase 3 1L trial planned late 2025
+                </p>
+            </div>
+            
+            <div class="risk-item mt-3">
+                <div class="risk-indicator risk-medium"></div>
+                <div>
+                    <strong>Investment Risk:</strong> Strong biological rationale but no control arm. Success depends on vepdegestrant approval.
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Regional Bridging Studies -->
+    <div class="expandable-section">
+        <div class="expandable-header" onclick="toggleSection(this)">
+            <span><strong>Regional Bridging Studies</strong> - China & Japan PK/Safety | <span class="status-badge status-completed">COMPLETED</span></span>
+            <span>▼</span>
+        </div>
+        <div class="expandable-content">
+            <div class="data-card">
+                <h5 class="font-semibold text-green-700 mb-2">China PK/Safety Study (NCT05732428)</h5>
+                <p class="detail-text">
+                    <strong>Design:</strong> Open-label, single-arm in Chinese patients
+                    <br><strong>N=9:</strong> Small bridging study for NMPA
+                    <br><strong>Key Finding:</strong> Exposure comparable to Western populations
+                    <br><strong>AE Risk:</strong> Chinese studies show "bunch of zeros" in AE reporting
+                </p>
+            </div>
+            
+            <div class="data-card">
+                <h5 class="font-semibold text-green-700 mb-2">Japan PK Study (NCT05463952)</h5>
+                <p class="detail-text">
+                    <strong>Purpose:</strong> PMDA requirement for Japanese approval
+                    <br><strong>Results:</strong> Comparable PK, no new safety signals
+                    <br><strong>Impact:</strong> Enables inclusion in global trials
+                </p>
+            </div>
+            
+            <div class="risk-item mt-3">
+                <div class="risk-indicator risk-high"></div>
+                <div>
+                    <strong>Critical Due Diligence:</strong> Request region-stratified safety data. Chinese/Japanese cohorts likely show lower AE rates. Weight US/EU data more heavily.
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Summary Table -->
+    <div class="subsection-title">Trial Portfolio Summary</div>
+    <table class="trial-table">
+        <thead>
+            <tr>
+                <th>Trial</th>
+                <th>Phase</th>
+                <th>N</th>
+                <th>Control</th>
+                <th>Primary</th>
+                <th>Status</th>
+                <th>Risk</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr style="background: #f0f7f6;">
+                <td><strong>FourLight-3</strong></td>
+                <td><strong>3</strong></td>
+                <td><strong>1020</strong></td>
+                <td><strong>Active CDK4/6i</strong></td>
+                <td><strong>PFS (BICR)</strong></td>
+                <td><span class="status-badge status-recruiting">Enrolling</span></td>
+                <td><span class="text-green-600 font-semibold">Medium</span></td>
+            </tr>
+            <tr>
+                <td>Phase 1/2a</td>
+                <td>1/2a</td>
+                <td>~100</td>
+                <td>None</td>
+                <td>MTD/RP2D</td>
+                <td><span class="status-badge status-completed">Completed</span></td>
+                <td><span class="text-yellow-600">Medium</span></td>
+            </tr>
+            <tr>
+                <td>FourLight-1</td>
+                <td>2</td>
+                <td>333</td>
+                <td>Active</td>
+                <td>PFS (INV)</td>
+                <td><span class="status-badge" style="background: #fff3cd; color: #856404;">Downscoped</span></td>
+                <td><span class="text-red-600">High</span></td>
+            </tr>
+            <tr>
+                <td>TACTIVE-I</td>
+                <td>1b/2</td>
+                <td>192</td>
+                <td>None</td>
+                <td>Safety</td>
+                <td><span class="status-badge status-active">Active</span></td>
+                <td><span class="text-red-600">High</span></td>
+            </tr>
+            <tr>
+                <td>TACTIVE-K</td>
+                <td>1b/2</td>
+                <td>TBD</td>
+                <td>None</td>
+                <td>Safety</td>
+                <td><span class="status-badge status-active">Dose-Finding</span></td>
+                <td><span class="text-yellow-600">Medium</span></td>
+            </tr>
+            <tr>
+                <td>Regional</td>
+                <td>1</td>
+                <td>Small</td>
+                <td>None</td>
+                <td>PK</td>
+                <td><span class="status-badge status-completed">Completed</span></td>
+                <td><span class="text-yellow-600">Low</span></td>
+            </tr>
+        </tbody>
+    </table>
+    
+    <!-- Investment Committee Summary - Using exact highlight-box style -->
     <div class="highlight-box mt-6">
         <h4 class="font-semibold mb-3">Investment Committee Clinical Assessment</h4>
         <p class="detail-text">

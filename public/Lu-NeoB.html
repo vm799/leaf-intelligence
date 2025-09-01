@@ -827,7 +827,7 @@
         <!-- Tab Container -->
         <div class="tab-container">
             <div class="tabs">
-                <button class="tab-btn active" onclick="showTab('overview')">Overview</button>
+                <!-- <button class="tab-btn active" onclick="showTab('overview')">Overview</button>
                 <button class="tab-btn" onclick="showTab('ptrs')">PTRS Analysis</button>
                 <button class="tab-btn" onclick="showTab('clinical')">Clinical & Regulatory</button>
                 <button class="tab-btn" onclick="showTab('scientific')">Scientific & IP</button>
@@ -836,7 +836,17 @@
                 <button class="tab-btn" onclick="showTab('operational')">Operational & Manufacturing</button>
                 <button class="tab-btn" onclick="showTab('management')">Management</button>
                 <button class="tab-btn" onclick="showTab('safety')">Safety/Toxicology</button>
-                <button class="tab-btn" onclick="showTab('trials')">Complete Trial Analysis</button>
+                <button class="tab-btn" onclick="showTab('trials')">Complete Trial Analysis</button> -->
+                                <button class="tab-btn active" onclick="showTab('overview')">Overview</button>
+                <button class="tab-btn" onclick="showTab('ptrs')">PTRS Analysis</button>
+                <button class="tab-btn" onclick="showTab('clinical')">Clinical & Regulatory</button>
+                <button class="tab-btn" onclick="showTab('scientific')">Scientific & IP</button>
+                <button class="tab-btn" onclick="showTab('commercial')">Commercial</button>
+                <button class="tab-btn" onclick="showTab('financial')">Financial</button>
+                <button class="tab-btn" onclick="showTab('operational')">Operational & Legal</button>
+                <button class="tab-btn" onclick="showTab('management')">Management</button>
+                <button class="tab-btn" onclick="showTab('safety')">Safety</button>
+                <button class="tab-btn" onclick="showTab('trials')">Trials</button>
                     <button class="tab-btn" onclick="showTab('investment-summary')">Summary</button>
             </div>
 
@@ -4560,7 +4570,7 @@
             </div>
 
             <!-- Complete Trial Analysis Tab -->
-<div id="trials" class="tab-content">
+<div id="newtrials" class="tab-content">
     <div class="section-title">8. Complete Clinical Trial Portfolio Analysis - [¹⁷⁷Lu]Lu-NeoB (AAA603)</div>
 <!-- Complete Trial Analysis Tab Summary - Add to top of Trials tab content -->
 <div class="bg-gradient-to-r from-gray-100 to-blue-50 rounded-lg p-4 mb-6 border border-gray-300">
@@ -5312,6 +5322,589 @@
         </p>
     </div>
 </div>
+
+<!-- Complete Trial Analysis Tab - Updated Clean Version -->
+<div id="trials" class="tab-content">
+    <div class="section-title">Complete Clinical Trial Portfolio Analysis</div>
+    
+    <!-- Trial Portfolio Critical Assessment - Changed background -->
+    <div style="background: linear-gradient(to right, #f9fafb, #f3f4f6); border-radius: 12px; padding: 16px; margin-bottom: 24px; border: 1px solid #e5e7eb;">
+        <h3 style="font-size: 18px; font-weight: 600; color: #1f2937; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+            <span style="color: #6b7280;">⚡</span> Clinical Trial Portfolio Assessment
+        </h3>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
+            <div style="background: white; border-radius: 8px; padding: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                <div style="font-size: 10px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Development Stage</div>
+                <div style="font-size: 20px; font-weight: 700; color: #dc2626;">Early Phase</div>
+                <div style="font-size: 11px; color: #6b7280;">No efficacy data yet</div>
+            </div>
+            
+            <div style="background: white; border-radius: 8px; padding: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                <div style="font-size: 10px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Control Arms</div>
+                <div style="font-size: 20px; font-weight: 700; color: #dc2626;">NONE</div>
+                <div style="font-size: 11px; color: #6b7280;">Critical gap</div>
+            </div>
+            
+            <div style="background: white; border-radius: 8px; padding: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                <div style="font-size: 10px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Phase 2b Gap</div>
+                <div style="font-size: 20px; font-weight: 700; color: #f59e0b;">Missing</div>
+                <div style="font-size: 11px; color: #6b7280;">No SoC comparison</div>
+            </div>
+            
+            <div style="background: white; border-radius: 8px; padding: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                <div style="font-size: 10px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">PTRS Score</div>
+                <div style="font-size: 20px; font-weight: 700; color: #0a6b5e;">30-40%</div>
+                <div style="font-size: 11px; color: #6b7280;">Pre-pivotal stage</div>
+            </div>
+        </div>
+        
+        <div style="margin-top: 12px; padding: 12px; background: #fee2e2; border-radius: 8px; border: 1px solid #fecaca;">
+            <p style="font-size: 13px; color: #991b1b; font-weight: 600; margin: 0;">
+                ⚠️ Investment Alert: Program lacks ANY controlled efficacy data. No SoC-controlled Phase 2 planned. Investment should wait for Phase 1 results and REQUIRE controlled Phase 2 before Phase 3 funding.
+            </p>
+        </div>
+    </div>
+
+    <!-- Trial Timeline -->
+    <div class="timeline-container">
+        <div class="timeline-line"></div>
+        
+        <!-- NeoRay Trial -->
+        <div class="timeline-item">
+            <div class="timeline-dot"></div>
+            <div class="timeline-date">2019-Ongoing</div>
+            <div class="timeline-content">
+                <h4 class="font-semibold">NeoRay Phase I/IIa First-in-Human (NCT03872778)</h4>
+                
+                <!-- Essential Info Always Visible -->
+                <div class="data-card" style="margin-top: 12px;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px;">
+                        <div>
+                            <div style="font-size: 11px; color: #6c757d; font-weight: 600; text-transform: uppercase; margin-bottom: 4px;">Design</div>
+                            <div style="font-size: 13px; color: #424242;">Basket, single-arm, open-label</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 11px; color: #6c757d; font-weight: 600; text-transform: uppercase; margin-bottom: 4px;">Control</div>
+                            <div style="font-size: 13px; color: #dc3545; font-weight: 600;">None (FIH)</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 11px; color: #6c757d; font-weight: 600; text-transform: uppercase; margin-bottom: 4px;">Primary Outcome</div>
+                            <div style="font-size: 13px; color: #424242;">Safety/Dosimetry</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 11px; color: #6c757d; font-weight: 600; text-transform: uppercase; margin-bottom: 4px;">Status</div>
+                            <div style="font-size: 13px; color: #0a6b5e; font-weight: 600;">Ongoing - No Results</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Expandable Details -->
+                <div class="expandable-section" style="margin-top: 12px;">
+                    <div class="expandable-header" onclick="toggleSection(this)" style="padding: 10px 12px; font-size: 13px;">
+                        <span>View Detailed Analysis</span>
+                        <span>▶</span>
+                    </div>
+                    <div class="expandable-content">
+                        <div class="data-card mt-3">
+                            <h5 class="font-semibold text-green-700 mb-2">Trial Design & Control Strategy</h5>
+                            <p class="detail-text">
+                                <strong>Blinding/Control:</strong> Open-label, single-arm basket study. No blinding, no control → purely signal-finding (first-in-human theranostic)
+                                <br><strong>Design:</strong> Basket approach across advanced solid tumors (prostate, breast, GIST, lung, glioblastoma)
+                                <br><strong>Comparator Frame:</strong> No placebo anchor or concurrent control. Treatment effect contextualized against historical benchmarks for each tumor type
+                                <br><strong>Theranostic Selection:</strong> Mandatory ⁶⁸Ga-NeoB PET with visual score ≥2 for eligibility - provides biologic "enrichment anchor" despite no placebo
+                            </p>
+                        </div>
+
+                        <div class="data-card mt-3">
+                            <h5 class="font-semibold text-green-700 mb-2">DLT/MTD/RP2D Determination</h5>
+                            <p class="detail-text">
+                                <strong>DLT Window:</strong> Cycle 1 (28 days) - standard for AAA first-in-human radioligands
+                                <br><strong>DLT Criteria:</strong> CTCAE v5.0 grading with special focus on:
+                                <br>• Hematologic toxicity (bone marrow dose-limiting)
+                                <br>• Renal toxicity (kidney is dose-limiting organ per preclinical data)
+                                <br><strong>Dose Escalation:</strong> Stepwise ¹⁷⁷Lu activity per cycle (q28d)
+                                <br>• Dosimetry-guided safety with kidney/marrow constraints
+                                <br>• Typical Lu-177 limits: kidney <23 Gy, marrow <2 Gy
+                                <br><strong>RP2D Status:</strong> NOT YET POSTED (trial ongoing with no results as of 2025)
+                            </p>
+                        </div>
+
+                        <div class="data-card mt-3">
+                            <h5 class="font-semibold text-green-700 mb-2">AE/PRO Capture & Regional Bias</h5>
+                            <p class="detail-text">
+                                <strong>AE Collection:</strong> Investigator-elicited and graded by CTCAE v5.0
+                                <br><strong>PRO Tools:</strong> NO INSTRUMENTS SPECIFIED (e.g., EORTC/EQ-5D not listed publicly)
+                                <br><strong>Geographic Distribution:</strong> Global, multi-center (AAA/Novartis network)
+                                <br><strong>Cultural Bias Risk:</strong> Unblinded early-phase radioligands at risk for under-elicited AEs without PRO instruments
+                            </p>
+                        </div>
+
+                        <div class="risk-item mt-3">
+                            <div class="risk-indicator risk-high"></div>
+                            <div>
+                                <strong>Investment Risk:</strong> Single-arm, open-label, no placebo anchor, no PROs = pure signal-finding. Without control arm, treatment effect cannot be quantified.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Phase 1b Combination -->
+        <div class="timeline-item">
+            <div class="timeline-dot" style="background: #084298;"></div>
+            <div class="timeline-date">Nov 2023-2032</div>
+            <div class="timeline-content">
+                <h4 class="font-semibold">Phase Ib Triple Combination (NCT05870579)</h4>
+                
+                <!-- Essential Info Always Visible -->
+                <div class="data-card" style="margin-top: 12px;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px;">
+                        <div>
+                            <div style="font-size: 11px; color: #6c757d; font-weight: 600; text-transform: uppercase; margin-bottom: 4px;">Design</div>
+                            <div style="font-size: 13px; color: #424242;">Dose-escalation + backfill</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 11px; color: #6c757d; font-weight: 600; text-transform: uppercase; margin-bottom: 4px;">Control</div>
+                            <div style="font-size: 13px; color: #dc3545; font-weight: 600;">None</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 11px; color: #6c757d; font-weight: 600; text-transform: uppercase; margin-bottom: 4px;">Primary Outcome</div>
+                            <div style="font-size: 13px; color: #424242;">DLT → RP2D</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 11px; color: #6c757d; font-weight: 600; text-transform: uppercase; margin-bottom: 4px;">N / Status</div>
+                            <div style="font-size: 13px; color: #0a6b5e; font-weight: 600;">n=48 / Recruiting</div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #e3f2f0;">
+                        <div style="font-size: 12px; color: #6c757d;">
+                            <strong>Combination:</strong> [¹⁷⁷Lu]Lu-NeoB + Ribociclib 600mg + Fulvestrant 500mg
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Expandable Details -->
+                <div class="expandable-section" style="margin-top: 12px;">
+                    <div class="expandable-header" onclick="toggleSection(this)" style="padding: 10px 12px; font-size: 13px;">
+                        <span>View Detailed Analysis</span>
+                        <span>▶</span>
+                    </div>
+                    <div class="expandable-content">
+                        <div class="data-card mt-3">
+                            <h5 class="font-semibold text-green-700 mb-2">Trial Design & Combination Rationale</h5>
+                            <p class="detail-text">
+                                <strong>Population:</strong> ER+/HER2-, GRPR+ advanced breast cancer post-CDK4/6i progression
+                                <br><strong>Rationale:</strong> DNA damage from β-emission (Lu-177) + cell cycle arrest (ribociclib) + ER blockade (fulvestrant)
+                                <br><strong>Control Strategy:</strong> No control arm → cannot determine additive benefit
+                            </p>
+                        </div>
+
+                        <div class="data-card mt-3">
+                            <h5 class="font-semibold text-green-700 mb-2">Dose Escalation Details</h5>
+                            <p class="detail-text">
+                                <strong>Lu-177 Dose Levels:</strong> 100→150→200→250 mCi IV Day 1 q28d × up to 6 cycles
+                                <br><strong>DLT Window:</strong> Cycle 1 (28 days)
+                                <br><strong>DLT Focus:</strong> Overlapping hematologic toxicity, renal safety, QTc prolongation
+                                <br><strong>Sample Size:</strong> ~48 total (escalation + backfill/expansion)
+                            </p>
+                        </div>
+
+                        <div class="data-card mt-3">
+                            <h5 class="font-semibold text-green-700 mb-2">Geographic Distribution</h5>
+                            <p class="detail-text">
+                                <strong>Sites:</strong> US (MD Anderson, UCLA, UPenn), EU (France, Germany, Spain), China
+                                <br><strong>China Inclusion Risk:</strong> Known AE under-reporting concern requires stratified safety analysis
+                            </p>
+                        </div>
+
+                        <div class="risk-item mt-3">
+                            <div class="risk-indicator risk-high"></div>
+                            <div>
+                                <strong>Investment Assessment:</strong> Uncontrolled expansion means data won't inform beyond feasibility. Cannot determine if triple combination adds value over doublets.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Phase 1/2 Capecitabine -->
+        <div class="timeline-item">
+            <div class="timeline-dot" style="background: #084298;"></div>
+            <div class="timeline-date">Aug 2024-Ongoing</div>
+            <div class="timeline-content">
+                <h4 class="font-semibold">Phase I/II Capecitabine Combination "NeoB-D1" (NCT06247995)</h4>
+                
+                <!-- Essential Info Always Visible -->
+                <div class="data-card" style="margin-top: 12px;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px;">
+                        <div>
+                            <div style="font-size: 11px; color: #6c757d; font-weight: 600; text-transform: uppercase; margin-bottom: 4px;">Design</div>
+                            <div style="font-size: 13px; color: #424242;">Dose-escalation → randomized</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 11px; color: #6c757d; font-weight: 600; text-transform: uppercase; margin-bottom: 4px;">Control</div>
+                            <div style="font-size: 13px; color: #f59e0b; font-weight: 600;">Regimen vs regimen*</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 11px; color: #6c757d; font-weight: 600; text-transform: uppercase; margin-bottom: 4px;">Primary Outcome</div>
+                            <div style="font-size: 13px; color: #424242;">DLT then ORR/PFS</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 11px; color: #6c757d; font-weight: 600; text-transform: uppercase; margin-bottom: 4px;">N / Status</div>
+                            <div style="font-size: 13px; color: #0a6b5e; font-weight: 600;">n=58 / Recruiting</div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #e3f2f0;">
+                        <div style="font-size: 12px; color: #6c757d;">
+                            <strong>Novel Feature:</strong> Testing fractionation - 200mCi Q6W vs 100mCi Q3W (same total dose)
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Expandable Details -->
+                <div class="expandable-section" style="margin-top: 12px;">
+                    <div class="expandable-header" onclick="toggleSection(this)" style="padding: 10px 12px; font-size: 13px;">
+                        <span>View Detailed Analysis</span>
+                        <span>▶</span>
+                    </div>
+                    <div class="expandable-content">
+                        <div class="data-card mt-3">
+                            <h5 class="font-semibold text-green-700 mb-2">Innovative Fractionation Design</h5>
+                            <p class="detail-text">
+                                <strong>Phase 1:</strong> Dose escalation starting 150 mCi ¹⁷⁷Lu-NeoB Q6W + capecitabine 1000 mg/m² BID
+                                <br><strong>Fractionation Arms:</strong>
+                                <br>• Arm A: 200 mCi Q6W (standard interval)
+                                <br>• Arm B: 100 mCi Q3W (fractionated, same total dose)
+                                <br><strong>Rationale:</strong> Optimize tumor dose while minimizing organ toxicity
+                            </p>
+                        </div>
+
+                        <div class="data-card mt-3">
+                            <h5 class="font-semibold text-green-700 mb-2">Phase 2 Component</h5>
+                            <p class="detail-text">
+                                <strong>Design:</strong> ~40 patients randomized between selected regimens
+                                <br><strong>NOT SoC-Controlled:</strong> Compares RL dosing strategies only
+                                <br><strong>Total N:</strong> ~58 (18 Phase 1 + 40 Phase 2)
+                            </p>
+                        </div>
+
+                        <div class="data-card mt-3">
+                            <h5 class="font-semibold text-green-700 mb-2">Regional Strategy</h5>
+                            <p class="detail-text">
+                                <strong>Special Feature:</strong> Parallel Japanese cohort planned for PMDA requirements
+                                <br><strong>Long-term Follow-up:</strong> 5-year safety monitoring for MDS/AML surveillance
+                            </p>
+                        </div>
+
+                        <div class="risk-item mt-3">
+                            <div class="risk-indicator risk-medium"></div>
+                            <div>
+                                <strong>Investment Assessment:</strong> Innovative fractionation approach but lacks SoC control. Phase 2 provides optimization data only.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Phase 2b Gap -->
+        <div class="timeline-item">
+            <div class="timeline-dot" style="background: #ffc107;"></div>
+            <div class="timeline-date">Current Gap</div>
+            <div class="timeline-content">
+                <h4 class="font-semibold">⚠️ Critical Development Gap - No SoC-Controlled Phase 2</h4>
+                
+                <div class="data-card" style="margin-top: 12px; background: #fef3c7; border: 1px solid #fbbf24;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px;">
+                        <div>
+                            <div style="font-size: 11px; color: #92400e; font-weight: 600; text-transform: uppercase; margin-bottom: 4px;">Current Status</div>
+                            <div style="font-size: 13px; color: #92400e; font-weight: 600;">NO SoC-controlled Phase 2/2b exists</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 11px; color: #92400e; font-weight: 600; text-transform: uppercase; margin-bottom: 4px;">Available Data</div>
+                            <div style="font-size: 13px; color: #92400e;">Only uncontrolled activity</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 11px; color: #92400e; font-weight: 600; text-transform: uppercase; margin-bottom: 4px;">Investment Impact</div>
+                            <div style="font-size: 13px; color: #92400e;">PTRS based on assumptions only</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Expandable Details -->
+                <div class="expandable-section" style="margin-top: 12px;">
+                    <div class="expandable-header" onclick="toggleSection(this)" style="padding: 10px 12px; font-size: 13px;">
+                        <span>View What's Needed</span>
+                        <span>▶</span>
+                    </div>
+                    <div class="expandable-content">
+                        <div class="data-card mt-3">
+                            <h5 class="font-semibold text-green-700 mb-2">Required Phase 2b Design</h5>
+                            <p class="detail-text">
+                                <strong>What's Needed:</strong> SoC-controlled Phase 2b with:
+                                <br>• Active comparator (chemo/ADC or physician's choice)
+                                <br>• N~150-200 patients
+                                <br>• PFS by central review
+                                <br>• Target HR ~0.65-0.75 to justify Phase 3
+                            </p>
+                        </div>
+
+                        <div class="risk-item mt-3">
+                            <div class="risk-indicator risk-high"></div>
+                            <div>
+                                <strong>Investment Risk:</strong> Jumping from Phase 1b directly to Phase 3 without controlled Phase 2 data is high-risk.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Projected Phase 3 -->
+        <div class="timeline-item">
+            <div class="timeline-dot" style="background: #dc3545;"></div>
+            <div class="timeline-date">2026-2029 (Projected)</div>
+            <div class="timeline-content">
+                <h4 class="font-semibold">Anticipated Phase 3 Pivotal Design (Not Yet Posted)</h4>
+                
+                <!-- Essential Info Always Visible -->
+                <div class="data-card" style="margin-top: 12px;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px;">
+                        <div>
+                            <div style="font-size: 11px; color: #6c757d; font-weight: 600; text-transform: uppercase; margin-bottom: 4px;">Design</div>
+                            <div style="font-size: 13px; color: #424242;">Randomized controlled</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 11px; color: #6c757d; font-weight: 600; text-transform: uppercase; margin-bottom: 4px;">Control</div>
+                            <div style="font-size: 13px; color: #0a6b5e; font-weight: 600;">Active comparator</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 11px; color: #6c757d; font-weight: 600; text-transform: uppercase; margin-bottom: 4px;">Primary Outcome</div>
+                            <div style="font-size: 13px; color: #424242;">PFS by BICR</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 11px; color: #6c757d; font-weight: 600; text-transform: uppercase; margin-bottom: 4px;">N / Timeline</div>
+                            <div style="font-size: 13px; color: #424242;">300-600 / Filing ≥2028</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Expandable Details -->
+                <div class="expandable-section" style="margin-top: 12px;">
+                    <div class="expandable-header" onclick="toggleSection(this)" style="padding: 10px 12px; font-size: 13px;">
+                        <span>View Detailed Analysis</span>
+                        <span>▶</span>
+                    </div>
+                    <div class="expandable-content">
+                        <div class="data-card mt-3">
+                            <h5 class="font-semibold text-green-700 mb-2">Expected Design</h5>
+                            <p class="detail-text">
+                                <strong>Population:</strong> GRPR+ ER+/HER2- mBC post-CDK4/6i
+                                <br><strong>Arms:</strong> [¹⁷⁷Lu]Lu-NeoB + standard therapy vs Standard care alone
+                                <br><strong>Key Secondary:</strong> OS, ORR, safety, QoL
+                            </p>
+                        </div>
+
+                        <div class="data-card mt-3">
+                            <h5 class="font-semibold text-green-700 mb-2">Control Arm Strategy</h5>
+                            <p class="detail-text">
+                                <strong>Options:</strong> Physician's choice endocrine, chemotherapy, or ADCs
+                                <br><strong>Challenge:</strong> "Standard of care may be wishy-washy" - multiple acceptable options
+                                <br><strong>Requirements:</strong> Central review (BICR) critical to remove open-label bias
+                            </p>
+                        </div>
+
+                        <div class="data-card mt-3">
+                            <h5 class="font-semibold text-green-700 mb-2">Investment Thresholds</h5>
+                            <p class="detail-text">
+                                <strong>Capital Required:</strong> "Hundreds of millions up to a billion"
+                                <br><strong>Success Criteria:</strong> HR ≤0.65 for PFS, manageable safety, GRPR biomarker validation
+                            </p>
+                        </div>
+
+                        <div class="risk-item mt-3">
+                            <div class="risk-indicator risk-high"></div>
+                            <div>
+                                <strong>Investment Risk:</strong> Phase 3 design not finalized. No controlled Phase 2 data to inform. Timeline to filing ≥2028.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary Table -->
+    <div class="subsection-title">Trial Portfolio Summary</div>
+    <table class="trial-table">
+        <thead>
+            <tr>
+                <th>Trial</th>
+                <th>Phase</th>
+                <th>N</th>
+                <th>Control</th>
+                <th>Primary</th>
+                <th>Status</th>
+                <th>Key Risk</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>NeoRay</strong></td>
+                <td>1/2a</td>
+                <td>TBD</td>
+                <td><span style="color: #dc3545;">None</span></td>
+                <td>Safety/Dosimetry</td>
+                <td><span class="status-badge status-active">Active</span></td>
+                <td>No PROs, basket design</td>
+            </tr>
+            <tr>
+                <td><strong>NCT05870579</strong></td>
+                <td>1b</td>
+                <td>~48</td>
+                <td><span style="color: #dc3545;">None</span></td>
+                <td>DLT→RP2D</td>
+                <td><span class="status-badge status-recruiting">Recruiting</span></td>
+                <td>Triple combo complexity</td>
+            </tr>
+            <tr>
+                <td><strong>NeoB-D1</strong></td>
+                <td>1/2</td>
+                <td>~58</td>
+                <td><span style="color: #f59e0b;">Regimen vs regimen</span></td>
+                <td>DLT/ORR</td>
+                <td><span class="status-badge status-recruiting">Recruiting</span></td>
+                <td>Not vs SoC</td>
+            </tr>
+            <tr style="background: #fee2e2;">
+                <td><strong>Phase 2b Gap</strong></td>
+                <td>-</td>
+                <td>-</td>
+                <td><span style="color: #dc3545; font-weight: 700;">MISSING</span></td>
+                <td>-</td>
+                <td>-</td>
+                <td><strong>NO SoC-CONTROLLED DATA</strong></td>
+            </tr>
+            <tr>
+                <td><strong>Future Phase 3</strong></td>
+                <td>3</td>
+                <td>300-600</td>
+                <td><span style="color: #0a6b5e;">Active</span></td>
+                <td>PFS</td>
+                <td><span class="status-badge">Planned</span></td>
+                <td>Design not finalized</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- Investment Committee Summary -->
+    <div class="highlight-box mt-6">
+        <h4 class="font-semibold mb-3">Investment Committee Clinical Assessment</h4>
+        <p class="detail-text">
+            <strong>Bottom Line:</strong> Program shows promise but lacks ANY controlled data to assess true treatment effect. The absence of a planned SoC-controlled Phase 2 is a critical gap. Investment should wait for Phase 1 results and insist on controlled Phase 2 before Phase 3 funding.
+            
+            <br><br><strong>Key Requirements Before Investment:</strong>
+            <br>• Phase 1 RP2D determination and preliminary efficacy
+            <br>• Controlled Phase 2 data demonstrating superiority over SoC
+            <br>• GRPR biomarker validation as patient selection tool
+            <br>• Manufacturing scalability demonstration
+            
+            <br><br><strong>Capital Need:</strong> $300-500M+ through approval (≥2028)
+            <br><strong>Current Stage:</strong> TOO EARLY for significant investment
+        </p>
+    </div>
+</div>
+
+<style>
+/* Ensure seamless UI integration */
+.expandable-section {
+    border: 1px solid #e3f2f0;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    overflow: hidden;
+}
+
+.expandable-header {
+    background: #f0f7f6;
+    padding: 12px 16px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 600;
+    color: #0a6b5e;
+    transition: background 0.2s;
+}
+
+.expandable-header:hover {
+    background: #e6f3f1;
+}
+
+.expandable-content {
+    padding: 16px;
+    display: none;
+    background: white;
+}
+
+.expandable-content.active {
+    display: block;
+}
+
+.data-card {
+    background: #f8fffe;
+    border: 1px solid #e3f2f0;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 16px;
+}
+
+.detail-text {
+    color: #424242;
+    line-height: 1.6;
+    margin-bottom: 12px;
+    font-size: 13px;
+}
+
+.risk-item {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 12px;
+}
+
+.risk-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 12px;
+    margin-top: 6px;
+    flex-shrink: 0;
+}
+
+.risk-high { background: #dc3545; }
+.risk-medium { background: #ffc107; }
+.risk-low { background: #28a745; }
+
+.mt-3 { margin-top: 12px; }
+.mt-6 { margin-top: 24px; }
+</style>
+
+<script>
+function toggleSection(header) {
+    const content = header.nextElementSibling;
+    const arrow = header.querySelector('span:last-child');
+    
+    if (content.classList.contains('active')) {
+        content.classList.remove('active');
+        arrow.textContent = '▶';
+    } else {
+        content.classList.add('active');
+        arrow.textContent = '▼';
+    }
+}
+</script>
         </div>
 
         <!-- Investment Summary Section -->
