@@ -331,8 +331,18 @@
 
         .chart-container {
             position: relative;
-            height: 300px;
+            height: 150px;
             margin: 20px 0;
+        }
+
+        .chart-container-market {
+            width: 20px;
+             /* position: relative; */
+            height: 15px;
+            /* margin: 20px 0; */
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .regulatory-flow {
@@ -400,7 +410,7 @@
         .risk-low { background: #28a745; }
 
             /* Custom animations and effects */
-        @keyframes float {
+        /* @keyframes float {
             0%, 100% { transform: translateY(0px); }
             50% { transform: translateY(-3px); }
         }
@@ -408,7 +418,7 @@
         @keyframes pulse-glow {
             0%, 100% { opacity: 0.3; }
             50% { opacity: 0.6; }
-        }
+        } */
         
         .nav-bar {
             background: rgba(255, 255, 255, 0.95);
@@ -438,10 +448,10 @@
             animation: shimmer 3s infinite;
         }
         
-        @keyframes shimmer {
+        /* @keyframes shimmer {
             0% { left: -100%; }
             100% { left: 100%; }
-        }
+        } */
         
         .nav-tab {
             position: relative;
@@ -542,7 +552,7 @@
         /* Replace the navigation styles (lines ~445-609) with this updated version */
 
 /* Custom animations and effects */
-@keyframes float {
+/* @keyframes float {
     0%, 100% { transform: translateY(0px); }
     50% { transform: translateY(-3px); }
 }
@@ -555,7 +565,7 @@
 @keyframes shimmer {
     0% { left: -100%; }
     100% { left: 100%; }
-}
+} */
 
 .nav-bar {
     background: rgba(255, 255, 255, 0.95);
@@ -788,6 +798,7 @@
                 <button class="tab-btn" onclick="showTab('management')">Management & Team</button>
                 <button class="tab-btn" onclick="showTab('safety')">Safety & Toxicology</button>
                 <button class="tab-btn" onclick="showTab('trials')">Complete Trial Analysis</button>
+                <button class="tab-btn" onclick="showTab('investment-summary')">Summary</button>
             </div>
 
             <!-- Overview Tab Content -->
@@ -801,7 +812,86 @@
             Atirmociclib (PF-07220060) represents Pfizer's investigational selective CDK4 inhibitor targeting HR+/HER2- metastatic breast cancer, designed to inhibit CDK4 while sparing CDK6 to potentially reduce toxicities like neutropenia seen with pan-CDK4/6 inhibitors. Research suggests a moderate probability of regulatory success (around 40-50%) for first-line HR+/HER2- metastatic breast cancer, based on Phase 3 design aiming for non-inferiority or superiority to standard CDK4/6 inhibitors. Evidence leans toward first-line therapy positioning if successful, similar to precedents like palbociclib, though challenges like comparator heterogeneity could impact approval.
         </p>
     </div>
-
+<div class="bg-gradient-to-r from-green-50 to-blue-50 rounded-lg p-4 mb-6 border border-green-300">
+                <h3 class="text-lg font-bold text-gray-900 mb-3 flex items-center gap-2">
+                    <span class="text-green-600">🎯</span> Investment Overview - Atirmociclib (PF-07220060)
+                </h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+                    <div class="bg-white rounded-lg p-3 shadow-sm">
+                        <div class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Peak Sales</div>
+                        <div class="text-xl font-bold text-green-600">$2B</div>
+                        <div class="text-xs text-gray-500">Base case</div>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg p-3 shadow-sm">
+                        <div class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Risk-Adj NPV</div>
+                        <div class="text-xl font-bold text-green-600">$5B</div>
+                        <div class="text-xs text-gray-500">60% PoS</div>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg p-3 shadow-sm">
+                        <div class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Expected IRR</div>
+                        <div class="text-xl font-bold text-green-600">25-30%</div>
+                        <div class="text-xs text-gray-500">Base case</div>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg p-3 shadow-sm">
+                        <div class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Launch Timeline</div>
+                        <div class="text-xl font-bold text-blue-600">2027-28</div>
+                        <div class="text-xs text-gray-500">FDA approval</div>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="space-y-2">
+                        <h4 class="font-semibold text-gray-700">Key Strengths:</h4>
+                        <div class="flex items-start gap-2">
+                            <span class="text-green-500 mt-0.5">✓</span>
+                            <span class="text-sm text-gray-700"><strong>First CDK4-selective:</strong> 3x less neutropenia than SOC</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <span class="text-green-500 mt-0.5">✓</span>
+                            <span class="text-sm text-gray-700"><strong>Strong Phase 2:</strong> 58.8% ORR, 94.1% CBR</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <span class="text-green-500 mt-0.5">✓</span>
+                            <span class="text-sm text-gray-700"><strong>Strategic timing:</strong> Launches as Ibrance goes generic</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <span class="text-green-500 mt-0.5">✓</span>
+                            <span class="text-sm text-gray-700"><strong>IP protection:</strong> Patents to mid-2040s</span>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-2">
+                        <h4 class="font-semibold text-gray-700">Key Risks:</h4>
+                        <div class="flex items-start gap-2">
+                            <span class="text-yellow-500 mt-0.5">⚠</span>
+                            <span class="text-sm text-gray-700"><strong>Generic competition:</strong> Palbociclib off-patent at launch</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <span class="text-yellow-500 mt-0.5">⚠</span>
+                            <span class="text-sm text-gray-700"><strong>No OS data:</strong> Ribociclib has proven survival benefit</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <span class="text-yellow-500 mt-0.5">⚠</span>
+                            <span class="text-sm text-gray-700"><strong>Control arm:</strong> Heterogeneous comparators in Phase 3</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <span class="text-yellow-500 mt-0.5">⚠</span>
+                            <span class="text-sm text-gray-700"><strong>Asia bias:</strong> Known AE under-reporting</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-3 p-3 bg-green-50 rounded-lg border border-green-200">
+                    <p class="text-sm text-green-800 font-semibold">
+                        💡 Investment Decision: BUY with commercial risk mitigation. Strong scientific rationale supports investment. 
+                        Consider royalty financing ($500M-1B for 3-5% royalty) or milestone-based structure. Success requires aggressive payer strategy.
+                    </p>
+                </div>
+            </div>
     <!-- 1. Regulatory Guidance & Interactions -->
     <div class="expandable-section">
         <div class="expandable-header" onclick="toggleSection(this)">
@@ -837,7 +927,7 @@
                     <br><strong>Fast Track Potential:</strong> If safety edges materialize
                     <br><strong>Updates Expected:</strong> Post-interim (expected 2025) or competitor readouts may refine path
                 </p>
-                <p class="detail-text mt-2">
+                <p class="hidden detail-text mt-2">
                     <em>Critical Quote: "The agency… tell[s] him what they expect the control arm to be, which has never previously been studied in the context of their drug. And then… we have to estimate the probability that this trial is going to hit and what the label is going to look like."</em>
                 </p>
             </div>
@@ -922,7 +1012,7 @@
                     <br>• Small effect sizes after resistance development
                     <br>• <strong>Atirmociclib's Position:</strong> FourLight-3 positions against CDK4/6i + letrozole in first-line, potentially elevating SoC if tolerability allows continuous dosing for longer PFS
                 </p>
-                <p class="detail-text mt-2">
+                <p class="hidden detail-text mt-2">
                     <em>Critical Quote: "We want to find out everything we can about what that standard of care compound is and where it's been used, where it's been studied… and then write up a report."</em>
                 </p>
             </div>
@@ -984,7 +1074,7 @@
                     <br><br>
                     <strong>Updates Post-Events:</strong> Competitor readouts (CDK2 combos) or positive interim data could boost 5-10%
                 </p>
-                <p class="detail-text mt-2">
+                <p class="hidden detail-text mt-2">
                     <em>Critical Quotes: "We have to estimate the probability that this trial is going to hit and what the label is going to look like." / "We have an AI tool that… generates PTRS… frequently wrong, but… never in doubt. That's why the subject matter expert has to be there."</em>
                 </p>
             </div>
@@ -1017,7 +1107,7 @@
                         <th>Mechanism/Phase/Geography</th>
                         <th>Trial Design/Key Data</th>
                         <th>Funding/Licensing</th>
-                        <th>Inflation Risk</th>
+                       
                     </tr>
                 </thead>
                 <tbody>
@@ -1026,42 +1116,36 @@
                         <td>CDK4/6/Approved/Global</td>
                         <td>PALOMA-2: PFS 24.8 mo</td>
                         <td>Pfizer self</td>
-                        <td><span class="status-badge" style="background: #d4f4ec;">Low</span></td>
                     </tr>
                     <tr style="background: #fff3cd;">
                         <td><strong>BEBT-209</strong></td>
                         <td>CDK4/Phase 1/China</td>
                         <td>Mono: ORR 11% pretreated</td>
                         <td>BeBetter internal</td>
-                        <td><span class="status-badge" style="background: #ffcdd2;">High (China-only)</span></td>
                     </tr>
                     <tr>
                         <td>SHR6390</td>
                         <td>CDK4/6/Phase 3/China-EU</td>
                         <td>Combo: PFS similar to standards</td>
                         <td>Hengrui + Affimed out-license ($500M)</td>
-                        <td><span class="status-badge" style="background: #fff3cd;">Medium (bridging)</span></td>
                     </tr>
                     <tr>
                         <td>PF-07104091</td>
                         <td>CDK2/Phase 1-2/Global</td>
                         <td>Combo: ORR 28% resistant</td>
                         <td>Pfizer self</td>
-                        <td><span class="status-badge" style="background: #d4f4ec;">Low</span></td>
                     </tr>
                     <tr>
                         <td>Giredestrant</td>
                         <td>SERD/Phase 3/Global</td>
                         <td>Combo potential</td>
                         <td>Roche</td>
-                        <td><span class="status-badge" style="background: #d4f4ec;">Low</span></td>
                     </tr>
                     <tr>
                         <td>ZB716</td>
                         <td>CDK4/6/Phase 1/China</td>
                         <td>Early development</td>
                         <td>$50M VC funding</td>
-                        <td><span class="status-badge" style="background: #ffcdd2;">High</span></td>
                     </tr>
                 </tbody>
             </table>
@@ -1069,14 +1153,14 @@
             <div class="data-card mt-3">
                 <h5 class="font-semibold text-green-700 mb-2">China-Origin Program Risks</h5>
                 <p class="detail-text">
-                    <strong>Data Inflation Patterns:</strong> China-origin early-phase data often looks inflated per investment committee experience
+                    <strong>Data Inflation Patterns:</strong> China-origin early-phase data often looks inflated due to cultural factors.
                     <br><strong>CT.gov/NMPA Entries:</strong> ~7 China-led trials (Phases 1-3, single-arm ORR focus)
                     <br><strong>Bridging Requirements:</strong> US/EU confirmatory trials needed to validate
                     <br><strong>Cost Undercutting:</strong> Chinese programs could undercut on cost in Asia markets
                     <br><strong>Out-Licensing Trends:</strong> Hengrui out-licensed SHR6390 to Affimed for $500M, signaling Western interest
                     <br><strong>Mitigation:</strong> US/EU confirmatories exist for some (SHR6390); ahead programs like BEBT-209 planning US bridging
                 </p>
-                <p class="detail-text mt-2">
+                <p class="hidden detail-text mt-2">
                     <em>Critical Quotes: "Trials in China and then… planning on expanding to the FDA… America side." / "If… there's two or three breast cancer drugs under development, bigger companies, especially out of China, it's worth looking at all of them from a competitive standpoint."</em>
                 </p>
             </div>
@@ -1127,22 +1211,6 @@
                     <br><strong>LatAm Patterns:</strong> Similar issues due to access barriers and protocol compliance culture
                     <br><strong>FourLight-3 Data:</strong> Global data show consistent safety (neutropenia 23.5%), but China subsets may mask issues
                     <br><strong>Inflated Efficacy:</strong> Higher CBR in China cohorts could mislead stakeholders
-                </p>
-            </div>
-
-            <div class="data-card mt-3">
-                <h5 class="font-semibold text-green-700 mb-2">Mitigation Strategies</h5>
-                <p class="detail-text">
-                    • Investigator-reported AEs prioritized over patient-reported
-                    <br>• PRO tools adapted (EORTC QLQ-C30 validated in Asian languages)
-                    <br>• Enhanced site training on AE capture
-                    <br>• Planned subgroup analyses by region
-                    <br>• BICR for imaging endpoints reduces regional bias
-                    <br>• Regulators may demand US-weighted data for approval
-                    <br>• GSK precedent: "GSK has policy... they redo phase one data in US"
-                </p>
-                <p class="detail-text mt-2">
-                    <em>Critical Quotes: "Because of the respect factor for the physician… you'll get a bunch of zeros in terms of adverse event reporting… on the efficacy side… patient reported outcome… inflated." / "GSK… redo the phase one data in the US… because it's notoriously inflated, and the AEs are underreported."</em>
                 </p>
             </div>
 
@@ -1198,9 +1266,8 @@
                     <br><strong>Funding Source:</strong> Self-funded with no BD dependencies
                     <br><strong>Cash Runway:</strong> Robust, no concerns about trial completion
                     <br><strong>Partnership Status:</strong> No external funding requirements identified
-                    <br><strong>Red Flags:</strong> None - within Pfizer's oncology budget allocation
                 </p>
-                <p class="detail-text mt-2">
+                <p class="hidden detail-text mt-2">
                     <em>Critical Quote: "Do you want to help fund their phase three program, which is… hundreds of millions… up to a billion. And the company seemed to have a lower threshold for going forward than we do."</em>
                 </p>
             </div>
@@ -1244,9 +1311,7 @@
                     <br>• No gaps in documentation chain identified
                     <br>• Protocol versions track changes to control arms and endpoints
                 </p>
-                <p class="detail-text mt-2">
-                    <em>Critical Quote: "In clinicaltrials.gov you will see the prior work… you have to disclose that information in your protocol and your investigator brochure."</em>
-                </p>
+          
             </div>
 
             <div class="reference-list">
@@ -1378,41 +1443,91 @@
         </div>
     </div>
 
-    <!-- Investment Committee Bottom Line -->
-    <div class="highlight-box mt-6">
-        <h4 class="font-semibold mb-3">Investment Committee Bottom Line Assessment</h4>
-        <p class="detail-text">
-            <strong>PTRS Composite Score:</strong> 40-50% probability of achieving first-line label with meaningful differentiation
-            <br><br>
-            <strong>Key Value Drivers:</strong>
-            <br>• 3-fold reduction in Grade 3/4 neutropenia enables continuous dosing
-            <br>• Strong Phase 1/2 efficacy signals (ORR 58.8%, CBR 94.1%)
-            <br>• First-mover advantage in CDK4-selective class
-            <br>• Pfizer's execution capabilities and infrastructure
-            <br><br>
-            <strong>Critical Risk Factors:</strong>
-            <br>• Heterogeneous comparator arm complicates superiority claims
-            <br>• Geographic bias in global trials may mask true safety profile
-            <br>• Generic palbociclib competition at launch (2027)
-            <br>• China-origin competitors with cost advantages
-            <br>• No biomarker enrichment strategy
-            <br><br>
-            <strong>Investment Decision Framework:</strong>
-            <br>• Phase 3 requires $200-300M investment through completion
-            <br>• Interim analysis at 50% events (2026) critical inflection point
-            <br>• Need HR ≤0.80 or clear safety advantage for commercial success
-            <br>• Label likely first-line if tolerability advantage demonstrated
-            <br>• Peak sales $1-2B base case if differentiated from generics
-            <br><br>
-            <strong>Recommendation:</strong> Proceed with heightened monitoring of geographic subgroup analyses, competitive readouts, and interim safety signals. Success hinges on demonstrating continuous dosing advantage translates to improved outcomes.
-        </p>
-    </div>
+
 </div>
             <!-- Clinical & Regulatory Tab -->
             <div id="clinical" class="tab-content">
                 <!-- ATIRMOCICLIB VISUAL SUMMARY -->
-<div class="subsection-title">Regulatory & Clinical Overview - Atirmociclib</div>
-
+<div class="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-4 mb-6 border border-blue-300">
+                <h3 class="text-lg font-bold text-gray-900 mb-3 flex items-center gap-2">
+                    <span class="text-blue-600">⚕️</span> Clinical & Regulatory Assessment
+                </h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+                    <div class="bg-white rounded-lg p-3 shadow-sm">
+                        <div class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Phase 3 Status</div>
+                        <div class="text-xl font-bold text-blue-600">Enrolling</div>
+                        <div class="text-xs text-gray-500">1,020 patients</div>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg p-3 shadow-sm">
+                        <div class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Phase 2 ORR</div>
+                        <div class="text-xl font-bold text-green-600">58.8%</div>
+                        <div class="text-xs text-gray-500">First-line</div>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg p-3 shadow-sm">
+                        <div class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Grade 3/4 Neutropenia</div>
+                        <div class="text-xl font-bold text-green-600">23.5%</div>
+                        <div class="text-xs text-gray-500">vs 60-70% SOC</div>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg p-3 shadow-sm">
+                        <div class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">PTRS</div>
+                        <div class="text-xl font-bold text-yellow-600">40-50%</div>
+                        <div class="text-xs text-gray-500">Regulatory success</div>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="space-y-2">
+                        <h4 class="font-semibold text-gray-700">Clinical Highlights:</h4>
+                        <div class="flex items-start gap-2">
+                            <span class="text-green-500 mt-0.5">✓</span>
+                            <span class="text-sm text-gray-700"><strong>FourLight-3:</strong> Global Phase 3, PFS by BICR</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <span class="text-green-500 mt-0.5">✓</span>
+                            <span class="text-sm text-gray-700"><strong>CBR 94.1%:</strong> Nearly all patients benefit</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <span class="text-green-500 mt-0.5">✓</span>
+                            <span class="text-sm text-gray-700"><strong>Continuous dosing:</strong> 99.3% dose intensity</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <span class="text-green-500 mt-0.5">✓</span>
+                            <span class="text-sm text-gray-700"><strong>No DLTs:</strong> MTD not reached to 700mg</span>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-2">
+                        <h4 class="font-semibold text-gray-700">Regulatory Path:</h4>
+                        <div class="flex items-start gap-2">
+                            <span class="text-blue-500 mt-0.5">→</span>
+                            <span class="text-sm text-gray-700"><strong>FDA:</strong> 505(b)(1) NME pathway</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <span class="text-blue-500 mt-0.5">→</span>
+                            <span class="text-sm text-gray-700"><strong>Timeline:</strong> NDA 2027, approval 2028</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <span class="text-blue-500 mt-0.5">→</span>
+                            <span class="text-sm text-gray-700"><strong>Global:</strong> US/EU/NMPA simultaneous</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <span class="text-blue-500 mt-0.5">→</span>
+                            <span class="text-sm text-gray-700"><strong>No CDx:</strong> Standard HR/HER2 testing</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                    <p class="text-sm text-blue-800 font-semibold">
+                        📊 Clinical Risk: Medium-Low. Well-designed pivotal with validated endpoints. Main risk is demonstrating differentiation 
+                        in non-inferiority design. Safety advantage provides clear approval path if PFS comparable.
+                    </p>
+                </div>
+            </div>
 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
     
     <!-- LEFT: Regulatory Timeline -->
@@ -1899,7 +2014,86 @@
             <!-- Scientific & IP Tab -->
             <div id="scientific" class="tab-content">
                 <div class="section-title">2. Scientific & Intellectual Property Diligence</div>
-
+<div class="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg p-4 mb-6 border border-purple-300">
+                <h3 class="text-lg font-bold text-gray-900 mb-3 flex items-center gap-2">
+                    <span class="text-purple-600">🔬</span> Scientific & Intellectual Property
+                </h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+                    <div class="bg-white rounded-lg p-3 shadow-sm">
+                        <div class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">CDK4 Selectivity</div>
+                        <div class="text-xl font-bold text-purple-600">20x</div>
+                        <div class="text-xs text-gray-500">vs palbociclib</div>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg p-3 shadow-sm">
+                        <div class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Patent Expiry</div>
+                        <div class="text-xl font-bold text-green-600">2044</div>
+                        <div class="text-xs text-gray-500">With PTE</div>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg p-3 shadow-sm">
+                        <div class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Ownership</div>
+                        <div class="text-xl font-bold text-green-600">100%</div>
+                        <div class="text-xs text-gray-500">Pfizer-owned</div>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg p-3 shadow-sm">
+                        <div class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Lead Time</div>
+                        <div class="text-xl font-bold text-green-600">2-3 yrs</div>
+                        <div class="text-xs text-gray-500">vs competitors</div>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="space-y-2">
+                        <h4 class="font-semibold text-gray-700">Scientific Edge:</h4>
+                        <div class="flex items-start gap-2">
+                            <span class="text-green-500 mt-0.5">✓</span>
+                            <span class="text-sm text-gray-700"><strong>Mechanism:</strong> CDK6 sparing reduces toxicity</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <span class="text-green-500 mt-0.5">✓</span>
+                            <span class="text-sm text-gray-700"><strong>Dosing:</strong> Continuous without breaks</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <span class="text-green-500 mt-0.5">✓</span>
+                            <span class="text-sm text-gray-700"><strong>Preclinical:</strong> Superior tumor regressions</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <span class="text-green-500 mt-0.5">✓</span>
+                            <span class="text-sm text-gray-700"><strong>Validation:</strong> Multiple companies pursuing</span>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-2">
+                        <h4 class="font-semibold text-gray-700">IP Protection:</h4>
+                        <div class="flex items-start gap-2">
+                            <span class="text-purple-500 mt-0.5">🔒</span>
+                            <span class="text-sm text-gray-700"><strong>Composition:</strong> Patents to 2039 base</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <span class="text-purple-500 mt-0.5">🔒</span>
+                            <span class="text-sm text-gray-700"><strong>Method-of-use:</strong> Dosing/combos covered</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <span class="text-purple-500 mt-0.5">🔒</span>
+                            <span class="text-sm text-gray-700"><strong>Formulation:</strong> Crystalline forms protected</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <span class="text-purple-500 mt-0.5">🔒</span>
+                            <span class="text-sm text-gray-700"><strong>Exclusivity:</strong> 5yr US + 8-11yr EU</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-3 p-3 bg-purple-50 rounded-lg border border-purple-200">
+                    <p class="text-sm text-purple-800 font-semibold">
+                        💡 Bottom Line: Best-in-class potential with proven mechanism, clear differentiation, and robust IP to mid-2040s. 
+                        First-mover advantage with industry validation from competitors pursuing same approach.
+                    </p>
+                </div>
+            </div>
                 <!-- Mechanism of Action -->
                 <div class="expandable-section">
                     <div class="expandable-header" onclick="toggleSection(this)">
@@ -2106,7 +2300,86 @@
             <!-- Commercial & Market Tab -->
             <div id="commercial" class="tab-content">
                 <div class="section-title">3. Commercial & Market Diligence</div>
-
+ <div class="bg-gradient-to-r from-green-50 to-teal-50 rounded-lg p-4 mb-6 border border-green-300">
+                <h3 class="text-lg font-bold text-gray-900 mb-3 flex items-center gap-2">
+                    <span class="text-green-600">📈</span> Commercial & Market Opportunity
+                </h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+                    <div class="bg-white rounded-lg p-3 shadow-sm">
+                        <div class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Market Size</div>
+                        <div class="text-xl font-bold text-green-600">$8-9B</div>
+                        <div class="text-xs text-gray-500">Global CDK4/6</div>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg p-3 shadow-sm">
+                        <div class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Eligible Patients</div>
+                        <div class="text-xl font-bold text-green-600">100k+</div>
+                        <div class="text-xs text-gray-500">Annual 1L</div>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg p-3 shadow-sm">
+                        <div class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Treatment Duration</div>
+                        <div class="text-xl font-bold text-blue-600">20-24mo</div>
+                        <div class="text-xs text-gray-500">Average 1L</div>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg p-3 shadow-sm">
+                        <div class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Expected Price</div>
+                        <div class="text-xl font-bold text-blue-600">$150-180k</div>
+                        <div class="text-xs text-gray-500">Annual</div>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="space-y-2">
+                        <h4 class="font-semibold text-gray-700">Market Dynamics:</h4>
+                        <div class="flex items-start gap-2">
+                            <span class="text-green-500 mt-0.5">✓</span>
+                            <span class="text-sm text-gray-700"><strong>Timing:</strong> Launches as palbo goes generic</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <span class="text-green-500 mt-0.5">✓</span>
+                            <span class="text-sm text-gray-700"><strong>Differentiation:</strong> 3x less neutropenia</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <span class="text-green-500 mt-0.5">✓</span>
+                            <span class="text-sm text-gray-700"><strong>Infrastructure:</strong> Existing Ibrance team</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <span class="text-green-500 mt-0.5">✓</span>
+                            <span class="text-sm text-gray-700"><strong>Value prop:</strong> Lower healthcare costs</span>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-2">
+                        <h4 class="font-semibold text-gray-700">Revenue Scenarios:</h4>
+                        <div class="flex items-start gap-2">
+                            <span class="text-green-500 mt-0.5">📊</span>
+                            <span class="text-sm text-gray-700"><strong>Base:</strong> $2B peak (25% share)</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <span class="text-blue-500 mt-0.5">📊</span>
+                            <span class="text-sm text-gray-700"><strong>Bull:</strong> $5-6B (50%+ share)</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <span class="text-yellow-500 mt-0.5">📊</span>
+                            <span class="text-sm text-gray-700"><strong>Bear:</strong> $0.5-1B (generic limits)</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <span class="text-purple-500 mt-0.5">📊</span>
+                            <span class="text-sm text-gray-700"><strong>Time to peak:</strong> 3-4 years</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-3 p-3 bg-green-50 rounded-lg border border-green-200">
+                    <p class="text-sm text-green-800 font-semibold">
+                        💰 Commercial Strategy: Premium pricing justified by safety advantage. Focus on total cost of care reduction. 
+                        Leverage existing infrastructure for rapid uptake. Real-world evidence critical for payer negotiations.
+                    </p>
+                </div>
+            </div>
                 <!-- Market Opportunity -->
                 <div class="expandable-section">
                     <div class="expandable-header" onclick="toggleSection(this)">
@@ -2156,11 +2429,7 @@
                             <br>• Japan: Premium pricing but smaller volume
                         </p>
 
-                        <p class="detail-text">
-                            <strong>Adjuvant Opportunity:</strong> If atirmociclib demonstrates benefit in high-risk early disease (like abemaciclib in monarchE), the addressable population could expand 2-3x. Currently, ~300k early-stage HR+ diagnosed annually in US + EU, with high-risk subset (~30%) potential candidates for adjuvant CDK4 therapy.
-                        </p>
-
-                        <canvas id="marketChart" class="chart-container"></canvas>
+                       <canvas id="marketChart" class="chart-container-market" width="500" height="500"></canvas>
                     </div>
                 </div>
 
@@ -2238,135 +2507,94 @@
                     </div>
                 </div>
 
-                <!-- Pricing & Reimbursement -->
-                <div class="expandable-section">
-                    <div class="expandable-header" onclick="toggleSection(this)">
-                        <span>3.3 Pricing & Market Access Strategy</span>
-                        <span>▼</span>
-                    </div>
-                    <div class="expandable-content">
-                        <div class="metric-grid">
-                            <div class="metric-card">
-                                <div class="metric-label">US List Price (WAC)</div>
-                                <div class="metric-value">$14-16k</div>
-                                <div class="metric-detail">Per month expected</div>
-                            </div>
-                            <div class="metric-card">
-                                <div class="metric-label">Annual Cost</div>
-                                <div class="metric-value">$168-192k</div>
-                                <div class="metric-detail">Before rebates</div>
-                            </div>
-                            <div class="metric-card">
-                                <div class="metric-label">Net Price</div>
-                                <div class="metric-value">-25-35%</div>
-                                <div class="metric-detail">After rebates/discounts</div>
-                            </div>
-                            <div class="metric-card">
-                                <div class="metric-label">Generic Impact</div>
-                                <div class="metric-value">$20k/year</div>
-                                <div class="metric-detail">Palbociclib generic price</div>
-                            </div>
-                        </div>
+          
 
-                        <div class="data-card">
-                            <h4 class="font-semibold mb-2">Payer Strategy Challenges & Solutions</h4>
-                            
-                            <div class="risk-item">
-                                <div class="risk-indicator risk-high"></div>
-                                <div>
-                                    <strong>Step Therapy Risk:</strong> Payers likely to mandate generic palbociclib first. Mitigation: Generate health economic data showing reduced hospitalization costs from lower neutropenia rates. Febrile neutropenia hospitalization costs ~$15k per event.
-                                </div>
-                            </div>
-
-                            <div class="risk-item">
-                                <div class="risk-indicator risk-medium"></div>
-                                <div>
-                                    <strong>ICER Assessment:</strong> Cost-effectiveness challenging versus generic (~$500k/QALY if similar efficacy). Need to demonstrate QoL improvements and reduced medical resource utilization.
-                                </div>
-                            </div>
-
-                            <div class="risk-item">
-                                <div class="risk-indicator risk-medium"></div>
-                                <div>
-                                    <strong>EU HTA:</strong> NICE/G-BA may not recognize added benefit without OS data. Significant discounts likely required for reimbursement.
-                                </div>
-                            </div>
-
-                            <div class="risk-item">
-                                <div class="risk-indicator risk-low"></div>
-                                <div>
-                                    <strong>Medicare Part D:</strong> Coverage assured but prior authorization expected. Protected from negotiation for 9 years as new molecular entity.
-                                </div>
-                            </div>
-                        </div>
-
-                        <p class="detail-text mt-4">
-                            <strong>Value-Based Contracting Options:</strong>
-                            <br>• Outcomes-based rebates if patients experience Grade 3/4 neutropenia
-                            <br>• Performance guarantees on dose intensity maintenance
-                            <br>• Portfolio deals leveraging Pfizer's oncology franchise
-                            <br>• Patient assistance programs to ensure access despite high cost-sharing
-                        </p>
-                    </div>
-                </div>
-
-                <!-- Commercial Execution -->
-                <div class="expandable-section">
-                    <div class="expandable-header" onclick="toggleSection(this)">
-                        <span>3.4 Launch Strategy & Peak Sales Projections</span>
-                        <span>▼</span>
-                    </div>
-                    <div class="expandable-content">
-                        <div class="highlight-box">
-                            <h4 class="font-semibold mb-2">Leveraging Pfizer's Infrastructure</h4>
-                            <p class="detail-text">
-                                Pfizer's existing Ibrance sales force and relationships provide immediate market access. The company can redeploy its breast cancer team seamlessly from Ibrance to atirmociclib, maintaining physician relationships while transitioning the narrative from first-generation to next-generation CDK4 inhibition.
-                            </p>
-                        </div>
-
-                        <div class="data-card">
-                            <h4 class="font-semibold mb-2">Peak Sales Scenarios</h4>
-                            
-                            <p class="detail-text">
-                                <strong>Bull Case ($5-6B):</strong> Atirmociclib becomes preferred first-line therapy, capturing 50% share. Expansion into adjuvant setting. Premium pricing maintained through demonstrated value.
-                            </p>
-
-                            <p class="detail-text">
-                                <strong>Base Case ($2B):</strong> 25% market share split with generics and branded competitors. Modest share in US, limited EU uptake due to pricing. China volume offset by low pricing.
-                            </p>
-
-                            <p class="detail-text">
-                                <strong>Bear Case ($500M-1B):</strong> Restricted to second-line or post-generic failure. Limited to 10-20% share. Significant price erosion to compete with generics.
-                            </p>
-                            </div>
-
-                        <div class="data-card mt-4">
-                            <h4 class="font-semibold mb-2">Key Launch Success Factors</h4>
-                            
-                            <p class="detail-text">
-                                <strong>NCCN Guideline Inclusion:</strong> Critical for physician adoption. Need Category 1 recommendation alongside other CDK4/6 inhibitors based on Phase 3 data.
-                            </p>
-
-                            <p class="detail-text">
-                                <strong>KOL Advocacy:</strong> Leading oncologists from Dana-Farber (Dr. Antonio Giordano) and other centers already engaged through trials. Their endorsement of safety advantages crucial.
-                            </p>
-
-                            <p class="detail-text">
-                                <strong>Real-World Evidence Generation:</strong> Post-launch studies demonstrating reduced healthcare resource utilization and maintained dose intensity will support value proposition.
-                            </p>
-
-                            <p class="detail-text">
-                                <strong>Combination Strategy:</strong> If atirmociclib + vepdegestrant shows superiority to AI + CDK4/6, creates proprietary regimen competitors cannot match, potentially justifying premium pricing.
-                            </p>
-                        </div>
-                    </div>
-                </div>
+            
             </div>
 
             <!-- Financial & Strategic Tab -->
             <div id="financial" class="tab-content">
                 <div class="section-title">4. Financial & Strategic Diligence</div>
-
+<div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4 mb-6 border border-blue-300">
+                <h3 class="text-lg font-bold text-gray-900 mb-3 flex items-center gap-2">
+                    <span class="text-blue-600">💼</span> Financial & Strategic Analysis
+                </h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+                    <div class="bg-white rounded-lg p-3 shadow-sm">
+                        <div class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Risk-Adj NPV</div>
+                        <div class="text-xl font-bold text-green-600">$5B</div>
+                        <div class="text-xs text-gray-500">10% discount</div>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg p-3 shadow-sm">
+                        <div class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Expected IRR</div>
+                        <div class="text-xl font-bold text-green-600">25-30%</div>
+                        <div class="text-xs text-gray-500">Base case</div>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg p-3 shadow-sm">
+                        <div class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Investment Need</div>
+                        <div class="text-xl font-bold text-blue-600">$300-500M</div>
+                        <div class="text-xs text-gray-500">Through approval</div>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg p-3 shadow-sm">
+                        <div class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Payback</div>
+                        <div class="text-xl font-bold text-green-600">2-3 yrs</div>
+                        <div class="text-xs text-gray-500">Post-launch</div>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="space-y-2">
+                        <h4 class="font-semibold text-gray-700">Financial Metrics:</h4>
+                        <div class="flex items-start gap-2">
+                            <span class="text-green-500 mt-0.5">✓</span>
+                            <span class="text-sm text-gray-700"><strong>Gross margin:</strong> ~95% for oral drug</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <span class="text-green-500 mt-0.5">✓</span>
+                            <span class="text-sm text-gray-700"><strong>COGS:</strong> <5% of selling price</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <span class="text-green-500 mt-0.5">✓</span>
+                            <span class="text-sm text-gray-700"><strong>PoS:</strong> 60% probability weighted</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <span class="text-green-500 mt-0.5">✓</span>
+                            <span class="text-sm text-gray-700"><strong>Cumulative:</strong> $20-30B lifecycle</span>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-2">
+                        <h4 class="font-semibold text-gray-700">Strategic Value:</h4>
+                        <div class="flex items-start gap-2">
+                            <span class="text-blue-500 mt-0.5">🎯</span>
+                            <span class="text-sm text-gray-700"><strong>Franchise:</strong> Protects $3-4B Ibrance</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <span class="text-blue-500 mt-0.5">🎯</span>
+                            <span class="text-sm text-gray-700"><strong>Synergies:</strong> Vepdegestrant combos</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <span class="text-blue-500 mt-0.5">🎯</span>
+                            <span class="text-sm text-gray-700"><strong>Infrastructure:</strong> Leverages existing</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <span class="text-blue-500 mt-0.5">🎯</span>
+                            <span class="text-sm text-gray-700"><strong>Portfolio:</strong> Complements ADCs</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                    <p class="text-sm text-blue-800 font-semibold">
+                        📊 Investment Options: Royalty financing ($500M-1B for 3-5% royalty, 15-20% IRR) | Milestone-based tranches | 
+                        China monetization opportunity. Strong returns justify investment despite commercial risks.
+                    </p>
+                </div>
+            </div>
                 <!-- Pfizer Financials -->
                 <div class="expandable-section">
                     <div class="expandable-header" onclick="toggleSection(this)">
@@ -2402,7 +2630,7 @@
                         </p>
 
                         <p class="detail-text">
-                            <strong>Development Investment:</strong> Total atirmociclib development costs estimated at $200-300M through approval (Phase 1-3, regulatory, CMC). This represents <3% of annual R&D budget - minimal financial risk for Pfizer. Launch costs additional ~$50M/year leveraging existing infrastructure.
+                            <strong>Development Investment:</strong> Total atirmociclib development costs estimated at $200-300M through approval (Phase 1-3, regulatory, CMC). This represents 3% of annual R&D budget - minimal financial risk for Pfizer. Launch costs additional ~$50M/year leveraging existing infrastructure.
                         </p>
 
                         <p class="detail-text">
@@ -2553,7 +2781,86 @@
             <!-- Operational & Legal Tab -->
             <div id="operational" class="tab-content">
                 <div class="section-title">5. Operational & Legal Diligence</div>
-
+<div class="bg-gradient-to-r from-gray-50 to-slate-50 rounded-lg p-4 mb-6 border border-gray-300">
+                <h3 class="text-lg font-bold text-gray-900 mb-3 flex items-center gap-2">
+                    <span class="text-gray-600">⚙️</span> Operational & Legal Assessment
+                </h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+                    <div class="bg-white rounded-lg p-3 shadow-sm">
+                        <div class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">API Need</div>
+                        <div class="text-xl font-bold text-green-600">11 MT/yr</div>
+                        <div class="text-xs text-gray-500">At 50k patients</div>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg p-3 shadow-sm">
+                        <div class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">COGS</div>
+                        <div class="text-xl font-bold text-green-600"><5%</div>
+                        <div class="text-xs text-gray-500">Of selling price</div>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg p-3 shadow-sm">
+                        <div class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Shelf Life</div>
+                        <div class="text-xl font-bold text-green-600">24+ mo</div>
+                        <div class="text-xs text-gray-500">Room temp</div>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg p-3 shadow-sm">
+                        <div class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Legal Status</div>
+                        <div class="text-xl font-bold text-green-600">Clean</div>
+                        <div class="text-xs text-gray-500">No disputes</div>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="space-y-2">
+                        <h4 class="font-semibold text-gray-700">Manufacturing:</h4>
+                        <div class="flex items-start gap-2">
+                            <span class="text-green-500 mt-0.5">✓</span>
+                            <span class="text-sm text-gray-700"><strong>Formulation:</strong> Simple 300mg tablets</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <span class="text-green-500 mt-0.5">✓</span>
+                            <span class="text-sm text-gray-700"><strong>Supply chain:</strong> Leverage Ibrance lines</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <span class="text-green-500 mt-0.5">✓</span>
+                            <span class="text-sm text-gray-700"><strong>Materials:</strong> No rare components</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <span class="text-green-500 mt-0.5">✓</span>
+                            <span class="text-sm text-gray-700"><strong>Capacity:</strong> Well within limits</span>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-2">
+                        <h4 class="font-semibold text-gray-700">Legal/Compliance:</h4>
+                        <div class="flex items-start gap-2">
+                            <span class="text-green-500 mt-0.5">✓</span>
+                            <span class="text-sm text-gray-700"><strong>IP:</strong> No active litigation</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <span class="text-green-500 mt-0.5">✓</span>
+                            <span class="text-sm text-gray-700"><strong>Regulatory:</strong> No 483s/warnings</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <span class="text-green-500 mt-0.5">✓</span>
+                            <span class="text-sm text-gray-700"><strong>Ownership:</strong> 100% Pfizer</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <span class="text-green-500 mt-0.5">✓</span>
+                            <span class="text-sm text-gray-700"><strong>Safety:</strong> Standard ILD monitoring</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                    <p class="text-sm text-gray-700 font-semibold">
+                        ✅ Operational Risk: LOW. Proven capabilities in small molecule manufacturing, established quality systems, 
+                        existing infrastructure. No supply chain vulnerabilities or legal impediments identified.
+                    </p>
+                </div>
+            </div>
                 <!-- Manufacturing -->
                 <div class="expandable-section">
                     <div class="expandable-header" onclick="toggleSection(this)">
@@ -2594,10 +2901,7 @@
                         <div class="data-card mt-4">
                             <h4 class="font-semibold mb-2">Supply Chain Strategy</h4>
                             
-                            <p class="detail-text">
-                                <strong>API Production:</strong> Likely internal at Pfizer facilities (Ireland, Kalamazoo) or trusted CMO. Dual-sourcing for risk mitigation. Multi-step organic synthesis with crystallization for polymorph control.
-                            </p>
-
+                           
                             <p class="detail-text">
                                 <strong>Formulation Sites:</strong> Multiple locations for finished product - US, Europe, potentially Puerto Rico. Can leverage Ibrance tablet production lines as they become available.
                             </p>
@@ -2756,48 +3060,92 @@
                     </div>
                 </div>
 
-                <!-- Risk Mitigation -->
-                <div class="expandable-section">
-                    <div class="expandable-header" onclick="toggleSection(this)">
-                        <span>6.3 Execution Risks & Mitigation</span>
-                        <span>▼</span>
-                    </div>
-                    <div class="expandable-content">
-                        <div class="risk-item">
-                            <div class="risk-indicator risk-low"></div>
-                            <div>
-                                <strong>Key Person Risk:</strong> Minimal given Pfizer's depth. Multiple layers of experienced management. No dependency on single individual.
-                            </div>
-                        </div>
-
-                        <div class="risk-item">
-                            <div class="risk-indicator risk-medium"></div>
-                            <div>
-                                <strong>Internal Competition:</strong> Challenge of transitioning from Ibrance to atirmociclib. Mitigated by aligning sales incentives and clear positioning as next-generation upgrade.
-                            </div>
-                        </div>
-
-                        <div class="risk-item">
-                            <div class="risk-indicator risk-low"></div>
-                            <div>
-                                <strong>Integration with Seagen:</strong> $43B acquisition creates bandwidth challenges. However, breast cancer remains strategic priority with dedicated resources.
-                            </div>
-                        </div>
-
-                        <div class="risk-item">
-                            <div class="risk-indicator risk-medium"></div>
-                            <div>
-                                <strong>Payer Negotiation:</strong> Team must pivot from premium pricing (Ibrance) to value-based messaging. Experience from other competitive markets applicable.
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            
             </div>
 
             <!-- Safety & Toxicology Tab -->
             <div id="safety" class="tab-content">
                 <div class="section-title">7. Comprehensive Safety & Toxicology Profile</div>
-
+<div class="bg-gradient-to-r from-orange-50 to-red-50 rounded-lg p-4 mb-6 border border-orange-300">
+                <h3 class="text-lg font-bold text-gray-900 mb-3 flex items-center gap-2">
+                    <span class="text-orange-600">🔬</span> Safety & Tolerability Profile
+                </h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+                    <div class="bg-white rounded-lg p-3 shadow-sm">
+                        <div class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Gr 3/4 Neutropenia</div>
+                        <div class="text-xl font-bold text-green-600">23.5%</div>
+                        <div class="text-xs text-gray-500">vs 60-70% SOC</div>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg p-3 shadow-sm">
+                        <div class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Febrile Neutropenia</div>
+                        <div class="text-xl font-bold text-green-600">0%</div>
+                        <div class="text-xs text-gray-500">vs 1-2% SOC</div>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg p-3 shadow-sm">
+                        <div class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Dose Reductions</div>
+                        <div class="text-xl font-bold text-green-600">8.8%</div>
+                        <div class="text-xs text-gray-500">vs 36% palbo</div>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg p-3 shadow-sm">
+                        <div class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Discontinuation</div>
+                        <div class="text-xl font-bold text-green-600">2.9%</div>
+                        <div class="text-xs text-gray-500">vs 9.7% palbo</div>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="space-y-2">
+                        <h4 class="font-semibold text-gray-700">Safety Advantages:</h4>
+                        <div class="flex items-start gap-2">
+                            <span class="text-green-500 mt-0.5">✓</span>
+                            <span class="text-sm text-gray-700"><strong>3x less neutropenia:</strong> CDK6 sparing</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <span class="text-green-500 mt-0.5">✓</span>
+                            <span class="text-sm text-gray-700"><strong>No QT prolongation:</strong> Unlike ribociclib</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <span class="text-green-500 mt-0.5">✓</span>
+                            <span class="text-sm text-gray-700"><strong>Minimal GI toxicity:</strong> vs 80% diarrhea</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <span class="text-green-500 mt-0.5">✓</span>
+                            <span class="text-sm text-gray-700"><strong>MTD not reached:</strong> Up to 700mg</span>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-2">
+                        <h4 class="font-semibold text-gray-700">Continuous Dosing:</h4>
+                        <div class="flex items-start gap-2">
+                            <span class="text-blue-500 mt-0.5">→</span>
+                            <span class="text-sm text-gray-700"><strong>Dose intensity:</strong> 99.3% maintained</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <span class="text-blue-500 mt-0.5">→</span>
+                            <span class="text-sm text-gray-700"><strong>No week-off:</strong> Required</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <span class="text-blue-500 mt-0.5">→</span>
+                            <span class="text-sm text-gray-700"><strong>74% patients:</strong> On >16 months</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <span class="text-blue-500 mt-0.5">→</span>
+                            <span class="text-sm text-gray-700"><strong>No cumulative:</strong> Toxicity seen</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-3 p-3 bg-orange-50 rounded-lg border border-orange-200">
+                    <p class="text-sm text-orange-800 font-semibold">
+                        ⚠️ Safety Monitoring: Class effect ILD risk (1 case, 2.9%) requires pharmacovigilance but consistent with ~1% CDK4/6 incidence. 
+                        Overall profile supports premium positioning and better outcomes through sustained dosing.
+                    </p>
+                </div>
+            </div>
                 <!-- Phase 1/2 Safety -->
                 <div class="expandable-section">
                     <div class="expandable-header" onclick="toggleSection(this)">
@@ -3167,7 +3515,83 @@
             <!-- Complete Trial Analysis Tab -->
 <div id="trials" class="tab-content">
     <div class="section-title">8. Complete Clinical Trial Portfolio Analysis</div>
-
+<div class="bg-gradient-to-r from-gray-100 to-blue-50 rounded-lg p-4 mb-6 border border-gray-300">
+                <h3 class="text-lg font-bold text-gray-900 mb-3 flex items-center gap-2">
+                    <span class="text-gray-700">📋</span> Clinical Trial Portfolio Assessment
+                </h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+                    <div class="bg-white rounded-lg p-3 shadow-sm">
+                        <div class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Phase 3 Status</div>
+                        <div class="text-xl font-bold text-green-600">Enrolling</div>
+                        <div class="text-xs text-gray-500">FourLight-3</div>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg p-3 shadow-sm">
+                        <div class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Control Arms</div>
+                        <div class="text-xl font-bold text-yellow-600">Active</div>
+                        <div class="text-xs text-gray-500">CDK4/6i SOC</div>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg p-3 shadow-sm">
+                        <div class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">BICR</div>
+                        <div class="text-xl font-bold text-green-600">Yes</div>
+                        <div class="text-xs text-gray-500">For PFS</div>
+                    </div>
+                    
+                   
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="space-y-2">
+                        <h4 class="font-semibold text-gray-700">Portfolio Status:</h4>
+                        <div class="flex items-start gap-2">
+                            <span class="text-green-500 mt-0.5">✓</span>
+                            <span class="text-sm text-gray-700"><strong>FourLight-3:</strong> 1,020 patient pivotal</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <span class="text-green-500 mt-0.5">✓</span>
+                            <span class="text-sm text-gray-700"><strong>Phase 1/2:</strong> Complete, strong signal</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <span class="text-yellow-500 mt-0.5">⚠</span>
+                            <span class="text-sm text-gray-700"><strong>TACTIVE-I:</strong> CDK2 combo feasible</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <span class="text-yellow-500 mt-0.5">⚠</span>
+                            <span class="text-sm text-gray-700"><strong>FourLight-1:</strong> Downscoped to Ph2</span>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-2">
+                        <h4 class="font-semibold text-gray-700">Critical Issues:</h4>
+                        <div class="flex items-start gap-2">
+                            <span class="text-red-500 mt-0.5">✗</span>
+                            <span class="text-sm text-gray-700"><strong>No placebo data:</strong> All active/uncontrolled</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <span class="text-yellow-500 mt-0.5">⚠</span>
+                            <span class="text-sm text-gray-700"><strong>Asia bias:</strong> AE under-reporting</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <span class="text-yellow-500 mt-0.5">⚠</span>
+                            <span class="text-sm text-gray-700"><strong>Heterogeneous control:</strong> Multiple CDK4/6i</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <span class="text-blue-500 mt-0.5">→</span>
+                            <span class="text-sm text-gray-700"><strong>Key catalyst:</strong> Ph3 interim 2027</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-3 p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+                    <p class="text-sm text-yellow-800 font-semibold">
+                        🔍 Trial Risk: MEDIUM. Well-designed pivotal with BICR but heterogeneous comparator weakens analysis. 
+                        Success requires demonstrating meaningful safety advantage. FourLight-3 50% interim (2027) is key inflection point. 
+                        Investment justified by strong Phase 2 foundation.
+                    </p>
+                </div>
+            </div>
     <!-- Critical Diligence Framework -->
     <div class="highlight-box mb-6">
         <h4 class="font-semibold mb-2">Investment Committee Trial Assessment Framework</h4>
@@ -3605,7 +4029,7 @@
                         <br><strong>Investor Bar:</strong> Need superiority or major safety advantage
                         <br><strong>Budget:</strong> $300-500M through completion
                         <br><strong>Decision Points:</strong>
-                        <br>• Interim 1 (50% events): Continue if HR <1.0
+                        <br>• Interim 1 (50% events): Continue if HR 1.0
                         <br>• Interim 2 (75% events): Continue if trending toward NI
                         <br>• Final: Approve if meets NI, celebrate if superior
                     </p>
@@ -3784,38 +4208,94 @@
         </div>
 
         <!-- Investment Summary Section -->
-        <div class="tab-container mt-6">
-            <div class="section-title p-6">Investment Committee Summary</div>
-            <div class="p-6">
+        <div id="investment-summary" class="tab-content bg-white">
+            <div class="section-title">Investment Committee Summary</div>
+
+            <div class="">
                 <div class="highlight-box">
                     <h3 class="text-xl font-bold mb-4 text-gray-900">Executive Investment Thesis</h3>
                     <p class="detail-text">
                         Atirmociclib represents a compelling late-stage oncology investment with validated mechanism, strong Phase 2 proof-of-concept, and clear differentiation through superior safety profile. As the first CDK4-selective inhibitor to reach Phase 3, it addresses the primary limitation of current CDK4/6 inhibitors (neutropenia) while maintaining efficacy through continuous dosing.
                     </p>
                 </div>
-
-                <div class="metric-grid mt-6">
-                    <div class="metric-card">
-                        <div class="metric-label">Clinical Risk</div>
-                        <div class="metric-value text-green-600">✓ Low</div>
-                        <div class="metric-detail">Strong Phase 2, validated target</div>
+<div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg p-4 mb-6 border border-green-400">
+                <h3 class="text-lg font-bold text-gray-900 mb-3 flex items-center gap-2">
+                    <span class="text-green-600">💎</span> Final Investment Committee Assessment
+                </h3>
+                
+              
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="space-y-2">
+                        <h4 class="font-semibold text-gray-700 text-sm">Key Strengths:</h4>
+                        <div class="flex items-start gap-1">
+                            <span class="text-green-500 mt-0.5 text-xs">✓</span>
+                            <span class="text-xs text-gray-700">3x less neutropenia</span>
+                        </div>
+                        <div class="flex items-start gap-1">
+                            <span class="text-green-500 mt-0.5 text-xs">✓</span>
+                            <span class="text-xs text-gray-700">IP to mid-2040s</span>
+                        </div>
+                        <div class="flex items-start gap-1">
+                            <span class="text-green-500 mt-0.5 text-xs">✓</span>
+                            <span class="text-xs text-gray-700">First-mover advantage</span>
+                        </div>
+                        <div class="flex items-start gap-1">
+                            <span class="text-green-500 mt-0.5 text-xs">✓</span>
+                            <span class="text-xs text-gray-700">Pfizer execution</span>
+                        </div>
                     </div>
-                    <div class="metric-card">
-                        <div class="metric-label">Regulatory Risk</div>
-                        <div class="metric-value text-green-600">✓ Low</div>
-                        <div class="metric-detail">Precedented pathway, no CDx</div>
+                    
+                    <div class="space-y-2">
+                        <h4 class="font-semibold text-gray-700 text-sm">Key Risks:</h4>
+                        <div class="flex items-start gap-1">
+                            <span class="text-yellow-500 mt-0.5 text-xs">⚠</span>
+                            <span class="text-xs text-gray-700">Generic palbociclib</span>
+                        </div>
+                        <div class="flex items-start gap-1">
+                            <span class="text-yellow-500 mt-0.5 text-xs">⚠</span>
+                            <span class="text-xs text-gray-700">No OS benefit yet</span>
+                        </div>
+                        <div class="flex items-start gap-1">
+                            <span class="text-yellow-500 mt-0.5 text-xs">⚠</span>
+                            <span class="text-xs text-gray-700">Payer restrictions</span>
+                        </div>
+                        <div class="flex items-start gap-1">
+                            <span class="text-yellow-500 mt-0.5 text-xs">⚠</span>
+                            <span class="text-xs text-gray-700">CDK4 competitors</span>
+                        </div>
                     </div>
-                    <div class="metric-card">
-                        <div class="metric-label">Commercial Risk</div>
-                        <div class="metric-value text-yellow-600">⚠ High</div>
-                        <div class="metric-detail">Generic competition 2027</div>
-                    </div>
-                    <div class="metric-card">
-                        <div class="metric-label">Financial Upside</div>
-                        <div class="metric-value text-yellow-600">⚠ Moderate</div>
-                        <div class="metric-detail">$2B base case peak sales</div>
+                    
+                    <div class="space-y-2">
+                        <h4 class="font-semibold text-gray-700 text-sm">Returns:</h4>
+                        <div class="flex items-start gap-1">
+                            <span class="text-blue-500 mt-0.5 text-xs">📊</span>
+                            <span class="text-xs text-gray-700"><strong>Base:</strong> $2B peak, 25-30% IRR</span>
+                        </div>
+                        <div class="flex items-start gap-1">
+                            <span class="text-green-500 mt-0.5 text-xs">📊</span>
+                            <span class="text-xs text-gray-700"><strong>Bull:</strong> $5-6B, 35-40% IRR</span>
+                        </div>
+                        <div class="flex items-start gap-1">
+                            <span class="text-yellow-500 mt-0.5 text-xs">📊</span>
+                            <span class="text-xs text-gray-700"><strong>Bear:</strong> $0.5-1B, 15-20%</span>
+                        </div>
+                        <div class="flex items-start gap-1">
+                            <span class="text-purple-500 mt-0.5 text-xs">📊</span>
+                            <span class="text-xs text-gray-700"><strong>Payback:</strong> 2-3 years</span>
+                        </div>
                     </div>
                 </div>
+                
+                <div class="mt-3 p-3 bg-green-50 rounded-lg border border-green-300">
+                    <p class="text-sm text-green-800 font-semibold">
+                        🎯 Final Recommendation: BUY with commercial risk mitigation. Solid late-stage opportunity with $5B risk-adjusted NPV. 
+                        For Blackstone: Consider royalty financing ($500M-1B for 3-5%) or milestone-based structure. 
+                        Success requires aggressive payer strategy, real-world evidence generation, and strategic pricing vs generics.
+                    </p>
+                </div>
+            </div>
+        </div>
+
 
                 <div class="data-card mt-6">
                     <h4 class="font-semibold mb-3">Key Investment Strengths</h4>
@@ -4001,7 +4481,7 @@
                     }]
                 },
                 options: {
-                    responsive: true,
+                    responsive: false,
                     maintainAspectRatio: true,
                     plugins: {
                         title: {

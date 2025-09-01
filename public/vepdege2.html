@@ -440,12 +440,12 @@
        /* Replace the navigation styles (lines ~445-609) with this updated version */
 
 /* Custom animations and effects */
-@keyframes float {
+/* @keyframes float {
     0%, 100% { transform: translateY(0px); }
     50% { transform: translateY(-3px); }
-}
+} */
 
-@keyframes pulse-glow {
+/* @keyframes pulse-glow {
     0%, 100% { opacity: 0.3; }
     50% { opacity: 0.6; }
 }
@@ -453,7 +453,7 @@
 @keyframes shimmer {
     0% { left: -100%; }
     100% { left: 100%; }
-}
+} */
 
 .nav-bar {
     background: rgba(255, 255, 255, 0.95);
@@ -683,9 +683,11 @@
                 <button class="tab-btn" onclick="showTab('commercial')">Commercial & Market</button>
                 <button class="tab-btn" onclick="showTab('financial')">Financial & Strategic</button>
                 <button class="tab-btn" onclick="showTab('operational')">Operational & Legal</button>
-                <button class="tab-btn" onclick="showTab('management')">Management & Team</button>
-                <button class="tab-btn" onclick="showTab('safety')">Safety & Toxicology</button>
+                <button class="tab-btn" onclick="showTab('management')">Management</button>
+                <button class="tab-btn" onclick="showTab('safety')">Safety/Toxicology</button>
                 <button class="tab-btn" onclick="showTab('trials')">Complete Trial Analysis</button>
+                                    <button class="tab-btn" onclick="showTab('investment-summary')">Summary</button>
+
             </div>
 
 
@@ -1316,8 +1318,78 @@
             <!-- Clinical & Regulatory Tab -->
             <div id="clinical" class="tab-content ">
 <!-- COMPACT VISUAL SUMMARY SECTION -->
-<div class="subsection-title">Regulatory & Clinical Overview</div>
-
+<!-- Clinical & Regulatory Tab Summary -->
+<div class="bg-gradient-to-r from-gray-100 to-blue-50 rounded-lg p-4 mb-6 border border-gray-300">
+    <h3 class="text-lg font-bold text-gray-900 mb-3 flex items-center gap-2">
+        <span class="text-gray-700">⚡</span> Clinical & Regulatory Critical Assessment
+    </h3>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+        <div class="bg-white rounded-lg p-3 shadow-sm">
+            <div class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Phase 3 Status</div>
+            <div class="text-xl font-bold text-green-600">POSITIVE</div>
+            <div class="text-xs text-gray-500">HR 0.57, p<0.001</div>
+        </div>
+        
+        <div class="bg-white rounded-lg p-3 shadow-sm">
+            <div class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">NDA Status</div>
+            <div class="text-xl font-bold text-green-600">ACCEPTED</div>
+            <div class="text-xs text-gray-500">Priority Review</div>
+        </div>
+        
+        <div class="bg-white rounded-lg p-3 shadow-sm">
+            <div class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">PDUFA Date</div>
+            <div class="text-xl font-bold text-blue-600">Q1 2026</div>
+            <div class="text-xs text-gray-500">FDA decision</div>
+        </div>
+        
+        <div class="bg-white rounded-lg p-3 shadow-sm">
+            <div class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Approval Prob.</div>
+            <div class="text-xl font-bold text-green-600">85-95%</div>
+            <div class="text-xs text-gray-500">ESR1-mut indication</div>
+        </div>
+    </div>
+    
+    <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="space-y-2">
+            <div class="flex items-start gap-2">
+                <span class="text-green-500 mt-0.5">✓</span>
+                <span class="text-sm text-gray-700"><strong>VERITAC-2:</strong> 5.0 vs 2.1 mo PFS in ESR1-mut (43% risk reduction)</span>
+            </div>
+            <div class="flex items-start gap-2">
+                <span class="text-green-500 mt-0.5">✓</span>
+                <span class="text-sm text-gray-700"><strong>Safety:</strong> 13.5% nausea vs 35% elacestrant - major differentiator</span>
+            </div>
+            <div class="flex items-start gap-2">
+                <span class="text-green-500 mt-0.5">✓</span>
+                <span class="text-sm text-gray-700"><strong>Fast Track:</strong> Granted Feb 2024, regulatory alignment strong</span>
+            </div>
+        </div>
+        
+        <div class="space-y-2">
+            <div class="flex items-start gap-2">
+                <span class="text-yellow-500 mt-0.5">⚠</span>
+                <span class="text-sm text-gray-700"><strong>ITT Population:</strong> Not significant (HR 0.83, p=0.07)</span>
+            </div>
+            <div class="flex items-start gap-2">
+                <span class="text-yellow-500 mt-0.5">⚠</span>
+                <span class="text-sm text-gray-700"><strong>Label Restriction:</strong> ESR1-mutant only (~40% of 2L patients)</span>
+            </div>
+            <div class="flex items-start gap-2">
+                <span class="text-blue-500 mt-0.5">→</span>
+                <span class="text-sm text-gray-700"><strong>VERITAC-3:</strong> First-line recruiting, results 2027-2028</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="mt-3 p-3 bg-green-50 rounded-lg border border-green-200">
+        <p class="text-sm text-green-800 font-semibold">
+            ✓ Investment Thesis: Phase 3 success with NDA accepted significantly de-risks approval. 
+            First successful PROTAC validates platform. Superior tolerability vs competition positions well for market capture.
+            Near-term catalyst: FDA approval Q1 2026.
+        </p>
+    </div>
+</div>
 <!-- Side by Side Container -->
 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
     
@@ -1769,7 +1841,78 @@
             <!-- Scientific & IP Tab -->
             <div id="scientific" class="tab-content">
                 <div class="section-title">2. Scientific & Intellectual Property Diligence</div>
-
+<!-- Scientific & IP Tab Summary -->
+<div class="bg-gradient-to-r from-gray-100 to-blue-50 rounded-lg p-4 mb-6 border border-gray-300">
+    <h3 class="text-lg font-bold text-gray-900 mb-3 flex items-center gap-2">
+        <span class="text-gray-700">⚡</span> Scientific & IP Critical Assessment
+    </h3>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+        <div class="bg-white rounded-lg p-3 shadow-sm">
+            <div class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Mechanism</div>
+            <div class="text-xl font-bold text-green-600">PROTAC</div>
+            <div class="text-xs text-gray-500">First-in-class</div>
+        </div>
+        
+        <div class="bg-white rounded-lg p-3 shadow-sm">
+            <div class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">ER Degradation</div>
+            <div class="text-xl font-bold text-green-600">>90%</div>
+            <div class="text-xs text-gray-500">At 200mg dose</div>
+        </div>
+        
+        <div class="bg-white rounded-lg p-3 shadow-sm">
+            <div class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Patent Expiry</div>
+            <div class="text-xl font-bold text-blue-600">2038</div>
+            <div class="text-xs text-gray-500">With extension</div>
+        </div>
+        
+        <div class="bg-white rounded-lg p-3 shadow-sm">
+            <div class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Trade Secrets</div>
+            <div class="text-xl font-bold text-yellow-600">RISK</div>
+            <div class="text-xs text-gray-500">Accutar case</div>
+        </div>
+    </div>
+    
+    <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="space-y-2">
+            <div class="flex items-start gap-2">
+                <span class="text-green-500 mt-0.5">✓</span>
+                <span class="text-sm text-gray-700"><strong>Innovation:</strong> First PROTAC with Phase 3 success validates platform</span>
+            </div>
+            <div class="flex items-start gap-2">
+                <span class="text-green-500 mt-0.5">✓</span>
+                <span class="text-sm text-gray-700"><strong>vs Elacestrant:</strong> 2.9 mo PFS gain vs 1.9 mo - superior efficacy</span>
+            </div>
+            <div class="flex items-start gap-2">
+                <span class="text-green-500 mt-0.5">✓</span>
+                <span class="text-sm text-gray-700"><strong>IP Protection:</strong> 10-13 years market exclusivity post-launch</span>
+            </div>
+        </div>
+        
+        <div class="space-y-2">
+            <div class="flex items-start gap-2">
+                <span class="text-yellow-500 mt-0.5">⚠</span>
+                <span class="text-sm text-gray-700"><strong>Drug Interactions:</strong> P-gp substrate - dabigatran 2x exposure</span>
+            </div>
+            <div class="flex items-start gap-2">
+                <span class="text-yellow-500 mt-0.5">⚠</span>
+                <span class="text-sm text-gray-700"><strong>Litigation:</strong> 853 trade secrets claimed vs Accutar/AC682</span>
+            </div>
+            <div class="flex items-start gap-2">
+                <span class="text-blue-500 mt-0.5">→</span>
+                <span class="text-sm text-gray-700"><strong>Combinations:</strong> VERITAC-3 (CDK4/6i), TACTIVE-E (mTOR)</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
+        <p class="text-sm text-blue-800 font-semibold">
+            ℹ️ Scientific Edge: PROTAC mechanism achieves superior ER degradation vs traditional SERDs. 
+            Strong IP position but monitor Accutar case for potential future competition. 
+            Where others failed (Sanofi, Lilly), vepdegestrant succeeded.
+        </p>
+    </div>
+</div>
                 <!-- Mechanism of Action -->
                 <div class="expandable-section">
                     <div class="expandable-header" onclick="toggleSection(this)">
@@ -1953,11 +2096,7 @@
                                 <div class="metric-value">10-13 years</div>
                                 <div class="metric-detail">Post-launch protection</div>
                             </div>
-                            <div class="metric-card">
-                                <div class="metric-label">Yale License</div>
-                                <div class="metric-value">1-2%</div>
-                                <div class="metric-detail">Expected royalty</div>
-                            </div>
+       
                         </div>
 
                         <div class="data-card mt-4">
@@ -1980,7 +2119,78 @@
             <!-- Commercial & Market Tab -->
             <div id="commercial" class="tab-content">
                 <div class="section-title">3. Commercial & Market Diligence</div>
-
+<!-- Commercial & Market Tab Summary -->
+<div class="bg-gradient-to-r from-gray-100 to-blue-50 rounded-lg p-4 mb-6 border border-gray-300">
+    <h3 class="text-lg font-bold text-gray-900 mb-3 flex items-center gap-2">
+        <span class="text-gray-700">⚡</span> Commercial & Market Critical Assessment
+    </h3>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+        <div class="bg-white rounded-lg p-3 shadow-sm">
+            <div class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">US Target Pop.</div>
+            <div class="text-xl font-bold text-blue-600">~20k/yr</div>
+            <div class="text-xs text-gray-500">2L ESR1-mut</div>
+        </div>
+        
+        <div class="bg-white rounded-lg p-3 shadow-sm">
+            <div class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Peak Sales</div>
+            <div class="text-xl font-bold text-green-600">$1-1.1B</div>
+            <div class="text-xs text-gray-500">Base case</div>
+        </div>
+        
+        <div class="bg-white rounded-lg p-3 shadow-sm">
+            <div class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">US Price</div>
+            <div class="text-xl font-bold text-blue-600">$10-15k</div>
+            <div class="text-xs text-gray-500">Per month WAC</div>
+        </div>
+        
+        <div class="bg-white rounded-lg p-3 shadow-sm">
+            <div class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Competition</div>
+            <div class="text-xl font-bold text-yellow-600">MODERATE</div>
+            <div class="text-xs text-gray-500">Elacestrant on market</div>
+        </div>
+    </div>
+    
+    <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="space-y-2">
+            <div class="flex items-start gap-2">
+                <span class="text-green-500 mt-0.5">✓</span>
+                <span class="text-sm text-gray-700"><strong>Tolerability Edge:</strong> 13.5% vs 35% nausea vs elacestrant</span>
+            </div>
+            <div class="flex items-start gap-2">
+                <span class="text-green-500 mt-0.5">✓</span>
+                <span class="text-sm text-gray-700"><strong>Pfizer Partnership:</strong> 50/50 profit share, strong commercial engine</span>
+            </div>
+            <div class="flex items-start gap-2">
+                <span class="text-green-500 mt-0.5">✓</span>
+                <span class="text-sm text-gray-700"><strong>Market Growth:</strong> ESR1 mutations 40% post-CDK4/6i</span>
+            </div>
+        </div>
+        
+        <div class="space-y-2">
+            <div class="flex items-start gap-2">
+                <span class="text-yellow-500 mt-0.5">⚠</span>
+                <span class="text-sm text-gray-700"><strong>Competition:</strong> Camizestrant Phase 3 ongoing (2026-27)</span>
+            </div>
+            <div class="flex items-start gap-2">
+                <span class="text-yellow-500 mt-0.5">⚠</span>
+                <span class="text-sm text-gray-700"><strong>Reimbursement:</strong> ICER review risk, gross-to-net 35-45%</span>
+            </div>
+            <div class="flex items-start gap-2">
+                <span class="text-blue-500 mt-0.5">→</span>
+                <span class="text-sm text-gray-700"><strong>Launch:</strong> 2026 post-approval, peak year ~2030</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
+        <p class="text-sm text-blue-800 font-semibold">
+            ℹ️ Commercial Strategy: Well-positioned vs elacestrant on tolerability. Pfizer's oncology footprint (Ibrance) creates synergy. 
+            Bull case $2B if first-line expansion succeeds. Monitor camizestrant data closely.
+            Duration of therapy 6-9 months average.
+        </p>
+    </div>
+</div>
                 <!-- Market Opportunity -->
                 <div class="expandable-section">
                     <div class="expandable-header" onclick="toggleSection(this)">
@@ -2201,7 +2411,78 @@
             <!-- Financial & Strategic Tab -->
             <div id="financial" class="tab-content">
                 <div class="section-title">4. Financial & Strategic Diligence</div>
-
+<!-- Financial & Strategic Tab Summary -->
+<div class="bg-gradient-to-r from-gray-100 to-blue-50 rounded-lg p-4 mb-6 border border-gray-300">
+    <h3 class="text-lg font-bold text-gray-900 mb-3 flex items-center gap-2">
+        <span class="text-gray-700">⚡</span> Financial & Strategic Critical Assessment
+    </h3>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+        <div class="bg-white rounded-lg p-3 shadow-sm">
+            <div class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Cash Position</div>
+            <div class="text-xl font-bold text-green-600">$861M</div>
+            <div class="text-xs text-gray-500">Q2 2025</div>
+        </div>
+        
+        <div class="bg-white rounded-lg p-3 shadow-sm">
+            <div class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Market Cap</div>
+            <div class="text-xl font-bold text-red-600">$570M</div>
+            <div class="text-xs text-gray-500">Below cash!</div>
+        </div>
+        
+        <div class="bg-white rounded-lg p-3 shadow-sm">
+            <div class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Burn Rate</div>
+            <div class="text-xl font-bold text-yellow-600">$94M/Q</div>
+            <div class="text-xs text-gray-500">Post-restructuring</div>
+        </div>
+        
+        <div class="bg-white rounded-lg p-3 shadow-sm">
+            <div class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Runway</div>
+            <div class="text-xl font-bold text-green-600">2H 2028</div>
+            <div class="text-xs text-gray-500">Through approval</div>
+        </div>
+    </div>
+    
+    <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="space-y-2">
+            <div class="flex items-start gap-2">
+                <span class="text-green-500 mt-0.5">✓</span>
+                <span class="text-sm text-gray-700"><strong>Valuation Gap:</strong> Trading at negative EV despite positive Phase 3</span>
+            </div>
+            <div class="flex items-start gap-2">
+                <span class="text-green-500 mt-0.5">✓</span>
+                <span class="text-sm text-gray-700"><strong>Pfizer Deal:</strong> $1B upfront + $1.4B milestones potential</span>
+            </div>
+            <div class="flex items-start gap-2">
+                <span class="text-green-500 mt-0.5">✓</span>
+                <span class="text-sm text-gray-700"><strong>Base NPV:</strong> $2-3B at 10% discount rate</span>
+            </div>
+        </div>
+        
+        <div class="space-y-2">
+            <div class="flex items-start gap-2">
+                <span class="text-yellow-500 mt-0.5">⚠</span>
+                <span class="text-sm text-gray-700"><strong>Restructuring:</strong> 33% workforce cut May 2025</span>
+            </div>
+            <div class="flex items-start gap-2">
+                <span class="text-yellow-500 mt-0.5">⚠</span>
+                <span class="text-sm text-gray-700"><strong>50/50 Split:</strong> May be renegotiated post-VERITAC-2</span>
+            </div>
+            <div class="flex items-start gap-2">
+                <span class="text-blue-500 mt-0.5">→</span>
+                <span class="text-sm text-gray-700"><strong>IRR:</strong> 25-30% over 5 years, 4x potential</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="mt-3 p-3 bg-green-50 rounded-lg border border-green-200">
+        <p class="text-sm text-green-800 font-semibold">
+            ✓ Investment Opportunity: Arvinas trading below cash creates compelling entry. 
+            Risk-adjusted NPV $2-3B vs $570M market cap. Near-term $100-200M milestone on approval.
+            Exit via Pfizer acquisition likely 1-3 years.
+        </p>
+    </div>
+</div>
                 <!-- Arvinas Financials -->
                 <div class="expandable-section">
                     <div class="expandable-header" onclick="toggleSection(this)">
@@ -2345,7 +2626,78 @@
             <!-- Operational & Legal Tab -->
             <div id="operational" class="tab-content">
                 <div class="section-title">5. Operational & Legal Diligence</div>
-
+<!-- Operational & Legal Tab Summary -->
+<div class="bg-gradient-to-r from-gray-100 to-blue-50 rounded-lg p-4 mb-6 border border-gray-300">
+    <h3 class="text-lg font-bold text-gray-900 mb-3 flex items-center gap-2">
+        <span class="text-gray-700">⚡</span> Operational & Legal Critical Assessment
+    </h3>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+        <div class="bg-white rounded-lg p-3 shadow-sm">
+            <div class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">CMC Status</div>
+            <div class="text-xl font-bold text-green-600">CLEARED</div>
+            <div class="text-xs text-gray-500">FDA accepted</div>
+        </div>
+        
+        <div class="bg-white rounded-lg p-3 shadow-sm">
+            <div class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Manufacturing</div>
+            <div class="text-xl font-bold text-green-600">CMO</div>
+            <div class="text-xs text-gray-500">Scaled for Phase 3</div>
+        </div>
+        
+        <div class="bg-white rounded-lg p-3 shadow-sm">
+            <div class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Legal Risk</div>
+            <div class="text-xl font-bold text-yellow-600">MEDIUM</div>
+            <div class="text-xs text-gray-500">Accutar case</div>
+        </div>
+        
+        <div class="bg-white rounded-lg p-3 shadow-sm">
+            <div class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Compliance</div>
+            <div class="text-xl font-bold text-green-600">CLEAN</div>
+            <div class="text-xs text-gray-500">No 483s</div>
+        </div>
+    </div>
+    
+    <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="space-y-2">
+            <div class="flex items-start gap-2">
+                <span class="text-green-500 mt-0.5">✓</span>
+                <span class="text-sm text-gray-700"><strong>Supply Chain:</strong> PROTAC manufacturing validated, COGS ~90% margin</span>
+            </div>
+            <div class="flex items-start gap-2">
+                <span class="text-green-500 mt-0.5">✓</span>
+                <span class="text-sm text-gray-700"><strong>Quality:</strong> No FDA observations, clean regulatory record</span>
+            </div>
+            <div class="flex items-start gap-2">
+                <span class="text-green-500 mt-0.5">✓</span>
+                <span class="text-sm text-gray-700"><strong>Pfizer Support:</strong> Manufacturing/quality infrastructure de-risked</span>
+            </div>
+        </div>
+        
+        <div class="space-y-2">
+            <div class="flex items-start gap-2">
+                <span class="text-yellow-500 mt-0.5">⚠</span>
+                <span class="text-sm text-gray-700"><strong>Trade Secrets:</strong> 853 items claimed vs Accutar/AC682</span>
+            </div>
+            <div class="flex items-start gap-2">
+                <span class="text-yellow-500 mt-0.5">⚠</span>
+                <span class="text-sm text-gray-700"><strong>Shareholder Suits:</strong> 2 law firms investigating disclosures</span>
+            </div>
+            <div class="flex items-start gap-2">
+                <span class="text-blue-500 mt-0.5">→</span>
+                <span class="text-sm text-gray-700"><strong>Yale Royalty:</strong> 1-2% expected on sales</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
+        <p class="text-sm text-blue-800 font-semibold">
+            ℹ️ Operational Assessment: Manufacturing and compliance well-controlled with Pfizer partnership. 
+            Main risk is Accutar litigation (potential future competition). Shareholder suits likely insured settlement.
+            No operational red flags for approval/launch.
+        </p>
+    </div>
+</div>
                 <!-- Manufacturing -->
                 <div class="expandable-section">
                     <div class="expandable-header" onclick="toggleSection(this)">
@@ -2602,7 +2954,78 @@
             <!-- Safety & Toxicology Tab -->
             <div id="safety" class="tab-content">
                 <div class="section-title">7. Comprehensive Safety & Toxicology Profile</div>
-
+<!-- Safety & Toxicology Tab Summary -->
+<div class="bg-gradient-to-r from-gray-100 to-blue-50 rounded-lg p-4 mb-6 border border-gray-300">
+    <h3 class="text-lg font-bold text-gray-900 mb-3 flex items-center gap-2">
+        <span class="text-gray-700">⚡</span> Safety & Toxicology Critical Assessment
+    </h3>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+        <div class="bg-white rounded-lg p-3 shadow-sm">
+            <div class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Discontinuation</div>
+            <div class="text-xl font-bold text-green-600">3%</div>
+            <div class="text-xs text-gray-500">Due to AEs</div>
+        </div>
+        
+        <div class="bg-white rounded-lg p-3 shadow-sm">
+            <div class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Nausea Rate</div>
+            <div class="text-xl font-bold text-green-600">13.5%</div>
+            <div class="text-xs text-gray-500">vs 35% elacestrant</div>
+        </div>
+        
+        <div class="bg-white rounded-lg p-3 shadow-sm">
+            <div class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Grade ≥3</div>
+            <div class="text-xl font-bold text-yellow-600">23.4%</div>
+            <div class="text-xs text-gray-500">TEAEs</div>
+        </div>
+        
+        <div class="bg-white rounded-lg p-3 shadow-sm">
+            <div class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">MTD</div>
+            <div class="text-xl font-bold text-green-600">Not reached</div>
+            <div class="text-xs text-gray-500">Up to 700mg</div>
+        </div>
+    </div>
+    
+    <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="space-y-2">
+            <div class="flex items-start gap-2">
+                <span class="text-green-500 mt-0.5">✓</span>
+                <span class="text-sm text-gray-700"><strong>Key Differentiator:</strong> 61% lower nausea vs elacestrant (13.5% vs 35%)</span>
+            </div>
+            <div class="flex items-start gap-2">
+                <span class="text-green-500 mt-0.5">✓</span>
+                <span class="text-sm text-gray-700"><strong>No DLTs:</strong> Phase 1 up to 700mg, RP2D 200mg selected</span>
+            </div>
+            <div class="flex items-start gap-2">
+                <span class="text-green-500 mt-0.5">✓</span>
+                <span class="text-sm text-gray-700"><strong>Treatment Deaths:</strong> Zero in VERITAC-2</span>
+            </div>
+        </div>
+        
+        <div class="space-y-2">
+            <div class="flex items-start gap-2">
+                <span class="text-yellow-500 mt-0.5">⚠</span>
+                <span class="text-sm text-gray-700"><strong>Common AEs:</strong> Fatigue 27%, ALT/AST 14%, neutropenia 12%</span>
+            </div>
+            <div class="flex items-start gap-2">
+                <span class="text-yellow-500 mt-0.5">⚠</span>
+                <span class="text-sm text-gray-700"><strong>Drug Interactions:</strong> P-gp substrates - dabigatran 2x exposure</span>
+            </div>
+            <div class="flex items-start gap-2">
+                <span class="text-blue-500 mt-0.5">→</span>
+                <span class="text-sm text-gray-700"><strong>Dose Intensity:</strong> >95% maintained, <5% reductions</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="mt-3 p-3 bg-green-50 rounded-lg border border-green-200">
+        <p class="text-sm text-green-800 font-semibold">
+            ✓ Safety Profile: Excellent tolerability with major GI advantage vs competition. 
+            Low discontinuation rate (3%) supports compliance. P-gp interactions manageable with monitoring.
+            No food requirement unlike elacestrant.
+        </p>
+    </div>
+</div>
                 <!-- Phase 1 Safety -->
                 <div class="expandable-section">
                     <div class="expandable-header" onclick="toggleSection(this)">
@@ -3195,7 +3618,74 @@
             <!-- Complete Trial Analysis Tab -->
 <div id="trials" class="tab-content">
     <div class="section-title">8. Complete Clinical Trial Portfolio Analysis - Vepdegestrant (ARV-471)</div>
-
+<!-- Complete Trials Analysis Tab Summary -->
+<div class="bg-gradient-to-r from-gray-100 to-blue-50 rounded-lg p-4 mb-6 border border-gray-300">
+    <h3 class="text-lg font-bold text-gray-900 mb-3 flex items-center gap-2">
+        <span class="text-gray-700">⚡</span> Trial Portfolio Critical Assessment
+    </h3>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+        <div class="bg-white rounded-lg p-3 shadow-sm">
+            <div class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Development Stage</div>
+            <div class="text-xl font-bold text-green-600">Phase 3</div>
+            <div class="text-xs text-gray-500">POSITIVE data</div>
+        </div>
+        
+        <div class="bg-white rounded-lg p-3 shadow-sm">
+            <div class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Patients Treated</div>
+            <div class="text-xl font-bold text-green-600">1,300+</div>
+            <div class="text-xs text-gray-500">Global program</div>
+        </div>
+        
+        <div class="bg-white rounded-lg p-3 shadow-sm">
+            <div class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Control Strategy</div>
+            <div class="text-xl font-bold text-green-600">Active + BICR</div>
+            <div class="text-xs text-gray-500">Bias mitigated</div>
+        </div>
+        
+      
+    </div>
+    
+    <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="space-y-2">
+            <div class="flex items-start gap-2">
+                <span class="text-green-500 mt-0.5">✓</span>
+                <span class="text-sm text-gray-700"><strong>VERITAC-2:</strong> Met primary endpoint, HR 0.57 (p<0.001) in ESR1-mut</span>
+            </div>
+            <div class="flex items-start gap-2">
+                <span class="text-green-500 mt-0.5">✓</span>
+                <span class="text-sm text-gray-700"><strong>Phase 1/2:</strong> CBR 40-50%, established RP2D 200mg, no DLTs</span>
+            </div>
+            <div class="flex items-start gap-2">
+                <span class="text-blue-500 mt-0.5">→</span>
+                <span class="text-sm text-gray-700"><strong>VERITAC-3:</strong> First-line recruiting, results 2027-2028</span>
+            </div>
+        </div>
+        
+        <div class="space-y-2">
+            <div class="flex items-start gap-2">
+                <span class="text-yellow-500 mt-0.5">⚠</span>
+                <span class="text-sm text-gray-700"><strong>Regional Bias:</strong> China/Japan 20-30% sites, AE under-reporting</span>
+            </div>
+            <div class="flex items-start gap-2">
+                <span class="text-red-500 mt-0.5">✗</span>
+                <span class="text-sm text-gray-700"><strong>Expansion Trials:</strong> Canceled May 2025, capital preservation</span>
+            </div>
+            <div class="flex items-start gap-2">
+                <span class="text-blue-500 mt-0.5">→</span>
+                <span class="text-sm text-gray-700"><strong>Next Catalyst:</strong> FDA approval Q1 2026 (85-95% probability)</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="mt-3 p-3 bg-green-50 rounded-lg border border-green-200">
+        <p class="text-sm text-green-800 font-semibold">
+            ✓ Investment Committee View: Well-executed clinical program with positive Phase 3 validating PROTAC platform. 
+            BICR mitigates open-label bias. NDA accepted with Priority Review significantly de-risks approval.
+            Capital need minimal through approval given Pfizer partnership.
+        </p>
+    </div>
+</div>
     <!-- Critical Diligence Framework -->
     <div class="highlight-box mb-6">
         <h4 class="font-semibold mb-2">Investment Committee Trial Assessment Framework</h4>
@@ -3919,7 +4409,7 @@
         </div>
 
         <!-- Investment Summary Section -->
-        <div class="tab-container mt-6">
+           <div id="investment-summary" class="tab-content bg-white">
             <div class="section-title p-6">Investment Committee Summary</div>
             <div class="p-6">
                 <div class="highlight-box">
@@ -3929,29 +4419,7 @@
                     </p>
                 </div>
 
-                <div class="metric-grid mt-6">
-                    <div class="metric-card">
-                        <div class="metric-label">Clinical Risk</div>
-                        <div class="metric-value text-green-600">✓ Low</div>
-                        <div class="metric-detail">Phase 3 met primary endpoint</div>
-                    </div>
-                    <div class="metric-card">
-                        <div class="metric-label">Regulatory Risk</div>
-                        <div class="metric-value text-green-600">✓ Low</div>
-                        <div class="metric-detail">NDA accepted, precedent exists</div>
-                    </div>
-                    <div class="metric-card">
-                        <div class="metric-label">Commercial Risk</div>
-                        <div class="metric-value text-yellow-600">⚠ Medium</div>
-                        <div class="metric-detail">Competition from elacestrant/camizestrant</div>
-                    </div>
-                    <div class="metric-card">
-                        <div class="metric-label">Financial Upside</div>
-                        <div class="metric-value text-green-600">✓ High</div>
-                        <div class="metric-detail">$1-2B peak sales potential</div>
-                    </div>
-                </div>
-
+                
                 <div class="data-card mt-6">
                     <h4 class="font-semibold mb-3">Key Investment Strengths</h4>
                     <ul class="space-y-2">
