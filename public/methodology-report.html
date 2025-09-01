@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Methodology Report - Breast Cancer Pipeline Analysis</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            background: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #0a6b5e, #085a4f);
+            color: white;
+            padding: 60px 0;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .header p {
+            font-size: 18px;
+            opacity: 0.9;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 24px;
+        }
+
+        .content-wrapper {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: 40px;
+        }
+
+        .sidebar {
+            position: sticky;
+            top: 20px;
+            height: fit-content;
+        }
+
+        .nav-section {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .nav-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #6c757d;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+
+        .nav-link {
+            display: block;
+            padding: 8px 12px;
+            color: #424242;
+            text-decoration: none;
+            border-radius: 6px;
+            margin-bottom: 4px;
+            transition: all 0.2s;
+            font-size: 14px;
+        }
+
+        .nav-link:hover {
+            background: #f0f7f6;
+            color: #0a6b5e;
+        }
+
+        .nav-link.active {
+            background: #0a6b5e;
+            color: white;
+        }
+
+        .main-content {
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .section {
+            margin-bottom: 48px;
+        }
+
+        .section h2 {
+            font-size: 28px;
+            font-weight: 600;
+            color: #0a6b5e;
+            margin-bottom: 24px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #e3f2f0;
+        }
+
+        .section h3 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-top: 28px;
+            margin-bottom: 16px;
+        }
+
+        .section h4 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #424242;
+            margin-top: 20px;
+            margin-bottom: 12px;
+        }
+
+        .phase-card {
+            background: #f8fffe;
+            border: 1px solid #e3f2f0;
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .phase-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #0a6b5e;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .phase-badge {
+            background: linear-gradient(135deg, #0a6b5e, #085a4f);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .criteria-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .criteria-list li {
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f7f6;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .criteria-list li:last-child {
+            border-bottom: none;
+        }
+
+        .criteria-icon {
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
+            color: #0a6b5e;
+            margin-top: 2px;
+        }
+
+        .quote-box {
+            background: #f0f7f6;
+            border-left: 4px solid #0a6b5e;
+            padding: 16px 20px;
+            margin: 20px 0;
+            font-style: italic;
+            color: #424242;
+        }
+
+        .quote-source {
+            font-size: 12px;
+            color: #6c757d;
+            margin-top: 8px;
+            font-style: normal;
+        }
+
+        .warning-box {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 20px 0;
+        }
+
+        .warning-title {
+            font-weight: 600;
+            color: #856404;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #0a6b5e;
+            text-decoration: none;
+            font-weight: 500;
+            margin-bottom: 20px;
+            transition: all 0.2s;
+        }
+
+        .back-link:hover {
+            transform: translateX(-4px);
+        }
+
+        @media (max-width: 768px) {
+            .content-wrapper {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                position: relative;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Methodology Report</h1>
+        <p>Phase-Stratified Evaluation Framework for Breast Cancer Pipeline Analysis</p>
+    </div>
+
+    <div class="container">
+        <a href="blackstone.html" class="back-link">
+            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+            </svg>
+            Back to Pipeline Analysis
+        </a>
+
+        <div class="content-wrapper">
+            <aside class="sidebar">
+                <nav class="nav-section">
+                    <div class="nav-title">Contents</div>
+                    <a href="#overview" class="nav-link active">Overview</a>
+                    <a href="#phase1" class="nav-link">Phase 1/1a Evaluation</a>
+                    <a href="#phase1b" class="nav-link">Phase 1b Expansion</a>
+                    <a href="#phase2" class="nav-link">Phase 2/2b Analysis</a>
+                    <a href="#phase3" class="nav-link">Phase 3 Pivotal</a>
+                    <a href="#regional" class="nav-link">Regional Considerations</a>
+                    <a href="#data-quality" class="nav-link">Data Quality Framework</a>
+                </nav>
+            </aside>
+
+            <main class="main-content">
+                <section id="overview" class="section">
+                    <h2>Overview</h2>
+                    <p>
+                        This methodology employs a rigorous, phase-stratified evaluation framework specifically designed for oncology pipeline assessment. The approach emphasizes critical evaluation of trial design, data quality, regional variations, and regulatory alignment, with particular scrutiny applied to uncontrolled early-phase data and region-specific reporting disparities.
+                    </p>
+
+                    <h3>Core Principles</h3>
+                    <ul class="criteria-list">
+                        <li>
+                            <svg class="criteria-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <div>
+                                <strong>Evidence Hierarchy:</strong> Prioritization of controlled, blinded trials over single-arm studies, with explicit documentation of comparator frameworks
+                            </div>
+                        </li>
+                        <li>
+                            <svg class="criteria-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <div>
+                                <strong>Regional Validation:</strong> Enhanced scrutiny of Asia-Pacific data with mandatory US/EU corroboration requirements
+                            </div>
+                        </li>
+                        <li>
+                            <svg class="criteria-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <div>
+                                <strong>PTRS Integration:</strong> Combination of AI-generated probability assessments with subject matter expert validation
+                            </div>
+                        </li>
+                    </ul>
+                </section>
+
+                <section id="phase1" class="section">
+                    <h2>Phase 1/1a — First-in-Human Evaluation</h2>
+
+                    <div class="phase-card">
+                        <div class="phase-title">
+                            <span class="phase-badge">PHASE 1</span>
+                            Critical Assessment Points
+                        </div>
+
+                        <h4>Key Questions to Answer:</h4>
+                        <ul class="criteria-list">
+                            <li>
+                                <svg class="criteria-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <div>Is the study blinded/controlled or purely signal-finding?</div>
+                            </li>
+                            <li>
+                                <svg class="criteria-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <div>How were DLTs/MTD/RP2D determined (window, criteria, dose modifications)?</div>
+                            </li>
+                            <li>
+                                <svg class="criteria-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <div>How were AEs and PROs elicited (investigator-observed vs patient-reported)?</div>
+                            </li>
+                            <li>
+                                <svg class="criteria-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <div>Any placebo anchor available to interpret the treatment effect?</div>
+                            </li>
+                        </ul>
+
+                        <div class="quote-box">
+                            "In these cases, they do a phase one trial... it's not going to be blinded... we just want to see what that treatment effect might be."
+                            <div class="quote-source">— Industry Expert Interview</div>
+                        </div>
+
+                        <h4>Data Points Tracked:</h4>
+                        <ul>
+                            <li>• Dose levels, DLTs, MTD, RP2D; exposure metrics (RDI, interruptions, reductions)</li>
+                            <li>• AE tables (all grades; ≥Grade 3), PRO compliance, data missingness</li>
+                            <li>• Any placebo-anchored metrics (even historical) used for context</li>
+                            <li>• Site geography and per-region AE/efficacy analyses</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <section id="phase1b" class="section">
+                    <h2>Phase 1b — Expansion Cohort Analysis</h2>
+
+                    <div class="phase-card">
+                        <div class="phase-title">
+                            <span class="phase-badge">PHASE 1B</span>
+                            Signal Characterization Requirements
+                        </div>
+
+                        <div class="warning-box">
+                            <div class="warning-title">
+                                <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/>
+                                </svg>
+                                Critical Regional Consideration
+                            </div>
+                            <p>
+                                China-originated Phase 1b data requires enhanced scrutiny due to documented efficacy inflation and AE under-reporting. GSK policy mandates re-running Phase 1 studies in US when licensing Chinese assets.
+                            </p>
+                        </div>
+
+                        <h4>Validation Requirements:</h4>
+                        <ul class="criteria-list">
+                            <li>
+                                <svg class="criteria-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                                </svg>
+                                <div>Cohort definitions (lines of therapy, biomarker strata) with sample size justification</div>
+                            </li>
+                            <li>
+                                <svg class="criteria-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                                </svg>
+                                <div>Durability metrics (DoR, PFS) with adequate follow-up maturity</div>
+                            </li>
+                            <li>
+                                <svg class="criteria-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                                </svg>
+                                <div>Consistency across regions with US/EU corroboration for China data</div>
+                            </li>
+                            <li>
+                                <svg class="criteria-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                                </svg>
+                                <div>Biomarker validation with control arm requirement for enrichment designs</div>
+                            </li>
+                        </ul>
+
+                        <div class="quote-box">
+                            "Use of enrichment... problem is the validation of the biomarker... they need to have a control arm of some sort."
+                            <div class="quote-source">— Regulatory Strategy Expert</div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="phase2" class="section">
+                    <h2>Phase 2/2b — Signal-Seeking Randomized Studies</h2>
+
+                    <div class="phase-card">
+                        <div class="phase-title">
+                            <span class="phase-badge">PHASE 2</span>
+                            Controlled Trial Requirements
+                        </div>
+
+                        <h4>Control Arm & Statistical Design:</h4>
+                        <ul class="criteria-list">
+                            <li>
+                                <svg class="criteria-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                                </svg>
+                                <div>
+                                    <strong>Control arm justification:</strong> Placebo+SoC preferred over investigator's choice due to heterogeneity concerns
+                                </div>
+                            </li>
+                            <li>
+                                <svg class="criteria-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                                </svg>
+                                <div>
+                                    <strong>Sample size & power:</strong> Documentation of assumptions and agency alignment
+                                </div>
+                            </li>
+                            <li>
+                                <svg class="criteria-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                                </svg>
+                                <div>
+                                    <strong>PTRS estimation:</strong> AI-generated assessments validated by subject matter experts
+                                </div>
+                            </li>
+                        </ul>
+
+                        <div class="quote-box">
+                            "The agency tells them what they expect the control arm to be... they basically put a finger in the wind to come up with a sample size."
+                            <div class="quote-source">— Clinical Development Lead</div>
+                        </div>
+
+                        <h4>Evidence Synthesis Requirements:</h4>
+                        <p>
+                            Meta-analysis style evidence roll-up incorporating PubMed literature, ClinicalTrials.gov data, and competitive intelligence. Top 3 comparator programs identified for AI/SME synthesis.
+                        </p>
+                    </div>
+                </section>
+
+                <section id="phase3" class="section">
+                    <h2>Phase 3 — Pivotal Trial Evaluation</h2>
+
+                    <div class="phase-card">
+                        <div class="phase-title">
+                            <span class="phase-badge">PHASE 3</span>
+                            Registration-Enabling Studies
+                        </div>
+
+                        <h4>Critical Assessment Areas:</h4>
+                        <ul class="criteria-list">
+                            <li>
+                                <svg class="criteria-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <div>
+                                    <strong>Control arm acceptability:</strong> FDA/EMA alignment and "squishiness" in SoC definition
+                                </div>
+                            </li>
+                            <li>
+                                <svg class="criteria-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <div>
+                                    <strong>Statistical hierarchy:</strong> Primary PFS (BICR), key secondaries (OS, PROs), interim analyses
+                                </div>
+                            </li>
+                            <li>
+                                <svg class="criteria-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <div>
+                                    <strong>Investment magnitude:</strong> $100M-1B with appropriate go/no-go thresholds
+                                </div>
+                            </li>
+                        </ul>
+
+                        <div class="quote-box">
+                            "In the United States... we'll take a standard of care and add a placebo... approval is usually second line or third line."
+                            <div class="quote-source">— Regulatory Affairs Director</div>
+                        </div>
+
+                        <h4>Line of Therapy Considerations:</h4>
+                        <p>
+                            US approvals typically target 2L/3L settings initially. Assessment must account for evolving SoC and potential label positioning relative to established therapies.
+                        </p>
+                    </div>
+                </section>
+
+                <section id="regional" class="section">
+                    <h2>Regional & Bridging Studies</h2>
+
+                    <div class="phase-card">
+                        <div class="phase-title">
+                            <span class="phase-badge">REGIONAL</span>
+                            Asia-Pacific Data Validation
+                        </div>
+
+                        <div class="warning-box">
+                            <div class="warning-title">
+                                <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/>
+                                </svg>
+                                Enhanced Scrutiny Required
+                            </div>
+                            <p>
+                                China-originated data consistently shows efficacy inflation and AE under-reporting due to cultural factors affecting patient-reported outcomes. "Respect factor" leads to systematic under-reporting of adverse events.
+                            </p>
+                        </div>
+
+                        <h4>Mandatory Verification Steps:</h4>
+                        <ul class="criteria-list">
+                            <li>
+                                <svg class="criteria-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <div>Prior work disclosure across ClinicalTrials.gov, IB, and protocols</div>
+                            </li>
+                            <li>
+                                <svg class="criteria-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <div>PK/safety comparability assessment to Western populations</div>
+                            </li>
+                            <li>
+                                <svg class="criteria-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <div>Identification of US re-runs or bridging studies</div>
+                            </li>
+                            <li>
+                                <svg class="criteria-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <div>AE/PRO capture methodology and cultural bias mitigation</div>
+                            </li>
+                        </ul>
+                    </div>
+                </section>
+
+                <section id="data-quality" class="section">
+                    <h2>Data Quality Framework</h2>
+
+                    <h3>Primary Data Sources</h3>
+                    <ul>
+                        <li>• ClinicalTrials.gov registry entries and results postings</li>
+                        <li>• FDA/EMA regulatory documents and advisory committee materials</li>
+                        <li>• Investigator brochures and protocol amendments</li>
+                        <li>• Company disclosures and investor presentations</li>
+                        <li>• Peer-reviewed publications and conference abstracts</li>
+                    </ul>
+
+                    <h3>Quality Scoring Matrix</h3>
+                    <table style="width: 100%; margin-top: 20px; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: #f8fffe;">
+                                <th style="padding: 12px; text-align: left; border: 1px solid #e3f2f0;">Factor</th>
+                                <th style="padding: 12px; text-align: left; border: 1px solid #e3f2f0;">High Quality</th>
+                                <th style="padding: 12px; text-align: left; border: 1px solid #e3f2f0;">Medium Quality</th>
+                                <th style="padding: 12px; text-align: left; border: 1px solid #e3f2f0;">Low Quality</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="padding: 12px; border: 1px solid #e3f2f0;"><strong>Study Design</strong></td>
+                                <td style="padding: 12px; border: 1px solid #e3f2f0;">Randomized, placebo-controlled</td>
+                                <td style="padding: 12px; border: 1px solid #e3f2f0;">Randomized, active control</td>
+                                <td style="padding: 12px; border: 1px solid #e3f2f0;">Single-arm, uncontrolled</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 12px; border: 1px solid #e3f2f0;"><strong>Regional Origin</strong></td>
+                                <td style="padding: 12px; border: 1px solid #e3f2f0;">US/EU multicenter</td>
+                                <td style="padding: 12px; border: 1px solid #e3f2f0;">Global including Asia</td>
+                                <td style="padding: 12px; border: 1px solid #e3f2f0;">China-only without bridging</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 12px; border: 1px solid #e3f2f0;"><strong>AE Capture</strong></td>
+                                <td style="padding: 12px; border: 1px solid #e3f2f0;">Investigator-observed, active elicitation</td>
+                                <td style="padding: 12px; border: 1px solid #e3f2f0;">Mixed methodology</td>
+                                <td style="padding: 12px; border: 1px solid #e3f2f0;">Patient-reported only</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 12px; border: 1px solid #e3f2f0;"><strong>Assessment</strong></td>
+                                <td style="padding: 12px; border: 1px solid #e3f2f0;">BICR with defined criteria</td>
+                                <td style="padding: 12px; border: 1px solid #e3f2f0;">Investigator with audit</td>
+                                <td style="padding: 12px; border: 1px solid #e3f2f0;">Investigator only</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Competitive Intelligence Integration</h3>
+                    <p style="margin-top: 20px;">
+                        For breast cancer assets, particularly those originating from China, comprehensive competitive analysis includes evaluation of 2-3 similar programs from major companies. This provides context for efficacy benchmarks, safety profiles, and regulatory strategies.
+                    </p>
+
+                    <div class="quote-box">
+                        "If there's two or three breast cancer drugs under development, bigger companies, especially out of China, it's worth looking at all of them from a competitive standpoint."
+                        <div class="quote-source">— Portfolio Strategy Lead</div>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        // Smooth scroll navigation
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                target.scrollIntoView({ behavior: 'smooth' });
+                
+                // Update active state
+                document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // Update active nav on scroll
+        window.addEventListener('scroll', function() {
+            const sections = document.querySelectorAll('.section');
+            const navLinks = document.querySelectorAll('.nav-link');
+            
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (pageYOffset >= sectionTop - 100) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === '#' + current) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

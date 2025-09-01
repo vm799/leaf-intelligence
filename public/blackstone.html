@@ -613,6 +613,31 @@
             border-left: 3px solid #0a6b5e;
         }
 
+        .methodology-link {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e3f2f0;
+        }
+
+        .method-report-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, #0a6b5e, #085a4f);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(10, 107, 94, 0.2);
+        }
+
+        .method-report-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(10, 107, 94, 0.3);
+            background: linear-gradient(135deg, #085a4f, #074a42);
+        }
 /* Mobile responsive */
 @media (max-width: 1024px) {
     .nav-tabs {
@@ -738,6 +763,55 @@
                         </td>
                     </tr>
 
+                     <tr class="drug-row">
+                        <td>
+                            <div class="drug-name">[¹⁷⁷Lu]Lu-NeoB</div>
+                            <div class="drug-subtitle">Radioligand • GRPR-targeted</div>
+                        </td>
+                        <td>
+                            <span class="market-badge emerging">Early Phase</span>
+                        </td>
+                        <td>
+                            <div class="activity-item">
+                                <div class="activity-bullet"></div>
+                                <div>Phase 1b dose escalation initiated (NCT05870579)</div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-bullet"></div>
+                                <div>Combination with ribociclib + fulvestrant</div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-bullet"></div>
+                                <div>Novel approach for bone metastases</div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="metric-item">
+                                <svg class="metric-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <span class="metric-value">Current Phase </span>
+                                <span class="metric-label">1b Open-label, dose-escalation, no control</span>
+                            </div>
+                            <div class="metric-item">
+                                <svg class="metric-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                                </svg>
+                                <span class="metric-value">Regulatory Path </span>
+                                <span class="metric-label">Traditional approval via Phase 3 RCT required</span>
+                            </div>
+                        </td>
+                        <td>
+                            <button class="view-btn" onclick="window.location.href='Lu-NeoB.html'">
+                                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                </svg>
+                                View Data
+                            </button>
+                        </td>
+                    </tr>
+
                     <tr class="drug-row">
                         <td>
                             <div class="drug-name">Ribociclib</div>
@@ -836,54 +910,7 @@
                         </td>
                     </tr>
 
-                    <tr class="drug-row">
-                        <td>
-                            <div class="drug-name">[¹⁷⁷Lu]Lu-NeoB</div>
-                            <div class="drug-subtitle">Radioligand • GRPR-targeted</div>
-                        </td>
-                        <td>
-                            <span class="market-badge emerging">Early Phase</span>
-                        </td>
-                        <td>
-                            <div class="activity-item">
-                                <div class="activity-bullet"></div>
-                                <div>Phase 1b dose escalation initiated (NCT05870579)</div>
-                            </div>
-                            <div class="activity-item">
-                                <div class="activity-bullet"></div>
-                                <div>Combination with ribociclib + fulvestrant</div>
-                            </div>
-                            <div class="activity-item">
-                                <div class="activity-bullet"></div>
-                                <div>Novel approach for bone metastases</div>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="metric-item">
-                                <svg class="metric-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                </svg>
-                                <span class="metric-value">Ph1b</span>
-                                <span class="metric-label">Recruiting</span>
-                            </div>
-                            <div class="metric-item">
-                                <svg class="metric-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
-                                </svg>
-                                <span class="metric-value">MTD</span>
-                                <span class="metric-label">Pending</span>
-                            </div>
-                        </td>
-                        <td>
-                            <button class="view-btn" onclick="window.location.href='Lu-NeoB.html'">
-                                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-                                </svg>
-                                View Data
-                            </button>
-                        </td>
-                    </tr>
+                   
 
               
 
@@ -921,15 +948,18 @@
             <svg class="metric-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
             </svg>
-            <span class="metric-value">5.5mo</span>
-            <span class="metric-label">PFS ESR1-mut</span>
+            <span class="metric-value">Current Phase</span>
+            <span class="metric-label">Met primary endpoint, HR 0.57 (p<0.001) in ESR1-mut</span>
         </div>
         <div class="metric-item">
             <svg class="metric-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
             </svg>
-            <span class="metric-value">89%</span>
-            <span class="metric-label">ER degradation</span>
+            <span class="metric-value">Regulatory  Path</span>
+            <span class="metric-label">NDA Accepted
+Priority Review
+
+2H 2025</span>
         </div>
     </td>
     <td>
@@ -970,15 +1000,15 @@
             <svg class="metric-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
             </svg>
-            <span class="metric-value">NR</span>
-            <span class="metric-label">PFS @ 16.5mo</span>
+            <span class="metric-value">Current Phase</span>
+            <span class="metric-label">Phase 3 Open-label, randomized 1:1, global multicenter</span>
         </div>
         <div class="metric-item">
             <svg class="metric-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
             </svg>
-            <span class="metric-value">Continuous</span>
-            <span class="metric-label">Dosing</span>
+            <span class="metric-value">Regulatory Status</span>
+            <span class="metric-label">will be reviewed as a 505(b)(1) NME</span>
         </div>
     </td>
     <td>
@@ -1019,15 +1049,15 @@
             <svg class="metric-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
             </svg>
-            <span class="metric-value">9.9mo</span>
-            <span class="metric-label">PFS liver mets</span>
+            <span class="metric-value">Current Phase</span>
+            <span class="metric-label">RC48-C006: Phase 3 met primary, PFS 9.9 vs 4.9mo</span>
         </div>
         <div class="metric-item">
             <svg class="metric-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
             </svg>
-            <span class="metric-value">No ILD</span>
-            <span class="metric-label">Safety</span>
+            <span class="metric-value">Regulatory Path</span>
+            <span class="metric-label">NMPA approved for HER2+ BC with liver mets</span>
         </div>
     </td>
     <td>
@@ -1248,12 +1278,39 @@
         </div>
 
                 <!-- Search Bar -->
-<div class="methodology-section"> 
-    <h2 class="methodology-title">Research Methodology</h2> 
-    <div class="methodology-content"> 
-        <p class="methodology-placeholder"> [Methodology content to be added - This section will detail the systematic approach used to gather, analyze, and evaluate the breast cancer drug pipeline data, including data sources, inclusion/exclusion criteria, evaluation metrics, and analytical frameworks.] </p> 
-    </div> 
-</div>
+  <div class="methodology-section">
+            <h2 class="methodology-title">Research Methodology</h2>
+            <div class="methodology-content">
+                <h3>Pipeline Evaluation Framework</h3>
+                <p>
+                    This analysis employs a phase-stratified evaluation framework designed to assess oncology assets with heightened scrutiny for data quality, regional variations, and regulatory alignment. The methodology emphasizes critical evaluation of uncontrolled early-phase data, particularly from regions with documented reporting disparities.
+                </p>
+                
+                <h3>Key Evaluation Criteria</h3>
+                <ul>
+                    <li><strong>Control Arm Validity:</strong> Assessment of comparator appropriateness, with preference for placebo-controlled designs over heterogeneous standard-of-care comparators</li>
+                    <li><strong>Regional Data Quality:</strong> Enhanced scrutiny of China-originated data with corroboration requirements from US/EU studies</li>
+                    <li><strong>Adverse Event Capture:</strong> Evaluation of AE elicitation methods, distinguishing between investigator-observed and patient-reported outcomes</li>
+                    <li><strong>Biomarker Validation:</strong> Requirements for control arms in enrichment designs to validate predictive biomarkers</li>
+                    <li><strong>Probability of Technical & Regulatory Success (PTRS):</strong> Integration of AI-generated assessments with subject matter expert validation</li>
+                </ul>
+
+                <h3>Data Sources & Verification</h3>
+                <p>
+                    Primary data sourced from ClinicalTrials.gov, regulatory filings, investigator brochures, and company disclosures. All Phase 1b uncontrolled data, particularly from Asia-Pacific regions, underwent additional verification requirements including identification of US/EU bridging studies.
+                </p>
+
+                <div class="methodology-link">
+                    <a href="methodology-report.html" class="method-report-btn">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        View Full Methodology Report
+                    </a>
+                </div>
+            </div>
+        </div>
+        
 
     </div>
 
