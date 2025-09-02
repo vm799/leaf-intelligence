@@ -673,6 +673,104 @@
         justify-content: center;
     }
 }
+
+  .detail-section {
+        display: none;
+        padding: 16px;
+        background: #f8fffe;
+        border-top: 1px solid #e3f2f0;
+        margin-top: 8px;
+        border-radius: 0 0 8px 8px;
+        animation: slideDown 0.3s ease-out;
+    }
+
+    .detail-section.show {
+        display: block;
+    }
+
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .detail-content {
+        color: #424242;
+        line-height: 1.6;
+        font-size: 13px;
+    }
+
+    .detail-content h4 {
+        color: #0a6b5e;
+        font-weight: 600;
+        margin-bottom: 8px;
+        font-size: 14px;
+    }
+
+    .detail-content p {
+        margin-bottom: 12px;
+    }
+
+    .detail-content .highlight {
+        background: #d4f4ec;
+        padding: 12px;
+        border-radius: 6px;
+        margin: 12px 0;
+        border-left: 3px solid #0a6b5e;
+    }
+
+    .detail-content .warning {
+        background: #fff3cd;
+        padding: 12px;
+        border-radius: 6px;
+        margin: 12px 0;
+        border-left: 3px solid #856404;
+    }
+
+    .detail-content .china-note {
+        background: #fef3c7;
+        padding: 12px;
+        border-radius: 6px;
+        margin: 12px 0;
+        border-left: 3px solid #d97706;
+    }
+
+    .toggle-btn {
+        background: #0a6b5e;
+        color: white;
+        border: none;
+        padding: 6px 14px;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .toggle-btn:hover {
+        background: #085248;
+        transform: translateY(-1px);
+    }
+
+    .toggle-btn.expanded {
+        background: #085248;
+    }
+
+    .toggle-icon {
+        transition: transform 0.3s;
+    }
+
+    .toggle-btn.expanded .toggle-icon {
+        transform: rotate(180deg);
+    }
     </style>
 </head>
 <body>
@@ -718,10 +816,11 @@
                         <i data-lucide="git-compare" class="w-4 h-4"></i>
                         <span>Side-By-Side</span>
                     </a>
+                    <!-- </a>
                    <a href="/others.html" class="nav-tab">
                         <i data-lucide="git-compare" class="w-4 h-4"></i>
                         <span>Other ( need a better name ) </span>
-                    </a>
+                    </a> -->
                 </div>
                 
                 <!-- Right side actions - Fixed width -->
@@ -1203,8 +1302,934 @@ Priority Review
             </table>
         </div>
 
+
+        <!-- Add this new section right after the existing table -->
+<div class="table-container mt-8">
+    <h2 class="text-2xl font-bold text-gray-900 mb-4 px-4 py-2" style="color: #0a6b5e;">Other Major Pharma Competitors - Phase III Breast Cancer Pipeline</h2>
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 18%">DRUG NAME</th>
+                <th style="width: 12%">MARKET POSITION</th>
+                <th style="width: 35%">STATUS</th>
+                <th style="width: 25%">QUICK METRICS</th>
+                <th style="width: 10%">ACTIONS</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- ROCHE -->
+            <tr class="company-header">
+                <td colspan="5">
+                    <span style="margin-right: 8px;">▼</span> Roche (Genentech)
+                </td>
+            </tr>
+
+            <tr class="drug-row">
+                <td>
+                    <div class="drug-name">Giredestrant</div>
+                    <div class="drug-subtitle">GDC-9545 • Oral SERD</div>
+                </td>
+                <td>
+                    <span class="market-badge challenger">Phase 3</span>
+                </td>
+                <td>
+                    <div class="activity-item">
+                        <div class="activity-bullet discontinued"></div>
+                        <div>acelERA Ph2 failed primary endpoint (2024)</div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-bullet"></div>
+                        <div>Multiple Ph3 ongoing: persevERA, lidERA adjuvant</div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-bullet"></div>
+                        <div>heredERA Ph3 in HER2+/ER+ with pertuzumab/trastuzumab</div>
+                    </div>
+                </td>
+                <td>
+                    <div class="metric-item">
+                        <svg class="metric-icon discontinued" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <span class="metric-value discontinued">Mixed Results</span>
+                        <span class="metric-label">Ph2 fail, Ph3 ongoing</span>
+                    </div>
+                </td>
+                <td>
+                    <button class="toggle-btn" onclick="toggleDetail('giredestrant-detail', this)">
+                        <svg class="toggle-icon" width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                        Details
+                    </button>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="5" style="padding: 0;">
+                    <div id="giredestrant-detail" class="detail-section">
+                        <div class="detail-content">
+                            <h4>Giredestrant (GDC-9545) - Roche's Oral SERD Program</h4>
+                            <p>Roche's oral selective estrogen receptor degrader was one of the most advanced SERDs in 2025. Multiple Phase III trials are ongoing including first-line metastatic HR+/HER2– (giredestrant + CDK4/6 inhibitor vs aromatase inhibitor + CDK4/6) and adjuvant therapy (persevERA and lidERA studies).</p>
+                            
+                            <div class="warning">
+                                <strong>Mixed Phase II Results:</strong> The acelERA trial (giredestrant vs physician's choice endocrine therapy in previously treated metastatic ER+ breast cancer) did not meet its primary PFS endpoint, showing only a non-significant numeric improvement. This indicates that strong signals from uncontrolled Phase Ib expansions did not fully translate when tested against standard therapy.
+                            </div>
+                            
+                            <p>Roche announced the acelERA setback in 2024 but is continuing Phase III programs in earlier-line settings. Notably, Roche's trials did not enrich for ESR1 mutations, which some analysts suggest may have hurt efficacy relative to competitors by including harder-to-treat wild-type cases.</p>
+                            
+                            <h4>HER2-Positive Combination Strategy</h4>
+                            <p>Roche is exploring giredestrant in HER2-positive, ER-positive disease through the Phase III heredERA trial, combining giredestrant with subcutaneous pertuzumab + trastuzumab maintenance therapy. This study addresses whether adding endocrine therapy to HER2 blockade improves outcomes.</p>
+                            
+                            <div class="china-note">
+                                <strong>China Strategy:</strong> Roche typically includes Chinese centers in its global trials. The acelERA and other Phase III studies likely had sites in Asia, and adjuvant giredestrant trials are listed on Chinese clinical trial registries. Roche has not disclosed any separate China-only Phase I trials for giredestrant, likely because Chinese enrollment was incorporated globally.
+                            </div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+
+            <!-- ASTRAZENECA -->
+            <tr class="company-header">
+                <td colspan="5">
+                    <span style="margin-right: 8px;">▼</span> AstraZeneca (with Daiichi Sankyo)
+                </td>
+            </tr>
+
+            <tr class="drug-row">
+                <td>
+                    <div class="drug-name">Capivasertib</div>
+                    <div class="drug-subtitle">TruQap™ • AKT Inhibitor</div>
+                </td>
+                <td>
+                    <span class="market-badge leader">FDA Approved</span>
+                </td>
+                <td>
+                    <div class="activity-item">
+                        <div class="activity-bullet"></div>
+                        <div>FDA approved Nov 2023 with fulvestrant</div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-bullet"></div>
+                        <div>CAPItello-291: 40% risk reduction (HR 0.60)</div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-bullet"></div>
+                        <div>China Phase IIIb CAPItrue uncontrolled study</div>
+                    </div>
+                </td>
+                <td>
+                    <div class="metric-item">
+                        <svg class="metric-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <span class="metric-value">7.2 vs 3.6mo</span>
+                        <span class="metric-label">mPFS overall</span>
+                    </div>
+                </td>
+                <td>
+                    <button class="toggle-btn" onclick="toggleDetail('capivasertib-detail', this)">
+                        <svg class="toggle-icon" width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                        Details
+                    </button>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="5" style="padding: 0;">
+                    <div id="capivasertib-detail" class="detail-section">
+                        <div class="detail-content">
+                            <h4>Capivasertib - First-in-Class AKT Inhibitor Success</h4>
+                            <p>AstraZeneca achieved a significant Phase III success with capivasertib in HR+/HER2– advanced breast cancer. The CAPItello-291 trial (capivasertib + fulvestrant vs placebo + fulvestrant in post-AI, CDK4/6-resistant patients) met both primary endpoints.</p>
+                            
+                            <div class="highlight">
+                                <strong>Key Results:</strong> PFS was significantly prolonged with capivasertib (median 7.2 vs 3.6 months; HR ~0.60) both in the overall population and in tumors with AKT-pathway mutations (PIK3CA/AKT1/PTEN). Final data showed a 40% reduction in risk of progression or death overall.
+                            </div>
+                            
+                            <p>At ESMO 2022 and SABCS 2022, investigators hailed capivasertib's "encouraging" tolerability and efficacy even in hard-to-treat subgroups. By late 2023, the FDA approved capivasertib + fulvestrant for endocrine-resistant metastatic breast cancer under the brand TruQap.</p>
+                            
+                            <div class="china-note">
+                                <strong>China Development:</strong> The global CAPItello-291 trial included sites in China, and an extended Chinese cohort analysis confirmed capivasertib's benefit in Chinese patients (median PFS 6.9 vs 2.8 months) with a favorable benefit–risk profile. AstraZeneca also initiated a China-specific Phase IIIb study ("CAPItrue") to provide capivasertib + fulvestrant to Chinese HR+ breast cancer patients post-CDK4/6, which was an open-label two-cohort trial (no randomization; all patients received the drug combination). This uncontrolled Phase IIIb helped generate additional local data ahead of NMPA review.
+                            </div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+
+            <!-- Continue this pattern for all drugs... -->
+            <!-- I'll show one more example then you can follow the pattern -->
+
+            <tr class="drug-row">
+                <td>
+                    <div class="drug-name">Trastuzumab Deruxtecan</div>
+                    <div class="drug-subtitle">Enhertu • HER2 ADC</div>
+                </td>
+                <td>
+                    <span class="market-badge leader">FDA Approved</span>
+                </td>
+                <td>
+                    <div class="activity-item">
+                        <div class="activity-bullet"></div>
+                        <div>DESTINY-Breast09: PFS doubled in 1L HER2+</div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-bullet"></div>
+                        <div>40.7 vs 26.9mo PFS with pertuzumab (HR 0.56)</div>
+                    </div>
+                </td>
+                <td>
+                    <div class="metric-item">
+                        <svg class="metric-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <span class="metric-value">Groundbreaking</span>
+                        <span class="metric-label">1st advance in decade</span>
+                    </div>
+                </td>
+                <td>
+                    <button class="toggle-btn" onclick="toggleDetail('enhertu-detail', this)">
+                        <svg class="toggle-icon" width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                        Details
+                    </button>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="5" style="padding: 0;">
+                    <div id="enhertu-detail" class="detail-section">
+                        <div class="detail-content">
+                            <h4>Trastuzumab Deruxtecan (Enhertu) - Practice-Changing ADC</h4>
+                            <p>Co-developed by Daiichi Sankyo and AstraZeneca, Enhertu is already approved in several indications (third-line HER2+ metastatic BC, and HER2-low BC). In 2025, it achieved groundbreaking Phase III results in first-line HER2+ metastatic breast cancer.</p>
+                            
+                            <div class="highlight">
+                                <strong>DESTINY-Breast09 Results:</strong> Enhertu + pertuzumab nearly doubled PFS versus standard first-line THP (taxane + trastuzumab + pertuzumab). Median PFS was 40.7 months on Enhertu+Perjeta vs 26.9 months on standard therapy (HR=0.56, P<0.00001) – a dramatic improvement consistent across subgroups.
+                            </div>
+                            
+                            <p>This is the first major advance in frontline HER2+ therapy since trastuzumab/pertuzumab a decade prior. Although OS data are immature, a positive trend is already seen. Clinicians at ASCO 2025 suggested this combo could become a new standard of care.</p>
+                            
+                            <p>Notably, a similar trial arm testing Enhertu monotherapy vs THP did not meet an interim threshold, but the combo with pertuzumab clearly excelled.</p>
+                            
+                            <div class="china-note">
+                                <strong>China Approval:</strong> Enhertu was approved in China for late-line HER2+ BC in 2023; Chinese patients were included in global trials like DESTINY-Breast03. For DESTINY-Breast09, sites in China participated. Early-phase Enhertu trials were single-arm (the Phase I showed a striking 60% response in HER2+ BC), which led to accelerated approvals before Phase III confirmation.
+                            </div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+
+            <!-- Continuing from where we left off... -->
+
+<!-- CAMIZESTRANT -->
+<tr class="drug-row">
+    <td>
+        <div class="drug-name">Camizestrant</div>
+        <div class="drug-subtitle">AZD9833 • Oral SERD</div>
+    </td>
+    <td>
+        <span class="market-badge challenger">Phase 3</span>
+    </td>
+    <td>
+        <div class="activity-item">
+            <div class="activity-bullet"></div>
+            <div>SERENA-6 positive: ctDNA-guided switch strategy</div>
+        </div>
+        <div class="activity-item">
+            <div class="activity-bullet"></div>
+            <div>SERENA-2 Ph2: Superior to fulvestrant (75mg dose)</div>
+        </div>
+        <div class="activity-item">
+            <div class="activity-bullet"></div>
+            <div>Multiple Ph3 ongoing: SERENA-4, adjuvant trials</div>
+        </div>
+    </td>
+    <td>
+        <div class="metric-item">
+            <svg class="metric-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <span class="metric-value">Interim Win</span>
+            <span class="metric-label">ESR1 mutation-guided</span>
+        </div>
+    </td>
+    <td>
+        <button class="toggle-btn" onclick="toggleDetail('camizestrant-detail', this)">
+            <svg class="toggle-icon" width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+            Details
+        </button>
+    </td>
+</tr>
+<tr>
+    <td colspan="5" style="padding: 0;">
+        <div id="camizestrant-detail" class="detail-section">
+            <div class="detail-content">
+                <h4>Camizestrant - AstraZeneca's SERD Success Story</h4>
+                <p>AstraZeneca's oral SERD program is one of the few successes in the SERD class. In 2022, the Phase II SERENA-2 trial showed camizestrant monotherapy significantly improved PFS vs fulvestrant in ER+ metastatic patients, especially at the higher dose (75 mg).</p>
+                
+                <div class="highlight">
+                    <strong>SERENA-6 Innovation:</strong> In 2025, AZ reported an interim Phase III win with a novel trial design where patients on first-line AI + CDK4/6 were monitored for emerging ESR1 mutations and switched to camizestrant upon mutation detection. At interim analysis, switching to camizestrant (with ongoing CDK4/6 inhibitor) upon ctDNA-detected ESR1 mutation significantly prolonged PFS compared to continuing the aromatase inhibitor.
+                </div>
+                
+                <p>This ctDNA-guided strategy suggests camizestrant can extend endocrine benefit in patients about to develop resistance. AstraZeneca is also running SERENA-4 (first-line camizestrant + palbociclib vs letrozole + palbociclib) and two adjuvant SERENA trials, aiming to establish camizestrant as a backbone endocrine therapy.</p>
+                
+                <p><strong>Comparison to rivals:</strong> Camizestrant's progress is notable given Sanofi's and Roche's SERDs failed; AZ's success without ESR1 enrichment in trials is intriguing. Early camizestrant trials were single-arm dose escalation cohorts (uncontrolled), but by Phase II it was tested head-to-head against fulvestrant.</p>
+                
+                <div class="china-note">
+                    <strong>China Strategy:</strong> Camizestrant global trials likely include Chinese centers; to date no separate China Phase I has been announced. If camizestrant is approved globally, AZ would likely conduct a bridging study or include Chinese patients in Phase III (as they did for capivasertib).
+                </div>
+            </div>
+        </div>
+    </td>
+</tr>
+
+<!-- DATOPOTAMAB DERUXTECAN -->
+<tr class="drug-row">
+    <td>
+        <div class="drug-name">Datopotamab Deruxtecan</div>
+        <div class="drug-subtitle">Datroway® • TROP2 ADC</div>
+    </td>
+    <td>
+        <span class="market-badge leader">FDA Approved</span>
+    </td>
+    <td>
+        <div class="activity-item">
+            <div class="activity-bullet"></div>
+            <div>FDA approved Jan 2025 for HR+/HER2-</div>
+        </div>
+        <div class="activity-item">
+            <div class="activity-bullet"></div>
+            <div>TROPION-Breast01: PFS 6.9 vs 4.9mo (HR 0.63)</div>
+        </div>
+        <div class="activity-item">
+            <div class="activity-bullet"></div>
+            <div>First TROP2 ADC approved for HR+ BC</div>
+        </div>
+    </td>
+    <td>
+        <div class="metric-item">
+            <svg class="metric-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <span class="metric-value">36% vs 23%</span>
+            <span class="metric-label">ORR vs chemo</span>
+        </div>
+    </td>
+    <td>
+        <button class="toggle-btn" onclick="toggleDetail('dato-detail', this)">
+            <svg class="toggle-icon" width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+            Details
+        </button>
+    </td>
+</tr>
+<tr>
+    <td colspan="5" style="padding: 0;">
+        <div id="dato-detail" class="detail-section">
+            <div class="detail-content">
+                <h4>Datopotamab Deruxtecan - First TROP2 ADC for HR+ Breast Cancer</h4>
+                <p>Another Daiichi/AZ ADC, Dato-DXd targets TROP2 and is being tested in HR+ and TNBC. The Phase III TROPION-Breast01 trial (Dato-DXd vs chemo in pretreated HR+/HER2– metastatic BC) read out positively.</p>
+                
+                <div class="highlight">
+                    <strong>Key Results:</strong> PFS improved to 6.9 months with Dato-DXd vs 4.9 months with chemo (HR=0.63, p<0.0001), although overall survival was similar at interim analysis (18.6 vs 18.3 months, no significant difference). Dato-DXd also showed a higher response rate (36% vs 23%) than chemo.
+                </div>
+                
+                <p>Based on this, in January 2025 the FDA approved datopotamab deruxtecan for HR+/HER2– breast cancer after prior therapy. This makes it the first TROP2 ADC approved for HR+ breast cancer (Trodelvy is approved in TNBC and seeking HR+ approval).</p>
+                
+                <p>Early-phase Dato-DXd trials were single-arm dose escalation/expansions that indicated efficacy in TNBC and HR+ disease, which guided Phase III.</p>
+                
+                <div class="china-note">
+                    <strong>China Approval:</strong> As Dato-DXd is a Daiichi drug, Japanese and global trials included Asian sites. For China, AstraZeneca (which commercializes it in China) likely ran a bridging trial. Indeed, Daiichi announced in 2024 that Datroway (Dato-DXd) was approved in China for metastatic HR+ breast cancer. That approval was supported by the global TROPION-Breast01 data and perhaps a small China safety study.
+                </div>
+            </div>
+        </div>
+    </td>
+</tr>
+
+<!-- GILEAD - SACITUZUMAB GOVITECAN -->
+<tr class="company-header">
+    <td colspan="5">
+        <span style="margin-right: 8px;">▼</span> Gilead Sciences
+    </td>
+</tr>
+
+<tr class="drug-row">
+    <td>
+        <div class="drug-name">Sacituzumab Govitecan</div>
+        <div class="drug-subtitle">Trodelvy® • TROP2 ADC</div>
+    </td>
+    <td>
+        <span class="market-badge leader">FDA Approved</span>
+    </td>
+    <td>
+        <div class="activity-item">
+            <div class="activity-bullet"></div>
+            <div>ASCENT-03 positive: 1L TNBC PD-L1-negative</div>
+        </div>
+        <div class="activity-item">
+            <div class="activity-bullet"></div>
+            <div>ASCENT-04 positive: 1L TNBC PD-L1+ with pembro</div>
+        </div>
+        <div class="activity-item">
+            <div class="activity-bullet"></div>
+            <div>China Ph2 single-arm: 38.8% ORR (EVER-132)</div>
+        </div>
+    </td>
+    <td>
+        <div class="metric-item">
+            <svg class="metric-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+            </svg>
+            <span class="metric-value">Expanding to 1L</span>
+            <span class="metric-label">All TNBC subtypes</span>
+        </div>
+    </td>
+    <td>
+        <button class="toggle-btn" onclick="toggleDetail('trodelvy-detail', this)">
+            <svg class="toggle-icon" width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+            Details
+        </button>
+    </td>
+</tr>
+<tr>
+    <td colspan="5" style="padding: 0;">
+        <div id="trodelvy-detail" class="detail-section">
+            <div class="detail-content">
+                <h4>Sacituzumab Govitecan (Trodelvy) - Pioneer TROP2 ADC</h4>
+                <p>Gilead's flagship ADC (acquired from Immunomedics) is already approved in 3L+ TNBC and in 2L+ HR+/HER2– (after endocrine+CDK4/6) in the US. Gilead is now moving Trodelvy into earlier lines.</p>
+                
+                <div class="highlight">
+                    <strong>First-line TNBC Success:</strong>
+                    <ul>
+                        <li><strong>ASCENT-03 (PD-L1– patients):</strong> The Phase III trial was highly positive. Trodelvy showed a "highly statistically significant and clinically meaningful" improvement in PFS over physician's choice chemo. Investigators reported Trodelvy is the first ADC to improve first-line outcomes in all-comer mTNBC, offering a new chemo-free option.</li>
+                        <li><strong>ASCENT-04 (PD-L1+ patients):</strong> Testing Trodelvy + pembrolizumab in PD-L1 positive mTNBC vs pembrolizumab + chemo was also positive, making Trodelvy potentially a backbone across all first-line mTNBC.</li>
+                    </ul>
+                </div>
+                
+                <p>With ASCENT-03 and -04, Trodelvy could become the first ADC used front-line for all mTNBC patients. Gilead is also conducting ASCENT-07, a Phase III trial in ER+/HER2– patients after CDK4/6 inhibitors.</p>
+                
+                <p>Trodelvy is the only TROP2 ADC with proven survival gain in two breast cancer settings so far (mTNBC and HR+ disease). Early development was based on single-arm Phase I/II (IMMU-132-01) which led to U.S. accelerated approval in 2020. The subsequent Phase III ASCENT confirmed the benefit.</p>
+                
+                <div class="china-note">
+                    <strong>China Partnership:</strong> Gilead partnered with Everest Medicines for Greater China. Everest ran a single-arm Phase II trial (EVER-132) in heavily pretreated mTNBC patients. This uncontrolled Chinese trial (80 patients, all given Trodelvy) achieved an ORR of 38.8% with safety consistent with global studies. It met its primary endpoint, leading to NMPA approval in 2022 for ≥3rd-line TNBC. The Chinese ORR "mirrored" the global ASCENT trial outcomes, validating the uncontrolled data. Gilead/Everest did not include a control arm due to ethical urgency and the robust efficacy signal.
+                </div>
+            </div>
+        </div>
+    </td>
+</tr>
+
+<!-- MERCK -->
+<tr class="company-header">
+    <td colspan="5">
+        <span style="margin-right: 8px;">▼</span> Merck & Co (MSD)
+    </td>
+</tr>
+
+<tr class="drug-row">
+    <td>
+        <div class="drug-name">Pembrolizumab</div>
+        <div class="drug-subtitle">Keytruda® • PD-1 mAb</div>
+    </td>
+    <td>
+        <span class="market-badge leader">Standard of Care</span>
+    </td>
+    <td>
+        <div class="activity-item">
+            <div class="activity-bullet"></div>
+            <div>KEYNOTE-522: Standard in early TNBC</div>
+        </div>
+        <div class="activity-item">
+            <div class="activity-bullet"></div>
+            <div>KEYNOTE-355: 1L metastatic TNBC PD-L1+</div>
+        </div>
+        <div class="activity-item">
+            <div class="activity-bullet discontinued"></div>
+            <div>KEYNOTE-756 negative in HR+ BC</div>
+        </div>
+    </td>
+    <td>
+        <div class="metric-item">
+            <svg class="metric-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <span class="metric-value">TNBC Focus</span>
+            <span class="metric-label">Limited in HR+</span>
+        </div>
+    </td>
+    <td>
+        <button class="toggle-btn" onclick="toggleDetail('keytruda-detail', this)">
+            <svg class="toggle-icon" width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+            Details
+        </button>
+    </td>
+</tr>
+<tr>
+    <td colspan="5" style="padding: 0;">
+        <div id="keytruda-detail" class="detail-section">
+            <div class="detail-content">
+                <h4>Pembrolizumab (Keytruda) - Immunotherapy Standard in TNBC</h4>
+                <p>Merck's Keytruda is already integrated into standard care for early and metastatic TNBC. The Phase III KEYNOTE-522 trial showed adding pembrolizumab to neoadjuvant chemotherapy in early TNBC significantly increased pathologic complete response and event-free survival, leading to approvals in high-risk early TNBC.</p>
+                
+                <p>In metastatic TNBC, KEYNOTE-355 established pembrolizumab + chemo as first-line therapy for PD-L1 positive tumors.</p>
+                
+                <div class="warning">
+                    <strong>Limited Success in HR+ Disease:</strong> Merck presented KEYNOTE-689 in 2025 investigating pembrolizumab in neoadjuvant HR+ breast cancer (an exploratory approach). However, a large trial in HR+ (KEYNOTE-756, pembro + chemo + endocrine in high-risk ER+ early BC) was reported negative for iDFS improvement in 2023, suggesting immunotherapy has limited impact in luminal cancers.
+                </div>
+                
+                <p>Merck is now focusing its breast I/O efforts mainly on TNBC and combinations. In breast cancer, Keytruda's approvals were all based on randomized trials (no accelerated approval solely on single-arm data, unlike Trodelvy initially).</p>
+            </div>
+        </div>
+    </td>
+</tr>
+
+<tr class="drug-row">
+    <td>
+        <div class="drug-name">Sacituzumab Tirumotecan</div>
+        <div class="drug-subtitle">SKB264/MK-2870 • TROP2 ADC</div>
+    </td>
+    <td>
+        <span class="market-badge leader">China Approved</span>
+    </td>
+    <td>
+        <div class="activity-item">
+            <div class="activity-bullet"></div>
+            <div>NMPA approved 2024 for 3L TNBC</div>
+        </div>
+        <div class="activity-item">
+            <div class="activity-bullet"></div>
+            <div>OptiTROP-Breast01: OS HR 0.53, PFS HR 0.31</div>
+        </div>
+        <div class="activity-item">
+            <div class="activity-bullet"></div>
+            <div>TroFuse-12 Ph3: adjuvant TNBC with pembro</div>
+        </div>
+    </td>
+    <td>
+        <div class="metric-item">
+            <svg class="metric-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064"></path>
+            </svg>
+            <span class="metric-value">China Origin</span>
+            <span class="metric-label">Kelun-Biotech</span>
+        </div>
+    </td>
+    <td>
+        <button class="toggle-btn" onclick="toggleDetail('skb264-detail', this)">
+            <svg class="toggle-icon" width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+            Details
+        </button>
+    </td>
+</tr>
+<tr>
+    <td colspan="5" style="padding: 0;">
+        <div id="skb264-detail" class="detail-section">
+            <div class="detail-content">
+                <h4>Sacituzumab Tirumotecan - Merck's China-Originated TROP2 ADC</h4>
+                <p>Merck formed a major alliance with China's Kelun-Biotech for TROP2-directed ADCs. Kelun's SKB264 (sacituzumab tirumotecan) was tested extensively in China.</p>
+                
+                <div class="highlight">
+                    <strong>Impressive China Results:</strong> By late 2024, Kelun secured NMPA approval for SKB264 in metastatic TNBC after ≥2 prior treatments, making it the second TROP2 ADC approved globally (after Trodelvy). The Chinese Phase III (OptiTROP-Breast01) showed striking results:
+                    <ul>
+                        <li>SKB264 reduced the risk of death by 47% vs chemo (median OS 9.4 months on chemo vs not reached on SKB264)</li>
+                        <li>Reduced risk of progression by 69% (median PFS 5.7 vs 2.3 months, HR ~0.31)</li>
+                    </ul>
+                </div>
+                
+                <p>These outcomes in a refractory TNBC population are impressive. This Chinese trial was open-label and randomized – so controlled, not single-arm – providing high-quality evidence.</p>
+                
+                <p><strong>Merck's Global Strategy:</strong> Merck licensed ex-China rights in 2022 and is now running large Phase III trials of SKB264 (which Merck calls MK-2870). In breast cancer, Merck chose to target earlier-line TNBC: the TroFuse-12 trial is combining SKB264 + pembrolizumab as post-neoadjuvant therapy for TNBC patients with residual disease.</p>
+                
+                <div class="china-note">
+                    <strong>Development Path:</strong> This ADC originated in China and had extensive uncontrolled early testing there. Kelun's Phase I and II trials in China were single-arm, establishing dose and observing responses in TROP2+ cancers. These led to the pivotal Chinese RCT. Merck benefited from this uncontrolled-to-controlled development path by getting a proven agent to take global.
+                </div>
+            </div>
+        </div>
+    </td>
+</tr>
+
+<!-- BMS -->
+<tr class="company-header">
+    <td colspan="5">
+        <span style="margin-right: 8px;">▼</span> Bristol Myers Squibb
+    </td>
+</tr>
+
+<tr class="drug-row">
+    <td>
+        <div class="drug-name">Izalontamab Brengitecan</div>
+        <div class="drug-subtitle">BMS-986249 • EGFR/HER3 ADC</div>
+    </td>
+    <td>
+        <span class="market-badge challenger">Phase 3</span>
+    </td>
+    <td>
+        <div class="activity-item">
+            <div class="activity-bullet"></div>
+            <div>9 China Ph3 trials ongoing (SystImmune)</div>
+        </div>
+        <div class="activity-item">
+            <div class="activity-bullet"></div>
+            <div>Izabright-Breast01: Global Ph3 1L TNBC PD-L1-</div>
+        </div>
+        <div class="activity-item">
+            <div class="activity-bullet"></div>
+            <div>$800M upfront deal from BMS (2023)</div>
+        </div>
+    </td>
+    <td>
+        <div class="metric-item">
+            <svg class="metric-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path>
+            </svg>
+            <span class="metric-value">Dual Target</span>
+            <span class="metric-label">EGFR + HER3</span>
+        </div>
+    </td>
+    <td>
+        <button class="toggle-btn" onclick="toggleDetail('izalontamab-detail', this)">
+            <svg class="toggle-icon" width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+            Details
+        </button>
+    </td>
+</tr>
+<tr>
+    <td colspan="5" style="padding: 0;">
+        <div id="izalontamab-detail" class="detail-section">
+            <div class="detail-content">
+                <h4>Izalontamab Brengitecan - Novel Dual-Target ADC</h4>
+                <p>BMS in late 2023 licensed a novel ADC from SystImmune/Baili (China) that targets both EGFR and HER3 – an unusual dual-target approach for breast cancer. This ADC uses a topoisomerase-I payload (a "brengitecan") and has shown potent activity in HER3 and EGFR-expressing tumors.</p>
+                
+                <div class="china-note">
+                    <strong>Extensive China Development:</strong> Impressively, SystImmune's ADC was already in nine Chinese Phase III trials by 2025. These include pivotal studies in 2nd-line TNBC and 2nd-line ER+/HER2– breast cancer, all sponsored by SystImmune's Chinese affiliate (Baili Pharmaceutical). The Chinese trials typically compare "Iza-can" monotherapy to chemotherapy (each is an open-label RCT).
+                </div>
+                
+                <p>While results haven't all been reported publicly yet, the sheer number of Phase III programs indicates promising earlier-phase results – likely uncontrolled Chinese Phase I/Ib data showed strong response rates, prompting aggressive development domestically.</p>
+                
+                <div class="highlight">
+                    <strong>BMS Global Strategy:</strong> BMS is starting the first global Phase III with this ADC: the Izabright-Breast01 trial, launching mid-2025, will test izalontamab vs chemo in first-line TNBC patients who are PD-L1– (ineligible for Keytruda). This is a seamless Phase II/III design aiming for accelerated approval if Phase II shows a signal. BMS chose PD-L1-negative TNBC as the entry point (~50% of TNBC cases).
+                </div>
+                
+                <p>The BMS deal included large upfront payments ($800M) and milestones to SystImmune, underlining BMS's confidence. The decision to leap into first-line global trials likely rests on robust early outcomes in China – presumably single-arm Phase I data in metastatic TNBC and ER+ BC showed durable responses even post standard therapies.</p>
+            </div>
+        </div>
+    </td>
+</tr>
+
+<tr class="drug-row">
+    <td>
+        <div class="drug-name">BNT327</div>
+        <div class="drug-subtitle">PD-L1xVEGF-A Bispecific</div>
+    </td>
+    <td>
+        <span class="market-badge emerging">Phase 3 Planned</span>
+    </td>
+    <td>
+        <div class="activity-item">
+            <div class="activity-bullet"></div>
+            <div>BioNTech partnership 2025</div>
+        </div>
+        <div class="activity-item">
+            <div class="activity-bullet"></div>
+            <div>Ph3 TNBC trial planned late 2025</div>
+        </div>
+        <div class="activity-item">
+            <div class="activity-bullet"></div>
+            <div>>1000 patients in Ph1/2 across tumors</div>
+        </div>
+    </td>
+    <td>
+        <div class="metric-item">
+            <svg class="metric-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path>
+            </svg>
+            <span class="metric-value">Novel MOA</span>
+            <span class="metric-label">IO + Anti-angio</span>
+        </div>
+    </td>
+    <td>
+        <button class="toggle-btn" onclick="toggleDetail('bnt327-detail', this)">
+            <svg class="toggle-icon" width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+            Details
+        </button>
+    </td>
+</tr>
+<tr>
+    <td colspan="5" style="padding: 0;">
+        <div id="bnt327-detail" class="detail-section">
+            <div class="detail-content">
+                <h4>BNT327 - Next-Gen Bispecific Immunotherapy</h4>
+                <p>In 2025, BMS announced a partnership with BioNTech to co-develop BNT327, a next-gen immunotherapy that fuses a checkpoint inhibitor (PD-L1 antibody) with an anti-angiogenic (VEGF-A antibody) in one molecule.</p>
+                
+                <p>This agent is in Phase III for lung cancers already, and BMS/BioNTech plan to start a global Phase III in TNBC by late 2025. The idea is that BNT327 could "surpass current checkpoint outcomes" by also normalizing tumor vasculature. This TNBC trial will likely compare BNT327 vs pembrolizumab (or add BNT327 to chemo vs pembro+chemo).</p>
+                
+                <div class="highlight">
+                    <strong>Early Data:</strong> Over 1,000 patients have already been treated with BNT327 in Phase I/II (across tumors), and preliminary data suggest synergy of anti-PD-L1 + anti-VEGF in one drug. These early trials include large single-arm cohorts (for example, a Phase II in refractory ovarian cancer showed unexpected responses, reportedly). However, for breast cancer specifically, we await Phase III to see its benefit.
+                </div>
+                
+                <p>BioNTech's trial experience provides the safety data to proceed. BMS's own checkpoint inhibitor nivolumab (Opdivo) had limited use in breast cancer (no approvals; a neoadjuvant trial in ER+ BC reported in 2025 showed no benefit). So BMS is pivoting to ADCs and bispecifics.</p>
+            </div>
+        </div>
+    </td>
+</tr>
+
+<!-- OTHER COMPANIES -->
+<tr class="company-header">
+    <td colspan="5">
+        <span style="margin-right: 8px;">▼</span> Other Notable Companies
+    </td>
+</tr>
+
+<tr class="drug-row">
+    <td>
+        <div class="drug-name">Amcenestrant</div>
+        <div class="drug-subtitle">Sanofi • Oral SERD</div>
+    </td>
+    <td>
+        <span class="market-badge discontinued">Discontinued</span>
+    </td>
+    <td>
+        <div class="activity-item">
+            <div class="activity-bullet discontinued"></div>
+            <div>AMEERA-5 Ph3 stopped for futility (2022)</div>
+        </div>
+        <div class="activity-item">
+            <div class="activity-bullet discontinued"></div>
+            <div>AMEERA-3 Ph2 also negative</div>
+        </div>
+        <div class="activity-item">
+            <div class="activity-bullet discontinued"></div>
+            <div>Program terminated - Ph1 promise misleading</div>
+        </div>
+    </td>
+    <td>
+        <div class="metric-item">
+            <svg class="metric-icon discontinued" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+            <span class="metric-value discontinued">Failed</span>
+            <span class="metric-label">vs SOC</span>
+        </div>
+    </td>
+    <td>
+        <button class="toggle-btn" onclick="toggleDetail('amcenestrant-detail', this)">
+            <svg class="toggle-icon" width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+            Details
+        </button>
+    </td>
+</tr>
+<tr>
+    <td colspan="5" style="padding: 0;">
+        <div id="amcenestrant-detail" class="detail-section">
+            <div class="detail-content">
+                <h4>Amcenestrant - Sanofi's SERD Failure</h4>
+                <p>Sanofi's attempt at an oral SERD (amcenestrant) is a cautionary tale. Amcenestrant showed encouraging tumor shrinkage in early Phase I trials (single-agent and combo, uncontrolled), prompting multiple Phase III trials (AMEERA program).</p>
+                
+                <div class="warning">
+                    <strong>Complete Failure:</strong> In 2022, the Phase III AMEERA-5 (amcenestrant + palbociclib vs letrozole + palbociclib in first-line HR+ metastatic BC) was stopped early for futility, and a Phase II (AMEERA-3) in second-line was also negative. As a result, Sanofi discontinued amcenestrant entirely.
+                </div>
+                
+                <p>This underscores that uncontrolled Phase I signals can be misleading – Sanofi's SERD looked active in Phase Ib, but failed when randomized against standard of care. Sanofi currently has no breast cancer drugs in Phase III (it shifted focus elsewhere after this costly setback).</p>
+            </div>
+        </div>
+    </td>
+</tr>
+
+<tr class="drug-row">
+    <td>
+        <div class="drug-name">Elacestrant</div>
+        <div class="drug-subtitle">Menarini/Radius • Oral SERD</div>
+    </td>
+    <td>
+        <span class="market-badge leader">FDA Approved</span>
+    </td>
+    <td>
+        <div class="activity-item">
+            <div class="activity-bullet"></div>
+            <div>FDA approved 2023 for ESR1-mut BC</div>
+        </div>
+        <div class="activity-item">
+            <div class="activity-bullet"></div>
+            <div>EMERALD Ph3: HR 0.62 in ESR1-mut subset</div>
+        </div>
+        <div class="activity-item">
+            <div class="activity-bullet"></div>
+            <div>Proved oral SERD concept with biomarker</div>
+        </div>
+    </td>
+    <td>
+        <div class="metric-item">
+            <svg class="metric-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <span class="metric-value">First SERD</span>
+            <span class="metric-label">Approved oral</span>
+        </div>
+    </td>
+    <td>
+        <button class="toggle-btn" onclick="toggleDetail('elacestrant-detail', this)">
+            <svg class="toggle-icon" width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+            Details
+        </button>
+    </td>
+</tr>
+<tr>
+    <td colspan="5" style="padding: 0;">
+        <div id="elacestrant-detail" class="detail-section">
+            <div class="detail-content">
+                <h4>Elacestrant - First Approved Oral SERD</h4>
+                <p>Menarini (with Radius) got Elacestrant (oral SERD) approved in 2023 for ER+ metastatic BC after Phase III EMERALD showed PFS gain vs standard endocrine.</p>
+                
+                <div class="highlight">
+                    <strong>Proof of Concept:</strong> While not an MNC in the traditional sense, this success influenced big pharma – proved the concept that oral SERDs can work if patients are ESR1-mutant enriched. The EMERALD trial showed HR 0.62 in the ESR1-mutant subset, leading to FDA approval.
+                </div>
+                
+                <p>Menarini's Phase I/II was single-arm and hinted at efficacy, but it was the controlled EMERALD trial that secured approval. This success validated the oral SERD approach and influenced other companies' strategies around biomarker selection.</p>
+            </div>
+        </div>
+    </td>
+</tr>
+
+<tr class="drug-row">
+    <td>
+        <div class="drug-name">Pyrotinib</div>
+        <div class="drug-subtitle">Hengrui • Pan-HER TKI</div>
+    </td>
+    <td>
+        <span class="market-badge leader">China Approved</span>
+    </td>
+    <td>
+        <div class="activity-item">
+            <div class="activity-bullet"></div>
+            <div>PHOEBE Ph3: OS 39.4 vs 28.6mo (HR 0.78)</div>
+        </div>
+        <div class="activity-item">
+            <div class="activity-bullet"></div>
+            <div>PFS 12.5 vs 6.8mo vs lapatinib</div>
+        </div>
+        <div class="activity-item">
+            <div class="activity-bullet"></div>
+            <div>Standard in China for HER2+ post-trastuzumab</div>
+        </div>
+    </td>
+    <td>
+        <div class="metric-item">
+            <svg class="metric-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064"></path>
+            </svg>
+            <span class="metric-value">China Innovation</span>
+            <span class="metric-label">NMPA 2018</span>
+        </div>
+    </td>
+    <td>
+        <button class="toggle-btn" onclick="toggleDetail('pyrotinib-detail', this)">
+            <svg class="toggle-icon" width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+            Details
+        </button>
+    </td>
+</tr>
+<tr>
+    <td colspan="5" style="padding: 0;">
+        <div id="pyrotinib-detail" class="detail-section">
+            <div class="detail-content">
+                <h4>Pyrotinib - China's Homegrown HER2 Success</h4>
+                <p>Hengrui Medicine's pyrotinib, a pan-HER tyrosine kinase inhibitor, was approved in China in 2018 for HER2+ metastatic breast cancer (post-trastuzumab).</p>
+                
+                <div class="highlight">
+                    <strong>PHOEBE Trial Results:</strong> Pyrotinib's Phase III PHOEBE trial (China) showed pyrotinib + capecitabine significantly improved both PFS and OS vs lapatinib + capecitabine:
+                    <ul>
+                        <li>At ~4-year follow-up, median OS was 39.4 vs 28.6 months (HR 0.78) favoring pyrotinib</li>
+                        <li>Median PFS was 12.5 vs 6.8 months</li>
+                    </ul>
+                </div>
+                
+                <p>Pyrotinib's development relied on uncontrolled Phase I/II Chinese studies that demonstrated responses even after multi-line therapy, leading to its approval prior to OS data. While Hengrui is not an MNC globally, it's a major pharma in China, and pyrotinib's success highlights China's role.</p>
+                
+                <p>The drug became a standard option for HER2+ patients in China who might not access T-DM1. Pyrotinib's case is one where China-led innovation filled a gap; global companies have taken note, and some are evaluating pyrotinib in combination internationally.</p>
+            </div>
+        </div>
+    </td>
+</tr>
+
+<tr class="drug-row">
+    <td>
+        <div class="drug-name">GSK Pipeline</div>
+        <div class="drug-subtitle">Limited BC Focus</div>
+    </td>
+    <td>
+        <span class="market-badge emerging">No Phase 3</span>
+    </td>
+    <td>
+        <div class="activity-item">
+            <div class="activity-bullet"></div>
+            <div>No major BC contender in Phase III</div>
+        </div>
+        <div class="activity-item">
+            <div class="activity-bullet"></div>
+            <div>Markets niraparib (PARP) for BRCA-mut BC</div>
+        </div>
+        <div class="activity-item">
+            <div class="activity-bullet"></div>
+            <div>Lost Trodelvy bid to Gilead</div>
+        </div>
+    </td>
+    <td>
+        <div class="metric-item">
+            <svg class="metric-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <span class="metric-value">Quiet</span>
+            <span class="metric-label">in BC space</span>
+        </div>
+    </td>
+    <td>
+        <button class="toggle-btn" onclick="toggleDetail('gsk-detail', this)">
+            <svg class="toggle-icon" width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+            Details
+        </button>
+    </td>
+</tr>
+<tr>
+    <td colspan="5" style="padding: 0;">
+        <div id="gsk-detail" class="detail-section">
+            <div class="detail-content">
+                <h4>GlaxoSmithKline - Limited Breast Cancer Pipeline</h4>
+                <p>GSK does not have a major breast cancer contender in Phase III as of 2025. GSK's PI3Kβ inhibitor (ipatasertib) was actually Roche's (and it failed Phase III in TNBC). GSK's AKT inhibitor withdrew earlier.</p>
+                
+                <p>GSK is mainly marketing niraparib (PARP inhibitor) in BRCA-mutated breast cancer (approved based on others' trials). They had interest in immune therapy combinations (e.g. GSK's dostarlimab PD-1 was tried in a small TNBC study) and in antibody-drug conjugates via partnerships.</p>
+                
+                <p>GSK had an alliance with Immunomedics pre-Gilead, but lost the Trodelvy bid. No active Phase III GSK compound in breast was noted, so GSK is relatively quiet in this space.</p>
+            </div>
+        </div>
+    </td>
+</tr>
+
+            <!-- Continue for all other drugs... -->
+        </tbody>
+    </table>
+</div>
+
                 <!-- Search Bar -->
-  <div class="methodology-section">
+  <div class="methodology-section mt-10">
             <h2 class="methodology-title">Research Methodology</h2>
             <div class="methodology-content">
                 <h3>Pipeline Evaluation Framework</h3>
@@ -1277,6 +2302,17 @@ Priority Review
            document.addEventListener('DOMContentLoaded', function() {
             lucide.createIcons();
         });
+        function toggleDetail(detailId, button) {
+    const detailSection = document.getElementById(detailId);
+    
+    if (detailSection.classList.contains('show')) {
+        detailSection.classList.remove('show');
+        button.classList.remove('expanded');
+    } else {
+        detailSection.classList.add('show');
+        button.classList.add('expanded');
+    }
+}
     </script>
 </body>
 </html>
