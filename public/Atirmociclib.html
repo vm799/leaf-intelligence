@@ -3563,7 +3563,7 @@
             </div>
 
             <!-- Financial & Strategic Tab -->
-            <div id="financial" class="tab-content">
+            <div id="oldfinancial" class="tab-content">
                 <div class="section-title">4. Financial & Strategic Diligence</div>
 <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4 mb-6 border border-blue-300">
                 <h3 class="text-lg font-bold text-gray-900 mb-3 flex items-center gap-2">
@@ -3614,25 +3614,21 @@
                     <div class="expandable-content active">
                         <div class="metric-grid">
                             <div class="metric-card">
-                                <div class="metric-label">Market Cap (2025)</div>
-                                <div class="metric-value">~$140B</div>
+                                <div class="metric-label">Market Cap (2025) | <a href="https://companiesmarketcap.com/pfizer/marketcap/" target="_blank">Source</a></div>
+                                <div class="metric-value">$142.66B</div>
                                 <div class="metric-detail">NYSE: PFE</div>
                             </div>
                             <div class="metric-card">
-                                <div class="metric-label">Cash Position</div>
+                                <div class="metric-label">Cash Position 2024 | <a href="https://s206.q4cdn.com/795948973/files/doc_financials/2024/q4/10K_Final.pdf" target="_blank">Form 10-K</a></div>
                                 <div class="metric-value">~$20B</div>
-                                <div class="metric-detail">Estimated 2025</div>
+                                <div class="metric-detail">Cash and cash equivalents $ 1,043, Short-term investments $ 19,434.</div>
                             </div>
                             <div class="metric-card">
-                                <div class="metric-label">R&D Budget</div>
-                                <div class="metric-value">$11B/year</div>
+                                <div class="metric-label">R&D Budget | <a href="https://www.pfizer.com/news/press-release/press-release-detail/pfizer-provides-full-year-2025-guidance-and-reaffirms-full?utm_source=chatgpt.com" target="_blank">Source</a></div>
+                                <div class="metric-value">$10.7 to $11.7B / Year</div>
                                 <div class="metric-detail">2025 annual spend</div>
                             </div>
-                            <div class="metric-card">
-                                <div class="metric-label">Ibrance Revenue Loss</div>
-                                <div class="metric-value">$3-4B</div>
-                                <div class="metric-detail">Expected 2027-2028</div>
-                            </div>
+                          
                         </div>
 
                         <p class="detail-text mt-4">
@@ -3650,7 +3646,7 @@
                 </div>
 
                 <!-- Valuation Analysis -->
-                <div class="expandable-section">
+                <div class=" hidden expandable-section">
                     <div class="expandable-header" onclick="toggleSection(this)">
                         <span>4.2 Risk-Adjusted NPV & Return Analysis</span>
                         <span>▼</span>
@@ -3718,75 +3714,211 @@
                     </div>
                 </div>
 
-                <!-- Strategic Options -->
-                <div class="expandable-section">
-                    <div class="expandable-header" onclick="toggleSection(this)">
-                        <span>4.3 Strategic Deal Structuring Options</span>
-                        <span>▼</span>
-                    </div>
-                    <div class="expandable-content">
-                        <div class="data-card">
-                            <h4 class="font-semibold mb-2">Potential Blackstone Investment Structures</h4>
-                            
-                            <p class="detail-text">
-                                <strong>Royalty Financing:</strong> Blackstone could provide $500M-1B upfront for 3-5% royalty on global sales. IRR 15-20% if base case achieved. Similar to Blackstone's deals with Novartis/Alnylam.
-                            </p>
-
-                            <p class="detail-text">
-                                <strong>Milestone-Based Investment:</strong> Tranched financing tied to clinical/commercial milestones. De-risks investment while maintaining upside exposure.
-                            </p>
-
-                            <p class="detail-text">
-                                <strong>Combination Development Partnership:</strong> Co-fund Phase 3 of atirmociclib + vepdegestrant combo for share of that specific indication's economics.
-                            </p>
-
-                            <p class="detail-text">
-                                <strong>China Rights Monetization:</strong> Pfizer could monetize China rights to local partner given pricing challenges, retaining US/EU markets.
-                            </p>
-                        </div>
-
-                        <div class="data-card mt-4">
-                            <h4 class="font-semibold mb-2">Strategic Value Beyond NPV</h4>
-                            
-                            <p class="detail-text">
-                                <strong>Franchise Preservation:</strong> Maintains Pfizer's #1 position in HR+ breast cancer, preventing competitor incursion during Ibrance patent expiry.
-                            </p>
-
-                            <p class="detail-text">
-                                <strong>Platform Synergies:</strong> Enables combinations with vepdegestrant (PROTAC), KAT6 inhibitor (PF-07248144), creating integrated portfolio competitors cannot replicate.
-                            </p>
-
-                            <p class="detail-text">
-                                <strong>Sales Force Utilization:</strong> Keeps large breast cancer sales team productive post-Ibrance, avoiding restructuring costs and maintaining relationships.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Exit Strategies -->
-                <div class="expandable-section">
-                    <div class="expandable-header" onclick="toggleSection(this)">
-                        <span>4.4 Value Realization & Exit Scenarios</span>
-                        <span>▼</span>
-                    </div>
-                    <div class="expandable-content">
-                        <p class="detail-text">
-                            <strong>For Pfizer:</strong> Hold and commercialize through patent life. Potential to out-license in select markets if economics unfavorable (e.g., China if NRDL pricing too low).
-                        </p>
-
-                        <p class="detail-text">
-                            <strong>For External Investors:</strong>
-                            <br>• Royalty stream sale to secondary buyers once de-risked
-                            <br>• Arvinas acquisition to capture vepdegestrant combo value
-                            <br>• Structured exit through revenue milestones/caps
-                        </p>
-
-                        <p class="detail-text">
-                            <strong>Payback Period:</strong> At $2B peak sales with 70% margins, payback on $300M investment within 2-3 years of launch. Attractive risk-return for late-stage oncology asset.
-                        </p>
-                    </div>
-                </div>
             </div>
+
+            <!-- === Financial & Strategic Diligence — Pfizer (Hard-Sourced) === -->
+
+<div id="financial" class="tab-content">
+  <div class="section-title">4. Financial & Strategic Diligence — Pfizer (Corporate Figures Only)</div>
+
+  <!-- Summary tiles (now hard-sourced anchors instead of modeled NPV/IRR) -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+    <!-- R&D Expense (company actual) -->
+    <div class="bg-white rounded-lg p-3 shadow-sm">
+      <div class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">R&amp;D Expense (FY2024)</div>
+      <div class="text-xl font-bold text-gray-900">$10,822M</div>
+      <div class="text-xs text-gray-500">
+        <a href="https://investors.pfizer.com/files/doc_financials/2024/ar/10K_Final.pdf#page=61" target="_blank" rel="noopener">Pfizer 2024 Form 10-K — Cash Flows/MD&amp;A</a>
+      </div>
+      <blockquote class="mt-2 p-2 bg-gray-50 text-xs text-gray-700 border-l-2 border-gray-300">
+        “Research and development expenses … <strong>$10,822</strong> (2024) … $10,679 (2023) … $11,428 (2022).”
+      </blockquote>
+    </div>
+
+    <!-- Operating Cash Flow -->
+    <div class="bg-white rounded-lg p-3 shadow-sm">
+      <div class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Operating Cash Flow (FY2024)</div>
+      <div class="text-xl font-bold text-gray-900">$12,744M</div>
+      <div class="text-xs text-gray-500">
+        <a href="https://investors.pfizer.com/files/doc_financials/2024/ar/10K_Final.pdf#page=61" target="_blank" rel="noopener">Pfizer 2024 Form 10-K — Cash Flows</a>
+      </div>
+      <blockquote class="mt-2 p-2 bg-gray-50 text-xs text-gray-700 border-l-2 border-gray-300">
+        “Net cash provided by/(used in) operating activities <strong>12,744</strong> (2024) … 8,700 (2023) … 29,267 (2022).”
+      </blockquote>
+    </div>
+
+    <!-- Purchases of PP&E (Capex) -->
+    <div class="bg-white rounded-lg p-3 shadow-sm">
+      <div class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Capital Expenditures (FY2024)</div>
+      <div class="text-xl font-bold text-gray-900">$2,909M</div>
+      <div class="text-xs text-gray-500">
+        <a href="https://investors.pfizer.com/files/doc_financials/2024/ar/10K_Final.pdf#page=61" target="_blank" rel="noopener">Pfizer 2024 Form 10-K — Cash Flows</a>
+      </div>
+      <blockquote class="mt-2 p-2 bg-gray-50 text-xs text-gray-700 border-l-2 border-gray-300">
+        “Purchases of property, plant and equipment (<strong>2,909</strong>) (2024) … (3,907) (2023) … (3,236) (2022).”
+      </blockquote>
+    </div>
+
+    <!-- Cash & Short-Term Investments (Liquidity) -->
+    <div class="bg-white rounded-lg p-3 shadow-sm">
+      <div class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Cash + Short-Term Investments (12/31/24)</div>
+      <div class="text-xl font-bold text-gray-900">~$20.5B</div>
+      <div class="text-xs text-gray-500">
+        <a href="https://investors.pfizer.com/files/doc_financials/2024/ar/10K_Final.pdf#page=63" target="_blank" rel="noopener">Pfizer 2024 Form 10-K — Balance Sheet</a>
+      </div>
+      <blockquote class="mt-2 p-2 bg-gray-50 text-xs text-gray-700 border-l-2 border-gray-300">
+        “Cash and cash equivalents <strong>$1,043</strong> … Short-term investments <strong>$19,434</strong> [millions] as of December 31, 2024.”
+      </blockquote>
+    </div>
+  </div>
+
+  <!-- Additional core tiles -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mb-4">
+    <!-- Long-Term Debt -->
+    <div class="bg-white rounded-lg p-3 shadow-sm">
+      <div class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Long-Term Debt (carrying, excl. current)</div>
+      <div class="text-xl font-bold text-gray-900">$57.4B</div>
+      <div class="text-xs text-gray-500">
+        <a href="https://investors.pfizer.com/files/doc_financials/2024/ar/10K_Final.pdf#page=85" target="_blank" rel="noopener">Pfizer 2024 Form 10-K — Note 7D</a>
+      </div>
+      <blockquote class="mt-2 p-2 bg-gray-50 text-xs text-gray-700 border-l-2 border-gray-300">
+        “Total long-term debt, carried at historical proceeds, as adjusted <strong>$57,405</strong> … (current portion not included above).”
+      </blockquote>
+    </div>
+
+    <!-- Share Repurchase Authorization -->
+    <div class="bg-white rounded-lg p-3 shadow-sm">
+      <div class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Share-Repurchase Authorization (12/31/24)</div>
+      <div class="text-xl font-bold text-gray-900">$3.3B</div>
+      <div class="text-xs text-gray-500">
+        <a href="https://investors.pfizer.com/files/doc_financials/2024/ar/10K_Final.pdf#page=95" target="_blank" rel="noopener">Pfizer 2024 Form 10-K — Equity/Capital Allocation</a>
+      </div>
+      <blockquote class="mt-2 p-2 bg-gray-50 text-xs text-gray-700 border-l-2 border-gray-300">
+        “Our remaining share-purchase authorization was <strong>$3.3 billion</strong> as of December 31, 2024.”
+      </blockquote>
+    </div>
+
+    <!-- Dividend declaration reference -->
+    <div class="bg-white rounded-lg p-3 shadow-sm">
+      <div class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Dividend (Declared Dec 12, 2024)</div>
+      <div class="text-xl font-bold text-gray-900">$0.43 / share (Q1’25)</div>
+      <div class="text-xs text-gray-500">
+        <a href="https://investors.pfizer.com/files/doc_financials/2024/ar/10K_Final.pdf#page=94" target="_blank" rel="noopener">Pfizer 2024 Form 10-K — Capital Allocation</a>
+      </div>
+      <blockquote class="mt-2 p-2 bg-gray-50 text-xs text-gray-700 border-l-2 border-gray-300">
+        “On December 12, 2024, our BOD declared a first-quarter dividend of <strong>$0.43</strong> per share…”
+      </blockquote>
+    </div>
+  </div>
+
+  <!-- Product anchor for franchise context (Ibrance) -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
+    <div class="bg-white rounded-lg p-3 shadow-sm">
+      <div class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Ibrance Revenue (FY2024)</div>
+      <div class="text-xl font-bold text-gray-900">$4,367M (WW)</div>
+      <div class="text-xs text-gray-500">
+        <a href="https://investors.pfizer.com/files/doc_financials/2024/ar/10K_Final.pdf#page=43" target="_blank" rel="noopener">Pfizer 2024 Form 10-K — Selected Product Discussion</a>
+      </div>
+      <blockquote class="mt-2 p-2 bg-gray-50 text-xs text-gray-700 border-l-2 border-gray-300">
+        “<strong>Ibrance — Worldwide $4,367</strong> (2024) … U.S. $2,849; International $1,518.”
+      </blockquote>
+    </div>
+
+    <!-- Market Cap (dated, third-party) -->
+    <div class="bg-white rounded-lg p-3 shadow-sm">
+      <div class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Market Cap (point-in-time)</div>
+      <div class="text-xl font-bold text-gray-900">~$140.77B</div>
+      <div class="text-xs text-gray-500">
+        <a href="https://ycharts.com/companies/PFE/market_cap" target="_blank" rel="noopener">YCharts — “Pfizer Market Cap: 140.77B for Aug. 29, 2025”</a>
+      </div>
+      <blockquote class="mt-2 p-2 bg-gray-50 text-xs text-gray-700 border-l-2 border-gray-300">
+        “Pfizer Market Cap: <strong>140.77B</strong> for Aug. 29, 2025.”
+      </blockquote>
+    </div>
+  </div>
+
+  <!-- R&D funding offset (Blackstone) -->
+  <div class="bg-blue-50 rounded-lg p-4 border border-blue-200">
+    <h4 class="font-semibold text-gray-800 mb-2">R&amp;D Funding Offset (Blackstone)</h4>
+    <p class="text-sm text-gray-800">
+      <a href="https://investors.pfizer.com/files/doc_financials/2024/ar/10K_Final.pdf#page=75" target="_blank" rel="noopener">10-K Note — R&amp;D Funding Arrangement</a>:
+    </p>
+    <blockquote class="mt-2 p-2 bg-white text-xs text-gray-700 border-l-2 border-blue-400">
+      “In April 2023, we entered into an arrangement with Blackstone under which we will receive <strong>up to a total of $550 million</strong> in 2023 through 2026… We are recognizing the funding as a reduction of R&amp;D expenses… The reduction to R&amp;D expenses in <strong>2024</strong> and <strong>2023</strong> was <strong>$135 million</strong> and <strong>$175 million</strong>, respectively.”
+    </blockquote>
+  </div>
+
+  <!-- Patent Cliff Context (for franchise risk planning) -->
+  <div class="mt-6">
+    <div class="section-title">Patent-Cliff Context (Revenue Risk Anchors)</div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <!-- Eliquis LOE -->
+      <div class="bg-white rounded-lg p-3 shadow-sm">
+        <div class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Eliquis (Apixaban) — LOE markers</div>
+        <ul class="list-disc list-inside text-sm text-gray-800 space-y-1">
+          <li>U.S.: earliest generic entry <strong>April 1, 2028</strong> (post-litigation settlement).</li>
+          <li>Key EU markets: patent expiry expected <strong>H2&nbsp;2026</strong>.</li>
+        </ul>
+        <div class="text-xs text-gray-500 mt-1">
+          Sources:
+          <a href="https://www.pfizer.com/news/press-release/press-release-detail/bristol-myers-squibb-pfizer-alliance-pleased-decision-us" target="_blank" rel="noopener">Pfizer/BMS Fed. Cir. statement</a> |
+          <a href="https://www.bms.com/investor-statement-on-eliquis-revenue-under-ira.html" target="_blank" rel="noopener">BMS investor statement</a>
+        </div>
+        <blockquote class="mt-2 p-2 bg-gray-50 text-xs text-gray-700 border-l-2 border-gray-300">
+          “Given today’s decision, the earliest that generic manufacturers are permitted to launch … is <strong>April 1, 2028</strong>.” — Pfizer/BMS<br>
+          “Patent expiry in key EU markets is expected to occur in the <strong>second half of 2026</strong>.” — BMS
+        </blockquote>
+      </div>
+
+      <!-- Ibrance PTE & Orange Book -->
+      <div class="bg-white rounded-lg p-3 shadow-sm">
+        <div class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Ibrance (Palbociclib) — U.S. protection anchors</div>
+        <ul class="list-disc list-inside text-sm text-gray-800 space-y-1">
+          <li><strong>PTE granted</strong>: U.S. Patent RE47,739 extended to <strong>March 5, 2027</strong>.</li>
+          <li>FDA Orange Book (ANDA letters) show additional patents (e.g., <strong>US 11,065,250</strong> to 2036).</li>
+        </ul>
+        <div class="text-xs text-gray-500 mt-1">
+          Sources:
+          <a href="https://www.pfizer.com/news/press-release/press-release-detail/pfizer-confirms-us-patent-term-extension-ibrancer" target="_blank" rel="noopener">Pfizer press release (PTE)</a> |
+          <a href="https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2023/215570Orig1s000ltr.pdf" target="_blank" rel="noopener">FDA ANDA 215570 letter (Orange Book patents)</a>
+        </div>
+        <blockquote class="mt-2 p-2 bg-gray-50 text-xs text-gray-700 border-l-2 border-gray-300">
+          “The certificate extends the term of U.S. Patent No. RE47,739 by more than four years until <strong>March 5, 2027</strong>.” — Pfizer<br>
+          “RE47,739 … <strong>March 5, 2027</strong> … 10,723,730 (2034) … 11,065,250 (2036).” — FDA ANDA letter (Orange Book)
+        </blockquote>
+      </div>
+    </div>
+
+    <!-- Xeljanz Orange Book anchor -->
+    <div class="bg-white rounded-lg p-3 shadow-sm mt-4">
+      <div class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Xeljanz (Tofacitinib) — U.S. Orange Book Excerpts</div>
+      <p class="text-sm text-gray-800">
+        FDA correspondence cites the RE41,783 drug-substance patent expiring <strong>Dec 8, 2025</strong> (with pediatric exclusivity to June 8, 2026), and additional XR formulation patents to 2034:
+      </p>
+      <div class="text-xs text-gray-500 mt-1">
+        Sources:
+        <a href="https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2021/214264Orig1s000ltr.pdf" target="_blank" rel="noopener">FDA ANDA 214264 letter (XR)</a> |
+        <a href="https://ai-lab.exparte.com/documents/dct/4577508/1-25-cv-00743_ded_complaint_exparte.pdf" target="_blank" rel="noopener">2025 DED complaint (Orange Book excerpt)</a>
+      </div>
+      <blockquote class="mt-2 p-2 bg-gray-50 text-xs text-gray-700 border-l-2 border-gray-300">
+        “RE41,783 … <strong>December 8, 2025</strong> … <em>pediatric exclusivity until June 8, 2026</em>.” — DED complaint citing Orange Book<br>
+        “9,937,181 … <strong>March 14, 2034</strong> (11 mg); 10,639,309 … <strong>March 14, 2034</strong> (22 mg).” — FDA ANDA 214264
+      </blockquote>
+    </div>
+  </div>
+
+  <!-- Company-Level P&L/Gross Margin anchor you can use later -->
+  <div class="mt-6 p-3 bg-gray-50 rounded-lg border border-gray-200">
+    <h4 class="font-semibold text-gray-800 mb-2">Company P&amp;L Anchor (for any margin work)</h4>
+    <p class="text-sm text-gray-800">
+      <a href="https://investors.pfizer.com/files/doc_financials/2024/ar/10K_Final.pdf#page=41" target="_blank" rel="noopener">10-K MD&amp;A — Costs and Expenses table</a> (FY2024):
+      “Cost of sales <strong>$17,851</strong> (28.1% of total revenues)… SG&amp;A $14,730… R&amp;D $10,822…”
+    </p>
+  </div>
+
+</div>
+
 
             <!-- Operational & Legal Tab -->
             <div id="operational" class="tab-content">
