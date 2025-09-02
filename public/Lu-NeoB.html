@@ -6301,7 +6301,7 @@ function toggleSection(header) {
         const safetyCtx = document.getElementById('safetyChart');
         if (safetyCtx) {
             new Chart(safetyCtx.getContext('2d'), {
-                type: 'horizontalbar',
+                type: 'bar',
                 data: {
                     labels: ['Bone Marrow Suppression', 'Renal Toxicity', 'GI Toxicity', 'ILD Risk', 'Secondary Malignancy', 'QT Prolongation'],
                     datasets: [
