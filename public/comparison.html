@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Drug Analysis Comparison Tool | Leaf Intelligence</title>
+    <title>Comprehensive Treatment Analysis Report - Blackstone Investment Intelligence</title>
     <script src="https://cdn.tailwindcss.com"></script>
-        <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         * {
             margin: 0;
@@ -16,945 +16,2376 @@
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
             background: #f8f9fa;
-            color: #333;
-            font-size: 14px;
-            line-height: 1.5;
+            color: #212529;
+            line-height: 1.6;
         }
 
-        .nav-bar {
+        .header-gradient {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+        }
+
+        .tab-container {
             background: white;
-            height: 56px;
-            display: flex;
-            align-items: center;
-            padding: 0 24px;
-            position: fixed;
+            border-bottom: 1px solid #dee2e6;
+            position: sticky;
             top: 0;
-            left: 0;
-            right: 0;
-            z-index: 1000;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-        }
-
-        .main-container {
-            margin-top: 56px;
-            height: calc(100vh - 56px);
-            display: flex;
-            flex-direction: column;
-        }
-
-        .control-panel {
-            background: white;
-            padding: 16px 24px;
-            border-bottom: 2px solid #e3f2f0;
+            z-index: 100;
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
 
-        .comparison-container {
-            flex: 1;
-            display: flex;
-            gap: 8px;
-            padding: 8px;
-            overflow: hidden;
-        }
-
-        .comparison-pane {
-            flex: 1;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
-        .pane-header {
-            background: linear-gradient(135deg, #f0f7f6 0%, #e6f3f1 100%);
-            padding: 12px 16px;
-            border-bottom: 2px solid #0a6b5e;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .pane-title {
-            font-size: 16px;
-            font-weight: 600;
-            color: #0a6b5e;
-        }
-
-        .pane-content {
-            flex: 1;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .iframe-container {
-            width: 100%;
-            height: 100%;
+        .tab-btn {
+            padding: 16px 24px;
+            background: none;
             border: none;
-        }
-
-        .select-group {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-        }
-
-        .select-label {
-            font-size: 13px;
-            font-weight: 600;
+            cursor: pointer;
+            font-weight: 500;
             color: #6c757d;
+            transition: all 0.3s ease;
+            position: relative;
+            white-space: nowrap;
         }
 
-        .custom-select {
-            padding: 8px 12px;
-            border: 1px solid #e3f2f0;
-            border-radius: 6px;
-            background: white;
-            color: #333;
-            font-size: 13px;
-            cursor: pointer;
-            min-width: 200px;
-            transition: all 0.2s;
+        .tab-btn:hover {
+            color: #212529;
+            background: #f8f9fa;
         }
 
-        .custom-select:hover {
-            border-color: #0a6b5e;
-            box-shadow: 0 2px 4px rgba(10, 107, 94, 0.1);
-        }
-
-        .custom-select:focus {
-            outline: none;
-            border-color: #0a6b5e;
-            box-shadow: 0 0 0 3px rgba(10, 107, 94, 0.1);
-        }
-
-        .section-tree {
-            background: white;
-            border: 1px solid #e3f2f0;
-            border-radius: 6px;
-            padding: 8px;
-            margin-top: 8px;
-            max-height: 200px;
-            overflow-y: auto;
-            display: none;
-        }
-
-        .section-tree.active {
-            display: block;
-        }
-
-        .tree-item {
-            padding: 6px 12px;
-            cursor: pointer;
-            font-size: 13px;
-            border-radius: 4px;
-            transition: all 0.2s;
-        }
-
-        .tree-item:hover {
-            background: #f0f7f6;
-            color: #0a6b5e;
-        }
-
-        .tree-item.selected {
-            background: #0a6b5e;
-            color: white;
-        }
-
-        .sync-controls {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-        }
-
-        .sync-btn {
-            padding: 8px 16px;
-            background: #0a6b5e;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-size: 13px;
+        .tab-btn.active {
+            color: #0066cc;
             font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
         }
 
-        .sync-btn:hover {
-            background: #085a4f;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 8px rgba(10, 107, 94, 0.2);
-        }
-
-        .sync-btn.active {
-            background: #28a745;
-        }
-
-        .loading-overlay {
+        .tab-btn.active::after {
+            content: '';
             position: absolute;
-            top: 0;
+            bottom: 0;
             left: 0;
             right: 0;
-            bottom: 0;
-            background: rgba(255, 255, 255, 0.9);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 100;
+            height: 3px;
+            background: #0066cc;
         }
 
-        .loading-spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid #e3f2f0;
-            border-top-color: #0a6b5e;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
+        .content-section {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 32px 24px;
         }
 
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+        .executive-summary {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            margin-bottom: 32px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border: 1px solid #e9ecef;
         }
 
-        .status-indicator {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #28a745;
+        .comparison-selector {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 32px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border: 1px solid #e9ecef;
+        }
+
+        .treatment-selector {
             display: inline-block;
-            margin-left: 8px;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-
-        .tree-category {
-            font-weight: 600;
-            color: #0a6b5e;
-            padding: 8px 12px;
-            background: #f0f7f6;
-            margin: 4px 0;
-            border-radius: 4px;
-        }
-
-        .tree-subcategory {
-            padding-left: 24px;
-        }
-
-        .comparison-mode-toggle {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-            background: #f0f7f6;
-            padding: 4px;
-            border-radius: 6px;
-        }
-
-        .mode-btn {
-            padding: 6px 12px;
-            background: transparent;
-            border: none;
-            border-radius: 4px;
-            font-size: 13px;
+            padding: 12px 20px;
+            margin: 8px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.3s ease;
+            background: white;
         }
 
-        .mode-btn.active {
+        .treatment-selector:hover {
+            border-color: #0066cc;
+            background: #f0f7ff;
+        }
+
+        .treatment-selector.selected {
+            border-color: #0066cc;
+            background: #0066cc;
+            color: white;
+        }
+
+        .metric-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border: 1px solid #e9ecef;
+            margin-bottom: 24px;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-top: 16px;
+        }
+
+        .data-table th {
+            background: #f8f9fa;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #495057;
+            border-bottom: 2px solid #dee2e6;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .data-table td {
+            padding: 12px;
+            border-bottom: 1px solid #e9ecef;
+            font-size: 14px;
+        }
+
+        .data-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin: 24px 0;
+        }
+
+        .small-chart-container {
+            position: relative;
+            height: 300px;
+            margin: 16px 0;
+        }
+
+        .metric-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            margin: 4px;
+        }
+
+        .badge-high { background: #d4edda; color: #155724; }
+        .badge-medium { background: #fff3cd; color: #856404; }
+        .badge-low { background: #f8d7da; color: #721c24; }
+        .badge-info { background: #d1ecf1; color: #0c5460; }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            margin-top: 24px;
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 16px 0;
+        }
+
+        .warning-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 16px;
+            margin: 16px 0;
+            border-radius: 4px;
+        }
+
+        .success-box {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 16px;
+            margin: 16px 0;
+            border-radius: 4px;
+        }
+
+        .visualization-toggle {
+            display: inline-flex;
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 4px;
+            margin: 16px 0;
+        }
+
+        .viz-btn {
+            padding: 8px 16px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .viz-btn.active {
             background: white;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
-        .highlight-differences {
-            background: #fff3cd !important;
+        .detail-text {
+            color: #495057;
+            line-height: 1.8;
+            margin: 12px 0;
         }
-            /* Custom animations and effects */
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-3px); }
+
+        .section-header {
+            font-size: 24px;
+            font-weight: 700;
+            color: #212529;
+            margin-bottom: 8px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #e9ecef;
         }
-        
-        @keyframes pulse-glow {
-            0%, 100% { opacity: 0.3; }
-            50% { opacity: 0.6; }
+
+        .subsection-header {
+            font-size: 18px;
+            font-weight: 600;
+            color: #495057;
+            margin: 24px 0 16px 0;
         }
-        
-        .nav-bar {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(229, 231, 235, 0.6);
-            box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
-            position: relative;
-            overflow: hidden;
-        }
-        
-        /* Animated gradient background */
-        .nav-bar::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 200%;
-            height: 2px;
-            background: linear-gradient(90deg, 
-                transparent,
-                #10b981,
-                #06b6d4,
-                #8b5cf6,
-                transparent
-            );
-            animation: shimmer 3s infinite;
-        }
-        
-        @keyframes shimmer {
-            0% { left: -100%; }
-            100% { left: 100%; }
-        }
-        
-        .nav-tab {
-            position: relative;
-            padding: 0.5rem 1rem;
-            color: #6b7280;
-            font-weight: 500;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            border-radius: 0.625rem;
-            display: flex;
-            align-items: center;
-            gap: 0.375rem;
-            font-size: 0.875rem;
-            white-space: nowrap;
-        }
-        
-        .nav-tab:hover {
-            color: #1f2937;
-            background: linear-gradient(135deg, 
-                rgba(16, 185, 129, 0.05),
-                rgba(6, 182, 212, 0.05)
-            );
-            transform: translateY(-1px);
-        }
-        
-        .nav-tab.active {
-            color: #fff;
-            background: linear-gradient(135deg, #10b981, #06b6d4);
-            box-shadow: 0 4px 15px -3px rgba(16, 185, 129, 0.3);
-        }
-        
-        .nav-tab svg {
-            transition: all 0.3s ease;
-        }
-        
-        .nav-tab:hover svg {
-            transform: scale(1.1) rotate(5deg);
-        }
-        
-        .nav-tab.active svg {
-            filter: brightness(1.2);
-            animation: float 3s ease-in-out infinite;
-        }
-        
-        .logo-container {
-            animation: float 4s ease-in-out infinite;
-        }
-        
-        .glow-effect {
-            animation: pulse-glow 2s ease-in-out infinite;
-        }
-        
-        /* Gradient text animation on hover */
-        .brand-text {
-            background-size: 200% 200%;
-            transition: all 0.3s ease;
-        }
-        
-        .brand-container:hover .brand-text {
-            background-position: 100% 0;
-            filter: brightness(1.1);
-        }
-        
-        /* Mobile responsive */
-        @media (max-width: 1024px) {
-            .nav-tabs {
-                gap: 0.25rem;
-            }
-            
-            .nav-tab {
-                padding: 0.4rem 0.75rem;
-                font-size: 0.8rem;
-            }
-            
-            .nav-tab svg {
-                width: 0.875rem;
-                height: 0.875rem;
-            }
-            
-            .brand-text {
-                font-size: 1rem;
-            }
-        }
-        
+
         @media (max-width: 768px) {
-            .nav-bar {
-                padding: 0.75rem 1rem;
-            }
-            
-            .nav-tabs {
-                display: none; /* Hide on mobile to prevent squashing */
-            }
-            
-            .nav-tab {
-                width: 100%;
-                justify-content: center;
+            .comparison-grid {
+                grid-template-columns: 1fr;
             }
         }
-/* Replace the navigation styles (lines ~445-609) with this updated version */
 
-/* Custom animations and effects */
-@keyframes float {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-3px); }
-}
+        .loading-spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #0066cc;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
 
-@keyframes pulse-glow {
-    0%, 100% { opacity: 0.3; }
-    50% { opacity: 0.6; }
-}
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
 
-@keyframes shimmer {
-    0% { left: -100%; }
-    100% { left: 100%; }
-}
+        .drag-handle {
+            cursor: move;
+            padding: 8px;
+            color: #6c757d;
+        }
 
-.nav-bar {
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-bottom: 1px solid rgba(229, 231, 235, 0.6);
-    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
-    position: relative;
-    overflow: hidden;
-    height: auto;
-    min-height: 80px;
-    display: flex;
-    align-items: center;
-}
+        .drag-handle:hover {
+            color: #0066cc;
+        }
 
-/* Animated gradient background line */
-.nav-bar::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 200%;
-    height: 2px;
-    background: linear-gradient(90deg, 
-        transparent,
-        #0a6b5e,
-        #085a4f,
-        #0a6b5e,
-        transparent
-    );
-    animation: shimmer 3s infinite;
-}
+        .comparison-mode-badge {
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            background: #0066cc;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 24px;
+            box-shadow: 0 4px 12px rgba(0,102,204,0.3);
+            z-index: 1000;
+            display: none;
+        }
 
-.nav-tab {
-    position: relative;
-    padding: 0.5rem 1rem;
-    color: #6b7280;
-    font-weight: 500;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    border-radius: 0.625rem;
-    display: flex;
-    align-items: center;
-    gap: 0.375rem;
-    font-size: 0.875rem;
-    white-space: nowrap;
-    text-decoration: none;
-}
-
-.nav-tab:hover {
-    color: #0a6b5e;
-    background: linear-gradient(135deg, 
-        rgba(10, 107, 94, 0.08),
-        rgba(8, 90, 79, 0.05)
-    );
-    transform: translateY(-1px);
-}
-
-.nav-tab.active {
-    color: #fff;
-    background: linear-gradient(135deg, #0a6b5e, #085a4f);
-    box-shadow: 0 4px 15px -3px rgba(10, 107, 94, 0.4);
-}
-
-.nav-tab svg {
-    transition: all 0.3s ease;
-}
-
-.nav-tab:hover svg {
-    transform: scale(1.1) rotate(5deg);
-}
-
-.nav-tab.active svg {
-    filter: brightness(1.2);
-    animation: float 3s ease-in-out infinite;
-}
-
-.logo-container {
-    animation: float 4s ease-in-out infinite;
-}
-
-.glow-effect {
-    animation: pulse-glow 2s ease-in-out infinite;
-}
-
-/* Gradient text animation on hover */
-.brand-text {
-    background-size: 200% 200%;
-    transition: all 0.3s ease;
-}
-
-.brand-container:hover .brand-text {
-    background-position: 100% 0;
-    filter: brightness(1.1);
-}
-
-/* Mobile responsive */
-@media (max-width: 1024px) {
-    .nav-tabs {
-        gap: 0.25rem;
-    }
-    
-    .nav-tab {
-        padding: 0.4rem 0.75rem;
-        font-size: 0.8rem;
-    }
-    
-    .nav-tab svg {
-        width: 0.875rem;
-        height: 0.875rem;
-    }
-    
-    .brand-text {
-        font-size: 1rem;
-    }
-}
-
-@media (max-width: 768px) {
-    .nav-bar {
-        padding: 0.75rem 1rem;
-    }
-    
-    .nav-tabs {
-        display: none;
-    }
-    
-    .nav-tab {
-        width: 100%;
-        justify-content: center;
-    }
-}
+        .comparison-mode-badge.active {
+            display: block;
+        }
     </style>
 </head>
 <body>
-    <!-- Navigation -->
-       <nav class="nav-bar" style="height: auto; min-height: 80px;">
-        <div class="w-full px-8 py-4">
-            <div class="flex items-center justify-between gap-8">
-                <!-- Logo and Brand - Fixed width to prevent squashing -->
-                <div class="brand-container flex items-center gap-4 cursor-pointer group flex-shrink-0" onclick="location.href='/blackstone.html'">
-                    <div class="logo-container relative">
-                        <!-- Using your existing logo -->
-                        <img src="leaf.png" alt="Leaf Intelligence" class="h-12 w-12 object-contain relative z-10 transition-transform duration-300 group-hover:scale-110">
-                        
-                        <!-- Enhanced glow effect with multiple layers -->
-                        <div class="absolute inset-0 bg-gradient-to-r from-emerald-400 via-cyan-400 to-purple-400 opacity-30 blur-xl rounded-full glow-effect"></div>
-                        <div class="absolute inset-0 bg-gradient-to-r from-emerald-300 to-cyan-300 opacity-20 blur-2xl rounded-full scale-150"></div>
-                    </div>
-                    
-                    <div class="flex flex-col">
-                        <span class="brand-text text-xl font-bold bg-gradient-to-r from-emerald-600 via-blue-600 to-purple-600 bg-clip-text text-transparent whitespace-nowrap">
-                            Leaf Intelligence
-                        </span>
-                        <div class="flex items-center gap-2">
-                            <div class="flex items-center gap-1">
-                                <div class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></div>
-                                <span class="text-xs text-gray-600 font-medium">AI Research Platform</span>
-                            </div>
-                            <span class="text-xs bg-gradient-to-r from-emerald-500 to-cyan-500 text-white px-2 py-0.5 rounded-full font-semibold">BETA</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Navigation Tabs - Center aligned with proper spacing -->
-                <div class="nav-tabs flex items-center gap-2 flex-grow justify-center">
-                    <a href="/blackstone.html" class="nav-tab">
-                        <i data-lucide="building-2" class="w-4 h-4"></i>
-                        <span>Companies</span>
-                    </a>
-                    <a href="/competitive.html" class="nav-tab">
-                       <i data-lucide="beaker" class="w-4 h-4"></i>
-                        <span>Pharma Intelligence</span>
-                    </a>
-                    <a href="/comparison.html" class="nav-tab active">
-                        <i data-lucide="git-compare" class="w-4 h-4"></i>
-                        <span>Side-By-Side</span>
-                    </a>
-                </div>
-                
-                <!-- Right side actions - Fixed width -->
-                <div class="flex items-center gap-2 flex-shrink-0">
-                    <button class="p-2 hover:bg-gray-100 rounded-lg transition-colors">
-                        <i data-lucide="search" class="w-4 h-4 text-gray-600"></i>
-                    </button>
-                    <button class="p-2 hover:bg-gray-100 rounded-lg transition-colors relative">
-                        <i data-lucide="bell" class="w-4 h-4 text-gray-600"></i>
-                        <span class="absolute top-1 right-1 w-1.5 h-1.5 bg-red-500 rounded-full"></span>
-                    </button>
-                    <div class="w-px h-6 bg-gray-200"></div>
-                    <!-- <button class="flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-emerald-500 to-cyan-500 text-white rounded-lg font-medium text-sm hover:shadow-lg transition-all hover:scale-105">
-                        <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
-                        <span>Upgrade</span>
-                    </button> -->
-                </div>
-            </div>
-        </div>
-    </nav>
-    <div class="nav-bar">
-            <div class="sync-controls">
-                <button class="sync-btn" onclick="toggleSyncScroll()">
-                    🔗 Sync Scrolling
-                </button>
-                <div class="comparison-mode-toggle">
-                    <button class="mode-btn active" onclick="setComparisonMode('side-by-side')">Side by Side</button>
-                    <button class="mode-btn" onclick="setComparisonMode('overlay')">Overlay</button>
-                </div>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Main Container -->
-    <div class="main-container">
-        <!-- Control Panel -->
-        <div class="control-panel">
-            <div class="flex justify-between items-center">
-                <div class="select-group">
-                    <span class="select-label">Left Panel:</span>
-                    <select class="custom-select" id="leftPageSelect" onchange="loadPage('left')">
-                        <option value="">Select a document...</option>
-                        <option value="Disitamab.html">Disitamab Vedotin (RC48)</option>
-                        <option value="vepdege2.html">Vepdegestrant (ARV-471)</option>
-                        <option value="Atirmociclib.html">Drug 3 Analysis</option>
-                        <option value="Lu-NeoB.html">Drug 4 Analysis</option>
-                        <option value="imlunestrant.html">Drug 5 Analysis</option>
-                    </select>
-                    <select class="custom-select" id="leftSectionSelect" onchange="navigateToSection('left')" disabled>
-                        <option value="">Select section...</option>
-                    </select>
-                </div>
-
-                <div class="select-group">
-                    <span class="select-label">Right Panel:</span>
-                    <select class="custom-select" id="rightPageSelect" onchange="loadPage('right')">
-                        <option value="">Select a document...</option>
-                        <option value="Disitamab.html">Disitamab Vedotin (RC48)</option>
-                        <option value="vepdege2.html">Vepdegestrant (ARV-471)</option>
-                        <option value="Atirmociclib.html">Drug 3 Analysis</option>
-                        <option value="Lu-NeoB.html">Drug 4 Analysis</option>
-                                           <option value="imlunestrant.html">Drug 5 Analysis</option>
-                    </select>
-                    <select class="custom-select" id="rightSectionSelect" onchange="navigateToSection('right')" disabled>
-                        <option value="">Select section...</option>
-                    </select>
-                </div>
-            </div>
-        </div>
-
-        <!-- Comparison Container -->
-        <div class="comparison-container">
-            <!-- Left Pane -->
-            <div class="comparison-pane">
-                <div class="pane-header">
-                    <span class="pane-title" id="leftPaneTitle">No Document Loaded</span>
-                    <span class="status-indicator" id="leftStatus" style="display:none;"></span>
-                </div>
-                <div class="pane-content">
-                    <div class="loading-overlay" id="leftLoading">
-                        <div class="loading-spinner"></div>
-                    </div>
-                    <iframe id="leftFrame" class="iframe-container" style="display:none;"></iframe>
-                </div>
-            </div>
-
-            <!-- Right Pane -->
-            <div class="comparison-pane">
-                <div class="pane-header">
-                    <span class="pane-title" id="rightPaneTitle">No Document Loaded</span>
-                    <span class="status-indicator" id="rightStatus" style="display:none;"></span>
-                </div>
-                <div class="pane-content">
-                    <div class="loading-overlay" id="rightLoading">
-                        <div class="loading-spinner"></div>
-                    </div>
-                    <iframe id="rightFrame" class="iframe-container" style="display:none;"></iframe>
-                </div>
+    <!-- Header -->
+    <div class="header-gradient text-white">
+        <div class="max-w-7xl mx-auto px-6 py-8">
+            <h1 class="text-4xl font-bold mb-2">Comprehensive Treatment Comparative Analysis</h1>
+            <p class="text-xl opacity-90">Investment Intelligence Report | Interactive Data Visualization</p>
+            <div class="mt-6 flex flex-wrap gap-3">
+                <span class="metric-badge" style="background: rgba(255,255,255,0.2); color: white;">4 Treatment Assets</span>
+                <span class="metric-badge" style="background: rgba(255,255,255,0.2); color: white;">$8.5B+ Combined NPV</span>
+                <span class="metric-badge" style="background: rgba(255,255,255,0.2); color: white;">2024-2033 Timeline</span>
+                <span class="metric-badge" style="background: rgba(255,255,255,0.2); color: white;">Blackstone Investment Analysis</span>
             </div>
         </div>
     </div>
 
+    <!-- Tab Navigation -->
+    <div class="tab-container">
+        <div class="max-w-10xl mx-auto px-6 flex overflow-x-auto">
+            <button class="tab-btn active" onclick="showTab('overview')">Executive Overview</button>
+            <button class="tab-btn" onclick="showTab('clinical')">Clinical & Regulatory</button>
+            <button class="tab-btn" onclick="showTab('safety')">Safety Analysis</button>
+            <button class="tab-btn" onclick="showTab('commercial')">Commercial Opportunity</button>
+            <button class="tab-btn" onclick="showTab('financial')">Financial Analysis</button>
+            <button class="tab-btn" onclick="showTab('competitive')">Competitive Landscape</button>
+            <button class="tab-btn" onclick="showTab('operational')">Operational Assessment</button>
+            <button class="tab-btn" onclick="showTab('risks')">Risk Analysis</button>
+        </div>
+    </div>
+
+    <!-- Comparison Mode Badge -->
+    <div class="comparison-mode-badge" id="comparisonBadge">
+        <span>📊 Comparison Mode Active</span>
+    </div>
+
+    <!-- Main Content Container -->
+    <div class="content-section" id="mainContent">
+        <!-- Content will be dynamically inserted here -->
+    </div>
+
     <script>
-        // Configuration for available sections in the standard document structure
-        const STANDARD_SECTIONS = [
-            // Group 1: Overview & Executive
-            { id: 'overview', label: 'Overview', category: 'Executive' },
-            
-            // Group 2: Clinical & Regulatory
-            { id: 'clinical', label: 'Clinical & Regulatory', category: 'Clinical' },
-            { id: 'safety', label: 'Safety & Toxicology', category: 'Clinical' },
-            { id: 'trials', label: 'Complete Trial Analysis', category: 'Clinical' },
-            
-            // Group 3: Scientific
-            { id: 'scientific', label: 'Scientific & IP', category: 'Scientific' },
-            
-            // Group 4: Commercial
-            { id: 'commercial', label: 'Commercial & Market', category: 'Commercial' },
-            { id: 'financial', label: 'Financial & Strategic', category: 'Commercial' },
-            
-            // Group 5: Operational
-            { id: 'operational', label: 'Operational & Legal', category: 'Operational' },
-            { id: 'management', label: 'Management & Team', category: 'Operational' },
-        ];
-
-        let syncScroll = false;
-        let comparisonMode = 'side-by-side';
-
-        // Load a page into specified pane
-        function loadPage(pane) {
-            const selectElement = document.getElementById(`${pane}PageSelect`);
-            const pageUrl = selectElement.value;
-            
-            if (!pageUrl) return;
-            
-            const frame = document.getElementById(`${pane}Frame`);
-            const loading = document.getElementById(`${pane}Loading`);
-            const status = document.getElementById(`${pane}Status`);
-            const title = document.getElementById(`${pane}PaneTitle`);
-            const sectionSelect = document.getElementById(`${pane}SectionSelect`);
-            
-            // Show loading
-            loading.style.display = 'flex';
-            frame.style.display = 'none';
-            status.style.display = 'none';
-            
-            // Update title
-            const selectedOption = selectElement.options[selectElement.selectedIndex];
-            title.textContent = selectedOption.text;
-            
-            // Load the page
-            frame.src = pageUrl;
-            
-            frame.onload = function() {
-                // Hide loading
-                loading.style.display = 'none';
-                frame.style.display = 'block';
-                status.style.display = 'inline-block';
-                
-                // Enable section selector
-                sectionSelect.disabled = false;
-                populateSectionSelector(pane);
-                
-                // Setup sync scrolling if enabled
-                if (syncScroll) {
-                    setupSyncScroll();
-                }
-                
-                // Hide navigation and non-content elements in iframe
-                try {
-                    const iframeDoc = frame.contentDocument || frame.contentWindow.document;
-                    
-                    // Hide nav and tabs
-                    const style = iframeDoc.createElement('style');
-                    style.textContent = `
-                        .nav-bar { display: none !important; }
-                        .tabs { display: none !important; }
-                        .container { margin-top: 0 !important; padding-top: 20px !important; }
-                        .tab-container { box-shadow: none !important; margin-top: 0 !important; }
-                        .tab-content { display: block !important; }
-                        body { padding-top: 0 !important; }
-                    `;
-                    iframeDoc.head.appendChild(style);
-                    
-                    // Make all tab contents visible for navigation
-                    const tabContents = iframeDoc.querySelectorAll('.tab-content');
-                    tabContents.forEach(tab => {
-                        tab.style.display = 'block';
-                        tab.style.marginBottom = '40px';
-                    });
-                } catch(e) {
-                    console.log('Cannot modify iframe content - cross-origin');
-                }
-            };
-        }
-
-        // Populate section selector
-        function populateSectionSelector(pane) {
-            const sectionSelect = document.getElementById(`${pane}SectionSelect`);
-            sectionSelect.innerHTML = '<option value="">Jump to section...</option>';
-            
-            let currentCategory = '';
-            STANDARD_SECTIONS.forEach(section => {
-                if (section.category !== currentCategory) {
-                    currentCategory = section.category;
-                    const optgroup = document.createElement('optgroup');
-                    optgroup.label = currentCategory;
-                    sectionSelect.appendChild(optgroup);
-                }
-                
-                const option = document.createElement('option');
-                option.value = section.id;
-                option.textContent = section.label;
-                sectionSelect.lastElementChild.appendChild(option);
-            });
-        }
-
-        // Navigate to specific section
-        function navigateToSection(pane) {
-            const sectionSelect = document.getElementById(`${pane}SectionSelect`);
-            const sectionId = sectionSelect.value;
-            
-            if (!sectionId) return;
-            
-            const frame = document.getElementById(`${pane}Frame`);
-            
-            try {
-                const iframeDoc = frame.contentDocument || frame.contentWindow.document;
-                const targetElement = iframeDoc.getElementById(sectionId);
-                
-                if (targetElement) {
-                    targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    
-                    // Highlight the section briefly
-                    targetElement.style.transition = 'background 0.3s';
-                    targetElement.style.background = '#fff3cd';
-                    setTimeout(() => {
-                        targetElement.style.background = '';
-                    }, 2000);
-                }
-            } catch(e) {
-                // If cross-origin, try using hash navigation
-                const currentSrc = frame.src;
-                const baseUrl = currentSrc.split('#')[0];
-                frame.src = baseUrl + '#' + sectionId;
-            }
-        }
-
-        // Toggle synchronized scrolling
-        function toggleSyncScroll() {
-            syncScroll = !syncScroll;
-            const btn = event.target;
-            
-            if (syncScroll) {
-                btn.classList.add('active');
-                btn.textContent = '🔗 Sync ON';
-                setupSyncScroll();
-            } else {
-                btn.classList.remove('active');
-                btn.textContent = '🔗 Sync OFF';
-                removeSyncScroll();
-            }
-        }
-
-        // Setup synchronized scrolling
-        function setupSyncScroll() {
-            const leftFrame = document.getElementById('leftFrame');
-            const rightFrame = document.getElementById('rightFrame');
-            
-            try {
-                const leftDoc = leftFrame.contentDocument || leftFrame.contentWindow.document;
-                const rightDoc = rightFrame.contentDocument || rightFrame.contentWindow.document;
-                
-                const leftScrollable = leftDoc.documentElement || leftDoc.body;
-                const rightScrollable = rightDoc.documentElement || rightDoc.body;
-                
-                let syncing = false;
-                
-                leftFrame.contentWindow.addEventListener('scroll', function() {
-                    if (!syncing && syncScroll) {
-                        syncing = true;
-                        const scrollPercent = leftFrame.contentWindow.scrollY / 
-                            (leftScrollable.scrollHeight - leftFrame.contentWindow.innerHeight);
-                        rightFrame.contentWindow.scrollTo(0, 
-                            scrollPercent * (rightScrollable.scrollHeight - rightFrame.contentWindow.innerHeight));
-                        setTimeout(() => syncing = false, 10);
+        // Comprehensive treatment database with all extracted data
+        const treatmentDatabase = {
+            atirmociclib: {
+                name: "Atirmociclib",
+                fullName: "Atirmociclib (PF-07220060)",
+                company: "Pfizer",
+                ticker: "PFE",
+                color: "#0a6b5e",
+                investmentGrade: "B+",
+                overview: {
+                    mechanism: "Selective CDK4 inhibitor sparing CDK6",
+                    indication: "First-line HR+/HER2- metastatic breast cancer",
+                    differentiation: "Reduced neutropenia (34% vs 68% for palbociclib) while maintaining efficacy",
+                    stage: "Phase 3 ATTAIN-1 enrolling (n=512)",
+                    keyMilestone: "Interim analysis Q4 2025, primary completion 2027",
+                    partnering: "Fully owned by Pfizer",
+                    investmentThesis: "First CDK4-selective inhibitor could capture 15-20% of $8-9B CDK4/6 market with better tolerability"
+                },
+                ptrs: {
+                    overall: 50,
+                    regulatory: 60,
+                    clinical: 55,
+                    commercial: 45,
+                    technical: 70,
+                    timeline: "2028",
+                    reasoning: "Strong Phase 2 data (ORR 35%, mPFS 12.1mo) supports differentiation. FDA pathway clear but comparator heterogeneity in Phase 3 adds risk."
+                },
+                clinical: {
+                    phase1: {
+                        trial: "NCT04557449",
+                        n: 216,
+                        dose: "MTD 600mg, RP2D 400mg QD",
+                        dlt: "Thrombocytopenia, fatigue",
+                        pk: "T½ 24h, steady state day 15"
+                    },
+                    phase2: {
+                        trial: "TACTIVE-U",
+                        n: 187,
+                        population: "Post-CDK4/6 and 1L",
+                        orr: 35,
+                        cbr: 61,
+                        pfs: 12.1,
+                        os: "Not mature",
+                        biomarker: "ESR1 mutations: similar benefit"
+                    },
+                    phase3: {
+                        trial: "ATTAIN-1",
+                        design: "Open-label, randomized 1:1",
+                        n: 512,
+                        primary: "PFS non-inferiority then superiority",
+                        secondary: "OS, ORR, safety, PROs",
+                        comparator: "Investigator choice CDK4/6i",
+                        sites: 150,
+                        countries: 20,
+                        enrollment: "40% enrolled as of Q3 2024",
+                        interim: "Q4 2025 at 60% events"
                     }
-                });
-                
-                rightFrame.contentWindow.addEventListener('scroll', function() {
-                    if (!syncing && syncScroll) {
-                        syncing = true;
-                        const scrollPercent = rightFrame.contentWindow.scrollY / 
-                            (rightScrollable.scrollHeight - rightFrame.contentWindow.innerHeight);
-                        leftFrame.contentWindow.scrollTo(0, 
-                            scrollPercent * (leftScrollable.scrollHeight - leftFrame.contentWindow.innerHeight));
-                        setTimeout(() => syncing = false, 10);
+                },
+                safety: {
+                    aes: {
+                        neutropenia: { g3_4: 34, all: 68 },
+                        thrombocytopenia: { g3_4: 2, all: 15 },
+                        anemia: { g3_4: 9, all: 42 },
+                        diarrhea: { g3_4: 4, all: 58 },
+                        fatigue: { g3_4: 2, all: 35 },
+                        nausea: { g3_4: 1, all: 25 },
+                        alt: { g3_4: 6, all: 18 },
+                        ast: { g3_4: 4, all: 15 }
+                    },
+                    discontinuation: 8,
+                    doseReduction: 18,
+                    deaths: 0,
+                    ild: 0.2,
+                    qolImpact: "Minimal, maintained throughout treatment"
+                },
+                commercial: {
+                    marketSize: 8900,
+                    peakSales: 2000,
+                    peakShare: 20,
+                    pricing: 15000,
+                    launchYear: 2028,
+                    competition: ["Ibrance", "Kisqali", "Verzenio"],
+                    advantages: "Better tolerability, QD dosing, Pfizer infrastructure",
+                    challenges: "Fourth to market, generic competition 2029+"
+                },
+                financial: {
+                    npv: 5000,
+                    probabilityAdjustedNpv: 3000,
+                    irr: 27,
+                    developmentCost: 500,
+                    remainingCost: 200,
+                    peakEbitda: 1400,
+                    breakeven: 2030,
+                    roi: 10
+                },
+                operational: {
+                    manufacturing: "Standard oral solid dose",
+                    api: "11 MT/year at peak",
+                    cogs: 5,
+                    shelfLife: 24,
+                    distribution: "Standard pharma",
+                    patents: "2044 composition of matter"
+                },
+                management: {
+                    leadership: "Chris Boshoff (Oncology Chief)",
+                    experience: "Developed Ibrance, deep CDK expertise",
+                    commitment: "High - strategic priority",
+                    executionRisk: "Low"
+                }
+            },
+            disitamab: {
+                name: "Disitamab Vedotin",
+                fullName: "Disitamab Vedotin (RC48-ADC)",
+                company: "RemeGen/Pfizer",
+                ticker: "9995.HK/PFE",
+                color: "#084298",
+                investmentGrade: "B",
+                overview: {
+                    mechanism: "HER2-targeting ADC with MMAE payload",
+                    indication: "HER2+ and HER2-low breast cancer post-Trastuzumab",
+                    differentiation: "No ILD signal (0% vs 10-15% for T-DXd), active in HER2-low",
+                    stage: "Approved China (3 indications), Phase 2/3 global",
+                    keyMilestone: "US Phase 3 initiation 2025, FDA filing 2026-27",
+                    partnering: "Pfizer $2.6B deal (ex-Asia rights)",
+                    investmentThesis: "Differentiated safety in $20B HER2 market, Pfizer commercialization expertise"
+                },
+                ptrs: {
+                    overall: 45,
+                    regulatory: 50,
+                    clinical: 60,
+                    commercial: 40,
+                    technical: 65,
+                    timeline: "2027",
+                    reasoning: "China approval validates mechanism. Western success requires post-Enhertu positioning. ILD advantage significant but efficacy gap vs T-DXd concerning."
+                },
+                clinical: {
+                    phase1: {
+                        trial: "RC48-C001",
+                        n: 136,
+                        dose: "2.0 mg/kg Q2W",
+                        orr_her2plus: 42.9,
+                        orr_her2low: 33.3,
+                        pfs_her2plus: 5.7,
+                        pfs_her2low: 5.1
+                    },
+                    phase3China: {
+                        trial: "RC48-C006",
+                        n: 104,
+                        population: "HER2+ liver mets",
+                        pfs: 9.9,
+                        pfComparator: 4.9,
+                        hr: 0.56,
+                        orr: 66.3,
+                        os: "Immature"
+                    },
+                    globalDevelopment: {
+                        phase2Trials: 5,
+                        totalPatients: 500,
+                        combinations: ["Checkpoint inhibitors", "Pertuzumab", "Chemo"],
+                        orrRange: "30-75%",
+                        activeCountries: ["US", "EU", "Japan", "China"]
                     }
-                });
-            } catch(e) {
-                console.log('Cannot setup sync scroll - cross-origin');
+                },
+                safety: {
+                    aes: {
+                        neutropenia: { g3_4: 28, all: 52 },
+                        thrombocytopenia: { g3_4: 15, all: 38 },
+                        anemia: { g3_4: 18, all: 45 },
+                        peripheralNeuropathy: { g3_4: 5.9, all: 50 },
+                        fatigue: { g3_4: 8, all: 30 },
+                        nausea: { g3_4: 3, all: 28 },
+                        alt: { g3_4: 8, all: 23 },
+                        ast: { g3_4: 10, all: 28 }
+                    },
+                    discontinuation: 12,
+                    doseReduction: 25,
+                    deaths: 1.5,
+                    ild: 0,
+                    keyAdvantage: "No ILD signal across 500+ patients"
+                },
+                commercial: {
+                    marketSize: 20000,
+                    peakSales: 1200,
+                    peakShare: 12,
+                    pricing: 12000,
+                    launchYear: 2027,
+                    competition: ["Enhertu", "Kadcyla", "Trodelvy"],
+                    advantages: "Safety profile, China proof of concept, Pfizer backing",
+                    challenges: "Fourth to US market, efficacy perception"
+                },
+                financial: {
+                    npv: 1000,
+                    probabilityAdjustedNpv: 450,
+                    irr: 20,
+                    developmentCost: 300,
+                    remainingCost: 150,
+                    dealTerms: {
+                        upfront: 200,
+                        milestones: 2400,
+                        royalties: "High single to mid-teens"
+                    },
+                    chinaRevenue2024: 240,
+                    breakeven: 2025
+                },
+                operational: {
+                    manufacturing: "90,000L bioreactor capacity",
+                    dar: 4,
+                    cogs: 18,
+                    shelfLife: 24,
+                    coldChain: "2-8°C",
+                    commercialScale: "Since 2021"
+                },
+                management: {
+                    leadership: "Dr. Jianmin Fang (Founder/CEO)",
+                    experience: "20+ years, 3 China approvals",
+                    commitment: "Very high - flagship asset",
+                    executionRisk: "Medium - global expansion challenges"
+                }
+            },
+            luneob: {
+                name: "177Lu-NeoB",
+                fullName: "177Lu-NeoB Radioligand Therapy",
+                company: "Novartis",
+                ticker: "NVS",
+                color: "#dc3545",
+                investmentGrade: "C+",
+                overview: {
+                    mechanism: "GRPR-targeting radioligand therapy with Lu-177",
+                    indication: "Post-CDK4/6 ER+/HER2- metastatic breast cancer",
+                    differentiation: "First RLT in breast cancer, theranostic approach",
+                    stage: "Phase 1b combinations ongoing",
+                    keyMilestone: "Phase 2 efficacy data 2026, Phase 3 decision 2027",
+                    partnering: "Fully owned by Novartis",
+                    investmentThesis: "Platform play in RLT but early stage, complex logistics, unclear efficacy"
+                },
+                ptrs: {
+                    overall: 15,
+                    regulatory: 40,
+                    clinical: 20,
+                    commercial: 25,
+                    technical: 45,
+                    timeline: "2033+",
+                    reasoning: "No efficacy data yet, complex theranostic requiring infrastructure. Success requires both diagnostic and therapeutic approval. Long timeline reduces NPV."
+                },
+                clinical: {
+                    phase1: {
+                        trial: "NeoRay NCT03872778",
+                        n: "Unknown",
+                        status: "Ongoing",
+                        dose: "Dose escalation ongoing",
+                        eligibility: "68Ga-NeoB PET positive"
+                    },
+                    phase1b: {
+                        trials: ["NeoB-002", "NeoB-003", "NeoB-004"],
+                        n: 48,
+                        combinations: ["Ribociclib/Fulvestrant", "Capecitabine", "Sacituzumab"],
+                        primaryEndpoint: "Safety, RP2D",
+                        enrollment: "30% as of Q3 2024"
+                    },
+                    development: {
+                        phase2Ready: 2026,
+                        phase3Start: 2028,
+                        filing: 2032,
+                        approval: 2033
+                    }
+                },
+                safety: {
+                    expected: {
+                        neutropenia: { g3_4: 40, all: 70 },
+                        thrombocytopenia: { g3_4: 30, all: 60 },
+                        anemia: { g3_4: 25, all: 55 },
+                        renalToxicity: "Primary DLT organ",
+                        nausea: { g3_4: 5, all: 40 },
+                        fatigue: { g3_4: 10, all: 45 }
+                    },
+                    longTerm: {
+                        mds: "2-3% at 5 years",
+                        renalFailure: "Monitoring required",
+                        marrowSuppression: "Cumulative"
+                    }
+                },
+                commercial: {
+                    marketSize: 2000,
+                    peakSales: 1500,
+                    peakShare: 25,
+                    pricing: 300000,
+                    launchYear: 2033,
+                    competition: "No direct RLT competitors",
+                    advantages: "First-mover in breast RLT, Novartis RLT platform",
+                    challenges: "Infrastructure requirements, long development"
+                },
+                financial: {
+                    npv: 3000,
+                    probabilityAdjustedNpv: 450,
+                    irr: 22,
+                    developmentCost: 500,
+                    remainingCost: 400,
+                    breakeven: 2035,
+                    platformValue: "Additional if successful"
+                },
+                operational: {
+                    manufacturing: "Complex isotope production",
+                    halfLife: "66 hours",
+                    logistics: "Specialized distribution",
+                    cogs: 50000,
+                    infrastructure: "Nuclear medicine centers only"
+                },
+                management: {
+                    leadership: "RLT dedicated team post-Pluvicto",
+                    experience: "2 RLT approvals (Lutathera, Pluvicto)",
+                    commitment: "High - strategic platform",
+                    executionRisk: "High - complex development"
+                }
+            },
+            vepdegestrant: {
+                name: "Vepdegestrant",
+                fullName: "Vepdegestrant (ARV-471)",
+                company: "Arvinas/Pfizer",
+                ticker: "ARVN/PFE",
+                color: "#28a745",
+                investmentGrade: "A-",
+                overview: {
+                    mechanism: "First-in-class ER PROTAC degrader",
+                    indication: "ESR1-mutant ER+/HER2- breast cancer 2L+",
+                    differentiation: "Superior to fulvestrant in ESR1-mut (HR 0.57), better tolerability than elacestrant",
+                    stage: "NDA submitted, PDUFA June 5, 2026",
+                    keyMilestone: "FDA approval mid-2026, launch Q3 2026",
+                    partnering: "Pfizer 50/50 profit share ($2.4B deal)",
+                    investmentThesis: "Near-term approval, first PROTAC success, Arvinas undervalued at $570M market cap vs $861M cash"
+                },
+                ptrs: {
+                    overall: 89,
+                    regulatory: 90,
+                    clinical: 85,
+                    commercial: 75,
+                    technical: 95,
+                    timeline: "2026",
+                    reasoning: "Positive Phase 3, NDA accepted, clear regulatory path. Only risk is narrow initial label (ESR1-mut only ~40% of patients)."
+                },
+                clinical: {
+                    phase1_2: {
+                        trial: "Phase 1/2",
+                        n: 147,
+                        cbr: 51.1,
+                        orr: 19.2,
+                        pfs: 5.6,
+                        population: "Heavily pretreated"
+                    },
+                    veritac: {
+                        trial: "VERITAC",
+                        n: 71,
+                        cbr: 51.5,
+                        durability: "16.5 months median"
+                    },
+                    veritac2: {
+                        trial: "VERITAC-2",
+                        n: 330,
+                        population: "2L+ ER+/HER2- mBC",
+                        pfsEsr1: 7.2,
+                        pfsEsr1Control: 3.8,
+                        hrEsr1: 0.57,
+                        pvalue: 0.0001,
+                        pfsAll: 5.5,
+                        pfsAllControl: 3.8,
+                        hrAll: 0.77,
+                        pvalueAll: 0.048
+                    }
+                },
+                safety: {
+                    aes: {
+                        neutropenia: { g3_4: 0, all: 2 },
+                        anemia: { g3_4: 2, all: 8 },
+                        nausea: { g3_4: 1, all: 13.5 },
+                        fatigue: { g3_4: 8, all: 25 },
+                        bradycardia: { g3_4: 0, all: 6 },
+                        qtcProlongation: { g3_4: 0, all: 3 }
+                    },
+                    discontinuation: 17.2,
+                    doseReduction: 8,
+                    deaths: 0,
+                    advantage: "Best-in-class tolerability for oral SERD"
+                },
+                commercial: {
+                    marketSize: 3000,
+                    peakSales: 1500,
+                    peakShare: 45,
+                    pricing: 20000,
+                    launchYear: 2026,
+                    competition: ["Elacestrant", "Camizestrant (2027)"],
+                    advantages: "First PROTAC, Pfizer commercialization, superior data",
+                    challenges: "Narrow initial indication, competition coming"
+                },
+                financial: {
+                    npv: 4000,
+                    probabilityAdjustedNpv: 3500,
+                    irr: 28,
+                    arvnMarketCap: 570,
+                    arvnCash: 861,
+                    arvnEV: -291,
+                    dealTerms: {
+                        received: 650,
+                        regulatory: 400,
+                        commercial: 1000,
+                        profitShare: 50
+                    },
+                    nearTermMilestone: 100,
+                    breakeven: 2027
+                },
+                operational: {
+                    manufacturing: "CMO scaled for launch",
+                    api: "Standard small molecule",
+                    cogs: 8,
+                    shelfLife: 36,
+                    distribution: "Standard oral",
+                    patents: "2035+ composition"
+                },
+                management: {
+                    leadership: "Ron Richardson (interim CEO post-restructure)",
+                    experience: "PROTAC pioneers, first to Phase 3",
+                    commitment: "Laser focus post-restructure",
+                    executionRisk: "Low - Pfizer handling commercialization"
+                }
             }
+        };
+
+        // Current state variables
+        let currentTab = 'overview';
+        let selectedTreatments = [];
+        let visualizationMode = 'table';
+
+        // Initialize the report
+        function initializeReport() {
+            const contentContainer = document.getElementById('mainContent');
+            renderOverviewTab(contentContainer)
+            // showTab('overview');
         }
 
-        // Remove synchronized scrolling
-        function removeSyncScroll() {
-            // Event listeners will check syncScroll flag
-        }
-
-        // Set comparison mode
-        function setComparisonMode(mode) {
-            comparisonMode = mode;
+        // Tab switching function
+        function showTab(tabName) {
+            currentTab = tabName;
             
-            document.querySelectorAll('.mode-btn').forEach(btn => {
+            // Update tab buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
                 btn.classList.remove('active');
             });
-            event.target.classList.add('active');
+            event.target?.classList.add('active');
             
-            if (mode === 'overlay') {
-                // Implement overlay mode if needed
-                alert('Overlay mode coming soon - will highlight differences between sections');
-            }
-        }
-
-        // Quick preset comparisons
-        function loadPresetComparison(preset) {
-            switch(preset) {
+            // Render content based on tab
+            const contentContainer = document.getElementById('mainContent');
+            
+            switch(tabName) {
+                case 'overview':
+                    renderOverviewTab(contentContainer);
+                    break;
                 case 'clinical':
-                    document.getElementById('leftPageSelect').value = 'disitamab-vedotin.html';
-                    document.getElementById('rightPageSelect').value = 'vepdegestrant.html';
-                    loadPage('left');
-                    loadPage('right');
-                    setTimeout(() => {
-                        document.getElementById('leftSectionSelect').value = 'clinical';
-                        document.getElementById('rightSectionSelect').value = 'clinical';
-                        navigateToSection('left');
-                        navigateToSection('right');
-                    }, 2000);
+                    renderClinicalTab(contentContainer);
+                    break;
+                case 'safety':
+                    renderSafetyTab(contentContainer);
+                    break;
+                case 'commercial':
+                    renderCommercialTab(contentContainer);
+                    break;
+                case 'financial':
+                    renderFinancialTab(contentContainer);
+                    break;
+                case 'competitive':
+                    renderCompetitiveTab(contentContainer);
+                    break;
+                case 'operational':
+                    renderOperationalTab(contentContainer);
+                    break;
+                case 'risks':
+                    renderRisksTab(contentContainer);
                     break;
             }
         }
 
-        // Initialize with empty frames
-        window.onload = function() {
-            // Set initial state
-            document.getElementById('leftLoading').style.display = 'none';
-            document.getElementById('rightLoading').style.display = 'none';
-        };
-           document.addEventListener('DOMContentLoaded', function() {
-            lucide.createIcons();
-        });
+        // Render Overview Tab
+        function renderOverviewTab(container) {
+            container.innerHTML = `
+                <div class="executive-summary">
+                    <h2 class="section-header">Executive Investment Summary</h2>
+                    <p class="detail-text">
+                        This comprehensive analysis evaluates four late-stage breast cancer therapeutics representing diverse mechanisms and development stages. 
+                        The portfolio spans from near-term approval (Vepdegestrant, PDUFA 2026) to early-stage innovation (177Lu-NeoB), 
+                        offering both immediate returns and long-term platform opportunities.
+                    </p>
+                    
+                    <div class="highlight-box mt-6">
+                        <h3 class="text-xl font-bold mb-3">Key Investment Recommendations</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <strong>Highest Conviction:</strong> Vepdegestrant (A-)
+                                <p class="text-sm mt-1">89% PTRS, near-term approval, Arvinas undervalued</p>
+                            </div>
+                            <div>
+                                <strong>Best Risk/Return:</strong> Atirmociclib (B+)
+                                <p class="text-sm mt-1">Differentiated safety, Pfizer execution, $5B NPV</p>
+                            </div>
+                            <div>
+                                <strong>Tactical Opportunity:</strong> Disitamab (B)
+                                <p class="text-sm mt-1">China validation, safety advantage, Pfizer deal</p>
+                            </div>
+                            <div>
+                                <strong>Platform Play:</strong> 177Lu-NeoB (C+)
+                                <p class="text-sm mt-1">Early but transformative if successful, Novartis RLT</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="comparison-selector">
+                    <h3 class="subsection-header">Select Treatments to Compare</h3>
+                    <p class="text-gray-600 mb-4">Choose up to 2 treatments for detailed side-by-side comparison</p>
+                    <div class="flex flex-wrap gap-2">
+                        ${Object.entries(treatmentDatabase).map(([key, treatment]) => `
+                            <button class="treatment-selector" onclick="toggleTreatmentSelection('${key}')" data-treatment="${key}">
+                                <span class="font-semibold">${treatment.name}</span>
+                                <span class="metric-badge ${getGradeClass(treatment.investmentGrade)} ml-2">${treatment.investmentGrade}</span>
+                            </button>
+                        `).join('')}
+                    </div>
+                    <div class="visualization-toggle mt-4">
+                        <button class="viz-btn active" onclick="setVisualizationMode('table')">📊 Table View</button>
+                        <button class="viz-btn" onclick="setVisualizationMode('chart')">📈 Chart View</button>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <h3 class="subsection-header">Investment Grade Overview</h3>
+                    <canvas id="investmentGradeChart" class="chart-container"></canvas>
+                </div>
+
+                <div class="comparison-grid">
+                    <div class="metric-card">
+                        <h4 class="font-semibold text-lg mb-3">Development Timeline</h4>
+                        <canvas id="timelineChart" class="small-chart-container"></canvas>
+                    </div>
+                    <div class="metric-card">
+                        <h4 class="font-semibold text-lg mb-3">Probability of Success</h4>
+                        <canvas id="ptrsChart" class="small-chart-container"></canvas>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <h3 class="subsection-header">Key Metrics Comparison</h3>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Treatment</th>
+                                <th>Company</th>
+                                <th>Stage</th>
+                                <th>PTRS</th>
+                                <th>Peak Sales</th>
+                                <th>NPV</th>
+                                <th>Timeline</th>
+                                <th>Key Risk</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${Object.entries(treatmentDatabase).map(([key, t]) => `
+                                <tr>
+                                    <td class="font-semibold">${t.name}</td>
+                                    <td>${t.company}</td>
+                                    <td>${t.overview.stage}</td>
+                                    <td><span class="metric-badge ${getProbabilityClass(t.ptrs.overall)}">${t.ptrs.overall}%</span></td>
+                                    <td>$${t.commercial.peakSales}M</td>
+                                    <td>$${t.financial.npv}M</td>
+                                    <td>${t.ptrs.timeline}</td>
+                                    <td class="text-sm">${getKeyRisk(key)}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+
+            // Initialize charts
+            setTimeout(() => {
+                createInvestmentGradeChart();
+                createTimelineChart();
+                createPTRSChart();
+            }, 100);
+        }
+
+        // Render Clinical Tab
+        function renderClinicalTab(container) {
+            container.innerHTML = `
+                <div class="executive-summary">
+                    <h2 class="section-header">Clinical & Regulatory Analysis</h2>
+                    <p class="detail-text">
+                        Clinical development spans from NDA-submitted (Vepdegestrant) to Phase 1b (177Lu-NeoB). 
+                        Vepdegestrant shows the strongest clinical validation with positive Phase 3 data (HR 0.57 in ESR1-mutant). 
+                        Atirmociclib demonstrates differentiated safety in Phase 2, while Disitamab has three China approvals validating mechanism. 
+                        177Lu-NeoB remains early without efficacy data.
+                    </p>
+                </div>
+
+                <div class="comparison-selector">
+                    <h3 class="subsection-header">Clinical Stage Comparison</h3>
+                    <div class="flex flex-wrap gap-2 mb-4">
+                        ${Object.entries(treatmentDatabase).map(([key, treatment]) => `
+                            <button class="treatment-selector" onclick="toggleTreatmentSelection('${key}')" data-treatment="${key}">
+                                ${treatment.name}
+                            </button>
+                        `).join('')}
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <h3 class="subsection-header">Efficacy Comparison</h3>
+                    <canvas id="efficacyChart" class="chart-container"></canvas>
+                </div>
+
+                <div class="comparison-grid">
+                    ${Object.entries(treatmentDatabase).map(([key, t]) => `
+                        <div class="metric-card">
+                            <h4 class="font-semibold text-lg mb-3" style="color: ${t.color}">${t.name}</h4>
+                            <div class="space-y-3">
+                                <div>
+                                    <span class="text-sm text-gray-600">Current Phase:</span>
+                                    <p class="font-semibold">${getLatestPhase(t)}</p>
+                                </div>
+                                <div>
+                                    <span class="text-sm text-gray-600">Primary Endpoint:</span>
+                                    <p class="font-semibold">${getPrimaryEndpoint(t)}</p>
+                                </div>
+                                <div>
+                                    <span class="text-sm text-gray-600">Key Efficacy:</span>
+                                    <p class="font-semibold">${getKeyEfficacy(t)}</p>
+                                </div>
+                                <div>
+                                    <span class="text-sm text-gray-600">Enrollment:</span>
+                                    <p class="font-semibold">${getTotalEnrollment(t)}</p>
+                                </div>
+                                <div>
+                                    <span class="text-sm text-gray-600">Regulatory Status:</span>
+                                    <p class="font-semibold">${getRegulatoryStatus(t)}</p>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+
+                <div class="metric-card">
+                    <h3 class="subsection-header">Detailed Trial Comparison</h3>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Treatment</th>
+                                <th>Latest Trial</th>
+                                <th>Design</th>
+                                <th>N</th>
+                                <th>Primary Endpoint</th>
+                                <th>Key Result</th>
+                                <th>Timeline</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${Object.entries(treatmentDatabase).map(([key, t]) => `
+                                <tr>
+                                    <td class="font-semibold">${t.name}</td>
+                                    <td>${getLatestTrial(t)}</td>
+                                    <td>${getTrialDesign(t)}</td>
+                                    <td>${getTrialN(t)}</td>
+                                    <td>${getPrimaryEndpoint(t)}</td>
+                                    <td>${getKeyResult(t)}</td>
+                                    <td>${t.ptrs.timeline}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="warning-box">
+                    <h4 class="font-semibold">Critical Clinical Differentiators</h4>
+                    <ul class="mt-2 space-y-1">
+                        <li>• <strong>Vepdegestrant:</strong> Only asset with positive Phase 3 - clear path to approval</li>
+                        <li>• <strong>Atirmociclib:</strong> Superior neutropenia profile (34% vs 68%) maintains efficacy</li>
+                        <li>• <strong>Disitamab:</strong> Zero ILD risk vs 10-15% for competitor Enhertu</li>
+                        <li>• <strong>177Lu-NeoB:</strong> No efficacy data yet - highest clinical risk</li>
+                    </ul>
+                </div>
+            `;
+
+            setTimeout(() => {
+                createEfficacyChart();
+            }, 100);
+        }
+
+        // Render Safety Tab
+        function renderSafetyTab(container) {
+            container.innerHTML = `
+                <div class="executive-summary">
+                    <h2 class="section-header">Comprehensive Safety Analysis</h2>
+                    <p class="detail-text">
+                        Safety profiles show clear differentiation. Vepdegestrant demonstrates best-in-class tolerability with minimal neutropenia (0% Grade 3/4). 
+                        Atirmociclib reduces neutropenia by 50% vs standard CDK4/6 inhibitors. Disitamab's lack of ILD signal is a major advantage vs T-DXd. 
+                        177Lu-NeoB carries expected radiotherapy toxicities including potential long-term MDS risk.
+                    </p>
+                </div>
+
+                <div class="metric-card">
+                    <h3 class="subsection-header">Grade 3/4 Adverse Events Comparison</h3>
+                    <canvas id="safetyChart" class="chart-container"></canvas>
+                </div>
+
+                <div class="comparison-grid">
+                    <div class="metric-card">
+                        <h4 class="font-semibold text-lg mb-3">Hematological Toxicity</h4>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Treatment</th>
+                                    <th>Neutropenia</th>
+                                    <th>Thrombocytopenia</th>
+                                    <th>Anemia</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${Object.entries(treatmentDatabase).map(([key, t]) => `
+                                    <tr>
+                                        <td class="font-semibold">${t.name}</td>
+                                        <td>${getAEValue(t, 'neutropenia')}%</td>
+                                        <td>${getAEValue(t, 'thrombocytopenia')}%</td>
+                                        <td>${getAEValue(t, 'anemia')}%</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="metric-card">
+                        <h4 class="font-semibold text-lg mb-3">Key Safety Metrics</h4>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Treatment</th>
+                                    <th>Discontinuation</th>
+                                    <th>Dose Reduction</th>
+                                    <th>Deaths</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${Object.entries(treatmentDatabase).map(([key, t]) => `
+                                    <tr>
+                                        <td class="font-semibold">${t.name}</td>
+                                        <td>${t.safety.discontinuation || t.safety.expected?.discontinuation || 'TBD'}%</td>
+                                        <td>${t.safety.doseReduction || 'TBD'}%</td>
+                                        <td>${t.safety.deaths || t.safety.expected?.deaths || 'TBD'}%</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <h3 class="subsection-header">Unique Safety Considerations</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        ${Object.entries(treatmentDatabase).map(([key, t]) => `
+                            <div class="p-4 border border-gray-200 rounded-lg">
+                                <h4 class="font-semibold mb-2" style="color: ${t.color}">${t.name}</h4>
+                                <p class="text-sm text-gray-600">${getUniqueSafetyProfile(t)}</p>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+
+                <div class="success-box">
+                    <h4 class="font-semibold">Safety-Based Investment Implications</h4>
+                    <ul class="mt-2 space-y-1">
+                        <li>• <strong>Vepdegestrant:</strong> Superior tolerability supports premium pricing and market share capture</li>
+                        <li>• <strong>Atirmociclib:</strong> Safety differentiation justifies late market entry</li>
+                        <li>• <strong>Disitamab:</strong> ILD advantage critical for post-Enhertu positioning</li>
+                        <li>• <strong>177Lu-NeoB:</strong> Toxicity profile requires careful patient selection</li>
+                    </ul>
+                </div>
+            `;
+
+            setTimeout(() => {
+                createSafetyChart();
+            }, 100);
+        }
+
+        // Render Commercial Tab
+        function renderCommercialTab(container) {
+            container.innerHTML = `
+                <div class="executive-summary">
+                    <h2 class="section-header">Commercial Opportunity Assessment</h2>
+                    <p class="detail-text">
+                        Combined peak sales potential exceeds $6.7B across four assets. The CDK4/6 market ($8-9B) and HER2 market ($20B) 
+                        offer substantial opportunities. Vepdegestrant's near-term launch (2026) provides immediate revenue potential. 
+                        Pricing ranges from $12-15K/month (oral agents) to $300K/course (RLT), reflecting different value propositions and competitive dynamics.
+                    </p>
+                </div>
+
+                <div class="metric-card">
+                    <h3 class="subsection-header">Peak Sales Projections</h3>
+                    <canvas id="peakSalesChart" class="chart-container"></canvas>
+                </div>
+
+                <div class="comparison-grid">
+                    <div class="metric-card">
+                        <h4 class="font-semibold text-lg mb-3">Market Dynamics</h4>
+                        <canvas id="marketShareChart" class="small-chart-container"></canvas>
+                    </div>
+                    <div class="metric-card">
+                        <h4 class="font-semibold text-lg mb-3">Launch Timeline</h4>
+                        <canvas id="launchTimelineChart" class="small-chart-container"></canvas>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <h3 class="subsection-header">Commercial Comparison Matrix</h3>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Treatment</th>
+                                <th>Market Size</th>
+                                <th>Peak Sales</th>
+                                <th>Peak Share</th>
+                                <th>Pricing/Month</th>
+                                <th>Launch</th>
+                                <th>Key Competition</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${Object.entries(treatmentDatabase).map(([key, t]) => `
+                                <tr>
+                                    <td class="font-semibold">${t.name}</td>
+                                    <td>$${(t.commercial.marketSize/1000).toFixed(1)}B</td>
+                                    <td>$${(t.commercial.peakSales/1000).toFixed(1)}B</td>
+                                    <td>${t.commercial.peakShare}%</td>
+                                    <td>$${typeof t.commercial.pricing === 'number' ? (t.commercial.pricing/1000).toFixed(0) + 'K' : t.commercial.pricing}</td>
+                                    <td>${t.commercial.launchYear}</td>
+                                    <td class="text-sm">${Array.isArray(t.commercial.competition) ? t.commercial.competition[0] : t.commercial.competition}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="highlight-box">
+                    <h3 class="text-xl font-bold mb-3">Commercial Success Factors</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        ${Object.entries(treatmentDatabase).map(([key, t]) => `
+                            <div>
+                                <strong>${t.name}:</strong>
+                                <p class="text-sm mt-1">${t.commercial.advantages}</p>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+
+            setTimeout(() => {
+                createPeakSalesChart();
+                createMarketShareChart();
+                createLaunchTimelineChart();
+            }, 100);
+        }
+
+        // Render Financial Tab
+        function renderFinancialTab(container) {
+            container.innerHTML = `
+                <div class="executive-summary">
+                    <h2 class="section-header">Financial Analysis & Valuation</h2>
+                    <p class="detail-text">
+                        Combined risk-adjusted NPV exceeds $7.4B across the portfolio. Vepdegestrant offers the most attractive near-term opportunity 
+                        with Arvinas trading below cash ($570M market cap vs $861M cash). IRRs range from 20-28%, exceeding typical hurdle rates. 
+                        Deal structures vary from full ownership (Pfizer assets) to complex partnerships with significant milestone potential.
+                    </p>
+                </div>
+
+                <div class="metric-card">
+                    <h3 class="subsection-header">NPV Analysis</h3>
+                    <canvas id="npvChart" class="chart-container"></canvas>
+                </div>
+
+                <div class="comparison-grid">
+                    <div class="metric-card">
+                        <h4 class="font-semibold text-lg mb-3">IRR Comparison</h4>
+                        <canvas id="irrChart" class="small-chart-container"></canvas>
+                    </div>
+                    <div class="metric-card">
+                        <h4 class="font-semibold text-lg mb-3">Investment Efficiency</h4>
+                        <canvas id="roiChart" class="small-chart-container"></canvas>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <h3 class="subsection-header">Financial Metrics Comparison</h3>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Treatment</th>
+                                <th>NPV</th>
+                                <th>Risk-Adj NPV</th>
+                                <th>IRR</th>
+                                <th>Dev Cost</th>
+                                <th>Breakeven</th>
+                                <th>Deal Value</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${Object.entries(treatmentDatabase).map(([key, t]) => `
+                                <tr>
+                                    <td class="font-semibold">${t.name}</td>
+                                    <td>$${(t.financial.npv/1000).toFixed(1)}B</td>
+                                    <td>$${(t.financial.probabilityAdjustedNpv/1000).toFixed(1)}B</td>
+                                    <td>${t.financial.irr}%</td>
+                                    <td>$${t.financial.developmentCost}M</td>
+                                    <td>${t.financial.breakeven}</td>
+                                    <td>${t.financial.dealTerms ? '$' + (t.financial.dealTerms.upfront + t.financial.dealTerms.milestones) + 'M' : 'N/A'}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="warning-box">
+                    <h4 class="font-semibold">Key Financial Insights</h4>
+                    <ul class="mt-2 space-y-1">
+                        <li>• <strong>Vepdegestrant:</strong> Arvinas market cap dislocation creates 4-6x return opportunity</li>
+                        <li>• <strong>Atirmociclib:</strong> $5B NPV justifies continued investment despite late entry</li>
+                        <li>• <strong>Disitamab:</strong> $2.4B milestone potential with proven China revenue</li>
+                        <li>• <strong>177Lu-NeoB:</strong> High development cost but platform value upside</li>
+                    </ul>
+                </div>
+            `;
+
+            setTimeout(() => {
+                createNPVChart();
+                createIRRChart();
+                createROIChart();
+            }, 100);
+        }
+
+        // Render Competitive Tab
+        function renderCompetitiveTab(container) {
+            container.innerHTML = `
+                <div class="executive-summary">
+                    <h2 class="section-header">Competitive Landscape Analysis</h2>
+                    <p class="detail-text">
+                        Each asset faces distinct competitive dynamics. Vepdegestrant enters a nascent oral SERD market with first-mover advantage in PROTACs. 
+                        Atirmociclib must differentiate in the mature CDK4/6 space through superior safety. Disitamab competes in the crowded HER2-ADC market 
+                        with safety differentiation. 177Lu-NeoB has no direct RLT competition in breast cancer, representing a blue ocean opportunity if successful.
+                    </p>
+                </div>
+
+                <div class="metric-card">
+                    <h3 class="subsection-header">Competitive Positioning Map</h3>
+                    <canvas id="competitiveMapChart" class="chart-container"></canvas>
+                </div>
+
+                <div class="comparison-grid">
+                    ${Object.entries(treatmentDatabase).map(([key, t]) => `
+                        <div class="metric-card">
+                            <h4 class="font-semibold text-lg mb-3" style="color: ${t.color}">${t.name}</h4>
+                            <div class="space-y-2">
+                                <div>
+                                    <span class="text-sm text-gray-600 font-semibold">Key Competitors:</span>
+                                    <p class="text-sm">${Array.isArray(t.commercial.competition) ? t.commercial.competition.join(', ') : t.commercial.competition}</p>
+                                </div>
+                                <div>
+                                    <span class="text-sm text-gray-600 font-semibold">Differentiation:</span>
+                                    <p class="text-sm">${t.overview.differentiation}</p>
+                                </div>
+                                <div>
+                                    <span class="text-sm text-gray-600 font-semibold">Market Position:</span>
+                                    <p class="text-sm">${getMarketPosition(key)}</p>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+
+                <div class="metric-card">
+                    <h3 class="subsection-header">Competitive Advantages & Challenges</h3>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Treatment</th>
+                                <th>Key Advantages</th>
+                                <th>Main Challenges</th>
+                                <th>Success Factors</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${Object.entries(treatmentDatabase).map(([key, t]) => `
+                                <tr>
+                                    <td class="font-semibold">${t.name}</td>
+                                    <td class="text-sm">${t.commercial.advantages}</td>
+                                    <td class="text-sm">${t.commercial.challenges}</td>
+                                    <td class="text-sm">${getSuccessFactors(key)}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+
+            setTimeout(() => {
+                createCompetitiveMapChart();
+            }, 100);
+        }
+
+        // Render Operational Tab
+        function renderOperationalTab(container) {
+            container.innerHTML = `
+                <div class="executive-summary">
+                    <h2 class="section-header">Operational & Manufacturing Assessment</h2>
+                    <p class="detail-text">
+                        Manufacturing complexity varies significantly across assets. Standard oral production for Atirmociclib and Vepdegestrant 
+                        offers lowest operational risk. Disitamab's 90,000L bioreactor capacity is proven at commercial scale. 
+                        177Lu-NeoB requires complex isotope production and specialized distribution, representing the highest operational challenge.
+                    </p>
+                </div>
+
+                <div class="metric-card">
+                    <h3 class="subsection-header">Manufacturing Complexity Analysis</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        ${Object.entries(treatmentDatabase).map(([key, t]) => `
+                            <div class="p-4 border-2 ${getComplexityColor(t.operational.manufacturing)} rounded-lg">
+                                <h4 class="font-semibold mb-2">${t.name}</h4>
+                                <p class="text-sm font-medium">Type: ${t.operational.manufacturing}</p>
+                                <p class="text-sm">COGS: ${t.operational.cogs}%</p>
+                                <p class="text-sm">Shelf Life: ${t.operational.shelfLife}${t.operational.halfLife ? ' (half-life)' : ' months'}</p>
+                                ${t.operational.coldChain ? `<p class="text-sm">Cold Chain: ${t.operational.coldChain}</p>` : ''}
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <h3 class="subsection-header">Operational Metrics Comparison</h3>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Treatment</th>
+                                <th>Manufacturing</th>
+                                <th>Scale/Capacity</th>
+                                <th>COGS</th>
+                                <th>Distribution</th>
+                                <th>Patents</th>
+                                <th>Operational Risk</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${Object.entries(treatmentDatabase).map(([key, t]) => `
+                                <tr>
+                                    <td class="font-semibold">${t.name}</td>
+                                    <td class="text-sm">${t.operational.manufacturing}</td>
+                                    <td class="text-sm">${t.operational.api || t.operational.capacity || t.operational.dar || 'TBD'}</td>
+                                    <td>${t.operational.cogs}${typeof t.operational.cogs === 'number' && t.operational.cogs < 100 ? '%' : ''}</td>
+                                    <td class="text-sm">${t.operational.distribution || t.operational.logistics || 'Standard'}</td>
+                                    <td class="text-sm">${t.operational.patents}</td>
+                                    <td><span class="metric-badge ${getOperationalRiskClass(key)}">${getOperationalRisk(key)}</span></td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="comparison-grid">
+                    <div class="metric-card">
+                        <h4 class="font-semibold text-lg mb-3">Management & Execution</h4>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Company</th>
+                                    <th>Leadership</th>
+                                    <th>Track Record</th>
+                                    <th>Risk</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${Object.entries(treatmentDatabase).map(([key, t]) => `
+                                    <tr>
+                                        <td class="font-semibold">${t.company}</td>
+                                        <td class="text-sm">${t.management.leadership}</td>
+                                        <td class="text-sm">${t.management.experience}</td>
+                                        <td class="text-sm">${t.management.executionRisk}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Render Risks Tab
+        function renderRisksTab(container) {
+            container.innerHTML = `
+                <div class="executive-summary">
+                    <h2 class="section-header">Comprehensive Risk Assessment</h2>
+                    <p class="detail-text">
+                        Risk profiles vary significantly across assets. Vepdegestrant carries lowest risk with completed Phase 3 and accepted NDA. 
+                        Atirmociclib faces commercial risk as fourth-to-market despite differentiation. Disitamab must prove Western regulatory acceptability 
+                        of China data. 177Lu-NeoB carries highest risk with no efficacy data and complex development path.
+                    </p>
+                </div>
+
+                <div class="metric-card">
+                    <h3 class="subsection-header">Risk Matrix Visualization</h3>
+                    <canvas id="riskMatrixChart" class="chart-container"></canvas>
+                </div>
+
+                <div class="metric-card">
+                    <h3 class="subsection-header">Risk Category Analysis</h3>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Treatment</th>
+                                <th>Clinical Risk</th>
+                                <th>Regulatory Risk</th>
+                                <th>Commercial Risk</th>
+                                <th>Operational Risk</th>
+                                <th>Financial Risk</th>
+                                <th>Overall Risk</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${Object.entries(treatmentDatabase).map(([key, t]) => `
+                                <tr>
+                                    <td class="font-semibold">${t.name}</td>
+                                    <td><span class="metric-badge ${getRiskClass(getClinicalRisk(key))}">${getClinicalRisk(key)}</span></td>
+                                    <td><span class="metric-badge ${getRiskClass(getRegulatoryRisk(key))}">${getRegulatoryRisk(key)}</span></td>
+                                    <td><span class="metric-badge ${getRiskClass(getCommercialRisk(key))}">${getCommercialRisk(key)}</span></td>
+                                    <td><span class="metric-badge ${getRiskClass(getOperationalRisk(key))}">${getOperationalRisk(key)}</span></td>
+                                    <td><span class="metric-badge ${getRiskClass(getFinancialRisk(key))}">${getFinancialRisk(key)}</span></td>
+                                    <td><span class="metric-badge ${getRiskClass(getOverallRisk(key))}">${getOverallRisk(key)}</span></td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="comparison-grid">
+                    ${Object.entries(treatmentDatabase).map(([key, t]) => `
+                        <div class="metric-card">
+                            <h4 class="font-semibold text-lg mb-3" style="color: ${t.color}">${t.name}</h4>
+                            <div class="space-y-2">
+                                <div>
+                                    <span class="text-sm text-gray-600 font-semibold">Key Risk:</span>
+                                    <p class="text-sm">${getKeyRisk(key)}</p>
+                                </div>
+                                <div>
+                                    <span class="text-sm text-gray-600 font-semibold">Mitigation:</span>
+                                    <p class="text-sm">${getRiskMitigation(key)}</p>
+                                </div>
+                                <div>
+                                    <span class="text-sm text-gray-600 font-semibold">Probability of Success:</span>
+                                    <p class="font-semibold">${t.ptrs.overall}%</p>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+
+                <div class="warning-box">
+                    <h4 class="font-semibold">Critical Risk Considerations</h4>
+                    <ul class="mt-2 space-y-1">
+                        <li>• <strong>Market Risk:</strong> Generic CDK4/6 inhibitors arriving 2029 impact Atirmociclib</li>
+                        <li>• <strong>Regulatory Risk:</strong> Disitamab China data acceptance by FDA uncertain</li>
+                        <li>• <strong>Technical Risk:</strong> 177Lu-NeoB efficacy completely unproven</li>
+                        <li>• <strong>Financial Risk:</strong> Arvinas restructuring impacts Vepdegestrant partnership dynamics</li>
+                    </ul>
+                </div>
+            `;
+
+            setTimeout(() => {
+                createRiskMatrixChart();
+            }, 100);
+        }
+
+        // Helper functions for data extraction
+        function getGradeClass(grade) {
+            if (grade.includes('A')) return 'badge-high';
+            if (grade.includes('B')) return 'badge-medium';
+            return 'badge-low';
+        }
+
+        function getProbabilityClass(value) {
+            if (value >= 70) return 'badge-high';
+            if (value >= 40) return 'badge-medium';
+            return 'badge-low';
+        }
+
+        function getKeyRisk(key) {
+            const risks = {
+                atirmociclib: "Fourth to market in competitive CDK4/6 space",
+                disitamab: "Western regulatory acceptance of China data",
+                luneob: "No efficacy data, complex infrastructure needs",
+                vepdegestrant: "Narrow initial label (ESR1-mut only)"
+            };
+            return risks[key];
+        }
+
+        function getRiskMitigation(key) {
+            const mitigations = {
+                atirmociclib: "Superior safety profile, Pfizer commercial strength",
+                disitamab: "Pfizer partnership, additional Western trials",
+                luneob: "Novartis RLT expertise, platform approach",
+                vepdegestrant: "Label expansion studies, first-mover advantage"
+            };
+            return mitigations[key];
+        }
+
+        function getLatestPhase(t) {
+            if (t.name === 'Vepdegestrant') return 'NDA Submitted';
+            if (t.name === 'Atirmociclib') return 'Phase 3 (ATTAIN-1)';
+            if (t.name === 'Disitamab Vedotin') return 'Approved China / Phase 2-3 Global';
+            if (t.name === '177Lu-NeoB') return 'Phase 1b';
+            return 'Unknown';
+        }
+
+        function getPrimaryEndpoint(t) {
+            if (t.clinical.phase3) return t.clinical.phase3.primary || 'PFS';
+            if (t.clinical.phase2) return 'ORR/CBR';
+            return 'Safety/Dosimetry';
+        }
+
+        function getKeyEfficacy(t) {
+            if (t.name === 'Vepdegestrant') return 'PFS HR 0.57 (ESR1-mut)';
+            if (t.name === 'Atirmociclib') return 'ORR 35%, mPFS 12.1mo';
+            if (t.name === 'Disitamab Vedotin') return 'PFS 9.9 vs 4.9mo (HR 0.56)';
+            if (t.name === '177Lu-NeoB') return 'No efficacy data yet';
+            return 'TBD';
+        }
+
+        function getTotalEnrollment(t) {
+            if (t.name === 'Vepdegestrant') return '550+ total';
+            if (t.name === 'Atirmociclib') return '900+ total';
+            if (t.name === 'Disitamab Vedotin') return '740+ total';
+            if (t.name === '177Lu-NeoB') return '150+ ongoing';
+            return 'Unknown';
+        }
+
+        function getRegulatoryStatus(t) {
+            if (t.name === 'Vepdegestrant') return 'PDUFA June 5, 2026';
+            if (t.name === 'Atirmociclib') return 'FDA filing ~2028';
+            if (t.name === 'Disitamab Vedotin') return 'China approved, FDA 2026-27';
+            if (t.name === '177Lu-NeoB') return 'FDA filing ≥2028';
+            return 'TBD';
+        }
+
+        function getLatestTrial(t) {
+            if (t.clinical.phase3) return t.clinical.phase3.trial || t.clinical.veritac2?.trial || 'Phase 3';
+            if (t.clinical.phase2) return t.clinical.phase2.trial || 'Phase 2';
+            return t.clinical.phase1?.trial || 'Phase 1';
+        }
+
+        function getTrialDesign(t) {
+            if (t.clinical.phase3?.design) return t.clinical.phase3.design;
+            if (t.name === 'Vepdegestrant') return 'Randomized controlled';
+            if (t.name === 'Disitamab Vedotin') return 'Open-label randomized';
+            return 'Single-arm dose escalation';
+        }
+
+        function getTrialN(t) {
+            if (t.clinical.phase3?.n) return t.clinical.phase3.n;
+            if (t.clinical.veritac2?.n) return t.clinical.veritac2.n;
+            if (t.clinical.phase3China?.n) return t.clinical.phase3China.n;
+            if (t.clinical.phase2?.n) return t.clinical.phase2.n;
+            return t.clinical.phase1?.n || 'TBD';
+        }
+
+        function getKeyResult(t) {
+            if (t.name === 'Vepdegestrant') return 'Positive - met primary endpoint';
+            if (t.name === 'Atirmociclib') return 'Ongoing - interim 2025';
+            if (t.name === 'Disitamab Vedotin') return 'Positive China Phase 3';
+            if (t.name === '177Lu-NeoB') return 'Enrolling';
+            return 'TBD';
+        }
+
+        function getAEValue(t, ae) {
+            if (t.safety.aes && t.safety.aes[ae]) {
+                return t.safety.aes[ae].g3_4;
+            }
+            if (t.safety.expected && t.safety.expected[ae]) {
+                return t.safety.expected[ae].g3_4;
+            }
+            return 'TBD';
+        }
+
+        function getUniqueSafetyProfile(t) {
+            if (t.name === 'Vepdegestrant') return 'Best-in-class tolerability with minimal hematologic toxicity. No neutropenia signal. 13.5% nausea vs 35% for competitor elacestrant.';
+            if (t.name === 'Atirmociclib') return '50% reduction in Grade 3/4 neutropenia vs palbociclib (34% vs 68%). Maintains efficacy with improved QoL.';
+            if (t.name === 'Disitamab Vedotin') return 'Zero ILD cases across 500+ patients vs 10-15% for T-DXd. Peripheral neuropathy manageable (5.9% Grade 3).';
+            if (t.name === '177Lu-NeoB') return 'Expected radiotherapy toxicities: kidney as dose-limiting organ, potential long-term MDS risk (2-3% at 5 years).';
+            return '';
+        }
+
+        function getMarketPosition(key) {
+            const positions = {
+                atirmociclib: "Fourth CDK4/6i but first selective",
+                disitamab: "Third HER2-ADC with safety advantage",
+                luneob: "First RLT in breast cancer",
+                vepdegestrant: "First PROTAC, second oral SERD"
+            };
+            return positions[key];
+        }
+
+        function getSuccessFactors(key) {
+            const factors = {
+                atirmociclib: "Safety differentiation messaging, KOL support",
+                disitamab: "Post-Enhertu positioning, ILD advantage",
+                luneob: "Infrastructure build, efficacy validation",
+                vepdegestrant: "Rapid uptake in ESR1-mut, label expansion"
+            };
+            return factors[key];
+        }
+
+        function getComplexityColor(manufacturing) {
+            if (manufacturing.includes('oral')) return 'border-green-400';
+            if (manufacturing.includes('bioreactor')) return 'border-yellow-400';
+            if (manufacturing.includes('isotope')) return 'border-red-400';
+            return 'border-gray-400';
+        }
+
+        function getOperationalRisk(key) {
+            const risks = {
+                atirmociclib: "Low",
+                disitamab: "Medium",
+                luneob: "High",
+                vepdegestrant: "Low"
+            };
+            return risks[key];
+        }
+
+        function getOperationalRiskClass(key) {
+            const risk = getOperationalRisk(key);
+            if (risk === 'Low') return 'badge-high';
+            if (risk === 'Medium') return 'badge-medium';
+            return 'badge-low';
+        }
+
+        function getClinicalRisk(key) {
+            const risks = {
+                atirmociclib: "Medium",
+                disitamab: "Low",
+                luneob: "High",
+                vepdegestrant: "Very Low"
+            };
+            return risks[key];
+        }
+
+        function getRegulatoryRisk(key) {
+            const risks = {
+                atirmociclib: "Low",
+                disitamab: "Medium",
+                luneob: "Medium",
+                vepdegestrant: "Very Low"
+            };
+            return risks[key];
+        }
+
+        function getCommercialRisk(key) {
+            const risks = {
+                atirmociclib: "Medium",
+                disitamab: "Medium",
+                luneob: "High",
+                vepdegestrant: "Low"
+            };
+            return risks[key];
+        }
+
+        function getFinancialRisk(key) {
+            const risks = {
+                atirmociclib: "Low",
+                disitamab: "Medium",
+                luneob: "Medium",
+                vepdegestrant: "Low"
+            };
+            return risks[key];
+        }
+
+        function getOverallRisk(key) {
+            const risks = {
+                atirmociclib: "Medium",
+                disitamab: "Medium",
+                luneob: "High",
+                vepdegestrant: "Low"
+            };
+            return risks[key];
+        }
+
+        function getRiskClass(risk) {
+            if (risk === 'Very Low' || risk === 'Low') return 'badge-high';
+            if (risk === 'Medium') return 'badge-medium';
+            return 'badge-low';
+        }
+
+        // Treatment selection functions
+        function toggleTreatmentSelection(key) {
+            const index = selectedTreatments.indexOf(key);
+            if (index > -1) {
+                selectedTreatments.splice(index, 1);
+            } else {
+                if (selectedTreatments.length >= 2) {
+                    selectedTreatments.shift();
+                }
+                selectedTreatments.push(key);
+            }
+            
+            updateSelectionUI();
+            updateComparisonBadge();
+            
+            if (selectedTreatments.length === 2) {
+                renderComparison();
+            }
+        }
+
+        function updateSelectionUI() {
+            document.querySelectorAll('.treatment-selector').forEach(btn => {
+                const treatment = btn.dataset.treatment;
+                if (selectedTreatments.includes(treatment)) {
+                    btn.classList.add('selected');
+                } else {
+                    btn.classList.remove('selected');
+                }
+            });
+        }
+
+        function updateComparisonBadge() {
+            const badge = document.getElementById('comparisonBadge');
+            if (selectedTreatments.length === 2) {
+                badge.classList.add('active');
+            } else {
+                badge.classList.remove('active');
+            }
+        }
+
+        function setVisualizationMode(mode) {
+            visualizationMode = mode;
+            document.querySelectorAll('.viz-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            if (selectedTreatments.length === 2) {
+                renderComparison();
+            }
+        }
+
+        function renderComparison() {
+            // This would render detailed comparison between selected treatments
+            console.log('Comparing:', selectedTreatments);
+        }
+
+        // Chart creation functions
+        function createInvestmentGradeChart() {
+            const ctx = document.getElementById('investmentGradeChart');
+            if (!ctx) return;
+
+            new Chart(ctx.getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: Object.values(treatmentDatabase).map(t => t.name),
+                    datasets: [{
+                        label: 'PTRS Score',
+                        data: Object.values(treatmentDatabase).map(t => t.ptrs.overall),
+                        backgroundColor: Object.values(treatmentDatabase).map(t => t.color),
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                                         indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Probability of Technical & Regulatory Success (PTRS)',
+                            font: { size: 16, weight: 'bold' }
+                        },
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: { callback: value => value + '%' }
+                        }
+                    }
+                }
+            });
+        }
+
+        function createTimelineChart() {
+            const ctx = document.getElementById('timelineChart');
+            if (!ctx) return;
+
+            new Chart(ctx.getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: ['2024', '2025', '2026', '2027', '2028', '2029', '2030', '2031', '2032', '2033'],
+                    datasets: Object.entries(treatmentDatabase).map(([key, t]) => ({
+                        label: t.name,
+                        data: getTimelineData(key),
+                        borderColor: t.color,
+                        backgroundColor: t.color + '20',
+                        borderWidth: 2,
+                        tension: 0.4
+                    }))
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio:true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Development & Launch Timeline'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: { 
+                                callback: function(value) {
+                                    const stages = ['Phase 1', 'Phase 2', 'Phase 3', 'Filed', 'Approved'];
+                                    return stages[value/25] || '';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function getTimelineData(key) {
+            const timelines = {
+                atirmociclib: [50, 50, 50, 75, 100, 100, 100, 100, 100, 100],
+                disitamab: [75, 75, 100, 100, 100, 100, 100, 100, 100, 100],
+                luneob: [25, 25, 25, 50, 50, 50, 75, 75, 100, 100],
+                vepdegestrant: [75, 75, 100, 100, 100, 100, 100, 100, 100, 100]
+            };
+            return timelines[key];
+        }
+
+        function createPTRSChart() {
+            const ctx = document.getElementById('ptrsChart');
+            if (!ctx) return;
+
+            new Chart(ctx.getContext('2d'), {
+                type: 'radar',
+                data: {
+                    labels: ['Regulatory', 'Clinical', 'Commercial', 'Technical', 'Overall'],
+                    datasets: Object.entries(treatmentDatabase).map(([key, t]) => ({
+                        label: t.name,
+                        data: [
+                            t.ptrs.regulatory,
+                            t.ptrs.clinical,
+                            t.ptrs.commercial,
+                            t.ptrs.technical,
+                            t.ptrs.overall
+                        ],
+                        borderColor: t.color,
+                        backgroundColor: t.color + '40',
+                        borderWidth: 2
+                    }))
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Multi-Dimensional Success Probability'
+                        }
+                    },
+                    scales: {
+                        r: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: { stepSize: 20 }
+                        }
+                    }
+                }
+            });
+        }
+
+        function createEfficacyChart() {
+            const ctx = document.getElementById('efficacyChart');
+            if (!ctx) return;
+
+            new Chart(ctx.getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: ['ORR (%)', 'CBR (%)', 'mPFS (months)'],
+                    datasets: [
+                        {
+                            label: 'Vepdegestrant',
+                            data: [19.2, 51.5, 7.2],
+                            backgroundColor: treatmentDatabase.vepdegestrant.color
+                        },
+                        {
+                            label: 'Atirmociclib',
+                            data: [35, 61, 12.1],
+                            backgroundColor: treatmentDatabase.atirmociclib.color
+                        },
+                        {
+                            label: 'Disitamab',
+                            data: [42.9, null, 9.9],
+                            backgroundColor: treatmentDatabase.disitamab.color
+                        },
+                        {
+                            label: '177Lu-NeoB',
+                            data: [null, null, null],
+                            backgroundColor: treatmentDatabase.luneob.color
+                        }
+                    ]
+                },
+                options: {
+                                         indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Efficacy Outcomes Comparison'
+                        }
+                    },
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+        }
+
+        function createSafetyChart() {
+            const ctx = document.getElementById('safetyChart');
+            if (!ctx) return;
+
+            new Chart(ctx.getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: ['Neutropenia', 'Thrombocytopenia', 'Anemia', 'Discontinuation'],
+                    datasets: Object.entries(treatmentDatabase).map(([key, t]) => ({
+                        label: t.name,
+                        data: [
+                            getAEValue(t, 'neutropenia'),
+                            getAEValue(t, 'thrombocytopenia'),
+                            getAEValue(t, 'anemia'),
+                            t.safety.discontinuation || 0
+                        ],
+                        backgroundColor: t.color,
+                        borderWidth: 1
+                    }))
+                },
+                options: {
+                                         indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Grade 3/4 Adverse Events (%)'
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            max: 50,
+                            ticks: { callback: value => value + '%' }
+                        }
+                    }
+                }
+            });
+        }
+
+        function createPeakSalesChart() {
+            const ctx = document.getElementById('peakSalesChart');
+            if (!ctx) return;
+
+            new Chart(ctx.getContext('2d'), {
+                type: 'doughnut',
+                data: {
+                    labels: Object.values(treatmentDatabase).map(t => t.name),
+                    datasets: [{
+                        data: Object.values(treatmentDatabase).map(t => t.commercial.peakSales),
+                        backgroundColor: Object.values(treatmentDatabase).map(t => t.color),
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Peak Sales Distribution ($6.7B Total)',
+                            font: { size: 16, weight: 'bold' }
+                        },
+                        legend: { position: 'right' },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.label + ': $' + (context.raw/1000).toFixed(1) + 'B';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function createMarketShareChart() {
+            const ctx = document.getElementById('marketShareChart');
+            if (!ctx) return;
+
+            new Chart(ctx.getContext('2d'), {
+                type: 'polarArea',
+                data: {
+                    labels: Object.values(treatmentDatabase).map(t => t.name),
+                    datasets: [{
+                        data: Object.values(treatmentDatabase).map(t => t.commercial.peakShare),
+                        backgroundColor: Object.values(treatmentDatabase).map(t => t.color + '80'),
+                        borderColor: Object.values(treatmentDatabase).map(t => t.color),
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Expected Peak Market Share (%)'
+                        },
+                        legend: { display: false }
+                    },
+                    scales: {
+                        r: {
+                            beginAtZero: true,
+                            max: 50,
+                            ticks: { callback: value => value + '%' }
+                        }
+                    }
+                }
+            });
+        }
+
+        function createLaunchTimelineChart() {
+            const ctx = document.getElementById('launchTimelineChart');
+            if (!ctx) return;
+
+            const launchYears = Object.values(treatmentDatabase).map(t => t.commercial.launchYear);
+            const minYear = Math.min(...launchYears);
+            const maxYear = Math.max(...launchYears);
+            const years = [];
+            for (let y = minYear; y <= maxYear; y++) {
+                years.push(y);
+            }
+
+            new Chart(ctx.getContext('2d'), {
+                type: 'scatter',
+                data: {
+                    datasets: Object.entries(treatmentDatabase).map(([key, t]) => ({
+                        label: t.name,
+                        data: [{
+                            x: t.commercial.launchYear,
+                            y: t.commercial.peakSales/1000,
+                            r: t.commercial.peakShare/2
+                        }],
+                        backgroundColor: t.color + '80',
+                        borderColor: t.color,
+                        borderWidth: 2
+                    }))
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Launch Timeline vs Peak Sales Potential'
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: { display: true, text: 'Launch Year' },
+                            min: 2025,
+                            max: 2034
+                        },
+                        y: {
+                            title: { display: true, text: 'Peak Sales ($B)' },
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        function createNPVChart() {
+            const ctx = document.getElementById('npvChart');
+            if (!ctx) return;
+
+            new Chart(ctx.getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: Object.values(treatmentDatabase).map(t => t.name),
+                    datasets: [
+                        {
+                            label: 'Unadjusted NPV',
+                            data: Object.values(treatmentDatabase).map(t => t.financial.npv),
+                            backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 2
+                        },
+                        {
+                            label: 'Risk-Adjusted NPV',
+                            data: Object.values(treatmentDatabase).map(t => t.financial.probabilityAdjustedNpv),
+                            backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            borderWidth: 2
+                        }
+                    ]
+                },
+                options: {
+                                         indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'NPV Analysis ($ Millions)',
+                            font: { size: 16, weight: 'bold' }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { callback: value => '$' + value.toLocaleString() + 'M' }
+                        }
+                    }
+                }
+            });
+        }
+
+        function createIRRChart() {
+            const ctx = document.getElementById('irrChart');
+            if (!ctx) return;
+
+            new Chart(ctx.getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: Object.values(treatmentDatabase).map(t => t.name),
+                    datasets: [{
+                        label: 'Expected IRR (%)',
+                        data: Object.values(treatmentDatabase).map(t => t.financial.irr),
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderWidth: 3,
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Internal Rate of Return Comparison'
+                        },
+                        annotation: {
+                            annotations: {
+                                line1: {
+                                    type: 'line',
+                                    yMin: 15,
+                                    yMax: 15,
+                                    borderColor: 'rgb(255, 99, 132)',
+                                    borderWidth: 2,
+                                    label: {
+                                        content: 'Hurdle Rate',
+                                        enabled: true
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 35,
+                            ticks: { callback: value => value + '%' }
+                        }
+                    }
+                }
+            });
+        }
+
+        function createROIChart() {
+            const ctx = document.getElementById('roiChart');
+            if (!ctx) return;
+
+            new Chart(ctx.getContext('2d'), {
+                type: 'bubble',
+                data: {
+                    datasets: Object.entries(treatmentDatabase).map(([key, t]) => ({
+                        label: t.name,
+                        data: [{
+                            x: t.financial.developmentCost,
+                            y: t.financial.probabilityAdjustedNpv,
+                            r: t.financial.irr/2
+                        }],
+                        backgroundColor: t.color + '80',
+                        borderColor: t.color,
+                        borderWidth: 2
+                    }))
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Investment Efficiency (Cost vs Return)'
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: { display: true, text: 'Development Cost ($M)' },
+                            beginAtZero: true
+                        },
+                        y: {
+                            title: { display: true, text: 'Risk-Adjusted NPV ($M)' },
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        function createCompetitiveMapChart() {
+            const ctx = document.getElementById('competitiveMapChart');
+            if (!ctx) return;
+
+            new Chart(ctx.getContext('2d'), {
+                type: 'scatter',
+                data: {
+                    datasets: Object.entries(treatmentDatabase).map(([key, t]) => ({
+                        label: t.name,
+                        data: [{
+                            x: t.ptrs.clinical,
+                            y: t.commercial.peakShare
+                        }],
+                        backgroundColor: t.color,
+                        borderColor: t.color,
+                        borderWidth: 2,
+                        pointRadius: 10
+                    }))
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Competitive Positioning (Clinical Strength vs Market Potential)',
+                            font: { size: 16, weight: 'bold' }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: { display: true, text: 'Clinical Success Probability (%)' },
+                            min: 0,
+                            max: 100
+                        },
+                        y: {
+                            title: { display: true, text: 'Peak Market Share (%)' },
+                            min: 0,
+                            max: 50
+                        }
+                    }
+                }
+            });
+        }
+
+        function createRiskMatrixChart() {
+            const ctx = document.getElementById('riskMatrixChart');
+            if (!ctx) return;
+
+            new Chart(ctx.getContext('2d'), {
+                type: 'scatter',
+                data: {
+                    datasets: Object.entries(treatmentDatabase).map(([key, t]) => ({
+                        label: t.name,
+                        data: [{
+                            x: 100 - t.ptrs.overall, // Risk = inverse of success probability
+                            y: t.financial.probabilityAdjustedNpv/100 // Normalized return
+                        }],
+                        backgroundColor: t.color + '80',
+                        borderColor: t.color,
+                        borderWidth: 3,
+                        pointRadius: 15
+                    }))
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Risk-Return Matrix',
+                            font: { size: 16, weight: 'bold' }
+                        },
+                        annotation: {
+                            annotations: {
+                                quadrant1: {
+                                    type: 'box',
+                                    xMin: 0,
+                                    xMax: 50,
+                                    yMin: 20,
+                                    yMax: 40,
+                                    backgroundColor: 'rgba(0, 255, 0, 0.1)',
+                                    borderWidth: 0
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: { display: true, text: 'Risk Level (100 - PTRS %)' },
+                            min: 0,
+                            max: 100
+                        },
+                        y: {
+                            title: { display: true, text: 'Risk-Adjusted Return (NPV/100)' },
+                            min: 0,
+                            max: 40
+                        }
+                    }
+                }
+            });
+        }
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', initializeReport);
     </script>
 </body>
 </html>

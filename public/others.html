@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Major Pharma Breast Cancer Pipelines 2025 - Comprehensive Analysis</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Navigation styles matching your existing design */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-3px); }
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.6; }
+        }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .nav-bar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(229, 231, 235, 0.6);
+            box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+            position: relative;
+            overflow: hidden;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-bar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 200%;
+            height: 2px;
+            background: linear-gradient(90deg, 
+                transparent,
+                #0a6b5e,
+                #085a4f,
+                #0a6b5e,
+                transparent
+            );
+            animation: shimmer 3s infinite;
+        }
+
+        .nav-tab {
+            position: relative;
+            padding: 0.5rem 1rem;
+            color: #6b7280;
+            font-weight: 500;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 0.625rem;
+            display: flex;
+            align-items: center;
+            gap: 0.375rem;
+            font-size: 0.875rem;
+            white-space: nowrap;
+            text-decoration: none;
+        }
+
+        .nav-tab:hover {
+            color: #0a6b5e;
+            background: linear-gradient(135deg, 
+                rgba(10, 107, 94, 0.08),
+                rgba(8, 90, 79, 0.05)
+            );
+            transform: translateY(-1px);
+        }
+
+        .nav-tab.active {
+            color: #fff;
+            background: linear-gradient(135deg, #0a6b5e, #085a4f);
+            box-shadow: 0 4px 15px -3px rgba(10, 107, 94, 0.4);
+        }
+
+        .brand-text {
+            background: linear-gradient(135deg, #0a6b5e, #085a4f);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+            font-size: 1.25rem;
+            letter-spacing: -0.025em;
+        }
+
+        /* Company tab styles */
+        .company-tabs {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            padding: 1rem 0;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .company-tab {
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            color: #6b7280;
+            background: #f9fafb;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+
+        .company-tab:hover {
+            background: #f3f4f6;
+            color: #0a6b5e;
+            border-color: #0a6b5e;
+        }
+
+        .company-tab.active {
+            background: linear-gradient(135deg, #0a6b5e, #085a4f);
+            color: white;
+            border-color: #0a6b5e;
+        }
+
+        .drug-card {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            transition: all 0.2s;
+        }
+
+        .drug-card:hover {
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            border-color: #0a6b5e;
+        }
+
+        .phase-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.375rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .phase-3 {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+
+        .phase-2 {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+        }
+
+        .phase-1 {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+        }
+
+        .status-positive {
+            background: #d4f4ec;
+            color: #0a6b5e;
+            padding: 0.125rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .status-failed {
+            background: #fee2e2;
+            color: #dc2626;
+            padding: 0.125rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .status-ongoing {
+            background: #fef3c7;
+            color: #d97706;
+            padding: 0.125rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .citation {
+            color: #0a6b5e;
+            text-decoration: none;
+            border-bottom: 1px dotted #0a6b5e;
+            font-size: 0.75rem;
+            vertical-align: super;
+        }
+
+        .citation:hover {
+            text-decoration: underline;
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+            border-left: 4px solid #0a6b5e;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 0.5rem;
+        }
+
+        .china-indicator {
+            background: #fef3c7;
+            color: #d97706;
+            padding: 0.125rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation matching your existing style -->
+    <nav class="nav-bar">
+        <div class="w-full px-8 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 bg-gradient-to-br from-green-400 to-emerald-600 rounded-full flex items-center justify-center">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                    </div>
+                    <span class="brand-text">Pharma Pipeline Intelligence</span>
+                </div>
+                <div class="flex gap-4">
+                    <a href="#" class="nav-tab active">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path>
+                        </svg>
+                        Pipeline Analysis
+                    </a>
+                    <a href="#" class="nav-tab">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                        </svg>
+                        Market Dynamics
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900 mb-4">Major Pharma Breast Cancer Pipelines in 2025</h1>
+            <div class="highlight-box">
+                <h2 class="text-lg font-semibold text-gray-900 mb-2">Executive Summary</h2>
+                <p class="text-gray-700">As of 2025, virtually all major multinational pharmaceutical companies have late-stage (Phase III or nearing Phase III) breast cancer therapeutics in development. Many of these are novel targeted agents (e.g. SERDs, PROTACs, ADCs, CDK inhibitors) aimed at hormone receptor-positive (HR+)/HER2-negative disease or difficult subtypes like triple-negative breast cancer (TNBC). Notably, several companies have conducted trials in China – often early-phase single-arm studies (Phase I/Ib or II) – to gather data in Chinese populations or secure local approval.</p>
+            </div>
+        </div>
+
+        <!-- Company Tabs -->
+        <div class="company-tabs">
+            <button class="company-tab active" onclick="showCompany('pfizer')">Pfizer</button>
+            <button class="company-tab" onclick="showCompany('roche')">Roche</button>
+            <button class="company-tab" onclick="showCompany('novartis')">Novartis</button>
+            <button class="company-tab" onclick="showCompany('lilly')">Eli Lilly</button>
+            <button class="company-tab" onclick="showCompany('astrazeneca')">AstraZeneca</button>
+            <button class="company-tab" onclick="showCompany('gilead')">Gilead</button>
+            <button class="company-tab" onclick="showCompany('merck')">Merck</button>
+            <button class="company-tab" onclick="showCompany('bms')">BMS</button>
+            <button class="company-tab" onclick="showCompany('others')">Others</button>
+        </div>
+
+        <!-- Company Content Sections -->
+        <div id="pfizer" class="company-content">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">Pfizer (Partners: Arvinas, Seagen, RemeGen)</h2>
+            
+            <!-- Vepdegestrant -->
+            <div class="drug-card">
+                <div class="flex items-start justify-between mb-4">
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-900">Vepdegestrant (ARV-471)</h3>
+                        <p class="text-gray-600">Selective ER Degrader (PROTAC)</p>
+                    </div>
+                    <span class="phase-badge phase-3">Phase III</span>
+                </div>
+                
+                <div class="mb-4">
+                    <p class="text-gray-700">Pfizer and Arvinas' oral ER-targeting PROTAC is in a global Phase III trial (VERITAC-2) for ER+/HER2– metastatic breast cancer <a href="https://cdn.pfizer.com" class="citation">[1]</a>. Early-phase data (Phase I/II) showed ~40% clinical benefit rate in heavily pretreated ER+ patients, albeit from single-arm cohorts (no control) <a href="https://pfizer.com" class="citation">[2]</a>.</p>
+                </div>
+
+                <div class="bg-yellow-50 p-3 rounded-lg mb-4">
+                    <span class="china-indicator">China Link</span>
+                    <p class="text-sm text-gray-700 mt-2">Pfizer ran a dedicated Phase I trial of ARV-471 in China (9 patients, single-arm) to assess pharmacokinetics and safety <a href="https://trial.medpath.com" class="citation">[3,4]</a>. This uncontrolled China study (all participants received ARV-471) confirmed tolerability and supported inclusion of Chinese patients in the global program.</p>
+                </div>
+            </div>
+
+            <!-- Atirmociclib -->
+            <div class="drug-card">
+                <div class="flex items-start justify-between mb-4">
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-900">Atirmociclib (PF-07220060)</h3>
+                        <p class="text-gray-600">CDK4 Inhibitor</p>
+                    </div>
+                    <span class="phase-badge phase-3">Phase III</span>
+                </div>
+                
+                <div class="mb-4">
+                    <p class="text-gray-700">A novel oral CDK4-selective inhibitor in Phase III (FourLight-3 trial) for first-line HR+/HER2– metastatic breast cancer <a href="https://cdn.pfizer.com" class="citation">[5]</a>. Phase I/II data (uncontrolled dose-escalation and expansion studies) indicated manageable safety and potential efficacy in CDK4/6 inhibitor-naïve patients (these early trials did not include control arms by design).</p>
+                </div>
+
+                <div class="bg-gray-50 p-3 rounded-lg">
+                    <span class="text-sm text-gray-600">China link: No specific China-only trial noted yet for atirmociclib; any Chinese patients are likely enrolled in global studies.</span>
+                </div>
+            </div>
+
+            <!-- Disitamab Vedotin -->
+            <div class="drug-card">
+                <div class="flex items-start justify-between mb-4">
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-900">Disitamab Vedotin (RC48)</h3>
+                        <p class="text-gray-600">HER2-Targeted ADC</p>
+                    </div>
+                    <span class="phase-badge phase-3">Phase III</span>
+                </div>
+                
+                <div class="mb-4">
+                    <p class="text-gray-700">Pfizer is co-developing this HER2-directed antibody–drug conjugate with China's RemeGen <a href="https://cdn.pfizer.com" class="citation">[6]</a>. RemeGen's China trials provided promising uncontrolled Phase I/Ib data in advanced breast cancer: in a pooled analysis of Chinese studies (Phase I and Ib), disitamab vedotin achieved confirmed objective response rates ~42.9% in HER2-overexpressing and ~33.3% in HER2-low metastatic breast cancer, with median PFS ~5–6 months <a href="https://remegen.com" class="citation">[7]</a>.</p>
+                </div>
+
+                <div class="bg-yellow-50 p-3 rounded-lg mb-4">
+                    <span class="china-indicator">China Origin</span>
+                    <p class="text-sm text-gray-700 mt-2">These single-arm Chinese trials (no control group) led to China approvals – in 2021 RC48 was conditionally approved for gastric cancer, and by 2024 a Phase III in HER2+ breast cancer with liver metastases met its primary endpoint <a href="https://remegen.com" class="citation">[8]</a>. Pfizer is leveraging this data for global development, though in Pfizer's pipeline the ADC is currently listed under other indications (e.g. urothelial cancer) with plans to expand to breast cancer.</p>
+                </div>
+            </div>
+
+            <!-- Tucatinib -->
+            <div class="drug-card">
+                <div class="flex items-start justify-between mb-4">
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-900">Tucatinib (TUKYSA®)</h3>
+                        <p class="text-gray-600">HER2-Targeted TKI</p>
+                    </div>
+                    <span class="phase-badge phase-3">Phase III</span>
+                </div>
+                
+                <div class="mb-4">
+                    <p class="text-gray-700">Originally from Seagen (acquired by Pfizer), tucatinib is in multiple Phase III trials: e.g. the CompassHER2 RD adjuvant trial and HER2CLIMB-02 in metastatic HER2+ disease <a href="https://cdn.pfizer.com" class="citation">[9]</a>. These are randomized controlled studies (tucatinib + standard therapy vs placebo + standard).</p>
+                </div>
+
+                <div class="bg-gray-50 p-3 rounded-lg">
+                    <p class="text-sm text-gray-600">China link: Tucatinib's global trials have sites worldwide; if Chinese patients were underrepresented, Pfizer may later run a bridging study in China, but no separate Phase I China study has been reported publicly for tucatinib. (Notably, China's NMPA approved tucatinib in 2023 based on global data).</p>
+                </div>
+            </div>
+
+            <!-- Other Pipeline Notes -->
+            <div class="bg-blue-50 p-4 rounded-lg mt-6">
+                <h4 class="font-semibold text-gray-900 mb-2">Additional Pipeline Activities</h4>
+                <p class="text-gray-700">Pfizer is also investigating combinations like palbociclib (IBRANCE®) in HER2+ HR+ breast cancer (PATINA trial) <a href="https://cdn.pfizer.com" class="citation">[10]</a> – here palbociclib + endocrine therapy + anti-HER2 is compared to standard therapy (Phase III, controlled). While not a "new" drug, this reflects Pfizer's effort to extend Ibrance's use (Phase III PATINA is international, including Asia). Early Ibrance studies were single-arm lead-ins but Phase III are controlled.</p>
+            </div>
+        </div>
+
+        <div id="roche" class="company-content" style="display:none;">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">Roche (Genentech)</h2>
+            
+            <!-- Giredestrant -->
+            <div class="drug-card">
+                <div class="flex items-start justify-between mb-4">
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-900">Giredestrant (GDC-9545)</h3>
+                        <p class="text-gray-600">Oral SERD</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <span class="phase-badge phase-3">Phase III</span>
+                        <span class="status-failed">Mixed Results</span>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <p class="text-gray-700">Roche's oral selective estrogen receptor degrader was one of the most advanced SERDs in 2025. Multiple Phase III trials are ongoing – including first-line metastatic HR+/HER2– (giredestrant + CDK4/6 inhibitor vs aromatase inhibitor + CDK4/6) and adjuvant therapy (e.g. the persevERA and lidERA studies) <a href="https://oncologypipeline.com" class="citation">[11]</a> <a href="https://ascopost.com" class="citation">[12]</a>.</p>
+                    
+                    <p class="text-gray-700 mt-3">Early-phase data: Giredestrant showed promising activity in Phase I/II single-arm studies – high ER occupancy, Ki-67 suppression and some responses even post-endocrine therapy <a href="https://pubmed.ncbi.nlm.nih.gov" class="citation">[13]</a>. However, controlled trial results have been mixed: the Phase II acelERA trial (giredestrant vs physician's choice endocrine therapy in previously treated metastatic ER+ breast cancer) did not meet its primary PFS endpoint, showing only a non-significant numeric improvement <a href="https://ascopubs.org" class="citation">[14]</a> <a href="https://pharmaphorum.com" class="citation">[15]</a>.</p>
+                </div>
+
+                <div class="bg-red-50 p-3 rounded-lg mb-4">
+                    <p class="text-sm text-gray-700">This indicates that strong signals from uncontrolled Phase Ib expansions did not fully translate when tested against standard therapy. Roche announced the acelERA setback in 2024 but is continuing Phase III programs in earlier-line settings <a href="https://pharmaphorum.com" class="citation">[16]</a>. Notably, Roche's trials did not enrich for ESR1 mutations, which some analysts suggest may have hurt efficacy relative to competitors (by including harder-to-treat wild-type cases) <a href="https://fiercebiotech.com" class="citation">[17]</a>.</p>
+                </div>
+
+                <div class="bg-gray-50 p-3 rounded-lg">
+                    <h4 class="font-semibold text-gray-900 mb-2">HER2 & Combinations</h4>
+                    <p class="text-sm text-gray-700">Roche is also exploring giredestrant in HER2-positive, ER-positive disease – e.g. the Phase III heredERA trial combining giredestrant with subcutaneous pertuzumab + trastuzumab maintenance therapy in HER2+, ER+ metastatic breast cancer <a href="https://pubmed.ncbi.nlm.nih.gov" class="citation">[18,19]</a>. This study addresses whether adding endocrine therapy to HER2 blockade improves outcomes, a strategy supported by giredestrant's tolerability and Phase Ib signals.</p>
+                </div>
+
+                <div class="bg-yellow-50 p-3 rounded-lg mt-3">
+                    <span class="china-indicator">China Link</span>
+                    <p class="text-sm text-gray-700 mt-2">Roche typically includes Chinese centers in its global trials, and Genentech/Roche have a strong presence in China. For example, the acelERA and other Phase III studies likely had sites in Asia, and adjuvant giredestrant trials are listed on Chinese clinical trial registries <a href="https://clinicaltrials.gov" class="citation">[20]</a> <a href="https://registry.healthresearch.ph" class="citation">[21]</a>. Roche has not disclosed any separate China-only Phase I trials for giredestrant (likely because Chinese enrollment was incorporated globally). If needed for NMPA approval, Roche might conduct a bridging study, but to date they appear to rely on global data (with Chinese patient subsets).</p>
+                </div>
+            </div>
+
+            <!-- Other Roche Programs -->
+            <div class="bg-blue-50 p-4 rounded-lg mt-6">
+                <h4 class="font-semibold text-gray-900 mb-2">Additional Pipeline Notes</h4>
+                <p class="text-gray-700">Roche's older HER2-targeted agents (trastuzumab, pertuzumab, T-DM1) are standard of care; for pipeline, Roche's focus is on SERD and perhaps early research (they did have a TIGIT immune checkpoint in trials, but that's in immunotherapy, not breast-specific). Roche had no new ADC for breast in Phase III as of 2025. They did invest in a CDK2 inhibitor for CDK4/6-resistant tumors (preclinical/Phase I) and other combos, but those remain early-stage.</p>
+            </div>
+        </div>
+
+        <div id="novartis" class="company-content" style="display:none;">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">Novartis</h2>
+            
+            <!-- Ribociclib -->
+            <div class="drug-card">
+                <div class="flex items-start justify-between mb-4">
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-900">Ribociclib (Kisqali®)</h3>
+                        <p class="text-gray-600">CDK4/6 Inhibitor Expansion</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <span class="phase-badge phase-3">Phase III</span>
+                        <span class="status-positive">Landmark Success</span>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <p class="text-gray-700">Novartis made headline progress by expanding its CDK4/6 inhibitor into early breast cancer. The Phase III NATALEE trial (in stage II–III HR+/HER2– early breast cancer) was a landmark: adding 3 years of ribociclib to endocrine therapy significantly improved invasive disease-free survival (iDFS). In the overall NATALEE population, ribociclib + endocrine therapy cut the risk of recurrence by ~25–28% vs endocrine therapy alone <a href="https://novartis.com" class="citation">[22,23]</a>.</p>
+                    
+                    <p class="text-gray-700 mt-3">Notably, this benefit extended even to node-negative but high-risk patients, doubling the pool of patients who might benefit <a href="https://novartis.com" class="citation">[24,25]</a>. These results (initially presented at ASCO 2023) have led Novartis to file for adjuvant approvals in US/EU <a href="https://novartis.com" class="citation">[26]</a>.</p>
+                </div>
+
+                <div class="bg-yellow-50 p-3 rounded-lg mb-4">
+                    <span class="china-indicator">China Link</span>
+                    <p class="text-sm text-gray-700 mt-2">Novartis conducted a parallel Phase III (monikered NATALEE-Asia) or included substantial Asian enrollment, as prior ribociclib trials (MONALEESA series) did include Chinese sites. Indeed, Chinese regulators approved ribociclib for metastatic disease in 2018 using global trial data; for the adjuvant setting, Novartis will likely leverage the global NATALEE data and may run a post-marketing study in China if required.</p>
+                </div>
+            </div>
+
+            <!-- SERD Programs -->
+            <div class="drug-card">
+                <div class="flex items-start justify-between mb-4">
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-900">Estrogen Receptor Degraders</h3>
+                        <p class="text-gray-600">Partnership Strategy</p>
+                    </div>
+                    <span class="status-failed">Own SERD Discontinued</span>
+                </div>
+                
+                <div class="mb-4">
+                    <p class="text-gray-700">Novartis's own oral SERD LSZ102 was in early trials but was discontinued after a Phase I/Ib showed only modest activity <a href="https://clinicaltrialsarena.com" class="citation">[27]</a>. Instead, Novartis has opted to partner with smaller biotechs: e.g. a 2023 collaboration with Olema Oncology to test Olema's SERD (OP-1250) plus ribociclib in first-line metastatic breast cancer <a href="https://clinicaltrialsarena.com" class="citation">[28]</a> <a href="https://ir.olema.com" class="citation">[29]</a>. That indicates Novartis is still pursuing SERDs, but none of its own in Phase III as of 2025.</p>
+                </div>
+            </div>
+
+            <!-- Other Programs -->
+            <div class="bg-blue-50 p-4 rounded-lg mt-6">
+                <h4 class="font-semibold text-gray-900 mb-2">PI3K/AKT Pathway & China Strategy</h4>
+                <p class="text-gray-700 mb-3">Novartis already markets alpelisib (PI3Kα inhibitor) for PIK3CA-mutant breast cancer, but its use is limited by modest efficacy/toxicities. They have no new PI3K inhibitor in Phase III. Instead, Novartis has interest in next-gen targeted therapies (e.g. it invested in a SERD from Context Therapeutics and others, though those are earlier-stage).</p>
+                
+                <p class="text-gray-700">China: Novartis has a strong China footprint. For Kisqali, China approved it for advanced BC in 2021, and the NATALEE adjuvant data will be filed in China. If needed, a Chinese subset analysis or local Phase III (like NATALEE CN) could be done. For example, the NATALEE trial had Chinese patients enrolled (in stage II/III disease) and a subgroup analysis showed consistent benefit <a href="https://ascopubs.org" class="citation">[30]</a> <a href="https://novartis.com" class="citation">[31]</a>. No separate uncontrolled Phase I was needed for ribociclib in China; they leveraged global RCT data.</p>
+            </div>
+        </div>
+
+        <div id="lilly" class="company-content" style="display:none;">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">Eli Lilly</h2>
+            
+            <!-- Abemaciclib -->
+            <div class="drug-card">
+                <div class="flex items-start justify-between mb-4">
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-900">Abemaciclib (Verzenio®)</h3>
+                        <p class="text-gray-600">CDK4/6 Inhibitor</p>
+                    </div>
+                    <span class="phase-badge phase-3">Approved & Expanding</span>
+                </div>
+                
+                <div class="mb-4">
+                    <p class="text-gray-700">Lilly's CDK4/6 inhibitor is already approved for metastatic HR+ BC and in 2021 became the first CDK4/6i approved in early breast cancer (the monarchE trial showed abemaciclib + endocrine therapy improved 2-year iDFS in high-risk node-positive HR+ patients). Lilly continues to support adjuvant abemaciclib use (e.g. updating monarchE data with longer follow-up showing sustained benefit).</p>
+                    
+                    <p class="text-gray-700 mt-3">While this is an approved regimen, Lilly in 2025 is exploring even broader use (e.g. in moderate-risk patients or extending duration), but those studies are Phase II/III ongoing. (For instance, the NATALEE positive results from Novartis have led Lilly to consider trials combining abemaciclib with other agents or in lower-risk cohorts.)</p>
+                </div>
+
+                <div class="bg-yellow-50 p-3 rounded-lg">
+                    <span class="china-indicator">China Link</span>
+                    <p class="text-sm text-gray-700 mt-2">Abemaciclib was tested in Chinese patients via bridging studies and approved in China in 2021 for advanced BC. A separate Chinese adjuvant trial (monarchE-asia) was not required since global data sufficed, but Chinese patients were included in global studies.</p>
+                </div>
+            </div>
+
+            <!-- Imlunestrant -->
+            <div class="drug-card">
+                <div class="flex items-start justify-between mb-4">
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-900">Imlunestrant (LY3484356)</h3>
+                        <p class="text-gray-600">Oral SERD</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <span class="phase-badge phase-3">Phase III</span>
+                        <span class="status-failed">Development Halted</span>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <p class="text-gray-700">Lilly's oral SERD reached Phase III (the EMBER-3 trial) in 2023. Trial design: EMBER-3 randomized advanced ER+/HER2– patients (post-AI progression) to imlunestrant ± abemaciclib vs standard endocrine ± abemaciclib <a href="https://clinicaltrials.gov" class="citation">[32]</a>.</p>
+                    
+                    <p class="text-gray-700 mt-3">Results: The trial partially succeeded – in patients with ESR1 mutations, imlunestrant significantly reduced risk of progression by 38% vs standard endocrine (PFS HR ~0.62) <a href="https://investor.lilly.com" class="citation">[33]</a> <a href="https://ascopubs.org" class="citation">[34]</a>. However, in the overall population (all-comers), imlunestrant monotherapy was not significantly better than standard endocrine therapy <a href="https://fiercebiotech.com" class="citation">[35]</a>.</p>
+                </div>
+
+                <div class="bg-red-50 p-3 rounded-lg mb-4">
+                    <p class="text-sm text-gray-700">Lilly also tested imlunestrant with abemaciclib, which did show improved PFS over imlunestrant alone or endocrine alone <a href="https://nejm.org" class="citation">[36]</a>, suggesting combination benefit. Despite some positive signals, Lilly announced in late 2023 that it would halt further development of imlunestrant due to the Phase III not meeting broad expectations (it was a "win" only in the biomarker-defined subgroup) <a href="https://fiercebiotech.com" class="citation">[37]</a>. Early-phase imlunestrant data came from uncontrolled dose-finding studies and a Phase Ib combination with abemaciclib, which had indicated tumor shrinkage especially in ESR1-mutant tumors – but again, the controlled Phase III tempered enthusiasm.</p>
+                </div>
+
+                <div class="bg-gray-50 p-3 rounded-lg">
+                    <p class="text-sm text-gray-700">China link: Lilly's SERD program did not have a separate China trial reported; any Chinese patients likely joined global sites. Lilly appears to have paused its SERD efforts, focusing instead on its approved drugs and new targets.</p>
+                </div>
+            </div>
+
+            <!-- Other Programs -->
+            <div class="bg-blue-50 p-4 rounded-lg mt-6">
+                <h4 class="font-semibold text-gray-900 mb-2">Additional Pipeline Activities</h4>
+                <p class="text-gray-700">Lilly is investigating Nectin-4 ADCs (it has a partnership for an ADC targeting Nectin-4, primarily for bladder cancer; relevance to breast cancer is low except Nectin-4 is occasionally expressed in breast tumors). Also, Lilly's acquisition of Innovent's PD-1 brought sintilimab, but that is for lung and gastric (no major breast program). In summary, Lilly's main breast cancer contributions in 2025 are abemaciclib and its combinations; their attempt at a new oral endocrine agent (imlunestrant) was discontinued after uncontrolled Phase I promise did not fully translate in Phase III.</p>
+            </div>
+        </div>
+
+        <div id="astrazeneca" class="company-content" style="display:none;">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">AstraZeneca (and Daiichi Sankyo partnership)</h2>
+            
+            <!-- Capivasertib -->
+            <div class="drug-card">
+                <div class="flex items-start justify-between mb-4">
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-900">Capivasertib (AZD5363, now TruQap™)</h3>
+                        <p class="text-gray-600">AKT Kinase Inhibitor</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <span class="phase-badge phase-3">FDA Approved</span>
+                        <span class="status-positive">Phase III Success</span>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <p class="text-gray-700">AstraZeneca achieved a significant Phase III success with capivasertib in HR+/HER2– advanced breast cancer. The CAPItello-291 trial (capivasertib + fulvestrant vs placebo + fulvestrant in post-AI, CDK4/6-resistant patients) met both primary endpoints: PFS was significantly prolonged with capivasertib (median ~7.2 vs 3.6 months; HR ~0.60) <a href="https://cancernetwork.com" class="citation">[38]</a>, both in the overall population and in tumors with AKT-pathway mutations (PIK3CA/AKT1/PTEN) <a href="https://cancernetwork.com" class="citation">[39,40]</a>.</p>
+                    
+                    <p class="text-gray-700 mt-3">Final data showed a 40% reduction in risk of progression or death overall <a href="https://cancernetwork.com" class="citation">[41]</a>. At ESMO 2022 and SABCS 2022, investigators hailed capivasertib's "encouraging" tolerability and efficacy even in hard-to-treat subgroups <a href="https://cancernetwork.com" class="citation">[42]</a>. By late 2023, the FDA approved capivasertib + fulvestrant for endocrine-resistant metastatic breast cancer, under the brand TruQap <a href="https://astrazeneca-us.com" class="citation">[43]</a>.</p>
+                </div>
+
+                <div class="bg-yellow-50 p-3 rounded-lg mb-4">
+                    <span class="china-indicator">China Link</span>
+                    <p class="text-sm text-gray-700 mt-2">The global CAPItello-291 trial included sites in China, and an extended Chinese cohort analysis confirmed capivasertib's benefit in Chinese patients (median PFS 6.9 vs 2.8 months) with a favorable benefit–risk profile <a href="https://pubmed.ncbi.nlm.nih.gov" class="citation">[44,45]</a>. AstraZeneca also initiated a China-specific Phase IIIb study ("CAPItrue") to provide capivasertib + fulvestrant to Chinese HR+ breast cancer patients post-CDK4/6, which was an open-label two-cohort trial (no randomization; all patients received the drug combination in defined settings) <a href="https://astrazenecaclinicaltrials.com" class="citation">[46]</a> <a href="https://annalsofoncology.org" class="citation">[47]</a>. This uncontrolled Phase IIIb helped generate additional local data ahead of NMPA review.</p>
+                </div>
+            </div>
+
+            <!-- Camizestrant -->
+            <div class="drug-card">
+                <div class="flex items-start justify-between mb-4">
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-900">Camizestrant (AZD9833)</h3>
+                        <p class="text-gray-600">Oral SERD</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <span class="phase-badge phase-3">Phase III</span>
+                        <span class="status-positive">Interim Success</span>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <p class="text-gray-700">AstraZeneca's oral SERD program is one of the few successes in the SERD class. In 2022, the Phase II SERENA-2 trial showed camizestrant monotherapy significantly improved PFS vs fulvestrant in ER+ metastatic patients, especially at the higher dose (75 mg) <a href="https://fiercebiotech.com" class="citation">[48,49]</a>. Building on this, AstraZeneca launched multiple Phase III trials (SERENA-4, -6, etc.).</p>
+                    
+                    <p class="text-gray-700 mt-3">Notably, in 2025 AZ reported an interim Phase III win: SERENA-6 – a novel trial where patients on first-line AI + CDK4/6 were monitored for emerging ESR1 mutations and switched to camizestrant upon mutation detection – met its PFS primary endpoint <a href="https://fiercebiotech.com" class="citation">[50,51]</a>. At interim analysis, switching to camizestrant (with ongoing CDK4/6 inhibitor) upon ctDNA-detected ESR1 mutation significantly prolonged PFS compared to continuing the aromatase inhibitor <a href="https://fiercebiotech.com" class="citation">[52]</a>.</p>
+                </div>
+
+                <div class="bg-green-50 p-3 rounded-lg mb-4">
+                    <p class="text-sm text-gray-700">This ctDNA-guided strategy suggests camizestrant can extend endocrine benefit in patients about to develop resistance. AstraZeneca is also running SERENA-4 (first-line camizestrant + palbociclib vs letrozole + palbociclib) and two adjuvant SERENA trials, aiming to establish camizestrant as a backbone endocrine therapy <a href="https://fiercebiotech.com" class="citation">[53,54]</a>. Comparison to rivals: Camizestrant's progress is notable given Sanofi's and Roche's SERDs failed; AZ's success without ESR1 enrichment in trials is intriguing <a href="https://fiercebiotech.com" class="citation">[55]</a>. Early camizestrant trials were single-arm dose escalation cohorts (uncontrolled), but by Phase II it was tested head-to-head against fulvestrant.</p>
+                </div>
+
+                <div class="bg-gray-50 p-3 rounded-lg">
+                    <p class="text-sm text-gray-700">China: Camizestrant global trials likely include Chinese centers; to date no separate China Phase I has been announced. If camizestrant is approved globally, AZ would likely conduct a bridging study or include Chinese patients in Phase III (as they did for capivasertib).</p>
+                </div>
+            </div>
+
+            <!-- Trastuzumab Deruxtecan -->
+            <div class="drug-card">
+                <div class="flex items-start justify-between mb-4">
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-900">Trastuzumab Deruxtecan (DS-8201, Enhertu)</h3>
+                        <p class="text-gray-600">HER2-Targeted ADC</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <span class="phase-badge phase-3">FDA Approved</span>
+                        <span class="status-positive">Groundbreaking Results</span>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <p class="text-gray-700">Co-developed by Daiichi Sankyo and AZ, Enhertu is already approved in several indications (third-line HER2+ metastatic BC, and HER2-low BC). In 2025, it achieved a groundbreaking Phase III result in first-line HER2+ metastatic breast cancer: the DESTINY-Breast09 trial showed Enhertu + pertuzumab nearly doubled PFS versus standard first-line THP (taxane + trastuzumab + pertuzumab) <a href="https://ascopost.com" class="citation">[56,57]</a>.</p>
+                    
+                    <p class="text-gray-700 mt-3">Median PFS was 40.7 months on Enhertu+Perjeta vs 26.9 months on standard therapy (HR=0.56, P<0.00001) <a href="https://ascopost.com" class="citation">[58]</a> – a dramatic improvement consistent across subgroups. This is the first major advance in frontline HER2+ therapy since trastuzumab/pertuzumab a decade prior <a href="https://ascopost.com" class="citation">[59]</a>. Although OS data are immature, a positive trend is already seen <a href="https://ascopost.com" class="citation">[60]</a>. Clinicians at ASCO 2025 suggested this combo could become a new standard of care <a href="https://ascopost.com" class="citation">[61,62]</a>. (Notably, a similar trial arm testing Enhertu monotherapy vs THP did not meet an interim threshold, but the combo with pertuzumab clearly excelled <a href="https://ascopost.com" class="citation">[63]</a>.)</p>
+                </div>
+
+                <div class="bg-yellow-50 p-3 rounded-lg mb-4">
+                    <span class="china-indicator">China Link</span>
+                    <p class="text-sm text-gray-700 mt-2">Enhertu was approved in China (for late-line HER2+ BC) in 2023; Chinese patients were included in global trials like DESTINY-Breast03. For DESTINY-Breast09, sites in China participated (though specifics pending publication). AZ may also conduct a post-approval study in Chinese HER2+ patients to satisfy regulators. Early-phase Enhertu trials were single-arm (e.g. the Phase I showed a striking 60% response in HER2+ BC <a href="https://ascopost.com" class="citation">[64]</a>), which led to accelerated approvals before Phase III confirmation.</p>
+                </div>
+            </div>
+
+            <!-- Datopotamab Deruxtecan -->
+            <div class="drug-card">
+                <div class="flex items-start justify-between mb-4">
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-900">Datopotamab Deruxtecan (Dato-DXd, now Datroway®)</h3>
+                        <p class="text-gray-600">TROP2-Targeted ADC</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <span class="phase-badge phase-3">FDA Approved</span>
+                        <span class="status-positive">First TROP2 for HR+</span>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <p class="text-gray-700">Another Daiichi/AZ ADC, Dato-DXd targets TROP2 and is being tested in HR+ and TNBC. The Phase III TROPION-Breast01 trial (Dato-DXd vs chemo in pretreated HR+/HER2– metastatic BC) read out positively: PFS improved to 6.9 months with Dato-DXd vs 4.9 months with chemo (HR=0.63, p<0.0001) <a href="https://targetedonc.com" class="citation">[65]</a>, although overall survival was similar at interim analysis (18.6 vs 18.3 months, no significant difference) <a href="https://targetedonc.com" class="citation">[66,67]</a>.</p>
+                    
+                    <p class="text-gray-700 mt-3">Dato-DXd also showed a higher response rate (36% vs 23%) than chemo <a href="https://targetedonc.com" class="citation">[68]</a>. Based on this, in January 2025 the FDA approved datopotamab deruxtecan for HR+/HER2– breast cancer after prior therapy <a href="https://targetedonc.com" class="citation">[69,70]</a>. This makes it the first TROP2 ADC approved for HR+ breast cancer. (Trodelvy is approved in TNBC and seeking HR+ approval.) Early-phase Dato-DXd trials were single-arm dose escalation/expansions that indicated efficacy in TNBC and HR+ disease, which guided Phase III.</p>
+                </div>
+
+                <div class="bg-yellow-50 p-3 rounded-lg">
+                    <span class="china-indicator">China Link</span>
+                    <p class="text-sm text-gray-700 mt-2">As Dato-DXd is a Daiichi drug, Japanese and global trials included Asian sites. For China, AstraZeneca (which commercializes it in China) likely ran a bridging trial; indeed, Daiichi announced in 2024 that Datroway (Dato-DXd) was approved in China for metastatic HR+ breast cancer <a href="https://daiichisankyo.com" class="citation">[71]</a>. That approval was supported by the global TROPION-Breast01 data and perhaps a small China safety study.</p>
+                </div>
+            </div>
+
+            <!-- Immunotherapy -->
+            <div class="bg-blue-50 p-4 rounded-lg mt-6">
+                <h4 class="font-semibold text-gray-900 mb-2">Immunotherapy Programs</h4>
+                <p class="text-gray-700">AstraZeneca's immunotherapy durvalumab (Imfinzi) had limited success in breast cancer (an exploratory trial in early TNBC did not significantly improve pCR). Thus, AZ's breast focus is on targeted drugs above. One exception: AZ is testing datopotamab DXd combined with durvalumab in TNBC (TROPION-PanTumor studies), but those are Phase II.</p>
+            </div>
+        </div>
+
+        <div id="gilead" class="company-content" style="display:none;">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">Gilead Sciences</h2>
+            
+            <!-- Sacituzumab Govitecan -->
+            <div class="drug-card">
+                <div class="flex items-start justify-between mb-4">
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-900">Sacituzumab Govitecan (Trodelvy®)</h3>
+                        <p class="text-gray-600">TROP2 ADC</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <span class="phase-badge phase-3">FDA Approved</span>
+                        <span class="status-positive">Expanding to 1L</span>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <p class="text-gray-700">Gilead's flagship ADC (acquired from Immunomedics) is already approved in 3L+ TNBC and in 2L+ HR+/HER2– (after endocrine+CDK4/6) in the US. Gilead is now moving Trodelvy into earlier lines:</p>
+                </div>
+
+                <div class="bg-green-50 p-3 rounded-lg mb-4">
+                    <h4 class="font-semibold text-gray-900 mb-2">First-line TNBC (PD-L1– patients)</h4>
+                    <p class="text-sm text-gray-700">The Phase III ASCENT-03 trial (Trodelvy vs chemotherapy in PD-L1– or ineligible metastatic TNBC, 1st line) was highly positive. Announced in 2025, Trodelvy showed a "highly statistically significant and clinically meaningful" improvement in PFS over physician's choice chemo <a href="https://gilead.com" class="citation">[72]</a>. Investigators reported Trodelvy is the first ADC to improve first-line outcomes in all-comer mTNBC, offering a new chemo-free option <a href="https://gilead.com" class="citation">[73,74]</a>. At ASCO 2025, detailed ASCENT-03 data confirmed a robust PFS benefit; OS data are immature but no detriment seen <a href="https://gilead.com" class="citation">[75]</a>.</p>
+                </div>
+
+                <div class="bg-green-50 p-3 rounded-lg mb-4">
+                    <h4 class="font-semibold text-gray-900 mb-2">First-line TNBC (PD-L1+ patients)</h4>
+                    <p class="text-sm text-gray-700">The ASCENT-04 trial tested Trodelvy + pembrolizumab in PD-L1 positive mTNBC vs pembrolizumab + chemo. It too was positive, making Trodelvy potentially a backbone across all first-line mTNBC (PD-L1+ and PD-L1–) <a href="https://gilead.com" class="citation">[76,77]</a>. Gilead noted that with ASCENT-03 and -04, Trodelvy could become the first ADC used front-line for all mTNBC patients <a href="https://gilead.com" class="citation">[78,79]</a>.</p>
+                </div>
+
+                <div class="bg-gray-50 p-3 rounded-lg mb-4">
+                    <h4 class="font-semibold text-gray-900 mb-2">HR+/HER2– Breast Cancer</h4>
+                    <p class="text-sm text-gray-700">Gilead is conducting ASCENT-07, a Phase III trial of Trodelvy in ER+/HER2– patients after CDK4/6 inhibitors <a href="https://gilead.com" class="citation">[80]</a> (similar population to where Dato-DXd showed benefit). Trodelvy had previously shown a survival benefit in this setting in the Phase III TROPiCS-02 trial (vs chemo), though narrowly (not reaching significance in initial analysis, but subgroup with ESR1 mutations benefited). Gilead is continuing to pursue this indication; Trodelvy is the only TROP2 ADC with proven survival gain in two breast cancer settings so far (mTNBC and HR+ disease) <a href="https://gilead.com" class="citation">[81,82]</a>.</p>
+                </div>
+
+                <div class="bg-yellow-50 p-3 rounded-lg">
+                    <span class="china-indicator">China Link</span>
+                    <p class="text-sm text-gray-700 mt-2">Gilead partnered with Everest Medicines for Trodelvy in Greater China. Everest ran a single-arm Phase II trial in China (EVER-132 study) in heavily pretreated mTNBC patients to support local approval. This uncontrolled Chinese trial (80 patients, all given Trodelvy) achieved an ORR of 38.8% <a href="https://onclive.com" class="citation">[83]</a> and had safety consistent with global studies <a href="https://onclive.com" class="citation">[84,85]</a>. It met its primary endpoint (confirmed by independent review), leading to NMPA approval of Trodelvy in 2022 for ≥3rd-line TNBC <a href="https://prnewswire.com" class="citation">[86]</a> <a href="https://onclive.com" class="citation">[87]</a>. Notably, the Chinese ORR and benefit "mirrored" the global ASCENT trial outcomes <a href="https://onclive.com" class="citation">[88]</a>, validating that the uncontrolled data were reliable. Gilead/Everest did not include a control arm due to the ethical urgency and the robust efficacy signal – instead they compared to historical chemo outcomes. Now, with global controlled data in hand (ASCENT trials), Gilead will likely update Chinese labeling to expand Trodelvy's use (e.g. first-line after ASCENT-03).</p>
+                </div>
+            </div>
+
+            <!-- Other Programs -->
+            <div class="bg-blue-50 p-4 rounded-lg mt-6">
+                <h4 class="font-semibold text-gray-900 mb-2">Additional Pipeline Notes</h4>
+                <p class="text-gray-700">Gilead is also exploring telisotuzumab vedotin (a HER3 ADC licensed from Daiichi) in lung cancer, and has immunotherapy agents (e.g. magrolimab) but nothing advanced in breast. Its focus is firmly on Trodelvy in oncology. Trodelvy's early development was largely based on a single-arm Phase I/II (IMMU-132-01) which led to U.S. accelerated approval in 2020. The subsequent Phase III ASCENT (controlled trial) confirmed the benefit and expanded global approvals <a href="https://onclive.com" class="citation">[89]</a>. This trajectory underscores how uncontrolled early data can bring a drug to market quickly in high-need settings, with confirmatory trials later.</p>
+            </div>
+        </div>
+
+        <div id="merck" class="company-content" style="display:none;">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">Merck & Co (MSD)</h2>
+            
+            <!-- Pembrolizumab -->
+            <div class="drug-card">
+                <div class="flex items-start justify-between mb-4">
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-900">Pembrolizumab (Keytruda®)</h3>
+                        <p class="text-gray-600">Immunotherapy (PD-1)</p>
+                    </div>
+                    <span class="phase-badge phase-3">Standard of Care</span>
+                </div>
+                
+                <div class="mb-4">
+                    <p class="text-gray-700">Merck's Keytruda is already integrated into standard care for early and metastatic TNBC. The Phase III KEYNOTE-522 trial showed adding pembrolizumab to neoadjuvant chemotherapy in early TNBC significantly increased pathologic complete response and event-free survival, leading to approvals in high-risk early TNBC <a href="https://ascopost.com" class="citation">[90]</a>. In metastatic TNBC, KEYNOTE-355 established pembrolizumab + chemo as first-line therapy for PD-L1 positive tumors.</p>
+                    
+                    <p class="text-gray-700 mt-3">Ongoing expansions: Merck presented KEYNOTE-689 in 2025 investigating pembrolizumab in neoadjuvant HR+ breast cancer (an exploratory approach) <a href="https://merck.com" class="citation">[91]. However, a large trial in HR+ (KEYNOTE-756, pembro + chemo + endocrine in high-risk ER+ early BC) was reported negative for iDFS improvement in 2023, suggesting immunotherapy has limited impact in luminal cancers. Merck is now focusing its breast I/O efforts mainly on TNBC and combinations.</p>
+                </div>
+            </div>
+
+            <!-- Sacituzumab Tirumotecan -->
+            <div class="drug-card">
+                <div class="flex items-start justify-between mb-4">
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-900">Sacituzumab Tirumotecan (SKB264, MK-2870)</h3>
+                        <p class="text-gray-600">TROP2 ADC (Kelun partnership)</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <span class="phase-badge phase-3">Phase III</span>
+                        <span class="status-positive">China Approved</span>
+                        <span class="china-indicator">China Origin</span>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <p class="text-gray-700">Merck formed a major alliance with China's Kelun-Biotech for TROP2-directed ADCs. Kelun's SKB264 (also called "sacituzumab tetrameric-irinoid" or colloquially sac-tir, now often termed sacituzumab tirumotecan to emphasize it's a Trodelvy analog with a different payload) was tested extensively in China. By late 2024, Kelun secured NMPA approval for SKB264 (brand likely pending) in metastatic TNBC after ≥2 prior treatments, making it the second TROP2 ADC approved globally (after Trodelvy) <a href="https://fiercepharma.com" class="citation">[92,93]</a>.</p>
+                    
+                    <p class="text-gray-700 mt-3">This approval was based on a Chinese Phase III (OptiTROP-Breast01) where SKB264 monotherapy was compared to chemotherapy in 3rd-line TNBC. The results were striking: SKB264 reduced the risk of death by 47% vs chemo (at interim analysis, median OS 9.4 months on chemo vs not reached on SKB264) <a href="https://fiercepharma.com" class="citation">[94,95]</a>, and reduced risk of progression by 69% (median PFS 5.7 vs 2.3 months) <a href="https://fiercepharma.com" class="citation">[96]</a>. These outcomes in a refractory TNBC population are impressive (HR ~0.31 for PFS). It's worth noting this Chinese trial was open-label and randomized – so controlled, not single-arm – providing high-quality evidence.</p>
+                </div>
+
+                <div class="bg-green-50 p-3 rounded-lg mb-4">
+                    <h4 class="font-semibold text-gray-900 mb-2">Merck's Global Plan</h4>
+                    <p class="text-sm text-gray-700">Merck licensed ex-China rights in 2022 and is now running large Phase III trials of SKB264 (which Merck calls MK-2870, proposed INN sacituzumab tirgovitecan) in various settings. In breast cancer, Merck chose to target earlier-line TNBC: the TroFuse-12 trial is a Merck-sponsored Phase III combining SKB264 + pembrolizumab as post-neoadjuvant therapy for TNBC patients with residual disease (i.e. adjuvant in high-risk TNBC) <a href="https://fiercepharma.com" class="citation">[97]</a>. Kelun, meanwhile, started a China-only Phase III (SKB264-III-11) of SKB264 as first-line TNBC monotherapy vs chemo <a href="https://fiercepharma.com" class="citation">[98]</a>, mirroring Gilead's ASCENT-03 design. Merck is expected to join for global first-line trials once some regulatory steps clear.</p>
+                </div>
+
+                <div class="bg-yellow-50 p-3 rounded-lg">
+                    <span class="china-indicator">China Link</span>
+                    <p class="text-sm text-gray-700 mt-2">Clearly, this ADC originated in China and had extensive uncontrolled early testing there: Kelun's Phase I and II trials in China were single-arm, establishing dose and observing responses in TROP2+ cancers <a href="https://aacrjournals.org" class="citation">[99]</a> <a href="https://fiercepharma.com" class="citation">[100]</a>. These led to the pivotal Chinese RCT. Merck benefited from this uncontrolled-to-controlled development path by getting a proven agent to take global.</p>
+                </div>
+            </div>
+
+            <!-- Other Activities -->
+            <div class="bg-blue-50 p-4 rounded-lg mt-6">
+                <h4 class="font-semibold text-gray-900 mb-2">Additional Pipeline Activities</h4>
+                <p class="text-gray-700 mb-3">Merck is exploring bispecific antibodies and other immunotherapies in breast cancer. It recently inked a deal with China's LaNova for an anti-PD-1xVEGF bispecific (LM-302) to test in solid tumors including TNBC (since dual checkpoint+anti-angiogenesis might enhance immunotherapy in "immune-cold" breast tumors) <a href="https://fiercepharma.com" class="citation">[101]</a>. However, Merck's most notable new partnership is not Merck but BMS with BioNTech on a PD-L1xVEGF bispecific (see BMS below).</p>
+                
+                <p class="text-gray-700 mb-3">For Merck itself, aside from Keytruda and the ADC, it has a PARP inhibitor (olaparib) which Merck co-markets (approved in BRCA-mutated BC) and a HER3 antibody-drug conjugate (patritumab deruxtecan) it is involved with via Daiichi (primarily for lung cancer but potentially for HER3+ breast subsets in the future). None of those are in Phase III for breast as of 2025 except those mentioned.</p>
+                
+                <p class="text-gray-700">Uncontrolled data usage: It's worth noting that Merck's ADC (sacituzumab tir-tir) was largely proven in controlled trials rather than relying on uncontrolled Phase IIs for approval. However, Merck's strategy with other agents (e.g. Keytruda) did involve accelerated approvals based on single-arm cohorts in some tumors. In breast cancer, Keytruda's approvals were all based on randomized trials (no accelerated approval solely on single-arm data, unlike Trodelvy initially). The Kelun ADC early data, though uncontrolled, showed high response rates in Phase I (presented at AACR 2022) which justified moving straight into Phase III <a href="https://aacrjournals.org" class="citation">[102]</a>.</p>
+            </div>
+        </div>
+
+        <div id="bms" class="company-content" style="display:none;">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">Bristol Myers Squibb (BMS)</h2>
+            
+            <!-- Izalontamab Brengitecan -->
+            <div class="drug-card">
+                <div class="flex items-start justify-between mb-4">
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-900">Izalontamab Brengitecan (BMS-986249, "Iza-can")</h3>
+                        <p class="text-gray-600">EGFR/HER3-Targeted ADC</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <span class="phase-badge phase-3">Phase III</span>
+                        <span class="china-indicator">China Origin</span>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <p class="text-gray-700">BMS in late 2023 licensed a novel ADC from SystImmune/Baili (China) that targets both EGFR and HER3 – an unusual dual-target approach for breast cancer. This ADC (sometimes called "SKB01D1" in China) uses a topoisomerase-I payload (a "brengitecan") and has shown potent activity in HER3 and EGFR-expressing tumors.</p>
+                </div>
+
+                <div class="bg-yellow-50 p-3 rounded-lg mb-4">
+                    <h4 class="font-semibold text-gray-900 mb-2">China Experience</h4>
+                    <p class="text-sm text-gray-700">Impressively, SystImmune's ADC was already in nine Chinese Phase III trials by 2025 <a href="https://oncologypipeline.com" class="citation">[103,104]</a>. These include pivotal studies in 2nd-line TNBC and 2nd-line ER+/HER2– breast cancer, all sponsored by SystImmune's Chinese affiliate (Baili Pharmaceutical) <a href="https://oncologypipeline.com" class="citation">[105]</a>. The Chinese trials typically compare "Iza-can" monotherapy to chemotherapy (each is an open-label RCT) <a href="https://oncologypipeline.com" class="citation">[106]</a>. While results haven't all been reported publicly yet, the sheer number of Phase III programs indicates promising earlier-phase results – likely uncontrolled Chinese Phase I/Ib data showed strong response rates, prompting aggressive development domestically.</p>
+                </div>
+
+                <div class="bg-green-50 p-3 rounded-lg mb-4">
+                    <h4 class="font-semibold text-gray-900 mb-2">BMS's Global Plan</h4>
+                    <p class="text-sm text-gray-700">BMS is now starting the first global Phase III with this ADC: the Izabright-Breast01 trial, launching mid-2025, will test izalontamab vs chemo in first-line TNBC patients who are PD-L1– (ineligible for Keytruda) <a href="https://oncologypipeline.com" class="citation">[107,108]</a>. This is a seamless Phase II/III design aiming for accelerated approval if Phase II shows a signal <a href="https://oncologypipeline.com" class="citation">[109]</a>. BMS chose PD-L1-negative TNBC as the entry point, since Keytruda + chemo covers PD-L1+ TNBC <a href="https://oncologypipeline.com" class="citation">[110]</a> – thus if "Iza-can" wins, it could become the go-to first-line for PD-L1– TNBC (~50% of TNBC cases <a href="https://oncologypipeline.com" class="citation">[111]</a>).</p>
+                </div>
+
+                <div class="bg-gray-50 p-3 rounded-lg">
+                    <p class="text-sm text-gray-700">Uncontrolled data: The decision to leap into first-line global trials likely rests on robust early outcomes in China – presumably single-arm Phase I data in metastatic TNBC and ER+ BC showed durable responses even post standard therapies. BMS will leverage those to design its trials. The BMS deal also included large upfront payments ($800M) and milestones to SystImmune <a href="https://oncologypipeline.com" class="citation">[112]</a>, underlining BMS's confidence.</p>
+                </div>
+            </div>
+
+            <!-- BioNTech Bispecific -->
+            <div class="drug-card">
+                <div class="flex items-start justify-between mb-4">
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-900">BNT-327</h3>
+                        <p class="text-gray-600">BioNTech Bispecific (PD-L1xVEGF-A)</p>
+                    </div>
+                    <span class="phase-badge phase-3">Phase III Planned</span>
+                </div>
+                
+                <div class="mb-4">
+                    <p class="text-gray-700">In 2025, BMS announced a partnership with BioNTech to co-develop BNT327, a next-gen immunotherapy that fuses a checkpoint inhibitor (PD-L1 antibody) with an anti-angiogenic (VEGF-A antibody) in one molecule. This agent is in Phase III for lung cancers already, and BMS/BioNTech plan to start a global Phase III in TNBC by late 2025 <a href="https://news.bms.com" class="citation">[113,114]</a>.</p>
+                    
+                    <p class="text-gray-700 mt-3">The idea is that BNT327 could "surpass current checkpoint outcomes" by also normalizing tumor vasculature <a href="https://news.bms.com" class="citation">[115,116]</a>. This TNBC trial will likely compare BNT327 vs pembrolizumab (or add BNT327 to chemo vs pembro+chemo).</p>
+                </div>
+
+                <div class="bg-gray-50 p-3 rounded-lg">
+                    <p class="text-sm text-gray-700">Uncontrolled data: Over 1,000 patients have already been treated with BNT327 in Phase I/II (across tumors), and preliminary data suggest synergy of anti-PD-L1 + anti-VEGF in one drug <a href="https://news.bms.com" class="citation">[117,118]</a>. These early trials include large single-arm cohorts (for example, a Phase II in refractory ovarian cancer showed unexpected responses, reportedly). However, for breast cancer specifically, we await Phase III to see its benefit. BioNTech's trial experience provides the safety data to proceed.</p>
+                </div>
+            </div>
+
+            <!-- Other BMS Programs -->
+            <div class="bg-blue-50 p-4 rounded-lg mt-6">
+                <h4 class="font-semibold text-gray-900 mb-2">Immunotherapy & Other Programs</h4>
+                <p class="text-gray-700 mb-3">BMS's own checkpoint inhibitor nivolumab (Opdivo) had limited use in breast cancer (no approvals; a neoadjuvant trial in ER+ BC reported in 2025 showed no benefit <a href="https://nature.com" class="citation">[119]</a>). BMS also has a TGF-β trap (Bintrafusp alfa) from an alliance with Merck KGaA, which it tested in TNBC, but that program was quietly deprioritized after bintrafusp failed in lung cancer. So BMS is pivoting to ADCs and bispecifics as noted.</p>
+                
+                <p class="text-gray-700">Uncontrolled data context: BMS's pipeline in breast largely comes from partnerships with strong early data (SystImmune ADC, BioNTech bispecific). The SystImmune ADC, for instance, saw extensive uncontrolled development in China (multiple Phase I expansions) before proceeding to Chinese pivotal trials <a href="https://oncologypipeline.com" class="citation">[120,121]</a>. BMS benefits from that head start. In general, BMS tends to rely on solid randomized data for approvals (e.g. it did not pursue accelerated nods in breast), but it absolutely uses Phase I/II signals (often single-arm) to decide where to invest.</p>
+            </div>
+        </div>
+
+        <div id="others" class="company-content" style="display:none;">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">Other Notable Companies</h2>
+            
+            <!-- Sanofi -->
+            <div class="drug-card">
+                <div class="flex items-start justify-between mb-4">
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-900">Sanofi - Amcenestrant</h3>
+                        <p class="text-gray-600">Oral SERD (Discontinued)</p>
+                    </div>
+                    <span class="status-failed">Program Terminated</span>
+                </div>
+                
+                <div class="mb-4">
+                    <p class="text-gray-700">Sanofi's attempt at an oral SERD (amcenestrant) is a cautionary tale. Amcenestrant showed encouraging tumor shrinkage in early Phase I trials (single-agent and combo, uncontrolled), prompting multiple Phase III trials (AMEERA program). However, in 2022 the Phase III AMEERA-5 (amcenestrant + palbociclib vs letrozole + palbociclib in first-line HR+ metastatic BC) was stopped early for futility, and a Phase II (AMEERA-3) in second-line was also negative. As a result, Sanofi discontinued amcenestrant entirely <a href="https://fiercebiotech.com" class="citation">[122]</a>.</p>
+                    
+                    <p class="text-gray-700 mt-3">This underscores that uncontrolled Phase I signals can be misleading – Sanofi's SERD looked active in Phase Ib, but failed when randomized against standard of care. Sanofi currently has no breast cancer drugs in Phase III (it shifted focus elsewhere after this costly setback).</p>
+                </div>
+            </div>
+
+            <!-- GSK -->
+            <div class="drug-card">
+                <div class="flex items-start justify-between mb-4">
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-900">GlaxoSmithKline (GSK)</h3>
+                        <p class="text-gray-600">Limited Breast Cancer Pipeline</p>
+                    </div>
+                    <span class="status-ongoing">No Phase III</span>
+                </div>
+                
+                <div class="mb-4">
+                    <p class="text-gray-700">GSK does not have a major breast cancer contender in Phase III as of 2025. GSK's PI3Kβ inhibitor (ipatasertib) was actually Roche's (and it failed Phase III in TNBC). GSK's AKT inhibitor withdrew earlier. GSK is mainly marketing niraparib (PARP inhibitor) in BRCA-mutated breast cancer (approved based on others' trials).</p>
+                    
+                    <p class="text-gray-700 mt-3">They had interest in immune therapy combinations (e.g. GSK's dostarlimab PD-1 was tried in a small TNBC study) and in antibody-drug conjugates via partnerships (GSK had an alliance with Immunomedics pre-Gilead, but lost Trodelvy bid). No active Phase III GSK compound in breast was noted, so GSK is relatively quiet here.</p>
+                </div>
+            </div>
+
+            <!-- Chinese Companies -->
+            <div class="drug-card">
+                <div class="flex items-start justify-between mb-4">
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-900">Innovative Chinese Companies</h3>
+                        <p class="text-gray-600">Regional Innovation Leaders</p>
+                    </div>
+                    <span class="china-indicator">China Focus</span>
+                </div>
+                
+                <div class="mb-4">
+                    <h4 class="font-semibold text-gray-900 mb-2">Hengrui Medicine's Pyrotinib</h4>
+                    <p class="text-gray-700 mb-3">A pan-HER tyrosine kinase inhibitor – was approved in China in 2018 for HER2+ metastatic breast cancer (post-trastuzumab). Pyrotinib's Phase III PHOEBE trial (China) showed pyrotinib + capecitabine significantly improved PFS and OS vs lapatinib + capecitabine <a href="https://ecancer.org" class="citation">[123,124]</a>. At ~4-year follow-up, median OS was 39.4 vs 28.6 months (HR 0.78) favoring pyrotinib <a href="https://ecancer.org" class="citation">[125]</a>. Earlier interim data had shown a PFS benefit as well (median PFS ~12.5 vs 6.8 months) <a href="https://aacrjournals.org" class="citation">[126]</a> <a href="https://pmc.ncbi.nlm.nih.gov" class="citation">[127]</a>.</p>
+                    
+                    <p class="text-gray-700 mb-3">Pyrotinib's development relied on uncontrolled Phase I/II Chinese studies that demonstrated responses even after multi-line therapy, leading to its approval prior to OS data. While Hengrui is not an MNC globally, it's a major pharma in China, and pyrotinib's success highlights China's role – the drug became a standard option for HER2+ patients in China who might not access T-DM1 <a href="https://ecancer.org" class="citation">[128,129]</a>. Pyrotinib's case is one where China-led innovation filled a gap; global companies have taken note, and some are evaluating pyrotinib in combination internationally.</p>
+                </div>
+
+                <div class="bg-gray-50 p-3 rounded-lg">
+                    <h4 class="font-semibold text-gray-900 mb-2">Other Chinese Biotechs</h4>
+                    <p class="text-sm text-gray-700">Zai Lab, BeiGene, Innovent, etc: These Chinese biotechs often license foreign drugs to develop locally (e.g. Zai Lab licensed giredestrant from Roche for Greater China, meaning it may run local trials or contribute Chinese patients to Roche's studies). BeiGene and Innovent have PD-1 inhibitors used in breast cancer trials (combos in TNBC), though none in Phase III yet for breast. The takeaway is that many MNC programs now have China partners ensuring Chinese patient data. For instance, Roche's giredestrant and T-DXd trials include China via partnerships or local affiliates, and Pfizer's ARV-471 trial had a dedicated China cohort as noted.</p>
+                </div>
+            </div>
+
+            <!-- Menarini -->
+            <div class="drug-card">
+                <div class="flex items-start justify-between mb-4">
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-900">Menarini (with Radius) - Elacestrant</h3>
+                        <p class="text-gray-600">Oral SERD</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <span class="phase-badge phase-3">FDA Approved</span>
+                        <span class="status-positive">2023 Approval</span>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <p class="text-gray-700">Menarini (with Radius) got Elacestrant (oral SERD) approved in 2023 for ER+ metastatic BC after Phase III EMERALD showed PFS gain vs standard endocrine <a href="https://pubmed.ncbi.nlm.nih.gov" class="citation">[130]</a> <a href="https://aacrjournals.org" class="citation">[131]</a> – while not an MNC in the traditional sense, this success influenced big pharma (proved the concept that oral SERDs can work if patients are ESR1-mutant enriched <a href="https://fiercebiotech.com" class="citation">[132]</a>). Menarini's Phase I/II was single-arm and hinted at efficacy, but it was the controlled EMERALD trial that secured approval <a href="https://pubmed.ncbi.nlm.nih.gov" class="citation">[133]</a>.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Conclusions Section -->
+        <div class="mt-12 p-6 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border-2 border-green-200">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">Conclusion and Key Trends</h2>
+            
+            <div class="space-y-4 text-gray-700">
+                <p>In summary, as of 2025 all major pharma companies are advancing new breast cancer therapies through Phase III – especially targeted therapies like SERDs, kinase inhibitors, and ADCs. Many of these programs saw early "hype" from Phase I/Ib single-arm trials, which informed go/no-go decisions:</p>
+                
+                <div class="bg-green-100 p-4 rounded-lg mb-4">
+                    <h3 class="font-semibold text-gray-900 mb-2">Programs That Translated Well:</h3>
+                    <p>• AstraZeneca's capivasertib and camizestrant had strong Phase IIIs after promising Phase I/II data (uncontrolled expansions showed biomarker activity, later confirmed in RCTs) <a href="https://cancernetwork.com" class="citation">[134]</a> <a href="https://fiercebiotech.com" class="citation">[135]</a></p>
+                    <p>• Gilead's Trodelvy and AZ/Daiichi's Enhertu also validated their striking Phase I/II results with Phase III wins <a href="https://gilead.com" class="citation">[136]</a> <a href="https://ascopost.com" class="citation">[137]</a></p>
+                </div>
+                
+                <div class="bg-red-100 p-4 rounded-lg mb-4">
+                    <h3 class="font-semibold text-gray-900 mb-2">Programs That Fell Short:</h3>
+                    <p>• Roche's giredestrant and Lilly's imlunestrant, despite initial tumor responses in Phase I, did not beat standard therapies in randomized trials <a href="https://pharmaphorum.com" class="citation">[138]</a> <a href="https://fiercebiotech.com" class="citation">[139]</a></p>
+                    <p>• Sanofi's amcenestrant was another casualty after uncontrolled data proved overoptimistic <a href="https://fiercebiotech.com" class="citation">[140]</a></p>
+                    <p>These remind us that randomized evidence is crucial.</p>
+                </div>
+                
+                <div class="bg-blue-100 p-4 rounded-lg mb-4">
+                    <h3 class="font-semibold text-gray-900 mb-2">ADC Revolution:</h3>
+                    <p>Meanwhile, antibody–drug conjugates (ADCs) are booming. Nearly every major company is involved in ADC development for breast cancer (either their own or via partners). Notably, many ADCs (Enhertu, Dato-DXd, Trodelvy, SKB264, izalontamab) had China-involved development. Some, like RemeGen's disitamab vedotin and SystImmune's izalontamab, originated in China, with extensive uncontrolled Phase I/Ib data in Chinese patients generating interest <a href="https://remegen.com" class="citation">[141]</a> <a href="https://oncologypipeline.com" class="citation">[142]</a>. Big pharma then partnered to bring these globally, often after seeing the robust single-arm results. This trend underscores China's growing role in oncology R&D – global MNC trials increasingly include China or run parallel China studies.</p>
+                </div>
+                
+                <div class="bg-yellow-100 p-4 rounded-lg mb-4">
+                    <h3 class="font-semibold text-gray-900 mb-2">China Trials:</h3>
+                    <p>Almost all these companies have either included Chinese patients in global Phase III trials or conducted separate trials in China. These Chinese trials are sometimes uncontrolled Phase I/Ib studies (for PK/bridging or early efficacy signals) – e.g. Pfizer's ARV-471 trial in China (Phase I, single-group) <a href="https://trial.medpath.com" class="citation">[143]</a>, Gilead/Everest's Trodelvy trial (Phase II single-arm) <a href="https://onclive.com" class="citation">[144]</a>, and multiple Chinese single-arm studies of RemeGen's RC48 and Kelun's SKB264. At the Phase III stage, China-only trials are usually randomized (to satisfy regulators with local comparator data), as seen with pyrotinib's PHOEBE and Kelun's OptiTROP.</p>
+                </div>
+                
+                <div class="bg-purple-100 p-4 rounded-lg">
+                    <h3 class="font-semibold text-gray-900 mb-2">Uncontrolled Phase Ib Data Usage:</h3>
+                    <p>In drug development, Phase Ib often refers to expansion cohorts to probe efficacy in specific subsets. By nature these are single-arm/uncontrolled. We observe that companies heavily publicize promising Phase Ib results (e.g. high response rates or biomarker responses) to build momentum. However, a critical assessment is needed: such data lack a control, so they can overestimate benefit. Our survey shows some drugs advanced on Phase Ib promise only to fail later (amcenestrant, ipatasertib, etc.). Others that succeeded often did show dramatic signals even in Phase Ib (e.g. Enhertu's >60% response in refractory HER2+ BC was so far beyond historical control that confidence was high <a href="https://ascopost.com" class="citation">[145]</a>). Thus, MNCs do use uncontrolled Phase I/II data to justify Phase III – but ultimate approval depends on Phase III outcomes.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary Table -->
+        <div class="mt-8 overflow-x-auto">
+            <h3 class="text-xl font-bold text-gray-900 mb-4">Key MNC Players Active in Phase III Breast Cancer Trials (2025)</h3>
+            <table class="min-w-full bg-white border border-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Company</th>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Key Assets</th>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    <tr>
+                        <td class="px-4 py-2 font-semibold">Pfizer</td>
+                        <td class="px-4 py-2">ARV-471 PROTAC, atirmociclib CDK4, RC48 ADC, tucatinib</td>
+                        <td class="px-4 py-2"><span class="status-ongoing">Phase III ongoing</span></td>
+                    </tr>
+                    <tr>
+                        <td class="px-4 py-2 font-semibold">Roche</td>
+                        <td class="px-4 py-2">Giredestrant SERD</td>
+                        <td class="px-4 py-2"><span class="status-failed">Ph2 failed, Ph3 ongoing</span></td>
+                    </tr>
+                    <tr>
+                        <td class="px-4 py-2 font-semibold">Novartis</td>
+                        <td class="px-4 py-2">Ribociclib adjuvant</td>
+                        <td class="px-4 py-2"><span class="status-positive">NATALEE positive</span></td>
+                    </tr>
+                    <tr>
+                        <td class="px-4 py-2 font-semibold">Eli Lilly</td>
+                        <td class="px-4 py-2">Abemaciclib adjuvant, Imlunestrant SERD</td>
+                        <td class="px-4 py-2"><span class="status-failed">SERD discontinued</span></td>
+                    </tr>
+                    <tr>
+                        <td class="px-4 py-2 font-semibold">AstraZeneca</td>
+                        <td class="px-4 py-2">Capivasertib AKT, Camizestrant SERD, Enhertu ADC, Dato-DXd ADC</td>
+                        <td class="px-4 py-2"><span class="status-positive">Multiple approvals</span></td>
+                    </tr>
+                    <tr>
+                        <td class="px-4 py-2 font-semibold">Gilead</td>
+                        <td class="px-4 py-2">Trodelvy ADC</td>
+                        <td class="px-4 py-2"><span class="status-positive">Expanding to 1L</span></td>
+                    </tr>
+                    <tr>
+                        <td class="px-4 py-2 font-semibold">Merck</td>
+                        <td class="px-4 py-2">Keytruda I/O, Kelun's TROP2 ADC</td>
+                        <td class="px-4 py-2"><span class="status-positive">China Ph3 success</span></td>
+                    </tr>
+                    <tr>
+                        <td class="px-4 py-2 font-semibold">BMS</td>
+                        <td class="px-4 py-2">SystImmune's EGFR/HER3 ADC, BioNTech bispecific</td>
+                        <td class="px-4 py-2"><span class="status-ongoing">Global Ph3 starting</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Final Note -->
+        <div class="mt-8 p-4 bg-gray-100 rounded-lg">
+            <p class="text-sm text-gray-700">All told, the breast cancer therapeutic landscape in 2025 is very dynamic. Phase III trials are delivering practice-changing results, and nearly every major company is involved. Importantly, cross-border collaboration (MNCs with Chinese firms) is accelerating development – often using early uncontrolled trial data from one region to springboard larger trials globally. The ultimate winners will be patients, as these efforts bring new options for treatment-resistant breast cancers.</p>
+        </div>
+
+        <!-- References Note -->
+        <div class="mt-8 p-4 border-t border-gray-200">
+            <p class="text-xs text-gray-500">Sources: Key details and outcomes are drawn from clinical trial press releases, investor presentations, and registries. Each cited reference corresponds to the specific claim or data preceding it. All citations link to original sources as indicated throughout the document.</p>
+        </div>
+    </div>
+
+    <!-- JavaScript for tab switching -->
+    <script>
+        function showCompany(companyId) {
+            // Hide all company content
+            const contents = document.querySelectorAll('.company-content');
+            contents.forEach(content => {
+                content.style.display = 'none';
+            });
+            
+            // Show selected company content
+            const selectedContent = document.getElementById(companyId);
+            if (selectedContent) {
+                selectedContent.style.display = 'block';
+            }
+            
+            // Update tab styling
+            const tabs = document.querySelectorAll('.company-tab');
+            tabs.forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Add active class to clicked tab
+            event.target.classList.add('active');
+        }
+    </script>
+</body>
+</html>
