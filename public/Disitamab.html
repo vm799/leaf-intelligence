@@ -1300,37 +1300,6 @@
         </div>
     </div>
 
-    <!-- Investment Summary -->
-    <div class="data-card mt-6">
-        <h3 class="text-xl font-bold mb-4">Investment Committee Decision Points</h3>
-        
-        <div class="metric-grid">
-            <div class="metric-card">
-                <div class="metric-label">Global PTRS</div>
-                <div class="metric-value" style="color: #ffc107;">40-50%</div>
-                <div class="metric-detail">Moderate probability</div>
-            </div>
-            <div class="metric-card">
-                <div class="metric-label">Line Position</div>
-                <div class="metric-value">3L+</div>
-                <div class="metric-detail">Post-T-DXd likely</div>
-            </div>
-            <div class="metric-card">
-                <div class="metric-label">Safety Edge</div>
-                <div class="metric-value" style="color: #28a745;">No ILD</div>
-                <div class="metric-detail">vs T-DXd 10-15%</div>
-            </div>
-            <div class="metric-card">
-                <div class="metric-label">Financial Health</div>
-                <div class="metric-value" style="color: #28a745;">2026</div>
-                <div class="metric-detail">Cash runway secured</div>
-            </div>
-        </div>
-
-        <p class="detail-text mt-4">
-            <strong>Key Investment Thesis:</strong> Disitamab vedotin offers a differentiated safety profile in a crowded HER2 ADC space, with established China approval providing validation. The moderate PTRS reflects the need for new trials against modern controls, but the absence of ILD toxicity creates a clear positioning opportunity in patients who cannot tolerate T-DXd. With Pfizer's backing for global development and RemeGen's strong China execution, the asset presents a balanced risk-reward profile for late-stage oncology investment.
-        </p>
-    </div>
 </div>
 
 <!-- PTRS Tab Content - Add this to your existing HTML -->
@@ -5403,7 +5372,7 @@
 </div>
 
 <!-- Complete Trial Analysis Tab - Updated Version -->
-<div id="trials" class="tab-content">
+<div id="oldnewtrials" class="tab-content">
     <div class="section-title">8. Complete Trial Portfolio Analysis</div>
     
     <!-- Clinical Trial Portfolio Assessment - Same content, different background -->
@@ -5968,6 +5937,897 @@
         Journal of Clinical Oncology | The Oncologist | Annals of Oncology | ADC Review | PubMed
     </div>
 </div>
+
+
+    <style>
+        .timeline-container {
+            position: relative;
+            padding-left: 30px;
+            margin: 20px 0;
+        }
+        .timeline-line {
+            position: absolute;
+            left: 10px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, #0a6b5e, #28a745);
+        }
+        .timeline-item {
+            position: relative;
+            margin-bottom: 30px;
+        }
+        .timeline-dot {
+            position: absolute;
+            left: -24px;
+            top: 5px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #0a6b5e;
+            border: 2px solid white;
+            box-shadow: 0 0 0 3px rgba(10, 107, 94, 0.2);
+        }
+        .timeline-date {
+            font-size: 12px;
+            color: #6c757d;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .timeline-content {
+            background: white;
+            border-radius: 8px;
+            padding: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .expandable-section {
+            margin-top: 12px;
+        }
+        .expandable-header {
+            cursor: pointer;
+            padding: 10px 12px;
+            background: #f9fafb;
+            border-radius: 6px;
+            font-size: 13px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.2s;
+        }
+        .expandable-header:hover {
+            background: #f3f4f6;
+        }
+        .expandable-content {
+            display: none;
+            padding: 12px;
+            background: #fafafa;
+            border-radius: 0 0 6px 6px;
+            margin-top: -1px;
+        }
+        .data-card {
+            background: white;
+            border-radius: 6px;
+            padding: 12px;
+            border: 1px solid #e5e7eb;
+        }
+        .trial-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        .trial-table th {
+            background: #f9fafb;
+            padding: 8px;
+            text-align: left;
+            font-weight: 600;
+            border: 1px solid #e5e7eb;
+        }
+        .trial-table td {
+            padding: 8px;
+            border: 1px solid #e5e7eb;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status-recruiting {
+            background: #cce5ff;
+            color: #004085;
+        }
+        .status-completed {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+        .status-approved {
+            background: #d4edda;
+            color: #155724;
+        }
+        .risk-item {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            padding: 12px;
+            background: #fef2f2;
+            border-radius: 6px;
+            border: 1px solid #fecaca;
+        }
+        .risk-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        .risk-high {
+            background: #dc2626;
+        }
+        .risk-medium {
+            background: #f59e0b;
+        }
+        .risk-low {
+            background: #10b981;
+        }
+        .detail-text {
+            font-size: 13px;
+            line-height: 1.6;
+            color: #374151;
+        }
+        .subsection-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-top: 24px;
+            margin-bottom: 16px;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 8px;
+        }
+        .highlight-box {
+            background: linear-gradient(to right, #f0fdf4, #f0fdf4);
+            border-radius: 8px;
+            padding: 16px;
+            border: 1px solid #86efac;
+        }
+        .reference-list {
+            font-size: 11px;
+            color: #6b7280;
+            padding: 12px;
+            background: #f9fafb;
+            border-radius: 6px;
+            margin-top: 24px;
+        }
+    </style>
+
+<div id="trials" class="tab-content">
+    <div class="text-2xl font-bold text-gray-900 mb-6">Complete Clinical Trial Portfolio Analysis</div>
+    
+    <!-- Trial Portfolio Critical Assessment -->
+    <div style="background: linear-gradient(to right, #f9fafb, #f3f4f6); border-radius: 12px; padding: 16px; margin-bottom: 24px; border: 1px solid #e5e7eb;">
+        <h3 style="font-size: 18px; font-weight: 600; color: #1f2937; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+            <span style="color: #10b981;">⚡</span> Clinical Trial Portfolio Assessment
+        </h3>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
+            <div style="background: white; border-radius: 8px; padding: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                <div style="font-size: 10px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Phase 3 Result</div>
+                <div style="font-size: 20px; font-weight: 700; color: #10b981;">POSITIVE</div>
+                <div style="font-size: 11px; color: #6b7280;">HR 0.56, p=0.014</div>
+            </div>
+            
+            <div style="background: white; border-radius: 8px; padding: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                <div style="font-size: 10px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Total Patients</div>
+                <div style="font-size: 20px; font-weight: 700; color: #2563eb;">400+</div>
+                <div style="font-size: 11px; color: #6b7280;">Across all trials</div>
+            </div>
+            
+            <div style="background: white; border-radius: 8px; padding: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                <div style="font-size: 10px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Indications</div>
+                <div style="font-size: 20px; font-weight: 700; color: #10b981;">3 Approved</div>
+                <div style="font-size: 11px; color: #6b7280;">China NMPA</div>
+            </div>
+            
+            <div style="background: white; border-radius: 8px; padding: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                <div style="font-size: 10px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Global Studies</div>
+                <div style="font-size: 20px; font-weight: 700; color: #2563eb;">20+</div>
+                <div style="font-size: 11px; color: #6b7280;">Active/planned</div>
+            </div>
+        </div>
+        
+        <div style="margin-top: 12px; padding: 12px; background: #d1fae5; border-radius: 8px; border: 1px solid #86efac;">
+            <p style="font-size: 13px; color: #065f46; font-weight: 600; margin: 0;">
+                📊 Trial Assessment: Robust clinical program with positive Phase 3 and 3 approved indications in China. Strong signal across HER2+ and HER2-low populations. Combination data promising (ORR 75% with PD-1). Global development with Pfizer provides validation and de-risks execution.
+            </p>
+        </div>
+    </div>
+
+    <!-- Trial Timeline -->
+    <div class="timeline-container">
+        <div class="timeline-line"></div>
+        
+        <!-- RC48-C006 Phase 3 Trial -->
+        <div class="timeline-item">
+            <div class="timeline-dot"></div>
+            <div class="timeline-date">2018-2024</div>
+            <div class="timeline-content">
+                <h4 class="font-semibold">RC48-C006 Phase 3 Pivotal Trial (NCT03500380)</h4>
+                
+                <!-- Essential Info Always Visible -->
+                <div class="data-card" style="margin-top: 12px;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px;">
+                        <div>
+                            <div style="font-size: 11px; color: #6c757d; font-weight: 600; text-transform: uppercase; margin-bottom: 4px;">Design</div>
+                            <div style="font-size: 13px; color: #424242;">DV vs Lapatinib+Cape</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 11px; color: #6c757d; font-weight: 600; text-transform: uppercase; margin-bottom: 4px;">Control</div>
+                            <div style="font-size: 13px; color: #10b981; font-weight: 600;">Active comparator</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 11px; color: #6c757d; font-weight: 600; text-transform: uppercase; margin-bottom: 4px;">Primary Outcome</div>
+                            <div style="font-size: 13px; color: #424242;">PFS</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 11px; color: #6c757d; font-weight: 600; text-transform: uppercase; margin-bottom: 4px;">Status</div>
+                            <div style="font-size: 13px; color: #10b981; font-weight: 600;">APPROVED CHINA</div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #e3f2f0;">
+                        <div style="font-size: 12px; color: #10b981; font-weight: 600;">
+                            PRIMARY MET: PFS 9.9 vs 4.9mo (HR 0.56, p=0.0143)
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Expandable Details -->
+                <div class="expandable-section">
+                    <div class="expandable-header" onclick="toggleSection(this)">
+                        <span>View Detailed Analysis</span>
+                        <span>▶</span>
+                    </div>
+                    <div class="expandable-content">
+                        <div class="data-card mt-3">
+                            <h5 class="font-semibold text-green-700 mb-2">Trial Design Details</h5>
+                            <p class="detail-text">
+                                <strong>Population:</strong> HER2+ MBC with liver metastases<br>
+                                <strong>Prior Therapy:</strong> Trastuzumab and taxane required<br>
+                                <strong>Randomization:</strong> 1:1 open-label<br>
+                                <strong>N=104:</strong> 53 DV, 51 control<br>
+                                <strong>Sites:</strong> Multiple centers in China
+                            </p>
+                        </div>
+
+                        <div class="data-card mt-3">
+                            <h5 class="font-semibold text-green-700 mb-2">Efficacy Results</h5>
+                            <table class="trial-table">
+                                <thead>
+                                    <tr>
+                                        <th>Endpoint</th>
+                                        <th>DV Arm</th>
+                                        <th>Control Arm</th>
+                                        <th>Statistical Result</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr style="background: #f0f7f6;">
+                                        <td><strong>Primary: PFS</strong></td>
+                                        <td><strong>9.9 months</strong></td>
+                                        <td><strong>4.9 months</strong></td>
+                                        <td><strong>HR 0.56 (95% CI: 0.35-0.90), p=0.0143</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td>ORR</td>
+                                        <td>38%</td>
+                                        <td>14%</td>
+                                        <td>Δ 24%, p<0.01</td>
+                                    </tr>
+                                    <tr>
+                                        <td>OS (immature)</td>
+                                        <td>Not reached</td>
+                                        <td>25.9 months</td>
+                                        <td>HR ~0.56 (trend)</td>
+                                    </tr>
+                                    <tr>
+                                        <td>CBR</td>
+                                        <td>65%</td>
+                                        <td>35%</td>
+                                        <td>Δ 30%</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="data-card mt-3">
+                            <h5 class="font-semibold text-green-700 mb-2">Key Safety Findings</h5>
+                            <p class="detail-text">
+                                • No ILD/pneumonitis observed (0% vs T-DXd 10-15%)<br>
+                                • Peripheral neuropathy: 45% all grade, 5.9% Grade 3<br>
+                                • Discontinuation rate <2% due to TRAEs<br>
+                                • No treatment-related deaths
+                            </p>
+                        </div>
+
+                        <div class="risk-item mt-3">
+                            <div class="risk-indicator risk-low"></div>
+                            <div>
+                                <strong>Investment Assessment:</strong> Positive Phase 3 with significant PFS benefit. Differentiated safety profile vs T-DXd.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Phase 1/2 Breast Cancer Studies -->
+        <div class="timeline-item">
+            <div class="timeline-dot" style="background: #2563eb;"></div>
+            <div class="timeline-date">2016-2020</div>
+            <div class="timeline-content">
+                <h4 class="font-semibold">Phase 1/2 Dose Finding & Expansion Studies</h4>
+                
+                <div class="data-card" style="margin-top: 12px;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px;">
+                        <div>
+                            <div style="font-size: 11px; color: #6c757d; font-weight: 600; text-transform: uppercase; margin-bottom: 4px;">Design</div>
+                            <div style="font-size: 13px; color: #424242;">Dose escalation/expansion</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 11px; color: #6c757d; font-weight: 600; text-transform: uppercase; margin-bottom: 4px;">Control</div>
+                            <div style="font-size: 13px; color: #dc2626; font-weight: 600;">None (Phase 1/2)</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 11px; color: #6c757d; font-weight: 600; text-transform: uppercase; margin-bottom: 4px;">Primary Outcome</div>
+                            <div style="font-size: 13px; color: #424242;">Safety/RP2D/ORR</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 11px; color: #6c757d; font-weight: 600; text-transform: uppercase; margin-bottom: 4px;">N / Status</div>
+                            <div style="font-size: 13px; color: #10b981; font-weight: 600;">n=136 / COMPLETED</div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #e3f2f0;">
+                        <div style="font-size: 12px; color: #6c757d;">
+                            <strong>Key Result:</strong> ORR 42.9% HER2+, 33.3% HER2-low
+                        </div>
+                    </div>
+                </div>
+
+                <div class="expandable-section">
+                    <div class="expandable-header" onclick="toggleSection(this)">
+                        <span>View Detailed Analysis</span>
+                        <span>▶</span>
+                    </div>
+                    <div class="expandable-content">
+                        <div class="data-card mt-3">
+                            <h5 class="font-semibold text-green-700 mb-2">Dose Escalation Results</h5>
+                            <p class="detail-text">
+                                No DLTs observed up to 2.5 mg/kg. MTD not reached. RP2D established at 2.0 mg/kg Q2W based on efficacy/safety balance.
+                            </p>
+                            
+                            <table class="trial-table mt-3">
+                                <thead>
+                                    <tr>
+                                        <th>Population</th>
+                                        <th>N</th>
+                                        <th>ORR</th>
+                                        <th>mPFS</th>
+                                        <th>mDOR</th>
+                                        <th>Prior Lines (≥3)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>HER2-positive</td>
+                                        <td>70</td>
+                                        <td>42.9%</td>
+                                        <td>5.7 months</td>
+                                        <td>7.2 months</td>
+                                        <td>88%</td>
+                                    </tr>
+                                    <tr>
+                                        <td>HER2-low</td>
+                                        <td>66</td>
+                                        <td>33.3%</td>
+                                        <td>5.1 months</td>
+                                        <td>6.8 months</td>
+                                        <td>85%</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="data-card mt-3">
+                            <h5 class="font-semibold text-green-700 mb-2">Safety Profile</h5>
+                            <p class="detail-text">
+                                • Most common AEs: AST/ALT elevation (~45%), neutropenia (~50%), neuropathy (~45%)<br>
+                                • Grade ≥3 TRAEs: ~30%<br>
+                                • Discontinuation rate: <2%<br>
+                                • No ILD signal identified
+                            </p>
+                        </div>
+
+                        <div class="risk-item mt-3" style="background: #f0fdf4; border-color: #86efac;">
+                            <div class="risk-indicator risk-low"></div>
+                            <div>
+                                <strong>Significance:</strong> First demonstration of HER2-low activity for RC48, predating T-DXd's HER2-low approval. Established safety profile and dosing for pivotal trials.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Combination with Toripalimab -->
+        <div class="timeline-item">
+            <div class="timeline-dot" style="background: #7c3aed;"></div>
+            <div class="timeline-date">2020-Ongoing</div>
+            <div class="timeline-content">
+                <h4 class="font-semibold">Phase 1b/2 RC48 + Toripalimab Combination</h4>
+                
+                <div class="data-card" style="margin-top: 12px;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px;">
+                        <div>
+                            <div style="font-size: 11px; color: #6c757d; font-weight: 600; text-transform: uppercase; margin-bottom: 4px;">Design</div>
+                            <div style="font-size: 13px; color: #424242;">DV + anti-PD-1</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 11px; color: #6c757d; font-weight: 600; text-transform: uppercase; margin-bottom: 4px;">Control</div>
+                            <div style="font-size: 13px; color: #dc2626; font-weight: 600;">None</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 11px; color: #6c757d; font-weight: 600; text-transform: uppercase; margin-bottom: 4px;">Primary Outcome</div>
+                            <div style="font-size: 13px; color: #424242;">Safety/ORR</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 11px; color: #6c757d; font-weight: 600; text-transform: uppercase; margin-bottom: 4px;">N / Status</div>
+                            <div style="font-size: 13px; color: #10b981; font-weight: 600;">n=43 (UC) / ONGOING</div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #e3f2f0;">
+                        <div style="font-size: 12px; color: #10b981; font-weight: 600;">
+                            Key Result: ORR 75%, mOS 33.1mo
+                        </div>
+                    </div>
+                </div>
+
+                <div class="expandable-section">
+                    <div class="expandable-header" onclick="toggleSection(this)">
+                        <span>View Detailed Analysis</span>
+                        <span>▶</span>
+                    </div>
+                    <div class="expandable-content">
+                        <div class="data-card mt-3">
+                            <h5 class="font-semibold text-green-700 mb-2">Combination Rationale</h5>
+                            <p class="detail-text">
+                                MMAE induces immunogenic cell death, potentially synergizing with checkpoint inhibition. Preclinical models showed enhanced anti-tumor immunity.
+                            </p>
+                        </div>
+
+                        <div class="data-card mt-3">
+                            <h5 class="font-semibold text-green-700 mb-2">Efficacy Results</h5>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px;">
+                                <div style="text-align: center; padding: 8px; background: #f9fafb; border-radius: 6px;">
+                                    <div style="font-size: 11px; color: #6c757d;">ORR</div>
+                                    <div style="font-size: 18px; font-weight: 700; color: #10b981;">75%</div>
+                                </div>
+                                <div style="text-align: center; padding: 8px; background: #f9fafb; border-radius: 6px;">
+                                    <div style="font-size: 11px; color: #6c757d;">CR Rate</div>
+                                    <div style="font-size: 18px; font-weight: 700; color: #10b981;">20%</div>
+                                </div>
+                                <div style="text-align: center; padding: 8px; background: #f9fafb; border-radius: 6px;">
+                                    <div style="font-size: 11px; color: #6c757d;">mPFS</div>
+                                    <div style="font-size: 18px; font-weight: 700; color: #2563eb;">8.3 mo</div>
+                                </div>
+                                <div style="text-align: center; padding: 8px; background: #f9fafb; border-radius: 6px;">
+                                    <div style="font-size: 11px; color: #6c757d;">mOS</div>
+                                    <div style="font-size: 18px; font-weight: 700; color: #2563eb;">33.1 mo</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="data-card mt-3">
+                            <h5 class="font-semibold text-green-700 mb-2">Safety of Combination</h5>
+                            <p class="detail-text">
+                                • Grade ≥3 TRAEs: 36.5%<br>
+                                • No unexpected toxicities<br>
+                                • Immune-related AEs manageable<br>
+                                • No increase in neuropathy
+                            </p>
+                        </div>
+
+                        <div class="risk-item mt-3" style="background: #f0fdf4; border-color: #86efac;">
+                            <div class="risk-indicator risk-low"></div>
+                            <div>
+                                <strong>Clinical Impact:</strong> Supports combination strategies for future development. FDA BTD granted for urothelial cancer partially based on this data.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gastric Cancer Studies -->
+        <div class="timeline-item">
+            <div class="timeline-dot" style="background: #10b981;"></div>
+            <div class="timeline-date">2018-2021</div>
+            <div class="timeline-content">
+                <h4 class="font-semibold">Gastric Cancer Studies - First Indication</h4>
+                
+                <div class="data-card" style="margin-top: 12px;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px;">
+                        <div>
+                            <div style="font-size: 11px; color: #6c757d; font-weight: 600; text-transform: uppercase; margin-bottom: 4px;">Population</div>
+                            <div style="font-size: 13px; color: #424242;">HER2+ locally advanced/metastatic</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 11px; color: #6c757d; font-weight: 600; text-transform: uppercase; margin-bottom: 4px;">Status</div>
+                            <div style="font-size: 13px; color: #10b981; font-weight: 600;">APPROVED 2021</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 11px; color: #6c757d; font-weight: 600; text-transform: uppercase; margin-bottom: 4px;">NRDL</div>
+                            <div style="font-size: 13px; color: #424242;">Listed</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 11px; color: #6c757d; font-weight: 600; text-transform: uppercase; margin-bottom: 4px;">Availability</div>
+                            <div style="font-size: 13px; color: #10b981; font-weight: 600;">Commercial</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="expandable-section">
+                    <div class="expandable-header" onclick="toggleSection(this)">
+                        <span>View Pivotal Data</span>
+                        <span>▶</span>
+                    </div>
+                    <div class="expandable-content">
+                        <div class="data-card mt-3">
+                            <p class="detail-text">
+                                • ORR: 58% in HER2+ gastric cancer<br>
+                                • mPFS: 6.9 months<br>
+                                • Well-tolerated in heavily pretreated patients<br>
+                                • First global ADC approval for HER2+ gastric cancer by Chinese company
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Urothelial Cancer Studies -->
+        <div class="timeline-item">
+            <div class="timeline-dot" style="background: #7c3aed;"></div>
+            <div class="timeline-date">2019-2022</div>
+            <div class="timeline-content">
+                <h4 class="font-semibold">Urothelial Carcinoma Studies (RC48-C005/C009)</h4>
+                
+                <div class="data-card" style="margin-top: 12px;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px;">
+                        <div>
+                            <div style="font-size: 11px; color: #6c757d; font-weight: 600; text-transform: uppercase; margin-bottom: 4px;">Combined N</div>
+                            <div style="font-size: 13px; color: #424242;">n=107</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 11px; color: #6c757d; font-weight: 600; text-transform: uppercase; margin-bottom: 4px;">Status</div>
+                            <div style="font-size: 13px; color: #10b981; font-weight: 600;">APPROVED 2022</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 11px; color: #6c757d; font-weight: 600; text-transform: uppercase; margin-bottom: 4px;">FDA BTD</div>
+                            <div style="font-size: 13px; color: #7c3aed; font-weight: 600;">Granted 2020</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 11px; color: #6c757d; font-weight: 600; text-transform: uppercase; margin-bottom: 4px;">ORR / mOS</div>
+                            <div style="font-size: 13px; color: #10b981; font-weight: 600;">50.5% / 14.2mo</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="expandable-section">
+                    <div class="expandable-header" onclick="toggleSection(this)">
+                        <span>View Combined Analysis</span>
+                        <span>▶</span>
+                    </div>
+                    <div class="expandable-content">
+                        <div class="data-card mt-3">
+                            <table class="trial-table">
+                                <thead>
+                                    <tr>
+                                        <th>Endpoint</th>
+                                        <th>Result</th>
+                                        <th>95% CI</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>ORR</td>
+                                        <td>50.5%</td>
+                                        <td>40.6%-60.3%</td>
+                                    </tr>
+                                    <tr>
+                                        <td>mPFS</td>
+                                        <td>5.9 months</td>
+                                        <td>4.2-7.2</td>
+                                    </tr>
+                                    <tr>
+                                        <td>mOS</td>
+                                        <td>14.2 months</td>
+                                        <td>10.2-18.5</td>
+                                    </tr>
+                                    <tr>
+                                        <td>mDOR</td>
+                                        <td>6.9 months</td>
+                                        <td>5.6-8.9</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="risk-item mt-3" style="background: #f0fdf4; border-color: #86efac;">
+                            <div class="risk-indicator risk-low"></div>
+                            <div>
+                                <strong>FDA BTD Rationale:</strong> High response rate in platinum-refractory patients with limited treatment options. Published in Journal of Clinical Oncology.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SGNDV-001 Global Study -->
+        <div class="timeline-item">
+            <div class="timeline-dot" style="background: #6366f1;"></div>
+            <div class="timeline-date">2025-Ongoing</div>
+            <div class="timeline-content">
+                <h4 class="font-semibold">SGNDV-001 Global Phase 2 (Pfizer-Led)</h4>
+                
+                <div class="data-card" style="margin-top: 12px;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px;">
+                        <div>
+                            <div style="font-size: 11px; color: #6c757d; font-weight: 600; text-transform: uppercase; margin-bottom: 4px;">Design</div>
+                            <div style="font-size: 13px; color: #424242;">Multiple expansion cohorts</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 11px; color: #6c757d; font-weight: 600; text-transform: uppercase; margin-bottom: 4px;">Sites</div>
+                            <div style="font-size: 13px; color: #424242;">US, EU, Asia</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 11px; color: #6c757d; font-weight: 600; text-transform: uppercase; margin-bottom: 4px;">Key Focus</div>
+                            <div style="font-size: 13px; color: #6366f1; font-weight: 600;">Post-T-DXd populations</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 11px; color: #6c757d; font-weight: 600; text-transform: uppercase; margin-bottom: 4px;">Status</div>
+                            <div style="font-size: 13px; color: #2563eb; font-weight: 600;">RECRUITING</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="expandable-section">
+                    <div class="expandable-header" onclick="toggleSection(this)">
+                        <span>View Study Details</span>
+                        <span>▶</span>
+                    </div>
+                    <div class="expandable-content">
+                        <div class="data-card mt-3">
+                            <h5 class="font-semibold text-green-700 mb-2">Study Cohorts</h5>
+                            <p class="detail-text">
+                                • <strong>Cohort A:</strong> HER2+ MBC post-T-DXd failure<br>
+                                • <strong>Cohort B:</strong> HER2-low breast cancer, HR+<br>
+                                • <strong>Cohort C:</strong> HER2+ urothelial carcinoma<br>
+                                • <strong>Cohort D:</strong> HER2-mutant NSCLC
+                            </p>
+                        </div>
+
+                        <div class="data-card mt-3">
+                            <h5 class="font-semibold text-green-700 mb-2">Key Objectives</h5>
+                            <p class="detail-text">
+                                • Establish efficacy in Western populations<br>
+                                • Generate data for FDA/EMA submissions<br>
+                                • Evaluate safety in diverse ethnic populations<br>
+                                • Support label expansion beyond China approvals
+                            </p>
+                        </div>
+
+                        <div class="data-card mt-3">
+                            <h5 class="font-semibold text-green-700 mb-2">Timeline</h5>
+                            <p class="detail-text">
+                                <strong>First patient dosed:</strong> Q3 2025<br>
+                                <strong>Interim analysis:</strong> Q4 2026<br>
+                                <strong>Primary completion:</strong> Q2 2027
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Future Development Studies -->
+        <div class="timeline-item">
+            <div class="timeline-dot" style="background: #6b7280;"></div>
+            <div class="timeline-date">2026-2028 (Planned)</div>
+            <div class="timeline-content">
+                <h4 class="font-semibold">Future Development Studies</h4>
+                
+                <div class="data-card" style="margin-top: 12px;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px;">
+                        <div>
+                            <div style="font-size: 11px; color: #6c757d; font-weight: 600; text-transform: uppercase; margin-bottom: 4px;">Focus</div>
+                            <div style="font-size: 13px; color: #424242;">Combinations & earlier lines</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 11px; color: #6c757d; font-weight: 600; text-transform: uppercase; margin-bottom: 4px;">Strategy</div>
+                            <div style="font-size: 13px; color: #10b981; font-weight: 600;">Differentiation via safety</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 11px; color: #6c757d; font-weight: 600; text-transform: uppercase; margin-bottom: 4px;">Status</div>
+                            <div style="font-size: 13px; color: #6b7280;">PLANNED</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="expandable-section">
+                    <div class="expandable-header" onclick="toggleSection(this)">
+                        <span>View Pipeline Strategy</span>
+                        <span>▶</span>
+                    </div>
+                    <div class="expandable-content">
+                        <div class="data-card mt-3">
+                            <table class="trial-table">
+                                <thead>
+                                    <tr>
+                                        <th>Study Concept</th>
+                                        <th>Rationale</th>
+                                        <th>Timeline</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>DV + CDK4/6i in HR+ HER2-low</td>
+                                        <td>Synergy in preclinical models</td>
+                                        <td>2026 initiation</td>
+                                    </tr>
+                                    <tr>
+                                        <td>DV + Pembrolizumab in TNBC</td>
+                                        <td>Leverage UC combo success</td>
+                                        <td>Planning phase</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Neoadjuvant HER2+ early BC</td>
+                                        <td>ILD-free alternative</td>
+                                        <td>2027 feasibility</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Brain metastases study</td>
+                                        <td>MMAE BBB penetration</td>
+                                        <td>Under evaluation</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary Table -->
+    <div class="subsection-title">Trial Portfolio Summary</div>
+    <table class="trial-table">
+        <thead>
+            <tr>
+                <th>Trial</th>
+                <th>Phase</th>
+                <th>N</th>
+                <th>Control</th>
+                <th>Primary</th>
+                <th>Status</th>
+                <th>Key Result</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr style="background: #f0fdf4;">
+                <td><strong>RC48-C006</strong></td>
+                <td>3</td>
+                <td>104</td>
+                <td><span style="color: #10b981;">Active</span></td>
+                <td>PFS</td>
+                <td><span class="status-badge status-approved">APPROVED</span></td>
+                <td>HR 0.56, p=0.014</td>
+            </tr>
+            <tr>
+                <td><strong>Phase 1/2 Dose Finding</strong></td>
+                <td>1/2</td>
+                <td>136</td>
+                <td><span style="color: #dc3545;">None</span></td>
+                <td>Safety/ORR</td>
+                <td><span class="status-badge status-completed">COMPLETED</span></td>
+                <td>ORR 42.9% HER2+</td>
+            </tr>
+            <tr>
+                <td><strong>RC48 + Toripalimab</strong></td>
+                <td>1b/2</td>
+                <td>43</td>
+                <td><span style="color: #dc3545;">None</span></td>
+                <td>Safety/ORR</td>
+                <td><span class="status-badge status-active">ONGOING</span></td>
+                <td>ORR 75% in UC</td>
+            </tr>
+            <tr style="background: #f0fdf4;">
+                <td><strong>Gastric Cancer</strong></td>
+                <td>2</td>
+                <td>~125</td>
+                <td><span style="color: #dc3545;">None</span></td>
+                <td>ORR</td>
+                <td><span class="status-badge status-approved">APPROVED</span></td>
+                <td>ORR 58%</td>
+            </tr>
+            <tr style="background: #f0fdf4;">
+                <td><strong>RC48-C005/C009 (UC)</strong></td>
+                <td>2</td>
+                <td>107</td>
+                <td><span style="color: #dc3545;">None</span></td>
+                <td>ORR</td>
+                <td><span class="status-badge status-approved">APPROVED</span></td>
+                <td>ORR 50.5%, FDA BTD</td>
+            </tr>
+            <tr>
+                <td><strong>SGNDV-001 Global</strong></td>
+                <td>2</td>
+                <td>TBD</td>
+                <td><span style="color: #dc3545;">None</span></td>
+                <td>ORR/PFS</td>
+                <td><span class="status-badge status-recruiting">RECRUITING</span></td>
+                <td>Pending</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- Investment Committee Summary -->
+    <div class="highlight-box mt-6">
+        <h4 class="font-semibold mb-3 text-xl">Clinical Development Summary</h4>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 16px;">
+            <div style="text-align: center; padding: 12px; background: white; border-radius: 8px; border: 1px solid #e5e7eb;">
+                <div style="font-size: 11px; color: #6b7280; text-transform: uppercase;">Total Studies</div>
+                <div style="font-size: 24px; font-weight: 700; color: #1f2937;">20+</div>
+                <div style="font-size: 11px; color: #6b7280;">Across indications</div>
+            </div>
+            <div style="text-align: center; padding: 12px; background: white; border-radius: 8px; border: 1px solid #e5e7eb;">
+                <div style="font-size: 11px; color: #6b7280; text-transform: uppercase;">Patients Treated</div>
+                <div style="font-size: 24px; font-weight: 700; color: #1f2937;">400+</div>
+                <div style="font-size: 11px; color: #6b7280;">Safety database</div>
+            </div>
+            <div style="text-align: center; padding: 12px; background: white; border-radius: 8px; border: 1px solid #e5e7eb;">
+                <div style="font-size: 11px; color: #6b7280; text-transform: uppercase;">Response Rate Range</div>
+                <div style="font-size: 24px; font-weight: 700; color: #1f2937;">33-75%</div>
+                <div style="font-size: 11px; color: #6b7280;">Across populations</div>
+            </div>
+            <div style="text-align: center; padding: 12px; background: white; border-radius: 8px; border: 1px solid #e5e7eb;">
+                <div style="font-size: 11px; color: #6b7280; text-transform: uppercase;">Next Milestone</div>
+                <div style="font-size: 24px; font-weight: 700; color: #1f2937;">Q4 2026</div>
+                <div style="font-size: 11px; color: #6b7280;">Global Ph2 interim</div>
+            </div>
+        </div>
+        
+        <p class="detail-text">
+            <strong>Clinical Program Assessment:</strong> Disitamab vedotin has demonstrated consistent efficacy across multiple tumor types with a differentiated safety profile. 
+            The positive Phase 3 result in HER2+ breast cancer with liver metastases validates the mechanism and supports global development. 
+            Activity in HER2-low populations (ORR 33.3%) expands the addressable market significantly. The combination with checkpoint inhibitors 
+            shows promising synergy (ORR 75% in UC). With Pfizer leading global development and 3 approved indications in China providing 
+            commercial validation, the clinical program is well-positioned for regulatory success in Western markets.
+        </p>
+    </div>
+
+    <div class="reference-list">
+        Trial data compiled from: ClinicalTrials.gov | SABCS 2024 | ASCO 2024 | RemeGen Corporate Presentations | 
+        Journal of Clinical Oncology | The Oncologist | Annals of Oncology | ADC Review | PubMed
+    </div>
+</div>
+
+
     <script>
         // ============================================
 // COMPLETE SCRIPT FOR DISITAMAB VEDOTIN REPORT
