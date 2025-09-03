@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Comprehensive Treatment Comparative Analysis - Investment Intelligence Report</title>
     <script src="https://cdn.tailwindcss.com"></script>
+           <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         * {
@@ -48,15 +49,19 @@
         }
 
         /* Tab Navigation - Exact Match to Original */
-        .tabs {
+         .tabs {
             display: flex;
+            justify-content: center;
+            align-items: center;
             background: white;
             border-bottom: 2px solid #e9ecef;
             position: sticky;
-            top: 0;
+            /* gap: 8px; */
+            /* top: 0; */
             z-index: 100;
-            overflow-x: auto;
+            /* overflow-x: hidden; */
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            /* padding: 0 24px; */
         }
 
         .tab-btn {
@@ -510,9 +515,203 @@
         .fade-in {
             animation: fadeIn 0.3s ease-out;
         }
+        
+.nav-bar {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(229, 231, 235, 0.6);
+    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+    position: relative;
+    overflow: hidden;
+    height: auto;
+    min-height: 80px;
+    display: flex;
+    align-items: center;
+}
+
+/* Animated gradient background line */
+.nav-bar::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 200%;
+    height: 2px;
+    background: linear-gradient(90deg, 
+        transparent,
+        #0a6b5e,
+        #085a4f,
+        #0a6b5e,
+        transparent
+    );
+    animation: shimmer 3s infinite;
+}
+
+.nav-tab {
+    position: relative;
+    padding: 0.5rem 1rem;
+    color: #6b7280;
+    font-weight: 500;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 0.625rem;
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: 0.875rem;
+    white-space: nowrap;
+    text-decoration: none;
+}
+
+.nav-tab:hover {
+    color: #0a6b5e;
+    background: linear-gradient(135deg, 
+        rgba(10, 107, 94, 0.08),
+        rgba(8, 90, 79, 0.05)
+    );
+    transform: translateY(-1px);
+}
+
+.nav-tab.active {
+    color: #fff;
+    background: linear-gradient(135deg, #0a6b5e, #085a4f);
+    box-shadow: 0 4px 15px -3px rgba(10, 107, 94, 0.4);
+}
+
+.nav-tab svg {
+    transition: all 0.3s ease;
+}
+
+.nav-tab:hover svg {
+    transform: scale(1.1) rotate(5deg);
+}
+
+.nav-tab.active svg {
+    filter: brightness(1.2);
+    animation: float 3s ease-in-out infinite;
+}
+
+.logo-container {
+    animation: float 4s ease-in-out infinite;
+}
+
+.glow-effect {
+    animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* Gradient text animation on hover */
+.brand-text {
+    background-size: 200% 200%;
+    transition: all 0.3s ease;
+}
+
+.brand-container:hover .brand-text {
+    background-position: 100% 0;
+    filter: brightness(1.1);
+}
+
+/* Mobile responsive */
+@media (max-width: 1024px) {
+    .nav-tabs {
+        gap: 0.25rem;
+    }
+    
+    .nav-tab {
+        padding: 0.4rem 0.75rem;
+        font-size: 0.8rem;
+    }
+    
+    .nav-tab svg {
+        width: 0.875rem;
+        height: 0.875rem;
+    }
+    
+    .brand-text {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .nav-bar {
+        padding: 0.75rem 1rem;
+    }
+    
+    .nav-tabs {
+        display: none;
+    }
+    
+    .nav-tab {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
     </style>
 </head>
 <body>
+     <nav class="nav-bar" style="height: auto; min-height: 80px;">
+        <div class="w-full px-8 py-4">
+            <div class="flex items-center justify-between gap-8">
+                <!-- Logo and Brand - Fixed width to prevent squashing -->
+                <div class="brand-container flex items-center gap-4 cursor-pointer group flex-shrink-0" onclick="location.href='/blackstone.html'">
+                    <div class="logo-container relative">
+                        <!-- Using your existing logo -->
+                        <img src="leaf.png" alt="Leaf Intelligence" class="h-12 w-12 object-contain relative z-10 transition-transform duration-300 group-hover:scale-110">
+                        
+                        <!-- Enhanced glow effect with multiple layers -->
+                        <div class="absolute inset-0 bg-gradient-to-r from-emerald-400 via-cyan-400 to-purple-400 opacity-30 blur-xl rounded-full glow-effect"></div>
+                        <div class="absolute inset-0 bg-gradient-to-r from-emerald-300 to-cyan-300 opacity-20 blur-2xl rounded-full scale-150"></div>
+                    </div>
+                    
+                    <div class="flex flex-col">
+                        <span class="brand-text text-xl font-bold bg-gradient-to-r from-emerald-600 via-blue-600 to-purple-600 bg-clip-text text-transparent whitespace-nowrap">
+                            Leaf Intelligence
+                        </span>
+                        <div class="flex items-center gap-2">
+                            <div class="flex items-center gap-1">
+                                <div class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></div>
+                                <span class="text-xs text-gray-600 font-medium">AI Research Platform</span>
+                            </div>
+                            <span class="text-xs bg-gradient-to-r from-emerald-500 to-cyan-500 text-white px-2 py-0.5 rounded-full font-semibold">BETA</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Navigation Tabs - Center aligned with proper spacing -->
+                <div class="nav-tabs flex items-center gap-2 flex-grow justify-center">
+                    <a href="/blackstone.html" class="nav-tab active">
+                        <i data-lucide="building-2" class="w-4 h-4"></i>
+                        <span>Companies</span>
+                    </a>
+                    <a href="/others.html" class="nav-tab">
+                       <i data-lucide="beaker" class="w-4 h-4"></i>
+                        <span>Pharma Intelligence</span>
+                    </a>
+                    <!-- <a href="/comparison.html" class="nav-tab">
+                        <i data-lucide="git-compare" class="w-4 h-4"></i>
+                        <span>Side-By-Side</span>
+                    </a> -->
+                </div>
+                
+                <!-- Right side actions - Fixed width -->
+                <div class="flex items-center gap-2 flex-shrink-0">
+                    <button class="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+                        <i data-lucide="search" class="w-4 h-4 text-gray-600"></i>
+                    </button>
+                    <button class="p-2 hover:bg-gray-100 rounded-lg transition-colors relative">
+                        <i data-lucide="bell" class="w-4 h-4 text-gray-600"></i>
+                        <span class="absolute top-1 right-1 w-1.5 h-1.5 bg-red-500 rounded-full"></span>
+                    </button>
+                    <div class="w-px h-6 bg-gray-200"></div>
+                    <!-- <button class="flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-emerald-500 to-cyan-500 text-white rounded-lg font-medium text-sm hover:shadow-lg transition-all hover:scale-105">
+                        <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                        <span>Upgrade</span>
+                    </button> -->
+                </div>
+            </div>
+        </div>
+    </nav>
+
     <!-- Header Section -->
     <div class="header-section">
         <div class="header-content">
@@ -520,21 +719,14 @@
                 Comprehensive Treatment Comparative Analysis
             </h1>
             <p style="font-size: 18px; opacity: 0.95;">
-                Investment Intelligence Report | Blackstone Healthcare Portfolio
+                Intelligence Report 
             </p>
             <div class="key-metrics">
                 <div class="metric-box">
                     <div style="font-size: 24px; font-weight: 700;">4</div>
                     <div style="font-size: 12px; opacity: 0.9;">Treatment Assets</div>
                 </div>
-                <div class="metric-box">
-                    <div style="font-size: 24px; font-weight: 700;">$13.4B</div>
-                    <div style="font-size: 12px; opacity: 0.9;">Combined NPV</div>
-                </div>
-                <div class="metric-box">
-                    <div style="font-size: 24px; font-weight: 700;">$6.2B</div>
-                    <div style="font-size: 12px; opacity: 0.9;">Peak Sales Potential</div>
-                </div>
+              
                 <div class="metric-box">
                     <div style="font-size: 24px; font-weight: 700;">2026-2033</div>
                     <div style="font-size: 12px; opacity: 0.9;">Launch Timeline</div>
@@ -549,8 +741,6 @@
         <button class="tab-btn" onclick="showTab('ptrs')">PTRS Analysis</button>
         <button class="tab-btn" onclick="showTab('clinical')">Clinical & Regulatory</button>
         <button class="tab-btn" onclick="showTab('scientific')">Scientific & IP</button>
-        <button class="tab-btn" onclick="showTab('commercial')">Commercial</button>
-        <button class="tab-btn" onclick="showTab('financial')">Financial</button>
         <button class="tab-btn" onclick="showTab('operational')">Operational & Legal</button>
         <button class="tab-btn" onclick="showTab('management')">Management</button>
         <button class="tab-btn" onclick="showTab('safety')">Safety</button>
@@ -566,7 +756,7 @@
         <div class="executive-summary">
             <h3 class="subsection-title">Investment Thesis Summary</h3>
             <p class="detail-text">
-                This comprehensive analysis evaluates four late-stage breast cancer therapeutics representing $13.4B in combined unadjusted NPV potential across diverse mechanisms of action. 
+                This comprehensive analysis evaluates four late-stage breast cancer therapeutics across diverse mechanisms of action. 
                 The portfolio spans from near-term regulatory approval (Vepdegestrant with PDUFA June 5, 2026) to early-stage platform innovation (177Lu-NeoB in Phase 1b), 
                 offering both immediate value inflection opportunities and long-term strategic positioning in the evolving breast cancer treatment landscape.
             </p>
@@ -589,16 +779,7 @@
                     <div class="metric-value">2026</div>
                     <div class="metric-detail">Vepdegestrant</div>
                 </div>
-                <div class="summary-item">
-                    <div class="metric-label">Largest NPV</div>
-                    <div class="metric-value">$5.0B</div>
-                    <div class="metric-detail">Atirmociclib</div>
-                </div>
-                <div class="summary-item">
-                    <div class="metric-label">Best IRR</div>
-                    <div class="metric-value">28%</div>
-                    <div class="metric-detail">Vepdegestrant</div>
-                </div>
+                
             </div>
         </div>
 
@@ -789,8 +970,8 @@
                         <th>Treatment</th>
                         <th>Company</th>
                         <th>Stage</th>
-                        <th>Investment Grade</th>
-                        <th>PTRS Score</th>
+                        <!-- <th>Investment Grade</th> -->
+                        <!-- <th>PTRS Score</th> -->
                         <th>Key Differentiation</th>
                         <th>Primary Risk</th>
                     </tr>
@@ -800,8 +981,8 @@
                         <td><strong style="color: #0a6b5e;">Atirmociclib</strong></td>
                         <td>Pfizer</td>
                         <td>Phase 3 (FourLight-3)</td>
-                        <td><span class="metric-badge metric-medium">B+</span></td>
-                        <td><span class="metric-badge metric-medium">50%</span></td>
+                        <!-- <td><span class="metric-badge metric-medium">B+</span></td> -->
+                        <!-- <td><span class="metric-badge metric-medium">50%</span></td> -->
                         <td>CDK4-selective, reduced neutropenia</td>
                         <td>Fourth to market</td>
                     </tr>
@@ -809,8 +990,8 @@
                         <td><strong style="color: #084298;">Disitamab Vedotin</strong></td>
                         <td>RemeGen/Pfizer</td>
                         <td>Approved China</td>
-                        <td><span class="metric-badge metric-medium">B</span></td>
-                        <td><span class="metric-badge metric-medium">40-50%</span></td>
+                        <!-- <td><span class="metric-badge metric-medium">B</span></td>
+                        <td><span class="metric-badge metric-medium">40-50%</span></td> -->
                         <td>No ILD risk (0% vs 10-15%)</td>
                         <td>Western regulatory acceptance</td>
                     </tr>
@@ -818,8 +999,8 @@
                         <td><strong style="color: #dc3545;">177Lu-NeoB</strong></td>
                         <td>Novartis</td>
                         <td>Phase 1b</td>
-                        <td><span class="metric-badge metric-low">C+</span></td>
-                        <td><span class="metric-badge metric-low">30-40%</span></td>
+                        <!-- <td><span class="metric-badge metric-low">C+</span></td>
+                        <td><span class="metric-badge metric-low">30-40%</span></td> -->
                         <td>First RLT in breast cancer</td>
                         <td>No efficacy data</td>
                     </tr>
@@ -827,8 +1008,8 @@
                         <td><strong style="color: #28a745;">Vepdegestrant</strong></td>
                         <td>Arvinas/Pfizer</td>
                         <td>NDA Submitted</td>
-                        <td><span class="metric-badge metric-high">A-</span></td>
-                        <td><span class="metric-badge metric-high">88.7%</span></td>
+                        <!-- <td><span class="metric-badge metric-high">A-</span></td>
+                        <td><span class="metric-badge metric-high">88.7%</span></td> -->
                         <td>First PROTAC, superior tolerability</td>
                         <td>Narrow initial label</td>
                     </tr>
@@ -853,19 +1034,19 @@
             <div style="display: flex; flex-wrap: wrap; gap: 16px; margin-top: 16px;">
                 <div class="treatment-card-selector" onclick="selectForOverviewComparison('atirmociclib')" data-treatment="atirmociclib">
                     <div style="font-size: 16px; font-weight: 600; color: #0a6b5e;">Atirmociclib</div>
-                    <div style="font-size: 12px; color: #6c757d;">Phase 3 | B+</div>
+                    <div style="font-size: 12px; color: #6c757d;">Phase 3 </div>
                 </div>
                 <div class="treatment-card-selector" onclick="selectForOverviewComparison('disitamab')" data-treatment="disitamab">
                     <div style="font-size: 16px; font-weight: 600; color: #084298;">Disitamab Vedotin</div>
-                    <div style="font-size: 12px; color: #6c757d;">Approved China | B</div>
+                    <div style="font-size: 12px; color: #6c757d;">Approved China </div>
                 </div>
                 <div class="treatment-card-selector" onclick="selectForOverviewComparison('luneob')" data-treatment="luneob">
                     <div style="font-size: 16px; font-weight: 600; color: #dc3545;">177Lu-NeoB</div>
-                    <div style="font-size: 12px; color: #6c757d;">Phase 1b | C+</div>
+                    <div style="font-size: 12px; color: #6c757d;">Phase 1b </div>
                 </div>
                 <div class="treatment-card-selector" onclick="selectForOverviewComparison('vepdegestrant')" data-treatment="vepdegestrant">
                     <div style="font-size: 16px; font-weight: 600; color: #28a745;">Vepdegestrant</div>
-                    <div style="font-size: 12px; color: #6c757d;">NDA Filed | A-</div>
+                    <div style="font-size: 12px; color: #6c757d;">NDA Filed </div>
                 </div>
             </div>
         </div>
@@ -894,11 +1075,7 @@
                 ongoing development despite strong mechanistic rationale. 177Lu-NeoB's lower score (30-40%) acknowledges early stage and novel approach risks.
             </p>
 
-            <div class="highlight-box">
-                <p class="detail-text">
-                    <strong>From transcript:</strong> "We have an AI tool that generates PTRS... frequently wrong, but never in doubt. That's why the subject matter expert has to be there."
-                </p>
-            </div>
+            
         </div>
 
         <div class="metric-grid">
@@ -1130,12 +1307,7 @@
 
         <div class="highlight-box">
             <h3 class="subsection-title">Critical FDA Requirements</h3>
-            <p class="detail-text">
-                <strong>Quote from transcript:</strong> "The agency tells him what they expect the control arm to be, which has never previously been studied in the context of their drug"
-            </p>
-            <p class="detail-text">
-                <strong>Line of Therapy Reality:</strong> "In the United States... approval is usually second line or third line, because we still don't know about that standard of care squishiness"
-            </p>
+
             <ul style="list-style: disc; margin-left: 20px;">
                 <li>PFS by BICR required for open-label bias mitigation</li>
                 <li>OS for full approval (accelerated possible with ORR)</li>
@@ -1176,18 +1348,7 @@
     <div id="china" class="tab-content">
         <div class="section-title">China-Origin Trial Data Analysis & Adjustments</div>
         
-        <div class="china-warning-box">
-            <h3>⚠️ Critical China Trial Considerations from Transcripts</h3>
-            <p class="detail-text">
-                <strong>"Phase 1b data uncontrolled… it's even worse when it's from China"</strong> - Industry expert
-            </p>
-            <p class="detail-text">
-                <strong>"GSK has a policy that when they license targets from China with phase one data, they redo the phase one data in the US because it's notoriously inflated, and the AEs are underreported"</strong>
-            </p>
-            <p class="detail-text">
-                <strong>"Because of the respect factor for the physician… you'll get a bunch of zeros in terms of adverse event reporting"</strong>
-            </p>
-        </div>
+
 
         <table class="trial-table">
             <thead>
@@ -1254,8 +1415,8 @@
                         <th>Mechanism</th>
                         <th>Phase</th>
                         <th>Key Data</th>
-                        <th>Inflation Risk</th>
-                        <th>Threat Level</th>
+                        <!-- <th>Inflation Risk</th> -->
+                        <!-- <th>Threat Level</th> -->
                     </tr>
                 </thead>
                 <tbody>
@@ -1264,24 +1425,24 @@
                         <td>Biparatopic HER2</td>
                         <td>Phase 3</td>
                         <td>ORR superior preclinical</td>
-                        <td>High</td>
-                        <td><span class="risk-indicator risk-low"></span> Low</td>
+                        <!-- <td>High</td> -->
+                        <!-- <td><span class="risk-indicator risk-low"></span> Low</td> -->
                     </tr>
                     <tr style="background: #f8f9fa;">
                         <td><strong>HLX22 (Henlius)</strong></td>
                         <td>HER2 ADC</td>
                         <td>Phase 3</td>
                         <td>Safety focus</td>
-                        <td>Medium</td>
-                        <td><span class="risk-indicator risk-low"></span> Low</td>
+                        <!-- <td>Medium</td> -->
+                        <!-- <td><span class="risk-indicator risk-low"></span> Low</td> -->
                     </tr>
                     <tr>
                         <td><strong>BEBT-908 (BeiGene)</strong></td>
                         <td>CDK4/6i</td>
                         <td>Phase 2</td>
                         <td>Lower neutropenia claim</td>
-                        <td>Medium</td>
-                        <td><span class="risk-indicator risk-medium"></span> Medium</td>
+                        <!-- <td>Medium</td> -->
+                        <!-- <td><span class="risk-indicator risk-medium"></span> Medium</td> -->
                     </tr>
                 </tbody>
             </table>
@@ -1403,7 +1564,7 @@
                     <th>Expiry</th>
                     <th>Extensions</th>
                     <th>Freedom to Operate</th>
-                    <th>IP Strength</th>
+                    <!-- <th>IP Strength</th> -->
                 </tr>
             </thead>
             <tbody>
@@ -1413,7 +1574,7 @@
                     <td>2044</td>
                     <td>PTE likely +5 years</td>
                     <td>Clear</td>
-                    <td><span class="metric-badge metric-high">Strong</span></td>
+                    <!-- <td><span class="metric-badge metric-high">Strong</span></td> -->
                 </tr>
                 <tr style="background: #f8f9fa;">
                     <td><strong>Disitamab</strong></td>
@@ -1421,7 +1582,7 @@
                     <td>2035+</td>
                     <td>Possible</td>
                     <td>Licensed</td>
-                    <td><span class="metric-badge metric-medium">Moderate</span></td>
+                    <!-- <td><span class="metric-badge metric-medium">Moderate</span></td> -->
                 </tr>
                 <tr>
                     <td><strong>177Lu-NeoB</strong></td>
@@ -1429,7 +1590,7 @@
                     <td>2040+</td>
                     <td>Likely</td>
                     <td>Clear</td>
-                    <td><span class="metric-badge metric-high">Strong</span></td>
+                    <!-- <td><span class="metric-badge metric-high">Strong</span></td> -->
                 </tr>
                 <tr style="background: #f8f9fa;">
                     <td><strong>Vepdegestrant</strong></td>
@@ -1437,7 +1598,7 @@
                     <td>Mid-2030s</td>
                     <td>PTE expected</td>
                     <td>Pioneer advantage</td>
-                    <td><span class="metric-badge metric-high">Strong</span></td>
+                    <!-- <td><span class="metric-badge metric-high">Strong</span></td> -->
                 </tr>
             </tbody>
         </table>
@@ -1747,7 +1908,7 @@
                 <tr>
                     <th>Treatment</th>
                     <th>Manufacturing Type</th>
-                    <th>Complexity</th>
+                    <!-- <th>Complexity</th> -->
                     <th>COGS</th>
                     <th>Capacity</th>
                     <th>Shelf Life</th>
@@ -1758,7 +1919,7 @@
                 <tr>
                     <td><strong>Atirmociclib</strong></td>
                     <td>Oral solid dose</td>
-                    <td><span class="metric-badge metric-high">Low</span></td>
+                    <!-- <td><span class="metric-badge metric-high">Low</span></td> -->
                     <td><5%</td>
                     <td>11 MT/year needed</td>
                     <td>24+ months</td>
@@ -1767,7 +1928,7 @@
                 <tr style="background: #f8f9fa;">
                     <td><strong>Disitamab</strong></td>
                     <td>ADC biologics</td>
-                    <td><span class="metric-badge metric-medium">Medium</span></td>
+                    <!-- <td><span class="metric-badge metric-medium">Medium</span></td> -->
                     <td>15-20%</td>
                     <td>90,000L capacity</td>
                     <td>24 months (2-8°C)</td>
@@ -1776,7 +1937,7 @@
                 <tr>
                     <td><strong>177Lu-NeoB</strong></td>
                     <td>Radioisotope</td>
-                    <td><span class="metric-badge metric-low">High</span></td>
+                    <!-- <td><span class="metric-badge metric-low">High</span></td> -->
                     <td>$50K/dose</td>
                     <td>Limited initially</td>
                     <td>66 hours (t½)</td>
@@ -1785,7 +1946,7 @@
                 <tr style="background: #f8f9fa;">
                     <td><strong>Vepdegestrant</strong></td>
                     <td>Small molecule</td>
-                    <td><span class="metric-badge metric-high">Low</span></td>
+                    <!-- <td><span class="metric-badge metric-high">Low</span></td> -->
                     <td><10%</td>
                     <td>Commercial ready</td>
                     <td>36+ months</td>
@@ -1847,8 +2008,8 @@
                     <th>Leadership</th>
                     <th>Experience</th>
                     <th>Track Record</th>
-                    <th>Stability</th>
-                    <th>Execution Risk</th>
+                    <!-- <th>Stability</th>
+                    <th>Execution Risk</th> -->
                 </tr>
             </thead>
             <tbody>
@@ -1857,32 +2018,32 @@
                     <td>Chris Boshoff (Oncology)</td>
                     <td>20+ years, Ibrance launch</td>
                     <td>Multiple approvals</td>
-                    <td><span class="metric-badge metric-high">Stable</span></td>
-                    <td><span class="metric-badge metric-high">Low</span></td>
+                    <!-- <td><span class="metric-badge metric-high">Stable</span></td>
+                    <td><span class="metric-badge metric-high">Low</span></td> -->
                 </tr>
                 <tr style="background: #f8f9fa;">
                     <td><strong>RemeGen</strong></td>
                     <td>Dr. Jianmin Fang (CEO)</td>
                     <td>20+ years R&D</td>
                     <td>3 China approvals</td>
-                    <td><span class="metric-badge metric-high">Stable</span></td>
-                    <td><span class="metric-badge metric-medium">Medium</span></td>
+                    <!-- <td><span class="metric-badge metric-high">Stable</span></td>
+                    <td><span class="metric-badge metric-medium">Medium</span></td> -->
                 </tr>
                 <tr>
                     <td><strong>Novartis</strong></td>
                     <td>RLT dedicated team</td>
                     <td>Pluvicto/Lutathera</td>
                     <td>2 RLT approvals</td>
-                    <td><span class="metric-badge metric-medium">Post-reorg</span></td>
-                    <td><span class="metric-badge metric-medium">Medium</span></td>
+                    <!-- <td><span class="metric-badge metric-medium">Post-reorg</span></td>
+                    <td><span class="metric-badge metric-medium">Medium</span></td> -->
                 </tr>
                 <tr style="background: #f8f9fa;">
                     <td><strong>Arvinas</strong></td>
                     <td>Ron Richardson (Interim)</td>
                     <td>PROTAC pioneers</td>
                     <td>First P3 PROTAC</td>
-                    <td><span class="metric-badge metric-low">Transition</span></td>
-                    <td><span class="metric-badge metric-high">Low*</span></td>
+                    <!-- <td><span class="metric-badge metric-low">Transition</span></td>
+                    <td><span class="metric-badge metric-high">Low*</span></td> -->
                 </tr>
             </tbody>
         </table>
@@ -3457,6 +3618,9 @@ window.addEventListener('DOMContentLoaded', function() {
         createOverviewCharts();
     }, 100);
 });
+   document.addEventListener('DOMContentLoaded', function() {
+            lucide.createIcons();
+        });
 </script>
 
 </body>
