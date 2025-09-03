@@ -7039,6 +7039,45 @@ async function viewFullLabel(labelId) {
 }
 
 
+// function formatPharmaceuticalXML(xmlString) {
+//     // Parse the XML
+//     const parser = new DOMParser();
+//     const xmlDoc = parser.parseFromString(xmlString, "application/xml");
+    
+//     // Check for parsing errors
+//     const parseError = xmlDoc.querySelector('parsererror');
+//     if (parseError) {
+//         return `
+//             <div class="error-container">
+//                 <h2>Error Parsing XML</h2>
+//                 <p>${parseError.textContent}</p>
+//             </div>
+//         `;
+//     }
+    
+//     // Extract key document information
+//     const documentInfo = extractDocumentInfo(xmlDoc);
+//     const sections = extractSections(xmlDoc);
+    
+//     // Build the formatted HTML
+//     let html = `
+//         <div class="pharma-label-container">
+//             ${buildHeader(documentInfo)}
+//             ${buildNavigation(sections)}
+//             <div class="content-wrapper">
+//                 ${buildSidebar(sections)}
+//                 <main class="main-content">
+//                     ${buildSections(sections)}
+//                 </main>
+//             </div>
+//         </div>
+//         ${getStyles()}
+//     `;
+    
+//     return html;
+// }
+
+
 function formatPharmaceuticalXML(xmlString) {
     // Parse the XML
     const parser = new DOMParser();
@@ -7063,7 +7102,6 @@ function formatPharmaceuticalXML(xmlString) {
     let html = `
         <div class="pharma-label-container">
             ${buildHeader(documentInfo)}
-            ${buildNavigation(sections)}
             <div class="content-wrapper">
                 ${buildSidebar(sections)}
                 <main class="main-content">
@@ -7075,6 +7113,530 @@ function formatPharmaceuticalXML(xmlString) {
     `;
     
     return html;
+}
+
+// Updated buildHeader function with professional styling
+function buildHeader(info) {
+    return `
+        <header class="label-header">
+            <div class="header-main">
+                <h1 class="product-title">${info.productName || 'Pharmaceutical Product'}</h1>
+                ${info.title ? `<p class="subtitle">${info.title}</p>` : ''}
+            </div>
+            
+            <div class="header-grid">
+                ${info.manufacturer ? `
+                    <div class="header-item">
+                        <span class="header-label">Manufacturer</span>
+                        <span class="header-value">${info.manufacturer}</span>
+                    </div>
+                ` : ''}
+                ${info.ndc ? `
+                    <div class="header-item">
+                        <span class="header-label">NDC</span>
+                        <span class="header-value">${info.ndc}</span>
+                    </div>
+                ` : ''}
+                ${info.schedule ? `
+                    <div class="header-item">
+                        <span class="header-label">DEA Schedule</span>
+                        <span class="header-value">${info.schedule}</span>
+                    </div>
+                ` : ''}
+                ${info.approval ? `
+                    <div class="header-item">
+                        <span class="header-label">Approval</span>
+                        <span class="header-value">${info.approval}</span>
+                    </div>
+                ` : ''}
+                ${info.effectiveDate ? `
+                    <div class="header-item">
+                        <span class="header-label">Effective Date</span>
+                        <span class="header-value">${info.effectiveDate}</span>
+                    </div>
+                ` : ''}
+                ${info.versionNumber ? `
+                    <div class="header-item">
+                        <span class="header-label">Version</span>
+                        <span class="header-value">${info.versionNumber}</span>
+                    </div>
+                ` : ''}
+            </div>
+            
+            ${info.routes.length > 0 || info.strengths.length > 0 ? `
+                <div class="header-badges">
+                    ${info.routes.length > 0 ? `
+                        <div class="badge-group">
+                            <span class="badge-label">Routes:</span>
+                            ${info.routes.map(route => `<span class="badge">${route}</span>`).join('')}
+                        </div>
+                    ` : ''}
+                    ${info.strengths.length > 0 ? `
+                        <div class="badge-group">
+                            <span class="badge-label">Strengths:</span>
+                            ${info.strengths.map(strength => `<span class="badge">${strength}</span>`).join('')}
+                        </div>
+                    ` : ''}
+                </div>
+            ` : ''}
+        </header>
+    `;
+}
+
+// Updated buildSidebar with cleaner navigation
+function buildSidebar(sections) {
+    const numberedSections = [];
+    
+    sections.forEach(section => {
+        const title = section.title || section.displayName || 'Untitled Section';
+        
+        // Skip metadata sections
+        if (title.includes('SPL UNCLASSIFIED') || title.includes('data elements')) {
+            return;
+        }
+        
+        // Extract section number if present
+        const numberMatch = title.match(/^(\d+)\s+(.+)/);
+        if (numberMatch) {
+            section.number = numberMatch[1];
+            section.displayTitle = numberMatch[2];
+        } else {
+            section.displayTitle = title;
+        }
+        
+        numberedSections.push(section);
+    });
+    
+    return `
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h3>Contents</h3>
+            </div>
+            <nav class="toc">
+                ${numberedSections.map(section => `
+                    <a href="#${section.id}" class="toc-link" onclick="scrollToSection('${section.id}'); return false;">
+                        ${section.number ? `<span class="toc-number">${section.number}</span>` : ''}
+                        <span class="toc-title">${section.displayTitle}</span>
+                    </a>
+                `).join('')}
+            </nav>
+        </aside>
+    `;
+}
+
+// Updated buildSections with consistent formatting
+function buildSections(sections) {
+    let html = '';
+    
+    sections.forEach(section => {
+        const title = section.title || section.displayName || '';
+        
+        // Skip metadata sections
+        if (title.includes('SPL UNCLASSIFIED') || title.includes('data elements') || !title) {
+            return;
+        }
+        
+        const isWarning = title.toUpperCase().includes('WARNING') || 
+                         title.toUpperCase().includes('CONTRAINDICATION') ||
+                         title.toUpperCase().includes('BOXED WARNING');
+        
+        html += `
+            <section id="${section.id}" class="content-section ${isWarning ? 'warning-section' : ''}">
+                <h2 class="section-title">
+                    ${section.number ? `<span class="section-number">${section.number}</span>` : ''}
+                    <span class="section-text">${section.displayTitle || title}</span>
+                </h2>
+                
+                <div class="section-content">
+                    ${section.content}
+                </div>
+            </section>
+        `;
+    });
+    
+    return html;
+}
+
+// Updated getStyles function with professional, clean styling
+function getStyles() {
+    return `
+        <style>
+            /* Base styles */
+            .pharma-label-container {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+                line-height: 1.6;
+                color: #1a1a1a;
+                max-width: 1400px;
+                margin: 0 auto;
+                background: #ffffff;
+            }
+            
+            /* Header styles - clean and professional */
+            .label-header {
+                background: #ffffff;
+                border-bottom: 2px solid #e5e7eb;
+                padding: 32px;
+            }
+            
+            .header-main {
+                margin-bottom: 24px;
+            }
+            
+            .product-title {
+                margin: 0;
+                font-size: 32px;
+                font-weight: 600;
+                color: #111827;
+                line-height: 1.2;
+            }
+            
+            .subtitle {
+                margin: 8px 0 0 0;
+                font-size: 16px;
+                color: #6b7280;
+                font-weight: 400;
+            }
+            
+            /* Header metadata grid */
+            .header-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 16px;
+                margin-bottom: 24px;
+            }
+            
+            .header-item {
+                display: flex;
+                flex-direction: column;
+                padding: 12px;
+                background: #f9fafb;
+                border: 1px solid #e5e7eb;
+                border-radius: 6px;
+            }
+            
+            .header-label {
+                font-size: 11px;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                color: #6b7280;
+                margin-bottom: 4px;
+            }
+            
+            .header-value {
+                font-size: 14px;
+                font-weight: 500;
+                color: #111827;
+            }
+            
+            /* Badge styles */
+            .header-badges {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 16px;
+            }
+            
+            .badge-group {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+            
+            .badge-label {
+                font-size: 12px;
+                font-weight: 600;
+                text-transform: uppercase;
+                color: #6b7280;
+            }
+            
+            .badge {
+                display: inline-block;
+                padding: 4px 12px;
+                background: #f3f4f6;
+                border: 1px solid #d1d5db;
+                border-radius: 4px;
+                font-size: 13px;
+                font-weight: 500;
+                color: #374151;
+            }
+            
+            /* Content wrapper */
+            .content-wrapper {
+                display: grid;
+                grid-template-columns: 280px 1fr;
+                min-height: 600px;
+                background: #ffffff;
+            }
+            
+            /* Sidebar styles */
+            .sidebar {
+                background: #f9fafb;
+                border-right: 1px solid #e5e7eb;
+                position: sticky;
+                top: 0;
+                height: fit-content;
+                max-height: calc(100vh - 40px);
+                overflow-y: auto;
+            }
+            
+            .sidebar-header {
+                padding: 20px 24px;
+                border-bottom: 1px solid #e5e7eb;
+                background: #ffffff;
+                position: sticky;
+                top: 0;
+                z-index: 10;
+            }
+            
+            .sidebar h3 {
+                margin: 0;
+                font-size: 14px;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                color: #374151;
+            }
+            
+            .toc {
+                padding: 12px 0;
+            }
+            
+            .toc-link {
+                display: flex;
+                align-items: center;
+                padding: 10px 24px;
+                color: #4b5563;
+                text-decoration: none;
+                font-size: 14px;
+                transition: all 0.2s ease;
+                border-left: 3px solid transparent;
+            }
+            
+            .toc-link:hover {
+                background: #f3f4f6;
+                color: #111827;
+                border-left-color: #9ca3af;
+            }
+            
+            .toc-link.active {
+                background: #eff6ff;
+                color: #1e40af;
+                border-left-color: #3b82f6;
+                font-weight: 500;
+            }
+            
+            .toc-number {
+                display: inline-block;
+                min-width: 24px;
+                margin-right: 8px;
+                font-weight: 600;
+                color: #6b7280;
+            }
+            
+            .toc-link.active .toc-number {
+                color: #1e40af;
+            }
+            
+            /* Main content */
+            .main-content {
+                padding: 32px 40px;
+                overflow-y: auto;
+                max-height: calc(100vh - 100px);
+            }
+            
+            /* Section styles */
+            .content-section {
+                margin-bottom: 48px;
+                padding-bottom: 48px;
+                border-bottom: 1px solid #e5e7eb;
+            }
+            
+            .content-section:last-child {
+                border-bottom: none;
+            }
+            
+            .section-title {
+                display: flex;
+                align-items: center;
+                margin: 0 0 24px 0;
+                color: #111827;
+                font-size: 24px;
+                font-weight: 600;
+                line-height: 1.3;
+            }
+            
+            .section-number {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                min-width: 36px;
+                height: 36px;
+                background: #f3f4f6;
+                border: 1px solid #d1d5db;
+                border-radius: 6px;
+                margin-right: 12px;
+                font-size: 16px;
+                font-weight: 600;
+                color: #374151;
+                flex-shrink: 0;
+            }
+            
+            .section-content {
+                color: #374151;
+                line-height: 1.7;
+                font-size: 15px;
+            }
+            
+            .section-content p {
+                margin: 0 0 16px 0;
+            }
+            
+            .section-content ul, .section-content ol {
+                margin: 16px 0;
+                padding-left: 24px;
+            }
+            
+            .section-content li {
+                margin-bottom: 8px;
+            }
+            
+            /* Warning sections */
+            .warning-section {
+                background: #fef2f2;
+                border: 1px solid #fecaca;
+                border-radius: 8px;
+                padding: 24px;
+                margin-bottom: 48px;
+            }
+            
+            .warning-section .section-title {
+                color: #991b1b;
+            }
+            
+            .warning-section .section-number {
+                background: #fee2e2;
+                border-color: #fecaca;
+                color: #991b1b;
+            }
+            
+            .warning-section .section-content {
+                color: #7f1d1d;
+            }
+            
+            /* Tables */
+            .data-table {
+                width: 100%;
+                border-collapse: separate;
+                border-spacing: 0;
+                margin: 24px 0;
+                font-size: 14px;
+                border: 1px solid #e5e7eb;
+                border-radius: 8px;
+                overflow: hidden;
+            }
+            
+            .data-table caption {
+                padding: 12px;
+                font-weight: 600;
+                text-align: left;
+                color: #374151;
+                background: #f9fafb;
+                border-bottom: 1px solid #e5e7eb;
+            }
+            
+            .data-table th {
+                background: #f9fafb;
+                color: #111827;
+                padding: 12px;
+                text-align: left;
+                font-weight: 600;
+                border-bottom: 1px solid #e5e7eb;
+            }
+            
+            .data-table td {
+                padding: 12px;
+                border-bottom: 1px solid #e5e7eb;
+                color: #374151;
+            }
+            
+            .data-table tbody tr:last-child td {
+                border-bottom: none;
+            }
+            
+            .data-table tbody tr:hover {
+                background: #f9fafb;
+            }
+            
+            /* Scrollbar styling */
+            .sidebar::-webkit-scrollbar,
+            .main-content::-webkit-scrollbar {
+                width: 8px;
+            }
+            
+            .sidebar::-webkit-scrollbar-track,
+            .main-content::-webkit-scrollbar-track {
+                background: #f3f4f6;
+            }
+            
+            .sidebar::-webkit-scrollbar-thumb,
+            .main-content::-webkit-scrollbar-thumb {
+                background: #d1d5db;
+                border-radius: 4px;
+            }
+            
+            .sidebar::-webkit-scrollbar-thumb:hover,
+            .main-content::-webkit-scrollbar-thumb:hover {
+                background: #9ca3af;
+            }
+            
+            /* Responsive design */
+            @media (max-width: 768px) {
+                .content-wrapper {
+                    grid-template-columns: 1fr;
+                }
+                
+                .sidebar {
+                    display: none;
+                }
+                
+                .header-grid {
+                    grid-template-columns: 1fr;
+                }
+                
+                .main-content {
+                    padding: 24px;
+                }
+                
+                .section-title {
+                    font-size: 20px;
+                }
+                
+                .product-title {
+                    font-size: 24px;
+                }
+            }
+            
+            /* Print styles */
+            @media print {
+                .sidebar {
+                    display: none;
+                }
+                
+                .content-wrapper {
+                    grid-template-columns: 1fr;
+                }
+                
+                .label-header {
+                    border-bottom: 2px solid #000;
+                }
+                
+                .warning-section {
+                    border: 2px solid #000;
+                    background: none;
+                }
+            }
+        </style>
+    `;
 }
 
 function extractDocumentInfo(xmlDoc) {

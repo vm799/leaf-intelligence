@@ -847,7 +847,7 @@
                 <button class="tab-btn" onclick="showTab('management')">Management</button>
                 <button class="tab-btn" onclick="showTab('safety')">Safety</button>
                 <button class="tab-btn" onclick="showTab('trials')">Trials</button>
-                    <button class="tab-btn" onclick="showTab('investment-summary')">Summary</button>
+                    <!-- <button class="tab-btn" onclick="showTab('investment-summary')">Summary</button> -->
             </div>
 
 
@@ -882,11 +882,11 @@
             <div class="text-xs text-gray-500">Post-CDK4/6i, GRPR+ subset</div>
         </div>
         
-        <div class="bg-white rounded-lg p-3 shadow-sm">
+        <!-- <div class="bg-white rounded-lg p-3 shadow-sm">
             <div class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Phase 3 Cost</div>
             <div class="text-xl font-bold text-purple-600">$300-500M</div>
             <div class="text-xs text-gray-500">Novartis has capacity</div>
-        </div>
+        </div> -->
     </div>
     
     <div class="mt-4 space-y-2">
@@ -3133,22 +3133,12 @@
             <div class="text-xs text-gray-500">Global post-CDK4/6</div>
         </div>
         
-        <div class="bg-white rounded-lg p-3 shadow-sm">
-            <div class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Peak Sales</div>
-            <div class="text-xl font-bold text-orange-600">$1-2B</div>
-            <div class="text-xs text-gray-500">Realistic base case</div>
-        </div>
-        
-        <div class="bg-white rounded-lg p-3 shadow-sm">
-            <div class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">Course Cost</div>
-            <div class="text-xl font-bold text-red-600">$240-300k</div>
-            <div class="text-xs text-gray-500">6 doses total</div>
-        </div>
+
         
         <div class="bg-white rounded-lg p-3 shadow-sm">
             <div class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">GRPR+ Share</div>
             <div class="text-xl font-bold text-emerald-600">83%</div>
-            <div class="text-xs text-gray-500">of ER+ tumors</div>
+            <div class="text-xs text-gray-500">of ER+ tumors | source <a href="https://jnm.snmjournals.org/content/58/9/1401">here</a></div>
         </div>
     </div>
     
@@ -3156,7 +3146,7 @@
         <div class="space-y-2">
             <div class="flex items-start gap-2">
                 <span class="text-emerald-500 mt-0.5">✓</span>
-                <span class="text-sm text-gray-700"><strong>Market Size:</strong> 2.3M global BC cases → 1.6M HR+/HER2- → 150k post-CDK4/6</span>
+                <span class="text-sm text-gray-700"><strong>Market Size:</strong> 2.3M global BC cases → 1.6M HR+/HER2- → 120k post-CDK4/6</span>
             </div>
             <div class="flex items-start gap-2">
                 <span class="text-blue-500 mt-0.5">→</span>
@@ -3164,7 +3154,7 @@
             </div>
             <div class="flex items-start gap-2">
                 <span class="text-yellow-500 mt-0.5">⚠</span>
-                <span class="text-sm text-gray-700"><strong>Competition:</strong> ADCs (Enhertu $180k/yr), oral SERDs (Orserdu $17k/mo)</span>
+                <span class="text-sm text-gray-700"><strong>Competition:</strong> ADCs (Enhertu $165-180k/yr), oral SERDs (Orserdu $24k/mo)</span>
             </div>
         </div>
         
@@ -3173,10 +3163,7 @@
                 <span class="text-emerald-500 mt-0.5">✓</span>
                 <span class="text-sm text-gray-700"><strong>Infrastructure:</strong> 200+ US centers for Lutathera, need 300+ for BC</span>
             </div>
-            <div class="flex items-start gap-2">
-                <span class="text-yellow-500 mt-0.5">⚠</span>
-                <span class="text-sm text-gray-700"><strong>Reimbursement:</strong> ICER likely >$300k/QALY, requires discounts</span>
-            </div>
+
             <div class="flex items-start gap-2">
                 <span class="text-purple-500 mt-0.5">→</span>
                 <span class="text-sm text-gray-700"><strong>Differentiation:</strong> Finite 6-cycle treatment vs indefinite ADCs/oral</span>
@@ -3194,7 +3181,7 @@
                         <div class="highlight-box">
                             <h4 class="font-semibold mb-2">Global Breast Cancer Landscape</h4>
                             <p class="detail-text">
-                                Globally, breast cancer is the most common cancer with ~2.3 million new cases per year (2020 data). In the U.S., about 280,000 new invasive breast cancer cases occur annually. There are an estimated 168,000 women in the U.S. living with metastatic breast cancer and millions worldwide.
+                                Globally, breast cancer is the most common cancer with ~2.3 million new cases per year (2020 data). In the U.S., about <a href="https://www.breastcancer.org/facts-statistics">316,950</a> new invasive breast cancer cases occur annually. There are an estimated 170,000 women in the U.S. living with metastatic breast cancer and millions worldwide.
                             </p>
                         </div>
 
@@ -3214,11 +3201,7 @@
                                 <div class="metric-value">83%</div>
                                 <div class="metric-detail">Of ER+ tumors</div>
                             </div>
-                            <div class="metric-card">
-                                <div class="metric-label">Post-CDK4/6 Market</div>
-                                <div class="metric-value">~150k/year</div>
-                                <div class="metric-detail">Global eligible patients</div>
-                            </div>
+                            
                         </div>
 
                         <p class="detail-text mt-4">
@@ -3232,19 +3215,6 @@
                         <p class="detail-text">
                             <strong>Duration of Therapy:</strong> Unlike chronic endocrine pills, ¹⁷⁷Lu-NeoB is given in fixed cycles (up to 6 cycles Q4-6 weeks, ~6-9 months total treatment). Treatment stops at progression or after 6 doses. Protocol allows considering additional cycles on case-by-case basis.
                         </p>
-
-                        <div class="data-card mt-4">
-                            <h4 class="font-semibold mb-2">Market Size Projections</h4>
-                            <p class="detail-text">
-                                <strong>Conservative Scenario:</strong> If 20-30% of eligible post-CDK4/6 patients receive ¹⁷⁷Lu-NeoB, that's 20,000-30,000 patients/year globally. At $150k per patient course, that's $3-4.5 billion potential revenue annually.
-                            </p>
-                            <p class="detail-text">
-                                <strong>Realistic Base Case:</strong> More likely $1-2 billion peak sales if it carves a niche alongside ADCs, capturing perhaps 10-15% of eligible patients globally.
-                            </p>
-                            <p class="detail-text">
-                                <strong>Geographic Distribution:</strong> U.S., Western Europe, and Japan would be key markets with high CDK4/6 uptake. China rapidly adopting CDK4/6 inhibitors (several domestic versions) creating future opportunity.
-                            </p>
-                        </div>
                     </div>
                 </div>
 
@@ -3276,8 +3246,8 @@
                                 <tr>
                                     <td><strong>Oral SERD</strong></td>
                                     <td>Elacestrant (Orserdu)</td>
-                                    <td>PFS 2-3 mo benefit</td>
-                                    <td>ESR1-mut only (30%)</td>
+                                    <td>1.9 mo: 3.8 vs 1.9 mo in ESR1-mut</td>
+                                    <td>ESR1-mut prevalence in advanced BC is ~48% in trials, ~30-50% overall</td>
                                     <td>~$24k/month</td>
                                 </tr>
                                 <tr>
@@ -3285,21 +3255,21 @@
                                     <td>Alpelisib (Piqray)</td>
                                     <td>PFS 11 vs 5.7 mo</td>
                                     <td>PIK3CA-mut only (40%)</td>
-                                    <td>~$15k/month</td>
+                                    <td>$5,333/28-day cycle, ~$5.3k/month</td>
                                 </tr>
                                 <tr>
                                     <td><strong>ADC - Trop2</strong></td>
                                     <td>Sacituzumab (Trodelvy)</td>
                                     <td>PFS 5.5 vs 4.0 mo</td>
-                                    <td>G3/4 neutropenia 64%</td>
-                                    <td>~$150k/year</td>
+                                    <td>G3/4 neutropenia 51%</td>
+                                    <td>~$120-160k for 6-8 cycles</td>
                                 </tr>
                                 <tr>
                                     <td><strong>ADC - HER2</strong></td>
                                     <td>T-DXd (Enhertu)</td>
                                     <td>PFS 10.1 vs 5.4 mo</td>
                                     <td>HER2-low only, ILD 0.09-16%</td>
-                                    <td>~$180k/year</td>
+                                    <td>$165,949/year</td>
                                 </tr>
                                 <tr>
                                     <td><strong>Chemotherapy</strong></td>
@@ -3321,13 +3291,7 @@
                                 <br>• Finite treatment duration (6 cycles) vs indefinite ADC/oral therapy
                                 <br>• Less frequent administration (Q4-6 weeks) vs weekly chemo or Q3W ADCs
                             </p>
-                            <p class="detail-text mt-2">
-                                <strong>Challenges:</strong>
-                                <br>• Requires nuclear medicine infrastructure (not every center equipped)
-                                <br>• Physician unfamiliarity with radiopharmaceuticals in breast cancer
-                                <br>• Competition from established ADCs with proven efficacy
-                                <br>• Potential for payer step therapy requirements
-                            </p>
+
                         </div>
 
                         <div class="data-card mt-4">
@@ -3336,10 +3300,10 @@
                                 <strong>ADCs in Development:</strong> Datopotamab deruxtecan (Dato-DXd) from AZ/Daiichi in Phase 3, potentially displacing Trodelvy. Multiple other ADCs targeting various antigens.
                             </p>
                             <p class="detail-text">
-                                <strong>Next-Gen SERDs:</strong> Camizestrant (AZ) in Phase 3, imlunestrant (Lilly) and others. If they show OS benefit, might be preferred before radiation/chemo.
+                                <strong>Next-Gen SERDs:</strong> Camizestrant (AZ) in Phase 3, imlunestrant (Lilly) and others.
                             </p>
                             <p class="detail-text">
-                                <strong>Other Radioligands:</strong> Clarity Pharmaceuticals developing ⁶⁷Cu-SAR-bombesin (years behind). Potential alpha-emitter versions could emerge if beta insufficient.
+                                <strong>Other Radioligands:</strong> Clarity Pharmaceuticals developing ⁶⁷Cu-SAR-bombesin (years behind). 
                             </p>
                         </div>
                     </div>
@@ -3470,23 +3434,7 @@
 
     </div>
     
-    <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
 
-            <div class="flex items-start gap-2">
-                <span class="text-emerald-500 mt-0.5">✓</span>
-                <a class="text-sm text-gray-700"><strong>Corporate Strength:</strong> Novartis $233.5B market cap   <a href="https://www.novartis.com/sites/novartis_com/files/2025-07-interim-financial-report-en.pdf">Jun-30-2025</a>, $50.3B net sales 2024, $10 022M R&D (2024)</span>
-            </div>
-            <div class="flex items-start gap-2">
-                <span class="text-emerald-500 mt-0.5">✓</span>
-                <span class="text-sm text-gray-700"><strong>Platform Value:</strong> RLT portfolio incl. Pluvicto ($0.45B Q2-2025)</span>
-            </div>
-            <div class="flex items-start gap-2">
-                <span class="text-emerald-500 mt-0.5">✓</span>
-            <a href="https://www.novartis.com/sites/novartiscom/files/novartis-annual-report-2024.pdf"><span class="text-sm text-gray-700"><strong>Annual Report 2024</strong> RLT portfolio incl. Pluvicto ($0.45B Q2-2025)</span></a> 
-            </div>
-       
-    
-    </div>
 </div>
                 <!-- Company Financials -->
                 <div class="expandable-section">
