@@ -23066,16 +23066,194 @@ async function searchAllTrialsForDrugNames(drugNames) {
 
 
 
-/**
- * General search route that supports searching for any terms including medical devices
- * and allows filtering by patient populations
- */
-/**
- * Improved general search route that supports exact phrase matching for medical devices
- */
-/**
- * General search route that uses proper ClinicalTrials.gov API v2 parameters
- */
+// /**
+//  * General search route that supports searching for any terms including medical devices
+//  * and allows filtering by patient populations
+//  */
+// /**
+//  * Improved general search route that supports exact phrase matching for medical devices
+//  */
+// /**
+//  * General search route that uses proper ClinicalTrials.gov API v2 parameters
+//  */
+
+// // ===== dependencies =====
+// // const axios = require("axios");
+// const CTGOV_V2_BASE = "https://clinicaltrials.gov/api/v2";
+
+// // Repeats keys for arrays (no []), as v2 expects.
+// function serializeParams(paramsObj) {
+//   const usp = new URLSearchParams();
+//   for (const [k, v] of Object.entries(paramsObj || {})) {
+//     if (v == null) continue;
+//     if (Array.isArray(v)) {
+//       for (const item of v) if (item != null) usp.append(k, String(item));
+//     } else {
+//       usp.append(k, String(v));
+//     }
+//   }
+//   return usp.toString();
+// }
+
+// // === Helper: fetch all pages + dedupe by NCT ID ===
+// async function fetchAllCtgovStudies(params) {
+//   const seen = new Set();
+//   const studies = [];
+//   let totalCount = 0;
+//   let next = null;
+
+//   do {
+//     const resp = await axios.get(`${CTGOV_V2_BASE}/studies`, {
+//       params: { ...params, pageToken: next || undefined },
+//       paramsSerializer: { serialize: serializeParams },
+//       headers: { Accept: "application/json", "Cache-Control": "no-cache" },
+//       timeout: 20000
+//     });
+
+//     const data = resp.data || {};
+//     if (data.totalCount != null) totalCount = data.totalCount;
+
+//     for (const s of data.studies || []) {
+//       const nct = s?.protocolSection?.identificationModule?.nctId;
+//       if (nct && !seen.has(nct)) { seen.add(nct); studies.push(s); }
+//     }
+//     next = data.nextPageToken || null;
+//   } while (next);
+
+//   return { totalCount, studies };
+// }
+
+// /**
+//  * =========================
+//  * 1) /api/studies/general-search
+//  * =========================
+//  * Accepts either:
+//  *  - direct v2 params: 'query.term', 'query.intr', 'query.titles'
+//  *  - or a convenience 'compound' (plus optional exactMatch=true|false)
+//  * Date filter: yearsBack or sinceDate (YYYY or YYYY-MM-DD)
+//  * Returns: { totalCount, studies }
+//  */
+// app.get("/api/studies/general-search", validatePagination, async (req, res) => {
+//   try {
+//     const {
+//       // convenience inputs
+//       compound,
+//       exactMatch = "true",
+//       yearsBack,
+//       sinceDate,
+
+//       // direct v2 inputs (optional pass-through)
+//       "query.term": qTerm,
+//       "query.intr": qIntr,
+//       "query.titles": qTitles,
+
+//       // paging hint (optional)
+//       pageToken
+//     } = req.query;
+
+//     const { pageSize } = req.pagination || { pageSize: 100 };
+
+//     // Build query values
+//     let termVal = qTerm, intrVal = qIntr, titlesVal = qTitles;
+
+//     if (compound && (!qTerm && !qIntr && !qTitles)) {
+//       const v = (String(exactMatch) !== "false") ? `"${compound}"` : compound;
+//       termVal = v;
+//       intrVal = v;
+//       titlesVal = v;
+//     }
+
+//     // Compose ONLY StartDate filter
+//     const adv = [];
+//     if (sinceDate) {
+//       adv.push(`AREA[StartDate]RANGE[${sinceDate},MAX]`);
+//     } else if (yearsBack) {
+//       const currentYear = new Date().getFullYear();
+//       const startYear = currentYear - Number(yearsBack);
+//       adv.push(`AREA[StartDate]RANGE[${startYear},MAX]`);
+//     }
+
+//     const params = {
+//       format: "json",
+//       pageSize: pageSize || 100,
+//       countTotal: true,
+//       fields: "protocolSection,derivedSection,hasResults"
+//     };
+//     if (termVal)   params["query.term"]   = termVal;
+//     if (intrVal)   params["query.intr"]   = intrVal;
+//     if (titlesVal) params["query.titles"] = titlesVal;
+//     if (adv.length) params["filter.advanced"] = adv;
+//     if (pageToken) params.pageToken = pageToken;
+
+//     const { totalCount, studies } = await fetchAllCtgovStudies(params);
+//     res.json({ totalCount, studies });
+//   } catch (error) {
+//     console.error("General search API error:", error);
+//     res.status(500).json({ success: false, error: error.message });
+//   }
+// });
+
+// /**
+//  * =========================
+//  * 2) /api/studies/search  (legacy-compatible)
+//  * =========================
+//  * Uses 'intervention' as the compound string.
+//  * Ignores other legacy filters (status/hasResults/etc.) to avoid exclusions.
+//  * Date filter: yearsBack or sinceDate
+//  * Returns: { success: true, data: { totalCount, studies } }
+//  */
+// app.get("/api/studies/search", validatePagination, async (req, res) => {
+//   try {
+//     const {
+//       intervention,          // compound string (required)
+//       yearsBack,
+//       sinceDate,
+//       fields,                // optional; defaults below
+//       sort                   // optional; passed through
+//     } = req.query;
+
+//     const { pageSize } = req.pagination || { pageSize: 100 };
+
+//     if (!intervention) {
+//       return res.json({ success: true, data: { totalCount: 0, studies: [] } });
+//     }
+
+//     // Send the compound to all three targets
+//     const val = `"${intervention}"`; // exact phrase; remove quotes if you want broader recall
+
+//     // ONLY StartDate filter
+//     const adv = [];
+//     if (sinceDate) {
+//       adv.push(`AREA[StartDate]RANGE[${sinceDate},MAX]`);
+//     } else if (yearsBack) {
+//       const currentYear = new Date().getFullYear();
+//       const startYear = currentYear - Number(yearsBack);
+//       adv.push(`AREA[StartDate]RANGE[${startYear},MAX]`);
+//     }
+
+//     const params = {
+//       format: "json",
+//       pageSize: pageSize || 100,
+//       countTotal: true,
+//       fields: fields || "protocolSection,derivedSection,hasResults",
+//       "query.intr": val,
+//       "query.titles": val,
+//       "query.term": val
+//     };
+//     if (adv.length) params["filter.advanced"] = adv;
+//     if (sort) params.sort = sort;
+
+//     const { totalCount, studies } = await fetchAllCtgovStudies(params);
+
+//     // legacy envelope
+//     res.json({ success: true, data: { totalCount, studies } });
+//   } catch (error) {
+//     console.error("API search error:", error);
+//     res.status(500).json({ success: false, error: error.message });
+//   }
+// });
+
+
 app.get('/api/studies/general-search', validatePagination, async (req, res) => {
   try {
     // Parse query parameters using proper naming - critical for the v2 API

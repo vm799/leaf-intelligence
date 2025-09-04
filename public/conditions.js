@@ -1,3 +1,5 @@
+
+// })();
 // At the beginning of conditions.js, wrap everything in an IIFE
 // (function() {
 //     'use strict';

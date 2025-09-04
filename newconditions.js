@@ -198,123 +198,238 @@ async function searchConditionData(condition, page = 1, pageSize = DEFAULT_PAGE_
 /**
  * FDA DRUG SEARCH WITH PAGINATION
  */
+// async function searchFDADrugs(condition, results, offset = 0, limit = DEFAULT_PAGE_SIZE) {
+//     try {
+//         const searchQuery = condition.toLowerCase().replace(/[^\w\s]/g, '').replace(/\s+/g, '+');
+        
+//         // First get total count
+//         const countUrl = `${APIS.FDA}/drug/label.json`;
+//         const countParams = {
+//             search: `(indications_and_usage:"${searchQuery}") OR (medical_condition:"${searchQuery}")`,
+//             limit: 1,
+//             count: 'openfda.brand_name.exact'
+//         };
+
+//         const countResponse = await axios.get(countUrl, {
+//             params: countParams,
+//             timeout: 10000,
+//             headers: { 'Accept': 'application/json' }
+//         });
+
+//         const totalCount = countResponse.data?.meta?.results?.total || 0;
+        
+//         // Then get paginated results
+//         const labelUrl = `${APIS.FDA}/drug/label.json`;
+//         const labelParams = {
+//             search: `(indications_and_usage:"${searchQuery}") OR (medical_condition:"${searchQuery}")`,
+//             skip: offset,
+//             limit: Math.min(limit, 100) // FDA API max is 100 per request
+//         };
+
+//         const response = await axios.get(labelUrl, {
+//             params: labelParams,
+//             timeout: 10000,
+//             headers: { 
+//                 'User-Agent': 'Regulatory-Intelligence-API/5.0',
+//                 'Accept': 'application/json'
+//             }
+//         });
+
+//         const fdaResults = [];
+        
+//         if (response.data?.results) {
+//             // For limits > 100, we need multiple requests
+//             const allResults = [response.data.results];
+            
+//             if (limit > 100) {
+//                 const additionalRequests = Math.ceil((limit - 100) / 100);
+//                 for (let i = 1; i <= additionalRequests; i++) {
+//                     const additionalParams = {
+//                         ...labelParams,
+//                         skip: offset + (i * 100),
+//                         limit: Math.min(100, limit - (i * 100))
+//                     };
+                    
+//                     try {
+//                         const additionalResponse = await axios.get(labelUrl, {
+//                             params: additionalParams,
+//                             timeout: 10000,
+//                             headers: { 'Accept': 'application/json' }
+//                         });
+                        
+//                         if (additionalResponse.data?.results) {
+//                             allResults.push(additionalResponse.data.results);
+//                         }
+//                     } catch (err) {
+//                         console.error(`Error fetching additional FDA page ${i}:`, err.message);
+//                     }
+                    
+//                     await delay(100); // Rate limiting
+//                 }
+//             }
+            
+//             // Flatten all results
+//             const flatResults = allResults.flat();
+            
+//             flatResults.forEach(item => {
+//                 const drugName = item.openfda?.brand_name?.[0] || 
+//                                item.openfda?.generic_name?.[0];
+                
+//                 if (drugName && drugName !== 'Unknown Drug') {
+//                     fdaResults.push({
+//                         drug_name: drugName,
+//                         brand_name: item.openfda?.brand_name?.[0] || null,
+//                         generic_name: item.openfda?.generic_name?.[0] || null,
+//                         manufacturer: item.openfda?.manufacturer_name?.[0] || null,
+//                         dosage_form: item.dosage_form || item.openfda?.dosage_form?.[0] || null,
+//                         route: item.openfda?.route?.[0] || null,
+//                         substance: item.openfda?.substance_name?.[0] || null,
+//                         ndc: item.openfda?.product_ndc?.[0] || null,
+//                         application_number: item.openfda?.application_number?.[0] || null,
+//                         approval_date: item.effective_time || null,
+//                         indications: item.indications_and_usage || null,
+//                         warnings: item.warnings || item.boxed_warning || null,
+//                         contraindications: item.contraindications || null,
+//                         adverse_reactions: item.adverse_reactions || null,
+//                         drug_interactions: item.drug_interactions || null,
+//                         spl_id: item.id || null,
+//                         set_id: item.set_id || null
+//                     });
+//                 }
+//             });
+//         }
+
+//         // Remove duplicates by drug name
+//         const uniqueDrugs = Array.from(
+//             new Map(fdaResults.map(drug => [drug.drug_name.toLowerCase(), drug])).values()
+//         );
+
+//         results.sources.fda_drugs.data = uniqueDrugs;
+//         results.sources.fda_drugs.count = uniqueDrugs.length;
+//         results.sources.fda_drugs.total = totalCount;
+//         console.log(`✅ Found ${uniqueDrugs.length} FDA drugs (Total: ${totalCount})`);
+
+//     } catch (error) {
+//         console.error('FDA drugs search error:', error.message);
+//         results.sources.fda_drugs.error = 'Unable to fetch FDA drug data';
+//     }
+// }
 async function searchFDADrugs(condition, results, offset = 0, limit = DEFAULT_PAGE_SIZE) {
     try {
-        const searchQuery = condition.toLowerCase().replace(/[^\w\s]/g, '').replace(/\s+/g, '+');
+        const searchTerms = condition.toLowerCase().replace(/[^\w\s]/g, '').split(/\s+/);
         
-        // First get total count
-        const countUrl = `${APIS.FDA}/drug/label.json`;
-        const countParams = {
-            search: `(indications_and_usage:"${searchQuery}") OR (medical_condition:"${searchQuery}")`,
-            limit: 1,
-            count: 'openfda.brand_name.exact'
-        };
+        // Create multiple search strategies
+        const searchQueries = [
+            // Primary search - broader field coverage
+            `(indications_and_usage:(${searchTerms.join(' AND ')}) OR indications_and_usage:(${searchTerms.join(' OR ')}))`,
+            
+            // Secondary search - generic/brand names and descriptions
+            `(openfda.generic_name:(${searchTerms.join(' OR ')}) OR openfda.brand_name:(${searchTerms.join(' OR ')}) OR description:(${searchTerms.join(' OR ')}))`,
+            
+            // Tertiary search - broader indications
+            `(indications_and_usage:${condition} OR description:${condition} OR purpose:${condition})`
+        ];
 
-        const countResponse = await axios.get(countUrl, {
-            params: countParams,
-            timeout: 10000,
-            headers: { 'Accept': 'application/json' }
-        });
-
-        const totalCount = countResponse.data?.meta?.results?.total || 0;
+        let allDrugs = new Map(); // Use Map to deduplicate by drug name
         
-        // Then get paginated results
-        const labelUrl = `${APIS.FDA}/drug/label.json`;
-        const labelParams = {
-            search: `(indications_and_usage:"${searchQuery}") OR (medical_condition:"${searchQuery}")`,
-            skip: offset,
-            limit: Math.min(limit, 100) // FDA API max is 100 per request
-        };
+        for (const searchQuery of searchQueries) {
+            try {
+                // Get total count for this search
+                const countUrl = `${APIS.FDA}/drug/label.json`;
+                const countParams = {
+                    search: searchQuery,
+                    limit: 1
+                };
 
-        const response = await axios.get(labelUrl, {
-            params: labelParams,
-            timeout: 10000,
-            headers: { 
-                'User-Agent': 'Regulatory-Intelligence-API/5.0',
-                'Accept': 'application/json'
-            }
-        });
+                const countResponse = await axios.get(countUrl, {
+                    params: countParams,
+                    timeout: 10000,
+                    headers: { 'Accept': 'application/json' }
+                });
 
-        const fdaResults = [];
-        
-        if (response.data?.results) {
-            // For limits > 100, we need multiple requests
-            const allResults = [response.data.results];
-            
-            if (limit > 100) {
-                const additionalRequests = Math.ceil((limit - 100) / 100);
-                for (let i = 1; i <= additionalRequests; i++) {
-                    const additionalParams = {
-                        ...labelParams,
-                        skip: offset + (i * 100),
-                        limit: Math.min(100, limit - (i * 100))
-                    };
-                    
-                    try {
-                        const additionalResponse = await axios.get(labelUrl, {
-                            params: additionalParams,
-                            timeout: 10000,
-                            headers: { 'Accept': 'application/json' }
-                        });
-                        
-                        if (additionalResponse.data?.results) {
-                            allResults.push(additionalResponse.data.results);
-                        }
-                    } catch (err) {
-                        console.error(`Error fetching additional FDA page ${i}:`, err.message);
-                    }
-                    
-                    await delay(100); // Rate limiting
-                }
-            }
-            
-            // Flatten all results
-            const flatResults = allResults.flat();
-            
-            flatResults.forEach(item => {
-                const drugName = item.openfda?.brand_name?.[0] || 
-                               item.openfda?.generic_name?.[0];
+                const totalForThisSearch = countResponse.data?.meta?.results?.total || 0;
                 
-                if (drugName && drugName !== 'Unknown Drug') {
-                    fdaResults.push({
-                        drug_name: drugName,
-                        brand_name: item.openfda?.brand_name?.[0] || null,
-                        generic_name: item.openfda?.generic_name?.[0] || null,
-                        manufacturer: item.openfda?.manufacturer_name?.[0] || null,
-                        dosage_form: item.dosage_form || item.openfda?.dosage_form?.[0] || null,
-                        route: item.openfda?.route?.[0] || null,
-                        substance: item.openfda?.substance_name?.[0] || null,
-                        ndc: item.openfda?.product_ndc?.[0] || null,
-                        application_number: item.openfda?.application_number?.[0] || null,
-                        approval_date: item.effective_time || null,
-                        indications: item.indications_and_usage || null,
-                        warnings: item.warnings || item.boxed_warning || null,
-                        contraindications: item.contraindications || null,
-                        adverse_reactions: item.adverse_reactions || null,
-                        drug_interactions: item.drug_interactions || null,
-                        spl_id: item.id || null,
-                        set_id: item.set_id || null
+                if (totalForThisSearch > 0) {
+                    // Get actual results
+                    const labelUrl = `${APIS.FDA}/drug/label.json`;
+                    const labelParams = {
+                        search: searchQuery,
+                        skip: 0, // Start from beginning for each search
+                        limit: Math.min(500, totalForThisSearch) // Get more results per search
+                    };
+
+                    const response = await axios.get(labelUrl, {
+                        params: labelParams,
+                        timeout: 15000,
+                        headers: { 
+                            'User-Agent': 'Regulatory-Intelligence-API/5.0',
+                            'Accept': 'application/json'
+                        }
                     });
+
+                    if (response.data?.results) {
+                        response.data.results.forEach(item => {
+                            const drugName = item.openfda?.brand_name?.[0] || 
+                                           item.openfda?.generic_name?.[0] ||
+                                           item.openfda?.substance_name?.[0];
+                            
+                            if (drugName && drugName !== 'Unknown Drug' && !allDrugs.has(drugName.toLowerCase())) {
+                                allDrugs.set(drugName.toLowerCase(), {
+                                    drug_name: drugName,
+                                    brand_name: item.openfda?.brand_name?.[0] || null,
+                                    generic_name: item.openfda?.generic_name?.[0] || null,
+                                    manufacturer: item.openfda?.manufacturer_name?.[0] || null,
+                                    dosage_form: item.dosage_form || item.openfda?.dosage_form?.[0] || null,
+                                    route: item.openfda?.route?.[0] || null,
+                                    substance: item.openfda?.substance_name?.[0] || null,
+                                    ndc: item.openfda?.product_ndc?.[0] || null,
+                                    application_number: item.openfda?.application_number?.[0] || null,
+                                    approval_date: item.effective_time || null,
+                                    indications: item.indications_and_usage || null,
+                                    warnings: item.warnings || item.boxed_warning || null,
+                                    contraindications: item.contraindications || null,
+                                    adverse_reactions: item.adverse_reactions || null,
+                                    drug_interactions: item.drug_interactions || null,
+                                    spl_id: item.id || null,
+                                    set_id: item.set_id || null,
+                                    // Additional fields you were missing
+                                    dosage_and_administration: item.dosage_and_administration || null,
+                                    clinical_pharmacology: item.clinical_pharmacology || null,
+                                    mechanism_of_action: item.mechanism_of_action || null,
+                                    pharmacokinetics: item.pharmacokinetics || null,
+                                    pediatric_use: item.pediatric_use || null,
+                                    geriatric_use: item.geriatric_use || null,
+                                    pregnancy: item.pregnancy || null,
+                                    nursing_mothers: item.nursing_mothers || null
+                                });
+                            }
+                        });
+                    }
                 }
-            });
+                
+                await delay(300); // Rate limiting between searches
+                
+            } catch (searchError) {
+                console.log(`Search query failed: ${searchQuery.substring(0, 50)}... - ${searchError.message}`);
+                continue; // Continue with next search strategy
+            }
         }
+        
+        // Convert Map to Array and apply pagination
+        const allDrugsArray = Array.from(allDrugs.values());
+        const paginatedDrugs = allDrugsArray.slice(offset, offset + limit);
 
-        // Remove duplicates by drug name
-        const uniqueDrugs = Array.from(
-            new Map(fdaResults.map(drug => [drug.drug_name.toLowerCase(), drug])).values()
-        );
-
-        results.sources.fda_drugs.data = uniqueDrugs;
-        results.sources.fda_drugs.count = uniqueDrugs.length;
-        results.sources.fda_drugs.total = totalCount;
-        console.log(`✅ Found ${uniqueDrugs.length} FDA drugs (Total: ${totalCount})`);
+        results.sources.fda_drugs.data = paginatedDrugs;
+        results.sources.fda_drugs.count = paginatedDrugs.length;
+        results.sources.fda_drugs.total = allDrugsArray.length;
+        
+        console.log(`✅ Found ${paginatedDrugs.length} FDA drugs from ${allDrugsArray.length} total unique drugs`);
 
     } catch (error) {
         console.error('FDA drugs search error:', error.message);
         results.sources.fda_drugs.error = 'Unable to fetch FDA drug data';
     }
 }
-
 /**
  * CLINICAL TRIALS SEARCH WITH PAGINATION
  */
@@ -447,211 +562,364 @@ async function searchFDADrugs(condition, results, offset = 0, limit = DEFAULT_PA
 //     }
 // }
 // Replace the searchClinicalTrials function in newconditions.js
-
 async function searchClinicalTrials(condition, results, offset = 0, limit = DEFAULT_PAGE_SIZE) {
     try {
-        // Calculate how many pages we need to skip
-        const pageSize = Math.min(1000, limit); // ClinicalTrials.gov max is 1000
-        const pagesToSkip = Math.floor(offset / pageSize);
-        
-        // First, get the total count
-        const countParams = new URLSearchParams({
-            'query.cond': condition,
-            'countTotal': 'true',
-            'pageSize': 1, // Just need count
-            'format': 'json'
-        });
-
-        const countUrl = `${APIS.CLINICALTRIALS}/studies?${countParams.toString()}`;
-        const countResponse = await axios.get(countUrl, {
-            timeout: 15000,
-            headers: {
-                'Accept': 'application/json',
-                'User-Agent': 'Regulatory-Intelligence-API/5.0'
-            }
-        });
-
-        const totalCount = countResponse.data?.totalCount || 0;
-        
-        // Now get the actual page we need
-        const queryParams = new URLSearchParams({
-            'query.cond': condition,
-            'pageSize': pageSize,
-            'format': 'json'
-        });
-
-        // If we need to skip pages, use pageToken navigation
-        let currentPageToken = null;
-        let trials = [];
-        
-        // Skip to the right page by iterating through pageTokens
-        if (pagesToSkip > 0) {
-            let skipCount = 0;
-            let nextToken = null;
+        // Multiple search strategies to catch all relevant trials
+        const searchQueries = [
+            // Primary condition search
+            `query.cond=${encodeURIComponent(condition)}`,
             
-            // Navigate to the correct page
-            for (let i = 0; i < pagesToSkip; i++) {
-                const skipParams = new URLSearchParams({
-                    'query.cond': condition,
-                    'pageSize': pageSize,
-                    'format': 'json'
-                });
+            // Intervention/treatment search
+            `query.intr=${encodeURIComponent(condition)}`,
+            
+            // Title/keyword search
+            `query.titles=${encodeURIComponent(condition)}`,
+            
+            // Advanced search combining multiple fields
+            `query.advanced=(AREA[Condition]${condition}) OR (AREA[InterventionName]${condition}) OR (AREA[Keyword]${condition})`
+        ];
+
+        let allTrials = new Map();
+        let maxTotalCount = 0;
+
+        for (const searchQuery of searchQueries) {
+            try {
+                // Get total count first
+                const countParams = `${searchQuery}&countTotal=true&pageSize=1&format=json`;
+                const countUrl = `${APIS.CLINICALTRIALS}/studies?${countParams}`;
                 
-                if (nextToken) {
-                    skipParams.append('pageToken', nextToken);
-                }
-                
-                const skipResponse = await axios.get(
-                    `${APIS.CLINICALTRIALS}/studies?${skipParams.toString()}`,
-                    {
-                        timeout: 15000,
-                        headers: { 'Accept': 'application/json' }
+                const countResponse = await axios.get(countUrl, {
+                    timeout: 15000,
+                    headers: {
+                        'Accept': 'application/json',
+                        'User-Agent': 'Regulatory-Intelligence-API/5.0'
                     }
-                );
-                
-                nextToken = skipResponse.data?.nextPageToken;
-                skipCount++;
-                
-                if (!nextToken) break; // No more pages
-                
-                await delay(100); // Rate limiting
-            }
-            
-            currentPageToken = nextToken;
-        }
-        
-        // Now fetch the actual page we want
-        if (currentPageToken) {
-            queryParams.append('pageToken', currentPageToken);
-        }
-        
-        const url = `${APIS.CLINICALTRIALS}/studies?${queryParams.toString()}`;
-        const response = await axios.get(url, {
-            timeout: 15000,
-            headers: {
-                'Accept': 'application/json',
-                'User-Agent': 'Regulatory-Intelligence-API/5.0'
-            }
-        });
-        
-        if (response.data?.studies) {
-            trials = response.data.studies;
-        }
-        
-        // Handle remainder if offset isn't aligned with pageSize
-        const remainderOffset = offset % pageSize;
-        if (remainderOffset > 0) {
-            trials = trials.slice(remainderOffset);
-        }
-        
-        // Trim to exact limit requested
-        trials = trials.slice(0, limit);
-        
-        // If we need more results and there's a nextPageToken, fetch additional pages
-        if (trials.length < limit && response.data?.nextPageToken) {
-            let nextPageToken = response.data.nextPageToken;
-            let remainingLimit = limit - trials.length;
-            
-            while (nextPageToken && remainingLimit > 0) {
-                const nextParams = new URLSearchParams({
-                    'query.cond': condition,
-                    'pageSize': Math.min(remainingLimit, pageSize),
-                    'pageToken': nextPageToken,
-                    'format': 'json'
                 });
+
+                const totalCount = countResponse.data?.totalCount || 0;
+                maxTotalCount = Math.max(maxTotalCount, totalCount);
                 
-                try {
-                    const nextResponse = await axios.get(
-                        `${APIS.CLINICALTRIALS}/studies?${nextParams.toString()}`,
-                        {
-                            timeout: 15000,
-                            headers: { 'Accept': 'application/json' }
+                if (totalCount > 0) {
+                    // Get actual results - fetch more to avoid missing trials
+                    const queryParams = `${searchQuery}&pageSize=1000&format=json`;
+                    const url = `${APIS.CLINICALTRIALS}/studies?${queryParams}`;
+                    
+                    const response = await axios.get(url, {
+                        timeout: 20000,
+                        headers: {
+                            'Accept': 'application/json',
+                            'User-Agent': 'Regulatory-Intelligence-API/5.0'
                         }
-                    );
+                    });
                     
-                    if (nextResponse.data?.studies) {
-                        const additionalTrials = nextResponse.data.studies.slice(0, remainingLimit);
-                        trials.push(...additionalTrials);
-                        remainingLimit -= additionalTrials.length;
+                    if (response.data?.studies) {
+                        response.data.studies.forEach(study => {
+                            const nctId = study.protocolSection?.identificationModule?.nctId;
+                            if (nctId && !allTrials.has(nctId)) {
+                                const protocol = study.protocolSection || {};
+                                const identification = protocol.identificationModule || {};
+                                const status = protocol.statusModule || {};
+                                const design = protocol.designModule || {};
+                                const conditions = protocol.conditionsModule || {};
+                                const interventions = protocol.armsInterventionsModule || {};
+                                const sponsors = protocol.sponsorCollaboratorsModule || {};
+                                const outcomes = protocol.outcomesModule || {};
+                                const eligibility = protocol.eligibilityModule || {};
+                                const contacts = protocol.contactsLocationsModule || {};
+                                
+                                allTrials.set(nctId, {
+                                    nct_id: nctId,
+                                    title: identification.briefTitle,
+                                    official_title: identification.officialTitle,
+                                    status: status.overallStatus,
+                                    why_stopped: status.whyStopped,
+                                    start_date: status.startDateStruct?.date,
+                                    completion_date: status.primaryCompletionDateStruct?.date,
+                                    study_completion_date: status.completionDateStruct?.date,
+                                    last_update: status.lastUpdateSubmitDate,
+                                    phase: design.phases?.[0],
+                                    study_type: design.studyType,
+                                    enrollment: design.enrollmentInfo?.count,
+                                    allocation: design.designInfo?.allocation,
+                                    intervention_model: design.designInfo?.interventionModel,
+                                    primary_purpose: design.designInfo?.primaryPurpose,
+                                    masking: design.designInfo?.maskingInfo?.masking,
+                                    conditions: conditions.conditions || [],
+                                    keywords: conditions.keywords || [],
+                                    interventions: interventions.interventions?.map(i => ({
+                                        type: i.type,
+                                        name: i.name,
+                                        description: i.description,
+                                        other_names: i.otherNames || []
+                                    })) || [],
+                                    lead_sponsor: sponsors.leadSponsor?.name,
+                                    lead_sponsor_class: sponsors.leadSponsor?.class,
+                                    sponsor: sponsors.leadSponsor?.name,
+                                    collaborators: sponsors.collaborators?.map(c => ({
+                                        name: c.name,
+                                        class: c.class
+                                    })) || [],
+                                    primary_outcomes: outcomes.primaryOutcomes?.map(o => ({
+                                        measure: o.measure,
+                                        time_frame: o.timeFrame,
+                                        description: o.description
+                                    })) || [],
+                                    secondary_outcomes: outcomes.secondaryOutcomes?.map(o => ({
+                                        measure: o.measure,
+                                        time_frame: o.timeFrame,
+                                        description: o.description
+                                    })) || [],
+                                    min_age: eligibility.minimumAge,
+                                    max_age: eligibility.maximumAge,
+                                    gender: eligibility.sex,
+                                    healthy_volunteers: eligibility.healthyVolunteers,
+                                    eligibility_criteria: eligibility.eligibilityCriteria,
+                                    // Additional fields you were missing
+                                    study_first_posted: status.studyFirstPostDateStruct?.date,
+                                    last_update_posted: status.lastUpdatePostDateStruct?.date,
+                                    results_first_posted: status.resultsFirstPostDateStruct?.date,
+                                    has_expanded_access: design.hasExpandedAccess,
+                                    locations: contacts.locations?.map(loc => ({
+                                        facility: loc.facility,
+                                        city: loc.city,
+                                        state: loc.state,
+                                        country: loc.country,
+                                        status: loc.status
+                                    })) || [],
+                                    responsible_party: sponsors.responsibleParty
+                                });
+                            }
+                        });
                     }
-                    
-                    nextPageToken = nextResponse.data?.nextPageToken;
-                    
-                    if (!nextPageToken || nextResponse.data?.studies?.length === 0) break;
-                    
-                    await delay(100); // Rate limiting
-                } catch (err) {
-                    console.error('Error fetching additional trial page:', err.message);
-                    break;
                 }
+                
+                await delay(300); // Rate limiting between searches
+                
+            } catch (searchError) {
+                console.log(`Clinical trial search failed for query: ${searchQuery} - ${searchError.message}`);
+                continue;
             }
         }
         
-        // Process the trials
-        const processedTrials = trials.map(study => {
-            const protocol = study.protocolSection || {};
-            const identification = protocol.identificationModule || {};
-            const status = protocol.statusModule || {};
-            const design = protocol.designModule || {};
-            const conditions = protocol.conditionsModule || {};
-            const interventions = protocol.armsInterventionsModule || {};
-            const sponsors = protocol.sponsorCollaboratorsModule || {};
-            const outcomes = protocol.outcomesModule || {};
-            const eligibility = protocol.eligibilityModule || {};
-            
-            return {
-                nct_id: identification.nctId,
-                title: identification.briefTitle,
-                official_title: identification.officialTitle,
-                status: status.overallStatus,
-                why_stopped: status.whyStopped,
-                start_date: status.startDateStruct?.date,
-                completion_date: status.primaryCompletionDateStruct?.date,
-                last_update: status.lastUpdateSubmitDate,
-                phase: design.phases?.[0],
-                study_type: design.studyType,
-                enrollment: design.enrollmentInfo?.count,
-                allocation: design.designInfo?.allocation,
-                intervention_model: design.designInfo?.interventionModel,
-                primary_purpose: design.designInfo?.primaryPurpose,
-                masking: design.designInfo?.maskingInfo?.masking,
-                conditions: conditions.conditions || [],
-                interventions: interventions.interventions?.map(i => ({
-                    type: i.type,
-                    name: i.name,
-                    description: i.description
-                })) || [],
-                lead_sponsor: sponsors.leadSponsor?.name,
-                sponsor: sponsors.leadSponsor?.name,
-                collaborators: sponsors.collaborators?.map(c => c.name) || [],
-                primary_outcomes: outcomes.primaryOutcomes?.map(o => ({
-                    measure: o.measure,
-                    time_frame: o.timeFrame,
-                    description: o.description
-                })) || [],
-                secondary_outcomes: outcomes.secondaryOutcomes?.map(o => ({
-                    measure: o.measure,
-                    time_frame: o.timeFrame
-                })) || [],
-                min_age: eligibility.minimumAge,
-                max_age: eligibility.maximumAge,
-                gender: eligibility.sex,
-                healthy_volunteers: eligibility.healthyVolunteers,
-                eligibility_criteria: eligibility.eligibilityCriteria
-            };
-        });
+        // Convert to array and apply pagination
+        const allTrialsArray = Array.from(allTrials.values());
+        const paginatedTrials = allTrialsArray.slice(offset, offset + limit);
 
-        results.sources.clinical_trials.data = processedTrials;
-        results.sources.clinical_trials.count = processedTrials.length;
-        results.sources.clinical_trials.total = totalCount;
+        results.sources.clinical_trials.data = paginatedTrials;
+        results.sources.clinical_trials.count = paginatedTrials.length;
+        results.sources.clinical_trials.total = Math.max(maxTotalCount, allTrialsArray.length);
         
-        console.log(`✅ Found ${processedTrials.length} clinical trials (Total: ${totalCount}, Page offset: ${offset})`);
+        console.log(`✅ Found ${paginatedTrials.length} clinical trials from ${allTrialsArray.length} total unique trials (Max API total: ${maxTotalCount})`);
 
     } catch (error) {
         console.error('Clinical Trials error:', error.message);
         results.sources.clinical_trials.error = 'Unable to fetch clinical trials';
     }
 }
+// async function searchClinicalTrials(condition, results, offset = 0, limit = DEFAULT_PAGE_SIZE) {
+//     try {
+//         // Calculate how many pages we need to skip
+//         const pageSize = Math.min(1000, limit); // ClinicalTrials.gov max is 1000
+//         const pagesToSkip = Math.floor(offset / pageSize);
+        
+//         // First, get the total count
+//         const countParams = new URLSearchParams({
+//             'query.cond': condition,
+//             'countTotal': 'true',
+//             'pageSize': 1, // Just need count
+//             'format': 'json'
+//         });
+
+//         const countUrl = `${APIS.CLINICALTRIALS}/studies?${countParams.toString()}`;
+//         const countResponse = await axios.get(countUrl, {
+//             timeout: 15000,
+//             headers: {
+//                 'Accept': 'application/json',
+//                 'User-Agent': 'Regulatory-Intelligence-API/5.0'
+//             }
+//         });
+
+//         const totalCount = countResponse.data?.totalCount || 0;
+        
+//         // Now get the actual page we need
+//         const queryParams = new URLSearchParams({
+//             'query.cond': condition,
+//             'pageSize': pageSize,
+//             'format': 'json'
+//         });
+
+//         // If we need to skip pages, use pageToken navigation
+//         let currentPageToken = null;
+//         let trials = [];
+        
+//         // Skip to the right page by iterating through pageTokens
+//         if (pagesToSkip > 0) {
+//             let skipCount = 0;
+//             let nextToken = null;
+            
+//             // Navigate to the correct page
+//             for (let i = 0; i < pagesToSkip; i++) {
+//                 const skipParams = new URLSearchParams({
+//                     'query.cond': condition,
+//                     'pageSize': pageSize,
+//                     'format': 'json'
+//                 });
+                
+//                 if (nextToken) {
+//                     skipParams.append('pageToken', nextToken);
+//                 }
+                
+//                 const skipResponse = await axios.get(
+//                     `${APIS.CLINICALTRIALS}/studies?${skipParams.toString()}`,
+//                     {
+//                         timeout: 15000,
+//                         headers: { 'Accept': 'application/json' }
+//                     }
+//                 );
+                
+//                 nextToken = skipResponse.data?.nextPageToken;
+//                 skipCount++;
+                
+//                 if (!nextToken) break; // No more pages
+                
+//                 await delay(100); // Rate limiting
+//             }
+            
+//             currentPageToken = nextToken;
+//         }
+        
+//         // Now fetch the actual page we want
+//         if (currentPageToken) {
+//             queryParams.append('pageToken', currentPageToken);
+//         }
+        
+//         const url = `${APIS.CLINICALTRIALS}/studies?${queryParams.toString()}`;
+//         const response = await axios.get(url, {
+//             timeout: 15000,
+//             headers: {
+//                 'Accept': 'application/json',
+//                 'User-Agent': 'Regulatory-Intelligence-API/5.0'
+//             }
+//         });
+        
+//         if (response.data?.studies) {
+//             trials = response.data.studies;
+//         }
+        
+//         // Handle remainder if offset isn't aligned with pageSize
+//         const remainderOffset = offset % pageSize;
+//         if (remainderOffset > 0) {
+//             trials = trials.slice(remainderOffset);
+//         }
+        
+//         // Trim to exact limit requested
+//         trials = trials.slice(0, limit);
+        
+//         // If we need more results and there's a nextPageToken, fetch additional pages
+//         if (trials.length < limit && response.data?.nextPageToken) {
+//             let nextPageToken = response.data.nextPageToken;
+//             let remainingLimit = limit - trials.length;
+            
+//             while (nextPageToken && remainingLimit > 0) {
+//                 const nextParams = new URLSearchParams({
+//                     'query.cond': condition,
+//                     'pageSize': Math.min(remainingLimit, pageSize),
+//                     'pageToken': nextPageToken,
+//                     'format': 'json'
+//                 });
+                
+//                 try {
+//                     const nextResponse = await axios.get(
+//                         `${APIS.CLINICALTRIALS}/studies?${nextParams.toString()}`,
+//                         {
+//                             timeout: 15000,
+//                             headers: { 'Accept': 'application/json' }
+//                         }
+//                     );
+                    
+//                     if (nextResponse.data?.studies) {
+//                         const additionalTrials = nextResponse.data.studies.slice(0, remainingLimit);
+//                         trials.push(...additionalTrials);
+//                         remainingLimit -= additionalTrials.length;
+//                     }
+                    
+//                     nextPageToken = nextResponse.data?.nextPageToken;
+                    
+//                     if (!nextPageToken || nextResponse.data?.studies?.length === 0) break;
+                    
+//                     await delay(100); // Rate limiting
+//                 } catch (err) {
+//                     console.error('Error fetching additional trial page:', err.message);
+//                     break;
+//                 }
+//             }
+//         }
+        
+//         // Process the trials
+//         const processedTrials = trials.map(study => {
+//             const protocol = study.protocolSection || {};
+//             const identification = protocol.identificationModule || {};
+//             const status = protocol.statusModule || {};
+//             const design = protocol.designModule || {};
+//             const conditions = protocol.conditionsModule || {};
+//             const interventions = protocol.armsInterventionsModule || {};
+//             const sponsors = protocol.sponsorCollaboratorsModule || {};
+//             const outcomes = protocol.outcomesModule || {};
+//             const eligibility = protocol.eligibilityModule || {};
+            
+//             return {
+//                 nct_id: identification.nctId,
+//                 title: identification.briefTitle,
+//                 official_title: identification.officialTitle,
+//                 status: status.overallStatus,
+//                 why_stopped: status.whyStopped,
+//                 start_date: status.startDateStruct?.date,
+//                 completion_date: status.primaryCompletionDateStruct?.date,
+//                 last_update: status.lastUpdateSubmitDate,
+//                 phase: design.phases?.[0],
+//                 study_type: design.studyType,
+//                 enrollment: design.enrollmentInfo?.count,
+//                 allocation: design.designInfo?.allocation,
+//                 intervention_model: design.designInfo?.interventionModel,
+//                 primary_purpose: design.designInfo?.primaryPurpose,
+//                 masking: design.designInfo?.maskingInfo?.masking,
+//                 conditions: conditions.conditions || [],
+//                 interventions: interventions.interventions?.map(i => ({
+//                     type: i.type,
+//                     name: i.name,
+//                     description: i.description
+//                 })) || [],
+//                 lead_sponsor: sponsors.leadSponsor?.name,
+//                 sponsor: sponsors.leadSponsor?.name,
+//                 collaborators: sponsors.collaborators?.map(c => c.name) || [],
+//                 primary_outcomes: outcomes.primaryOutcomes?.map(o => ({
+//                     measure: o.measure,
+//                     time_frame: o.timeFrame,
+//                     description: o.description
+//                 })) || [],
+//                 secondary_outcomes: outcomes.secondaryOutcomes?.map(o => ({
+//                     measure: o.measure,
+//                     time_frame: o.timeFrame
+//                 })) || [],
+//                 min_age: eligibility.minimumAge,
+//                 max_age: eligibility.maximumAge,
+//                 gender: eligibility.sex,
+//                 healthy_volunteers: eligibility.healthyVolunteers,
+//                 eligibility_criteria: eligibility.eligibilityCriteria
+//             };
+//         });
+
+//         results.sources.clinical_trials.data = processedTrials;
+//         results.sources.clinical_trials.count = processedTrials.length;
+//         results.sources.clinical_trials.total = totalCount;
+        
+//         console.log(`✅ Found ${processedTrials.length} clinical trials (Total: ${totalCount}, Page offset: ${offset})`);
+
+//     } catch (error) {
+//         console.error('Clinical Trials error:', error.message);
+//         results.sources.clinical_trials.error = 'Unable to fetch clinical trials';
+//     }
+// }
 /**
  * NIH GRANTS SEARCH WITH PAGINATION
  */
@@ -1347,64 +1615,325 @@ function generateAnalytics(results) {
 }
 
 // Include all existing analytics calculation functions unchanged...
+// function calculateRegulatoryRisk(results) {
+//     let riskScore = 50;
+//     const factors = {};
+    
+//     if (results.sources.failed_drugs.count > 0) {
+//         factors.failed_drugs = results.sources.failed_drugs.count * 2;
+//         riskScore += factors.failed_drugs;
+//     }
+    
+//     const severeEvents = results.sources.adverse_events.data.filter(ae => ae.severity_category === 'Severe').length;
+//     if (severeEvents > 0) {
+//         factors.severe_adverse_events = severeEvents * 5;
+//         riskScore += factors.severe_adverse_events;
+//     }
+    
+//     if (results.sources.fda_recalls.count > 0) {
+//         factors.recalls = results.sources.fda_recalls.count * 3;
+//         riskScore += factors.recalls;
+//     }
+    
+//     if (results.sources.clinical_trials.count > 0) {
+//         factors.active_trials = -Math.min(results.sources.clinical_trials.count, 20);
+//         riskScore += factors.active_trials;
+//     }
+    
+//     if (results.sources.fda_drugs.count > 5) {
+//         factors.approved_drugs = -10;
+//         riskScore += factors.approved_drugs;
+//     }
+    
+//     riskScore = Math.max(0, Math.min(100, riskScore));
+    
+//     return {
+//         score: riskScore,
+//         level: riskScore < 30 ? 'Low' : riskScore < 70 ? 'Moderate' : 'High',
+//         factors: factors,
+//         interpretation: riskScore < 30 ? 'Low regulatory risk. Favorable development environment.' :
+//                        riskScore < 70 ? 'Moderate regulatory risk. Standard development considerations apply.' :
+//                        'High regulatory risk. Significant safety or efficacy concerns identified.'
+//     };
+// }
+
+// // Include all other existing analytics functions unchanged...
+// function calculateMarketOpportunity(results) {
+//     const avgEnrollment = results.sources.clinical_trials.data
+//         .filter(t => t.enrollment)
+//         .reduce((sum, t, _, arr) => sum + t.enrollment / arr.length, 0) || 0;
+    
+//     const nihFunding = results.sources.nih_grants.total_funding || 0;
+    
+//     return {
+//         estimated_patient_population: Math.round(avgEnrollment * 100),
+//         current_nih_funding: nihFunding,
+//         total_addressable_market: nihFunding * 10,
+//         serviceable_obtainable_market: nihFunding * 1.5,
+//         market_growth_rate: '7-10% annually',
+//         competitive_drugs: results.sources.fda_drugs.count,
+//         pipeline_drugs: results.sources.clinical_trials.count
+//     };
+// }
+
+
 function calculateRegulatoryRisk(results) {
-    let riskScore = 50;
+    let riskScore = 30; // Start with lower baseline
     const factors = {};
     
-    if (results.sources.failed_drugs.count > 0) {
-        factors.failed_drugs = results.sources.failed_drugs.count * 2;
-        riskScore += factors.failed_drugs;
+    // Failed trials factor (your logic was too harsh)
+    const totalTrials = results.sources.clinical_trials.count + results.sources.failed_drugs.count;
+    if (totalTrials > 0) {
+        const failureRate = results.sources.failed_drugs.count / totalTrials;
+        if (failureRate > 0.7) {
+            factors.high_failure_rate = 25;
+            riskScore += 25;
+        } else if (failureRate > 0.5) {
+            factors.moderate_failure_rate = 15;
+            riskScore += 15;
+        } else if (failureRate > 0.3) {
+            factors.some_failures = 8;
+            riskScore += 8;
+        }
     }
     
+    // Severe adverse events (more nuanced)
+    const totalAEs = results.sources.adverse_events.count;
     const severeEvents = results.sources.adverse_events.data.filter(ae => ae.severity_category === 'Severe').length;
-    if (severeEvents > 0) {
-        factors.severe_adverse_events = severeEvents * 5;
-        riskScore += factors.severe_adverse_events;
+    if (totalAEs > 0) {
+        const severeRate = severeEvents / totalAEs;
+        if (severeRate > 0.3) {
+            factors.high_severe_ae_rate = 20;
+            riskScore += 20;
+        } else if (severeRate > 0.1) {
+            factors.moderate_severe_ae_rate = 10;
+            riskScore += 10;
+        }
     }
     
-    if (results.sources.fda_recalls.count > 0) {
-        factors.recalls = results.sources.fda_recalls.count * 3;
-        riskScore += factors.recalls;
+    // Recalls factor (more precise)
+    const recentRecalls = results.sources.fda_recalls.data.filter(recall => {
+        const recallYear = new Date(recall.recall_initiation_date).getFullYear();
+        return recallYear >= new Date().getFullYear() - 3;
+    }).length;
+    
+    if (recentRecalls > 5) {
+        factors.recent_recalls = 15;
+        riskScore += 15;
+    } else if (recentRecalls > 2) {
+        factors.some_recalls = 8;
+        riskScore += 8;
     }
     
-    if (results.sources.clinical_trials.count > 0) {
-        factors.active_trials = -Math.min(results.sources.clinical_trials.count, 20);
-        riskScore += factors.active_trials;
-    }
-    
+    // Positive factors
     if (results.sources.fda_drugs.count > 5) {
-        factors.approved_drugs = -10;
-        riskScore += factors.approved_drugs;
+        factors.established_market = -10;
+        riskScore -= 10;
     }
     
-    riskScore = Math.max(0, Math.min(100, riskScore));
+    // Late-stage trials reduce risk
+    const lateStageTrials = results.sources.clinical_trials.data.filter(t => 
+        t.phase === 'PHASE3' || t.phase === 'Phase 3' || t.phase === 'PHASE4' || t.phase === 'Phase 4'
+    ).length;
+    
+    if (lateStageTrials > 0) {
+        factors.late_stage_trials = -Math.min(15, lateStageTrials * 3);
+        riskScore += factors.late_stage_trials;
+    }
+    
+    // Active recruiting trials reduce risk
+    const activeTrials = results.sources.clinical_trials.data.filter(t => 
+        t.status === 'RECRUITING' || t.status === 'NOT_YET_RECRUITING'
+    ).length;
+    
+    if (activeTrials > 10) {
+        factors.active_pipeline = -8;
+        riskScore -= 8;
+    }
+    
+    riskScore = Math.max(5, Math.min(95, riskScore));
     
     return {
         score: riskScore,
-        level: riskScore < 30 ? 'Low' : riskScore < 70 ? 'Moderate' : 'High',
+        level: riskScore < 35 ? 'Low' : riskScore < 65 ? 'Moderate' : 'High',
         factors: factors,
-        interpretation: riskScore < 30 ? 'Low regulatory risk. Favorable development environment.' :
-                       riskScore < 70 ? 'Moderate regulatory risk. Standard development considerations apply.' :
-                       'High regulatory risk. Significant safety or efficacy concerns identified.'
+        calculation_details: {
+            total_trials: totalTrials,
+            failure_rate: totalTrials > 0 ? (results.sources.failed_drugs.count / totalTrials).toFixed(2) : 0,
+            severe_ae_rate: totalAEs > 0 ? (severeEvents / totalAEs).toFixed(2) : 0,
+            recent_recalls: recentRecalls,
+            late_stage_trials: lateStageTrials,
+            active_trials: activeTrials
+        },
+        interpretation: riskScore < 35 ? 'Low regulatory risk. Favorable development environment with good success rates.' :
+                       riskScore < 65 ? 'Moderate regulatory risk. Standard development considerations with some challenges.' :
+                       'High regulatory risk. Significant safety, efficacy, or regulatory concerns identified.'
     };
 }
 
-// Include all other existing analytics functions unchanged...
 function calculateMarketOpportunity(results) {
-    const avgEnrollment = results.sources.clinical_trials.data
-        .filter(t => t.enrollment)
-        .reduce((sum, t, _, arr) => sum + t.enrollment / arr.length, 0) || 0;
+    // More sophisticated market sizing
+    const activeTrials = results.sources.clinical_trials.data.filter(t => 
+        t.status === 'RECRUITING' || t.status === 'NOT_YET_RECRUITING' || t.status === 'ACTIVE_NOT_RECRUITING'
+    );
+    
+    const totalEnrollment = activeTrials.reduce((sum, t) => sum + (t.enrollment || 0), 0);
+    const avgEnrollment = activeTrials.length > 0 ? totalEnrollment / activeTrials.length : 0;
+    
+    // Better prevalence estimation
+    const estimatedPrevalence = Math.max(avgEnrollment * 500, totalEnrollment * 100, 50000);
     
     const nihFunding = results.sources.nih_grants.total_funding || 0;
     
+    // Phase-based market potential
+    const phaseBreakdown = {
+        'PHASE1': 0,
+        'PHASE2': 0, 
+        'PHASE3': 0,
+        'PHASE4': 0
+    };
+    
+    results.sources.clinical_trials.data.forEach(trial => {
+        const phase = trial.phase;
+        if (phaseBreakdown.hasOwnProperty(phase)) {
+            phaseBreakdown[phase]++;
+        }
+    });
+    
+    // Market maturity score
+    const approvedDrugs = results.sources.fda_drugs.count;
+    let maturityScore = 'Emerging';
+    if (approvedDrugs > 20) maturityScore = 'Mature';
+    else if (approvedDrugs > 5) maturityScore = 'Developing';
+    
     return {
-        estimated_patient_population: Math.round(avgEnrollment * 100),
+        estimated_patient_population: estimatedPrevalence,
         current_nih_funding: nihFunding,
-        total_addressable_market: nihFunding * 10,
-        serviceable_obtainable_market: nihFunding * 1.5,
-        market_growth_rate: '7-10% annually',
-        competitive_drugs: results.sources.fda_drugs.count,
-        pipeline_drugs: results.sources.clinical_trials.count
+        total_addressable_market: estimatedPrevalence * 1000, // $1k per patient estimate
+        serviceable_obtainable_market: Math.round(estimatedPrevalence * 150), // 15% capture at $1k
+        market_maturity: maturityScore,
+        phase_distribution: phaseBreakdown,
+        market_growth_indicators: {
+            active_trials: activeTrials.length,
+            funding_trend: nihFunding > 10000000 ? 'High' : nihFunding > 1000000 ? 'Moderate' : 'Low',
+            competitive_intensity: approvedDrugs > 10 ? 'High' : approvedDrugs > 3 ? 'Moderate' : 'Low'
+        },
+        key_metrics: {
+            total_enrollment_current_trials: totalEnrollment,
+            average_trial_size: Math.round(avgEnrollment),
+            trials_in_late_stage: phaseBreakdown['PHASE3'] + phaseBreakdown['PHASE4'],
+            approved_competitors: approvedDrugs
+        }
+    };
+}
+
+function predictApprovalProbability(results) {
+    let baseProb = 40; // More conservative baseline
+    const factors = {};
+    const details = {};
+    
+    // Phase-based probability adjustments
+    const phases = {
+        'PHASE1': { count: 0, weight: 5 },
+        'PHASE2': { count: 0, weight: 15 },
+        'PHASE3': { count: 0, weight: 30 },
+        'PHASE4': { count: 0, weight: 10 }
+    };
+    
+    results.sources.clinical_trials.data.forEach(trial => {
+        const phase = trial.phase;
+        if (phases[phase]) {
+            phases[phase].count++;
+        }
+    });
+    
+    // Calculate phase-weighted score
+    let phaseScore = 0;
+    let totalPhaseTrials = 0;
+    for (const [phase, data] of Object.entries(phases)) {
+        if (data.count > 0) {
+            phaseScore += data.count * data.weight;
+            totalPhaseTrials += data.count;
+        }
+    }
+    
+    if (totalPhaseTrials > 0) {
+        const avgPhaseWeight = phaseScore / totalPhaseTrials;
+        factors.phase_weighted_score = Math.round(avgPhaseWeight - 15); // Adjust to factors scale
+        baseProb += factors.phase_weighted_score;
+    }
+    
+    // Market precedent
+    if (results.sources.fda_drugs.count > 3) {
+        factors.market_precedent = 15;
+        baseProb += 15;
+        details.market_precedent = `${results.sources.fda_drugs.count} approved drugs indicate established regulatory pathway`;
+    }
+    
+    // Failure rate impact
+    const totalTrials = results.sources.clinical_trials.count + results.sources.failed_drugs.count;
+    if (totalTrials > 5) {
+        const failureRate = results.sources.failed_drugs.count / totalTrials;
+        if (failureRate > 0.6) {
+            factors.high_historical_failure = -25;
+            baseProb -= 25;
+        } else if (failureRate < 0.3) {
+            factors.low_historical_failure = 10;
+            baseProb += 10;
+        }
+        details.failure_rate = `${(failureRate * 100).toFixed(1)}% historical failure rate`;
+    }
+    
+    // Safety profile
+    const severeAEs = results.sources.adverse_events.data.filter(ae => ae.severity_category === 'Severe').length;
+    const totalAEs = results.sources.adverse_events.count;
+    
+    if (totalAEs > 0) {
+        const severeRate = severeAEs / totalAEs;
+        if (severeRate > 0.3) {
+            factors.safety_concerns = -20;
+            baseProb -= 20;
+        } else if (severeRate < 0.1) {
+            factors.good_safety_profile = 10;
+            baseProb += 10;
+        }
+        details.safety_profile = `${(severeRate * 100).toFixed(1)}% severe adverse events`;
+    }
+    
+    // Regulatory precedent
+    if (results.sources.fda_recalls.count > 5) {
+        factors.regulatory_scrutiny = -15;
+        baseProb -= 15;
+    }
+    
+    // Recent activity boost
+    const recentTrials = results.sources.clinical_trials.data.filter(trial => {
+        const startYear = new Date(trial.start_date).getFullYear();
+        return startYear >= new Date().getFullYear() - 2;
+    }).length;
+    
+    if (recentTrials > 3) {
+        factors.recent_activity = 8;
+        baseProb += 8;
+    }
+    
+    baseProb = Math.max(10, Math.min(90, baseProb));
+    
+    return {
+        probability: baseProb,
+        confidence: totalTrials > 10 ? 'High' : totalTrials > 5 ? 'Moderate' : 'Low',
+        factors: factors,
+        details: details,
+        phase_analysis: phases,
+        recommendation: baseProb > 65 ? 'Favorable - High approval likelihood' : 
+                       baseProb > 45 ? 'Neutral - Moderate approval likelihood' : 
+                       'Unfavorable - Low approval likelihood',
+        key_assumptions: [
+            'Based on historical phase success rates',
+            'Market precedent indicates regulatory feasibility', 
+            'Safety profile from adverse event data',
+            'Recent trial activity suggests continued investment'
+        ]
     };
 }
 
@@ -1465,37 +1994,37 @@ function calculateFinancialMetrics(results) {
     };
 }
 
-function predictApprovalProbability(results) {
-    let baseProb = 50;
-    const factors = {};
+// function predictApprovalProbability(results) {
+//     let baseProb = 50;
+//     const factors = {};
     
-    if (results.sources.fda_drugs.count > 5) {
-        factors.established_market = 15;
-        baseProb += 15;
-    }
+//     if (results.sources.fda_drugs.count > 5) {
+//         factors.established_market = 15;
+//         baseProb += 15;
+//     }
     
-    if (results.sources.clinical_trials.data.some(t => t.phase === 'PHASE3' || t.phase === 'Phase 3')) {
-        factors.phase3_active = 20;
-        baseProb += 20;
-    }
+//     if (results.sources.clinical_trials.data.some(t => t.phase === 'PHASE3' || t.phase === 'Phase 3')) {
+//         factors.phase3_active = 20;
+//         baseProb += 20;
+//     }
     
-    const failureRate = results.sources.failed_drugs.count / 
-        (results.sources.clinical_trials.count + results.sources.failed_drugs.count + 0.01);
+//     const failureRate = results.sources.failed_drugs.count / 
+//         (results.sources.clinical_trials.count + results.sources.failed_drugs.count + 0.01);
     
-    if (failureRate > 0.5) {
-        factors.high_failure_rate = -25;
-        baseProb -= 25;
-    }
+//     if (failureRate > 0.5) {
+//         factors.high_failure_rate = -25;
+//         baseProb -= 25;
+//     }
     
-    baseProb = Math.max(5, Math.min(95, baseProb));
+//     baseProb = Math.max(5, Math.min(95, baseProb));
     
-    return {
-        probability: baseProb,
-        confidence: 'Moderate',
-        factors: factors,
-        recommendation: baseProb > 60 ? 'Favorable' : baseProb > 40 ? 'Neutral' : 'Unfavorable'
-    };
-}
+//     return {
+//         probability: baseProb,
+//         confidence: 'Moderate',
+//         factors: factors,
+//         recommendation: baseProb > 60 ? 'Favorable' : baseProb > 40 ? 'Neutral' : 'Unfavorable'
+//     };
+// }
 
 function identifyKOLs(results) {
     const kols = [];

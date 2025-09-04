@@ -400,6 +400,31 @@
         .timeline-table .col-actions { width: 20%; }
 
         </style>
+        <style>
+  /* Add animation for modal */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  .animate-fadeIn {
+    animation: fadeIn 0.3s ease-out;
+  }
+  
+  /* Ensure Tailwind utilities work */
+  .backdrop-blur-sm {
+    backdrop-filter: blur(4px);
+  }
+  
+  /* Loading spinner animation */
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+  
+  .animate-spin {
+    animation: spin 1s linear infinite;
+  }
+</style>
             <script>
 tailwind.config = {
     darkMode: 'class',
@@ -13933,10 +13958,10 @@ function buildClinicalTrialsQuery() {
         }
 
         function handleAdvancedKeyboardShortcuts(e) {
-            if (e.ctrlKey && e.key === 'Enter') {
-                e.preventDefault();
-                executeAdvancedSearch();
-            }
+            // if (e.ctrlKey && e.key === 'Enter') {
+            //     e.preventDefault();
+            //     executeAdvancedSearch();
+            // }
             
             if (e.ctrlKey && e.key === 's') {
                 e.preventDefault();
@@ -68602,6 +68627,344 @@ async function displayFdaClinicalData(condition) {
 // UPDATED: Fixed displayComprehensiveFdaData function
 // COMPLETE FIXED: displayComprehensiveFdaData function with Timeline Tab
 
+// function displayComprehensiveFdaData(fdaData, drugName) {
+//   // Check if we have valid data
+//   if (!fdaData || (!fdaData.raw && !fdaData.categorized) || 
+//       (Object.keys(fdaData.categorized || {}).length === 0 && 
+//        (!fdaData.raw?.combinedResults || fdaData.raw.combinedResults.length === 0))) {
+//     elements.fdaDocuments.innerHTML = `
+//       <div class="text-center p-4">
+//         <p class="text-sm text-gray-700">No FDA data found for "${drugName}"</p>
+//       </div>
+//     `;
+//     elements.fdaDocCount.textContent = "0 documents";
+//     return;
+//   }
+  
+//   // Extract endpoint data
+//   const endpointsData = fdaData.raw?.endpoints || {};
+  
+//   // FIXED: Proper count calculation
+//   const drugsCount = endpointsData.drugsFda?.count || 0;
+//   const labelCount = endpointsData.label?.data?.length || 0;
+//   const ndcCount = endpointsData.ndc?.data?.length || 0;
+//   const enforcementCount = endpointsData.enforcement?.data?.length || 0;
+//   const eventCount = endpointsData.event?.data?.length || 0;
+//   const totalDocuments = drugsCount + labelCount + ndcCount + enforcementCount + eventCount;
+  
+//   // Update the counter
+//   elements.fdaDocCount.textContent = `${totalDocuments} documents`;
+  
+//   // Store current drug name for timeline loading
+//   window.currentDrugName = drugName;
+  
+//   // Create HTML for the FDA data with Timeline tab FIRST
+//   let html = `
+//     <div class="mb-4 border-b border-gray-200">
+//       <ul class="flex flex-wrap -mb-px text-sm font-medium text-center" role="tablist">
+//         <li class="mr-2" role="presentation">
+//           <button class="fda-tab-button inline-block p-4 border-b-2 border-blue-500 rounded-t-lg active text-blue-600" 
+//                   id="applications-tab" 
+//                   data-tab="applications-content"
+//                   aria-selected="true">
+//             Drug Applications 
+//           </button>
+//         </li>
+//         <li class="mr-2" role="presentation">
+//           <button class="fda-tab-button inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300" 
+//                   id="timeline-tab" 
+//                   data-tab="timeline-content">
+//             📅 Timeline <span class="ml-1 px-1.5 py-0.5 bg-green-100 text-green-800 rounded-full text-xs" id="timeline-count">⏳</span>
+//           </button>
+//         </li>
+//         <li class="mr-2" role="presentation">
+//           <button class=" fda-tab-button inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300" 
+//                   id="label-tab" 
+//                   data-tab="label-content"
+//                   aria-selected="false">
+//             Labeling <span class="ml-1 px-1.5 py-0.5 bg-gray-100 text-gray-800 rounded-full text-xs">${labelCount}</span>
+//           </button>
+//         </li>
+//         <li class="mr-2" role="presentation">
+//           <button class=" fda-tab-button inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300" 
+//                   id="ndc-tab" 
+//                   data-tab="ndc-content"
+//                   aria-selected="false">
+//             NDC <span class="ml-1 px-1.5 py-0.5 bg-gray-100 text-gray-800 rounded-full text-xs">${ndcCount}</span>
+//           </button>
+//         </li>
+//         <li class="mr-2" role="presentation">
+//           <button class="fda-tab-button inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300" 
+//                   id="event-tab" 
+//                   data-tab="event-content"
+//                   aria-selected="false">
+//             Adverse Events <span class="ml-1 px-1.5 py-0.5 bg-gray-100 text-gray-800 rounded-full text-xs">${eventCount}</span>
+//           </button>
+//         </li>
+//         <li class="mr-2" role="presentation">
+//           <button class="fda-tab-button inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300" 
+//                   id="enforcement-tab" 
+//                   data-tab="enforcement-content"
+//                   aria-selected="false">
+//             Enforcement <span class="ml-1 px-1.5 py-0.5 bg-gray-100 text-gray-800 rounded-full text-xs">${enforcementCount}</span>
+//           </button>
+//         </li>
+//       </ul>
+//     </div>
+    
+//     <div class="tab-content">
+//   `;
+
+//   // 1. Drug Applications Content (default active)
+//   html += generateApplicationsContent(fdaData, drugName, drugsCount);
+
+//   // 2. TIMELINE CONTENT - The main fix!
+//   html += `
+//     <div id="timeline-content" class="fda-tab-pane hidden">
+//       <div class="flex justify-between items-center mb-4">
+//         <h3 class="text-lg font-medium text-gray-900">🕒 Regulatory Timeline Analysis</h3>
+//         <div class="flex items-center space-x-2">
+//           <span class="text-sm text-gray-500" id="timeline-status">Click to load timeline data...</span>
+//           <button id="refresh-timeline" class="px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600">
+//             🔄 Load Timeline
+//           </button>
+//         </div>
+//       </div>
+      
+//       <div id="timeline-container">
+//         <div class="flex flex-col items-center justify-center py-12 border-2 border-dashed border-gray-300 rounded-lg">
+//           <div class="text-gray-400 mb-4">
+//             <svg class="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+//               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+//             </svg>
+//           </div>
+//           <h4 class="text-lg font-medium text-gray-900 mb-2">Timeline Not Loaded</h4>
+//           <p class="text-gray-600 text-center mb-4">
+//             Click the "Load Timeline" button above to view regulatory events<br>
+//             for <strong>${drugName}</strong> in a horizontal timeline format.
+//           </p>
+//           <button onclick="loadFdaTimelineData('${drugName}')" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors">
+//             📊 Load Timeline Data
+//           </button>
+//         </div>
+//       </div>
+//     </div>
+//   `;
+
+//   // 3. Label Content
+//   html += generateLabelContent(endpointsData.label?.data || [], labelCount, drugName);
+
+//   // 4. NDC Content
+//   html += generateNdcContent(endpointsData.ndc?.data || [], ndcCount, drugName);
+
+//   // 5. Adverse Events Content
+//   html += generateEventContent(endpointsData.event?.data || [], eventCount, drugName);
+
+//   // 6. Enforcement Content
+//   html += generateEnforcementContent(endpointsData.enforcement?.data || [], enforcementCount, drugName);
+
+//   // Close tab content div
+//   html += `</div>`;
+
+//   // Set the HTML
+//   elements.fdaDocuments.innerHTML = html;
+
+//   // Initialize tab switching with timeline support
+//   initializeFDATabsWithTimeline(drugName);
+  
+//   // Initialize event listeners
+//   initializeFDAEventListeners(endpointsData, fdaData, drugName);
+  
+//   // Auto-load timeline in background after 2 seconds
+//   setTimeout(() => {
+//     console.log(`🔄 Auto-loading timeline for ${drugName} in background...`);
+//     loadFdaTimelineDataBackground(drugName);
+//   }, 2000);
+// }
+
+/**
+ * ENHANCED displayComprehensiveFdaData function
+ * This version keeps ALL your existing logic and adds the Approved Drugs tab
+ * Simply replace your existing function with this one
+ */
+
+// Helper function to extract approved drugs (keep this separate)
+function extractApprovedDrugs(fdaData, drugName) {
+  const approvedDrugs = [];
+  
+  // Extract from categorized data (applications)
+  if (fdaData.categorized && Object.keys(fdaData.categorized).length > 0) {
+    Object.entries(fdaData.categorized).forEach(([brandName, strengths]) => {
+      Object.entries(strengths).forEach(([strength, products]) => {
+        products.forEach(product => {
+          // Check if drug is approved (has approval date)
+          if (product.approvalDate && product.approvalDate !== 'Unknown') {
+            approvedDrugs.push({
+              brandName: product.brandName || brandName,
+              genericName: product.activeIngredients?.[0]?.name || drugName,
+              applicationNumber: product.applicationNumber,
+              strength: strength,
+              dosageForm: product.dosageForm || 'Not specified',
+              route: product.route || 'Not specified',
+              manufacturer: product.manufacturerName || product.sponsorName || 'Unknown',
+              approvalDate: product.approvalDate,
+              applicationStatus: product.applicationStatus || 'Approved',
+              marketingStatus: product.marketingStatus || 'Prescription',
+              teCode: product.teCode || 'Not specified'
+            });
+          }
+        });
+      });
+    });
+  }
+  
+  // Extract additional info from label data
+  const labelData = fdaData.raw?.endpoints?.label?.data || [];
+  labelData.forEach(label => {
+    if (label.openfda) {
+      const brandNames = label.openfda.brand_name || [];
+      const genericNames = label.openfda.generic_name || [];
+      const manufacturers = label.openfda.manufacturer_name || [];
+      const applicationNumbers = label.openfda.application_number || [];
+      const routes = label.openfda.route || [];
+      const dosageForms = label.dosage_forms_and_strengths || [];
+      
+      brandNames.forEach((brandName, index) => {
+        // Check if we already have this drug
+        const existingDrug = approvedDrugs.find(d => 
+          d.brandName === brandName || 
+          (applicationNumbers[index] && d.applicationNumber === applicationNumbers[index])
+        );
+        
+        if (!existingDrug) {
+          approvedDrugs.push({
+            brandName: brandName,
+            genericName: genericNames[index] || drugName,
+            applicationNumber: applicationNumbers[index] || 'Not specified',
+            strength: 'Various',
+            dosageForm: dosageForms[0] || 'Not specified',
+            route: routes[0] || 'Not specified',
+            manufacturer: manufacturers[0] || 'Unknown',
+            approvalDate: 'Approved',
+            applicationStatus: 'Approved',
+            marketingStatus: 'Active',
+            teCode: 'Not specified'
+          });
+        }
+      });
+    }
+  });
+  
+  // Remove duplicates and sort by approval date
+  const uniqueDrugs = [];
+  const seen = new Set();
+  
+  approvedDrugs.forEach(drug => {
+    const key = `${drug.brandName}-${drug.strength}-${drug.applicationNumber}`;
+    if (!seen.has(key)) {
+      seen.add(key);
+      uniqueDrugs.push(drug);
+    }
+  });
+  
+  // Sort by approval date (newest first)
+  uniqueDrugs.sort((a, b) => {
+    if (a.approvalDate === 'Unknown' || a.approvalDate === 'Approved') return 1;
+    if (b.approvalDate === 'Unknown' || b.approvalDate === 'Approved') return -1;
+    return new Date(b.approvalDate) - new Date(a.approvalDate);
+  });
+  
+  return uniqueDrugs;
+}
+
+// Generate Approved Drugs Content
+function generateApprovedDrugsContent(approvedDrugs, drugName) {
+  let html = `
+    <div id="approved-drugs-content" class="fda-tab-pane hidden">
+      <div class="mb-4">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-lg font-medium text-gray-900">Approved Drug Products</h3>
+          <span class="text-sm text-gray-500">${approvedDrugs.length} approved products found</span>
+        </div>
+        
+        <!-- Search and Filter Bar -->
+        <div class="flex gap-2 mb-4">
+          <input 
+            type="text" 
+            id="approved-drugs-search" 
+            placeholder="Search by brand, generic, or manufacturer..." 
+            class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+          <select id="approved-drugs-filter" class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="all">All Products</option>
+            <option value="prescription">Prescription</option>
+            <option value="otc">OTC</option>
+          </select>
+        </div>
+      </div>
+  `;
+  
+  if (approvedDrugs.length > 0) {
+    html += `
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Brand Name</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Generic Name</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Company</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Strength</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dosage Form</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Approval Date</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200" id="approved-drugs-tbody">
+    `;
+    
+    approvedDrugs.forEach((drug, index) => {
+      html += `
+        <tr class="hover:bg-gray-50 approved-drug-row" data-brand="${drug.brandName}" data-generic="${drug.genericName}" data-manufacturer="${drug.manufacturer}">
+          <td class="px-4 py-3 text-sm font-medium text-gray-900">${drug.brandName}</td>
+          <td class="px-4 py-3 text-sm text-gray-500">${drug.genericName}</td>
+          <td class="px-4 py-3 text-sm text-gray-500">${drug.manufacturer}</td>
+          <td class="px-4 py-3 text-sm text-gray-500">${drug.strength}</td>
+          <td class="px-4 py-3 text-sm text-gray-500">${drug.dosageForm}</td>
+          <td class="px-4 py-3 text-sm text-gray-500">${drug.approvalDate}</td>
+          <td class="px-4 py-3 text-sm">
+            <button 
+              class="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition view-drug-details-btn"
+              data-drug-index="${index}"
+              data-drug-name="${drug.brandName}"
+            >
+              View Details
+            </button>
+          </td>
+        </tr>
+      `;
+    });
+    
+    html += `
+          </tbody>
+        </table>
+      </div>
+    `;
+  } else {
+    html += `
+      <div class="text-center p-8 bg-gray-50 rounded-lg">
+        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+        </svg>
+        <p class="mt-2 text-sm text-gray-700">No approved drug products found for "${drugName}"</p>
+      </div>
+    `;
+  }
+  
+  html += `</div>`;
+  return html;
+}
+
+// ENHANCED displayComprehensiveFdaData function
 function displayComprehensiveFdaData(fdaData, drugName) {
   // Check if we have valid data
   if (!fdaData || (!fdaData.raw && !fdaData.categorized) || 
@@ -68633,7 +68996,11 @@ function displayComprehensiveFdaData(fdaData, drugName) {
   // Store current drug name for timeline loading
   window.currentDrugName = drugName;
   
-  // Create HTML for the FDA data with Timeline tab FIRST
+  // Extract approved drugs for the new tab
+  const approvedDrugs = extractApprovedDrugs(fdaData, drugName);
+  window.approvedDrugsData = approvedDrugs; // Store globally for modal access
+  
+  // Create HTML for the FDA data with Timeline tab and NEW Approved Drugs tab
   let html = `
     <div class="mb-4 border-b border-gray-200">
       <ul class="flex flex-wrap -mb-px text-sm font-medium text-center" role="tablist">
@@ -68647,13 +69014,22 @@ function displayComprehensiveFdaData(fdaData, drugName) {
         </li>
         <li class="mr-2" role="presentation">
           <button class="fda-tab-button inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300" 
-                  id="timeline-tab" 
-                  data-tab="timeline-content">
-            📅 Timeline <span class="ml-1 px-1.5 py-0.5 bg-green-100 text-green-800 rounded-full text-xs" id="timeline-count">⏳</span>
+                  id="approved-drugs-tab" 
+                  data-tab="approved-drugs-content"
+                  aria-selected="false">
+            Approved Drugs <span class="ml-1 px-1.5 py-0.5 bg-green-100 text-green-800 rounded-full text-xs">${approvedDrugs.length}</span>
           </button>
         </li>
         <li class="mr-2" role="presentation">
-          <button class=" fda-tab-button inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300" 
+          <button class="fda-tab-button inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300" 
+                  id="timeline-tab" 
+                  data-tab="timeline-content"
+                  aria-selected="false">
+            Timeline <span class="ml-1 px-1.5 py-0.5 bg-gray-100 text-gray-800 rounded-full text-xs" id="timeline-count">0</span>
+          </button>
+        </li>
+        <li class="mr-2" role="presentation">
+          <button class="fda-tab-button inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300" 
                   id="label-tab" 
                   data-tab="label-content"
                   aria-selected="false">
@@ -68661,7 +69037,7 @@ function displayComprehensiveFdaData(fdaData, drugName) {
           </button>
         </li>
         <li class="mr-2" role="presentation">
-          <button class=" fda-tab-button inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300" 
+          <button class="fda-tab-button inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300" 
                   id="ndc-tab" 
                   data-tab="ndc-content"
                   aria-selected="false">
@@ -68670,13 +69046,13 @@ function displayComprehensiveFdaData(fdaData, drugName) {
         </li>
         <li class="mr-2" role="presentation">
           <button class="fda-tab-button inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300" 
-                  id="event-tab" 
+                  id="events-tab" 
                   data-tab="event-content"
                   aria-selected="false">
             Adverse Events <span class="ml-1 px-1.5 py-0.5 bg-gray-100 text-gray-800 rounded-full text-xs">${eventCount}</span>
           </button>
         </li>
-        <li class="mr-2" role="presentation">
+        <li role="presentation">
           <button class="fda-tab-button inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300" 
                   id="enforcement-tab" 
                   data-tab="enforcement-content"
@@ -68690,14 +69066,17 @@ function displayComprehensiveFdaData(fdaData, drugName) {
     <div class="tab-content">
   `;
 
-  // 1. Drug Applications Content (default active)
+  // 1. Drug Applications Content (default active) - YOUR EXISTING CODE
   html += generateApplicationsContent(fdaData, drugName, drugsCount);
 
-  // 2. TIMELINE CONTENT - The main fix!
+  // 2. NEW APPROVED DRUGS TAB CONTENT
+  html += generateApprovedDrugsContent(approvedDrugs, drugName);
+
+  // 3. TIMELINE CONTENT - YOUR EXISTING CODE
   html += `
     <div id="timeline-content" class="fda-tab-pane hidden">
       <div class="flex justify-between items-center mb-4">
-        <h3 class="text-lg font-medium text-gray-900">🕒 Regulatory Timeline Analysis</h3>
+        <h3 class="text-lg font-medium text-gray-900">🕐 Regulatory Timeline Analysis</h3>
         <div class="flex items-center space-x-2">
           <span class="text-sm text-gray-500" id="timeline-status">Click to load timeline data...</span>
           <button id="refresh-timeline" class="px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600">
@@ -68726,16 +69105,16 @@ function displayComprehensiveFdaData(fdaData, drugName) {
     </div>
   `;
 
-  // 3. Label Content
+  // 4. Label Content - YOUR EXISTING CODE
   html += generateLabelContent(endpointsData.label?.data || [], labelCount, drugName);
 
-  // 4. NDC Content
+  // 5. NDC Content - YOUR EXISTING CODE
   html += generateNdcContent(endpointsData.ndc?.data || [], ndcCount, drugName);
 
-  // 5. Adverse Events Content
+  // 6. Adverse Events Content - YOUR EXISTING CODE
   html += generateEventContent(endpointsData.event?.data || [], eventCount, drugName);
 
-  // 6. Enforcement Content
+  // 7. Enforcement Content - YOUR EXISTING CODE
   html += generateEnforcementContent(endpointsData.enforcement?.data || [], enforcementCount, drugName);
 
   // Close tab content div
@@ -68744,20 +69123,378 @@ function displayComprehensiveFdaData(fdaData, drugName) {
   // Set the HTML
   elements.fdaDocuments.innerHTML = html;
 
-  // Initialize tab switching with timeline support
+  // Initialize tab switching with timeline support - YOUR EXISTING CODE
   initializeFDATabsWithTimeline(drugName);
   
-  // Initialize event listeners
+  // Initialize event listeners - YOUR EXISTING CODE
   initializeFDAEventListeners(endpointsData, fdaData, drugName);
   
-  // Auto-load timeline in background after 2 seconds
+  // Setup approved drugs tab listeners
+  setupApprovedDrugsEventListeners();
+  
+  // Auto-load timeline in background after 2 seconds - YOUR EXISTING CODE
   setTimeout(() => {
     console.log(`🔄 Auto-loading timeline for ${drugName} in background...`);
     loadFdaTimelineDataBackground(drugName);
   }, 2000);
 }
 
+// Setup event listeners for Approved Drugs tab
+function setupApprovedDrugsEventListeners() {
+  // Search functionality
+  const searchInput = document.getElementById('approved-drugs-search');
+  if (searchInput) {
+    searchInput.addEventListener('input', function() {
+      const searchTerm = this.value.toLowerCase();
+      const rows = document.querySelectorAll('.approved-drug-row');
+      
+      rows.forEach(row => {
+        const brand = row.getAttribute('data-brand').toLowerCase();
+        const generic = row.getAttribute('data-generic').toLowerCase();
+        const manufacturer = row.getAttribute('data-manufacturer').toLowerCase();
+        
+        if (brand.includes(searchTerm) || generic.includes(searchTerm) || manufacturer.includes(searchTerm)) {
+          row.style.display = '';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+    });
+  }
+  
+  // Filter functionality
+  const filterSelect = document.getElementById('approved-drugs-filter');
+  if (filterSelect) {
+    filterSelect.addEventListener('change', function() {
+      const filterValue = this.value;
+      const rows = document.querySelectorAll('.approved-drug-row');
+      
+      rows.forEach(row => {
+        if (filterValue === 'all') {
+          row.style.display = '';
+        }
+        // Add more filter conditions as needed
+      });
+    });
+  }
+  
+  // View Details buttons
+  document.querySelectorAll('.view-drug-details-btn').forEach(button => {
+    button.addEventListener('click', function() {
+      const drugIndex = parseInt(this.getAttribute('data-drug-index'));
+      openDrugDetailsModal(drugIndex);
+    });
+  });
+}
 
+// Drug details modal function
+function openDrugDetailsModal(drugIndex) {
+  const drug = window.approvedDrugsData[drugIndex];
+  if (!drug) return;
+  
+  const fdaData = window.fdaData;
+  const endpointsData = fdaData.raw?.endpoints || {};
+  
+  // Find related NDC codes
+  const ndcData = endpointsData.ndc?.data || [];
+  const relatedNDCs = ndcData.filter(ndc => 
+    ndc.brand_name === drug.brandName || 
+    ndc.generic_name === drug.genericName
+  ).slice(0, 10);
+  
+  // Find related adverse events
+  const eventData = endpointsData.event?.data || [];
+  const relatedEvents = eventData.filter(event => 
+    event.patient?.drug?.some(d => 
+      d.medicinalproduct?.includes(drug.brandName) || 
+      d.medicinalproduct?.includes(drug.genericName)
+    )
+  ).slice(0, 5);
+  
+  // Find related enforcement actions
+  const enforcementData = endpointsData.enforcement?.data || [];
+  const relatedEnforcement = enforcementData.filter(enf => 
+    enf.product_description?.includes(drug.brandName) || 
+    enf.product_description?.includes(drug.genericName)
+  ).slice(0, 5);
+  
+  // Find label information
+  const labelData = endpointsData.label?.data || [];
+  const relatedLabel = labelData.find(label => 
+    label.openfda?.brand_name?.includes(drug.brandName) ||
+    label.openfda?.generic_name?.includes(drug.genericName)
+  );
+  
+  const modalContent = `
+    <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" id="drug-details-modal">
+      <div class="bg-white rounded-lg shadow-xl w-11/12 max-w-6xl max-h-[90vh] overflow-hidden">
+        <div class="p-4 border-b bg-gradient-to-r from-blue-500 to-blue-600 text-white">
+          <div class="flex justify-between items-start">
+            <div>
+              <h2 class="text-2xl font-bold">${drug.brandName}</h2>
+              <p class="text-blue-100">${drug.genericName} • ${drug.applicationNumber}</p>
+            </div>
+            <button onclick="closeDrugDetailsModal()" class="text-white hover:text-blue-100">
+              <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+        
+        <div class="overflow-y-auto" style="max-height: calc(90vh - 100px);">
+          <!-- Quick Stats -->
+          <div class="p-6 bg-gray-50 border-b">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div>
+                <p class="text-xs text-gray-500 uppercase">Manufacturer</p>
+                <p class="text-sm font-semibold text-gray-900">${drug.manufacturer}</p>
+              </div>
+              <div>
+                <p class="text-xs text-gray-500 uppercase">Approval Date</p>
+                <p class="text-sm font-semibold text-gray-900">${drug.approvalDate}</p>
+              </div>
+              <div>
+                <p class="text-xs text-gray-500 uppercase">Dosage Form</p>
+                <p class="text-sm font-semibold text-gray-900">${drug.dosageForm}</p>
+              </div>
+              <div>
+                <p class="text-xs text-gray-500 uppercase">Route</p>
+                <p class="text-sm font-semibold text-gray-900">${drug.route}</p>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Tabs for detailed information -->
+          <div class="p-6">
+            <div class="border-b border-gray-200 mb-4">
+              <ul class="flex flex-wrap -mb-px text-sm font-medium text-center" role="tablist">
+                <li class="mr-2">
+                  <button class="drug-modal-tab inline-block p-4 border-b-2 border-blue-500 text-blue-600 active" 
+                          onclick="switchDrugModalTab('overview')">
+                    Overview
+                  </button>
+                </li>
+                <li class="mr-2">
+                  <button class="drug-modal-tab inline-block p-4 border-b-2 border-transparent hover:text-gray-600 hover:border-gray-300" 
+                          onclick="switchDrugModalTab('ndc')">
+                    NDC Codes ${relatedNDCs.length > 0 ? `(${relatedNDCs.length})` : ''}
+                  </button>
+                </li>
+                <li class="mr-2">
+                  <button class="drug-modal-tab inline-block p-4 border-b-2 border-transparent hover:text-gray-600 hover:border-gray-300" 
+                          onclick="switchDrugModalTab('safety')">
+                    Safety & Adverse Events ${relatedEvents.length > 0 ? `(${relatedEvents.length})` : ''}
+                  </button>
+                </li>
+                <li class="mr-2">
+                  <button class="drug-modal-tab inline-block p-4 border-b-2 border-transparent hover:text-gray-600 hover:border-gray-300" 
+                          onclick="switchDrugModalTab('enforcement')">
+                    Enforcement ${relatedEnforcement.length > 0 ? `(${relatedEnforcement.length})` : ''}
+                  </button>
+                </li>
+                <li class="mr-2">
+                  <button class="drug-modal-tab inline-block p-4 border-b-2 border-transparent hover:text-gray-600 hover:border-gray-300" 
+                          onclick="switchDrugModalTab('labeling')">
+                    Labeling Info
+                  </button>
+                </li>
+              </ul>
+            </div>
+            
+            <!-- Tab Content -->
+            <div id="drug-modal-content">
+              <!-- Overview Tab -->
+              <div id="drug-tab-overview" class="drug-modal-tab-content">
+                <div class="space-y-4">
+                  <div class="bg-white p-4 rounded-lg border border-gray-200">
+                    <h3 class="font-semibold text-gray-900 mb-2">Application Information</h3>
+                    <dl class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <dt class="text-sm text-gray-500">Application Number</dt>
+                        <dd class="text-sm font-medium text-gray-900">${drug.applicationNumber}</dd>
+                      </div>
+                      <div>
+                        <dt class="text-sm text-gray-500">Application Status</dt>
+                        <dd class="text-sm font-medium text-gray-900">${drug.applicationStatus}</dd>
+                      </div>
+                      <div>
+                        <dt class="text-sm text-gray-500">Marketing Status</dt>
+                        <dd class="text-sm font-medium text-gray-900">${drug.marketingStatus}</dd>
+                      </div>
+                      <div>
+                        <dt class="text-sm text-gray-500">TE Code</dt>
+                        <dd class="text-sm font-medium text-gray-900">${drug.teCode}</dd>
+                      </div>
+                    </dl>
+                  </div>
+                  
+                  ${relatedLabel ? `
+                  <div class="bg-white p-4 rounded-lg border border-gray-200">
+                    <h3 class="font-semibold text-gray-900 mb-2">Indications and Usage</h3>
+                    <p class="text-sm text-gray-700">${relatedLabel.indications_and_usage?.[0] || 'Not available'}</p>
+                  </div>
+                  
+                  ${relatedLabel.boxed_warning ? `
+                  <div class="bg-red-50 p-4 rounded-lg border border-red-200">
+                    <h3 class="font-semibold text-red-900 mb-2">⚠️ Boxed Warning</h3>
+                    <p class="text-sm text-red-700">${relatedLabel.boxed_warning[0]}</p>
+                  </div>
+                  ` : ''}
+                  ` : ''}
+                </div>
+              </div>
+              
+              <!-- NDC Codes Tab -->
+              <div id="drug-tab-ndc" class="drug-modal-tab-content hidden">
+                ${relatedNDCs.length > 0 ? `
+                  <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                      <thead class="bg-gray-50">
+                        <tr>
+                          <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">NDC Code</th>
+                          <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Package</th>
+                          <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Labeler</th>
+                        </tr>
+                      </thead>
+                      <tbody class="bg-white divide-y divide-gray-200">
+                        ${relatedNDCs.map(ndc => `
+                          <tr>
+                            <td class="px-4 py-2 text-sm text-gray-900">${ndc.product_ndc || 'N/A'}</td>
+                            <td class="px-4 py-2 text-sm text-gray-500">${ndc.package_ndc?.join(', ') || 'N/A'}</td>
+                            <td class="px-4 py-2 text-sm text-gray-500">${ndc.labeler_name || 'N/A'}</td>
+                          </tr>
+                        `).join('')}
+                      </tbody>
+                    </table>
+                  </div>
+                ` : '<p class="text-gray-500">No NDC codes found for this product.</p>'}
+              </div>
+              
+              <!-- Safety Tab -->
+              <div id="drug-tab-safety" class="drug-modal-tab-content hidden">
+                ${relatedEvents.length > 0 ? `
+                  <div class="space-y-3">
+                    ${relatedEvents.map(event => `
+                      <div class="bg-white p-4 rounded-lg border border-gray-200">
+                        <div class="flex justify-between items-start mb-2">
+                          <span class="text-sm font-semibold text-gray-900">Event ID: ${event.safetyreportid || 'N/A'}</span>
+                          <span class="text-xs text-gray-500">${event.receiptdate || 'Date unknown'}</span>
+                        </div>
+                        <p class="text-sm text-gray-700 mb-2">
+                          <strong>Outcome:</strong> ${event.serious === '1' ? '⚠️ Serious' : 'Non-serious'}
+                        </p>
+                        ${event.patient?.reaction ? `
+                          <p class="text-sm text-gray-700">
+                            <strong>Reactions:</strong> ${event.patient.reaction.slice(0, 3).map(r => r.reactionmeddrapt).join(', ')}
+                          </p>
+                        ` : ''}
+                      </div>
+                    `).join('')}
+                  </div>
+                ` : '<p class="text-gray-500">No adverse events reported for this product.</p>'}
+              </div>
+              
+              <!-- Enforcement Tab -->
+              <div id="drug-tab-enforcement" class="drug-modal-tab-content hidden">
+                ${relatedEnforcement.length > 0 ? `
+                  <div class="space-y-3">
+                    ${relatedEnforcement.map(enf => `
+                      <div class="bg-white p-4 rounded-lg border ${enf.classification?.includes('I') ? 'border-red-300 bg-red-50' : 'border-gray-200'}">
+                        <div class="flex justify-between items-start mb-2">
+                          <span class="px-2 py-1 text-xs font-semibold rounded ${
+                            enf.classification?.includes('I') ? 'bg-red-100 text-red-800' : 
+                            enf.classification?.includes('II') ? 'bg-yellow-100 text-yellow-800' : 
+                            'bg-gray-100 text-gray-800'
+                          }">
+                            ${enf.classification || 'Unclassified'}
+                          </span>
+                          <span class="text-xs text-gray-500">${enf.recall_initiation_date || 'Date unknown'}</span>
+                        </div>
+                        <p class="text-sm text-gray-700 mb-2">
+                          <strong>Reason:</strong> ${enf.reason_for_recall || 'Not specified'}
+                        </p>
+                        <p class="text-sm text-gray-700">
+                          <strong>Status:</strong> ${enf.status || 'Unknown'}
+                        </p>
+                      </div>
+                    `).join('')}
+                  </div>
+                ` : '<p class="text-gray-500">No enforcement actions found for this product.</p>'}
+              </div>
+              
+              <!-- Labeling Tab -->
+              <div id="drug-tab-labeling" class="drug-modal-tab-content hidden">
+                ${relatedLabel ? `
+                  <div class="space-y-4">
+                    <div class="bg-white p-4 rounded-lg border border-gray-200">
+                      <h4 class="font-semibold text-gray-900 mb-2">Dosage and Administration</h4>
+                      <p class="text-sm text-gray-700">${relatedLabel.dosage_and_administration?.[0] || 'Not available'}</p>
+                    </div>
+                    
+                    <div class="bg-white p-4 rounded-lg border border-gray-200">
+                      <h4 class="font-semibold text-gray-900 mb-2">Contraindications</h4>
+                      <p class="text-sm text-gray-700">${relatedLabel.contraindications?.[0] || 'Not available'}</p>
+                    </div>
+                    
+                    <div class="bg-white p-4 rounded-lg border border-gray-200">
+                      <h4 class="font-semibold text-gray-900 mb-2">Warnings and Precautions</h4>
+                      <p class="text-sm text-gray-700">${relatedLabel.warnings_and_cautions?.[0] || relatedLabel.warnings?.[0] || 'Not available'}</p>
+                    </div>
+                    
+                    <div class="bg-white p-4 rounded-lg border border-gray-200">
+                      <h4 class="font-semibold text-gray-900 mb-2">Storage and Handling</h4>
+                      <p class="text-sm text-gray-700">${relatedLabel.storage_and_handling?.[0] || 'Not available'}</p>
+                    </div>
+                  </div>
+                ` : '<p class="text-gray-500">No labeling information available for this product.</p>'}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  // Add modal to the page
+  const modalDiv = document.createElement('div');
+  modalDiv.innerHTML = modalContent;
+  document.body.appendChild(modalDiv);
+}
+
+// Function to close the drug details modal
+function closeDrugDetailsModal() {
+  const modal = document.getElementById('drug-details-modal');
+  if (modal) {
+    modal.remove();
+  }
+}
+
+// Function to switch tabs in the modal
+function switchDrugModalTab(tabName) {
+  // Hide all tab contents
+  document.querySelectorAll('.drug-modal-tab-content').forEach(content => {
+    content.classList.add('hidden');
+  });
+  
+  // Remove active class from all tabs
+  document.querySelectorAll('.drug-modal-tab').forEach(tab => {
+    tab.classList.remove('border-blue-500', 'text-blue-600', 'active');
+    tab.classList.add('border-transparent');
+  });
+  
+  // Show selected tab content
+  const selectedContent = document.getElementById(`drug-tab-${tabName}`);
+  if (selectedContent) {
+    selectedContent.classList.remove('hidden');
+  }
+  
+  // Add active class to clicked tab
+  event.target.classList.remove('border-transparent');
+  event.target.classList.add('border-blue-500', 'text-blue-600', 'active');
+}
+
+console.log('✅ Enhanced displayComprehensiveFdaData with Approved Drugs tab loaded');
 
 
 // Add this new function to handle serious events modal
@@ -70377,240 +71114,1430 @@ function openSimpleDetailsModal(applicationNumber, brandName, ingredient) {
 }
 
 
-function openSimpleNdcModal(ndcData) {
-  const modalContent = `
-    <div class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" id="simple-modal">
-      <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
-        <div class="mt-3">
-          <div class="flex justify-between items-center mb-4">
-            <h3 class="text-lg font-medium text-gray-900">NDC Details</h3>
-            <button class="text-gray-400 hover:text-gray-600" onclick="closeSimpleModal()">
-              <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-              </svg>
-            </button>
-          </div>
-          <div class="space-y-4">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <p><strong>Product NDC:</strong> ${ndcData.product_ndc || 'N/A'}</p>
-                <p><strong>Package NDC:</strong> ${ndcData.package_ndc || 'N/A'}</p>
-                <p><strong>Brand Name:</strong> ${ndcData.brand_name || 'Unknown'}</p>
-              </div>
-              <div>
-                <p><strong>Generic Name:</strong> ${ndcData.generic_name || 'Unknown'}</p>
-                <p><strong>Labeler Name:</strong> ${ndcData.labeler_name || 'Unknown'}</p>
-                <p><strong>Product Type:</strong> ${ndcData.product_type_name || 'Unknown'}</p>
-              </div>
-            </div>
+// function openSimpleNdcModal(ndcData) {
+//   const modalContent = `
+//     <div class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" id="simple-modal">
+//       <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
+//         <div class="mt-3">
+//           <div class="flex justify-between items-center mb-4">
+//             <h3 class="text-lg font-medium text-gray-900">NDC Details</h3>
+//             <button class="text-gray-400 hover:text-gray-600" onclick="closeSimpleModal()">
+//               <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+//                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+//               </svg>
+//             </button>
+//           </div>
+//           <div class="space-y-4">
+//             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+//               <div>
+//                 <p><strong>Product NDC:</strong> ${ndcData.product_ndc || 'N/A'}</p>
+//                 <p><strong>Package NDC:</strong> ${ndcData.package_ndc || 'N/A'}</p>
+//                 <p><strong>Brand Name:</strong> ${ndcData.brand_name || 'Unknown'}</p>
+//               </div>
+//               <div>
+//                 <p><strong>Generic Name:</strong> ${ndcData.generic_name || 'Unknown'}</p>
+//                 <p><strong>Labeler Name:</strong> ${ndcData.labeler_name || 'Unknown'}</p>
+//                 <p><strong>Product Type:</strong> ${ndcData.product_type_name || 'Unknown'}</p>
+//               </div>
+//             </div>
             
-            ${ndcData.active_ingredients ? `
-              <div>
-                <h4 class="font-medium text-gray-900 mb-2">Active Ingredients:</h4>
-                <div class="bg-gray-50 p-3 rounded">
-                  ${ndcData.active_ingredients.map(ing => 
-                    `<p class="text-sm">${ing.name} - ${ing.strength}</p>`
-                  ).join('')}
-                </div>
-              </div>
-            ` : ''}
+//             ${ndcData.active_ingredients ? `
+//               <div>
+//                 <h4 class="font-medium text-gray-900 mb-2">Active Ingredients:</h4>
+//                 <div class="bg-gray-50 p-3 rounded">
+//                   ${ndcData.active_ingredients.map(ing => 
+//                     `<p class="text-sm">${ing.name} - ${ing.strength}</p>`
+//                   ).join('')}
+//                 </div>
+//               </div>
+//             ` : ''}
             
-            ${ndcData.packaging ? `
-              <div>
-                <h4 class="font-medium text-gray-900 mb-2">Packaging:</h4>
-                <div class="bg-gray-50 p-3 rounded text-sm">
-                  ${JSON.stringify(ndcData.packaging, null, 2)}
-                </div>
-              </div>
-            ` : ''}
-          </div>
-          <div class="flex justify-end mt-6">
-            <button onclick="closeSimpleModal()" class="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300">
-              Close
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  `;
+//             ${ndcData.packaging ? `
+//               <div>
+//                 <h4 class="font-medium text-gray-900 mb-2">Packaging:</h4>
+//                 <div class="bg-gray-50 p-3 rounded text-sm">
+//                   ${JSON.stringify(ndcData.packaging, null, 2)}
+//                 </div>
+//               </div>
+//             ` : ''}
+//           </div>
+//           <div class="flex justify-end mt-6">
+//             <button onclick="closeSimpleModal()" class="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300">
+//               Close
+//             </button>
+//           </div>
+//         </div>
+//       </div>
+//     </div>
+//   `;
   
-  document.body.insertAdjacentHTML('beforeend', modalContent);
-}
+//   document.body.insertAdjacentHTML('beforeend', modalContent);
+// }
+
+
+
+// function openSimpleEventModal(eventData) {
+//   const modalContent = `
+//     <div class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" id="simple-modal">
+//       <div class="relative top-10 mx-auto p-5 border w-11/12 md:w-4/5 lg:w-3/4 shadow-lg rounded-md bg-white max-h-screen overflow-y-auto">
+//         <div class="mt-3">
+//           <div class="flex justify-between items-center mb-4">
+//             <h3 class="text-lg font-medium text-gray-900">Adverse Event Report</h3>
+//             <button class="text-gray-400 hover:text-gray-600" onclick="closeSimpleModal()">
+//               <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+//                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+//               </svg>
+//             </button>
+//           </div>
+//           <div class="space-y-6">
+//             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+//               <div>
+//                 <p><strong>Receipt Date:</strong> ${eventData.receiptdate || 'Unknown'}</p>
+//                 <p><strong>Report Source:</strong> ${eventData.primarysource?.qualification || 'Unknown'}</p>
+//                 <p><strong>Serious:</strong> 
+//                   <span class="px-2 py-1 text-xs rounded-full ${eventData.serious ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}">
+//                     ${eventData.serious ? 'Yes' : 'No'}
+//                   </span>
+//                 </p>
+//               </div>
+//               <div>
+//                 <p><strong>Country:</strong> ${eventData.primarysourcecountry || 'Unknown'}</p>
+//                 <p><strong>Report Type:</strong> ${eventData.reporttype || 'Unknown'}</p>
+//                 <p><strong>Outcome:</strong> ${eventData.patient?.reaction?.[0]?.reactionoutcome || 'Unknown'}</p>
+//               </div>
+//             </div>
+            
+//             ${eventData.patient?.drug ? `
+//               <div>
+//                 <h4 class="font-medium text-gray-900 mb-2">Drug Information:</h4>
+//                 <div class="bg-gray-50 p-3 rounded max-h-40 overflow-y-auto">
+//                   ${eventData.patient.drug.slice(0, 3).map(drug => `
+//                     <div class="text-sm mb-2 p-2 bg-white rounded">
+//                       <p><strong>Product:</strong> ${drug.medicinalproduct || 'Unknown'}</p>
+//                       <p><strong>Indication:</strong> ${drug.drugindication || 'Not specified'}</p>
+//                       <p><strong>Dosage:</strong> ${drug.drugdosagetext || 'Not specified'}</p>
+//                     </div>
+//                   `).join('')}
+//                 </div>
+//               </div>
+//             ` : ''}
+            
+//             ${eventData.patient?.reaction ? `
+//               <div>
+//                 <h4 class="font-medium text-gray-900 mb-2">Reactions:</h4>
+//                 <div class="bg-red-50 p-3 rounded max-h-40 overflow-y-auto">
+//                   ${eventData.patient.reaction.slice(0, 5).map(reaction => `
+//                     <div class="text-sm mb-1 p-2 bg-white rounded">
+//                       <p><strong>Reaction:</strong> ${reaction.reactionmeddrapt || 'Unknown'}</p>
+//                       <p><strong>Outcome:</strong> ${reaction.reactionoutcome || 'Unknown'}</p>
+//                     </div>
+//                   `).join('')}
+//                 </div>
+//               </div>
+//             ` : ''}
+            
+//             ${eventData.patient ? `
+//               <div>
+//                 <h4 class="font-medium text-gray-900 mb-2">Patient Information:</h4>
+//                 <div class="bg-blue-50 p-3 rounded">
+//                   <p class="text-sm"><strong>Age:</strong> ${eventData.patient.patientonsetage || 'Unknown'} ${eventData.patient.patientonsetageunit || ''}</p>
+//                   <p class="text-sm"><strong>Sex:</strong> ${eventData.patient.patientsex === '1' ? 'Male' : eventData.patient.patientsex === '2' ? 'Female' : 'Unknown'}</p>
+//                   <p class="text-sm"><strong>Weight:</strong> ${eventData.patient.patientweight || 'Unknown'} ${eventData.patient.patientweightunit || ''}</p>
+//                 </div>
+//               </div>
+//             ` : ''}
+//           </div>
+//           <div class="flex justify-end mt-6">
+//             <button onclick="closeSimpleModal()" class="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300">
+//               Close
+//             </button>
+//           </div>
+//         </div>
+//       </div>
+//     </div>
+//   `;
+  
+//   document.body.insertAdjacentHTML('beforeend', modalContent);
+// }
 
 function openSimpleEventModal(eventData) {
+  // Helper function to get severity details
+  const getSeverityInfo = () => {
+    const severityReasons = [];
+    if (eventData.seriousnessdeath === '1') severityReasons.push('Death');
+    if (eventData.seriousnesslifethreatening === '1') severityReasons.push('Life-threatening');
+    if (eventData.seriousnesshospitalization === '1') severityReasons.push('Hospitalization');
+    if (eventData.seriousnessdisabling === '1') severityReasons.push('Disability');
+    if (eventData.seriousnesscongenitalanomali === '1') severityReasons.push('Congenital Anomaly');
+    if (eventData.seriousnessother === '1') severityReasons.push('Other Serious');
+    return severityReasons;
+  };
+
+  // Helper function to format date
+  const formatDate = (dateStr) => {
+    if (!dateStr) return 'Not specified';
+    const year = dateStr.substring(0, 4);
+    const month = dateStr.substring(4, 6);
+    const day = dateStr.substring(6, 8);
+    return new Date(`${year}-${month}-${day}`).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+
+  // Helper function to get outcome description
+  const getOutcomeText = (code) => {
+    const outcomes = {
+      '1': 'Recovered/Resolved',
+      '2': 'Recovering/Resolving',
+      '3': 'Not Recovered/Not Resolved',
+      '4': 'Recovered/Resolved with Sequelae',
+      '5': 'Fatal',
+      '6': 'Unknown'
+    };
+    return outcomes[code] || 'Not specified';
+  };
+
+  // Get severity information
+  const severityReasons = getSeverityInfo();
+  const isSerious = eventData.serious === '1' || eventData.serious === 1;
+
   const modalContent = `
-    <div class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" id="simple-modal">
-      <div class="relative top-10 mx-auto p-5 border w-11/12 md:w-4/5 lg:w-3/4 shadow-lg rounded-md bg-white max-h-screen overflow-y-auto">
-        <div class="mt-3">
-          <div class="flex justify-between items-center mb-4">
-            <h3 class="text-lg font-medium text-gray-900">Adverse Event Report</h3>
-            <button class="text-gray-400 hover:text-gray-600" onclick="closeSimpleModal()">
-              <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-              </svg>
-            </button>
-          </div>
-          <div class="space-y-6">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <p><strong>Receipt Date:</strong> ${eventData.receiptdate || 'Unknown'}</p>
-                <p><strong>Report Source:</strong> ${eventData.primarysource?.qualification || 'Unknown'}</p>
-                <p><strong>Serious:</strong> 
-                  <span class="px-2 py-1 text-xs rounded-full ${eventData.serious ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}">
-                    ${eventData.serious ? 'Yes' : 'No'}
-                  </span>
-                </p>
+    <div class="fixed inset-0 z-50 overflow-hidden" id="simple-modal">
+      <!-- Backdrop with blur -->
+      <div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm" onclick="closeSimpleModal()"></div>
+      
+      <!-- Modal Container -->
+      <div class="fixed inset-0 overflow-y-auto">
+        <div class="flex min-h-full items-center justify-center p-4">
+          <div class="relative w-full max-w-4xl bg-white rounded-2xl shadow-2xl transform transition-all">
+            
+            <!-- Header with gradient -->
+            <div class="relative bg-gradient-to-r ${isSerious ? 'from-red-500 to-red-600' : 'from-blue-500 to-blue-600'} rounded-t-2xl px-6 py-5">
+              <div class="flex items-start justify-between">
+                <div>
+                  <h3 class="text-2xl font-bold text-white mb-1">Adverse Event Report</h3>
+                  <p class="text-white/90 text-sm">Report ID: ${eventData.safetyreportid || 'Unknown'}</p>
+                </div>
+                <button onclick="closeSimpleModal()" class="ml-4 p-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors">
+                  <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                  </svg>
+                </button>
               </div>
-              <div>
-                <p><strong>Country:</strong> ${eventData.primarysourcecountry || 'Unknown'}</p>
-                <p><strong>Report Type:</strong> ${eventData.reporttype || 'Unknown'}</p>
-                <p><strong>Outcome:</strong> ${eventData.patient?.reaction?.[0]?.reactionoutcome || 'Unknown'}</p>
+              
+              <!-- Severity Badge in Header -->
+              ${isSerious ? `
+                <div class="mt-3 inline-flex items-center px-3 py-1.5 bg-white/20 backdrop-blur rounded-full">
+                  <svg class="w-5 h-5 text-white mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                  </svg>
+                  <span class="text-white font-semibold">SERIOUS EVENT</span>
+                </div>
+              ` : `
+                <div class="mt-3 inline-flex items-center px-3 py-1.5 bg-white/20 backdrop-blur rounded-full">
+                  <svg class="w-5 h-5 text-white mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                  </svg>
+                  <span class="text-white font-semibold">Non-Serious Event</span>
+                </div>
+              `}
+            </div>
+            
+            <!-- Body Content -->
+            <div class="px-6 py-5 max-h-[70vh] overflow-y-auto">
+              
+              <!-- Quick Stats Cards -->
+              <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+                <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-3">
+                  <div class="flex items-center justify-between">
+                    <div>
+                      <p class="text-xs text-blue-600 font-medium">Report Date</p>
+                      <p class="text-sm font-bold text-blue-900 mt-1">${formatDate(eventData.receiptdate)}</p>
+                    </div>
+                    <svg class="w-8 h-8 text-blue-200" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
+                    </svg>
+                  </div>
+                </div>
+                
+                <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-3">
+                  <div class="flex items-center justify-between">
+                    <div>
+                      <p class="text-xs text-purple-600 font-medium">Country</p>
+                      <p class="text-sm font-bold text-purple-900 mt-1">${eventData.primarysourcecountry || 'Unknown'}</p>
+                    </div>
+                    <svg class="w-8 h-8 text-purple-200" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M4.083 9h1.946c.089-1.546.383-2.97.837-4.118A6.004 6.004 0 004.083 9zM10 2a8 8 0 100 16 8 8 0 000-16zM9.954 4.569c-.885 1.148-1.393 2.574-1.484 4.118h3.06c-.09-1.544-.599-2.97-1.484-4.118a.595.595 0 00-.092 0zM11 18a6.004 6.004 0 01-3.134-.882c.454-1.147.748-2.572.837-4.118h4.594c.089 1.546.383 2.97.837 4.118A6.004 6.004 0 0111 18z" clip-rule="evenodd"/>
+                    </svg>
+                  </div>
+                </div>
+                
+                <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-3">
+                  <div class="flex items-center justify-between">
+                    <div>
+                      <p class="text-xs text-green-600 font-medium">Source</p>
+                      <p class="text-sm font-bold text-green-900 mt-1">${eventData.primarysource?.qualification || 'Unknown'}</p>
+                    </div>
+                    <svg class="w-8 h-8 text-green-200" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/>
+                    </svg>
+                  </div>
+                </div>
+                
+                <div class="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl p-3">
+                  <div class="flex items-center justify-between">
+                    <div>
+                      <p class="text-xs text-yellow-600 font-medium">Report Type</p>
+                      <p class="text-sm font-bold text-yellow-900 mt-1">${eventData.reporttype || 'Unknown'}</p>
+                    </div>
+                    <svg class="w-8 h-8 text-yellow-200" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd"/>
+                    </svg>
+                  </div>
+                </div>
+              </div>
+
+              ${severityReasons.length > 0 ? `
+                <!-- Severity Alert Box -->
+                <div class="mb-6 bg-red-50 border-l-4 border-red-500 rounded-lg p-4">
+                  <div class="flex">
+                    <div class="flex-shrink-0">
+                      <svg class="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                      </svg>
+                    </div>
+                    <div class="ml-3">
+                      <h3 class="text-sm font-medium text-red-800">Serious Event Criteria</h3>
+                      <div class="mt-2 flex flex-wrap gap-2">
+                        ${severityReasons.map(reason => `
+                          <span class="inline-flex items-center px-2.5 py-1 bg-red-100 text-red-700 text-xs font-medium rounded-full">
+                            ${reason}
+                          </span>
+                        `).join('')}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ` : ''}
+
+              <!-- Patient Information -->
+              ${eventData.patient ? `
+                <div class="mb-6">
+                  <h4 class="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                    <svg class="w-5 h-5 mr-2 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
+                    </svg>
+                    Patient Information
+                  </h4>
+                  <div class="bg-gray-50 rounded-xl p-4">
+                    <div class="grid grid-cols-3 gap-4">
+                      <div>
+                        <p class="text-xs text-gray-500 uppercase tracking-wide">Age</p>
+                        <p class="mt-1 text-sm font-semibold text-gray-900">
+                          ${eventData.patient.patientonsetage || 'Unknown'} ${eventData.patient.patientonsetageunit || ''}
+                        </p>
+                      </div>
+                      <div>
+                        <p class="text-xs text-gray-500 uppercase tracking-wide">Sex</p>
+                        <p class="mt-1 text-sm font-semibold text-gray-900">
+                          ${eventData.patient.patientsex === '1' ? 'Male' : eventData.patient.patientsex === '2' ? 'Female' : 'Unknown'}
+                        </p>
+                      </div>
+                      <div>
+                        <p class="text-xs text-gray-500 uppercase tracking-wide">Weight</p>
+                        <p class="mt-1 text-sm font-semibold text-gray-900">
+                          ${eventData.patient.patientweight ? `${eventData.patient.patientweight} kg` : 'Unknown'}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ` : ''}
+
+              <!-- Drug Information -->
+              ${eventData.patient?.drug ? `
+                <div class="mb-6">
+                  <h4 class="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                    <svg class="w-5 h-5 mr-2 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"/>
+                    </svg>
+                    Drug Information
+                  </h4>
+                  <div class="space-y-3">
+                    ${eventData.patient.drug.slice(0, 5).map((drug, index) => `
+                      <div class="bg-blue-50 rounded-xl p-4 border border-blue-100">
+                        <div class="flex items-start justify-between">
+                          <div class="flex-1">
+                            <h5 class="font-semibold text-blue-900 mb-2">
+                              ${drug.medicinalproduct || drug.openfda?.brand_name?.[0] || 'Unknown Drug'}
+                            </h5>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                              <div>
+                                <span class="text-blue-600 font-medium">Indication:</span>
+                                <span class="text-blue-800 ml-1">${drug.drugindication || 'Not specified'}</span>
+                              </div>
+                              <div>
+                                <span class="text-blue-600 font-medium">Route:</span>
+                                <span class="text-blue-800 ml-1">${drug.drugadministrationroute || 'Not specified'}</span>
+                              </div>
+                              ${drug.drugdosagetext ? `
+                                <div class="md:col-span-2">
+                                  <span class="text-blue-600 font-medium">Dosage:</span>
+                                  <span class="text-blue-800 ml-1">${drug.drugdosagetext}</span>
+                                </div>
+                              ` : ''}
+                              ${drug.drugcharacterization ? `
+                                <div>
+                                  <span class="text-blue-600 font-medium">Characterization:</span>
+                                  <span class="inline-block ml-1 px-2 py-0.5 bg-blue-200 text-blue-800 text-xs rounded-full">
+                                    ${drug.drugcharacterization === '1' ? 'Suspect' : drug.drugcharacterization === '2' ? 'Concomitant' : 'Interacting'}
+                                  </span>
+                                </div>
+                              ` : ''}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    `).join('')}
+                    ${eventData.patient.drug.length > 5 ? `
+                      <p class="text-sm text-gray-500 italic">... and ${eventData.patient.drug.length - 5} more drug(s)</p>
+                    ` : ''}
+                  </div>
+                </div>
+              ` : ''}
+
+              <!-- Reactions -->
+              ${eventData.patient?.reaction ? `
+                <div class="mb-6">
+                  <h4 class="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                    <svg class="w-5 h-5 mr-2 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                    </svg>
+                    Reported Reactions
+                  </h4>
+                  <div class="bg-red-50 rounded-xl p-4">
+                    <div class="space-y-2">
+                      ${eventData.patient.reaction.slice(0, 10).map(reaction => `
+                        <div class="flex items-center justify-between p-3 bg-white rounded-lg border border-red-100">
+                          <div class="flex-1">
+                            <p class="font-medium text-red-900">${reaction.reactionmeddrapt || 'Unknown'}</p>
+                            ${reaction.reactionmeddraversionpt ? `
+                              <p class="text-xs text-red-600 mt-1">MedDRA v${reaction.reactionmeddraversionpt}</p>
+                            ` : ''}
+                          </div>
+                          <span class="ml-3 px-3 py-1 text-xs font-medium rounded-full ${
+                            reaction.reactionoutcome === '1' ? 'bg-green-100 text-green-800' :
+                            reaction.reactionoutcome === '2' ? 'bg-yellow-100 text-yellow-800' :
+                            reaction.reactionoutcome === '3' ? 'bg-orange-100 text-orange-800' :
+                            reaction.reactionoutcome === '5' ? 'bg-red-100 text-red-800' :
+                            'bg-gray-100 text-gray-800'
+                          }">
+                            ${getOutcomeText(reaction.reactionoutcome)}
+                          </span>
+                        </div>
+                      `).join('')}
+                      ${eventData.patient.reaction.length > 10 ? `
+                        <p class="text-sm text-gray-500 italic pt-2">... and ${eventData.patient.reaction.length - 10} more reaction(s)</p>
+                      ` : ''}
+                    </div>
+                  </div>
+                </div>
+              ` : ''}
+
+              <!-- Additional Information -->
+              <div class="mb-4">
+                <h4 class="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                  <svg class="w-5 h-5 mr-2 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                  </svg>
+                  Additional Details
+                </h4>
+                <div class="bg-gray-50 rounded-xl p-4">
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <span class="text-gray-600 font-medium">FDA Receipt Date:</span>
+                      <span class="text-gray-900 ml-1">${formatDate(eventData.receiptdate)}</span>
+                    </div>
+                    <div>
+                      <span class="text-gray-600 font-medium">Manufacturer Receipt Date:</span>
+                      <span class="text-gray-900 ml-1">${formatDate(eventData.receiptdateformat) || 'Not specified'}</span>
+                    </div>
+                    <div>
+                      <span class="text-gray-600 font-medium">Report Version:</span>
+                      <span class="text-gray-900 ml-1">${eventData.reportversion || '1'}</span>
+                    </div>
+                    <div>
+                      <span class="text-gray-600 font-medium">Duplicate:</span>
+                      <span class="text-gray-900 ml-1">${eventData.reportduplicate ? 'Yes' : 'No'}</span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
             
-            ${eventData.patient?.drug ? `
-              <div>
-                <h4 class="font-medium text-gray-900 mb-2">Drug Information:</h4>
-                <div class="bg-gray-50 p-3 rounded max-h-40 overflow-y-auto">
-                  ${eventData.patient.drug.slice(0, 3).map(drug => `
-                    <div class="text-sm mb-2 p-2 bg-white rounded">
-                      <p><strong>Product:</strong> ${drug.medicinalproduct || 'Unknown'}</p>
-                      <p><strong>Indication:</strong> ${drug.drugindication || 'Not specified'}</p>
-                      <p><strong>Dosage:</strong> ${drug.drugdosagetext || 'Not specified'}</p>
-                    </div>
-                  `).join('')}
+            <!-- Footer -->
+            <div class="bg-gray-50 px-6 py-4 rounded-b-2xl border-t border-gray-200">
+              <div class="flex items-center justify-between">
+                <p class="text-xs text-gray-500">
+                  Report ID: ${eventData.safetyreportid || 'Unknown'} | 
+                  Version: ${eventData.safetyreportversion || '1'}
+                </p>
+                <div class="flex gap-2">
+                  <button onclick="exportEventData(${JSON.stringify(eventData).replace(/"/g, '&quot;')})" 
+                          class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition-colors inline-flex items-center">
+                    <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                    </svg>
+                    Export
+                  </button>
+                  <button onclick="closeSimpleModal()" 
+                          class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors">
+                    Close
+                  </button>
                 </div>
               </div>
-            ` : ''}
-            
-            ${eventData.patient?.reaction ? `
-              <div>
-                <h4 class="font-medium text-gray-900 mb-2">Reactions:</h4>
-                <div class="bg-red-50 p-3 rounded max-h-40 overflow-y-auto">
-                  ${eventData.patient.reaction.slice(0, 5).map(reaction => `
-                    <div class="text-sm mb-1 p-2 bg-white rounded">
-                      <p><strong>Reaction:</strong> ${reaction.reactionmeddrapt || 'Unknown'}</p>
-                      <p><strong>Outcome:</strong> ${reaction.reactionoutcome || 'Unknown'}</p>
-                    </div>
-                  `).join('')}
-                </div>
-              </div>
-            ` : ''}
-            
-            ${eventData.patient ? `
-              <div>
-                <h4 class="font-medium text-gray-900 mb-2">Patient Information:</h4>
-                <div class="bg-blue-50 p-3 rounded">
-                  <p class="text-sm"><strong>Age:</strong> ${eventData.patient.patientonsetage || 'Unknown'} ${eventData.patient.patientonsetageunit || ''}</p>
-                  <p class="text-sm"><strong>Sex:</strong> ${eventData.patient.patientsex === '1' ? 'Male' : eventData.patient.patientsex === '2' ? 'Female' : 'Unknown'}</p>
-                  <p class="text-sm"><strong>Weight:</strong> ${eventData.patient.patientweight || 'Unknown'} ${eventData.patient.patientweightunit || ''}</p>
-                </div>
-              </div>
-            ` : ''}
-          </div>
-          <div class="flex justify-end mt-6">
-            <button onclick="closeSimpleModal()" class="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300">
-              Close
-            </button>
+            </div>
           </div>
         </div>
       </div>
     </div>
+    
+    <style>
+      @keyframes modalFadeIn {
+        from {
+          opacity: 0;
+          transform: scale(0.95);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+      
+      #simple-modal > div > div > div {
+        animation: modalFadeIn 0.3s ease-out;
+      }
+    </style>
   `;
   
   document.body.insertAdjacentHTML('beforeend', modalContent);
+//   document.body.style.overflow = 'hidden';
+}
+
+function closeSimpleModal() {
+  const modal = document.getElementById('simple-modal');
+  if (modal) {
+    modal.style.opacity = '0';
+    setTimeout(() => {
+      modal.remove();
+      document.body.style.overflow = ''; // Ensure this always runs
+    }, 200);
+  } else {
+    // Safety fallback - restore scrolling even if no modal found
+    document.body.style.overflow = '';
+  }
+}
+
+function exportEventData(eventData) {
+  // Create a formatted text version of the event data
+  const text = JSON.stringify(eventData, null, 2);
+  const blob = new Blob([text], { type: 'application/json' });
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `adverse-event-${eventData.safetyreportid || 'report'}.json`;
+  a.click();
+  window.URL.revokeObjectURL(url);
+}
+// function exportEventData(eventData) {
+//   // Create a formatted text version of the event data
+//   const text = JSON.stringify(eventData, null, 2);
+//   const blob = new Blob([text], { type: 'application/json' });
+//   const url = window.URL.createObjectURL(blob);
+//   const a = document.createElement('a');
+//   a.href = url;
+//   a.download = `adverse-event-${eventData.safetyreportid || 'report'}.json`;
+//   a.click();
+//   window.URL.revokeObjectURL(url);
+// }
+function openSimpleNdcModal(ndcData) {
+  // Helper function to format date
+  const formatDate = (dateStr) => {
+    if (!dateStr) return 'Not available';
+    try {
+      // Handle different date formats
+      let date;
+      if (dateStr.length === 8) {
+        // YYYYMMDD format
+        const year = dateStr.substring(0, 4);
+        const month = dateStr.substring(4, 6);
+        const day = dateStr.substring(6, 8);
+        date = new Date(`${year}-${month}-${day}`);
+      } else {
+        date = new Date(dateStr);
+      }
+      
+      if (isNaN(date.getTime())) return dateStr;
+      return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      });
+    } catch (e) {
+      return dateStr || 'Not available';
+    }
+  };
+
+  // Helper function to format packaging description
+  const formatPackaging = (packaging) => {
+    if (!packaging || packaging.length === 0) return [];
+    
+    return packaging.map(pkg => {
+      const descriptions = [];
+      if (pkg.package_ndc) descriptions.push(`NDC: ${pkg.package_ndc}`);
+      if (pkg.description) descriptions.push(pkg.description);
+      if (pkg.sample) descriptions.push('Sample Package');
+      return descriptions.join(' - ');
+    });
+  };
+
+  // Helper function to get route display
+  const formatRoute = (routes) => {
+    if (!routes || routes.length === 0) return 'Not specified';
+    return routes.join(', ');
+  };
+
+  // Helper function to get dosage form
+  const formatDosageForm = (form) => {
+    if (!form) return 'Not specified';
+    return form.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
+  };
+
+  // Determine product status
+  const getProductStatus = (ndcData) => {
+    if (ndcData.finished === true || ndcData.finished === 'true') return 'Finished Product';
+    if (ndcData.listing_expiration_date) {
+      const expDate = new Date(ndcData.listing_expiration_date);
+      if (expDate < new Date()) return 'Expired';
+    }
+    if (ndcData.marketing_start_date) return 'Active';
+    return 'Unknown Status';
+  };
+
+  const productStatus = getProductStatus(ndcData);
+  const isActive = productStatus === 'Active' || productStatus === 'Finished Product';
+
+  const modalContent = `
+    <div class="fixed inset-0 z-50 overflow-hidden" id="simple-modal">
+      <!-- Backdrop with blur -->
+      <div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm" onclick="closeSimpleModal()"></div>
+      
+      <!-- Modal Container -->
+      <div class="fixed inset-0 overflow-y-auto">
+        <div class="flex min-h-full items-center justify-center p-4">
+          <div class="relative w-full max-w-3xl bg-white rounded-2xl shadow-2xl transform transition-all">
+            
+            <!-- Header -->
+            <div class="relative bg-gradient-to-r from-indigo-500 to-purple-600 rounded-t-2xl px-6 py-5">
+              <div class="flex items-start justify-between">
+                <div>
+                  <div class="flex items-center gap-3">
+                    <div class="bg-white/20 p-2.5 rounded-lg">
+                      <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+                        <path d="M15 9h3m-3 3h3"/>
+                      </svg>
+                    </div>
+                    <div>
+                      <h3 class="text-2xl font-bold text-white">NDC Product Details</h3>
+                      <p class="text-indigo-100 text-sm mt-1">${ndcData.product_ndc || 'Product Information'}</p>
+                    </div>
+                  </div>
+                </div>
+                <button onclick="closeSimpleModal()" class="ml-4 p-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors">
+                  <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                  </svg>
+                </button>
+              </div>
+              
+              <!-- Status Badge -->
+              <div class="mt-3 inline-flex items-center px-3 py-1.5 ${isActive ? 'bg-green-500/30' : 'bg-yellow-500/30'} backdrop-blur rounded-full">
+                <span class="w-2 h-2 ${isActive ? 'bg-green-300' : 'bg-yellow-300'} rounded-full mr-2 animate-pulse"></span>
+                <span class="text-white font-semibold text-sm">${productStatus}</span>
+              </div>
+            </div>
+
+            <!-- Body Content -->
+            <div class="px-6 py-5 max-h-[70vh] overflow-y-auto">
+              
+              <!-- Product Names Section -->
+              <div class="mb-6">
+                <h4 class="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                  <svg class="w-5 h-5 mr-2 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                  </svg>
+                  Product Identification
+                </h4>
+                <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4">
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <p class="text-xs text-gray-500 uppercase tracking-wide">Brand Name</p>
+                      <p class="mt-1 text-lg font-bold text-gray-900">${ndcData.brand_name || 'Not specified'}</p>
+                    </div>
+                    <div>
+                      <p class="text-xs text-gray-500 uppercase tracking-wide">Generic Name</p>
+                      <p class="mt-1 text-sm font-semibold text-gray-700">${ndcData.generic_name || 'Not specified'}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- NDC Codes Grid -->
+              <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+                <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-3">
+                  <p class="text-xs text-purple-600 font-medium mb-1">Product NDC</p>
+                  <p class="text-sm font-bold text-purple-900">${ndcData.product_ndc || 'N/A'}</p>
+                </div>
+                
+                <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-3">
+                  <p class="text-xs text-green-600 font-medium mb-1">Package NDC</p>
+                  <p class="text-sm font-bold text-green-900">${ndcData.package_ndc || 'N/A'}</p>
+                </div>
+                
+                <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-3">
+                  <p class="text-xs text-blue-600 font-medium mb-1">Product Type</p>
+                  <p class="text-sm font-bold text-blue-900 truncate" title="${ndcData.product_type_name || 'Unknown'}">
+                    ${ndcData.product_type_name ? ndcData.product_type_name.replace('HUMAN ', '') : 'Unknown'}
+                  </p>
+                </div>
+                
+                <div class="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-3">
+                  <p class="text-xs text-orange-600 font-medium mb-1">Dosage Form</p>
+                  <p class="text-sm font-bold text-orange-900 truncate" title="${formatDosageForm(ndcData.dosage_form)}">
+                    ${formatDosageForm(ndcData.dosage_form)}
+                  </p>
+                </div>
+              </div>
+
+              <!-- Labeler Information -->
+              <div class="mb-6">
+                <h4 class="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                  <svg class="w-5 h-5 mr-2 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm3 1h6v4H7V5zm6 6H7v2h6v-2z" clip-rule="evenodd"/>
+                  </svg>
+                  Manufacturer Information
+                </h4>
+                <div class="bg-gray-50 rounded-xl p-4">
+                  <div class="flex items-start justify-between">
+                    <div class="flex-1">
+                      <p class="font-semibold text-gray-900">${ndcData.labeler_name || 'Unknown Labeler'}</p>
+                      ${ndcData.application_number ? `
+                        <p class="text-sm text-gray-600 mt-1">
+                          <span class="font-medium">Application:</span> ${ndcData.application_number}
+                        </p>
+                      ` : ''}
+                      ${ndcData.dea_schedule ? `
+                        <div class="mt-2">
+                          <span class="inline-flex items-center px-2.5 py-1 bg-red-100 text-red-700 text-xs font-medium rounded-full">
+                            DEA Schedule ${ndcData.dea_schedule}
+                          </span>
+                        </div>
+                      ` : ''}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Active Ingredients -->
+              ${ndcData.active_ingredients && ndcData.active_ingredients.length > 0 ? `
+                <div class="mb-6">
+                  <h4 class="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                    <svg class="w-5 h-5 mr-2 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z"/>
+                    </svg>
+                    Active Ingredients
+                  </h4>
+                  <div class="bg-green-50 rounded-xl p-4">
+                    <div class="space-y-2">
+                      ${ndcData.active_ingredients.map((ing, index) => `
+                        <div class="flex items-center justify-between p-3 bg-white rounded-lg border border-green-100">
+                          <div class="flex items-center">
+                            <span class="flex items-center justify-center w-8 h-8 bg-green-100 text-green-600 rounded-full text-xs font-bold mr-3">
+                              ${index + 1}
+                            </span>
+                            <div>
+                              <p class="font-medium text-gray-900">${ing.name || 'Unknown'}</p>
+                              <p class="text-sm text-gray-600">${ing.strength || 'Strength not specified'}</p>
+                            </div>
+                          </div>
+                        </div>
+                      `).join('')}
+                    </div>
+                  </div>
+                </div>
+              ` : ''}
+
+              <!-- Route Information -->
+              ${ndcData.route && ndcData.route.length > 0 ? `
+                <div class="mb-6">
+                  <h4 class="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                    <svg class="w-5 h-5 mr-2 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.293l-3-3a1 1 0 00-1.414 1.414L10.586 9.5H7a1 1 0 100 2h3.586l-1.293 1.293a1 1 0 101.414 1.414l3-3a1 1 0 000-1.414z" clip-rule="evenodd"/>
+                    </svg>
+                    Administration Route
+                  </h4>
+                  <div class="flex flex-wrap gap-2">
+                    ${ndcData.route.map(r => `
+                      <span class="inline-flex items-center px-3 py-1.5 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
+                        ${r}
+                      </span>
+                    `).join('')}
+                  </div>
+                </div>
+              ` : ''}
+
+              <!-- Packaging Information -->
+              ${ndcData.packaging && ndcData.packaging.length > 0 ? `
+                <div class="mb-6">
+                  <h4 class="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                    <svg class="w-5 h-5 mr-2 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
+                      <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 1 1 0 000 2H6a2 2 0 100 4h2a2 2 0 100 4h2a2 2 0 100 4H8a2 2 0 01-2-2V5z" clip-rule="evenodd"/>
+                    </svg>
+                    Packaging Details
+                  </h4>
+                  <div class="bg-indigo-50 rounded-xl p-4">
+                    <div class="space-y-2">
+                      ${formatPackaging(ndcData.packaging).map(pkg => `
+                        <div class="flex items-center p-3 bg-white rounded-lg border border-indigo-100">
+                          <svg class="w-5 h-5 mr-3 text-indigo-500" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"/>
+                          </svg>
+                          <p class="text-sm text-gray-700">${pkg}</p>
+                        </div>
+                      `).join('')}
+                    </div>
+                  </div>
+                </div>
+              ` : ''}
+
+              <!-- Marketing Dates -->
+              <div class="mb-4">
+                <h4 class="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                  <svg class="w-5 h-5 mr-2 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
+                  </svg>
+                  Marketing Information
+                </h4>
+                <div class="bg-gray-50 rounded-xl p-4">
+                  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                    <div>
+                      <span class="text-gray-600 font-medium">Marketing Start:</span>
+                      <p class="text-gray-900 font-semibold mt-1">${formatDate(ndcData.marketing_start_date)}</p>
+                    </div>
+                    <div>
+                      <span class="text-gray-600 font-medium">Marketing End:</span>
+                      <p class="text-gray-900 font-semibold mt-1">${formatDate(ndcData.marketing_end_date)}</p>
+                    </div>
+                    <div>
+                      <span class="text-gray-600 font-medium">Listing Expiration:</span>
+                      <p class="text-gray-900 font-semibold mt-1">${formatDate(ndcData.listing_expiration_date)}</p>
+                    </div>
+                  </div>
+                  ${ndcData.marketing_category ? `
+                    <div class="mt-3 pt-3 border-t border-gray-200">
+                      <span class="text-gray-600 font-medium text-sm">Marketing Category:</span>
+                      <span class="ml-2 inline-flex items-center px-2.5 py-1 bg-purple-100 text-purple-700 text-xs font-medium rounded-full">
+                        ${ndcData.marketing_category}
+                      </span>
+                    </div>
+                  ` : ''}
+                </div>
+              </div>
+
+              <!-- Additional Properties -->
+              ${(ndcData.pharm_class && ndcData.pharm_class.length > 0) ? `
+                <div class="mb-4">
+                  <h4 class="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                    <svg class="w-5 h-5 mr-2 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z"/>
+                    </svg>
+                    Pharmacological Class
+                  </h4>
+                  <div class="flex flex-wrap gap-2">
+                    ${ndcData.pharm_class.map(cls => `
+                      <span class="inline-flex items-center px-3 py-1.5 bg-yellow-100 text-yellow-800 rounded-full text-xs font-medium">
+                        ${cls}
+                      </span>
+                    `).join('')}
+                  </div>
+                </div>
+              ` : ''}
+            </div>
+
+            <!-- Footer -->
+            <div class="bg-gray-50 px-6 py-4 rounded-b-2xl border-t border-gray-200">
+              <div class="flex items-center justify-between">
+                <p class="text-xs text-gray-500">
+                  ${ndcData.product_id ? `Product ID: ${ndcData.product_id}` : 'NDC Product Information'}
+                </p>
+                <div class="flex gap-2">
+                
+                  <button onclick="closeSimpleModal()" 
+                          class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition-colors">
+                    Close
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <style>
+      @keyframes modalSlideIn {
+        from {
+          opacity: 0;
+          transform: translateY(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      
+      #simple-modal > div > div > div {
+        animation: modalSlideIn 0.3s ease-out;
+      }
+    </style>
+  `;
+  
+  document.body.insertAdjacentHTML('beforeend', modalContent);
+  document.body.style.overflow = 'hidden';
+}
+
+function closeSimpleModal() {
+  const modal = document.getElementById('simple-modal');
+  if (modal) {
+    modal.style.opacity = '0';
+    setTimeout(() => {
+      modal.remove();
+      document.body.style.overflow = '';
+    }, 200);
+  }
+}
+
+function exportNdcData(ndcData) {
+  const text = JSON.stringify(ndcData, null, 2);
+  const blob = new Blob([text], { type: 'application/json' });
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `ndc-${ndcData.product_ndc || 'product'}.json`;
+  a.click();
+  window.URL.revokeObjectURL(url);
 }
 
 function openSimpleEnforcementModal(enforcementData) {
+  // Helper function to format date
+  const formatDate = (dateStr) => {
+    if (!dateStr) return 'Not available';
+    try {
+      // Handle YYYYMMDD format
+      if (dateStr.length === 8 && !dateStr.includes('-')) {
+        const year = dateStr.substring(0, 4);
+        const month = dateStr.substring(4, 6);
+        const day = dateStr.substring(6, 8);
+        dateStr = `${year}-${month}-${day}`;
+      }
+      const date = new Date(dateStr);
+      if (isNaN(date.getTime())) return 'Not available';
+      return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      });
+    } catch (e) {
+      return 'Not available';
+    }
+  };
+
+  // Helper function to get classification details
+  const getClassificationInfo = (classification) => {
+    const classInfo = {
+      'Class I': {
+        color: 'red',
+        description: 'Dangerous or defective products that could cause serious health problems or death',
+        icon: `<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+        </svg>`
+      },
+      'Class II': {
+        color: 'yellow',
+        description: 'Products that might cause temporary health problems or pose slight threat of serious nature',
+        icon: `<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+        </svg>`
+      },
+      'Class III': {
+        color: 'green',
+        description: 'Products unlikely to cause adverse health consequences',
+        icon: `<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+        </svg>`
+      }
+    };
+    return classInfo[classification] || { 
+      color: 'gray', 
+      description: 'Classification not specified',
+      icon: `<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/>
+      </svg>`
+    };
+  };
+
+  // Helper function to get status color
+  const getStatusInfo = (status) => {
+    const statusLower = (status || '').toLowerCase();
+    if (statusLower.includes('ongoing')) return { color: 'orange', icon: 'clock' };
+    if (statusLower.includes('completed')) return { color: 'green', icon: 'check' };
+    if (statusLower.includes('terminated')) return { color: 'red', icon: 'x' };
+    if (statusLower.includes('pending')) return { color: 'yellow', icon: 'hourglass' };
+    return { color: 'gray', icon: 'question' };
+  };
+
+  const classInfo = getClassificationInfo(enforcementData.classification);
+  const statusInfo = getStatusInfo(enforcementData.status);
+  const isVoluntary = (enforcementData.voluntary_mandated || '').toLowerCase().includes('voluntary');
+
   const modalContent = `
-    <div class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" id="simple-modal">
-      <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-2/3 shadow-lg rounded-md bg-white max-h-screen overflow-y-auto">
-        <div class="mt-3">
-          <div class="flex justify-between items-center mb-4">
-            <h3 class="text-lg font-medium text-gray-900">Enforcement Action Details</h3>
-            <button class="text-gray-400 hover:text-gray-600" onclick="closeSimpleModal()">
-              <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-              </svg>
-            </button>
-          </div>
-          <div class="space-y-6">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <p><strong>Report Date:</strong> ${enforcementData.report_date || 'Unknown'}</p>
-                <p><strong>Recall Number:</strong> ${enforcementData.recall_number || 'N/A'}</p>
-                <p><strong>Classification:</strong> 
-                  <span class="px-2 py-1 text-xs rounded-full ${
-                    enforcementData.classification === 'Class I' ? 'bg-red-100 text-red-800' :
-                    enforcementData.classification === 'Class II' ? 'bg-yellow-100 text-yellow-800' :
-                    enforcementData.classification === 'Class III' ? 'bg-green-100 text-green-800' :
-                    'bg-gray-100 text-gray-800'
-                  }">
-                    ${enforcementData.classification || 'Unknown'}
-                  </span>
-                </p>
-              </div>
-              <div>
-                <p><strong>Status:</strong> ${enforcementData.status || 'Unknown'}</p>
-                <p><strong>Voluntary/Mandatory:</strong> ${enforcementData.voluntary_mandated || 'Unknown'}</p>
-                <p><strong>Initial Firm Notification:</strong> ${enforcementData.initial_firm_notification || 'Unknown'}</p>
-              </div>
-            </div>
+    <div class="fixed inset-0 z-50 overflow-hidden" id="simple-modal">
+      <!-- Backdrop with blur -->
+      <div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm" onclick="closeSimpleModal()"></div>
+      
+      <!-- Modal Container -->
+      <div class="fixed inset-0 overflow-y-auto">
+        <div class="flex min-h-full items-center justify-center p-4">
+          <div class="relative w-full max-w-4xl bg-white rounded-2xl shadow-2xl transform transition-all">
             
-            <div>
-              <h4 class="font-medium text-gray-900 mb-2">Product Description:</h4>
-              <div class="bg-gray-50 p-3 rounded">
-                <p class="text-sm">${enforcementData.product_description || 'Not provided'}</p>
-              </div>
-            </div>
-            
-            <div>
-              <h4 class="font-medium text-gray-900 mb-2">Reason for Recall:</h4>
-              <div class="bg-yellow-50 p-3 rounded">
-                <p class="text-sm">${enforcementData.reason_for_recall || 'Not provided'}</p>
-              </div>
-            </div>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <h4 class="font-medium text-gray-900 mb-2">Recalling Firm:</h4>
-                <div class="bg-blue-50 p-3 rounded">
-                  <p class="text-sm"><strong>Name:</strong> ${enforcementData.recalling_firm || 'Unknown'}</p>
-                  <p class="text-sm"><strong>City:</strong> ${enforcementData.city || 'Unknown'}</p>
-                  <p class="text-sm"><strong>State:</strong> ${enforcementData.state || 'Unknown'}</p>
-                  <p class="text-sm"><strong>Country:</strong> ${enforcementData.country || 'Unknown'}</p>
+            <!-- Header with dynamic color based on classification -->
+            <div class="relative bg-gradient-to-r ${
+              classInfo.color === 'red' ? 'from-red-500 to-red-600' :
+              classInfo.color === 'yellow' ? 'from-yellow-500 to-orange-500' :
+              classInfo.color === 'green' ? 'from-green-500 to-green-600' :
+              'from-gray-500 to-gray-600'
+            } rounded-t-2xl px-6 py-5">
+              <div class="flex items-start justify-between">
+                <div>
+                  <div class="flex items-center gap-3">
+                    <div class="bg-white/20 p-2.5 rounded-lg text-white">
+                      ${classInfo.icon}
+                    </div>
+                    <div>
+                      <h3 class="text-2xl font-bold text-white">Enforcement Action</h3>
+                      <p class="text-white/90 text-sm mt-1">Recall #${enforcementData.recall_number || 'Not specified'}</p>
+                    </div>
+                  </div>
                 </div>
+                <button onclick="closeSimpleModal()" class="ml-4 p-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors">
+                  <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                  </svg>
+                </button>
               </div>
               
-              <div>
-                <h4 class="font-medium text-gray-900 mb-2">Distribution Pattern:</h4>
-                <div class="bg-green-50 p-3 rounded">
-                  <p class="text-sm">${enforcementData.distribution_pattern || 'Not specified'}</p>
+              <!-- Classification Badge -->
+              <div class="mt-4 flex items-start gap-3">
+                <div class="inline-flex items-center px-4 py-2 bg-white/20 backdrop-blur rounded-full">
+                  <span class="text-white font-bold text-lg">${enforcementData.classification || 'Unclassified'}</span>
+                </div>
+                <div class="flex-1">
+                  <p class="text-white/90 text-sm">${classInfo.description}</p>
                 </div>
               </div>
             </div>
-            
-            ${enforcementData.product_quantity ? `
-              <div>
-                <h4 class="font-medium text-gray-900 mb-2">Product Quantity:</h4>
-                <div class="bg-red-50 p-3 rounded">
-                  <p class="text-sm">${enforcementData.product_quantity}</p>
+
+            <!-- Body Content -->
+            <div class="px-6 py-5 max-h-[70vh] overflow-y-auto">
+              
+              <!-- Quick Stats Grid -->
+              <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+                <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-3">
+                  <div class="flex items-center justify-between">
+                    <div>
+                      <p class="text-xs text-blue-600 font-medium">Report Date</p>
+                      <p class="text-sm font-bold text-blue-900 mt-1">${formatDate(enforcementData.report_date)}</p>
+                    </div>
+                    <svg class="w-8 h-8 text-blue-200" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
+                    </svg>
+                  </div>
+                </div>
+                
+                <div class="bg-gradient-to-br from-${statusInfo.color}-50 to-${statusInfo.color}-100 rounded-xl p-3">
+                  <div class="flex items-center justify-between">
+                    <div>
+                      <p class="text-xs text-${statusInfo.color}-600 font-medium">Status</p>
+                      <p class="text-sm font-bold text-${statusInfo.color}-900 mt-1">${enforcementData.status || 'Unknown'}</p>
+                    </div>
+                    <svg class="w-8 h-8 text-${statusInfo.color}-200" fill="currentColor" viewBox="0 0 20 20">
+                      ${statusInfo.icon === 'check' ? 
+                        '<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>' :
+                        statusInfo.icon === 'clock' ?
+                        '<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>' :
+                        '<path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/>'
+                      }
+                    </svg>
+                  </div>
+                </div>
+                
+                <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-3">
+                  <div class="flex items-center justify-between">
+                    <div>
+                      <p class="text-xs text-purple-600 font-medium">Type</p>
+                      <p class="text-sm font-bold text-purple-900 mt-1">
+                        ${isVoluntary ? 'Voluntary' : enforcementData.voluntary_mandated || 'Not specified'}
+                      </p>
+                    </div>
+                    <svg class="w-8 h-8 text-purple-200" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
+                      <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/>
+                    </svg>
+                  </div>
+                </div>
+                
+                <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-3">
+                  <div class="flex items-center justify-between">
+                    <div>
+                      <p class="text-xs text-green-600 font-medium">Notification</p>
+                      <p class="text-sm font-bold text-green-900 mt-1 truncate" title="${enforcementData.initial_firm_notification || 'Not specified'}">
+                        ${enforcementData.initial_firm_notification || 'Not specified'}
+                      </p>
+                    </div>
+                    <svg class="w-8 h-8 text-green-200" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/>
+                    </svg>
+                  </div>
                 </div>
               </div>
-            ` : ''}
-          </div>
-          <div class="flex justify-end mt-6">
-            <button onclick="closeSimpleModal()" class="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300">
-              Close
-            </button>
+
+              <!-- Product Description -->
+              <div class="mb-6">
+                <h4 class="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                  <svg class="w-5 h-5 mr-2 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd"/>
+                  </svg>
+                  Product Description
+                </h4>
+                <div class="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                  <p class="text-gray-700 leading-relaxed">
+                    ${enforcementData.product_description || 'Product description not provided'}
+                  </p>
+                  ${enforcementData.code_info ? `
+                    <div class="mt-3 pt-3 border-t border-gray-200">
+                      <p class="text-sm text-gray-600">
+                        <span class="font-medium">Product Codes:</span> ${enforcementData.code_info}
+                      </p>
+                    </div>
+                  ` : ''}
+                </div>
+              </div>
+
+              <!-- Reason for Recall - Highlighted -->
+              <div class="mb-6">
+                <h4 class="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                  <svg class="w-5 h-5 mr-2 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                  </svg>
+                  Reason for Recall
+                </h4>
+                <div class="bg-red-50 rounded-xl p-4 border border-red-200">
+                  <p class="text-red-900 leading-relaxed font-medium">
+                    ${enforcementData.reason_for_recall || 'Reason for recall not specified'}
+                  </p>
+                </div>
+              </div>
+
+              <!-- Recalling Firm Information -->
+              <div class="mb-6">
+                <h4 class="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                  <svg class="w-5 h-5 mr-2 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm3 1h6v4H7V5zm6 6H7v2h6v-2z" clip-rule="evenodd"/>
+                  </svg>
+                  Recalling Firm
+                </h4>
+                <div class="bg-blue-50 rounded-xl p-4 border border-blue-200">
+                  <div class="flex items-start">
+                    <svg class="w-10 h-10 text-blue-300 mr-4 flex-shrink-0 mt-1" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM4.332 8.027a6.012 6.012 0 011.912-2.706C6.512 5.73 6.974 6 7.5 6A1.5 1.5 0 019 7.5V8a2 2 0 004 0 2 2 0 011.523-1.943A5.977 5.977 0 0116 10c0 .34-.028.675-.083 1H15a2 2 0 00-2 2v2.197A5.973 5.973 0 0110 16v-2a2 2 0 00-2-2 2 2 0 01-2-2 2 2 0 00-1.668-1.973z" clip-rule="evenodd"/>
+                    </svg>
+                    <div class="flex-1">
+                      <p class="font-bold text-blue-900 text-lg">${enforcementData.recalling_firm || 'Firm name not specified'}</p>
+                      <div class="mt-2 grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
+                        ${enforcementData.city ? `
+                          <div class="flex items-center text-blue-700">
+                            <svg class="w-4 h-4 mr-2 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                              <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
+                            </svg>
+                            ${enforcementData.city}${enforcementData.state ? `, ${enforcementData.state}` : ''}
+                          </div>
+                        ` : ''}
+                        ${enforcementData.country ? `
+                          <div class="flex items-center text-blue-700">
+                            <svg class="w-4 h-4 mr-2 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                              <path fill-rule="evenodd" d="M4.083 9h1.946c.089-1.546.383-2.97.837-4.118A6.004 6.004 0 004.083 9zM10 2a8 8 0 100 16 8 8 0 000-16z" clip-rule="evenodd"/>
+                            </svg>
+                            ${enforcementData.country}
+                          </div>
+                        ` : ''}
+                      </div>
+                      ${enforcementData.address_1 || enforcementData.address_2 ? `
+                        <p class="mt-2 text-sm text-blue-600">
+                          ${enforcementData.address_1 || ''}${enforcementData.address_2 ? `, ${enforcementData.address_2}` : ''}
+                        </p>
+                      ` : ''}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Distribution and Quantity Grid -->
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <!-- Distribution Pattern -->
+                <div>
+                  <h4 class="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                    <svg class="w-5 h-5 mr-2 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"/>
+                      <path d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H10a1 1 0 001-1V5a1 1 0 00-1-1H3zM14 7a1 1 0 00-1 1v6.05A2.5 2.5 0 0115.95 16H17a1 1 0 001-1v-5a1 1 0 00-.293-.707l-2-2A1 1 0 0015 7h-1z"/>
+                    </svg>
+                    Distribution
+                  </h4>
+                  <div class="bg-green-50 rounded-xl p-4 border border-green-200">
+                    <p class="text-green-900 text-sm">
+                      ${enforcementData.distribution_pattern || 'Distribution pattern not specified'}
+                    </p>
+                  </div>
+                </div>
+
+                <!-- Product Quantity -->
+                ${enforcementData.product_quantity ? `
+                  <div>
+                    <h4 class="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                      <svg class="w-5 h-5 mr-2 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
+                        <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 1 1 0 000 2H6a2 2 0 100 4h2a2 2 0 100 4h2a2 2 0 100 4H8a2 2 0 01-2-2V5z" clip-rule="evenodd"/>
+                      </svg>
+                      Product Quantity
+                    </h4>
+                    <div class="bg-orange-50 rounded-xl p-4 border border-orange-200">
+                      <p class="text-orange-900 font-semibold">
+                        ${enforcementData.product_quantity}
+                      </p>
+                    </div>
+                  </div>
+                ` : ''}
+              </div>
+
+              <!-- Timeline Dates -->
+              <div class="mb-4">
+                <h4 class="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                  <svg class="w-5 h-5 mr-2 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+                  </svg>
+                  Timeline
+                </h4>
+                <div class="bg-gray-50 rounded-xl p-4">
+                  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                    ${enforcementData.recall_initiation_date ? `
+                      <div>
+                        <span class="text-gray-600 font-medium">Initiation Date:</span>
+                        <p class="text-gray-900 font-semibold mt-1">${formatDate(enforcementData.recall_initiation_date)}</p>
+                      </div>
+                    ` : ''}
+                    ${enforcementData.center_classification_date ? `
+                      <div>
+                        <span class="text-gray-600 font-medium">Classification Date:</span>
+                        <p class="text-gray-900 font-semibold mt-1">${formatDate(enforcementData.center_classification_date)}</p>
+                      </div>
+                    ` : ''}
+                    ${enforcementData.termination_date ? `
+                      <div>
+                        <span class="text-gray-600 font-medium">Termination Date:</span>
+                        <p class="text-gray-900 font-semibold mt-1">${formatDate(enforcementData.termination_date)}</p>
+                      </div>
+                    ` : ''}
+                  </div>
+                </div>
+              </div>
+
+              <!-- Event ID -->
+              ${enforcementData.event_id ? `
+                <div class="bg-yellow-50 rounded-lg p-3 border border-yellow-200">
+                  <p class="text-xs text-yellow-800">
+                    <span class="font-semibold">Event ID:</span> ${enforcementData.event_id}
+                  </p>
+                </div>
+              ` : ''}
+            </div>
+
+            <!-- Footer -->
+            <div class="bg-gray-50 px-6 py-4 rounded-b-2xl border-t border-gray-200">
+              <div class="flex items-center justify-between">
+                <p class="text-xs text-gray-500">
+                  Recall #${enforcementData.recall_number || 'Not specified'} | 
+                  ${enforcementData.product_type ? `Type: ${enforcementData.product_type}` : 'Enforcement Action'}
+                </p>
+                <div class="flex gap-2">
+                  
+                  <button onclick="closeSimpleModal()" 
+                          class="px-4 py-2 bg-${classInfo.color}-600 hover:bg-${classInfo.color}-700 text-white font-medium rounded-lg transition-colors">
+                    Close
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
+    
+    <style>
+      @keyframes modalSlideDown {
+        from {
+          opacity: 0;
+          transform: translateY(-30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      
+      #simple-modal > div > div > div {
+        animation: modalSlideDown 0.3s ease-out;
+      }
+    </style>
   `;
   
   document.body.insertAdjacentHTML('beforeend', modalContent);
+  document.body.style.overflow = 'hidden';
 }
+
+function closeSimpleModal() {
+  const modal = document.getElementById('simple-modal');
+  if (modal) {
+    modal.style.opacity = '0';
+    setTimeout(() => {
+      modal.remove();
+      document.body.style.overflow = '';
+    }, 200);
+  }
+}
+
+function exportEnforcementData(enforcementData) {
+  const text = JSON.stringify(enforcementData, null, 2);
+  const blob = new Blob([text], { type: 'application/json' });
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `enforcement-${enforcementData.recall_number || 'action'}.json`;
+  a.click();
+  window.URL.revokeObjectURL(url);
+}
+// function openSimpleEnforcementModal(enforcementData) {
+//   const modalContent = `
+//     <div class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" id="simple-modal">
+//       <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-2/3 shadow-lg rounded-md bg-white max-h-screen overflow-y-auto">
+//         <div class="mt-3">
+//           <div class="flex justify-between items-center mb-4">
+//             <h3 class="text-lg font-medium text-gray-900">Enforcement Action Details</h3>
+//             <button class="text-gray-400 hover:text-gray-600" onclick="closeSimpleModal()">
+//               <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+//                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+//               </svg>
+//             </button>
+//           </div>
+//           <div class="space-y-6">
+//             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+//               <div>
+//                 <p><strong>Report Date:</strong> ${enforcementData.report_date || 'Unknown'}</p>
+//                 <p><strong>Recall Number:</strong> ${enforcementData.recall_number || 'N/A'}</p>
+//                 <p><strong>Classification:</strong> 
+//                   <span class="px-2 py-1 text-xs rounded-full ${
+//                     enforcementData.classification === 'Class I' ? 'bg-red-100 text-red-800' :
+//                     enforcementData.classification === 'Class II' ? 'bg-yellow-100 text-yellow-800' :
+//                     enforcementData.classification === 'Class III' ? 'bg-green-100 text-green-800' :
+//                     'bg-gray-100 text-gray-800'
+//                   }">
+//                     ${enforcementData.classification || 'Unknown'}
+//                   </span>
+//                 </p>
+//               </div>
+//               <div>
+//                 <p><strong>Status:</strong> ${enforcementData.status || 'Unknown'}</p>
+//                 <p><strong>Voluntary/Mandatory:</strong> ${enforcementData.voluntary_mandated || 'Unknown'}</p>
+//                 <p><strong>Initial Firm Notification:</strong> ${enforcementData.initial_firm_notification || 'Unknown'}</p>
+//               </div>
+//             </div>
+            
+//             <div>
+//               <h4 class="font-medium text-gray-900 mb-2">Product Description:</h4>
+//               <div class="bg-gray-50 p-3 rounded">
+//                 <p class="text-sm">${enforcementData.product_description || 'Not provided'}</p>
+//               </div>
+//             </div>
+            
+//             <div>
+//               <h4 class="font-medium text-gray-900 mb-2">Reason for Recall:</h4>
+//               <div class="bg-yellow-50 p-3 rounded">
+//                 <p class="text-sm">${enforcementData.reason_for_recall || 'Not provided'}</p>
+//               </div>
+//             </div>
+            
+//             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+//               <div>
+//                 <h4 class="font-medium text-gray-900 mb-2">Recalling Firm:</h4>
+//                 <div class="bg-blue-50 p-3 rounded">
+//                   <p class="text-sm"><strong>Name:</strong> ${enforcementData.recalling_firm || 'Unknown'}</p>
+//                   <p class="text-sm"><strong>City:</strong> ${enforcementData.city || 'Unknown'}</p>
+//                   <p class="text-sm"><strong>State:</strong> ${enforcementData.state || 'Unknown'}</p>
+//                   <p class="text-sm"><strong>Country:</strong> ${enforcementData.country || 'Unknown'}</p>
+//                 </div>
+//               </div>
+              
+//               <div>
+//                 <h4 class="font-medium text-gray-900 mb-2">Distribution Pattern:</h4>
+//                 <div class="bg-green-50 p-3 rounded">
+//                   <p class="text-sm">${enforcementData.distribution_pattern || 'Not specified'}</p>
+//                 </div>
+//               </div>
+//             </div>
+            
+//             ${enforcementData.product_quantity ? `
+//               <div>
+//                 <h4 class="font-medium text-gray-900 mb-2">Product Quantity:</h4>
+//                 <div class="bg-red-50 p-3 rounded">
+//                   <p class="text-sm">${enforcementData.product_quantity}</p>
+//                 </div>
+//               </div>
+//             ` : ''}
+//           </div>
+//           <div class="flex justify-end mt-6">
+//             <button onclick="closeSimpleModal()" class="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300">
+//               Close
+//             </button>
+//           </div>
+//         </div>
+//       </div>
+//     </div>
+//   `;
+  
+//   document.body.insertAdjacentHTML('beforeend', modalContent);
+// }
 
 // Utility function to close simple modals
 function closeSimpleModal() {
@@ -90150,7 +92077,81 @@ function generateClinicalImplications(articles, suffix) {
 //     return [];
 //   }
 // }
+// ONEI JUST UDSED 
+// async function fetchStudies(
+//   drug = "", 
+//   condition = "",           // kept for compatibility, not used to filter here
+//   hasResults = false,       // ignored (date filter is the only one applied)
+//   yearsBack = 5,
+//   deviceOrTerm = "", 
+//   patientPopulation = "",   // ignored to avoid narrowing
+//   exactMatch = true
+// ) {
+//   try {
+//     const API_BASE_URL = "/api";
+//     const useGeneralSearch = Boolean(deviceOrTerm); // ONLY the compound/device term matters
 
+//     if (useGeneralSearch) {
+//       const params = new URLSearchParams();
+
+//       // Send the compound/device to all three query targets
+//       if (deviceOrTerm) {
+//         const val = exactMatch ? `"${deviceOrTerm}"` : deviceOrTerm;
+//         params.append("query.intr", val);    // interventions/arms
+//         params.append("query.titles", val);  // brief/official titles
+//         params.append("query.term", val);    // catch-all text
+//       }
+
+//       // Date filter ( StartDate >= currentYear - yearsBack )
+//       if (yearsBack) {
+//         const currentYear = new Date().getFullYear();
+//         const startYear = currentYear - yearsBack;
+//         params.append("filter.advanced", `AREA[StartDate]RANGE[${startYear},MAX]`);
+//       }
+
+//       // Fields + paging hints
+//       params.append("fields", "protocolSection,derivedSection,hasResults");
+//       params.append("pageSize", "100");
+//       params.append("countTotal", "true");
+
+//       const response = await axios.get(`${API_BASE_URL}/studies/general-search`, {
+//         params,
+//         headers: { Accept: "application/json", "Cache-Control": "no-cache" }
+//       });
+
+//       if (response.data && response.data.studies) {
+//         return response.data.studies;
+//       }
+//       return [];
+//     } else {
+//       // Legacy path (keep response shape the same for callers)
+//       if (!drug) {
+//         console.error("Error: 'drug' (compound) must be provided for legacy search");
+//         return [];
+//       }
+
+//       const params = new URLSearchParams();
+//       params.append("intervention", drug);
+//       params.append("yearsBack", yearsBack);
+//       // keep the same fields + fetchAll flag as before
+//       params.append("fields", "protocolSection,derivedSection,hasResults");
+//       params.append("fetchAll", true);
+
+//       const response = await axios.get(`${API_BASE_URL}/studies/search`, {
+//         params,
+//         headers: { Accept: "application/json", "Cache-Control": "no-cache" }
+//       });
+
+//       if (response.data && response.data.success) {
+//         return (response.data.data && response.data.data.studies) ? response.data.data.studies : [];
+//       }
+//       return [];
+//     }
+//   } catch (error) {
+//     console.error("Error fetching studies:", error.message);
+//     return [];
+//   }
+// }
 
 
 /**
@@ -90190,6 +92191,7 @@ function generateClinicalImplications(articles, suffix) {
  * @param {boolean} exactMatch - Whether to require exact phrase matching
  * @returns {Promise<Array>} - Array of studies
  */
+
 async function fetchStudies(
   drug = "", 
   condition = "", 
@@ -98773,9 +100775,9 @@ initTabs() {
             this.elements.searchBtn.addEventListener('click', () => this.performSearch());
         }
         if (this.elements.searchInput) {
-            this.elements.searchInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') this.performSearch();
-            });
+            // this.elements.searchInput.addEventListener('keypress', (e) => {
+            //     if (e.key === 'Enter') this.performSearch();
+            // });
         }
         if (this.elements.refreshBtn) {
             this.elements.refreshBtn.addEventListener('click', () => this.refreshData());
