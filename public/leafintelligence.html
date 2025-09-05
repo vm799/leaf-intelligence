@@ -66074,121 +66074,123 @@ function hideGlobalDocumentLoadingIndicator() {
   }
 }
 
-function generateApplicationsContent(fdaData, drugName, drugsCount) {
-  let html = `
-    <div id="applications-content" class="fda-tab-pane active">
-      <div class="flex justify-between items-center mb-4">
-        <h3 class="text-lg font-medium text-gray-900">Drug Applications</h3>
-        <span class="hidden text-sm text-gray-500">${drugsCount} applications found</span>
-      </div>
-  `;
+// function generateApplicationsContent(fdaData, drugName, drugsCount) {
+//   let html = `
+//     <div id="applications-content" class="fda-tab-pane active">
+//       <div class="flex justify-between items-center mb-4">
+//         <h3 class="text-lg font-medium text-gray-900">Drug Applications</h3>
+//         <span class="hidden text-sm text-gray-500">${drugsCount} applications found</span>
+//       </div>
+//   `;
 
-  if (fdaData.categorized && Object.keys(fdaData.categorized).length > 0) {
-    let allProducts = [];
-    Object.entries(fdaData.categorized).forEach(([brandName, strengths]) => {
-      Object.entries(strengths).forEach(([strength, products]) => {
-        products.forEach(product => {
-          allProducts.push({ ...product, strength });
-        });
-      });
-    });
+//   if (fdaData.categorized && Object.keys(fdaData.categorized).length > 0) {
+//     let allProducts = [];
+//     Object.entries(fdaData.categorized).forEach(([brandName, strengths]) => {
+//       Object.entries(strengths).forEach(([strength, products]) => {
+//         products.forEach(product => {
+//           allProducts.push({ ...product, strength });
+//         });
+//       });
+//     });
 
-    html += `<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">`;
+//     html += `<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">`;
     
-    // Sort products by approval date (most recent first) before displaying
-    allProducts.sort((a, b) => {
-      const dateA = a.approvalDate === 'Unknown' ? new Date(0) : new Date(a.approvalDate);
-      const dateB = b.approvalDate === 'Unknown' ? new Date(0) : new Date(b.approvalDate);
-      return dateB - dateA;
-    });
+//     // Sort products by approval date (most recent first) before displaying
+//     allProducts.sort((a, b) => {
+//       const dateA = a.approvalDate === 'Unknown' ? new Date(0) : new Date(a.approvalDate);
+//       const dateB = b.approvalDate === 'Unknown' ? new Date(0) : new Date(b.approvalDate);
+//       return dateB - dateA;
+//     });
     
-    allProducts.slice(0, 9).forEach(product => {
-      // Determine the main status badge
-      let statusBadge = '';
-      let statusColor = '';
+//     allProducts.slice(0, 9).forEach(product => {
+//       // Determine the main status badge
+//       let statusBadge = '';
+//       let statusColor = '';
       
-      if (product.hasApproval) {
-        statusBadge = 'Approved';
-        statusColor = 'bg-green-100 text-green-800';
-      } else if (product.hasCRL) {
-        statusBadge = 'CRL';
-        statusColor = 'bg-red-100 text-red-800';
-      } else if (product.isPending) {
-        statusBadge = 'Pending';
-        statusColor = 'bg-yellow-100 text-yellow-800';
-      } else if (product.hasWithdrawn) {
-        statusBadge = 'Withdrawn';
-        statusColor = 'bg-gray-100 text-gray-800';
-      } else {
-        statusBadge = product.currentStatus || 'Unknown';
-        statusColor = 'bg-gray-100 text-gray-800';
-      }
+//       if (product.hasApproval) {
+//         statusBadge = 'Approved';
+//         statusColor = 'bg-green-100 text-green-800';
+//       } else if (product.hasCRL) {
+//         statusBadge = 'CRL';
+//         statusColor = 'bg-red-100 text-red-800';
+//       } else if (product.isPending) {
+//         statusBadge = 'Pending';
+//         statusColor = 'bg-yellow-100 text-yellow-800';
+//       } else if (product.hasWithdrawn) {
+//         statusBadge = 'Withdrawn';
+//         statusColor = 'bg-gray-100 text-gray-800';
+//       } else {
+//         statusBadge = product.currentStatus || 'Unknown';
+//         statusColor = 'bg-gray-100 text-gray-800';
+//       }
       
-      html += `
-        <div class="bg-white border border-gray-200 rounded-md shadow-sm hover:shadow-md transition-shadow">
-          <div class="p-3">
-            <div class="flex justify-between items-start">
-              <div class="truncate pr-2">
-                <h4 class="text-sm font-semibold truncate">${product.brandName}</h4>
-                <p class="text-xs text-gray-600">${product.strength}</p>
-              </div>
-              <span class="px-2 py-1 text-xs font-medium rounded-full ${statusColor}">
-                ${statusBadge}
-              </span>
-            </div>
+//       html += `
+//         <div class="bg-white border border-gray-200 rounded-md shadow-sm hover:shadow-md transition-shadow">
+//           <div class="p-3">
+//             <div class="flex justify-between items-start">
+//               <div class="truncate pr-2">
+//                 <h4 class="text-sm font-semibold truncate">${product.brandName}</h4>
+//                 <p class="text-xs text-gray-600">${product.strength}</p>
+//               </div>
+//               <span class="px-2 py-1 text-xs font-medium rounded-full ${statusColor}">
+//                 ${statusBadge}
+//               </span>
+//             </div>
             
-            <div class="mt-2 space-y-1">
-              <p class="text-xs text-gray-600">
-                <span class="font-medium">App:</span> ${product.applicationNumber}
-              </p>
-              <p class="text-xs text-gray-600">
-                <span class="font-medium">Approved:</span> ${formatFDAApplicationDate(product.approvalDate)}
-              </p>
-              <p class="text-xs text-gray-600 truncate">
-                <span class="font-medium">Sponsor:</span> ${product.sponsorName || 'Unknown'}
-              </p>
-            </div>
+//             <div class="mt-2 space-y-1">
+//               <p class="text-xs text-gray-600">
+//                 <span class="font-medium">App:</span> ${product.applicationNumber}
+//               </p>
+//               <p class="text-xs text-gray-600">
+//                 <span class="font-medium">Approved:</span> ${formatFDAApplicationDate(product.approvalDate)}
+//               </p>
+//               <p class="text-xs text-gray-600 truncate">
+//                 <span class="font-medium">Sponsor:</span> ${product.sponsorName || 'Unknown'}
+//               </p>
+//             </div>
             
-            <div class="mt-3 flex justify-between items-center">
-              <a href="${product.fdaPage}" 
-                 target="_blank" 
-                 class="text-blue-600 hover:text-blue-800 text-xs font-medium">
-                View FDA Page →
-              </a>
-              <button class="text-gray-600 hover:text-gray-800 text-xs open-details-modal" 
-                      data-application="${product.applicationNumber}"
-                      data-brand="${product.brandName}"
-                      data-ingredient="${product.activeIngredients?.[0]?.name || drugName}">
-                Details
-              </button>
-            </div>
-          </div>
-        </div>
-      `;
-    });
+//             <div class="mt-3 flex justify-between items-center">
+//               <a href="${product.fdaPage}" 
+//                  target="_blank" 
+//                  class="text-blue-600 hover:text-blue-800 text-xs font-medium">
+//                 View FDA Page →
+//               </a>
+//               <button class="text-gray-600 hover:text-gray-800 text-xs open-details-modal" 
+//                       data-application="${product.applicationNumber}"
+//                       data-brand="${product.brandName}"
+//                       data-ingredient="${product.activeIngredients?.[0]?.name || drugName}">
+//                 Details
+//               </button>
+//             </div>
+//           </div>
+//         </div>
+//       `;
+//     });
     
-    html += `</div>`;
+//     html += `</div>`;
 
-    if (allProducts.length > 9) {
-      html += `
-        <div class="mt-4 text-center">
-          <button id="view-all-applications" class="pro-feature px-4 py-2 bg-gray-100 text-gray-800 border border-gray-300 rounded hover:bg-gray-200 transition-colors text-sm">
-            View All ${allProducts.length} Applications
-          </button>
-        </div>
-      `;
-    }
-  } else {
-    html += `
-      <div class="text-center p-4">
-        <p class="text-sm text-gray-700">No drug application data found for "${drugName}"</p>
-      </div>
-    `;
-  }
+//     if (allProducts.length > 9) {
+//       html += `
+//         <div class="mt-4 text-center">
+//           <button id="view-all-applications" class="pro-feature px-4 py-2 bg-gray-100 text-gray-800 border border-gray-300 rounded hover:bg-gray-200 transition-colors text-sm">
+//             View All ${allProducts.length} Applications
+//           </button>
+//         </div>
+//       `;
+//     }
+//   } else {
+//     html += `
+//       <div class="text-center p-4">
+//         <p class="text-sm text-gray-700">No drug application data found for "${drugName}"</p>
+//       </div>
+//     `;
+//   }
   
-  html += `</div>`;
-  return html;
-}
+//   html += `</div>`;
+//   return html;
+// }
+
+
 
 // Specific FDA Application Date Formatter
 function formatFDAApplicationDate(dateStr) {
@@ -66548,7 +66550,7 @@ function initializeEnhancedApplicationListeners() {
 }
 
 // Replace the original generateApplicationsContent function
-window.generateApplicationsContent = generateApplicationsContentWithTags;
+// window.generateApplicationsContent = generateApplicationsContentWithTags;
 
 // Initialize enhanced listeners when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
@@ -69722,57 +69724,160 @@ function exportSeriousEventsToCsv(eventData, drugName) {
     window.URL.revokeObjectURL(url);
 }
 
-
-// Generate Applications Content
+// Updated function to generate Applications Content grouped by NDA/ANDA
 function generateApplicationsContent(fdaData, drugName, drugsCount) {
   let html = `
     <div id="applications-content" class="fda-tab-pane active">
       <div class="flex justify-between items-center mb-4">
         <h3 class="text-lg font-medium text-gray-900">Drug Applications</h3>
-        <span class="hidden text-sm text-gray-500">${drugsCount} applications found</span>
+        <div class="flex items-center space-x-2">
+          <span class="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs">NDAs: Branded</span>
+          <span class="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs">ANDAs: Generics</span>
+        </div>
       </div>
   `;
 
   if (fdaData.categorized && Object.keys(fdaData.categorized).length > 0) {
-    let allProducts = [];
+    // Group applications by NDA/ANDA number
+    const groupedByApplication = {};
+    
     Object.entries(fdaData.categorized).forEach(([brandName, strengths]) => {
       Object.entries(strengths).forEach(([strength, products]) => {
         products.forEach(product => {
-          allProducts.push({ ...product, strength });
+          const appNum = product.applicationNumber;
+          if (!groupedByApplication[appNum]) {
+            groupedByApplication[appNum] = {
+              applicationNumber: appNum,
+              brandName: product.brandName,
+              isNDA: appNum.startsWith('NDA'),
+              manufacturerName: product.manufacturerName || product.sponsorName,
+              approvalDate: product.approvalDate,
+              activeIngredient: product.activeIngredients?.[0]?.name || drugName,
+              products: []
+            };
+          }
+          groupedByApplication[appNum].products.push({
+            ...product,
+            strength: strength
+          });
         });
       });
     });
 
-    html += `<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">`;
+    // Sort: NDAs first, then ANDAs
+    const sortedApplications = Object.values(groupedByApplication).sort((a, b) => {
+      if (a.isNDA && !b.isNDA) return -1;
+      if (!a.isNDA && b.isNDA) return 1;
+      return a.applicationNumber.localeCompare(b.applicationNumber);
+    });
+
+    html += `<div class="space-y-4">`;
     
-    allProducts.slice(0, 9).forEach(product => {
+    sortedApplications.forEach((appGroup, index) => {
+      const isNDA = appGroup.isNDA;
+      const badgeColor = isNDA ? 'bg-blue-500' : 'bg-green-500';
+      const borderColor = isNDA ? 'border-blue-200' : 'border-green-200';
+      const bgColor = isNDA ? 'bg-blue-50' : 'bg-green-50';
+      
       html += `
-        <div class="bg-white border border-gray-200 rounded-md shadow-sm hover:shadow-md transition-shadow">
-          <div class="p-3">
+        <div class="border ${borderColor} rounded-lg shadow-sm hover:shadow-md transition-shadow">
+          <!-- Card Header -->
+          <div class="${bgColor} px-4 py-3 border-b ${borderColor}">
             <div class="flex justify-between items-start">
-              <div class="truncate pr-2">
-                <h4 class="text-sm font-semibold truncate">${product.brandName}</h4>
-                <p class="text-xs text-gray-600">${product.strength}</p>
+              <div>
+                <div class="flex items-center space-x-2 mb-1">
+                  <h4 class="text-lg font-semibold text-gray-900">${appGroup.brandName}</h4>
+                  <span class="px-2 py-0.5 ${badgeColor} text-white text-xs rounded-full">
+                    ${appGroup.applicationNumber}
+                  </span>
+                  <span class="px-2 py-0.5 ${isNDA ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'} text-xs rounded">
+                    ${isNDA ? 'BRANDED' : 'GENERIC'}
+                  </span>
+                </div>
+                <div class="text-sm text-gray-600">
+                  <span class="font-medium">Manufacturer:</span> ${appGroup.manufacturerName}
+                  <span class="mx-2">•</span>
+                  <span class="font-medium">Approved:</span> ${appGroup.approvalDate}
+                </div>
               </div>
-              <span class="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full whitespace-nowrap">
-                ${product.applicationNumber}
-              </span>
-            </div>
-            
-            <div class="mt-2 text-xs">
-              <p><span class="font-medium">Approved:</span> ${product.approvalDate}</p>
-              <p class="truncate"><span class="font-medium">Manufacturer:</span> ${product.manufacturerName || product.sponsorName}</p>
-              <p class="truncate"><span class="font-medium">Form:</span> ${product.dosageForm}</p>
-            </div>
-            
-            <div class="mt-2 flex justify-end">
               <button
-                class="px-2 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition-colors view-details-btn"
-                data-application="${product.applicationNumber}"
-                data-brand="${product.brandName}"
-                data-ingredient="${product.activeIngredients?.[0]?.name || drugName}">
-                Details
+                class="px-3 py-1.5 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 transition-colors view-details-btn"
+                data-application="${appGroup.applicationNumber}"
+                data-brand="${appGroup.brandName}"
+                data-ingredient="${appGroup.activeIngredient}">
+                📄 View Details
               </button>
+            </div>
+          </div>
+          
+          <!-- Products Table -->
+          <div class="p-4">
+            <h5 class="text-sm font-semibold text-gray-700 mb-2">
+              Products on ${appGroup.applicationNumber} (${appGroup.products.length} dosage form${appGroup.products.length > 1 ? 's' : ''})
+            </h5>
+            <div class="overflow-x-auto">
+              <table class="min-w-full divide-y divide-gray-200 text-xs">
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th class="px-3 py-2 text-left font-medium text-gray-500 uppercase tracking-wider">Drug Name</th>
+                    <th class="px-3 py-2 text-left font-medium text-gray-500 uppercase tracking-wider">Active Ingredients</th>
+                    <th class="px-3 py-2 text-left font-medium text-gray-500 uppercase tracking-wider">Strength</th>
+                    <th class="px-3 py-2 text-left font-medium text-gray-500 uppercase tracking-wider">Dosage Form/Route</th>
+                    <th class="px-3 py-2 text-left font-medium text-gray-500 uppercase tracking-wider">Marketing Status</th>
+                    <th class="px-3 py-2 text-left font-medium text-gray-500 uppercase tracking-wider">TE Code</th>
+
+                  </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+      `;
+      
+      // Sort products by strength for better organization
+      appGroup.products.sort((a, b) => {
+        // Extract numeric values from strength for proper sorting
+        const getNumericStrength = (str) => {
+          const match = str.match(/(\d+\.?\d*)/);
+          return match ? parseFloat(match[1]) : 0;
+        };
+        return getNumericStrength(a.strength) - getNumericStrength(b.strength);
+      });
+      
+      appGroup.products.forEach(product => {
+        const activeIngredient = product.activeIngredients?.[0]?.name || drugName;
+        const isRLD = product.rld === 'Yes' || product.rld === true;
+        const isRS = product.rs === 'Yes' || product.rs === true;
+        
+        html += `
+          <tr class="hover:bg-gray-50">
+            <td class="px-3 py-2 text-gray-900 font-medium">${product.brandName}</td>
+            <td class="px-3 py-2 text-gray-600">${activeIngredient}</td>
+            <td class="px-3 py-2 text-gray-600">${product.strength}</td>
+            <td class="px-3 py-2 text-gray-600">${product.dosageForm}; ${product.route || 'ORAL'}</td>
+            <td class="px-3 py-2">
+              <span class="px-1.5 py-0.5 ${product.marketingStatus === 'Prescription' ? 'bg-purple-100 text-purple-700' : 'bg-gray-100 text-gray-700'} text-xs rounded">
+                ${product.marketingStatus || 'Prescription'}
+              </span>
+            </td>
+            <td class="px-3 py-2 text-gray-600">${product.teCode || 'None'}</td>
+            
+          </tr>
+        `;
+      });
+      
+      html += `
+                </tbody>
+              </table>
+            </div>
+            
+            <!-- Legend for RLD/RS -->
+            <div class="mt-3 flex items-center space-x-4 text-xs text-gray-500">
+              <div class="flex items-center">
+                <span class="text-green-600 font-bold mr-1">✓</span>
+                <span>RLD = Reference Listed Drug</span>
+              </div>
+              <div class="flex items-center">
+                <span class="text-blue-600 font-bold mr-1">✓</span>
+                <span>RS = Reference Standard</span>
+              </div>
             </div>
           </div>
         </div>
@@ -69781,19 +69886,42 @@ function generateApplicationsContent(fdaData, drugName, drugsCount) {
     
     html += `</div>`;
 
-    if (allProducts.length > 9) {
-      html += `
-        <div class="mt-4 text-center">
-          <button id="view-all-applications" class="px-4 py-2 bg-gray-100 text-gray-800 border border-gray-300 rounded hover:bg-gray-200 transition-colors text-sm">
-            View All ${allProducts.length} Applications
-          </button>
+    // Summary statistics
+    const ndaCount = sortedApplications.filter(app => app.isNDA).length;
+    const andaCount = sortedApplications.filter(app => !app.isNDA).length;
+    const totalProducts = sortedApplications.reduce((sum, app) => sum + app.products.length, 0);
+    
+    html += `
+      <div class="mt-6 p-4 bg-gray-50 rounded-lg">
+        <h4 class="text-sm font-semibold text-gray-700 mb-2">Summary</h4>
+        <div class="grid grid-cols-3 gap-4 text-sm">
+          <div>
+            <span class="text-gray-600">Total Applications:</span>
+            <span class="ml-2 font-semibold">${sortedApplications.length}</span>
+          </div>
+          <div>
+            <span class="text-gray-600">NDAs (Branded):</span>
+            <span class="ml-2 font-semibold text-blue-600">${ndaCount}</span>
+          </div>
+          <div>
+            <span class="text-gray-600">ANDAs (Generics):</span>
+            <span class="ml-2 font-semibold text-green-600">${andaCount}</span>
+          </div>
+          <div>
+            <span class="text-gray-600">Total Dosage Forms:</span>
+            <span class="ml-2 font-semibold">${totalProducts}</span>
+          </div>
         </div>
-      `;
-    }
+      </div>
+    `;
+    
   } else {
     html += `
-      <div class="text-center p-4">
-        <p class="text-sm text-gray-700">No drug application data found for "${drugName}"</p>
+      <div class="text-center p-8 bg-gray-50 rounded-lg">
+        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+        </svg>
+        <p class="mt-2 text-sm text-gray-700">No drug application data found for "${drugName}"</p>
       </div>
     `;
   }
@@ -69801,6 +69929,85 @@ function generateApplicationsContent(fdaData, drugName, drugsCount) {
   html += `</div>`;
   return html;
 }
+
+// Generate Applications Content
+// function generateApplicationsContent(fdaData, drugName, drugsCount) {
+//   let html = `
+//     <div id="applications-content" class="fda-tab-pane active">
+//       <div class="flex justify-between items-center mb-4">
+//         <h3 class="text-lg font-medium text-gray-900">Drug Applications</h3>
+//         <span class="hidden text-sm text-gray-500">${drugsCount} applications found</span>
+//       </div>
+//   `;
+
+//   if (fdaData.categorized && Object.keys(fdaData.categorized).length > 0) {
+//     let allProducts = [];
+//     Object.entries(fdaData.categorized).forEach(([brandName, strengths]) => {
+//       Object.entries(strengths).forEach(([strength, products]) => {
+//         products.forEach(product => {
+//           allProducts.push({ ...product, strength });
+//         });
+//       });
+//     });
+
+//     html += `<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">`;
+    
+//     allProducts.slice(0, 9).forEach(product => {
+//       html += `
+//         <div class="bg-white border border-gray-200 rounded-md shadow-sm hover:shadow-md transition-shadow">
+//           <div class="p-3">
+//             <div class="flex justify-between items-start">
+//               <div class="truncate pr-2">
+//                 <h4 class="text-sm font-semibold truncate">${product.brandName}</h4>
+//                 <p class="text-xs text-gray-600">${product.strength}</p>
+//               </div>
+//               <span class="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full whitespace-nowrap">
+//                 ${product.applicationNumber}
+//               </span>
+//             </div>
+            
+//             <div class="mt-2 text-xs">
+//               <p><span class="font-medium">Approved:</span> ${product.approvalDate}</p>
+//               <p class="truncate"><span class="font-medium">Manufacturer:</span> ${product.manufacturerName || product.sponsorName}</p>
+//               <p class="truncate"><span class="font-medium">Form:</span> ${product.dosageForm}</p>
+//             </div>
+            
+//             <div class="mt-2 flex justify-end">
+//               <button
+//                 class="px-2 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition-colors view-details-btn"
+//                 data-application="${product.applicationNumber}"
+//                 data-brand="${product.brandName}"
+//                 data-ingredient="${product.activeIngredients?.[0]?.name || drugName}">
+//                 Details
+//               </button>
+//             </div>
+//           </div>
+//         </div>
+//       `;
+//     });
+    
+//     html += `</div>`;
+
+//     if (allProducts.length > 9) {
+//       html += `
+//         <div class="mt-4 text-center">
+//           <button id="view-all-applications" class="px-4 py-2 bg-gray-100 text-gray-800 border border-gray-300 rounded hover:bg-gray-200 transition-colors text-sm">
+//             View All ${allProducts.length} Applications
+//           </button>
+//         </div>
+//       `;
+//     }
+//   } else {
+//     html += `
+//       <div class="text-center p-4">
+//         <p class="text-sm text-gray-700">No drug application data found for "${drugName}"</p>
+//       </div>
+//     `;
+//   }
+  
+//   html += `</div>`;
+//   return html;
+// }
 
 
 // Generate Label Content
@@ -70961,26 +71168,112 @@ function initializeFDATabSwitching() {
 }
 
 // FIXED: Event listeners with proper modal functions
-function initializeFDAEventListeners(endpointsData, fdaData, drugName) {
-//just adding this to push new fix 
-      document.getElementById('view-all-events')?.addEventListener('click', function() {
-    // Get the serious events data
-    const eventData = endpointsData.event?.data || [];
+// function initializeFDAEventListeners(endpointsData, fdaData, drugName) {
+// //just adding this to push new fix 
+//       document.getElementById('view-all-events')?.addEventListener('click', function() {
+//     // Get the serious events data
+//     const eventData = endpointsData.event?.data || [];
     
-    // Since we're already filtering for serious events, all events in eventData are serious
-    // Open the modal with all serious events
+//     // Since we're already filtering for serious events, all events in eventData are serious
+//     // Open the modal with all serious events
+//     openAllSeriousEventsModal(eventData, drugName);
+// });
+
+
+
+//   // View Details buttons for applications
+//   document.querySelectorAll('.view-details-btn').forEach(button => {
+//     button.addEventListener('click', function() {
+//       const applicationNumber = this.getAttribute('data-application');
+//       const brandName = this.getAttribute('data-brand');
+//       const ingredient = this.getAttribute('data-ingredient');
+      
+//       if (typeof openDetailsModal === 'function') {
+//         openDetailsModal(applicationNumber, brandName, ingredient);
+//       } else {
+//         openSimpleDetailsModal(applicationNumber, brandName, ingredient);
+//       }
+//     });
+//   });
+
+//   // View Label Details buttons
+//   document.querySelectorAll('.view-label-btn').forEach(button => {
+//     button.addEventListener('click', function() {
+//       const index = parseInt(this.getAttribute('data-index'));
+//       const labelData = endpointsData.label?.data || [];
+//       if (labelData[index]) {
+//         if (typeof openLabelModal === 'function') {
+//           openLabelModal(labelData[index]);
+//         } else {
+//           openSimpleLabelModal(labelData[index]);
+//         }
+//       }
+//     });
+//   });
+
+//   // View NDC Details buttons
+//   document.querySelectorAll('.view-ndc-btn').forEach(button => {
+//     button.addEventListener('click', function() {
+//       const index = parseInt(this.getAttribute('data-index'));
+//       const ndcData = endpointsData.ndc?.data || [];
+//       if (ndcData[index]) {
+//         openSimpleNdcModal(ndcData[index]);
+//       }
+//     });
+//   });
+
+//   // View Event Details buttons
+//   document.querySelectorAll('.view-event-btn').forEach(button => {
+//     button.addEventListener('click', function() {
+//       const index = parseInt(this.getAttribute('data-index'));
+//       const eventData = endpointsData.event?.data || [];
+//       if (eventData[index]) {
+//         openSimpleEventModal(eventData[index]);
+//       }
+//     });
+//   });
+
+//   // View Enforcement Details buttons
+//   document.querySelectorAll('.view-enforcement-btn').forEach(button => {
+//     button.addEventListener('click', function() {
+//       const index = parseInt(this.getAttribute('data-index'));
+//       const enforcementData = endpointsData.enforcement?.data || [];
+//       if (enforcementData[index]) {
+//         openSimpleEnforcementModal(enforcementData[index]);
+//       }
+//     });
+//   });
+
+//   // View All buttons
+//   document.getElementById('view-all-applications')?.addEventListener('click', function() {
+//     if (typeof openAllApplicationsModal === 'function') {
+//       openAllApplicationsModal(fdaData.categorized, drugName);
+//     }
+//   });
+  
+//   document.getElementById('view-all-labels')?.addEventListener('click', function() {
+//     if (typeof openAllLabelsModal === 'function') {
+//       openAllLabelsModal(endpointsData.label?.data || []);
+//     }
+//   });
+// }
+
+// Update the initializeFDAEventListeners function to keep using existing modal functions
+function initializeFDAEventListeners(endpointsData, fdaData, drugName) {
+  // View All Events button - using your existing modal
+  document.getElementById('view-all-events')?.addEventListener('click', function() {
+    const eventData = endpointsData.event?.data || [];
     openAllSeriousEventsModal(eventData, drugName);
-});
+  });
 
-
-
-  // View Details buttons for applications
+  // View Details buttons for applications - now triggers the existing openDetailsModal
   document.querySelectorAll('.view-details-btn').forEach(button => {
     button.addEventListener('click', function() {
       const applicationNumber = this.getAttribute('data-application');
       const brandName = this.getAttribute('data-brand');
       const ingredient = this.getAttribute('data-ingredient');
       
+      // Use your existing openDetailsModal function which handles document fetching
       if (typeof openDetailsModal === 'function') {
         openDetailsModal(applicationNumber, brandName, ingredient);
       } else {
@@ -71050,7 +71343,6 @@ function initializeFDAEventListeners(endpointsData, fdaData, drugName) {
     }
   });
 }
-
 
 // FIXED: Background timeline loading that doesn't block main FDA loading
 async function loadFdaTimelineDataBackground(drugName) {
