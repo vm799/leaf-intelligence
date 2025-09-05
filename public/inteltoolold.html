@@ -63946,19 +63946,127 @@ function displayComprehensiveFdaData(fdaData, drugName) {
   // Set the HTML
   elements.fdaDocuments.innerHTML = html;
 
+
+   initializeFDAApplicationsTab();
+
+  // Initialize tab switching with timeline support
+  initializeFDATabsWithTimeline(drugName);
+  
+  // Initialize event listeners
+  initializeFDAEventListeners(endpointsData, fdaData, drugName);
+  setupApprovedDrugsEventListeners();
+  // Auto-load timeline in background after 2 seconds
+  setTimeout(() => {
+    console.log(`🔄 Auto-loading timeline for ${drugName} in background...`);
+    loadFdaTimelineDataBackground(drugName);
+  }, 2000);
+
+  
+}
+function initializeFDAWithAutoFetch(endpointsData, fdaData, drugName) {
+  // Set the HTML first
+  elements.fdaDocuments.innerHTML = html;
+
   // Initialize tab switching with timeline support
   initializeFDATabsWithTimeline(drugName);
   
   // Initialize event listeners
   initializeFDAEventListeners(endpointsData, fdaData, drugName);
   
-  // Auto-load timeline in background after 2 seconds
-  setTimeout(() => {
-    console.log(`🔄 Auto-loading timeline for ${drugName} in background...`);
-    loadFdaTimelineDataBackground(drugName);
-  }, 2000);
+  // Setup approved drugs tab listeners
+  setupApprovedDrugsEventListeners();
+  
+  // Initialize the fetch all button
+  const fetchAllBtn = document.getElementById('fetch-all-docs-btn');
+  if (fetchAllBtn) {
+    fetchAllBtn.addEventListener('click', function() {
+      this.disabled = true;
+      this.innerHTML = '⏳ Fetching All...';
+      
+      autoFetchAllDocuments().then(() => {
+        this.innerHTML = '✓ Complete';
+        this.classList.remove('bg-purple-600');
+        this.classList.add('bg-green-600');
+        setTimeout(() => {
+          this.innerHTML = '🔄 Fetch All Documents';
+          this.classList.remove('bg-green-600');
+          this.classList.add('bg-purple-600');
+          this.disabled = false;
+        }, 3000);
+      }).catch(error => {
+        console.error('Error in batch fetch:', error);
+        this.innerHTML = '❌ Error - Click to Retry';
+        this.classList.remove('bg-purple-600');
+        this.classList.add('bg-red-600');
+        this.disabled = false;
+      });
+    });
+  }
+  
+  // Auto-fetch documents after ensuring DOM is ready
+  // Check if the applications tab is currently active
+  const applicationsTab = document.getElementById('applications-content');
+  if (applicationsTab && !applicationsTab.classList.contains('hidden')) {
+    // Start auto-fetch after a delay
+    console.log('Starting auto-fetch for FDA documents...');
+    setTimeout(() => {
+      autoFetchAllDocuments().catch(error => {
+        console.error('Auto-fetch error:', error);
+      });
+    }, 1500);
+  } else {
+    // If not on applications tab, set up listener for when it becomes active
+    const applicationsTabBtn = document.getElementById('applications-tab');
+    if (applicationsTabBtn) {
+      let autoFetchExecuted = false;
+      applicationsTabBtn.addEventListener('click', function() {
+        if (!autoFetchExecuted) {
+          autoFetchExecuted = true;
+          console.log('Applications tab activated, starting auto-fetch...');
+          setTimeout(() => {
+            autoFetchAllDocuments().catch(error => {
+              console.error('Auto-fetch error:', error);
+            });
+          }, 500);
+        }
+      });
+    }
+  }
 }
 
+// Also ensure scrapeApplicationDocuments is accessible
+// If it's not already global, make it available
+if (typeof window.scrapeApplicationDocuments === 'undefined' && typeof scrapeApplicationDocuments === 'function') {
+  window.scrapeApplicationDocuments = scrapeApplicationDocuments;
+}
+
+// Debug helper to check if functions are available
+function debugAutoFetchIssue() {
+  console.log('=== FDA Auto-fetch Debug ===');
+  console.log('autoFetchAllDocuments exists:', typeof autoFetchAllDocuments !== 'undefined');
+  console.log('scrapeApplicationDocuments exists:', typeof scrapeApplicationDocuments !== 'undefined');
+  console.log('window.scrapeApplicationDocuments exists:', typeof window.scrapeApplicationDocuments !== 'undefined');
+  
+  const applicationCards = document.querySelectorAll('[data-app-number]');
+  console.log('Application cards found:', applicationCards.length);
+  
+  let activeCount = 0;
+  applicationCards.forEach(card => {
+    const isDiscontinued = card.getAttribute('data-discontinued') === 'true';
+    if (!isDiscontinued) activeCount++;
+  });
+  console.log('Active (non-discontinued) applications:', activeCount);
+  
+  const fetchBtn = document.getElementById('fetch-all-docs-btn');
+  console.log('Fetch button found:', !!fetchBtn);
+  
+  return {
+    hasAutoFetch: typeof autoFetchAllDocuments !== 'undefined',
+    hasScraper: typeof scrapeApplicationDocuments !== 'undefined' || typeof window.scrapeApplicationDocuments !== 'undefined',
+    activeApplications: activeCount,
+    ready: activeCount > 0 && (typeof scrapeApplicationDocuments !== 'undefined' || typeof window.scrapeApplicationDocuments !== 'undefined')
+  };
+}
 // Generate Applications Content
 function generateApplicationsContent(fdaData, drugName, drugsCount) {
   let html = `

@@ -69131,8 +69131,36 @@ function displayComprehensiveFdaData(fdaData, drugName) {
   // Initialize event listeners - YOUR EXISTING CODE
   initializeFDAEventListeners(endpointsData, fdaData, drugName);
   
+//   initializeFDADocumentFetching();
   // Setup approved drugs tab listeners
   setupApprovedDrugsEventListeners();
+//   setupApprovedDrugsEventListeners();
+initializeFDADocumentFetching();
+// // Setup fetch button and auto-fetch
+// const fetchAllBtn = document.getElementById('fetch-all-docs-btn');
+// if (fetchAllBtn) {
+//   fetchAllBtn.addEventListener('click', function() {
+//     this.disabled = true;
+//     this.innerHTML = '⏳ Fetching All...';
+    
+//     autoFetchAllDocuments().then(() => {
+//       this.innerHTML = '✓ Complete';
+//       // ... rest of button logic
+//     });
+//   });
+// }
+
+// // Auto-fetch after delay
+// setTimeout(() => {
+//   console.log('Starting auto-fetch...');
+//   if (typeof autoFetchAllDocuments === 'function') {
+//     autoFetchAllDocuments();
+//   } else if (typeof window.autoFetchAllDocuments === 'function') {
+//     window.autoFetchAllDocuments();
+//   } else {
+//     console.error('autoFetchAllDocuments not found!');
+//   }
+// }, 1500);
   
   // Auto-load timeline in background after 2 seconds - YOUR EXISTING CODE
   setTimeout(() => {
@@ -69188,6 +69216,194 @@ function setupApprovedDrugsEventListeners() {
     });
   });
 }
+
+// Comprehensive FDA Approval Date Formatting Function
+function formatFDAApprovalDate(dateStr, product) {
+  // Check if product is discontinued first
+  if (product && (product.marketingStatus?.toLowerCase().includes('discontinued') ||
+      product.applicationStatus?.toLowerCase().includes('discontinued'))) {
+    // For discontinued products, try to show the original approval date if available
+    // but mark it clearly as historical
+    if (dateStr && dateStr !== 'Unknown') {
+      const formattedDate = parseAndFormatFDADate(dateStr);
+      if (formattedDate !== 'Invalid Date') {
+        return `${formattedDate} (Discontinued)`;
+      }
+    }
+    return 'Discontinued';
+  }
+  
+  // For active products, format the approval date normally
+  return parseAndFormatFDADate(dateStr);
+}
+
+// Core FDA date parser and formatter
+function parseAndFormatFDADate(dateStr) {
+  if (!dateStr || dateStr === 'Unknown' || dateStr === 'N/A') {
+    return 'Not Available';
+  }
+  
+  try {
+    let date;
+    
+    // Handle various FDA date formats
+    // 1. MM/DD/YYYY format (most common in FDA)
+    if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(dateStr)) {
+      const parts = dateStr.split('/');
+      const month = parseInt(parts[0]) - 1; // JavaScript months are 0-based
+      const day = parseInt(parts[1]);
+      const year = parseInt(parts[2]);
+      date = new Date(year, month, day);
+    }
+    // 2. YYYY-MM-DD format
+    else if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+      date = new Date(dateStr);
+    }
+    // 3. YYYYMMDD format (8 digits)
+    else if (/^\d{8}$/.test(dateStr)) {
+      const year = parseInt(dateStr.substring(0, 4));
+      const month = parseInt(dateStr.substring(4, 6)) - 1;
+      const day = parseInt(dateStr.substring(6, 8));
+      date = new Date(year, month, day);
+    }
+    // 4. Month DD, YYYY format (e.g., "December 31, 2020")
+    else if (/^[A-Za-z]+ \d{1,2}, \d{4}$/.test(dateStr)) {
+      date = new Date(dateStr);
+    }
+    // 5. DD-MMM-YYYY format (e.g., "31-Dec-2020")
+    else if (/^\d{1,2}-[A-Za-z]{3}-\d{4}$/.test(dateStr)) {
+      date = new Date(dateStr.replace(/-/g, ' '));
+    }
+    // 6. Try standard date parsing as fallback
+    else {
+      date = new Date(dateStr);
+    }
+    
+    // Validate the parsed date
+    if (!date || isNaN(date.getTime())) {
+      console.warn('Could not parse FDA date:', dateStr);
+      return 'Invalid Date';
+    }
+    
+    // Check if date is reasonable (between 1939 and 2030)
+    // FDA was created in 1938, first NDA approved in 1939
+    const year = date.getFullYear();
+    if (year < 1939 || year > 2030) {
+      console.warn('FDA date out of reasonable range:', dateStr, 'parsed as', year);
+      return 'Invalid Date';
+    }
+    
+    // Format the date consistently
+    const options = { 
+      year: 'numeric', 
+      month: 'short', 
+      day: 'numeric' 
+    };
+    
+    return date.toLocaleDateString('en-US', options);
+    
+  } catch (error) {
+    console.error('Error formatting FDA approval date:', error, 'for date:', dateStr);
+    return 'Invalid Date';
+  }
+}
+
+// Updated generateApplicationsContent function snippet - replace the approval date display
+// In your generateApplicationsContent function, update this part:
+
+// OLD CODE:
+// <span class="font-medium">Approved:</span> ${appGroup.approvalDate}
+
+// NEW CODE:
+// <span class="font-medium">Approved:</span> ${formatFDAApprovalDate(appGroup.approvalDate, appGroup.products[0])}
+
+// Function to extract the earliest approval date from a group of products
+function getEarliestApprovalDate(products) {
+  let earliestDate = null;
+  let earliestDateStr = null;
+  
+  products.forEach(product => {
+    if (product.approvalDate && product.approvalDate !== 'Unknown') {
+      const dateStr = product.approvalDate;
+      const parsedDate = parseAndFormatFDADate(dateStr);
+      
+      if (parsedDate !== 'Invalid Date' && parsedDate !== 'Not Available') {
+        // Convert back to Date object for comparison
+        const date = new Date(parsedDate);
+        if (!earliestDate || date < earliestDate) {
+          earliestDate = date;
+          earliestDateStr = dateStr;
+        }
+      }
+    }
+  });
+  
+  return earliestDateStr;
+}
+
+// Function to format date range for products with multiple approval dates
+function formatApprovalDateRange(products) {
+  const dates = [];
+  
+  products.forEach(product => {
+    if (product.approvalDate && product.approvalDate !== 'Unknown') {
+      const formatted = parseAndFormatFDADate(product.approvalDate);
+      if (formatted !== 'Invalid Date' && formatted !== 'Not Available') {
+        dates.push(new Date(formatted));
+      }
+    }
+  });
+  
+  if (dates.length === 0) {
+    // Check if all products are discontinued
+    const allDiscontinued = products.every(p => 
+      p.marketingStatus?.toLowerCase().includes('discontinued')
+    );
+    return allDiscontinued ? 'Discontinued' : 'Not Available';
+  }
+  
+  // Sort dates
+  dates.sort((a, b) => a - b);
+  
+  if (dates.length === 1) {
+    return dates[0].toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'short', 
+      day: 'numeric' 
+    });
+  }
+  
+  // Return range
+  const earliest = dates[0].toLocaleDateString('en-US', { 
+    year: 'numeric', 
+    month: 'short', 
+    day: 'numeric' 
+  });
+  const latest = dates[dates.length - 1].toLocaleDateString('en-US', { 
+    year: 'numeric', 
+    month: 'short', 
+    day: 'numeric' 
+  });
+  
+  return `${earliest} - ${latest}`;
+}
+
+// Update for the generateApplicationsContent function
+// Replace the approval date line in the header with:
+/*
+<span class="font-medium">Approved:</span> ${(() => {
+  // Get the most relevant approval date
+  const earliestDate = getEarliestApprovalDate(appGroup.products);
+  if (earliestDate) {
+    return formatFDAApprovalDate(earliestDate, appGroup.products[0]);
+  }
+  // If no valid date but products are discontinued
+  const allDiscontinued = appGroup.products.every(p => 
+    p.marketingStatus?.toLowerCase().includes('discontinued')
+  );
+  return allDiscontinued ? 'Discontinued' : 'Date Not Available';
+})()}
+*/
 
 // Drug details modal function
 function openDrugDetailsModal(drugIndex) {
@@ -69724,13 +69940,220 @@ function exportSeriousEventsToCsv(eventData, drugName) {
     window.URL.revokeObjectURL(url);
 }
 
-// Updated function to generate Applications Content grouped by NDA/ANDA
+// // Updated function to generate Applications Content grouped by NDA/ANDA
+// function generateApplicationsContent(fdaData, drugName, drugsCount) {
+//   let html = `
+//     <div id="applications-content" class="fda-tab-pane active">
+//       <div class="flex justify-between items-center mb-4">
+//         <h3 class="text-lg font-medium text-gray-900">Drug Applications</h3>
+//         <div class="flex items-center space-x-2">
+//           <span class="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs">NDAs: Branded</span>
+//           <span class="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs">ANDAs: Generics</span>
+//         </div>
+//       </div>
+//   `;
+
+//   if (fdaData.categorized && Object.keys(fdaData.categorized).length > 0) {
+//     // Group applications by NDA/ANDA number
+//     const groupedByApplication = {};
+    
+//     Object.entries(fdaData.categorized).forEach(([brandName, strengths]) => {
+//       Object.entries(strengths).forEach(([strength, products]) => {
+//         products.forEach(product => {
+//           const appNum = product.applicationNumber;
+//           if (!groupedByApplication[appNum]) {
+//             groupedByApplication[appNum] = {
+//               applicationNumber: appNum,
+//               brandName: product.brandName,
+//               isNDA: appNum.startsWith('NDA'),
+//               manufacturerName: product.manufacturerName || product.sponsorName,
+//               approvalDate: product.approvalDate,
+//               activeIngredient: product.activeIngredients?.[0]?.name || drugName,
+//               products: []
+//             };
+//           }
+//           groupedByApplication[appNum].products.push({
+//             ...product,
+//             strength: strength
+//           });
+//         });
+//       });
+//     });
+
+//     // Sort: NDAs first, then ANDAs
+//     const sortedApplications = Object.values(groupedByApplication).sort((a, b) => {
+//       if (a.isNDA && !b.isNDA) return -1;
+//       if (!a.isNDA && b.isNDA) return 1;
+//       return a.applicationNumber.localeCompare(b.applicationNumber);
+//     });
+
+//     html += `<div class="space-y-4">`;
+    
+//     sortedApplications.forEach((appGroup, index) => {
+//       const isNDA = appGroup.isNDA;
+//       const badgeColor = isNDA ? 'bg-blue-500' : 'bg-green-500';
+//       const borderColor = isNDA ? 'border-blue-200' : 'border-green-200';
+//       const bgColor = isNDA ? 'bg-blue-50' : 'bg-green-50';
+      
+//       html += `
+//         <div class="border ${borderColor} rounded-lg shadow-sm hover:shadow-md transition-shadow">
+//           <!-- Card Header -->
+//           <div class="${bgColor} px-4 py-3 border-b ${borderColor}">
+//             <div class="flex justify-between items-start">
+//               <div>
+//                 <div class="flex items-center space-x-2 mb-1">
+//                   <h4 class="text-lg font-semibold text-gray-900">${appGroup.brandName}</h4>
+//                   <span class="px-2 py-0.5 ${badgeColor} text-white text-xs rounded-full">
+//                     ${appGroup.applicationNumber}
+//                   </span>
+//                   <span class="px-2 py-0.5 ${isNDA ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'} text-xs rounded">
+//                     ${isNDA ? 'BRANDED' : 'GENERIC'}
+//                   </span>
+//                 </div>
+//                 <div class="text-sm text-gray-600">
+//                   <span class="font-medium">Manufacturer:</span> ${appGroup.manufacturerName}
+//                   <span class="mx-2">•</span>
+//                   <span class="font-medium">Approved:</span> ${appGroup.approvalDate}
+//                 </div>
+//               </div>
+//               <button
+//                 class="px-3 py-1.5 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 transition-colors view-details-btn"
+//                 data-application="${appGroup.applicationNumber}"
+//                 data-brand="${appGroup.brandName}"
+//                 data-ingredient="${appGroup.activeIngredient}">
+//                 📄 View Details
+//               </button>
+//             </div>
+//           </div>
+          
+//           <!-- Products Table -->
+//           <div class="p-4">
+//             <h5 class="text-sm font-semibold text-gray-700 mb-2">
+//               Products on ${appGroup.applicationNumber} (${appGroup.products.length} dosage form${appGroup.products.length > 1 ? 's' : ''})
+//             </h5>
+//             <div class="overflow-x-auto">
+//               <table class="min-w-full divide-y divide-gray-200 text-xs">
+//                 <thead class="bg-gray-50">
+//                   <tr>
+//                     <th class="px-3 py-2 text-left font-medium text-gray-500 uppercase tracking-wider">Drug Name</th>
+//                     <th class="px-3 py-2 text-left font-medium text-gray-500 uppercase tracking-wider">Active Ingredients</th>
+//                     <th class="px-3 py-2 text-left font-medium text-gray-500 uppercase tracking-wider">Strength</th>
+//                     <th class="px-3 py-2 text-left font-medium text-gray-500 uppercase tracking-wider">Dosage Form/Route</th>
+//                     <th class="px-3 py-2 text-left font-medium text-gray-500 uppercase tracking-wider">Marketing Status</th>
+//                     <th class="px-3 py-2 text-left font-medium text-gray-500 uppercase tracking-wider">TE Code</th>
+
+//                   </tr>
+//                 </thead>
+//                 <tbody class="bg-white divide-y divide-gray-200">
+//       `;
+      
+//       // Sort products by strength for better organization
+//       appGroup.products.sort((a, b) => {
+//         // Extract numeric values from strength for proper sorting
+//         const getNumericStrength = (str) => {
+//           const match = str.match(/(\d+\.?\d*)/);
+//           return match ? parseFloat(match[1]) : 0;
+//         };
+//         return getNumericStrength(a.strength) - getNumericStrength(b.strength);
+//       });
+      
+//       appGroup.products.forEach(product => {
+//         const activeIngredient = product.activeIngredients?.[0]?.name || drugName;
+//         const isRLD = product.rld === 'Yes' || product.rld === true;
+//         const isRS = product.rs === 'Yes' || product.rs === true;
+        
+//         html += `
+//           <tr class="hover:bg-gray-50">
+//             <td class="px-3 py-2 text-gray-900 font-medium">${product.brandName}</td>
+//             <td class="px-3 py-2 text-gray-600">${activeIngredient}</td>
+//             <td class="px-3 py-2 text-gray-600">${product.strength}</td>
+//             <td class="px-3 py-2 text-gray-600">${product.dosageForm}; ${product.route || 'ORAL'}</td>
+//             <td class="px-3 py-2">
+//               <span class="px-1.5 py-0.5 ${product.marketingStatus === 'Prescription' ? 'bg-purple-100 text-purple-700' : 'bg-gray-100 text-gray-700'} text-xs rounded">
+//                 ${product.marketingStatus || 'Prescription'}
+//               </span>
+//             </td>
+//             <td class="px-3 py-2 text-gray-600">${product.teCode || 'None'}</td>
+            
+//           </tr>
+//         `;
+//       });
+      
+//       html += `
+//                 </tbody>
+//               </table>
+//             </div>
+            
+//             <!-- Legend for RLD/RS -->
+//             <div class="mt-3 flex items-center space-x-4 text-xs text-gray-500">
+//               <div class="flex items-center">
+//                 <span class="text-green-600 font-bold mr-1">✓</span>
+//                 <span>RLD = Reference Listed Drug</span>
+//               </div>
+//               <div class="flex items-center">
+//                 <span class="text-blue-600 font-bold mr-1">✓</span>
+//                 <span>RS = Reference Standard</span>
+//               </div>
+//             </div>
+//           </div>
+//         </div>
+//       `;
+//     });
+    
+//     html += `</div>`;
+
+//     // Summary statistics
+//     const ndaCount = sortedApplications.filter(app => app.isNDA).length;
+//     const andaCount = sortedApplications.filter(app => !app.isNDA).length;
+//     const totalProducts = sortedApplications.reduce((sum, app) => sum + app.products.length, 0);
+    
+//     html += `
+//       <div class="mt-6 p-4 bg-gray-50 rounded-lg">
+//         <h4 class="text-sm font-semibold text-gray-700 mb-2">Summary</h4>
+//         <div class="grid grid-cols-3 gap-4 text-sm">
+//           <div>
+//             <span class="text-gray-600">Total Applications:</span>
+//             <span class="ml-2 font-semibold">${sortedApplications.length}</span>
+//           </div>
+//           <div>
+//             <span class="text-gray-600">NDAs (Branded):</span>
+//             <span class="ml-2 font-semibold text-blue-600">${ndaCount}</span>
+//           </div>
+//           <div>
+//             <span class="text-gray-600">ANDAs (Generics):</span>
+//             <span class="ml-2 font-semibold text-green-600">${andaCount}</span>
+//           </div>
+//           <div>
+//             <span class="text-gray-600">Total Dosage Forms:</span>
+//             <span class="ml-2 font-semibold">${totalProducts}</span>
+//           </div>
+//         </div>
+//       </div>
+//     `;
+    
+//   } else {
+//     html += `
+//       <div class="text-center p-8 bg-gray-50 rounded-lg">
+//         <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+//           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+//         </svg>
+//         <p class="mt-2 text-sm text-gray-700">No drug application data found for "${drugName}"</p>
+//       </div>
+//     `;
+//   }
+  
+//   html += `</div>`;
+//   return html;
+// }
 function generateApplicationsContent(fdaData, drugName, drugsCount) {
   let html = `
     <div id="applications-content" class="fda-tab-pane active">
       <div class="flex justify-between items-center mb-4">
         <h3 class="text-lg font-medium text-gray-900">Drug Applications</h3>
         <div class="flex items-center space-x-2">
+          <button id="fetch-all-docs-btn" class="px-3 py-1.5 bg-purple-600 text-white text-xs rounded hover:bg-purple-700">
+            🔄 Fetch All Documents
+          </button>
           <span class="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs">NDAs: Branded</span>
           <span class="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs">ANDAs: Generics</span>
         </div>
@@ -69753,6 +70176,7 @@ function generateApplicationsContent(fdaData, drugName, drugsCount) {
               manufacturerName: product.manufacturerName || product.sponsorName,
               approvalDate: product.approvalDate,
               activeIngredient: product.activeIngredients?.[0]?.name || drugName,
+              marketingStatus: product.marketingStatus,
               products: []
             };
           }
@@ -69779,8 +70203,18 @@ function generateApplicationsContent(fdaData, drugName, drugsCount) {
       const borderColor = isNDA ? 'border-blue-200' : 'border-green-200';
       const bgColor = isNDA ? 'bg-blue-50' : 'bg-green-50';
       
+      // Check if any product is discontinued
+      const isDiscontinued = appGroup.products.some(p => 
+        p.marketingStatus?.toLowerCase().includes('discontinued') ||
+        p.applicationStatus?.toLowerCase().includes('discontinued')
+      );
+      
       html += `
-        <div class="border ${borderColor} rounded-lg shadow-sm hover:shadow-md transition-shadow">
+        <div class="border ${borderColor} rounded-lg shadow-sm hover:shadow-md transition-shadow ${isDiscontinued ? 'opacity-60' : ''}" 
+             data-app-number="${appGroup.applicationNumber}"
+             data-brand="${appGroup.brandName}"
+             data-ingredient="${appGroup.activeIngredient}"
+             data-discontinued="${isDiscontinued}">
           <!-- Card Header -->
           <div class="${bgColor} px-4 py-3 border-b ${borderColor}">
             <div class="flex justify-between items-start">
@@ -69793,20 +70227,47 @@ function generateApplicationsContent(fdaData, drugName, drugsCount) {
                   <span class="px-2 py-0.5 ${isNDA ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'} text-xs rounded">
                     ${isNDA ? 'BRANDED' : 'GENERIC'}
                   </span>
+                  ${isDiscontinued ? '<span class="px-2 py-0.5 bg-red-100 text-red-700 text-xs rounded">DISCONTINUED</span>' : ''}
                 </div>
                 <div class="text-sm text-gray-600">
                   <span class="font-medium">Manufacturer:</span> ${appGroup.manufacturerName}
                   <span class="mx-2">•</span>
-                  <span class="font-medium">Approved:</span> ${appGroup.approvalDate}
+                  <span class="font-medium">Approved:</span> ${(() => {
+                    // Get the most relevant approval date
+                    const earliestDate = getEarliestApprovalDate(appGroup.products);
+                    if (earliestDate) {
+                      return formatFDAApprovalDate(earliestDate, appGroup.products[0]);
+                    }
+                    // If no valid date but products are discontinued
+                    const allDiscontinued = appGroup.products.every(p => 
+                      p.marketingStatus?.toLowerCase().includes('discontinued')
+                    );
+                    return allDiscontinued ? 'Discontinued' : 'Date Not Available';
+                  })()}
                 </div>
               </div>
-              <button
-                class="px-3 py-1.5 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 transition-colors view-details-btn"
-                data-application="${appGroup.applicationNumber}"
-                data-brand="${appGroup.brandName}"
-                data-ingredient="${appGroup.activeIngredient}">
-                📄 View Details
-              </button>
+              <div class="flex items-center space-x-2">
+                <!-- Document Status Container -->
+                <div id="doc-status-${appGroup.applicationNumber.replace(/\//g, '-')}" class="flex items-center">
+                  ${!isDiscontinued ? `
+                    <div class="doc-loader hidden">
+                      <svg class="animate-spin h-5 w-5 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      <span class="ml-2 text-sm text-gray-600">Fetching...</span>
+                    </div>
+                    <div class="doc-result hidden"></div>
+                  ` : '<span class="text-xs text-gray-500">No docs (discontinued)</span>'}
+                </div>
+                <button
+                  class="px-3 py-1.5 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 transition-colors view-details-btn"
+                  data-application="${appGroup.applicationNumber}"
+                  data-brand="${appGroup.brandName}"
+                  data-ingredient="${appGroup.activeIngredient}">
+                  📄 View Details
+                </button>
+              </div>
             </div>
           </div>
           
@@ -69825,7 +70286,6 @@ function generateApplicationsContent(fdaData, drugName, drugsCount) {
                     <th class="px-3 py-2 text-left font-medium text-gray-500 uppercase tracking-wider">Dosage Form/Route</th>
                     <th class="px-3 py-2 text-left font-medium text-gray-500 uppercase tracking-wider">Marketing Status</th>
                     <th class="px-3 py-2 text-left font-medium text-gray-500 uppercase tracking-wider">TE Code</th>
-
                   </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
@@ -69833,7 +70293,6 @@ function generateApplicationsContent(fdaData, drugName, drugsCount) {
       
       // Sort products by strength for better organization
       appGroup.products.sort((a, b) => {
-        // Extract numeric values from strength for proper sorting
         const getNumericStrength = (str) => {
           const match = str.match(/(\d+\.?\d*)/);
           return match ? parseFloat(match[1]) : 0;
@@ -69843,8 +70302,6 @@ function generateApplicationsContent(fdaData, drugName, drugsCount) {
       
       appGroup.products.forEach(product => {
         const activeIngredient = product.activeIngredients?.[0]?.name || drugName;
-        const isRLD = product.rld === 'Yes' || product.rld === true;
-        const isRS = product.rs === 'Yes' || product.rs === true;
         
         html += `
           <tr class="hover:bg-gray-50">
@@ -69853,12 +70310,15 @@ function generateApplicationsContent(fdaData, drugName, drugsCount) {
             <td class="px-3 py-2 text-gray-600">${product.strength}</td>
             <td class="px-3 py-2 text-gray-600">${product.dosageForm}; ${product.route || 'ORAL'}</td>
             <td class="px-3 py-2">
-              <span class="px-1.5 py-0.5 ${product.marketingStatus === 'Prescription' ? 'bg-purple-100 text-purple-700' : 'bg-gray-100 text-gray-700'} text-xs rounded">
+              <span class="px-1.5 py-0.5 ${
+                product.marketingStatus?.toLowerCase().includes('discontinued') ? 'bg-red-100 text-red-700' :
+                product.marketingStatus === 'Prescription' ? 'bg-purple-100 text-purple-700' : 
+                'bg-gray-100 text-gray-700'
+              } text-xs rounded">
                 ${product.marketingStatus || 'Prescription'}
               </span>
             </td>
             <td class="px-3 py-2 text-gray-600">${product.teCode || 'None'}</td>
-            
           </tr>
         `;
       });
@@ -69868,16 +70328,9 @@ function generateApplicationsContent(fdaData, drugName, drugsCount) {
               </table>
             </div>
             
-            <!-- Legend for RLD/RS -->
-            <div class="mt-3 flex items-center space-x-4 text-xs text-gray-500">
-              <div class="flex items-center">
-                <span class="text-green-600 font-bold mr-1">✓</span>
-                <span>RLD = Reference Listed Drug</span>
-              </div>
-              <div class="flex items-center">
-                <span class="text-blue-600 font-bold mr-1">✓</span>
-                <span>RS = Reference Standard</span>
-              </div>
+            <!-- Documents section (hidden initially, populated after fetch) -->
+            <div id="docs-${appGroup.applicationNumber.replace(/\//g, '-')}" class="mt-4 hidden">
+              <!-- Documents will be loaded here -->
             </div>
           </div>
         </div>
@@ -69889,12 +70342,15 @@ function generateApplicationsContent(fdaData, drugName, drugsCount) {
     // Summary statistics
     const ndaCount = sortedApplications.filter(app => app.isNDA).length;
     const andaCount = sortedApplications.filter(app => !app.isNDA).length;
+    const activeCount = sortedApplications.filter(app => !app.products.some(p => 
+      p.marketingStatus?.toLowerCase().includes('discontinued')
+    )).length;
     const totalProducts = sortedApplications.reduce((sum, app) => sum + app.products.length, 0);
     
     html += `
       <div class="mt-6 p-4 bg-gray-50 rounded-lg">
         <h4 class="text-sm font-semibold text-gray-700 mb-2">Summary</h4>
-        <div class="grid grid-cols-3 gap-4 text-sm">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
           <div>
             <span class="text-gray-600">Total Applications:</span>
             <span class="ml-2 font-semibold">${sortedApplications.length}</span>
@@ -69908,8 +70364,18 @@ function generateApplicationsContent(fdaData, drugName, drugsCount) {
             <span class="ml-2 font-semibold text-green-600">${andaCount}</span>
           </div>
           <div>
+            <span class="text-gray-600">Active Applications:</span>
+            <span class="ml-2 font-semibold text-purple-600">${activeCount}</span>
+          </div>
+          <div>
             <span class="text-gray-600">Total Dosage Forms:</span>
             <span class="ml-2 font-semibold">${totalProducts}</span>
+          </div>
+          <div id="doc-fetch-progress" class="hidden">
+            <span class="text-gray-600">Documents Progress:</span>
+            <span class="ml-2 font-semibold text-blue-600">
+              <span id="docs-fetched">0</span> / <span id="docs-total">0</span>
+            </span>
           </div>
         </div>
       </div>
@@ -69930,6 +70396,485 @@ function generateApplicationsContent(fdaData, drugName, drugsCount) {
   return html;
 }
 
+// Function to auto-fetch all documents for active applications
+// async function autoFetchAllDocuments() {
+//   const applicationCards = document.querySelectorAll('[data-app-number]');
+//   const activeApplications = [];
+  
+//   // Collect all active (non-discontinued) applications
+//   applicationCards.forEach(card => {
+//     const isDiscontinued = card.getAttribute('data-discontinued') === 'true';
+//     if (!isDiscontinued) {
+//       activeApplications.push({
+//         applicationNumber: card.getAttribute('data-app-number'),
+//         brandName: card.getAttribute('data-brand'),
+//         ingredient: card.getAttribute('data-ingredient')
+//       });
+//     }
+//   });
+  
+//   if (activeApplications.length === 0) {
+//     console.log('No active applications to fetch documents for');
+//     return;
+//   }
+  
+//   // Update progress display
+//   const progressDiv = document.getElementById('doc-fetch-progress');
+//   const docsFetched = document.getElementById('docs-fetched');
+//   const docsTotal = document.getElementById('docs-total');
+  
+//   if (progressDiv && docsTotal) {
+//     progressDiv.classList.remove('hidden');
+//     docsTotal.textContent = activeApplications.length;
+//   }
+  
+//   let fetchedCount = 0;
+  
+//   // Fetch documents for each active application
+//   for (const app of activeApplications) {
+//     const statusId = `doc-status-${app.applicationNumber.replace(/\//g, '-')}`;
+//     const docsId = `docs-${app.applicationNumber.replace(/\//g, '-')}`;
+//     const loaderDiv = document.querySelector(`#${statusId} .doc-loader`);
+//     const resultDiv = document.querySelector(`#${statusId} .doc-result`);
+//     const docsContainer = document.getElementById(docsId);
+    
+//     // Show loader
+//     if (loaderDiv) {
+//       loaderDiv.classList.remove('hidden');
+//     }
+    
+//     try {
+//       // Use your existing scrapeApplicationDocuments function
+//       const documents = await scrapeApplicationDocuments(
+//         app.applicationNumber, 
+//         app.brandName, 
+//         app.ingredient
+//       );
+      
+//       // Hide loader
+//       if (loaderDiv) {
+//         loaderDiv.classList.add('hidden');
+//       }
+      
+//       // Show result
+//       if (resultDiv && documents) {
+//         if (documents.length > 0) {
+//           resultDiv.innerHTML = `
+//             <span class="inline-flex items-center px-2 py-1 bg-green-100 text-green-700 text-xs rounded">
+//               ✓ ${documents.length} docs
+//             </span>
+//           `;
+//           resultDiv.classList.remove('hidden');
+          
+//           // Populate documents container
+//           if (docsContainer) {
+//             docsContainer.innerHTML = renderFDADocuments(documents, app.applicationNumber);
+//             docsContainer.classList.remove('hidden');
+//           }
+//         } else {
+//           resultDiv.innerHTML = `
+//             <span class="inline-flex items-center px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded">
+//               No docs
+//             </span>
+//           `;
+//           resultDiv.classList.remove('hidden');
+//         }
+//       }
+      
+//       fetchedCount++;
+//       if (docsFetched) {
+//         docsFetched.textContent = fetchedCount;
+//       }
+      
+//       // Small delay between requests to avoid overwhelming the server
+//       await new Promise(resolve => setTimeout(resolve, 500));
+      
+//     } catch (error) {
+//       console.error(`Error fetching documents for ${app.applicationNumber}:`, error);
+      
+//       // Hide loader and show error
+//       if (loaderDiv) {
+//         loaderDiv.classList.add('hidden');
+//       }
+//       if (resultDiv) {
+//         resultDiv.innerHTML = `
+//           <span class="inline-flex items-center px-2 py-1 bg-red-100 text-red-600 text-xs rounded">
+//             ❌ Error
+//           </span>
+//         `;
+//         resultDiv.classList.remove('hidden');
+//       }
+      
+//       fetchedCount++;
+//       if (docsFetched) {
+//         docsFetched.textContent = fetchedCount;
+//       }
+//     }
+//   }
+  
+//   console.log(`Document fetching complete: ${fetchedCount}/${activeApplications.length}`);
+// }
+
+
+
+// Adapter function to fetch FDA documents using your existing logic
+async function fetchFDADocumentsForNDA(applicationNumber, brandName, ingredient) {
+  try {
+    // Use your existing FDA API endpoint
+    const baseUrl = 'https://api.fda.gov/drug/drugsfda.json';
+    const searchQuery = `openfda.application_number:"${applicationNumber}"`;
+    const apiUrl = `${baseUrl}?search=${encodeURIComponent(searchQuery)}&limit=100`;
+    
+    console.log(`Fetching FDA documents for ${applicationNumber}...`);
+    
+    const response = await fetch(apiUrl);
+    
+    if (!response.ok) {
+      console.warn(`FDA API returned ${response.status} for ${applicationNumber}`);
+      return [];
+    }
+    
+    const data = await response.json();
+    
+    if (!data.results || data.results.length === 0) {
+      console.log(`No results found for ${applicationNumber}`);
+      return [];
+    }
+    
+    // Extract documents from the FDA response
+    const documents = [];
+    
+    data.results.forEach(result => {
+      // Extract submissions with documents
+      if (result.submissions) {
+        result.submissions.forEach(submission => {
+          if (submission.submission_docs && submission.submission_docs.length > 0) {
+            submission.submission_docs.forEach(doc => {
+              documents.push({
+                title: doc.title || 'Untitled Document',
+                url: doc.url || '#',
+                fileName: doc.id || doc.title || 'document',
+                type: submission.submission_type || 'Unknown',
+                date: submission.submission_status_date || null
+              });
+            });
+          }
+        });
+      }
+      
+      // Also check openfda section for additional documents
+      if (result.openfda && result.openfda.application_number) {
+        // Add approval letter if available
+        if (result.products && result.products.length > 0) {
+          const product = result.products[0];
+          if (product.marketing_status === 'Prescription' || product.marketing_status === 'Over-the-counter') {
+            // Construct the Drugs@FDA URL for this application
+            const drugsAtFDAUrl = `https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=${applicationNumber.replace(/[^\d]/g, '')}`;
+            documents.push({
+              title: 'View on Drugs@FDA',
+              url: drugsAtFDAUrl,
+              fileName: 'drugs-at-fda-link',
+              type: 'External Link',
+              date: null
+            });
+          }
+        }
+      }
+    });
+    
+    console.log(`Found ${documents.length} documents for ${applicationNumber}`);
+    return documents;
+    
+  } catch (error) {
+    console.error(`Error fetching FDA documents for ${applicationNumber}:`, error);
+    return [];
+  }
+}
+
+// Updated autoFetchAllDocuments to use the correct function
+async function autoFetchAllDocuments() {
+  const applicationCards = document.querySelectorAll('[data-app-number]');
+  const activeApplications = [];
+  
+  // Collect all active (non-discontinued) applications
+  applicationCards.forEach(card => {
+    const isDiscontinued = card.getAttribute('data-discontinued') === 'true';
+    if (!isDiscontinued) {
+      activeApplications.push({
+        applicationNumber: card.getAttribute('data-app-number'),
+        brandName: card.getAttribute('data-brand'),
+        ingredient: card.getAttribute('data-ingredient')
+      });
+    }
+  });
+  
+  if (activeApplications.length === 0) {
+    console.log('No active applications to fetch documents for');
+    return;
+  }
+  
+  console.log(`Starting to fetch documents for ${activeApplications.length} active applications...`);
+  
+  // Update progress display
+  const progressDiv = document.getElementById('doc-fetch-progress');
+  const docsFetched = document.getElementById('docs-fetched');
+  const docsTotal = document.getElementById('docs-total');
+  
+  if (progressDiv && docsTotal) {
+    progressDiv.classList.remove('hidden');
+    docsTotal.textContent = activeApplications.length;
+  }
+  
+  let fetchedCount = 0;
+  
+  // Fetch documents for each active application
+  for (const app of activeApplications) {
+    const statusId = `doc-status-${app.applicationNumber.replace(/\//g, '-')}`;
+    const docsId = `docs-${app.applicationNumber.replace(/\//g, '-')}`;
+    const loaderDiv = document.querySelector(`#${statusId} .doc-loader`);
+    const resultDiv = document.querySelector(`#${statusId} .doc-result`);
+    const docsContainer = document.getElementById(docsId);
+    
+    console.log(`Fetching documents for ${app.applicationNumber}...`);
+    
+    // Show loader
+    if (loaderDiv) {
+      loaderDiv.classList.remove('hidden');
+    }
+    
+    try {
+      // Use the FDA fetch function
+      const documents = await fetchFDADocumentsForNDA(
+        app.applicationNumber, 
+        app.brandName, 
+        app.ingredient
+      );
+      
+      console.log(`Found ${documents ? documents.length : 0} documents for ${app.applicationNumber}`);
+      
+      // Hide loader
+      if (loaderDiv) {
+        loaderDiv.classList.add('hidden');
+      }
+      
+      // Show result
+      if (resultDiv) {
+        if (documents && documents.length > 0) {
+          resultDiv.innerHTML = `
+            <span class="inline-flex items-center px-2 py-1 bg-green-100 text-green-700 text-xs rounded">
+              ✓ docs found
+            </span>
+          `;
+          resultDiv.classList.remove('hidden');
+          
+          // Populate documents container
+          if (docsContainer) {
+            docsContainer.innerHTML = renderFDADocuments(documents, app.applicationNumber);
+            docsContainer.classList.remove('hidden');
+          }
+        } else {
+          resultDiv.innerHTML = `
+            <span class="inline-flex items-center px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded">
+              No docs
+            </span>
+          `;
+          resultDiv.classList.remove('hidden');
+        }
+      }
+      
+      fetchedCount++;
+      if (docsFetched) {
+        docsFetched.textContent = fetchedCount;
+      }
+      
+      // Small delay between requests to avoid rate limiting
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+    } catch (error) {
+      console.error(`Error fetching documents for ${app.applicationNumber}:`, error);
+      
+      // Hide loader and show error
+      if (loaderDiv) {
+        loaderDiv.classList.add('hidden');
+      }
+      if (resultDiv) {
+        resultDiv.innerHTML = `
+          <span class="inline-flex items-center px-2 py-1 bg-red-100 text-red-600 text-xs rounded" title="${error.message}">
+            ❌ Error
+          </span>
+        `;
+        resultDiv.classList.remove('hidden');
+      }
+      
+      fetchedCount++;
+      if (docsFetched) {
+        docsFetched.textContent = fetchedCount;
+      }
+    }
+  }
+  
+  console.log(`Document fetching complete: ${fetchedCount}/${activeApplications.length}`);
+}
+
+// If autoFetchAllDocuments is not defined, use the fixed version
+if (typeof autoFetchAllDocuments === 'undefined') {
+  window.autoFetchAllDocuments = autoFetchAllDocumentsFixed;
+}
+
+function initializeFDADocumentFetching() {
+  // Setup the manual fetch button
+  const fetchAllBtn = document.getElementById('fetch-all-docs-btn');
+  if (fetchAllBtn) {
+    fetchAllBtn.addEventListener('click', function() {
+      this.disabled = true;
+      this.innerHTML = '⏳ Fetching All...';
+      
+      autoFetchAllDocuments().then(() => {
+        this.innerHTML = '✓ Complete';
+        this.classList.remove('bg-purple-600');
+        this.classList.add('bg-green-600');
+        setTimeout(() => {
+          this.innerHTML = '🔄 Fetch All Documents';
+          this.classList.remove('bg-green-600');
+          this.classList.add('bg-purple-600');
+          this.disabled = false;
+        }, 3000);
+      }).catch(error => {
+        console.error('Error in batch fetch:', error);
+        this.innerHTML = '❌ Error - Click to Retry';
+        this.classList.remove('bg-purple-600');
+        this.classList.add('bg-red-600');
+        this.disabled = false;
+      });
+    });
+  }
+  
+  // Check if we're on the applications tab
+  const applicationsContent = document.getElementById('applications-content');
+  const isApplicationsTabActive = applicationsContent && !applicationsContent.classList.contains('hidden');
+  
+  if (isApplicationsTabActive) {
+    // Start auto-fetch after a short delay
+    console.log('Applications tab is active, starting auto-fetch in 1.5 seconds...');
+    setTimeout(() => {
+      autoFetchAllDocuments().catch(error => {
+        console.error('Auto-fetch error:', error);
+      });
+    }, 1500);
+  } else {
+    // If not on applications tab, wait for it to be clicked
+    console.log('Applications tab not active, waiting for activation...');
+    const applicationsTabBtn = document.querySelector('[data-tab="applications-content"]');
+    if (applicationsTabBtn) {
+      let autoFetchExecuted = false;
+      applicationsTabBtn.addEventListener('click', function() {
+        if (!autoFetchExecuted) {
+          autoFetchExecuted = true;
+          console.log('Applications tab clicked, starting auto-fetch...');
+          setTimeout(() => {
+            autoFetchAllDocuments().catch(error => {
+              console.error('Auto-fetch error:', error);
+            });
+          }, 500);
+        }
+      });
+    }
+  }
+}
+function initializeFDAApplicationsTab() {
+  // Setup manual fetch button
+  const fetchAllBtn = document.getElementById('fetch-all-docs-btn');
+  if (fetchAllBtn) {
+    fetchAllBtn.addEventListener('click', function() {
+      this.disabled = true;
+      this.innerHTML = '⏳ Fetching All...';
+      
+      autoFetchAllDocuments().then(() => {
+        this.innerHTML = '✓ Complete';
+        this.classList.remove('bg-purple-600');
+        this.classList.add('bg-green-600');
+      }).catch(error => {
+        console.error('Error in batch fetch:', error);
+        this.innerHTML = '❌ Error';
+        this.classList.remove('bg-purple-600');
+        this.classList.add('bg-red-600');
+      });
+    });
+  }
+  
+  // Auto-fetch documents after a delay
+  setTimeout(() => {
+    autoFetchAllDocuments();
+  }, 1000);
+}
+// Helper function to render FDA documents
+function renderFDADocuments(documents, applicationNumber) {
+  if (!documents || documents.length === 0) {
+    return '';
+  }
+  
+  // Group documents by type
+  const groupedDocs = {
+    'Approval': [],
+    'Label': [],
+    'Review': [],
+    'Patient': [],
+    'Other': []
+  };
+  
+  documents.forEach(doc => {
+    const title = doc.title.toLowerCase();
+    const fileName = doc.fileName?.toLowerCase() || '';
+    
+    if (title.includes('approval') || fileName.includes('approv')) {
+      groupedDocs['Approval'].push(doc);
+    } else if (title.includes('label') || fileName.includes('label')) {
+      groupedDocs['Label'].push(doc);
+    } else if (title.includes('review') || fileName.includes('review')) {
+      groupedDocs['Review'].push(doc);
+    } else if (title.includes('patient') || fileName.includes('patient')) {
+      groupedDocs['Patient'].push(doc);
+    } else {
+      groupedDocs['Other'].push(doc);
+    }
+  });
+  
+  let html = `
+    <div class="border-t pt-3">
+      <h6 class="text-sm font-semibold text-gray-700 mb-2">📁 FDA Documents (${documents.length} found)</h6>
+      <div class="space-y-2">
+  `;
+  
+  Object.entries(groupedDocs).forEach(([category, docs]) => {
+    if (docs.length > 0) {
+      html += `
+        <div>
+          <p class="text-xs font-medium text-gray-600 mb-1">${category} (${docs.length})</p>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-1">
+            ${docs.map(doc => `
+              <a href="${doc.url}" target="_blank" 
+                 class="flex items-center p-2 bg-white border rounded text-xs hover:bg-gray-50 transition-colors group">
+                <svg class="w-4 h-4 text-blue-500 mr-2 group-hover:text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd"/>
+                </svg>
+                <span class="text-gray-700 truncate group-hover:text-gray-900" title="${doc.title}">
+                  ${doc.fileName || doc.title}
+                </span>
+              </a>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+  });
+  
+  html += `
+      </div>
+    </div>
+  `;
+  
+  return html;
+}
 // Generate Applications Content
 // function generateApplicationsContent(fdaData, drugName, drugsCount) {
 //   let html = `
