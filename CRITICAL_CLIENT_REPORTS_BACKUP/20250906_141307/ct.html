@@ -1,0 +1,1305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TEG 6S Clinical Research Dashboard</title>
+    <!-- Modern CSS Framework -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            200: '#bae6fd',
+                            300: '#7dd3fc',
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                        },
+                        secondary: {
+                            50: '#f8fafc',
+                            100: '#f1f5f9',
+                            200: '#e2e8f0',
+                            300: '#cbd5e1',
+                            400: '#94a3b8',
+                            500: '#64748b',
+                            600: '#475569',
+                            700: '#334155',
+                            800: '#1e293b',
+                            900: '#0f172a',
+                        }
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-in-out',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: 0, transform: 'translateY(10px)' },
+                            '100%': { opacity: 1, transform: 'translateY(0)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgb(241 245 249);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgb(148 163 184);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgb(100 116 139);
+        }
+        
+        /* Dark mode scrollbar */
+        .dark ::-webkit-scrollbar-track {
+            background: rgb(30 41 59);
+        }
+        .dark ::-webkit-scrollbar-thumb {
+            background: rgb(71 85 105);
+        }
+        .dark ::-webkit-scrollbar-thumb:hover {
+            background: rgb(100 116 139);
+        }
+        
+        /* Table styles */
+        .table-container {
+            overflow-x: auto;
+            scrollbar-width: thin;
+        }
+        
+        th {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        .rotate-icon {
+            transition: transform 0.3s ease;
+        }
+        
+        .expanded .rotate-icon {
+            transform: rotate(90deg);
+        }
+        
+        /* Fade animations */
+        .animate-fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            0% { opacity: 0; transform: translateY(10px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Tooltip */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .tooltip .tooltip-text {
+            visibility: hidden;
+            width: 280px;
+            background-color: rgb(30 41 59);
+            color: white;
+            text-align: center;
+            border-radius: 6px;
+            padding: 8px 12px;
+            position: absolute;
+            z-index: 20;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+        }
+        
+        .tooltip .tooltip-text::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: rgb(30 41 59) transparent transparent transparent;
+        }
+        
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        /* Dark mode tooltip */
+        .dark .tooltip .tooltip-text {
+            background-color: rgb(226 232 240);
+            color: rgb(15 23 42);
+        }
+        
+        .dark .tooltip .tooltip-text::after {
+            border-color: rgb(226 232 240) transparent transparent transparent;
+        }
+        
+        /* Toggle switch */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 48px;
+            height: 24px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgb(203 213 225);
+            transition: .4s;
+            border-radius: 24px;
+        }
+        
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .toggle-slider {
+            background-color: rgb(14 165 233);
+        }
+        
+        input:checked + .toggle-slider:before {
+            transform: translateX(24px);
+        }
+        
+        /* Detail panel animation
+        .detail-panel {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease-out;
+        }
+        
+        .detail-panel.open {
+            max-height: 1500px;
+            transition: max-height 0.6s ease-in;
+        } */
+
+        /* Detail panel animation */
+.detail-panel {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease-out;
+    display: none;
+}
+
+.detail-panel.open {
+    max-height: 1500px;
+    transition: max-height 0.6s ease-in;
+    display: table-row;
+}
+
+/* Expand icon rotation */
+.rotate-icon {
+    transition: transform 0.3s ease;
+}
+
+.expanded .rotate-icon {
+    transform: rotate(90deg);
+}
+    </style>
+</head>
+<body class="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen transition-colors duration-300 dark:from-gray-900 dark:to-gray-800 dark:text-gray-100">
+    <div class="container mx-auto px-4 py-8 max-w-7xl">
+        <!-- Header Section -->
+        <header class="flex flex-col md:flex-row justify-between items-center mb-12">
+            <div class="mb-6 md:mb-0">
+                <h1 class="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary-600 to-primary-800 dark:from-primary-400 dark:to-primary-600">TEG 6S Clinical Research Dashboard</h1>
+                <p class="text-secondary-600 dark:text-secondary-300 mt-2">Comprehensive analysis of neonatal & pediatric applications</p>
+            </div>
+            <div class="flex items-center space-x-6">
+                <button id="exportBtn" class="flex items-center bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg transition-colors shadow-md">
+                    <i class="fas fa-download mr-2"></i> Export Data
+                </button>
+                <div class="flex items-center space-x-2">
+                    <span class="text-sm font-medium text-secondary-600 dark:text-secondary-300">Dark Mode</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="darkModeToggle">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+        </header>
+
+        <!-- Key Findings Section -->
+        <section class="bg-white dark:bg-secondary-800 rounded-xl shadow-md mb-10 overflow-hidden animate-fade-in">
+            <div class="p-6">
+                <div class="flex items-center mb-4">
+                    <i class="fas fa-lightbulb text-yellow-500 mr-3 text-xl"></i>
+                    <h2 class="text-2xl font-bold text-secondary-800 dark:text-white">Key Neonatal Research Findings</h2>
+                </div>
+                
+                <div class="bg-red-50 dark:bg-red-900/30 border-l-4 border-red-500 p-4 rounded-r mb-6">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-exclamation-circle text-red-500 text-lg"></i>
+                        </div>
+                        <div class="ml-3">
+                            <h3 class="text-lg font-medium text-red-800 dark:text-red-200">Critical Research Gap Identified</h3>
+                            <div class="mt-2 text-red-700 dark:text-red-300">
+                                <p><strong>No TEG 6S trials include neonates or premature infants in the dataset.</strong> The youngest age group in current trials is 3 months to 18 years (NCT05874843).</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                    <div class="bg-secondary-50 dark:bg-secondary-700/50 p-4 rounded-lg">
+                        <div class="flex items-center mb-2">
+                            <i class="fas fa-vial text-primary-600 dark:text-primary-400 mr-2"></i>
+                            <h3 class="font-semibold text-secondary-900 dark:text-white">Blood Collection Method</h3>
+                        </div>
+                        <p class="text-secondary-700 dark:text-secondary-300 text-sm">All trials use citrated blood (3.2% citric acid) and require reactivation before analysis. No small-volume protocols for neonates identified.</p>
+                    </div>
+                    
+                    <div class="bg-secondary-50 dark:bg-secondary-700/50 p-4 rounded-lg">
+                        <div class="flex items-center mb-2">
+                            <i class="fas fa-baby text-primary-600 dark:text-primary-400 mr-2"></i>
+                            <h3 class="font-semibold text-secondary-900 dark:text-white">Neonatal Applications</h3>
+                        </div>
+                        <p class="text-secondary-700 dark:text-secondary-300 text-sm">Potential neonatal concerns (tiny blood volumes, different coagulation values) not addressed in any identified trials or publications.</p>
+                    </div>
+                    
+                    <div class="bg-secondary-50 dark:bg-secondary-700/50 p-4 rounded-lg">
+                        <div class="flex items-center mb-2">
+                            <i class="fas fa-stethoscope text-primary-600 dark:text-primary-400 mr-2"></i>
+                            <h3 class="font-semibold text-secondary-900 dark:text-white">FDA Clearance Status</h3>
+                        </div>
+                        <p class="text-secondary-700 dark:text-secondary-300 text-sm">TEG 6S received FDA 510(k) clearance in 2019 (K183160) with an updated cartridge in 2024. No specific neonatal clearance documented.</p>
+                    </div>
+                </div>
+                
+                <div class="bg-primary-50 dark:bg-primary-900/30 border-l-4 border-primary-500 p-4 rounded-r">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-search text-primary-500 text-lg"></i>
+                        </div>
+                        <div class="ml-3">
+                            <h3 class="text-lg font-medium text-primary-800 dark:text-primary-200">Recommended Next Steps</h3>
+                            <div class="mt-2 text-primary-700 dark:text-primary-300">
+                                <ul class="list-disc list-inside space-y-1">
+                                    <li>Perform targeted search in CDRH 510(k) database for any neonatal mentions with TEG 6S</li>
+                                    <li>Conduct PubMed literature search for any research on TEG devices in neonatal/premature populations</li>
+                                    <li>Contact Haemonetics Corporation to inquire about unpublished neonatal validation studies</li>
+                                    <li>Explore alternative small-volume blood collection methods compatible with TEG 6S</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Filters Section -->
+        <section class="bg-white dark:bg-secondary-800 rounded-xl shadow-md mb-8 overflow-hidden animate-fade-in">
+            <div class="p-6">
+                <div class="flex items-center mb-4">
+                    <i class="fas fa-filter text-primary-600 dark:text-primary-400 mr-3"></i>
+                    <h2 class="text-xl font-bold text-secondary-800 dark:text-white">Search & Filter Trials</h2>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div class="col-span-2">
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                <i class="fas fa-search text-secondary-400"></i>
+                            </div>
+                            <input type="text" id="searchInput" class="block w-full pl-10 pr-3 py-2.5 rounded-lg border border-secondary-200 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-secondary-700 dark:border-secondary-600 dark:text-white" placeholder="Search by ID, title, keyword...">
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <select id="ageFilter" class="block w-full py-2.5 px-3 rounded-lg border border-secondary-200 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-secondary-700 dark:border-secondary-600 dark:text-white">
+                            <option value="all">All Age Groups</option>
+                            <option value="infant">Infant (<1 year)</option>
+                            <option value="pediatric">Pediatric (1-17 years)</option>
+                            <option value="adult">Adult (18+ years)</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <select id="statusFilter" class="block w-full py-2.5 px-3 rounded-lg border border-secondary-200 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-secondary-700 dark:border-secondary-600 dark:text-white">
+                            <option value="all">All Statuses</option>
+                            <option value="recruiting">Recruiting</option>
+                            <option value="not_recruiting">Not Recruiting</option>
+                            <option value="completed">Completed</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="flex justify-between items-center mt-6 flex-col sm:flex-row space-y-2 sm:space-y-0">
+                    <div class="flex items-center space-x-2">
+                        <span class="text-secondary-700 dark:text-secondary-300 text-sm">Found: </span>
+                        <span id="resultCount" class="font-medium text-primary-700 dark:text-primary-400">10 trials</span>
+                    </div>
+                    
+                    <div class="flex space-x-3">
+                        <button id="ctresetFiltersBtn" class="text-secondary-600 dark:text-secondary-400 hover:text-secondary-900 dark:hover:text-white text-sm font-medium flex items-center">
+                            <i class="fas fa-undo-alt mr-1"></i> Reset Filters
+                        </button>
+                        
+                        <button id="focusNeonatalBtn" class="text-primary-600 dark:text-primary-400 hover:text-primary-800 dark:hover:text-primary-300 text-sm font-medium flex items-center">
+                            <i class="fas fa-baby mr-1"></i> Focus on Neonatal
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Age Range Summary Section -->
+        <section class="bg-white dark:bg-secondary-800 rounded-xl shadow-md mb-8 overflow-hidden animate-fade-in">
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center">
+                        <i class="fas fa-users text-primary-600 dark:text-primary-400 mr-3"></i>
+                        <h2 class="text-xl font-bold text-secondary-800 dark:text-white">Age Range Summary</h2>
+                    </div>
+                    <button id="toggleAgeTableBtn" class="text-secondary-500 hover:text-secondary-700 dark:text-secondary-400 dark:hover:text-white">
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                </div>
+                
+                <div id="ageTableContainer" class="table-container">
+                    <table class="min-w-full divide-y divide-secondary-200 dark:divide-secondary-700">
+                        <thead>
+                            <tr class="bg-secondary-50 dark:bg-secondary-700">
+                                <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-secondary-500 dark:text-secondary-300 uppercase tracking-wider">Trial ID</th>
+                                <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-secondary-500 dark:text-secondary-300 uppercase tracking-wider">Age Range</th>
+                                <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-secondary-500 dark:text-secondary-300 uppercase tracking-wider">Neonatal Inclusion</th>
+                                <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-secondary-500 dark:text-secondary-300 uppercase tracking-wider">Relevant Population</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ageRangeTableBody" class="bg-white dark:bg-secondary-800 divide-y divide-secondary-200 dark:divide-secondary-700">
+                            <!-- Populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Trials Table -->
+        <section class="bg-white dark:bg-secondary-800 rounded-xl shadow-md mb-12 animate-fade-in">
+            <div class="p-6">
+                <div class="flex items-center mb-4">
+                    <i class="fas fa-clipboard-list text-primary-600 dark:text-primary-400 mr-3"></i>
+                    <h2 class="text-xl font-bold text-secondary-800 dark:text-white">TEG 6S Clinical Trials</h2>
+                </div>
+                
+                <div class="table-container overflow-x-auto">
+                    <table id="trialsTable" class="min-w-full divide-y divide-secondary-200 dark:divide-secondary-700">
+                        <thead>
+                            <tr class="bg-secondary-50 dark:bg-secondary-700">
+                                <th scope="col" class="group px-4 py-3 text-left text-xs font-medium text-secondary-500 dark:text-secondary-300 uppercase tracking-wider cursor-pointer" data-sort="trialID">
+                                    <div class="flex items-center">
+                                        Trial ID
+                                        <i class="fas fa-sort ml-1 text-secondary-400 dark:text-secondary-500 opacity-70 group-hover:opacity-100"></i>
+                                    </div>
+                                </th>
+                                <th scope="col" class="group px-4 py-3 text-left text-xs font-medium text-secondary-500 dark:text-secondary-300 uppercase tracking-wider cursor-pointer" data-sort="publicTitle">
+                                    <div class="flex items-center">
+                                        Title
+                                        <i class="fas fa-sort ml-1 text-secondary-400 dark:text-secondary-500 opacity-70 group-hover:opacity-100"></i>
+                                    </div>
+                                </th>
+                                <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-secondary-500 dark:text-secondary-300 uppercase tracking-wider">Sponsor</th>
+                                <th scope="col" class="group px-4 py-3 text-left text-xs font-medium text-secondary-500 dark:text-secondary-300 uppercase tracking-wider cursor-pointer" data-sort="dateRegistration">
+                                    <div class="flex items-center">
+                                        Registration Date
+                                        <i class="fas fa-sort ml-1 text-secondary-400 dark:text-secondary-500 opacity-70 group-hover:opacity-100"></i>
+                                    </div>
+                                </th>
+                                <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-secondary-500 dark:text-secondary-300 uppercase tracking-wider">Status</th>
+                                <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-secondary-500 dark:text-secondary-300 uppercase tracking-wider">Age Range</th>
+                                <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-secondary-500 dark:text-secondary-300 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="trialsTableBody" class="bg-white dark:bg-secondary-800 divide-y divide-secondary-200 dark:divide-secondary-700">
+                            <!-- Populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Neonatal Research Gap Section -->
+        <section class="bg-white dark:bg-secondary-800 rounded-xl shadow-md mb-12 animate-fade-in">
+            <div class="p-6">
+                <div class="flex items-center mb-4">
+                    <i class="fas fa-flask text-primary-600 dark:text-primary-400 mr-3"></i>
+                    <h2 class="text-xl font-bold text-secondary-800 dark:text-white">Neonatal Research Gap Analysis</h2>
+                </div>
+                
+                <div class="space-y-6">
+                    <div class="bg-secondary-50 dark:bg-secondary-700/40 p-5 rounded-lg">
+                        <h3 class="text-lg font-semibold text-secondary-800 dark:text-white mb-2">Current Limitations</h3>
+                        <ul class="list-disc list-inside space-y-2 text-secondary-700 dark:text-secondary-300">
+                            <li>No trials include neonates (<28 days) or premature infants</li>
+                            <li>Youngest cohort: 3 months to 18 years (NCT05874843)</li>
+                            <li>Blood volume constraints of neonates not addressed in any protocols</li>
+                            <li>No specific neonatal reference ranges available for TEG 6S parameters</li>
+                            <li>Citrated blood draw procedures not validated for very small volume collections</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="bg-secondary-50 dark:bg-secondary-700/40 p-5 rounded-lg">
+                        <h3 class="text-lg font-semibold text-secondary-800 dark:text-white mb-2">Clinical Implications</h3>
+                        <ul class="list-disc list-inside space-y-2 text-secondary-700 dark:text-secondary-300">
+                            <li>Premature and newborn infants have distinct coagulation profiles compared to older children and adults</li>
+                            <li>Standard blood collection volumes may be excessive for neonates with limited blood volume</li>
+                            <li>Interpretation of TEG 6S results in neonates would require specific reference ranges</li>
+                            <li>Risk/benefit ratio of TEG 6S testing in neonates has not been formally assessed</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="bg-primary-50 dark:bg-primary-900/30 p-5 rounded-lg">
+                        <h3 class="text-lg font-semibold text-primary-800 dark:text-primary-200 mb-2">Research Opportunities</h3>
+                        <ul class="list-disc list-inside space-y-2 text-primary-700 dark:text-primary-300">
+                            <li>Validation study of TEG 6S in neonatal populations with age-appropriate reference ranges</li>
+                            <li>Development of micro-sampling techniques compatible with TEG 6S cartridges</li>
+                            <li>Comparison of citrated vs. non-citrated samples in neonatal blood</li>
+                            <li>Assessment of minimal blood volume requirements for valid results</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer Section -->
+        <footer class="text-center py-6 text-secondary-500 dark:text-secondary-400 animate-fade-in">
+            <p>TEG 6S Clinical Research Dashboard | Generated on May 14, 2025</p>
+            <p class="text-sm mt-2">Compiled for client research purposes only</p>
+        </footer>
+    </div>
+
+    <script>
+        // Trial data (original data maintained)
+        const trials = [
+            {
+                trialID: "NCT06352125",
+                publicTitle: "An Observational Trial to Assess the Performance of the TEG® 6s Diagnostic System With the Citrated K, KH, RTH, FFH Cartridge",
+                scientificTitle: "An Observational Trial to Assess the Performance of the TEG® 6s Diagnostic System With the Citrated K, KH, RTH, FFH Cartridge",
+                acronym: "",
+                primarySponsor: "Haemonetics Corporation",
+                dateRegistration: "02/04/2024",
+                recruitmentStatus: "Not recruiting",
+                inclusionCriteria: "Adults (18+) undergoing cardiovascular on-pump/off-pump surgeries or liver transplantation, at risk of coagulopathy-related complications.",
+                exclusionCriteria: "Hereditary coagulation/bleeding disorders, fibrinolytic disorders, unfit by PI, incompatible clinical trials, oral anticoagulants.",
+                condition: "Surgery",
+                intervention: "Diagnostic Test: TEG 6s Citrated K, KH, RTH, FFH Cartridge; Clauss Fibrinogen",
+                primaryOutcome: "Primary Method Comparison (multiple parameters)",
+                secondaryOutcome: "",
+                targetSize: 338,
+                studyType: "Observational",
+                phase: "",
+                countries: "United States",
+                contact: "Jan Hartmann, MD, Haemonetics Corporation",
+                link: "https://clinicaltrials.gov/ct2/show/NCT06352125",
+                inclusionAgeMin: "18 Years",
+                inclusionAgeMax: "N/A",
+                rawInclusionCriteria: "Patients who are at an increased risk of intervention-induced coagulopathy or at increased risk of developing intervention-induced coagulopathy complications undergoing cardiovascular surgeries or liver transplantation (recipients): 1. Adult patients (18 years of age and older) who underwent cardiovascular on-pump surgeries or procedures (e.g., CABG) who were at an increased risk of coagulopathy-related complications... 2. Adult patients (18 years of age and older) who underwent not-on-pump cardiovascular surgeries... 3. Adult patients (18 years of age and older) who underwent liver transplantation (recipients)",
+                rawExclusionCriteria: "1. Patients with hereditary chronic coagulation and/or bleeding disorders 2. Patients with hereditary fibrinolytic bleeding disorders 3. Patients deemed unfit for participation by the principal investigator 4. Patients participating in another clinical trial that would not be scientifically or medically compatible with this trial 5. Patients with currently altered coagulation due to the presence of oral anticoagulants (e.g., apixaban, rivaroxaban, dabigatran, warfarin)"
+            },
+            {
+                trialID: "NCT06230640",
+                publicTitle: "Evaluation of TEG 6S PM® During Cardiopulmonary Bypass to Detect Postoperative Biological Coagulopathy",
+                scientificTitle: "Evaluation of TEG 6S Platelet Mapping® During Cardiopulmonary Bypass for Cardiac Surgery to Detect Postoperative Biological Coagulopathy",
+                acronym: "PREDIPOC",
+                primarySponsor: "University Hospital, Montpellier",
+                dateRegistration: "19/01/2024",
+                recruitmentStatus: "Not recruiting",
+                inclusionCriteria: "Adults (18+) undergoing cardiac surgery under cardiopulmonary bypass with high bleeding risk (e.g., circulatory arrest, transplantation, redo surgery).",
+                exclusionCriteria: "Heparin allergy, heparin-induced thrombocytopenia, recent direct oral anticoagulants, antagonized VKAs, opposition, legal protections, no social security, pregnancy.",
+                condition: "Coagulopathy; Cardiopulmonary Bypass; Cardiac Surgery",
+                intervention: "Diagnostic Test: In vitro medical diagnostic device TEG6s® Platelet Mapping",
+                primaryOutcome: "Prolongation of the R in kaolin with heparinase (HKH) of TEG 6S platelet mapping® during cardiopulmonary bypass.",
+                secondaryOutcome: "Changes in MA HKH, MA ActF, MA AA, MA ADP; correlation with TEG 6S citrated®; postoperative bleeding (2h, 12h).",
+                targetSize: 60,
+                studyType: "Observational",
+                phase: "",
+                countries: "France",
+                contact: "Benjamin Bourdois, MD, University Hospital, Montpellier",
+                link: "https://clinicaltrials.gov/ct2/show/NCT06230640",
+                inclusionAgeMin: "18 Years",
+                inclusionAgeMax: "N/A",
+                rawInclusionCriteria: "18 years old or older; Cardiac surgery under cardiopulmonary bypass with high risk of bleeding defined among: CPB with circulatory arrest, cardiac transplantation, redo surgery, infective endocarditis, predicted duration of CBP = 120 min, high transfusion risk defined by a Trust predictive score = 3.",
+                rawExclusionCriteria: "Patient with heparin allergy or heparin-induced thrombocytopenia; Use of direct oral anticoagulant (DAA) with anti-factor X activity (Apixaban, Rivaroxaban) < 72h, even if antagonized; Patient on partially or fully antagonized VKAs; Opposition to participation after a period of reflection; Adult protected by law (guardianship, curatorship); Person deprived of liberty; Person participating in another study with an exclusion period still in progress; Patient not affiliated to a social security scheme or not benefiting from such a scheme; Pregnant or breast-feeding woman."
+            },
+            {
+                trialID: "JPRN-UMIN000052805",
+                publicTitle: "A prospective observational study on the evaluation of coagulation function of contrast medium-mixed blood using the TEG 6s",
+                scientificTitle: "A prospective observational study on the evaluation of coagulation function of contrast medium-mixed blood using the blood coagulation analysis device TEG 6s - Coagulation function evaluation of contrast medium-mixed blood",
+                acronym: "",
+                primarySponsor: "Tohoku University",
+                dateRegistration: "01/12/2023",
+                recruitmentStatus: "Not Recruiting",
+                inclusionCriteria: "Adults (20-60 years) under general anesthesia with arterial line during surgery.",
+                exclusionCriteria: "Hemostatic coagulation abnormalities (e.g., protein S/C deficiency), abnormal preoperative fibrinogen/platelet values, pregnancy, refusal of consent.",
+                condition: "Patients under general anesthesia",
+                intervention: "",
+                primaryOutcome: "Coagulation ability of blood mixed with contrast medium in various proportions.",
+                secondaryOutcome: "",
+                targetSize: 100,
+                studyType: "Observational",
+                phase: "Not selected",
+                countries: "Japan",
+                contact: "Hidehisa Saito, hidehisa.saito.e2@tohoku.ac.jp, Tohoku University Hospital",
+                link: "https://center6.umin.ac.jp/cgi-open-bin/ctr_e/ctr_view.cgi?recptno=R000060192",
+                inclusionAgeMin: "20 years",
+                inclusionAgeMax: "60 years",
+                rawInclusionCriteria: "Patients under general anesthesia with an arterial line inserted during surgery.",
+                rawExclusionCriteria: "Patients with diseases that cause abnormalities in hemostatic coagulation ability, such as protein S/C or antithrombin deficiency, patients whose fibrinogen and platelet values deviate from the reference range in preoperative blood tests, pregnant women, patients who have difficulty obtaining consent forms, and patients who refuse consent."
+            },
+            {
+                trialID: "JPRN-UMIN000051020",
+                publicTitle: "Evaluation of Thromboelastography (TEG) 6s for Predicting intra and postoperative bleeding in Geriatric Patients undergoing Hip Joint Surgery",
+                scientificTitle: "Evaluation of Thromboelastography (TEG) 6s for Predicting intra and postoperative bleeding in Geriatric Patients undergoing Hip Joint Surgery: Prospective Observational Study",
+                acronym: "",
+                primarySponsor: "Nowon Eulji University Hospital",
+                dateRegistration: "09/05/2023",
+                recruitmentStatus: "Not Recruiting",
+                inclusionCriteria: "Adults (65+) undergoing hip joint surgery.",
+                exclusionCriteria: "Under 65 years, ASA 4+, recent surgery within 30 days, refusal to participate.",
+                condition: "Hip Joint Surgery",
+                intervention: "",
+                primaryOutcome: "Linear regression of CFF A10 and postoperative bleeding amount.",
+                secondaryOutcome: "Linear regression of CFF A10 and intraoperative bleeding; CFF MA AUC for detecting massive bleeding.",
+                targetSize: 50,
+                studyType: "Observational",
+                phase: "Phase IV",
+                countries: "Asia (except Japan)",
+                contact: "Shin Wook Lee, chelenh@gmail.com, Nowon Eulji University Hospital",
+                link: "https://center6.umin.ac.jp/cgi-open-bin/ctr_e/ctr_view.cgi?recptno=R000058167",
+                inclusionAgeMin: "65 years",
+                inclusionAgeMax: "Not applicable",
+                rawInclusionCriteria: "Recruiting patient",
+                rawExclusionCriteria: "Patients under 65 years of age, ASA 4 or higher, patients with a history of surgery within the last 30 days, and patients who refused to participate in the study."
+            },
+            {
+                trialID: "NCT05874843",
+                publicTitle: "Validation of Point-of-care Thromboelastography (TEG 6s) in Pediatric Patients",
+                scientificTitle: "Validation of Point-of-care Thromboelastography (TEG 6s) in Pediatric Patients",
+                acronym: "",
+                primarySponsor: "Indiana University",
+                dateRegistration: "25/04/2023",
+                recruitmentStatus: "Not recruiting",
+                inclusionCriteria: "Pediatric patients (3 months to 18 years) undergoing elective surgical care at Riley Hospital for Children.",
+                exclusionCriteria: "Known coagulation disorders, medications altering coagulation, foster care, or wards of the court.",
+                condition: "Coagulopathy",
+                intervention: "Diagnostic Test: Thromboelastography (TEG 6S)",
+                primaryOutcome: "TEG 6s viscoelastic measurements (angle, R time, maximum amplitude, lysis at 30 minutes) in pediatric surgical patients.",
+                secondaryOutcome: "",
+                targetSize: 25,
+                studyType: "Interventional",
+                phase: "N/A",
+                countries: "United States",
+                contact: "",
+                link: "https://clinicaltrials.gov/ct2/show/NCT05874843",
+                inclusionAgeMin: "3 Months",
+                inclusionAgeMax: "18 Years",
+                rawInclusionCriteria: "Patients less than 18 years of age undergoing elective pediatric surgical care in the operating room at Riley Hospital for Children.",
+                rawExclusionCriteria: "Known disorder of coagulation pathway(s); Administration of medications that may alter the coagulation cascade; Patients in foster care or wards of the court."
+            },
+            {
+                trialID: "NCT05824013",
+                publicTitle: "Blood Coagulation Profile After Liver Resection",
+                scientificTitle: "Blood Coagulation Profile After Liver Resection. Comparison of Conventional Blood Coagulation Tests With Thromboelastography",
+                acronym: "",
+                primarySponsor: "Fondazione Policlinico Universitario Agostino Gemelli IRCCS",
+                dateRegistration: "11/04/2023",
+                recruitmentStatus: "Not recruiting",
+                inclusionCriteria: "Adults (18+) undergoing elective liver resection for primary or metastatic liver cancer, admitted to surgical ICU post-surgery.",
+                exclusionCriteria: "Renal disease (creatinine clearance <30 ml/min), pregnancy, benign liver disease, emergency surgery, reintervention.",
+                condition: "Coagulation Disorder",
+                intervention: "Diagnostic Test: thromboelastography (TEG®6s)",
+                primaryOutcome: "Blood coagulation profile",
+                secondaryOutcome: "",
+                targetSize: 46,
+                studyType: "Observational",
+                phase: "",
+                countries: "Italy",
+                contact: "",
+                link: "https://clinicaltrials.gov/ct2/show/NCT05824013",
+                inclusionAgeMin: "18 Years",
+                inclusionAgeMax: "N/A",
+                rawInclusionCriteria: "Elective liver resection surgery for liver cancer primary or metastatic; Admission to surgical intensive care unit at the end of the surgery.",
+                rawExclusionCriteria: "Renal disease (creatinine clearance < 30 ml/min); pregnancy; Benign liver disease; Emergency surgery; Reintervention."
+            },
+            {
+                trialID: "NCT06261580",
+                publicTitle: "Normal Reference Range Study With the TEG6s Heparin Neutralization Cartridge in Healthy Volunteers",
+                scientificTitle: "Procedure to Define a Normal Reference Range Using the TEG® 6s Diagnostic System With the Heparin Neutralization Cartridge in Healthy Volunteers",
+                acronym: "",
+                primarySponsor: "Haemonetics Corporation",
+                dateRegistration: "31/03/2023",
+                recruitmentStatus: "Not recruiting",
+                inclusionCriteria: "Healthy adults (18+) self-identifying as in good health.",
+                exclusionCriteria: "Acute/chronic illness, cancer, diabetes, renal/liver disease, morbid obesity, coagulation disorders, recent surgery, anticoagulant use.",
+                condition: "Healthy",
+                intervention: "Diagnostic Test: TEG 6s Citrated K, KH, RTH, and FFH Cartridge; Clauss Fibrinogen",
+                primaryOutcome: "CK-MA, CK-R, CKH-MA, CKH-R, CKH-LY30, CRTH-MA, CFFH-MA TEG Parameters",
+                secondaryOutcome: "",
+                targetSize: 181,
+                studyType: "Observational",
+                phase: "",
+                countries: "United States",
+                contact: "Yamini Bynagari, PhD, Machaon Diagnostics",
+                link: "https://clinicaltrials.gov/ct2/show/NCT06261580",
+                inclusionAgeMin: "18 Years",
+                inclusionAgeMax: "N/A",
+                rawInclusionCriteria: "Adult volunteers (18 years of age and older) who self-identify as being in general good health.",
+                rawExclusionCriteria: "Volunteers with any acute illness or uncontrolled chronic disease; Volunteers with any type of cancer; Volunteers with diabetes; Volunteers with renal disease; Volunteers with liver disease; Volunteers with morbid obesity; Volunteers with autoimmune or inflammatory diseases; Volunteers with known coagulation and/or bleeding disorders (e.g., hemophilia, Von Willebrand's disease); Volunteers currently abusing alcohol...; Volunteers with hereditary fibrinolytic bleeding disorders; Volunteers with altered coagulation due to the presence of direct oral anticoagulants...; Volunteers on any fibrinolytic activators...; Volunteers who have had recent surgery (within the last four weeks); Volunteers with any injuries leading to substantial bleeding or bruising...; Volunteers with bruising, wounds, or scarring around the selected venipuncture site; Volunteers deemed unfit for participation in the trial by the principal investigator; Volunteers participating in another clinical trial that would not be scientifically or medically compatible with this trial; Volunteers who have been on P2Y12 inhibitors within the last 30 days; Volunteers receiving treatment with low molecular weight heparin (e.g., enoxaparin); Volunteers with altered coagulation due to the presence of drugs known to affect the coagulation status in the blood...; Volunteers who have participated in this trial previously."
+            },
+            {
+                trialID: "NCT04746560",
+                publicTitle: "TEG 6s® for Perioperative Monitoring of Platelet Function During Cardiopulmonary Bypass for Cardiac Surgery",
+                scientificTitle: "Evaluation of the Diagnostic Performances of the TEG 6s® Hemostasis Device and Its Platelet Mapping® Cartridge for Perioperative Monitoring of Platelet Function During Cardiopulmonary Bypass for Cardiac Surgery",
+                acronym: "TEG-PM",
+                primarySponsor: "Assistance Publique - Hôpitaux de Paris",
+                dateRegistration: "11/12/2020",
+                recruitmentStatus: "Not recruiting",
+                inclusionCriteria: "Adults (18+) scheduled for cardiopulmonary bypass with informed consent.",
+                exclusionCriteria: "Under 18, pregnant, emergency surgery, no CPB, thrombocytopenia <100000/mm3.",
+                condition: "Cardiopulmonary Bypass",
+                intervention: "Device: TEG®6S device with its Platelet mapping® cartridge",
+                primaryOutcome: "Compare diagnostic performance of TEG®6S Platelet Mapping with reference tests for platelet function.",
+                secondaryOutcome: "Predict post-CPB bleeding risk; evaluate Global Haemostasis® cartridge for bleeding risk.",
+                targetSize: 6,
+                studyType: "Observational",
+                phase: "",
+                countries: "France",
+                contact: "Adrien Bougle, MD; Ahmed Abbes, MD, Assistance Publique - Hôpitaux de Paris",
+                link: "https://clinicaltrials.gov/show/NCT04746560",
+                inclusionAgeMin: "18 Years",
+                inclusionAgeMax: "N/A",
+                rawInclusionCriteria: "Patients scheduled to undergo cardiopulmonary bypass; Informed consent.",
+                rawExclusionCriteria: "Age <18 years; Pregnant women; Emergency surgery; Cardiac surgery without CPB; thrombocytopenia <100000/mmm3."
+            },
+            {
+                trialID: "NCT03592303",
+                publicTitle: "Bedside Assessment of Coagulation in Post-partum Hemorrhage by Thromboelastography (TEG ®6S)",
+                scientificTitle: "Bedside Assessment of Coagulation in Post-partum Hemorrhage by Thromboelastography (TEG ®6S)",
+                acronym: "HPPTEG6S",
+                primarySponsor: "Assistance Publique - Hôpitaux de Paris",
+                dateRegistration: "27/04/2018",
+                recruitmentStatus: "Not recruiting",
+                inclusionCriteria: "Women (18+) during labor or with PPH (>500 mL blood loss) requiring hemostasis evaluation, with health insurance.",
+                exclusionCriteria: "Pre-existing coagulopathy, anticoagulant medications, hepatocellular insufficiency, renal failure, psychiatric care, legal restrictions.",
+                condition: "Coagulation Defect; Puerperal; Post Partum Hemorrhage; Blood Protein Disorders; Pregnancy Hemorrhage",
+                intervention: "",
+                primaryOutcome: "Performance analysis of TEG6S kaolin parameters for diagnosing coagulation disorders in PPH.",
+                secondaryOutcome: "Performance of RapidTEG, Functional Fibrinogen; correlation with standard tests; predict severe PPH; define normal TEG6S values in pregnant women.",
+                targetSize: 100,
+                studyType: "Observational",
+                phase: "",
+                countries: "France",
+                contact: "Agnès Rigouzzo, agnes.rigouzzo@aphp.fr, Assistance Publique - Hôpitaux de Paris",
+                link: "https://clinicaltrials.gov/show/NCT03592303",
+                inclusionAgeMin: "18 Years",
+                inclusionAgeMax: "N/A",
+                rawInclusionCriteria: "Age = 18 years old; Patient with health insurance; Group of patients during labor: any pregnant woman with a normal pregnancy in the delivery room; Group of patients with PPH: any woman with a normal pregnancy experiencing a PPH with blood loss greater than 500 mL and who requires a biological evaluation of haemostasis.",
+                rawExclusionCriteria: "Coagulopathy pre-existing to pregnancy; Medication that interferes with blood coagulation; Hepato-cellular insufficiency; Renal failure; Psychiatric care patients; Patient deprived of liberty by judicial or administrative decision; Major patient undergoing legal protective measures."
+            },
+            {
+                trialID: "NCT02798328",
+                publicTitle: "Direct Oral Anticoagulant Assay Detection & Classification Study for the TEG 6S System",
+                scientificTitle: "Direct Oral Anticoagulant Assay Detection & Classification Study for the TEG 6S System",
+                acronym: "",
+                primarySponsor: "Haemonetics Corporation",
+                dateRegistration: "02/06/2016",
+                recruitmentStatus: "Not recruiting",
+                inclusionCriteria: "Adults (18+) on DOAC for at least 7 days.",
+                exclusionCriteria: "Genetic bleeding disorders, unknown DOAC dosing, recent heparin/LMWH, non-standard DOAC dosage, coagulation-affecting medications.",
+                condition: "DOAC Eligible Subjects",
+                intervention: "Device: TEG6s DOAC Cartridge",
+                primaryOutcome: "Presence/Absence of DOAC Drug",
+                secondaryOutcome: "",
+                targetSize: 385,
+                studyType: "Observational",
+                phase: "",
+                countries: "United States",
+                contact: "",
+                link: "https://clinicaltrials.gov/show/NCT02798328",
+                inclusionAgeMin: "18 Years",
+                inclusionAgeMax: "N/A",
+                rawInclusionCriteria: "= 18 years old; DOAC administered for a minimum of 7 days.",
+                rawExclusionCriteria: "Genetic Bleeding disorders. Known or subsequently discovered inherited defects of coagulation (e.g. hemophilia or Von Willebrand disease); Not known when last two DOAC doses were administered prior to blood draw; DOAC first administered (or resumed after temporary cessation) less than 7 days prior to blood draw; DOAC dosage outside of manufacturer's recommended range (e.g. study subject with renal impairment and supratherapeutic dose); Heparin or LMWH administered within 7 days prior to blood draw; On any medications known to affect coagulation status and listed below; Bruising, wounds or scarring in the area of venipuncture."
+            }
+        ];
+
+        // Helper function to format dates consistently
+        function ctformatDate(dateStr) {
+            if (!dateStr) return '';
+            
+            // Handle different date formats
+            const parts = dateStr.split('/');
+            if (parts.length === 3) {
+                // DD/MM/YYYY format
+                return `${parts[2]}-${parts[1]}-${parts[0]}`;
+            }
+            
+            return dateStr; // Return as is if not in expected format
+        }
+
+        // Initialize the dashboard
+        document.addEventListener('DOMContentLoaded', () => {
+            // Set up dark mode toggle
+            const darkModeToggle = document.getElementById('darkModeToggle');
+            
+            // Check for user preference
+            if (localStorage.getItem('darkMode') === 'enabled' || 
+                (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+                darkModeToggle.checked = true;
+            }
+            
+            darkModeToggle.addEventListener('change', () => {
+                if (darkModeToggle.checked) {
+                    document.documentElement.classList.add('dark');
+                    localStorage.setItem('darkMode', 'enabled');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                    localStorage.setItem('darkMode', 'disabled');
+                }
+            });
+            
+            // Populate age range table
+            populateAgeRangeTable();
+            
+            // Populate trials table
+            populateTrialsTable(trials);
+            
+            // Set up search and filters
+            setupSearchAndFilters();
+            
+            // Set up sorting
+            setupSorting();
+            
+            // Set up export functionality
+            document.getElementById('exportBtn').addEventListener('click', exportData);
+            
+            // Toggle age range table
+            document.getElementById('toggleAgeTableBtn').addEventListener('click', toggleAgeTable);
+            
+            // Set up neonatal focus button
+            document.getElementById('focusNeonatalBtn').addEventListener('click', focusOnNeonatal);
+            
+            // Reset filters button
+            document.getElementById('ctresetFiltersBtn').addEventListener('click', ctresetFilters);
+            
+            // Update result count
+            updateResultCount(trials.length);
+        });
+
+        // Populate the Age Range Summary table
+        function populateAgeRangeTable() {
+            const tableBody = document.getElementById('ageRangeTableBody');
+            tableBody.innerHTML = '';
+            
+            trials.forEach(trial => {
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-secondary-50 dark:hover:bg-secondary-700/50 transition-colors';
+                
+                // Determine if trial is relevant for neonatal/pediatric research
+                const isRelevantForNeonatal = trial.inclusionAgeMin && (
+                    trial.inclusionAgeMin.includes('Month') || 
+                    (parseInt(trial.inclusionAgeMin) < 2 && trial.inclusionAgeMin.includes('Year'))
+                );
+                
+                // Format age range display
+                const ageRange = `${trial.inclusionAgeMin || 'N/A'}${trial.inclusionAgeMax ? ' to ' + trial.inclusionAgeMax : ''}`;
+                
+                // Relevant population determination
+                let relevantPopulation = 'Adult';
+                if (trial.inclusionAgeMin && (trial.inclusionAgeMin.includes('Month') || (trial.inclusionAgeMax && trial.inclusionAgeMax.includes('Year') && !trial.inclusionAgeMin.includes('18')))) {
+                    relevantPopulation = 'Pediatric';
+                }
+                if (trial.inclusionAgeMin && parseInt(trial.inclusionAgeMin) < 1 && trial.inclusionAgeMin.includes('Month')) {
+                    relevantPopulation = 'Infant';
+                }
+                
+                row.innerHTML = `
+                    <td class="px-4 py-3 text-sm font-medium text-primary-700 dark:text-primary-400">${trial.trialID}</td>
+                    <td class="px-4 py-3 text-sm text-secondary-700 dark:text-secondary-300">${ageRange}</td>
+                    <td class="px-4 py-3 text-sm">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300">
+                            <i class="fas fa-times-circle mr-1"></i> No
+                        </span>
+                    </td>
+                    <td class="px-4 py-3 text-sm">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                            relevantPopulation === 'Adult' ? 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300' : 
+                            relevantPopulation === 'Pediatric' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300' : 
+                            'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-300'
+                        }">
+                            ${relevantPopulation}
+                        </span>
+                    </td>
+                `;
+                
+                tableBody.appendChild(row);
+            });
+        }
+
+// Toggle detail panel expansion
+function toggleDetailPanel(trialID) {
+    const detailPanel = document.getElementById(`detail-${trialID}`);
+    const icon = document.querySelector(`.rotate-icon[data-id="${trialID}"]`);
+    const parentRow = icon.closest('tr');
+    
+    if (detailPanel) {
+        detailPanel.classList.toggle('open');
+        parentRow.classList.toggle('expanded');
+        
+        // Close all other panels
+        document.querySelectorAll('.detail-panel.open').forEach(panel => {
+            if (panel.id !== `detail-${trialID}`) {
+                panel.classList.remove('open');
+                const otherTrialID = panel.id.replace('detail-', '');
+                const otherIcon = document.querySelector(`.rotate-icon[data-id="${otherTrialID}"]`);
+                if (otherIcon) {
+                    otherIcon.closest('tr').classList.remove('expanded');
+                }
+            }
+        });
+    }
+}
+
+// Populate the main trials table
+function populateTrialsTable(data) {
+    const tableBody = document.getElementById('trialsTableBody');
+    tableBody.innerHTML = '';
+    
+    if (data.length === 0) {
+        const emptyRow = document.createElement('tr');
+        emptyRow.innerHTML = `
+            <td colspan="7" class="px-4 py-8 text-center text-secondary-500 dark:text-secondary-400 italic">
+                No matching trials found. Try adjusting your filters.
+            </td>
+        `;
+        tableBody.appendChild(emptyRow);
+        return;
+    }
+    
+    data.forEach(trial => {
+        // Create main row
+        const row = document.createElement('tr');
+        row.className = 'hover:bg-secondary-50 dark:hover:bg-secondary-700/50 transition-colors cursor-pointer';
+        row.dataset.id = trial.trialID;
+        
+        // Format status display
+        const statusClass = trial.recruitmentStatus.toLowerCase().includes('recruiting') ? 
+            'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' : 
+            'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300';
+        
+        row.innerHTML = `
+            <td class="px-4 py-3 text-sm">
+                <div class="flex items-center">
+                    <i class="fas fa-chevron-right text-secondary-400 mr-2 rotate-icon" data-id="${trial.trialID}"></i>
+                    <span class="font-medium text-primary-700 dark:text-primary-400">${trial.trialID}</span>
+                </div>
+            </td>
+            <td class="px-4 py-3 text-sm text-secondary-700 dark:text-secondary-300">
+                <div class="tooltip">
+                    <span class="line-clamp-2">${trial.publicTitle}</span>
+                    <span class="tooltip-text">${trial.publicTitle}</span>
+                </div>
+            </td>
+            <td class="px-4 py-3 text-sm text-secondary-700 dark:text-secondary-300">${trial.primarySponsor}</td>
+            <td class="px-4 py-3 text-sm text-secondary-700 dark:text-secondary-300">${trial.dateRegistration}</td>
+            <td class="px-4 py-3">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusClass}">
+                    ${trial.recruitmentStatus}
+                </span>
+            </td>
+            <td class="px-4 py-3 text-sm text-secondary-700 dark:text-secondary-300">
+                ${trial.inclusionAgeMin || 'N/A'}${trial.inclusionAgeMax ? ' to ' + trial.inclusionAgeMax : ''}
+            </td>
+            <td class="px-4 py-3 text-sm">
+                <a href="${trial.link}" target="_blank" class="text-primary-600 hover:text-primary-800 dark:text-primary-400 dark:hover:text-primary-300 inline-flex items-center" onclick="event.stopPropagation();">
+                    <i class="fas fa-external-link-alt mr-1"></i> View
+                </a>
+            </td>
+        `;
+        
+        // Add click event to the row
+        row.addEventListener('click', function() {
+            toggleDetailPanel(trial.trialID);
+        });
+        
+        tableBody.appendChild(row);
+        
+        // Create detail panel row
+        const detailRow = document.createElement('tr');
+        detailRow.className = 'detail-panel';
+        detailRow.id = `detail-${trial.trialID}`;
+        
+        detailRow.innerHTML = `
+            <td colspan="7" class="px-0 py-0">
+                <div class="bg-secondary-50 dark:bg-secondary-800/50 border-t border-b border-secondary-200 dark:border-secondary-700 p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <h3 class="text-lg font-medium text-secondary-900 dark:text-white mb-4">Trial Details</h3>
+                            <div class="space-y-3">
+                                <p class="text-sm"><span class="font-medium text-secondary-700 dark:text-secondary-300">Scientific Title:</span> <span class="text-secondary-600 dark:text-secondary-400">${trial.scientificTitle}</span></p>
+                                <p class="text-sm"><span class="font-medium text-secondary-700 dark:text-secondary-300">Acronym:</span> <span class="text-secondary-600 dark:text-secondary-400">${trial.acronym || 'None'}</span></p>
+                                <p class="text-sm"><span class="font-medium text-secondary-700 dark:text-secondary-300">Condition:</span> <span class="text-secondary-600 dark:text-secondary-400">${trial.condition}</span></p>
+                                <p class="text-sm"><span class="font-medium text-secondary-700 dark:text-secondary-300">Intervention:</span> <span class="text-secondary-600 dark:text-secondary-400">${trial.intervention || 'Not specified'}</span></p>
+                                <p class="text-sm"><span class="font-medium text-secondary-700 dark:text-secondary-300">Primary Outcome:</span> <span class="text-secondary-600 dark:text-secondary-400">${trial.primaryOutcome}</span></p>
+                                <p class="text-sm"><span class="font-medium text-secondary-700 dark:text-secondary-300">Secondary Outcome:</span> <span class="text-secondary-600 dark:text-secondary-400">${trial.secondaryOutcome || 'None'}</span></p>
+                                <p class="text-sm"><span class="font-medium text-secondary-700 dark:text-secondary-300">Target Enrollment:</span> <span class="text-secondary-600 dark:text-secondary-400">${trial.targetSize}</span></p>
+                                <p class="text-sm"><span class="font-medium text-secondary-700 dark:text-secondary-300">Study Type:</span> <span class="text-secondary-600 dark:text-secondary-400">${trial.studyType}</span></p>
+                                <p class="text-sm"><span class="font-medium text-secondary-700 dark:text-secondary-300">Phase:</span> <span class="text-secondary-600 dark:text-secondary-400">${trial.phase || 'Not applicable'}</span></p>
+                                <p class="text-sm"><span class="font-medium text-secondary-700 dark:text-secondary-300">Countries:</span> <span class="text-secondary-600 dark:text-secondary-400">${trial.countries}</span></p>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-medium text-secondary-900 dark:text-white mb-4">Participant Criteria</h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <h4 class="text-sm font-medium text-secondary-700 dark:text-secondary-300 mb-1">Inclusion Criteria:</h4>
+                                    <p class="text-sm text-secondary-600 dark:text-secondary-400 bg-white dark:bg-secondary-700/50 p-3 rounded border border-secondary-200 dark:border-secondary-600">${trial.inclusionCriteria}</p>
+                                </div>
+                                <div>
+                                    <h4 class="text-sm font-medium text-secondary-700 dark:text-secondary-300 mb-1">Exclusion Criteria:</h4>
+                                    <p class="text-sm text-secondary-600 dark:text-secondary-400 bg-white dark:bg-secondary-700/50 p-3 rounded border border-secondary-200 dark:border-secondary-600">${trial.exclusionCriteria}</p>
+                                </div>
+                                <div>
+                                    <h4 class="text-sm font-medium text-secondary-700 dark:text-secondary-300 mb-1">Age Range:</h4>
+                                    <p class="text-sm text-secondary-600 dark:text-secondary-400">${trial.inclusionAgeMin || 'Not specified'} to ${trial.inclusionAgeMax || 'Not specified'}</p>
+                                </div>
+                                <div>
+                                    <h4 class="text-sm font-medium text-secondary-700 dark:text-secondary-300 mb-1">Contact:</h4>
+                                    <p class="text-sm text-secondary-600 dark:text-secondary-400">${trial.contact || 'Not provided'}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </td>
+        `;
+        
+        tableBody.appendChild(detailRow);
+    });
+}
+
+
+        // Set up search and filters
+        function setupSearchAndFilters() {
+            const searchInput = document.getElementById('searchInput');
+            const ageFilter = document.getElementById('ageFilter');
+            const statusFilter = document.getElementById('statusFilter');
+            
+            const filterHandler = () => {
+                const searchTerm = searchInput.value.toLowerCase();
+                const ageValue = ageFilter.value;
+                const statusValue = statusFilter.value;
+                
+                const filteredData = trials.filter(trial => {
+                    // Search term filter
+                    const matchesSearch = (
+                        trial.trialID.toLowerCase().includes(searchTerm) ||
+                        trial.publicTitle.toLowerCase().includes(searchTerm) ||
+                        trial.condition.toLowerCase().includes(searchTerm) ||
+                        trial.intervention.toLowerCase().includes(searchTerm) ||
+                        trial.primarySponsor.toLowerCase().includes(searchTerm)
+                    );
+                    
+                    // Age filter
+                    let matchesAge = true;
+                    if (ageValue !== 'all') {
+                        const ageMin = trial.inclusionAgeMin ? trial.inclusionAgeMin.toLowerCase() : '';
+                        const ageMax = trial.inclusionAgeMax ? trial.inclusionAgeMax.toLowerCase() : '';
+                        
+                        if (ageValue === 'infant') {
+                            matchesAge = ageMin.includes('month') || (ageMin.includes('year') && parseInt(ageMin) < 1);
+                        } else if (ageValue === 'pediatric') {
+                            matchesAge = (ageMin.includes('month') || ageMin.includes('year')) && 
+                                        (!ageMin.includes('18') && !ageMin.includes('65'));
+                        } else if (ageValue === 'adult') {
+                            matchesAge = ageMin.includes('18') || ageMin.includes('65') || parseInt(ageMin) >= 18;
+                        }
+                    }
+                    
+                    // Status filter
+                    let matchesStatus = true;
+                    if (statusValue !== 'all') {
+                        const status = trial.recruitmentStatus.toLowerCase();
+                        if (statusValue === 'recruiting') {
+                            matchesStatus = status.includes('recruit') && !status.includes('not');
+                        } else if (statusValue === 'not_recruiting') {
+                            matchesStatus = status.includes('not recruit');
+                        } else if (statusValue === 'completed') {
+                            matchesStatus = status.includes('complete');
+                        }
+                    }
+                    
+                    return matchesSearch && matchesAge && matchesStatus;
+                });
+                
+                populateTrialsTable(filteredData);
+                updateResultCount(filteredData.length);
+            };
+            
+            searchInput.addEventListener('input', filterHandler);
+            ageFilter.addEventListener('change', filterHandler);
+            statusFilter.addEventListener('change', filterHandler);
+        }
+
+        // Toggle age range table visibility
+        function toggleAgeTable() {
+            const container = document.getElementById('ageTableContainer');
+            const button = document.getElementById('toggleAgeTableBtn');
+            
+            container.classList.toggle('hidden');
+            
+            const icon = button.querySelector('i');
+            if (container.classList.contains('hidden')) {
+                icon.classList.remove('fa-chevron-down');
+                icon.classList.add('fa-chevron-up');
+            } else {
+                icon.classList.remove('fa-chevron-up');
+                icon.classList.add('fa-chevron-down');
+            }
+        }
+
+        // Focus on neonatal relevant studies
+        function focusOnNeonatal() {
+            document.getElementById('ageFilter').value = 'infant';
+            document.getElementById('searchInput').value = 'pediatric';
+            
+            // Trigger the filter
+            const event = new Event('change');
+            document.getElementById('ageFilter').dispatchEvent(event);
+        }
+
+        // Reset all filters
+        function ctresetFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('ageFilter').value = 'all';
+            document.getElementById('statusFilter').value = 'all';
+            
+            populateTrialsTable(trials);
+            updateResultCount(trials.length);
+        }
+
+        // Update the result count display
+        function updateResultCount(count) {
+            document.getElementById('resultCount').textContent = `${count} trial${count !== 1 ? 's' : ''}`;
+        }
+
+        // Set up sorting functionality
+        function setupSorting() {
+            const sortableHeaders = document.querySelectorAll('th[data-sort]');
+            
+            // Track sort state
+            const sortState = {
+                column: 'dateRegistration',
+                direction: 'desc'
+            };
+            
+            // Initial sort
+            sortData(sortState.column, sortState.direction);
+            
+            sortableHeaders.forEach(header => {
+                header.addEventListener('click', () => {
+                    const column = header.dataset.sort;
+                    const newDirection = sortState.column === column && sortState.direction === 'asc' ? 'desc' : 'asc';
+                    
+                    // Update sort state
+                    sortState.column = column;
+                    sortState.direction = newDirection;
+                    
+                    // Perform sort
+                    sortData(column, newDirection);
+                    
+                    // Update UI
+                    sortableHeaders.forEach(h => {
+                        const icon = h.querySelector('i');
+                        if (h.dataset.sort === column) {
+                            icon.className = newDirection === 'asc' ? 'fas fa-sort-up ml-1' : 'fas fa-sort-down ml-1';
+                        } else {
+                            icon.className = 'fas fa-sort ml-1 text-secondary-400 dark:text-secondary-500 opacity-70 group-hover:opacity-100';
+                        }
+                    });
+                });
+            });
+        }
+
+        // Sort data by column and direction
+        function sortData(column, direction) {
+            const searchInput = document.getElementById('searchInput');
+            const ageFilter = document.getElementById('ageFilter');
+            const statusFilter = document.getElementById('statusFilter');
+            
+            // Get currently filtered data
+            const searchTerm = searchInput.value.toLowerCase();
+            const ageValue = ageFilter.value;
+            const statusValue = statusFilter.value;
+            
+            const filteredData = trials.filter(trial => {
+                // Search term filter
+                const matchesSearch = (
+                    trial.trialID.toLowerCase().includes(searchTerm) ||
+                    trial.publicTitle.toLowerCase().includes(searchTerm) ||
+                    trial.condition.toLowerCase().includes(searchTerm) ||
+                    trial.intervention.toLowerCase().includes(searchTerm) ||
+                    trial.primarySponsor.toLowerCase().includes(searchTerm)
+                );
+                
+                // Age filter
+                let matchesAge = true;
+                if (ageValue !== 'all') {
+                    const ageMin = trial.inclusionAgeMin ? trial.inclusionAgeMin.toLowerCase() : '';
+                    const ageMax = trial.inclusionAgeMax ? trial.inclusionAgeMax.toLowerCase() : '';
+                    
+                    if (ageValue === 'infant') {
+                        matchesAge = ageMin.includes('month') || (ageMin.includes('year') && parseInt(ageMin) < 1);
+                    } else if (ageValue === 'pediatric') {
+                        matchesAge = (ageMin.includes('month') || ageMin.includes('year')) && 
+                                    (!ageMin.includes('18') && !ageMin.includes('65'));
+                    } else if (ageValue === 'adult') {
+                        matchesAge = ageMin.includes('18') || ageMin.includes('65') || parseInt(ageMin) >= 18;
+                    }
+                }
+                
+                // Status filter
+                let matchesStatus = true;
+                if (statusValue !== 'all') {
+                    const status = trial.recruitmentStatus.toLowerCase();
+                    if (statusValue === 'recruiting') {
+                        matchesStatus = status.includes('recruit') && !status.includes('not');
+                    } else if (statusValue === 'not_recruiting') {
+                        matchesStatus = status.includes('not recruit');
+                    } else if (statusValue === 'completed') {
+                        matchesStatus = status.includes('complete');
+                    }
+                }
+                
+                return matchesSearch && matchesAge && matchesStatus;
+            });
+            
+            // Sort the data
+            const sortedData = [...filteredData].sort((a, b) => {
+                let aValue = a[column];
+                let bValue = b[column];
+                
+                // Special handling for date format
+                if (column === 'dateRegistration') {
+                    // Convert DD/MM/YYYY to sortable format
+                    aValue = ctformatDate(aValue);
+                    bValue = ctformatDate(bValue);
+                }
+                
+                // Compare values
+                if (direction === 'asc') {
+                    return aValue > bValue ? 1 : -1;
+                } else {
+                    return aValue < bValue ? 1 : -1;
+                }
+            });
+            
+            // Update the table
+            populateTrialsTable(sortedData);
+        }
+
+        // Export data to CSV
+        function exportData() {
+            // Get currently filtered/sorted data
+            const visibleRows = document.querySelectorAll('#trialsTableBody > tr:not(.detail-panel)');
+            const visibleTrialIds = Array.from(visibleRows).map(row => row.dataset.id).filter(Boolean);
+            
+            const exportData = trials.filter(trial => visibleTrialIds.includes(trial.trialID));
+            
+            // Define CSV headers
+            const headers = [
+                "Trial ID", "Title", "Sponsor", "Registration Date", "Status", 
+                "Min Age", "Max Age", "Condition", "Intervention", "Enrollment",
+                "Study Type", "Phase", "Countries", "Link"
+            ];
+            
+            // Create CSV rows
+            const csvRows = [
+                headers.join(','),
+                ...exportData.map(trial => [
+                    `"${trial.trialID}"`,
+                    `"${trial.publicTitle.replace(/"/g, '""')}"`,
+                    `"${trial.primarySponsor.replace(/"/g, '""')}"`,
+                    `"${trial.dateRegistration}"`,
+                    `"${trial.recruitmentStatus}"`,
+                    `"${trial.inclusionAgeMin || 'N/A'}"`,
+                    `"${trial.inclusionAgeMax || 'N/A'}"`,
+                    `"${trial.condition.replace(/"/g, '""')}"`,
+                    `"${(trial.intervention || 'N/A').replace(/"/g, '""')}"`,
+                    `"${trial.targetSize}"`,
+                    `"${trial.studyType}"`,
+                    `"${trial.phase || 'N/A'}"`,
+                    `"${trial.countries}"`,
+                    `"${trial.link}"`
+                ].join(','))
+            ];
+            
+            // Create CSV content
+            const csvContent = csvRows.join('\n');
+            
+            // Create download link
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            
+            // Set link properties
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'TEG_6S_Clinical_Trials.csv');
+            link.style.visibility = 'hidden';
+            
+            // Add link to document, click it, then remove it
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    </script>
+</body>
+</html>

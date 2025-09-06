@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Leaf Intelligence Logo</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="flex items-center justify-center h-screen bg-white">
+  <div id="logo" class="flex items-center space-x-3">
+    <div class="relative">
+      <img src="./leaf.png" alt="Leaf Intelligence" class="h-14 w-14 object-contain" />
+      <div class="absolute inset-0 bg-gradient-to-r from-emerald-400 to-cyan-400 opacity-20 blur-lg rounded-full"></div>
+    </div>
+    <div class="ml-3">
+      <span class="text-xl font-bold bg-gradient-to-r from-emerald-600 via-blue-600 to-purple-600 bg-clip-text text-transparent">
+        Leaf Intelligence
+      </span>
+      <div class="text-xs text-gray-600 font-medium tracking-wide">AI Research Platform</div>
+    </div>
+  </div>
+  <script src="https://unpkg.com/html-to-image"></script>
+<button onclick="downloadLogo()">Download Logo as PNG</button>
+<script>
+  function downloadLogo() {
+    const node = document.getElementById('logo');
+    htmlToImage.toPng(node)
+      .then(function (dataUrl) {
+        const link = document.createElement('a');
+        link.download = 'leaf-intelligence-logo.png';
+        link.href = dataUrl;
+        link.click();
+      });
+  }
+</script>
+
+</body>
+</html>

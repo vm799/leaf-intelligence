@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ultra‑Orphan Approvals — CMC Precedent Explorer</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --glass-bg: rgba(255,255,255,0.6);
+      --glass-border: rgba(255,255,255,0.35);
+      --glass-shadow: 0 10px 30px rgba(2,6,23,0.08);
+    }
+    body { font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial; }
+    .glass {
+      background: var(--glass-bg);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid var(--glass-border);
+      box-shadow: var(--glass-shadow);
+    }
+    .tab-btn[aria-selected="true"] { background: rgba(59,130,246,0.15); color: #1d4ed8; border-color: #93c5fd; }
+    .fade-in { animation: fade 200ms ease-out; }
+    @keyframes fade { from {opacity: 0; transform: translateY(4px);} to {opacity: 1; transform: translateY(0);} }
+    .rotate-90 { transform: rotate(90deg); }
+    .linkish { color:#2563eb; text-decoration: underline; }
+    .sticky-header { position: sticky; top: 0; z-index: 20; backdrop-filter: blur(8px); background: rgba(248,250,252,0.8); }
+    .mobile-scroll { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+    .badge { border:1px dashed rgba(15,23,42,0.2); background: rgba(241,245,249,0.7); }
+    .scroll-soft { scroll-behavior: smooth; }
+  </style>
+</head>
+<body class="bg-slate-100 scroll-soft">
+  <!-- Header -->
+  <header class="sticky top-0 z-50 border-b bg-white/80 backdrop-blur">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-2xl bg-blue-600 text-white grid place-items-center shadow-md">
+          <i data-lucide="shield-check" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <h1 class="text-xl md:text-2xl font-extrabold text-slate-900">Ultra‑Orphan FDA Approvals — CMC Precedent Explorer</h1>
+          <p class="text-xs md:text-sm text-slate-600">51 unique approvals with CMC issues resolved at approval (often via PMCs)</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <button id="exportBtn" class="hidden md:inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-blue-600 text-white text-sm hover:bg-blue-700 transition">
+          <i data-lucide="download" class="w-4 h-4"></i><span>Export HTML</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Nav Tabs -->
+  <nav class="sticky top-[68px] z-40 bg-white/70 backdrop-blur border-b">
+    <div class="max-w-7xl mx-auto px-4">
+      <div class="flex gap-2 py-2 mobile-scroll" role="tablist" aria-label="Sections">
+        <button class="tab-btn px-4 py-2 rounded-xl border text-sm" role="tab" aria-selected="true" data-target="#tab-summary">Executive Summary</button>
+        <button class="tab-btn px-4 py-2 rounded-xl border text-sm" role="tab" aria-selected="false" data-target="#tab-approvals">Ultra‑Orphan Approvals</button>
+        <button class="tab-btn px-4 py-2 rounded-xl border text-sm opacity-60 cursor-not-allowed" title="Coming soon" role="tab" aria-selected="false">CRLs</button>
+        <button class="tab-btn px-4 py-2 rounded-xl border text-sm opacity-60 cursor-not-allowed" title="Coming soon" role="tab" aria-selected="false">How we got this data</button>
+        <div class="ml-auto"></div>
+        <label class="px-3 py-2 text-xs text-slate-600 hidden md:inline-flex items-center gap-2 border rounded-xl">
+          <i data-lucide="file-input" class="w-4 h-4"></i>
+          <input id="fileInput" type="file" accept="application/json" class="hidden"/>
+          <span>Load JSON (fallback)</span>
+        </label>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Content -->
+  <main class="max-w-7xl mx-auto px-4 py-6 space-y-8">
+    <!-- Executive Summary -->
+    <section id="tab-summary" class="fade-in">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="glass rounded-2xl p-5">
+          <div class="text-xs uppercase tracking-wide text-slate-500">Total Approvals</div>
+          <div id="metric-total" class="text-3xl font-extrabold text-slate-900">—</div>
+          <div class="text-xs text-slate-500">Unique drugs with CMC issues yet approved</div>
+        </div>
+        <div class="glass rounded-2xl p-5">
+          <div class="text-xs uppercase tracking-wide text-slate-500">Approvals with PMCs</div>
+          <div id="metric-pmc" class="text-3xl font-extrabold text-blue-700">—</div>
+          <div class="text-xs text-slate-500">Where CMC items were deferred to post‑marketing commitments</div>
+        </div>
+        <div class="glass rounded-2xl p-5">
+          <div class="text-xs uppercase tracking-wide text-slate-500">Primary Issue Categories</div>
+          <div id="metric-cats" class="text-3xl font-extrabold text-emerald-700">—</div>
+          <div class="text-xs text-slate-500">Stability, Validation, E&L, Assays, Scale‑up, Vector, etc.</div>
+        </div>
+      </div>
+
+      <div class="glass rounded-2xl p-6 mt-6">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-lg font-bold text-slate-900">Issue Breakdown</h2>
+          <div class="text-xs text-slate-600">Click a badge to filter the Approvals tab</div>
+        </div>
+        <div id="issue-cloud" class="flex flex-wrap gap-2"></div>
+      </div>
+
+      <div class="glass rounded-2xl p-6 mt-6">
+        <h2 class="text-lg font-bold text-slate-900 mb-4">Highlights</h2>
+        <ul id="highlights" class="space-y-2 text-sm text-slate-700 list-disc pl-5"></ul>
+      </div>
+    </section>
+
+    <!-- Ultra‑Orphan Approvals (grouped table) -->
+    <section id="tab-approvals" class="hidden fade-in">
+      <div class="flex flex-col md:flex-row md:items-center gap-3 mb-4">
+        <div class="relative md:w-96">
+          <i data-lucide="search" class="w-4 h-4 absolute left-3 top-3 text-slate-500"></i>
+          <input id="searchBox" class="w-full pl-9 pr-3 py-2 rounded-xl border bg-white/80" placeholder="Search drug, generic, NDA/BLA, issue, quote…"/>
+        </div>
+        <div class="flex gap-2 flex-wrap items-center">
+          <select id="issueFilter" class="px-3 py-2 rounded-xl border bg-white/80 text-sm min-w-[14rem]"></select>
+          <select id="pmcFilter" class="px-3 py-2 rounded-xl border bg-white/80 text-sm">
+            <option value="all">All actions</option>
+            <option value="pmc">Approved with PMC(s)</option>
+            <option value="no-pmc">Approved (no PMC keywords)</option>
+          </select>
+          <button id="clearFilters" class="px-3 py-2 text-xs rounded-xl border hover:bg-slate-50">Clear filters</button>
+          <span id="activeFilter" class="hidden text-xs ml-1 px-2 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-200"></span>
+        </div>
+      </div>
+
+      <div id="groups" class="space-y-6"></div>
+    </section>
+  </main>
+
+  <template id="rowTemplate">
+    <div class="glass rounded-xl">
+      <div class="flex items-start justify-between p-4">
+        <div class="min-w-0">
+          <div class="flex items-center gap-2 flex-wrap">
+            <h4 class="font-semibold text-slate-900"><span class="drug-name"></span></h4>
+            <span class="text-xs text-slate-500">(<span class="generic-name"></span>)</span>
+            <span class="badge text-[10px] px-2 py-0.5 rounded-full text-slate-600"><span class="id-tag"></span></span>
+            <span class="badge text-[10px] px-2 py-0.5 rounded-full text-slate-600"><span class="date-tag"></span></span>
+          </div>
+          <div class="text-xs text-slate-600 mt-1 leading-relaxed truncate">
+            <span class="issue-tags"></span>
+          </div>
+        </div>
+        <button class="toggle btn px-2 py-2 rounded-lg border hover:bg-slate-50 transition" aria-expanded="false" aria-label="Expand details">
+          <i data-lucide="chevron-right" class="w-4 h-4"></i>
+        </button>
+      </div>
+      <div class="details px-4 pb-4 hidden">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="md:col-span-2">
+            <div class="space-y-3"></div>
+          </div>
+          <div class="md:col-span-1">
+            <div class="p-3 rounded-xl bg-white/70 border">
+              <div class="text-xs font-semibold text-slate-700 mb-2">Source documents</div>
+              <div class="space-y-1 text-sm">
+                <a class="source-approval linkish block" target="_blank">Approval Letter</a>
+                <a class="source-sbra linkish block" target="_blank">Review / SBRA</a>
+                <a class="source-package linkish block" target="_blank">Approval Package</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <script>
+    const DATA_URL = './filtered_orphan_drugs_with_cmc_issues__validated.json'; // keep next to this HTML
+
+    const ISSUE_MAP = [
+      ['Stability','stability'],
+      ['Process Validation','process validation'],
+      ['Manufacturing Scale-Up','scale-up'],
+      ['Analytical Methods','analytical method'],
+      ['Analytical Methods','analytical methods'],
+      ['Potency Assay','potency assay'],
+      ['E&L / Leachables','leachable'],
+      ['E&L / Leachables','extractable'],
+      ['Vector Characterization','vector'],
+      ['Device Validation','device'],
+      ['Microbiological Controls','microbial'],
+      ['Microbiological Controls','endotoxin'],
+      ['Impurities','impurities'],
+      ['Control Strategy','control strategy'],
+      ['Product Quality','product quality'],
+    ];
+
+    const state = { raw: null, filtered: [], issues: new Map(), groups: new Map(), activeIssue: 'all' };
+
+    function classifyIssues(cmcIssues) {
+      const tags = new Set();
+      for (const item of cmcIssues) {
+        const hay = ((item.issue||'') + ' ' + (item.quote||'')).toLowerCase();
+        for (const [label, key] of ISSUE_MAP) {
+          if (hay.includes(key)) tags.add(label);
+        }
+      }
+      if (!tags.size) tags.add('Other CMC');
+      return Array.from(tags);
+    }
+
+    function hasPMCAction(cmcIssues) {
+      return cmcIssues.some(i => /pmc/i.test(i.fda_action||''));
+    }
+
+    async function loadData() {
+      try {
+        const res = await fetch(DATA_URL, {cache:'no-store'});
+        if (!res.ok) throw new Error('Fetch failed');
+        const json = await res.json();
+        return json;
+      } catch (e) {
+        console.warn('Fetch failed, waiting for manual upload…', e);
+        const gate = document.createElement('div');
+        gate.className = 'max-w-7xl mx-auto mt-4';
+        gate.innerHTML = `<div class="glass rounded-2xl p-4 border-amber-300">
+            <div class="flex items-center gap-2 text-amber-800">
+              <i data-lucide="folder-input" class="w-5 h-5"></i>
+              <p class="text-sm">Couldn\'t auto‑load <code>${DATA_URL}</code>. Use <strong>Load JSON</strong> (top‑right) to select <em>filtered_orphan_drugs_with_cmc_issues.json</em>.</p>
+            </div>
+          </div>`;
+        document.querySelector('main').prepend(gate);
+        lucide.createIcons();
+        return null;
+      }
+    }
+
+    function buildSummary(data) {
+      const drugs = data.drugs;
+      // unique count already enforced by your file, but keep defensive
+      const seen = new Set();
+      const unique = drugs.filter(d => !seen.has(d.drug_name) && seen.add(d.drug_name));
+
+      // compute metrics
+      const pmcCount = unique.filter(d => hasPMCAction(d.cmc_issues)).length;
+
+      // category tallies
+      const catCount = new Map();
+      for (const d of unique) {
+        const tags = classifyIssues(d.cmc_issues);
+        for (const t of tags) catCount.set(t, (catCount.get(t)||0)+1);
+      }
+
+      // metrics UI
+      document.getElementById('metric-total').textContent = unique.length;
+      document.getElementById('metric-pmc').textContent = pmcCount;
+      document.getElementById('metric-cats').textContent = catCount.size;
+
+      // issue cloud
+      const cloud = document.getElementById('issue-cloud');
+      cloud.innerHTML = '';
+      const items = Array.from(catCount.entries()).sort((a,b)=>b[1]-a[1]);
+      const allBtn = document.createElement('button');
+      allBtn.className = 'px-3 py-1.5 rounded-full text-sm border hover:bg-slate-50';
+      allBtn.textContent = `All (${unique.length})`;
+      allBtn.onclick = ()=>{ state.activeIssue='all'; renderGroups(); };
+      cloud.appendChild(allBtn);
+      for (const [label, n] of items) {
+        const b = document.createElement('button');
+        b.className = 'px-3 py-1.5 rounded-full text-sm border hover:bg-slate-50';
+        b.textContent = `${label} (${n})`;
+        b.onclick = ()=>{ state.activeIssue = label; document.querySelector('[data-target="#tab-approvals"]').click(); renderGroups(); };
+        cloud.appendChild(b);
+      }
+
+      // highlights (deterministic, derived from data)
+      const highlights = document.getElementById('highlights');
+      const top3 = items.slice(0,3).map(([label,count])=>`<li><strong>${label}</strong> cited in <strong>${count}</strong> approvals</li>`).join('');
+      const pmcPct = Math.round((pmcCount/unique.length)*100);
+      highlights.innerHTML = `${top3}<li><strong>${pmcPct}%</strong> of approvals include explicit <strong>PMCs</strong> in the CMC review text</li>`;
+    }
+
+    function normalizeAction(action){
+      const a = (action||'').toLowerCase();
+      if (a.includes('pmc')) return 'Approved with PMC(s)';
+      if (a.includes('approved')) return 'Approved';
+      if (a.includes('acceptable')||a.includes('deemed acceptable')) return 'Acceptable';
+      return '—';
+    }
+
+    function renderGroups() {
+      const q = (document.getElementById('searchBox').value||'').toLowerCase();
+      const issueFilter = document.getElementById('issueFilter').value;
+      const pmcFilter = document.getElementById('pmcFilter').value;
+
+      // Reflect active filter pill
+      const pill = document.getElementById('activeFilter');
+      if (state.activeIssue !== 'all') { pill.textContent = `Filtered by: ${state.activeIssue}`; pill.classList.remove('hidden'); }
+      else { pill.classList.add('hidden'); pill.textContent=''; }
+
+      // Filter
+      const list = state.filtered.filter(d => {
+        const text = [d.drug_name, d.generic_name, d.approval_data?.nda_bla_number, d.approval_data?.approval_date, JSON.stringify(d.cmc_issues)].join(' ').toLowerCase();
+        if (q && !text.includes(q)) return false;
+        const tags = classifyIssues(d.cmc_issues);
+        if (issueFilter !== 'all' && !tags.includes(issueFilter)) return false;
+        if (state.activeIssue !== 'all' && !tags.includes(state.activeIssue)) return false;
+        if (pmcFilter === 'pmc' && !hasPMCAction(d.cmc_issues)) return false;
+        if (pmcFilter === 'no-pmc' && hasPMCAction(d.cmc_issues)) return false;
+        return true;
+      });
+
+      // Group by primary issue (first tag from classify)
+      const buckets = new Map();
+      for (const d of list) {
+        const tags = classifyIssues(d.cmc_issues);
+        const key = tags[0];
+        if (!buckets.has(key)) buckets.set(key, []);
+        buckets.get(key).push(d);
+      }
+
+      // Render
+      const container = document.getElementById('groups');
+      container.innerHTML = '';
+
+      const sorted = Array.from(buckets.entries()).sort((a,b)=>a[0].localeCompare(b[0]));
+      for (const [group, items] of sorted) {
+        const sec = document.createElement('section');
+        sec.innerHTML = `
+          <div class="flex items-center justify-between mb-2">
+            <h3 class="text-base md:text-lg font-bold text-slate-900">${group} <span class="text-slate-500 font-normal">(${items.length})</span></h3>
+            <button class="px-3 py-1.5 text-xs rounded-lg border hover:bg-slate-50" data-bulk>Expand all</button>
+          </div>
+          <div class="space-y-3"></div>
+        `;
+        const listEl = sec.querySelector('div.space-y-3');
+
+        for (const d of items) {
+          const t = document.getElementById('rowTemplate').content.cloneNode(true);
+          t.querySelector('.drug-name').textContent = d.drug_name;
+          t.querySelector('.generic-name').textContent = d.generic_name || '—';
+          t.querySelector('.id-tag').textContent = d.approval_data?.nda_bla_number || '—';
+          t.querySelector('.date-tag').textContent = d.approval_data?.approval_date || '—';
+
+          // tags chips
+          const tags = classifyIssues(d.cmc_issues);
+          t.querySelector('.issue-tags').innerHTML = tags.map(s=>`<span class="inline-block mr-1 mb-1 px-2 py-0.5 rounded-full bg-slate-50 border text-[10px] text-slate-600">${s}</span>`).join('');
+
+          // sources
+          if (d.approval_documents?.approval_letter) t.querySelector('.source-approval').href = d.approval_documents.approval_letter;
+          if (d.approval_documents?.sbra) t.querySelector('.source-sbra').href = d.approval_documents.sbra;
+          if (d.approval_documents?.approval_package) t.querySelector('.source-package').href = d.approval_documents.approval_package;
+
+          // details: CMC issues list with quotes + deep links using #page=
+          const issuesWrap = t.querySelector('.details .space-y-3');
+          for (const i of (d.cmc_issues||[])) {
+            const linkTarget = (i.document||'').toLowerCase().includes('review') || (i.document||'').toLowerCase().includes('summary') ? (d.approval_documents?.sbra || d.approval_documents?.approval_package || d.approval_documents?.approval_letter) : (d.approval_documents?.approval_letter || d.approval_documents?.sbra);
+            const pageSuffix = (i.page_number? `#page=${i.page_number}` : '');
+            const deep = linkTarget ? linkTarget + pageSuffix : null;
+
+            // derive short classification caption and whether it indicates "allowed post‑approval"
+            const classList = classifyIssues([i]);
+            const actionNorm = normalizeAction(i.fda_action);
+            const allowed = /pmc/i.test(i.fda_action||'') ? 'Allowed post‑approval via PMC' : (/(approved|acceptable)/i.test(i.fda_action||'') ? 'Resolved pre‑approval / acceptable' : '—');
+
+            const card = document.createElement('div');
+            card.className = 'p-3 rounded-xl border bg-white/70';
+            card.innerHTML = `
+              <div class="flex items-start justify-between gap-3">
+                <div>
+                  <div class="text-sm font-semibold text-slate-800">${i.issue || 'CMC Issue'}</div>
+                  <div class="text-[11px] text-slate-500 mt-0.5">${classList.join(', ')} · <span class="italic">${allowed}</span> · <span class="font-medium">${actionNorm}</span></div>
+                </div>
+                ${deep ? `<a class="linkish text-xs whitespace-nowrap" target="_blank">View in document →</a>` : ''}
+              </div>
+              <blockquote class="mt-2 text-sm text-slate-700 border-l-2 pl-3">${i.quote || ''}</blockquote>
+              <div class="mt-2 text-[11px] text-slate-500">Source: ${i.document || '—'}${i.page_number? `, p. ${i.page_number}`:''}</div>
+            `;
+            if (deep) card.querySelector('a')?.setAttribute('href', deep);
+            issuesWrap.appendChild(card);
+          }
+
+          // toggle
+          const box = t.querySelector('.details');
+          const btn = t.querySelector('.toggle');
+          const icon = btn.querySelector('svg');
+          btn.addEventListener('click', ()=>{
+            const open = !box.classList.contains('hidden');
+            box.classList.toggle('hidden');
+            btn.setAttribute('aria-expanded', (!open).toString());
+            icon.style.transform = open ? 'rotate(0deg)' : 'rotate(90deg)';
+          });
+
+          listEl.appendChild(t);
+        }
+
+        // bulk expand/collapse
+        sec.querySelector('[data-bulk]').addEventListener('click', (e)=>{
+          const all = sec.querySelectorAll('.details');
+          const anyClosed = Array.from(all).some(el=>el.classList.contains('hidden'));
+          all.forEach(el=>el.classList.toggle('hidden', !anyClosed));
+          sec.querySelectorAll('.toggle').forEach(btn=>{
+            btn.setAttribute('aria-expanded', anyClosed.toString());
+            btn.querySelector('svg').style.transform = anyClosed ? 'rotate(90deg)' : 'rotate(0deg)';
+          });
+        });
+
+        container.appendChild(sec);
+      }
+
+      if (!sorted.length) {
+        const empty = document.createElement('div');
+        empty.className = 'glass rounded-2xl p-6 text-sm text-slate-600';
+        empty.textContent = 'No results match your current filters.';
+        container.appendChild(empty);
+      }
+    }
+
+    function populateFilters(data){
+      const drugs = data.drugs;
+      const uniq = Array.from(new Set(drugs.map(d=>d.drug_name))).map(name=>drugs.find(d=>d.drug_name===name));
+      state.filtered = uniq;
+
+      // Issue filter options
+      const set = new Set();
+      for (const d of uniq) classifyIssues(d.cmc_issues).forEach(t=>set.add(t));
+      const issueSel = document.getElementById('issueFilter');
+      issueSel.innerHTML = '<option value="all">All issues</option>' + Array.from(set).sort().map(s=>`<option value="${s}">${s}</option>`).join('');
+    }
+
+    function wire() {
+      document.querySelectorAll('.tab-btn').forEach(btn=>{
+        const target = btn.getAttribute('data-target');
+        if (!target) return;
+        btn.addEventListener('click', ()=>{
+          document.querySelectorAll('.tab-btn').forEach(b=>b.setAttribute('aria-selected','false'));
+          btn.setAttribute('aria-selected','true');
+          document.querySelectorAll('main section').forEach(s=>s.classList.add('hidden'));
+          document.querySelector(target).classList.remove('hidden');
+        });
+      });
+
+      document.getElementById('searchBox').addEventListener('input', renderGroups);
+      document.getElementById('issueFilter').addEventListener('change', ()=>{ state.activeIssue='all'; renderGroups(); });
+      document.getElementById('pmcFilter').addEventListener('change', renderGroups);
+
+      document.getElementById('clearFilters').addEventListener('click', ()=>{
+        document.getElementById('searchBox').value='';
+        document.getElementById('issueFilter').value='all';
+        document.getElementById('pmcFilter').value='all';
+        state.activeIssue='all';
+        renderGroups();
+      });
+
+      document.getElementById('fileInput').addEventListener('change', async (e)=>{
+        const file = e.target.files?.[0];
+        if (!file) return;
+        const text = await file.text();
+        const json = JSON.parse(text);
+        state.raw = json; populateFilters(json); buildSummary(json); renderGroups();
+      });
+
+      document.getElementById('exportBtn')?.addEventListener('click', ()=>{
+        const blob = new Blob([document.documentElement.outerHTML], {type: 'text/html'});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = 'UltraOrphan_CMC_Precedent_Explorer.html'; a.click();
+        URL.revokeObjectURL(url);
+      });
+    }
+
+    (async function init(){
+      wire();
+      const data = await loadData();
+      if (data) { state.raw = data; populateFilters(data); buildSummary(data); renderGroups(); }
+      lucide.createIcons();
+    })();
+  </script>
+</body>
+</html>

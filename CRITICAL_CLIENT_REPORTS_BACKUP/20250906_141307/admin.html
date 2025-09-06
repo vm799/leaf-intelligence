@@ -1,0 +1,1088 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+      <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="alternate icon" href="favicon.ico">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    .tooltip {
+      position: relative;
+      display: inline-block;
+    }
+    .tooltip .tooltip-text {
+      visibility: hidden;
+      width: 200px;
+      background-color: #333;
+      color: #fff;
+      text-align: center;
+      border-radius: 6px;
+      padding: 8px;
+      position: absolute;
+      z-index: 1;
+      bottom: 125%;
+      left: 50%;
+      transform: translateX(-50%);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .tooltip:hover .tooltip-text {
+      visibility: visible;
+      opacity: 1;
+    }
+    .activity-log-item {
+      margin-bottom: 12px;
+      padding: 8px;
+      border-radius: 6px;
+      background-color: #f9fafb;
+    }
+    .activity-log-item:hover {
+      background-color: #f3f4f6;
+    }
+    .activity-search-details {
+      background-color: #eef2ff;
+      border-radius: 4px;
+      padding: 6px;
+      margin-top: 6px;
+    }
+  </style>
+</head>
+<body class="bg-gray-50">
+  <!-- Header -->
+  <header class="bg-white shadow">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+      <h1 class="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
+      <div class="flex space-x-4">
+        <button id="refresh-btn" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+          <i class="fas fa-sync-alt mr-2"></i>Refresh Data
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <!-- Tabs -->
+    <div class="border-b border-gray-200 mb-6">
+      <ul class="flex flex-wrap -mb-px">
+        <li class="mr-2">
+          <button class="tab-btn inline-block p-4 border-b-2 border-blue-600 text-blue-600 font-medium" data-tab="dashboard">Dashboard</button>
+        </li>
+        <li class="mr-2">
+          <button class="tab-btn inline-block p-4 border-b-2 border-transparent hover:text-gray-600 hover:border-gray-300 font-medium" data-tab="users">Users</button>
+        </li>
+        <li class="mr-2">
+          <button class="tab-btn inline-block p-4 border-b-2 border-transparent hover:text-gray-600 hover:border-gray-300 font-medium" data-tab="leads">Leads</button>
+        </li>
+        <li class="mr-2">
+          <button class="tab-btn inline-block p-4 border-b-2 border-transparent hover:text-gray-600 hover:border-gray-300 font-medium" data-tab="drug-searches">Drug Searches</button>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Dashboard Tab -->
+    <div id="dashboard" class="tab-content active">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+        <!-- User Stats Card -->
+        <div class="bg-white rounded-lg shadow p-6">
+          <div class="flex items-center">
+            <div class="p-3 rounded-full bg-blue-100 text-blue-500">
+              <i class="fas fa-users text-xl"></i>
+            </div>
+            <div class="ml-4">
+              <p class="text-gray-500 text-sm tooltip">
+                Total Users
+                <span class="tooltip-text" id="total-users-tooltip">Loading...</span>
+              </p>
+              <h3 id="total-users" class="text-2xl font-bold">--</h3>
+            </div>
+
+          </div>
+          <div class="mt-4">
+            <p class="text-green-500 text-sm tooltip">
+              <span id="new-users">--</span> new in last 30 days
+              <span class="tooltip-text" id="new-users-tooltip">Loading...</span>
+            </p>
+          </div>
+        </div>
+
+        <!-- Active Users Card -->
+        <div class="bg-white rounded-lg shadow p-6">
+          <div class="flex items-center">
+            <div class="p-3 rounded-full bg-green-100 text-green-500">
+              <i class="fas fa-user-check text-xl"></i>
+            </div>
+            <div class="ml-4">
+              <p class="text-gray-500 text-sm tooltip">
+                Active Users
+                <span class="tooltip-text" id="active-users-tooltip">Loading...</span>
+              </p>
+              <h3 id="active-users" class="text-2xl font-bold">--</h3>
+            </div>
+          </div>
+          <div class="mt-4">
+            <p class="text-gray-500 text-sm">Last 7 days</p>
+          </div>
+        </div>
+
+        <!-- Usage Card -->
+        <div class="bg-white rounded-lg shadow p-6">
+          <div class="flex items-center">
+            <div class="p-3 rounded-full bg-purple-100 text-purple-500">
+              <i class="fas fa-chart-line text-xl"></i>
+            </div>
+            <div class="ml-4">
+              <p class="text-gray-500 text-sm tooltip">
+                Avg Usage
+                <span class="tooltip-text" id="avg-usage-tooltip">Loading...</span>
+              </p>
+              <h3 id="avg-usage" class="text-2xl font-bold">--</h3>
+            </div>
+          </div>
+          <div class="mt-4">
+            <p class="text-gray-500 text-sm tooltip">
+              Total: <span id="total-usage">--</span>
+              <span class="tooltip-text" id="total-usage-tooltip">Loading...</span>
+            </p>
+          </div>
+        </div>
+
+        <!-- Leads Card -->
+        <div class="bg-white rounded-lg shadow p-6">
+          <div class="flex items-center">
+            <div class="p-3 rounded-full bg-yellow-100 text-yellow-500">
+              <i class="fas fa-phone text-xl"></i>
+            </div>
+            <div class="ml-4">
+              <p class="text-gray-500 text-sm tooltip">
+                Total Leads
+                <span class="tooltip-text" id="total-leads-tooltip">Loading...</span>
+              </p>
+              <h3 id="total-leads" class="text-2xl font-bold">--</h3>
+            </div>
+          </div>
+          <div class="mt-4">
+            <p class="text-green-500 text-sm tooltip">
+              <span id="new-leads">--</span> new in last 30 days
+              <span class="tooltip-text" id="new-leads-tooltip">Loading...</span>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Charts Row -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <!-- Subscription Status Chart -->
+        <div class="bg-white rounded-lg shadow p-6">
+          <h3 class="text-lg font-medium text-gray-900 mb-4 tooltip">
+            Users by Subscription
+            <span class="tooltip-text" id="subscription-stats-tooltip">Loading...</span>
+          </h3>
+          <div id="subscription-chart" class="h-64">
+            <div id="subscription-data" class="grid grid-cols-1 gap-2">
+              <p class="text-gray-500">Loading subscription data...</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Lead Status Chart -->
+        <div class="bg-white rounded-lg shadow p-6">
+          <h3 class="text-lg font-medium text-gray-900 mb-4 tooltip">
+            Leads by Status
+            <span class="tooltip-text" id="lead-status-tooltip">Loading...</span>
+          </h3>
+          <div id="lead-status-chart" class="h-64">
+            <div id="lead-status-data" class="grid grid-cols-1 gap-2">
+              <p class="text-gray-500">Loading lead status data...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Daily Active Users Chart -->
+      <div class="bg-white rounded-lg shadow p-6 mb-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Daily Active Users (Last 30 Days)</h3>
+        <div id="daily-active-users-chart" class="h-64">
+          <p class="text-gray-500">Loading chart data...</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Users Tab -->
+    <div id="users" class="tab-content">
+      <div class="bg-white shadow rounded-lg overflow-hidden">
+        <div class="p-4 flex justify-between items-center border-b">
+          <h2 class="text-lg font-medium text-gray-900">User List</h2>
+          <div class="relative">
+            <input id="user-search" type="text" placeholder="Search users..." class="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+          </div>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Username</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subscription</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Usage</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Login (since 	06/05/2025 ) </th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="users-table-body" class="bg-white divide-y divide-gray-200">
+              <tr>
+                <td colspan="6" class="px-6 py-4 text-center text-gray-500">Loading users...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Leads Tab -->
+    <div id="leads" class="tab-content">
+      <div class="bg-white shadow rounded-lg overflow-hidden">
+        <div class="p-4 flex justify-between items-center border-b">
+          <h2 class="text-lg font-medium text-gray-900">Lead List (Since May 9, 2025)</h2>
+          <div class="relative">
+            <input id="lead-search" type="text" placeholder="Search leads..." class="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+          </div>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Company</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Source</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
+              </tr>
+            </thead>
+            <tbody id="leads-table-body" class="bg-white divide-y divide-gray-200">
+              <tr>
+                <td colspan="6" class="px-6 py-4 text-center text-gray-500">Loading leads...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Drug Searches Tab -->
+    <div id="drug-searches" class="tab-content">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Top Searched Drugs Chart -->
+        <div class="col-span-2 bg-white shadow rounded-lg p-6">
+          <h3 class="text-lg font-medium text-gray-900 mb-4">Top Searched Drugs</h3>
+          <div id="drug-search-chart" class="h-96">
+            <p class="text-gray-500">Loading drug search data...</p>
+          </div>
+        </div>
+        
+        <!-- Drug Search Metrics -->
+        <div class="bg-white shadow rounded-lg p-6">
+          <h3 class="text-lg font-medium text-gray-900 mb-4">Search Metrics</h3>
+          <div id="drug-search-metrics" class="space-y-4">
+            <p class="text-gray-500">Loading metrics...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- User Details Modal -->
+  <div id="user-modal" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center hidden z-50">
+    <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-screen overflow-y-auto">
+      <div class="flex justify-between items-center border-b px-6 py-4">
+        <h3 class="text-lg font-medium text-gray-900">User Details</h3>
+        <button id="close-user-modal" class="text-gray-400 hover:text-gray-500">
+          <i class="fas fa-times text-xl"></i>
+        </button>
+      </div>
+      <div id="user-modal-content" class="p-6">
+        <p class="text-gray-500">Loading user details...</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // app.js - Frontend JavaScript forAdmin Dashboard
+
+// API Base URL - Change this to match your server
+const API_BASE_URL = 'https://www.syneticx.com/api/admin';
+
+// DOM Elements
+const dashboardTab = document.getElementById('dashboard');
+const usersTab = document.getElementById('users');
+const leadsTab = document.getElementById('leads');
+const drugSearchesTab = document.getElementById('drug-searches');
+const tabButtons = document.querySelectorAll('.tab-btn');
+const refreshBtn = document.getElementById('refresh-btn');
+const userSearch = document.getElementById('user-search');
+const leadSearch = document.getElementById('lead-search');
+const userModal = document.getElementById('user-modal');
+const closeUserModal = document.getElementById('close-user-modal');
+
+// State
+let usersData = [];
+let leadsData = [];
+let userStats = {};
+let leadStats = {};
+
+// Initialize the dashboard
+async function initDashboard() {
+  await Promise.all([
+    fetchUserStats(),
+    fetchLeadStats(),
+    fetchUsers(),
+    fetchLeads()
+  ]);
+  
+  updateDashboard();
+  renderUsersTable();
+  renderLeadsTable();
+  renderDrugSearches();
+  
+  // Add event listeners
+  setupEventListeners();
+}
+
+// Fetch data from API
+async function fetchUserStats() {
+  try {
+    const response = await fetch(`${API_BASE_URL}/stats/users`);
+    userStats = await response.json();
+    
+    // Update tooltips with metric descriptions
+    updateTooltips(userStats.metrics);
+  } catch (error) {
+    console.error('Error fetching user stats:', error);
+    userStats = {};
+  }
+}
+
+// This is a complete implementation of the tooltip initialization code
+// Add this to your app.js file near the beginning, before any functions that use tooltips
+
+// Initialize tooltips with default values
+function initializeTooltips() {
+  const tooltips = {
+    'total-users': "Total registered users in the database",
+    'new-users': "Users registered in the last 30 days",
+    'active-users': "Users who have logged in within the last 7 days",
+    'avg-usage': "Average usage count per user (API calls, searches, etc.)",
+    'total-usage': "Total usage across all users",
+    'subscription-stats': "Breakdown of users by subscription status",
+    'lead-status': "Breakdown of leads by their current status",
+    'total-leads': "Total leads captured after May 9, 2025",
+    'new-leads': "New leads captured in the last 30 days"
+  };
+  
+  Object.keys(tooltips).forEach(key => {
+    const tooltipElement = document.getElementById(`${key}-tooltip`);
+    if (tooltipElement) {
+      tooltipElement.textContent = tooltips[key];
+    }
+  });
+}
+
+// Call this function when the DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+  // Initialize tooltips with default values
+  initializeTooltips();
+  
+  // Initialize dashboard
+  initDashboard();
+});
+
+// Modified updateTooltips function that will be called after API responses
+function updateTooltips(metrics) {
+  if (!metrics) return;
+  
+  // Map API response metrics to tooltip IDs
+  const tooltipMapping = {
+    totalUsers: 'total-users-tooltip',
+    newUsers: 'new-users-tooltip',
+    activeUsers: 'active-users-tooltip',
+    avgUsage: 'avg-usage-tooltip',
+    totalUsage: 'total-usage-tooltip',
+    subscriptionStats: 'subscription-stats-tooltip',
+    totalLeads: 'total-leads-tooltip',
+    newLeads: 'new-leads-tooltip',
+    statusStats: 'lead-status-tooltip'
+  };
+  
+  // Update tooltips with values from API
+  Object.keys(metrics).forEach(key => {
+    const tooltipId = tooltipMapping[key];
+    if (tooltipId) {
+      const tooltipElement = document.getElementById(tooltipId);
+      if (tooltipElement && metrics[key]) {
+        tooltipElement.textContent = metrics[key];
+      }
+    }
+  });
+}
+
+async function fetchLeadStats() {
+  try {
+    const response = await fetch(`${API_BASE_URL}/stats/leads`);
+    leadStats = await response.json();
+    
+    // Update tooltips with metric descriptions
+    updateTooltips(leadStats.metrics);
+  } catch (error) {
+    console.error('Error fetching lead stats:', error);
+    leadStats = {};
+  }
+}
+
+async function fetchUsers() {
+  try {
+    const response = await fetch(`${API_BASE_URL}/users`);
+    usersData = await response.json();
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    usersData = [];
+  }
+}
+
+async function fetchLeads() {
+  try {
+    const response = await fetch(`${API_BASE_URL}/leads`);
+    leadsData = await response.json();
+  } catch (error) {
+    console.error('Error fetching leads:', error);
+    leadsData = [];
+  }
+}
+
+async function fetchUserDetails(userId) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/users/${userId}`);
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching user details:', error);
+    return null;
+  }
+}
+
+// Update tooltips with metric descriptions
+function updateTooltips(metrics) {
+  if (!metrics) return;
+  
+  // Define static tooltips for metrics that might not be in the API response
+  const staticTooltips = {
+    'total-users': "Total registered users in the database",
+    'new-users': "Users registered in the last 30 days",
+    'active-users': "Users who have logged in within the last 7 days",
+    'avg-usage': "Average usage count per user (API calls, searches, etc.)",
+    'total-usage': "Total usage across all users",
+    'subscription-stats': "Breakdown of users by subscription status",
+    'lead-status': "Breakdown of leads by their current status",
+    'total-leads': "Total leads captured after May 9, 2025",
+    'new-leads': "New leads captured in the last 30 days"
+  };
+  
+  // Update tooltips from API metrics if available
+  if (metrics.totalUsers) document.getElementById('total-users-tooltip').textContent = metrics.totalUsers;
+  if (metrics.newUsers) document.getElementById('new-users-tooltip').textContent = metrics.newUsers;
+  if (metrics.activeUsers) document.getElementById('active-users-tooltip').textContent = metrics.activeUsers;
+  if (metrics.avgUsage) document.getElementById('avg-usage-tooltip').textContent = metrics.avgUsage;
+  if (metrics.totalUsage) document.getElementById('total-usage-tooltip').textContent = metrics.totalUsage;
+  if (metrics.subscriptionStats) document.getElementById('subscription-stats-tooltip').textContent = metrics.subscriptionStats;
+  if (metrics.totalLeads) document.getElementById('total-leads-tooltip').textContent = metrics.totalLeads;
+  if (metrics.newLeads) document.getElementById('new-leads-tooltip').textContent = metrics.newLeads;
+  if (metrics.statusStats) document.getElementById('lead-status-tooltip').textContent = metrics.statusStats;
+  
+  // Use static tooltips for any that didn't get populated
+  Object.keys(staticTooltips).forEach(key => {
+    const tooltipElement = document.getElementById(`${key}-tooltip`);
+    if (tooltipElement && (tooltipElement.textContent === 'Loading...' || tooltipElement.textContent === '')) {
+      tooltipElement.textContent = staticTooltips[key];
+    }
+  });
+}
+
+// Update dashboard with stats
+function updateDashboard() {
+  // Update user stats
+  document.getElementById('total-users').textContent = userStats.totalUsers || 0;
+  document.getElementById('new-users').textContent = userStats.newUsers || 0;
+  document.getElementById('active-users').textContent = userStats.activeUsers || 0;
+  document.getElementById('avg-usage').textContent = userStats.usageStats?.avgUsage?.toFixed(2) || 0;
+  document.getElementById('total-usage').textContent = userStats.usageStats?.totalUsage || 0;
+  
+  // Update lead stats
+  document.getElementById('total-leads').textContent = leadStats.totalLeads || 0;
+  document.getElementById('new-leads').textContent = leadStats.newLeads || 0;
+  
+  // Update subscription chart
+  updateSubscriptionChart();
+  
+  // Update lead status chart
+  updateLeadStatusChart();
+  
+  // Update daily active users chart
+  updateDailyActiveUsersChart();
+}
+
+function updateSubscriptionChart() {
+  const subscriptionData = userStats.subscriptionStats || [];
+  const subscriptionDiv = document.getElementById('subscription-data');
+  
+  if (subscriptionData.length === 0) {
+    subscriptionDiv.innerHTML = '<p class="text-gray-500">No subscription data available</p>';
+    return;
+  }
+  
+  // Sort by count descending
+  subscriptionData.sort((a, b) => b.count - a.count);
+  
+  // Generate HTML for subscription data
+  let html = '';
+const colors = ['bg-blue-500', 'bg-green-500', 'bg-yellow-500', 'bg-purple-500', 'bg-red-500'];
+  
+  subscriptionData.forEach((item, index) => {
+    const percentage = (item.count / userStats.totalUsers * 100).toFixed(1);
+    const color = colors[index % colors.length];
+    
+    html += `
+      <div class="mb-3">
+        <div class="flex justify-between items-center mb-1">
+          <span class="text-sm font-medium text-gray-700">${item._id || 'Unknown'}</span>
+          <span class="text-sm font-medium text-gray-700">${item.count} (${percentage}%)</span>
+        </div>
+        <div class="w-full bg-gray-200 rounded-full h-2.5">
+          <div class="${color} h-2.5 rounded-full" style="width: ${percentage}%"></div>
+        </div>
+      </div>
+    `;
+  });
+  
+  subscriptionDiv.innerHTML = html;
+}
+
+function updateLeadStatusChart() {
+  const statusData = leadStats.statusStats || [];
+  const statusDiv = document.getElementById('lead-status-data');
+  
+  if (statusData.length === 0) {
+    statusDiv.innerHTML = '<p class="text-gray-500">No lead status data available</p>';
+    return;
+  }
+  
+  // Sort by count descending
+  statusData.sort((a, b) => b.count - a.count);
+  
+  // Generate HTML for lead status data
+  let html = '';
+  const colors = ['bg-green-500', 'bg-yellow-500', 'bg-blue-500', 'bg-purple-500', 'bg-red-500'];
+  
+  statusData.forEach((item, index) => {
+    const percentage = (item.count / leadStats.totalLeads * 100).toFixed(1);
+    const color = colors[index % colors.length];
+    
+    html += `
+      <div class="mb-3">
+        <div class="flex justify-between items-center mb-1">
+          <span class="text-sm font-medium text-gray-700">${item._id || 'Unknown'}</span>
+          <span class="text-sm font-medium text-gray-700">${item.count} (${percentage}%)</span>
+        </div>
+        <div class="w-full bg-gray-200 rounded-full h-2.5">
+          <div class="${color} h-2.5 rounded-full" style="width: ${percentage}%"></div>
+        </div>
+      </div>
+    `;
+  });
+  
+  statusDiv.innerHTML = html;
+}
+
+function updateDailyActiveUsersChart() {
+  const dailyActiveUsers = userStats.dailyActiveUsers || [];
+  const chartDiv = document.getElementById('daily-active-users-chart');
+  
+  if (dailyActiveUsers.length === 0) {
+    chartDiv.innerHTML = '<p class="text-gray-500">No daily active user data available</p>';
+    return;
+  }
+  
+  // Generate HTML for daily active users chart
+  let html = '<div class="grid grid-cols-1 gap-2">';
+  
+  // Find maximum count for scaling
+  const maxCount = Math.max(...dailyActiveUsers.map(day => day.count));
+  
+  dailyActiveUsers.forEach(day => {
+    const percentage = (day.count / maxCount * 100).toFixed(1);
+    
+    html += `
+      <div class="mb-1">
+        <div class="flex justify-between items-center mb-1">
+          <span class="text-xs font-medium text-gray-700">${formatDate(day._id)}</span>
+          <span class="text-xs font-medium text-gray-700">${day.count} users</span>
+        </div>
+        <div class="w-full bg-gray-200 rounded-full h-2">
+          <div class="bg-blue-500 h-2 rounded-full" style="width: ${percentage}%"></div>
+        </div>
+      </div>
+    `;
+  });
+  
+  html += '</div>';
+  chartDiv.innerHTML = html;
+}
+
+// Format date from YYYY-MM-DD to more readable format
+function formatDate(dateString) {
+  const [year, month, day] = dateString.split('-');
+  const date = new Date(year, month - 1, day);
+  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
+// Render drug searches tab
+function renderDrugSearches() {
+  const drugSearchStats = userStats.drugSearchStats || [];
+  const chartDiv = document.getElementById('drug-search-chart');
+  const metricsDiv = document.getElementById('drug-search-metrics');
+  
+  if (drugSearchStats.length === 0) {
+    chartDiv.innerHTML = '<p class="text-gray-500">No drug search data available</p>';
+    metricsDiv.innerHTML = '<p class="text-gray-500">No metrics available</p>';
+    return;
+  }
+  
+  // Generate chart HTML
+  let chartHtml = '<div class="space-y-4">';
+  
+  // Find maximum count for scaling
+  const maxCount = Math.max(...drugSearchStats.map(drug => drug.count));
+  
+  drugSearchStats.forEach(drug => {
+    const percentage = (drug.count / maxCount * 100).toFixed(1);
+    
+    chartHtml += `
+      <div>
+        <div class="flex justify-between items-center mb-1">
+          <span class="text-sm font-medium text-gray-700">${drug.drug || 'Unknown'}</span>
+          <span class="text-sm font-medium text-gray-700">${drug.count} searches (${drug.uniqueUsers} users)</span>
+        </div>
+        <div class="w-full bg-gray-200 rounded-full h-3">
+          <div class="bg-indigo-500 h-3 rounded-full" style="width: ${percentage}%"></div>
+        </div>
+      </div>
+    `;
+  });
+  
+  chartHtml += '</div>';
+  chartDiv.innerHTML = chartHtml;
+  
+  // Generate metrics HTML
+  const totalSearches = drugSearchStats.reduce((sum, drug) => sum + drug.count, 0);
+  const uniqueUsers = new Set(drugSearchStats.flatMap(drug => drug.uniqueUsers)).size;
+  
+  const metricsHtml = `
+    <div class="p-4 bg-gray-50 rounded-lg">
+      <div class="text-lg font-semibold text-gray-800 mb-2">Summary</div>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <div class="text-sm text-gray-500">Total Drug Searches</div>
+          <div class="text-xl font-bold text-gray-900">${totalSearches}</div>
+        </div>
+        <div>
+          <div class="text-sm text-gray-500">Unique Users</div>
+          <div class="text-xl font-bold text-gray-900">${uniqueUsers}</div>
+        </div>
+        <div>
+          <div class="text-sm text-gray-500">Avg Searches Per User</div>
+          <div class="text-xl font-bold text-gray-900">${(totalSearches / uniqueUsers).toFixed(2)}</div>
+        </div>
+        <div>
+          <div class="text-sm text-gray-500">Top Drug</div>
+          <div class="text-xl font-bold text-gray-900">${drugSearchStats[0]?.drug || 'N/A'}</div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="p-4 bg-gray-50 rounded-lg mt-4">
+      <div class="text-lg font-semibold text-gray-800 mb-2">Search Parameters</div>
+      <div class="text-sm text-gray-600">
+        <p class="mb-2">Most common search parameters:</p>
+        <ul class="list-disc pl-5 space-y-1">
+          <li>Search Type: <span class="font-medium">Drug Only</span></li>
+          <li>Has Results Filter: <span class="font-medium">Varies</span></li>
+          <li>Years Back: <span class="font-medium">7 (common)</span></li>
+          <li>TRD Focus: <span class="font-medium">Varies</span></li>
+        </ul>
+      </div>
+    </div>
+  `;
+  
+  metricsDiv.innerHTML = metricsHtml;
+}
+
+// Render tables
+function renderUsersTable(filteredUsers = null) {
+  const users = filteredUsers || usersData;
+  const tbody = document.getElementById('users-table-body');
+  
+  if (users.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-4 text-center text-gray-500">No users found</td></tr>';
+    return;
+  }
+  
+  let html = '';
+  users.forEach(user => {
+    const lastLogin = user.lastLogin ? new Date(user.lastLogin).toLocaleDateString() : 'Never';
+    
+    html += `
+      <tr>
+        <td class="px-6 py-4 whitespace-nowrap">
+          <div class="text-sm font-medium text-gray-900">${user.username}</div>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap">
+          <div class="text-sm text-gray-500">${user.email}</div>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap">
+          <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+            user.subscriptionStatus === 'free-trial' ? 'bg-yellow-100 text-yellow-800' : 
+            user.subscriptionStatus === 'active' ? 'bg-green-100 text-green-800' : 
+            'bg-gray-100 text-gray-800'
+          }">
+            ${user.subscriptionStatus}
+          </span>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+          ${user.usage}
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+          ${lastLogin}
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+          <button class="text-blue-600 hover:text-blue-900 view-user-btn" data-user-id="${user._id}">View Details</button>
+        </td>
+      </tr>
+    `;
+  });
+  
+  tbody.innerHTML = html;
+  
+  // Add event listeners to view user buttons
+  document.querySelectorAll('.view-user-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const userId = btn.getAttribute('data-user-id');
+      await showUserDetails(userId);
+    });
+  });
+}
+
+function renderLeadsTable(filteredLeads = null) {
+  const leads = filteredLeads || leadsData;
+  const tbody = document.getElementById('leads-table-body');
+  
+  if (leads.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-4 text-center text-gray-500">No leads found</td></tr>';
+    return;
+  }
+  
+  let html = '';
+  leads.forEach(lead => {
+    const createdAt = new Date(lead.createdAt).toLocaleDateString();
+    
+    html += `
+      <tr>
+        <td class="px-6 py-4 whitespace-nowrap">
+          <div class="text-sm font-medium text-gray-900">${lead.firstName} ${lead.lastName}</div>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap">
+          <div class="text-sm text-gray-500">${lead.email}</div>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap">
+          <div class="text-sm text-gray-500">${lead.company || 'N/A'}</div>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap">
+          <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+            lead.leadStatus === 'new' ? 'bg-blue-100 text-blue-800' : 
+            lead.leadStatus === 'contacted' ? 'bg-yellow-100 text-yellow-800' : 
+            lead.leadStatus === 'qualified' ? 'bg-green-100 text-green-800' : 
+            lead.leadStatus === 'converted' ? 'bg-purple-100 text-purple-800' : 
+            'bg-gray-100 text-gray-800'
+          }">
+            ${lead.leadStatus}
+          </span>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+          ${lead.source}
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+          ${createdAt}
+        </td>
+      </tr>
+    `;
+  });
+  
+  tbody.innerHTML = html;
+}
+
+// Show user details
+async function showUserDetails(userId) {
+  // Show modal
+  userModal.classList.remove('hidden');
+  
+  // Set loading state
+  document.getElementById('user-modal-content').innerHTML = '<p class="text-gray-500">Loading user details...</p>';
+  
+  // Fetch user details
+  const user = await fetchUserDetails(userId);
+  
+  if (!user) {
+    document.getElementById('user-modal-content').innerHTML = '<p class="text-red-500">Error loading user details</p>';
+    return;
+  }
+  
+  // Format activity log with special handling for search activities
+  let activityLogHtml = '';
+  if (user.activityLog && user.activityLog.length > 0) {
+    user.activityLog.forEach(log => {
+      const date = new Date(log.timestamp).toLocaleString();
+      
+      // Special handling for drug searches
+      let detailsHtml = '';
+      if (log.activity === 'search' && log.details && log.details.searchType === 'drug_only') {
+        detailsHtml = `
+          <div class="activity-search-details">
+            <div class="flex items-center mb-1">
+              <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded">Drug Search</span>
+              <span class="ml-2 text-xs text-gray-500">${date}</span>
+            </div>
+            <div class="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
+              <div class="font-medium">Drug:</div>
+              <div>${log.details.terms?.drug || 'N/A'}</div>
+              
+              <div class="font-medium">Condition:</div>
+              <div>${log.details.terms?.condition || 'None'}</div>
+              
+              <div class="font-medium">Years Back:</div>
+              <div>${log.details.filters?.yearsBack || 'N/A'}</div>
+              
+              <div class="font-medium">Has Results Only:</div>
+              <div>${log.details.filters?.hasResultsOnly ? 'Yes' : 'No'}</div>
+              
+              <div class="font-medium">TRD Focus:</div>
+              <div>${log.details.filters?.trdFocusOnly ? 'Yes' : 'No'}</div>
+            </div>
+          </div>
+        `;
+      } else {
+        detailsHtml = `
+          <div class="text-xs text-gray-500">${date}</div>
+          ${log.details ? `<div class="text-xs text-gray-700 mt-1">${JSON.stringify(log.details)}</div>` : ''}
+        `;
+      }
+      
+      activityLogHtml += `
+        <div class="activity-log-item">
+          <div class="text-sm text-gray-900 font-medium">${log.activity}</div>
+          ${detailsHtml}
+        </div>
+      `;
+    });
+  } else {
+    activityLogHtml = '<p class="text-gray-500">No activity log available</p>';
+  }
+  
+  // Format login dates
+  let loginDatesHtml = '';
+  if (user.loginDates && user.loginDates.length > 0) {
+    loginDatesHtml = '<div class="grid grid-cols-2 md:grid-cols-3 gap-2 mt-2">';
+    user.loginDates.slice(-9).reverse().forEach(date => {
+      loginDatesHtml += `<div class="text-xs bg-gray-100 p-2 rounded">${new Date(date).toLocaleString()}</div>`;
+    });
+    loginDatesHtml += '</div>';
+  } else {
+    loginDatesHtml = '<p class="text-gray-500">No login history available</p>';
+  }
+  
+  // Format monthly logins
+  let monthlyLoginsHtml = '';
+  if (user.monthlyLogins && Object.keys(user.monthlyLogins).length > 0) {
+    const months = Object.keys(user.monthlyLogins).sort((a, b) => new Date(b) - new Date(a));
+    monthlyLoginsHtml = '<div class="grid grid-cols-2 gap-2 mt-2">';
+    months.forEach(month => {
+      monthlyLoginsHtml += `
+        <div class="bg-gray-100 p-2 rounded">
+          <div class="text-xs font-medium">${month}</div>
+          <div class="text-sm">${user.monthlyLogins[month]} logins</div>
+        </div>
+      `;
+    });
+    monthlyLoginsHtml += '</div>';
+  } else {
+    monthlyLoginsHtml = '<p class="text-gray-500">No monthly login data available</p>';
+  }
+  
+  // Render user details
+  const createdAt = new Date(user.createdAt).toLocaleString();
+  const lastLogin = user.lastLogin ? new Date(user.lastLogin).toLocaleString() : 'Never';
+  
+  const content = `
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div>
+        <h4 class="text-lg font-medium text-gray-900 mb-4">User Information</h4>
+        <div class="bg-gray-50 rounded-lg p-4">
+          <div class="grid grid-cols-1 gap-4">
+            <div>
+              <div class="text-sm font-medium text-gray-500">Username</div>
+              <div class="text-base">${user.username}</div>
+            </div>
+            <div>
+              <div class="text-sm font-medium text-gray-500">Email</div>
+              <div class="text-base">${user.email}</div>
+            </div>
+            <div>
+              <div class="text-sm font-medium text-gray-500">Role</div>
+              <div class="text-base">${user.role}</div>
+            </div>
+            <div>
+              <div class="text-sm font-medium text-gray-500">Subscription Status</div>
+              <div>
+                <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                  user.subscriptionStatus === 'free-trial' ? 'bg-yellow-100 text-yellow-800' : 
+                  user.subscriptionStatus === 'active' ? 'bg-green-100 text-green-800' : 
+                  'bg-gray-100 text-gray-800'
+                }">
+                  ${user.subscriptionStatus}
+                </span>
+              </div>
+            </div>
+            <div>
+              <div class="text-sm font-medium text-gray-500">Usage</div>
+              <div class="text-base">${user.usage}</div>
+            </div>
+            <div>
+              <div class="text-sm font-medium text-gray-500">Billing Period</div>
+              <div class="text-base">${user.billingPeriod}</div>
+            </div>
+            <div>
+              <div class="text-sm font-medium text-gray-500">Dark Mode</div>
+              <div class="text-base">${user.darkModeEnabled ? 'Enabled' : 'Disabled'}</div>
+            </div>
+            <div>
+              <div class="text-sm font-medium text-gray-500">Created At</div>
+              <div class="text-base">${createdAt}</div>
+            </div>
+            <div>
+              <div class="text-sm font-medium text-gray-500">Last Login</div>
+              <div class="text-base">${lastLogin}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div>
+        <h4 class="text-lg font-medium text-gray-900 mb-4">Login History</h4>
+        <div class="bg-gray-50 rounded-lg p-4">
+          <div class="mb-4">
+            <div class="text-sm font-medium text-gray-500 mb-1">Recent Logins</div>
+            ${loginDatesHtml}
+          </div>
+          <div>
+            <div class="text-sm font-medium text-gray-500 mb-1">Monthly Logins</div>
+            ${monthlyLoginsHtml}
+          </div>
+        </div>
+        
+        <h4 class="text-lg font-medium text-gray-900 mt-6 mb-4">Activity Log</h4>
+        <div class="bg-gray-50 rounded-lg p-4 max-h-96 overflow-y-auto">
+          ${activityLogHtml}
+        </div>
+      </div>
+    </div>
+  `;
+  
+  document.getElementById('user-modal-content').innerHTML = content;
+}
+
+// Event listeners
+function setupEventListeners() {
+  // Tab switching
+  tabButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      // Remove active class from all tabs and buttons
+      tabButtons.forEach(btn => btn.classList.remove('border-blue-600', 'text-blue-600'));
+      document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+      
+      // Add active class to clicked button and corresponding tab
+      button.classList.add('border-blue-600', 'text-blue-600');
+      const tabId = button.getAttribute('data-tab');
+      document.getElementById(tabId).classList.add('active');
+    });
+  });
+  
+  // Refresh button
+  refreshBtn.addEventListener('click', async () => {
+    await Promise.all([
+      fetchUserStats(),
+      fetchLeadStats(),
+      fetchUsers(),
+      fetchLeads()
+    ]);
+    
+    updateDashboard();
+    renderUsersTable();
+    renderLeadsTable();
+    renderDrugSearches();
+  });
+  
+  // User search
+  userSearch.addEventListener('input', () => {
+    const searchValue = userSearch.value.toLowerCase();
+    const filteredUsers = usersData.filter(user => 
+      user.username.toLowerCase().includes(searchValue) || 
+      user.email.toLowerCase().includes(searchValue)
+    );
+    renderUsersTable(filteredUsers);
+  });
+  
+  // Lead search
+  leadSearch.addEventListener('input', () => {
+    const searchValue = leadSearch.value.toLowerCase();
+    const filteredLeads = leadsData.filter(lead => 
+      `${lead.firstName} ${lead.lastName}`.toLowerCase().includes(searchValue) || 
+      lead.email.toLowerCase().includes(searchValue) ||
+      (lead.company && lead.company.toLowerCase().includes(searchValue))
+    );
+    renderLeadsTable(filteredLeads);
+  });
+  
+  // Close user modal
+  closeUserModal.addEventListener('click', () => {
+    userModal.classList.add('hidden');
+  });
+  
+  // Close modal when clicking outside
+  userModal.addEventListener('click', (e) => {
+    if (e.target === userModal) {
+      userModal.classList.add('hidden');
+    }
+  });
+}
+
+// Initialize when DOM is loaded
+document.addEventListener('DOMContentLoaded', initDashboard);  </script>
+</body>
+</html>

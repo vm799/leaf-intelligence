@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Successful - Processing Your Purchase</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .spinner {
+            border: 4px solid #f3f4f6;
+            border-top: 4px solid #3b82f6;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .success-checkmark {
+            animation: checkmarkSlide 0.6s ease-out;
+        }
+
+        @keyframes checkmarkSlide {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .float-animation {
+            animation: float 3s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-purple-50 min-h-screen">
+    <!-- Initial Loading State -->
+    <div id="initial-loading" class="min-h-screen flex items-center justify-center">
+        <div class="bg-white p-8 rounded-2xl shadow-2xl text-center max-w-md w-full mx-4 fade-in">
+            <div class="spinner mx-auto mb-6"></div>
+            <h1 class="text-2xl font-bold text-gray-800 mb-4">Processing Your Payment</h1>
+            <p class="text-gray-600 mb-4">
+                We're verifying your payment and activating your access.
+            </p>
+            <p class="text-sm text-gray-500">
+                This usually takes just a few seconds...
+            </p>
+            
+            <!-- Progress indicators -->
+            <div class="mt-8 space-y-2 text-left">
+                <div id="step-1" class="flex items-center text-sm">
+                    <div class="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
+                    <span class="text-gray-700">Payment verified ✓</span>
+                </div>
+                <div id="step-2" class="flex items-center text-sm">
+                    <div class="w-2 h-2 bg-gray-300 rounded-full mr-3 step-indicator"></div>
+                    <span class="text-gray-500 step-text">Updating account...</span>
+                </div>
+                <div id="step-3" class="flex items-center text-sm">
+                    <div class="w-2 h-2 bg-gray-300 rounded-full mr-3 step-indicator"></div>
+                    <span class="text-gray-500 step-text">Activating features...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error State (hidden by default) -->
+    <div id="error-state" class="min-h-screen flex items-center justify-center hidden">
+        <div class="bg-white p-8 rounded-2xl shadow-2xl text-center max-w-md w-full mx-4">
+            <div class="text-red-500 text-6xl mb-4">❌</div>
+            <h1 class="text-2xl font-bold text-red-600 mb-4">Verification Failed</h1>
+            <p class="text-gray-700 mb-6" id="error-message">
+                We encountered an issue verifying your payment. Don't worry - your payment was successful.
+            </p>
+            <div class="space-y-3">
+                <button onclick="retryVerification()" 
+                        class="w-full bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors">
+                    Try Again
+                </button>
+                <button onclick="window.location.href='/support'" 
+                        class="w-full bg-gray-300 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-400 transition-colors">
+                    Contact Support
+                </button>
+                <a href="/leafintelligence.html" class="block w-full text-center text-blue-500 hover:text-blue-700 py-2">
+                    Continue to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success State (hidden by default) -->
+    <div id="success-state" class="min-h-screen flex items-center justify-center hidden">
+        <div class="bg-white p-8 rounded-2xl shadow-2xl text-center max-w-md w-full mx-4">
+            <div class="text-green-500 mb-6 success-checkmark float-animation">
+                <svg class="w-24 h-24 mx-auto" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                </svg>
+            </div>
+            <h1 class="text-3xl font-bold mb-4 text-gray-800" id="success-title">Success!</h1>
+            <p class="text-gray-600 mb-6" id="success-message">
+                Your purchase has been processed successfully!
+            </p>
+            <div class="bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-lg mb-6">
+                <div class="text-sm text-gray-700 space-y-1">
+                    <div id="purchase-details"></div>
+                </div>
+            </div>
+            <p class="text-sm text-gray-500 mb-4">
+                Redirecting to your dashboard...
+            </p>
+            <div class="w-full bg-gray-200 rounded-full h-2">
+                <div id="redirect-progress" class="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- No Session State (hidden by default) -->
+    <div id="no-session-state" class="min-h-screen flex items-center justify-center hidden">
+        <div class="bg-white p-8 rounded-2xl shadow-2xl text-center max-w-md w-full mx-4">
+            <div class="text-yellow-500 text-6xl mb-4">⚠️</div>
+            <h1 class="text-2xl font-bold text-yellow-600 mb-4">Session Not Found</h1>
+            <p class="text-gray-700 mb-6">
+                We couldn't find your payment session. If you just completed a payment, 
+                please check your email for confirmation or contact support.
+            </p>
+            <div class="space-y-3">
+                <a href="/leafintelligence.html" 
+                   class="block w-full bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors">
+                    Go to Dashboard
+                </a>
+                <a href="/pricing" 
+                   class="block w-full bg-gray-300 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-400 transition-colors">
+                    Back to Pricing
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Enhanced checkout success handler that integrates with your existing system
+        class CheckoutVerifier {
+            constructor() {
+                this.apiBase = '/api/stripe';
+                this.currentStep = 1;
+                this.progressInterval = null;
+                this.redirectProgress = 0;
+            }
+
+            async handleCheckoutSuccess(sessionId) {
+                console.log('🔄 Starting checkout verification...');
+                
+                try {
+                    // Animate progress steps
+                    this.animateProgress();
+                    
+                    // First, get session details and user ID from Stripe metadata
+                    console.log('🔍 Getting session details...');
+                    const sessionResponse = await fetch(`${this.apiBase}/session-details/${sessionId}`);
+                    const sessionData = await sessionResponse.json();
+                    
+                    if (!sessionData.success) {
+                        throw new Error('Invalid session ID');
+                    }
+                    
+                    console.log('📊 Session data received:', sessionData);
+                    
+                    if (!sessionData.userId) {
+                        throw new Error('No user ID found in session metadata');
+                    }
+
+                    // Now verify checkout with the user ID
+                    const result = await this.verifyWithUserId(sessionId, sessionData.userId);
+
+                    if (result.success) {
+                        console.log('🎉 Checkout processed successfully!');
+                        this.handleSuccessfulVerification(result);
+                    } else {
+                        throw new Error(result.error || 'Verification failed');
+                    }
+
+                } catch (error) {
+                    console.error('❌ Checkout processing error:', error);
+                    this.showErrorState(error.message);
+                }
+            }
+
+            async verifyWithUserId(sessionId, userId) {
+                try {
+                    console.log(`🔄 Verifying checkout with userId: ${userId}`);
+
+                    const response = await fetch(`${this.apiBase}/verify-checkout`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ 
+                            sessionId: sessionId,
+                            userId: userId 
+                        })
+                    });
+
+                    const result = await response.json();
+                    
+                    if (response.ok && result.success) {
+                        return result;
+                    } else {
+                        throw new Error(result.error || 'Verification failed');
+                    }
+
+                } catch (error) {
+                    console.error('❌ Verification error:', error);
+                    throw error;
+                }
+            }
+
+            animateProgress() {
+                this.progressInterval = setInterval(() => {
+                    if (this.currentStep <= 3) {
+                        this.updateStep(this.currentStep);
+                        this.currentStep++;
+                    } else {
+                        clearInterval(this.progressInterval);
+                    }
+                }, 1000);
+            }
+
+            updateStep(step) {
+                const stepElement = document.getElementById(`step-${step}`);
+                if (stepElement) {
+                    const indicator = stepElement.querySelector('.step-indicator');
+                    const text = stepElement.querySelector('.step-text');
+                    
+                    if (indicator) indicator.classList.replace('bg-gray-300', 'bg-blue-500');
+                    if (text) text.classList.replace('text-gray-500', 'text-gray-700');
+                    
+                    if (step < 3) {
+                        setTimeout(() => {
+                            if (text) text.innerHTML = text.innerHTML.replace('...', ' ✓');
+                        }, 800);
+                    }
+                }
+            }
+
+            handleSuccessfulVerification(result) {
+                this.hideProcessingModal();
+                this.showSuccessState(result);
+                this.startRedirectTimer(result);
+                
+                // Update UI elements on the page (adapted to your system)
+                this.updateUserInterface(result.user);
+                
+                // Store purchase info for your system
+                localStorage.setItem('lastPurchase', JSON.stringify({
+                    type: result.purchaseType,
+                    amount: result.amount,
+                    timestamp: new Date().toISOString()
+                }));
+
+                // Clear any cached user access data so it refreshes
+                localStorage.removeItem('userAccess');
+            }
+
+            showSuccessState(result) {
+                let title, message, details;
+                
+                if (result.purchaseType === 'subscription') {
+                    title = 'Welcome to Professional!';
+                    message = result.details.isTrialing 
+                        ? 'Your 7-day free trial has started. Enjoy unlimited access to all features!'
+                        : 'Your Professional subscription is now active with unlimited access.';
+                    details = `
+                        <div class="font-medium text-purple-600">Professional Plan Activated</div>
+                        <div>Amount: $${result.amount}</div>
+                        ${result.details.isTrialing ? '<div>Status: Free Trial (7 days)</div>' : '<div>Status: Active</div>'}
+                        <div class="text-sm text-gray-600 mt-2">
+                            ✓ Unlimited searches<br>
+                            ✓ All features unlocked<br>
+                            ✓ Priority support
+                        </div>
+                    `;
+                } else {
+                    title = 'Search Unlocked!';
+                    message = `Payment successful! You now have ${result.details.totalSearchCredits} search credits available.`;
+                    details = `
+                        <div class="font-medium text-blue-600">Single Search Purchase</div>
+                        <div>Credits Added: ${result.details.searchCreditsAdded}</div>
+                        <div>Total Credits: ${result.details.totalSearchCredits}</div>
+                        <div>Amount: $${result.amount}</div>
+                        <div class="text-sm text-gray-600 mt-2">
+                            ✓ Full FDA regulatory data<br>
+                            ✓ Complete clinical trial info<br>
+                            ✓ Advanced analytics
+                        </div>
+                    `;
+                }
+
+                document.getElementById('success-title').textContent = title;
+                document.getElementById('success-message').textContent = message;
+                document.getElementById('purchase-details').innerHTML = details;
+                document.getElementById('success-state').classList.remove('hidden');
+            }
+
+            showErrorState(errorMessage) {
+                this.hideProcessingModal();
+                document.getElementById('error-message').textContent = errorMessage;
+                document.getElementById('error-state').classList.remove('hidden');
+            }
+
+            hideProcessingModal() {
+                if (this.progressInterval) {
+                    clearInterval(this.progressInterval);
+                }
+                document.getElementById('initial-loading').classList.add('hidden');
+            }
+
+            startRedirectTimer(result) {
+                let progress = 0;
+                const interval = setInterval(() => {
+                    progress += 2;
+                    document.getElementById('redirect-progress').style.width = `${progress}%`;
+                    
+                    if (progress >= 100) {
+                        clearInterval(interval);
+                        this.redirectAfterSuccess(result);
+                    }
+                }, 60); // 3 second total
+            }
+
+            redirectAfterSuccess(result) {
+                if (result.purchaseType === 'subscription') {
+                    window.location.href = '/leafintelligence.html?subscription=activated';
+                } else {
+                    // Get the search query for redirect
+                    const searchQuery = localStorage.getItem('pendingSearchQuery') || '';
+                    if (searchQuery) {
+                        window.location.href = `/leafintelligence.html?q=${encodeURIComponent(searchQuery)}&paid=true`;
+                        localStorage.removeItem('pendingSearchQuery');
+                    } else {
+                        window.location.href = '/leafintelligence.html?paid=true';
+                    }
+                }
+            }
+
+            updateUserInterface(userData) {
+                // Update any UI elements that show subscription status
+                document.querySelectorAll('.subscription-tier').forEach(el => {
+                    el.textContent = userData.subscriptionTier === 'monthly' ? 'Pro' : 'Free';
+                });
+
+                document.querySelectorAll('.search-credits').forEach(el => {
+                    el.textContent = userData.searchCredits || 0;
+                });
+
+                // Update stored user data to match your system
+                const currentUser = localStorage.getItem('currentUser');
+                if (currentUser) {
+                    try {
+                        const user = JSON.parse(currentUser);
+                        Object.assign(user, userData);
+                        localStorage.setItem('currentUser', JSON.stringify(user));
+                    } catch (e) {
+                        console.error('Error updating stored user data:', e);
+                    }
+                }
+            }
+
+            getAuthToken() {
+                // Adapted to your existing authentication system
+                const currentUser = localStorage.getItem('currentUser');
+                if (currentUser) {
+                    try {
+                        const userData = JSON.parse(currentUser);
+                        return btoa(JSON.stringify({ userId: userData._id }));
+                    } catch (e) {
+                        console.error('Error getting auth token:', e);
+                    }
+                }
+                
+                // Fallback: check if loginSystem exists (your existing system)
+                if (window.loginSystem && typeof window.loginSystem.getCurrentUserId === 'function') {
+                    const userId = window.loginSystem.getCurrentUserId();
+                    if (userId) {
+                        return btoa(JSON.stringify({ userId }));
+                    }
+                }
+                
+                return null;
+            }
+        }
+
+        // Main initialization
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const sessionId = urlParams.get('session_id');
+            const canceled = urlParams.get('canceled');
+
+            if (canceled) {
+                window.location.href = '/leafintelligence.html?canceled=true';
+                return;
+            }
+
+            if (!sessionId) {
+                document.getElementById('initial-loading').classList.add('hidden');
+                document.getElementById('no-session-state').classList.remove('hidden');
+                return;
+            }
+
+            // Check if user is logged in - but don't require it anymore
+            const verifier = new CheckoutVerifier();
+            
+            // Start verification process directly
+            verifier.handleCheckoutSuccess(sessionId);
+        });
+
+        // Retry function for error state
+        function retryVerification() {
+            document.getElementById('error-state').classList.add('hidden');
+            document.getElementById('initial-loading').classList.remove('hidden');
+            
+            const urlParams = new URLSearchParams(window.location.search);
+            const sessionId = urlParams.get('session_id');
+            
+            if (sessionId) {
+                const verifier = new CheckoutVerifier();
+                verifier.handleCheckoutSuccess(sessionId);
+            }
+        }
+    </script>
+</body>
+</html>

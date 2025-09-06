@@ -1,0 +1,2923 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SyneticX - AI-Powered Market Intelligence for MedTech Innovators</title>
+    <meta name="description" content="Transform your business strategy with SyneticX's AI-powered market intelligence dashboards. Save 85+ hours weekly on research and gain competitive advantage with data-driven insights.">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="alternate icon" href="favicon.ico">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Alpine.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/alpinejs/3.10.5/cdn.min.js" defer></script>
+    
+    <!-- GSAP for advanced animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/ScrollTrigger.min.js"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            200: '#bfdbfe',
+                            300: '#93c5fd',
+                            400: '#60a5fa',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                            900: '#1e3a8a',
+                        },
+                        secondary: {
+                            50: '#f0fdfa',
+                            100: '#ccfbf1',
+                            200: '#99f6e4',
+                            300: '#5eead4',
+                            400: '#2dd4bf',
+                            500: '#14b8a6',
+                            600: '#0d9488',
+                            700: '#0f766e',
+                            800: '#115e59',
+                            900: '#134e4a',
+                        },
+                        accent: {
+                            50: '#faf5ff',
+                            100: '#f3e8ff',
+                            200: '#e9d5ff',
+                            300: '#d8b4fe',
+                            400: '#c084fc',
+                            500: '#a855f7',
+                            600: '#9333ea',
+                            700: '#7e22ce',
+                            800: '#6b21a8',
+                            900: '#581c87',
+                        },
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-20px)' },
+                        },
+                        gradient: {
+                            '0%': { backgroundPosition: '0% 50%' },
+                            '50%': { backgroundPosition: '100% 50%' },
+                            '100%': { backgroundPosition: '0% 50%' },
+                        },
+                    },
+                    animation: {
+                        float: 'float 6s ease-in-out infinite',
+                        gradient: 'gradient 15s ease infinite',
+                    },
+                },
+            },
+        };
+    </script>
+    
+    <style>
+        /* Custom styles */
+        body {
+            font-family: 'Inter', sans-serif;
+            scroll-behavior: smooth;
+        }
+        
+        /* Glassmorphism */
+        .glass {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .glass-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+        
+        /* Gradient Animations */
+        .gradient-bg {
+            background: linear-gradient(-45deg, #3b82f6, #2dd4bf, #a855f7, #60a5fa);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+        }
+        
+        @keyframes gradient {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+        
+        /* 3D Tilt Effect */
+        .tilt-card {
+            transform-style: preserve-3d;
+            perspective: 1000px;
+        }
+        
+        .tilt-card-inner {
+            transition: transform 0.5s;
+        }
+        
+        .tilt-card:hover .tilt-card-inner {
+            transform: rotateX(5deg) rotateY(5deg);
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #3b82f6;
+            border-radius: 5px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #2563eb;
+        }
+        
+        /* Pulsing animation */
+        .pulse-slow {
+            animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.8;
+            }
+        }
+        
+        /* Background patterns */
+        .bg-pattern {
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%233b82f6' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+        
+        /* Text gradient */
+        .text-gradient {
+            background: linear-gradient(to right, #3b82f6, #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        /* 3D Button */
+        .btn-3d {
+            position: relative;
+            transition: all 0.2s ease;
+            letter-spacing: 0.05em;
+        }
+        
+        .btn-3d:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: inherit;
+            transform: translateY(5px);
+            transition: transform 0.2s ease;
+            z-index: -1;
+        }
+        
+        .btn-3d:hover {
+            transform: translateY(-2px);
+        }
+        
+        .btn-3d:hover:before {
+            transform: translateY(7px);
+        }
+        
+        .btn-3d:active {
+            transform: translateY(0);
+        }
+        
+        .btn-3d:active:before {
+            transform: translateY(5px);
+        }
+        
+        /* Hero wave animation */
+        .wave {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100px;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="%23ffffff" fill-opacity="1" d="M0,224L60,224C120,224,240,224,360,213.3C480,203,600,181,720,181.3C840,181,960,203,1080,213.3C1200,224,1320,224,1380,224L1440,224L1440,320L1380,320C1320,320,1200,320,1080,320C960,320,840,320,720,320C600,320,480,320,360,320C240,320,120,320,60,320L0,320Z"></path></svg>');
+            background-size: 1440px 100px;
+            animation: wave 10s linear infinite;
+        }
+        
+        @keyframes wave {
+            0% {
+                background-position-x: 0;
+            }
+            100% {
+                background-position-x: 1440px;
+            }
+        }
+        
+        /* Mouse scroll animation */
+        .mouse-scroll {
+            width: 26px;
+            height: 40px;
+            border: 2px solid #fff;
+            border-radius: 20px;
+            position: relative;
+        }
+        
+        .mouse-scroll:before {
+            content: '';
+            width: 4px;
+            height: 8px;
+            position: absolute;
+            left: 50%;
+            top: 8px;
+            transform: translateX(-50%);
+            background: #fff;
+            border-radius: 4px;
+            animation: mouse-scroll 2s infinite;
+        }
+        
+        @keyframes mouse-scroll {
+            0% {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+            100% {
+                opacity: 0;
+                transform: translateX(-50%) translateY(16px);
+            }
+        }
+        
+        /* Timeline animation */
+        .timeline-dot {
+            position: absolute;
+            left: -6px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        
+        .timeline-line {
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background-color: #e5e7eb;
+        }
+        
+        /* Stats counter animation */
+        .counter-value {
+            transition: all 0.3s ease;
+        }
+        
+        /* Solution card hover effect */
+        .hover-glow {
+            transition: all 0.3s ease;
+        }
+        
+        .hover-glow:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+    </style>
+</head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-K0S1Q07YG7"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-K0S1Q07YG7');
+</script>
+<body class="antialiased bg-gray-50 text-gray-800 overflow-x-hidden">
+    <!-- Navbar -->
+    <nav class="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-white/70 shadow-sm" x-data="{ open: false }">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex">
+                    <div class="flex-shrink-0 flex items-center">
+                        <a href="#" class="flex items-center space-x-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-primary-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M13 10V3L4 14h7v7l9-11h-7z" />
+                            </svg>
+                            <span class="text-xl font-bold bg-gradient-to-r from-primary-600 to-accent-600 bg-clip-text text-transparent">SyneticX</span>
+                        </a>
+                    </div>
+                    <div class="hidden md:ml-6 md:flex md:space-x-8">
+                        <a href="#features" class="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-700 hover:text-primary-600 border-b-2 border-transparent hover:border-primary-500 transition duration-200">Features</a>
+                        <a href="#solutions" class="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-700 hover:text-primary-600 border-b-2 border-transparent hover:border-primary-500 transition duration-200">Solutions</a>
+                        <a href="#industries" class="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-700 hover:text-primary-600 border-b-2 border-transparent hover:border-primary-500 transition duration-200">Industries</a>
+                        <a href="#data-sources" class="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-700 hover:text-primary-600 border-b-2 border-transparent hover:border-primary-500 transition duration-200">Data Sources</a>
+                        <a href="./inteltool.html" class="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-700 hover:text-primary-600 border-b-2 border-transparent hover:border-primary-500 transition duration-200">FDA Tool</a>
+                    </div>
+                </div>
+                <div class="hidden md:flex items-center space-x-4">
+                    <a href="#demo" class="inline-flex items-center px-4 py-2 text-sm font-medium text-primary-600 border border-primary-600 rounded-lg hover:bg-primary-50 transition duration-150 ease-in-out">
+                        Book a Demo
+                    </a>
+                    <a href="./inteltool.html" id="header-cta" class="btn-3d inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 shadow-lg shadow-primary-500/30 transition duration-150 ease-in-out">
+                        Login
+                    </a>
+                </div>
+                <div class="-mr-2 flex items-center md:hidden">
+                    <button @click="open = !open" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary-500">
+                        <svg class="h-6 w-6" x-show="!open" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                        <svg class="h-6 w-6" x-show="open" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="display: none;">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div x-show="open" class="md:hidden bg-white shadow-lg" style="display: none;">
+            <div class="px-2 pt-2 pb-3 space-y-1">
+                <a href="#features" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-primary-600 hover:bg-primary-50">Features</a>
+                <a href="#solutions" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-primary-600 hover:bg-primary-50">Solutions</a>
+                <a href="#industries" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-primary-600 hover:bg-primary-50">Industries</a>
+                <a href="#data-sources" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-primary-600 hover:bg-primary-50">Data Sources</a>
+                <a href="#fda-tool" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-primary-600 hover:bg-primary-50">FDA Tool</a>
+            </div>
+            <div class="pt-4 pb-3 border-t border-gray-200">
+                <div class="flex items-center px-4 space-x-3">
+                    <a href="#demo" class="flex-1 text-center block px-4 py-2 text-base font-medium text-primary-600 border border-primary-600 rounded-md hover:bg-primary-50">
+                       Request Demo
+                    </a>
+                    <a href="./inteltool.html" class="flex-1 text-center block px-4 py-2 text-base font-medium text-white bg-primary-600 rounded-md hover:bg-primary-700">
+                        Try Our FDA Tool
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero relative pt-24 overflow-hidden">
+        <!-- Animated gradient background -->
+        <div class="absolute inset-0 gradient-bg opacity-10"></div>
+        <!-- Pattern overlay -->
+        <div class="absolute inset-0 bg-pattern"></div>
+        
+        <div class="relative container mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-24">
+            <div class="flex flex-col lg:flex-row items-center">
+                <!-- Left: Hero Content -->
+                <div class="lg:w-1/2 lg:pr-12 mb-10 lg:mb-0">
+                    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold mb-6">
+                        <span class="block">AI-Powered</span>
+                        <span class="text-gradient">Market Intelligence</span>
+                        <span class="block">for MedTech Companies</span>
+                    </h1>
+                    <p class="text-xl text-gray-600 mb-8">Save time and make data-driven decisions with real-time regulatory updates and competitor analysis. Our platform transforms complex healthcare data into actionable insights.</p>
+                    
+                    <!-- Pain Points -->
+                    <div class="mb-8">
+                        <div class="flex items-center mb-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary-600 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            <span class="text-gray-700 font-medium">Cut data collection time</span>
+                        </div>
+                        <div class="flex items-center mb-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary-600 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            <span class="text-gray-700 font-medium">Track elusive MedTech data effortlessly</span>
+                        </div>
+                        <div class="flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary-600 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            <span class="text-gray-700 font-medium">Monitor competitors in real-time</span>
+                        </div>
+                    </div>
+                    
+                    <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+                        <a href="#demo" class="btn-3d px-8 py-4 text-white bg-primary-600 rounded-xl font-semibold text-lg shadow-xl shadow-primary-500/30 hover:bg-primary-700 transition duration-300 text-center" id="demo-cta-main">
+                            Book a Demo
+                        </a>
+                        <a href="./inteltool.html" class="flex items-center justify-center px-8 py-4 text-primary-700 bg-white rounded-xl font-semibold text-lg shadow-lg hover:bg-gray-50 transition duration-300" id="tool-cta">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                            </svg>
+                            Try Our FDA Tool
+                        </a>
+                    </div>
+                    
+                    <!-- Social Proof Stats -->
+                </div>
+                
+                <!-- Right: Hero Dashboard Preview -->
+                <div class="lg:w-1/2 relative">
+                    <div class="relative z-10 animate-float">
+                        <div class="glass-card rounded-2xl p-1 shadow-2xl">
+                            <img src="./image/image.png" alt="SyneticX Market Intelligence Dashboard - MedTech Data Analytics Platform">
+                            <!-- <img src="https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/aspirin/PNG" alt="Aspirin Structure"> -->
+
+                        </div>
+                        
+                        <!-- Floating elements -->
+                        <div class="absolute -top-10 -right-10 w-24 h-24 bg-primary-500 rounded-2xl opacity-20 animate-float" style="animation-delay: 1s;"></div>
+                        <div class="absolute -bottom-10 -left-10 w-32 h-32 bg-accent-500 rounded-full opacity-20 animate-float" style="animation-delay: 2s;"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Scroll indicator -->
+            <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2 flex flex-col items-center">
+                <div class="text-sm text-gray-500 mb-2">Scroll to explore</div>
+                <div class="mouse-scroll mx-auto"></div>
+            </div>
+        </div>
+        
+        <!-- Wave separator -->
+        <div class="wave"></div>
+    </section>
+
+    <!-- Solutions Section -->
+    <section id="solutions" class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16">
+                <span class="inline-block text-primary-600 font-semibold text-sm uppercase tracking-wider mb-1">Our Solutions</span>
+                <h2 class="text-3xl font-bold text-gray-900 mb-4">MedTech Market Intelligence Solutions</h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">We build custom data-driven dashboards that help MedTech Companies solve their biggest market intelligence challenges.</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Solution 1: Pain Point - Time-consuming data collection -->
+                <div class="bg-white p-8 rounded-xl shadow-md hover-glow transition-all duration-300 border-t-4 border-primary-500">
+                    <div class="bg-blue-100 w-16 h-16 rounded-lg flex items-center justify-center mb-6">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-3">Time-Saving Intelligence</h3>
+                    <p class="text-gray-600 mb-4">Cut research time with our automated data collection and analysis across multiple sources, freeing up your team to focus on strategic decision-making.</p>
+                    <ul class="text-gray-600 space-y-2 mb-4">
+                        <li class="flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500 mr-2 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            <span>Automated data aggregation</span>
+                        </li>
+                        <li class="flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500 mr-2 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            <span>AI-powered trend detection</span>
+                        </li>
+                        <li class="flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500 mr-2 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            <span>Real-time data visualization</span>
+                        </li>
+                    </ul>
+                    <a href="#demo" class="text-primary-600 font-medium hover:text-primary-700 inline-flex items-center">
+                        Learn more
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-1" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                        </svg>
+                    </a>
+                </div>
+                
+                <!-- Solution 2: Pain Point - Regulatory compliance -->
+                <div class="bg-white p-8 rounded-xl shadow-md hover-glow transition-all duration-300 border-t-4 border-purple-500">
+                    <div class="bg-purple-100 w-16 h-16 rounded-lg flex items-center justify-center mb-6">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-3">Regulatory Intelligence</h3>
+                    <p class="text-gray-600 mb-4">Stay ahead of regulatory changes with real-time monitoring of FDA approvals, compliance requirements, and warning letters relevant to your products.</p>
+                    <ul class="text-gray-600 space-y-2 mb-4">
+                        <li class="flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500 mr-2 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            <span>FDA approval tracking</span>
+                        </li>
+                        <li class="flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500 mr-2 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            <span>Warning letters analysis</span>
+                        </li>
+                        <li class="flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500 mr-2 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            <span>Compliance risk assessment</span>
+                        </li>
+                    </ul>
+                    <a href="#demo" class="text-purple-600 font-medium hover:text-purple-700 inline-flex items-center">
+                        Learn more
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-1" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                        </svg>
+                    </a>
+                </div>
+                
+                <!-- Solution 3: Pain Point - Competitor analysis -->
+                <div class="bg-white p-8 rounded-xl shadow-md hover-glow transition-all duration-300 border-t-4 border-green-500">
+                    <div class="bg-green-100 w-16 h-16 rounded-lg flex items-center justify-center mb-6">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-3">Competitive Intelligence</h3>
+                    <p class="text-gray-600 mb-4">Gain vital insights into competitor activities, market positioning, and strategic movements to identify threats and opportunities faster.</p>
+                    <ul class="text-gray-600 space-y-2 mb-4">
+                        <li class="flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500 mr-2 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            <span>Patent analytics</span>
+                        </li>
+                        <li class="flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500 mr-2 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            <span>Competitor product pipelines</span>
+                        </li>
+                        <li class="flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500 mr-2 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            <span>Market share analysis</span>
+                        </li>
+                    </ul>
+                    <a href="#demo" class="text-green-600 font-medium hover:text-green-700 inline-flex items-center">
+                        Learn more
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-1" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                        </svg>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="mt-12 text-center">
+                <a href="#demo" class="btn-3d inline-flex items-center px-8 py-3 text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition duration-300 shadow-lg shadow-primary-500/30">
+                    Book a Demo to See All Solutions
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                    </svg>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="py-24 bg-gray-50 relative overflow-hidden">
+        <div class="absolute inset-0 bg-pattern opacity-50"></div>
+        <div class="relative container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <span class="inline-block text-primary-600 font-semibold text-sm uppercase tracking-wider mb-1">Features</span>
+                <h2 class="text-4xl font-bold mb-4">AI-Powered Market Intelligence</h2>
+                <p class="text-xl text-gray-600">Our comprehensive data platform aggregates and analyzes complex market information, delivering actionable insights through intuitive dashboards.</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Feature 1 -->
+                <div class="glass-card rounded-xl p-8 tilt-card">
+                    <div class="tilt-card-inner">
+                        <div class="bg-primary-100 rounded-full w-16 h-16 flex items-center justify-center mb-6">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-3">Comprehensive Data Analysis</h3>
+                        <p class="text-gray-600 mb-4">Aggregate and analyze data from multiple sources including financial reports, patents, social media, and industry news to provide a 360° view of your market.</p>
+                        <ul class="space-y-2">
+                            <li class="flex items-start">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary-600 mr-2 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                </svg>
+                                <span>Multi-source data integration</span>
+                            </li>
+                            <li class="flex items-start">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary-600 mr-2 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                </svg>
+                                <span>Automated data cleansing</span>
+                            </li>
+                            <li class="flex items-start">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary-600 mr-2 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                </svg>
+                                <span>Real-time trend detection</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Feature 2 -->
+                <div class="glass-card rounded-xl p-8 tilt-card">
+                    <div class="tilt-card-inner">
+                        <div class="bg-secondary-100 rounded-full w-16 h-16 flex items-center justify-center mb-6">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-secondary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-3">AI-Powered Insights</h3>
+                        <p class="text-gray-600 mb-4">Identify patterns, correlations, and emerging trends across vast datasets, generating actionable intelligence for strategic decision making.</p>
+                        <ul class="space-y-2">
+                            <li class="flex items-start">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-secondary-600 mr-2 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                </svg>
+                                <span>Predictive trend analysis</span>
+                            </li>
+                            <li class="flex items-start">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-secondary-600 mr-2 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                </svg>
+                                <span>Competitor movement detection</span>
+                            </li>
+                            <li class="flex items-start">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-secondary-600 mr-2 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                </svg>
+                                <span>Anomaly identification</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Feature 3 -->
+                <div class="glass-card rounded-xl p-8 tilt-card">
+                    <div class="tilt-card-inner">
+                        <div class="bg-accent-100 rounded-full w-16 h-16 flex items-center justify-center mb-6">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-accent-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-3">Interactive Dashboards</h3>
+                        <p class="text-gray-600 mb-4">Intuitive, customizable visualizations that transform complex data into clear, actionable insights, enabling faster and more informed decision-making.</p>
+                        <ul class="space-y-2">
+                            <li class="flex items-start">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-accent-600 mr-2 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                </svg>
+                                <span>Dynamic visualization tools</span>
+                            </li>
+                            <li class="flex items-start">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-accent-600 mr-2 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                </svg>
+                                <span>Customizable reporting</span>
+                            </li>
+                            <li class="flex items-start">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-accent-600 mr-2 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                </svg>
+                                <span>Drill-down capabilities</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Feature 4 -->
+                <div class="glass-card rounded-xl p-8 tilt-card">
+                    <div class="tilt-card-inner">
+                        <div class="bg-primary-100 rounded-full w-16 h-16 flex items-center justify-center mb-6">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-3">Global Market Coverage</h3>
+                        <p class="text-gray-600 mb-4">Comprehensive data from markets worldwide, providing insights into regional trends, regulatory differences, and global market dynamics.</p>
+                        <ul class="space-y-2">
+                            <li class="flex items-start">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary-600 mr-2 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                </svg>
+                                <span>Multi-jurisdiction coverage</span>
+                            </li>
+                            <li class="flex items-start">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary-600 mr-2 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                </svg>
+                                <span>Regional regulatory tracking</span>
+                            </li>
+                            <li class="flex items-start">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary-600 mr-2 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                </svg>
+                                <span>Cross-market comparison</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Feature 5 -->
+                <div class="glass-card rounded-xl p-8 tilt-card">
+                    <div class="tilt-card-inner">
+                        <div class="bg-secondary-100 rounded-full w-16 h-16 flex items-center justify-center mb-6">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-secondary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-3">Customizable Reports</h3>
+                        <p class="text-gray-600 mb-4">Generate tailored reports that focus on your specific needs, from competitor analysis to market trends, patent landscapes, and financial performance.</p>
+                        <ul class="space-y-2">
+                            <li class="flex items-start">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-secondary-600 mr-2 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                </svg>
+                                <span>Flexible report templates</span>
+                            </li>
+                            <li class="flex items-start">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-secondary-600 mr-2 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                </svg>
+                                <span>Automated scheduling</span>
+                            </li>
+                            <li class="flex items-start">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-secondary-600 mr-2 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                </svg>
+                                <span>Multi-format export options</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Feature 6 -->
+                <div class="glass-card rounded-xl p-8 tilt-card">
+                    <div class="tilt-card-inner">
+                        <div class="bg-accent-100 rounded-full w-16 h-16 flex items-center justify-center mb-6">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-accent-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-3">Dedicated Support</h3>
+                        <p class="text-gray-600 mb-4">Personalized assistance tailored to your needs with round-the-clock support channels, custom solutions, and client-driven service plans.</p>
+                        <ul class="space-y-2">
+                            <li class="flex items-start">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-accent-600 mr-2 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                </svg>
+                                <span>Priority phone and video calls</span>
+                            </li>
+                            <li class="flex items-start">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-accent-600 mr-2 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                </svg>
+                                <span>Direct messaging with our team</span>
+                            </li>
+                            <li class="flex items-start">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-accent-600 mr-2 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                </svg>
+                                <span>24/7 support</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section class="py-24 bg-white">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <span class="inline-block text-primary-600 font-semibold text-sm uppercase tracking-wider mb-1">Process</span>
+                <h2 class="text-4xl font-bold mb-4">How SyneticX Works</h2>
+                <p class="text-xl text-gray-600">Our platform streamlines the entire market intelligence research process</p>
+            </div>
+            
+            <div class="relative">
+                <!-- Process Steps -->
+                <div class="absolute left-1/2 transform -translate-x-1/2 h-full w-1 bg-primary-100 top-0"></div>
+                
+                <!-- Step 1 -->
+                <div class="relative z-10 mb-12">
+                    <div class="flex flex-col md:flex-row items-center">
+                        <div class="flex-1 order-2 md:order-1 md:pr-16 mt-6 md:mt-0">
+                            <div class="p-6 glass-card rounded-xl transform transition-all duration-500 hover:scale-105">
+                                <span class="text-primary-600 text-sm font-bold uppercase tracking-wider">Step 1</span>
+                                <h3 class="text-2xl font-bold mt-1 mb-3">Discovery Call</h3>
+                                <p class="text-gray-600">We start with a free consultation call to understand your needs—focusing on tracking elusive MedTech data that's costly or hard to gather manually.</p>
+                            </div>
+                        </div>
+                        <div class="order-1 md:order-2 flex items-center justify-center w-24 h-24 rounded-full bg-primary-600 text-white font-bold text-xl z-10">01</div>
+                    </div>
+                </div>
+                
+                <!-- Step 2 -->
+                <div class="relative z-10 mb-12">
+                    <div class="flex flex-col md:flex-row items-center">
+                        <div class="flex-1 order-2 md:pr-16 mt-6 md:mt-0 md:hidden">
+                            <div class="p-6 glass-card rounded-xl transform transition-all duration-500 hover:scale-105">
+                                <span class="text-secondary-600 text-sm font-bold uppercase tracking-wider">Step 2</span>
+                                <h3 class="text-2xl font-bold mt-1 mb-3">Custom MVP Development</h3>
+                                <p class="text-gray-600">Using your input, we build a free, highly unique Minimum Viable Product (MVP). We aggregate publicly available data from sources like FDA databases, using AI to process it, then transform it into a custom dashboard for your needs.</p>
+                            </div>
+                        </div>
+                        <div class="order-1 md:order-1 flex items-center justify-center w-24 h-24 rounded-full bg-secondary-600 text-white font-bold text-xl z-10">02</div>
+                        <div class="flex-1 order-2 md:pl-16 mt-6 md:mt-0 hidden md:block">
+                            <div class="p-6 glass-card rounded-xl transform transition-all duration-500 hover:scale-105">
+                                <span class="text-secondary-600 text-sm font-bold uppercase tracking-wider">Step 2</span>
+                                <h3 class="text-2xl font-bold mt-1 mb-3">Custom MVP Development</h3>
+                                <p class="text-gray-600">Using your input, we build a free, highly unique Minimum Viable Product (MVP). We aggregate publicly available data from sources like FDA databases, using AI to process it, then transform it into a custom dashboard for your needs.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Step 3 -->
+                <div class="relative z-10 mb-12">
+                    <div class="flex flex-col md:flex-row items-center">
+                        <div class="flex-1 order-2 md:order-1 md:pr-16 mt-6 md:mt-0">
+                            <div class="p-6 glass-card rounded-xl transform transition-all duration-500 hover:scale-105">
+                                <span class="text-accent-600 text-sm font-bold uppercase tracking-wider">Step 3</span>
+                                <h3 class="text-2xl font-bold mt-1 mb-3">Live Demonstration</h3>
+                                <p class="text-gray-600">We present your custom dashboard, showcasing insights from the AI-processed data, and gather your input. We'll make revisions as needed to ensure it meets your needs.</p>
+                            </div>
+                        </div>
+                        <div class="order-1 md:order-2 flex items-center justify-center w-24 h-24 rounded-full bg-accent-600 text-white font-bold text-xl z-10">03</div>
+                    </div>
+                </div>
+                
+                <!-- Step 4 -->
+                <div class="relative z-10">
+                    <div class="flex flex-col md:flex-row items-center">
+                        <div class="flex-1 order-2 md:pr-16 mt-6 md:mt-0 md:hidden">
+                            <div class="p-6 glass-card rounded-xl transform transition-all duration-500 hover:scale-105">
+                                <span class="text-primary-600 text-sm font-bold uppercase tracking-wider">Step 4</span>
+                                <h3 class="text-2xl font-bold mt-1 mb-3">Seamless Adoption</h3>
+                                <p class="text-gray-600">If you like the dasboard we can then integrate it into your current processes and start working together. You can call or message us anytime to change or modify the dashboard.</p>
+                            </div>
+                        </div>
+                        <div class="order-1 md:order-1 flex items-center justify-center w-24 h-24 rounded-full bg-primary-600 text-white font-bold text-xl z-10">04</div>
+                        <div class="flex-1 order-2 md:pl-16 mt-6 md:mt-0 hidden md:block">
+                            <div class="p-6 glass-card rounded-xl transform transition-all duration-500 hover:scale-105">
+                                <span class="text-primary-600 text-sm font-bold uppercase tracking-wider">Step 4</span>
+                                <h3 class="text-2xl font-bold mt-1 mb-3">Seamless Adoption</h3>
+                                <p class="text-gray-600">If you like the dasboard we can then integrate it into your current processes and start working together. You can call or message us anytime to change or modify the dashboard.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Industry Verticals Section -->
+    <section id="industries" class="py-24 bg-gray-50 relative overflow-hidden">
+        <div class="absolute inset-0 bg-pattern opacity-50"></div>
+        
+        <div class="relative container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <span class="inline-block text-primary-600 font-semibold text-sm uppercase tracking-wider mb-1">Industries</span>
+                <h2 class="text-4xl font-bold mb-4">Industry-Specific Intelligence</h2>
+                <p class="text-xl text-gray-600">Examples of our tailored market intelligence solutions designed for the unique needs of different healthcare and life science sectors.</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Industry 1 -->
+                <div class="glass-card rounded-xl p-8 shadow-lg transition duration-300 hover:shadow-xl">
+                    <div class="bg-primary-100 w-16 h-16 rounded-full flex items-center justify-center mb-6">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-3">Neuromodulation</h3>
+                    <p class="text-gray-600 mb-4">Comprehensive market intelligence for the neuromodulation sector, tracking technological innovations, financial performance, patent activities, and regulatory developments.</p>
+                    <ul class="space-y-3 mb-6">
+                        <li class="flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary-600 mr-2 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            <span>Competitor technology analysis</span>
+                        </li>
+                        <li class="flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary-600 mr-2 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            <span>Clinical trial monitoring</span>
+                        </li>
+                        <li class="flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary-600 mr-2 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            <span>Patent landscape mapping</span>
+                        </li>
+                    </ul>
+                    <a href="#demo" class="text-primary-600 font-medium hover:text-primary-700 inline-flex items-center">
+                        Learn more about our Neuromodulation solutions
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-1" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                        </svg>
+                    </a>
+                </div>
+                
+                <!-- Industry 2 -->
+                <div class="glass-card rounded-xl p-8 shadow-lg transition duration-300 hover:shadow-xl">
+                    <div class="bg-secondary-100 w-16 h-16 rounded-full flex items-center justify-center mb-6">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-secondary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-3">Hearing Aid Market</h3>
+                    <p class="text-gray-600 mb-4">Detailed tracking of hearing aid companies, market shares, technological advancements, consumer trends, and competitive movements across global markets.</p>
+                    <ul class="space-y-3 mb-6">
+                        <li class="flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-secondary-600 mr-2 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            <span>Competitive market share analysis</span>
+                        </li>
+                        <li class="flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-secondary-600 mr-2 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            <span>Technology innovation tracking</span>
+                        </li>
+                        <li class="flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-secondary-600 mr-2 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            <span>Consumer sentiment analysis</span>
+                        </li>
+                    </ul>
+                    <a href="#demo" class="text-secondary-600 font-medium hover:text-secondary-700 inline-flex items-center">
+                        Learn more about our Hearing Aid solutions
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-1" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                        </svg>
+                    </a>
+                </div>
+                
+                <!-- Industry 3 -->
+                <div class="glass-card rounded-xl p-8 shadow-lg transition duration-300 hover:shadow-xl">
+                    <div class="bg-accent-100 w-16 h-16 rounded-full flex items-center justify-center mb-6">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-accent-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-3">PBM & Insurance</h3>
+                    <p class="text-gray-600 mb-4">In-depth analysis of pharmacy benefit manager relationships, reimbursement trends, insurance coverage patterns, and policy changes affecting healthcare markets.</p>
+                    <ul class="space-y-3 mb-6">
+                        <li class="flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-accent-600 mr-2 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            <span>PBM relationship mapping</span>
+                        </li>
+                        <li class="flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-accent-600 mr-2 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            <span>Medicare reimbursement analysis</span>
+                        </li>
+                        <li class="flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-accent-600 mr-2 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            <span>Policy change impact assessment</span>
+                        </li>
+                    </ul>
+                    <a href="#demo" class="text-accent-600 font-medium hover:text-accent-700 inline-flex items-center">
+                        Learn more about our PBM & Insurance solutions
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-1" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a11 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                        </svg>
+                    </a>
+                </div>
+                
+                <!-- Industry 4 -->
+                <div class="glass-card rounded-xl p-8 shadow-lg transition duration-300 hover:shadow-xl">
+                    <div class="bg-primary-100 w-16 h-16 rounded-full flex items-center justify-center mb-6">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-3">Biotech & Pharmaceuticals</h3>
+                    <p class="text-gray-600 mb-4">Strategic intelligence on biotech innovations, drug pipelines, clinical outcomes, regulatory approvals, and market positioning across therapeutic areas.</p>
+                    <ul class="space-y-3 mb-6">
+                        <li class="flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary-600 mr-2 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            <span>Drug pipeline tracking</span>
+                        </li>
+                        <li class="flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary-600 mr-2 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            <span>Regulatory approval monitoring</span>
+                        </li>
+                        <li class="flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary-600 mr-2 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            <span>Investment pattern analysis</span>
+                        </li>
+                    </ul>
+                    <a href="#demo" class="text-primary-600 font-medium hover:text-primary-700 inline-flex items-center">
+                        Learn more about our Biotech solutions
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-1" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                        </svg>
+                    </a>
+                </div>
+                
+                <!-- Industry 5 -->
+                <div class="glass-card rounded-xl p-8 shadow-lg transition duration-300 hover:shadow-xl">
+                    <div class="bg-secondary-100 w-16 h-16 rounded-full flex items-center justify-center mb-6">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-secondary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-3">Medical Devices</h3>
+                    <p class="text-gray-600 mb-4">Comprehensive tracking of medical device markets, innovation landscapes, regulatory pathways, reimbursement trends, and competitive positioning.</p>
+                    <ul class="space-y-3 mb-6">
+                        <li class="flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-secondary-600 mr-2 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            <span>FDA approval tracking</span>
+                        </li>
+                        <li class="flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-secondary-600 mr-2 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            <span>Competitive market analysis</span>
+                        </li>
+                        <li class="flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-secondary-600 mr-2 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            <span>Adoption pattern visualization</span>
+                        </li>
+                    </ul>
+                    <a href="#demo" class="text-secondary-600 font-medium hover:text-secondary-700 inline-flex items-center">
+                        Learn more about our Medical Device solutions
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-1" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                        </svg>
+                    </a>
+                </div>
+                
+                <!-- Industry 6 -->
+                <div class="glass-card rounded-xl p-8 shadow-lg transition duration-300 hover:shadow-xl">
+                    <div class="bg-accent-100 w-16 h-16 rounded-full flex items-center justify-center mb-6">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-accent-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-3">Digital Health</h3>
+                    <p class="text-gray-600 mb-4">Intelligence on digital health innovations, telehealth adoption, health tech investments, advertising metrics, and emerging platform ecosystems.</p>
+                    <ul class="space-y-3 mb-6">
+                        <li class="flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-accent-600 mr-2 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            <span>Digital platform assessment</span>
+                        </li>
+                        <li class="flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-accent-600 mr-2 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            <span>Advertising performance metrics</span>
+                        </li>
+                        <li class="flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-accent-600 mr-2 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            <span>Investment flow tracking</span>
+                        </li>
+                    </ul>
+                    <a href="#demo" class="text-accent-600 font-medium hover:text-accent-700 inline-flex items-center">
+                        Learn more about our Digital Health solutions
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-1" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                        </svg>
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Book a Demo Button -->
+            <div class="text-center mt-12">
+                <a href="#demo" class="btn-3d inline-flex items-center px-6 py-3 text-white bg-primary-600 rounded-lg hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 shadow-lg shadow-primary-500/30 transition duration-150 ease-in-out">
+                    Book a Demo For Your Industry
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                    </svg>
+                </a>
+            </div>
+        </div>
+    </section>
+<!-- Webinar Promotion Section -->
+<section class="py-16 bg-gradient-to-br from-primary-50 to-accent-50 relative overflow-hidden">
+    <!-- Background patterns -->
+    <div class="absolute inset-0 bg-pattern opacity-30"></div>
+    
+    <div class="relative container mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="max-w-5xl mx-auto">
+            <!-- Webinar Card -->
+            <div class="glass-card rounded-2xl p-8 sm:p-12 shadow-xl">
+                <div class="flex flex-col lg:flex-row items-center lg:items-start space-y-8 lg:space-y-0 lg:space-x-8">
+                    <!-- Left: Content -->
+                    <div class="flex-1 text-center lg:text-left">
+                        <!-- Event Badge -->
+                        <div class="inline-flex items-center px-4 py-2 bg-red-100 text-red-800 text-sm font-semibold rounded-full mb-4 urgency-pulse">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                            </svg>
+                            Limited Seats - Live Webinar
+                        </div>
+                        
+                        <!-- Headline -->
+                        <h2 class="text-3xl sm:text-4xl font-bold mb-4">
+                            <span class="block text-gray-900">Cracking the</span>
+                            <span class="text-gradient">FDA Code II</span>
+                        </h2>
+                        
+                        <!-- Subheadline -->
+                        <p class="text-lg text-gray-600 mb-6">
+                            How Regulatory Intelligence Helps Pharma Leaders Move Faster in 2025
+                        </p>
+                        
+                        <!-- Event Details -->
+                        <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start space-y-2 sm:space-y-0 sm:space-x-6 mb-6">
+                            <div class="flex items-center text-gray-700">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                                <span class="font-medium">Wednesday, September 3rd</span>
+                            </div>
+                            <div class="flex items-center text-gray-700">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <span class="font-medium">2:00 PM EST</span>
+                            </div>
+                            <div class="flex items-center text-green-600">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                </svg>
+                                <span class="font-medium">Free to Attend</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Key Benefits -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">
+                            <div class="flex items-start">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary-600 mr-2 mt-0.5 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                </svg>
+                                <span class="text-gray-700">Reduce submission risks</span>
+                            </div>
+                            <div class="flex items-start">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary-600 mr-2 mt-0.5 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                </svg>
+                                <span class="text-gray-700">Predict trial costs</span>
+                            </div>
+                            <div class="flex items-start">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary-600 mr-2 mt-0.5 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                </svg>
+                                <span class="text-gray-700">Stay ahead of regulatory changes</span>
+                            </div>
+                            <div class="flex items-start">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary-600 mr-2 mt-0.5 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                </svg>
+                                <span class="text-gray-700">Track competitor activities</span>
+                            </div>
+                        </div>
+                        
+                        <!-- CTA Button -->
+                        <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+                            <a href="/webinar.html" 
+                               class="btn-3d inline-flex items-center justify-center px-6 py-3 text-lg font-semibold text-white bg-primary-600 rounded-xl hover:bg-primary-700 shadow-xl shadow-primary-500/30 transition duration-300"
+                               id="webinar-cta-main">
+                                Register Free
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- Right: Visual Element -->
+                    <div class="flex-shrink-0 lg:w-80">
+                        <div class="relative">
+                            <!-- Countdown Timer -->
+                            <div class="bg-white/90 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-white/30">
+                                <div class="text-center mb-4">
+                                    <h4 class="text-lg font-semibold text-gray-800 mb-2">Registration Closes In:</h4>
+                                </div>
+                                <div id="webinar-countdown" class="flex justify-center space-x-3">
+                                    <div class="text-center">
+                                        <div class="bg-primary-600 text-white rounded-lg p-2 min-w-[50px]">
+                                            <div class="text-xl font-bold" id="webinar-days">00</div>
+                                            <div class="text-xs">Days</div>
+                                        </div>
+                                    </div>
+                                    <div class="text-center">
+                                        <div class="bg-primary-600 text-white rounded-lg p-2 min-w-[50px]">
+                                            <div class="text-xl font-bold" id="webinar-hours">00</div>
+                                            <div class="text-xs">Hours</div>
+                                        </div>
+                                    </div>
+                                    <div class="text-center">
+                                        <div class="bg-primary-600 text-white rounded-lg p-2 min-w-[50px]">
+                                            <div class="text-xl font-bold" id="webinar-minutes">00</div>
+                                            <div class="text-xs">Min</div>
+                                        </div>
+                                    </div>
+                                    <div class="text-center">
+                                        <div class="bg-primary-600 text-white rounded-lg p-2 min-w-[50px]">
+                                            <div class="text-xl font-bold" id="webinar-seconds">00</div>
+                                            <div class="text-xs">Sec</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Quick Stats -->
+                                <div class="mt-6 text-center space-y-2">
+                                    <div class="flex items-center justify-center text-sm text-gray-600">
+                                        <span class="inline-block w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                                        <span>45 minutes + Live Q&A</span>
+                                    </div>
+                                    <div class="flex items-center justify-center text-sm text-gray-600">
+                                        <span class="inline-block w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
+                                        <span>Recording provided</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Floating elements for visual interest -->
+                            <div class="absolute -top-4 -right-4 w-8 h-8 bg-accent-500 rounded-full opacity-20 animate-float"></div>
+                            <div class="absolute -bottom-4 -left-4 w-6 h-6 bg-secondary-500 rounded-full opacity-20 animate-float" style="animation-delay: 1s;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+/* Additional styles for the webinar section - add to your existing CSS */
+.urgency-pulse {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.8;
+    }
+}
+</style>
+
+<script>
+// Webinar countdown timer - add to your existing JavaScript
+document.addEventListener('DOMContentLoaded', function() {
+    function updateWebinarCountdown() {
+        const webinarDate = new Date('September 3, 2025 14:00:00 EST').getTime();
+        const now = new Date().getTime();
+        const distance = webinarDate - now;
+
+        if (distance > 0) {
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            const daysEl = document.getElementById('webinar-days');
+            const hoursEl = document.getElementById('webinar-hours');
+            const minutesEl = document.getElementById('webinar-minutes');
+            const secondsEl = document.getElementById('webinar-seconds');
+
+            if (daysEl) daysEl.textContent = days.toString().padStart(2, '0');
+            if (hoursEl) hoursEl.textContent = hours.toString().padStart(2, '0');
+            if (minutesEl) minutesEl.textContent = minutes.toString().padStart(2, '0');
+            if (secondsEl) secondsEl.textContent = seconds.toString().padStart(2, '0');
+        } else {
+            // Event has passed
+            const countdownEl = document.getElementById('webinar-countdown');
+            if (countdownEl) {
+                countdownEl.innerHTML = '<div class="text-center text-gray-600">Event has ended</div>';
+            }
+        }
+    }
+
+    // Update countdown immediately and then every second
+    updateWebinarCountdown();
+    setInterval(updateWebinarCountdown, 1000);
+
+    // Track webinar CTA clicks
+    const webinarCta = document.getElementById('webinar-cta-main');
+    if (webinarCta) {
+        webinarCta.addEventListener('click', function() {
+            // Google Analytics tracking
+            if (typeof gtag === 'function') {
+                gtag('event', 'click', {
+                    'event_category': 'webinar',
+                    'event_label': 'main_page_cta'
+                });
+            }
+        });
+    }
+});
+</script>
+    <!-- Data Sources Section -->
+    <section id="data-sources" class="py-24 bg-white">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <span class="inline-block text-primary-600 font-semibold text-sm uppercase tracking-wider mb-1">Data Sources</span>
+                <h2 class="text-4xl font-bold mb-4">Comprehensive Data Sources</h2>
+                <p class="text-xl text-gray-600">SyneticX integrates data from diverse sources to provide a complete view of your market landscape.</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Data Category 1 -->
+                <div class="glass-card rounded-xl p-8 shadow-lg transition duration-300 hover:shadow-xl">
+                    <div class="flex items-center mb-6">
+                        <div class="h-16 w-16 rounded-full bg-primary-100 flex items-center justify-center mr-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-semibold">Financial Data</h4>
+                            <p class="text-gray-600 text-sm">Comprehensive financial intelligence</p>
+                        </div>
+                    </div>
+                    <ul class="space-y-3 text-gray-600">
+                        <li class="flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary-600 mr-2 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            <span>Annual reports and SEC filings</span>
+                        </li>
+                        <li class="flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary-600 mr-2 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            <span>Medicare reimbursement data</span>
+                        </li>
+                        <li class="flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary-600 mr-2 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            <span>Investor presentations</span>
+                        </li>
+                        <li class="flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary-600 mr-2 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            <span>Earnings call transcripts</span>
+                        </li>
+                        <li class="flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary-600 mr-2 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            <span>PBM contract databases</span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <!-- Data Category 2 -->
+                <div class="glass-card rounded-xl p-8 shadow-lg transition duration-300 hover:shadow-xl">
+                    <div class="flex items-center mb-6">
+                        <div class="h-16 w-16 rounded-full bg-secondary-100 flex items-center justify-center mr-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-secondary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-semibold">Intellectual Property</h4>
+                            <p class="text-gray-600 text-sm">Patent and IP intelligence</p>
+                        </div>
+                    </div>
+                    <ul class="space-y-3 text-gray-600">
+                        <li class="flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-secondary-600 mr-2 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            <span>Global patent databases</span>
+                        </li>
+                        <li class="flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-secondary-600 mr-2 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            <span>Patent litigation tracking</span>
+                        </li>
+                        <li class="flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-secondary-600 mr-2 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            <span>Technology licensing data</span>
+                        </li>
+                        <li class="flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-secondary-600 mr-2 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            <span>Patent citation networks</span>
+                        </li>
+                        <li class="flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-secondary-600 mr-2 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            <span>Trademark repositories</span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <!-- Data Category 3 -->
+                <div class="glass-card rounded-xl p-8 shadow-lg transition duration-300 hover:shadow-xl">
+                    <div class="flex items-center mb-6">
+                        <div class="h-16 w-16 rounded-full bg-accent-100 flex items-center justify-center mr-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-accent-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h4 class="text-lg fontt-semibold">Market & News</h4>
+                            <p class="text-gray-600 text-sm">Media and sentiment analysis</p>
+                        </div>
+                    </div>
+                    <ul class="space-y-3 text-gray-600">
+                        <li class="flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-accent-600 mr-2 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            <span>Industry news aggregation</span>
+                        </li>
+                        <li class="flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-accent-600 mr-2 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            <span>Social media sentiment</span>
+                        </li>
+                        <li class="flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-accent-600 mr-2 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            <span>Conference presentations</span>
+                        </li>
+                        <li class="flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-accent-600 mr-2 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            <span>Advertising spending metrics</span>
+                        </li>
+                        <li class="flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-accent-600 mr-2 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            <span>Press release tracking</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            
+            </div>
+            
+            <div class="mt-12 text-center">
+                <a href="#demo" class="btn-3d inline-flex items-center px-6 py-3 text-white bg-primary-600 rounded-lg hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 shadow-lg shadow-primary-500/30 transition duration-150 ease-in-out">
+                    See How We Transform Data Into Insights
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                    </svg>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- FDA Tool Section -->
+    <section id="fda-tool" class="py-16 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-12">
+                <span class="inline-block text-primary-600 font-semibold text-sm uppercase tracking-wider mb-1">Try Our Compliance Tool</span>
+                <h2 class="text-3xl font-bold text-gray-900 mb-4">FDA Research & Compliance Tool</h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">Use our FDA research tool to search for clinical trials, regulatory information, and compliance data.</p>
+            </div>
+            
+            <!-- Tool Introduction -->
+            <div class="bg-white rounded-xl shadow-lg p-6 mb-10">
+                <div class="flex flex-col md:flex-row items-center">
+                    <div class="">
+                        <h3 class="text-xl font-bold text-gray-800 mb-4">Track Regulatory Developments</h3>
+                        <p class="text-gray-600 mb-6">Search for clinical trials, regulatory information, and compliance data. Track competitor activities and stay informed about regulatory developments in the healthcare market.</p>
+                        
+                        <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg mb-6">
+                            <p class="text-sm text-blue-800">This tool aggregates publicly available FDA data to help you make informed decisions. For comprehensive market intelligence solutions, please <a href="#demo" class="underline font-medium">book a demo</a> about our custom dashboard services.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Search Section -->
+            <div class="bg-white rounded-xl shadow-lg p-6 mb-10">
+                <h3 class="text-xl font-semibold mb-6 text-gray-800">Search for Clinical Trials</h3>
+                
+                <!-- Main Search Row -->
+                <div class="flex flex-col md:flex-row gap-3">
+                    <div class="flex-grow">
+                        <div class="relative">
+                            <input type="text" id="drugSearch" placeholder="Drug Name" 
+                                  class="w-full p-3 pl-10 bg-gray-50 border-0 rounded-lg focus:ring-2 focus:ring-blue-500 shadow-sm transition-all duration-200">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 absolute left-3 top-3.5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1.323l3.954 1.582 1.599-.8a1 1 0 01.894 1.79l-1.233.616 1.738 5.42a1 1 0 01-.285 1.05A3.989 3.989 0 0115 15a3.989 3.989 0 01-2.667-1.019 1 1 0 01-.285-1.05l1.715-5.349L11 6.477V16a1 1 0 11-2 0V6.477L6.237 7.582l1.715 5.349a1 1 0 01-.285 1.05A3.989 3.989 0 013 15a3.989 3.989 0 01-2.667-1.019 1 1 0 01-.285-1.05l1.738-5.42-1.233-.617a1 1 0 01.894-1.788l1.599.799L7 4.323V3a1 1 0 011-1z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="flex-grow">
+                        <div class="relative">
+                            <input type="text" id="conditionSearch" placeholder="Condition (Optional)" 
+                                  class="w-full p-3 pl-10 bg-gray-50 border-0 rounded-lg focus:ring-2 focus:ring-blue-500 shadow-sm transition-all duration-200">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 absolute left-3 top-3.5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                    </div>
+                    <div>
+                        <button id="searchButton" class="bg-blue-600 hover:bg-blue-700 text-white py-3 px-8 rounded-lg transition duration-200 flex items-center shadow-md">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                            Search
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Timeline Slider -->
+                <div class="mt-7">
+                    <div class="flex justify-between items-center mb-3">
+                        <div class="flex items-center">
+                            <label for="timelineSlider" class="text-sm font-medium text-gray-700">Timeline:</label>
+                            <span id="yearValue" class="ml-2 text-blue-600 font-bold text-lg transition-all duration-300">7</span>
+                            <span class="ml-1 text-sm text-gray-700">years back</span>
+                        </div>
+                        <div class="text-xs bg-blue-50 px-3 py-1.5 rounded-full shadow-sm text-blue-700">
+                            From <span id="startYear" class="font-medium">2018</span> to <span id="currentYear" class="font-medium">2025</span>
+                        </div>
+                    </div>
+                    
+                    <div class="relative mb-5">
+                        <!-- Timeline Track -->
+                        <div class="w-full h-2 bg-gray-200 rounded-full shadow-inner overflow-hidden">
+                            <!-- Filled Track -->
+                            <div id="filledTrack" class="h-full bg-gradient-to-r from-blue-400 to-blue-600 transition-all duration-300" style="width: 46.6%;"></div>
+                        </div>
+                        
+                        <!-- Ticks and Labels -->
+                        <div class="relative w-full h-8 mt-1">
+                            <div class="absolute top-0 left-0 text-xs text-gray-500">1 year</div>
+                            <div class="absolute top-0 left-1/4 transform -translate-x-1/2 text-xs text-gray-500">5 years</div>
+                            <div class="absolute top-0 left-2/4 transform -translate-x-1/2 text-xs text-gray-500">8 years</div>
+                            <div class="absolute top-0 left-3/4 transform -translate-x-1/2 text-xs text-gray-500">12 years</div>
+                            <div class="absolute top-0 right-0 transform translate-x-0 text-xs text-gray-500">15 years</div>
+                        </div>
+                        
+                        <!-- Slider Input -->
+                        <input type="range" id="timelineSlider" min="1" max="15" value="7" 
+                              class="absolute top-0 w-full h-2 opacity-0 cursor-pointer z-10">
+                              
+                        <!-- Visual Thumb -->
+                        <div id="sliderThumb" class="absolute top-0 h-6 w-6 bg-white rounded-full shadow-md border-2 border-blue-500 flex items-center justify-center transform -translate-y-2 -translate-x-1/2 transition-all duration-200" style="left: 46.6%;">
+                            <span id="thumbValue" class="text-xs font-bold text-blue-600">7</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Year Markers -->
+                    <div id="yearMarkers" class="flex justify-between mb-6 px-1">
+                        <!-- Will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Placeholder Message for initial state -->
+            <div id="placeholderMessage" class="bg-white rounded-lg shadow-md p-10 text-center text-gray-500 mb-10">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                </svg>
+                <p class="text-lg">Enter a drug name and click "Search" to analyze clinical trials</p>
+                <p class="mt-2 text-sm">Example searches: Ketamine, Psilocybin, Esketamine, PCN-101, COMP360</p>
+            </div>
+            
+            <!-- Loading State -->
+            <div id="loadingState" class="hidden mb-10">
+                <div class="flex justify-center items-center p-10">
+                    <svg class="animate-spin h-10 w-10 text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span class="ml-3 text-lg font-medium">Loading studies...</span>
+                </div>
+            </div>
+            
+            <!-- Results will be displayed here -->
+            <div id="trial-dashboard" class="max-w-6xl mx-auto p-4 hidden mb-10">
+                <!-- Content will be dynamically populated by JavaScript -->
+            </div>
+            
+            <!-- How the Tool Works Section -->
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h3 class="text-xl font-semibold mb-4">How This Tool Works</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="p-4 bg-blue-50 rounded-lg hover-shadow">
+                        <div class="bg-blue-100 rounded-full w-12 h-12 flex items-center justify-center mb-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                        </div>
+                        <h4 class="text-lg font-medium mb-2">Search</h4>
+                        <p class="text-gray-600">Enter a drug name and optional condition to search across FDA databases, clinical trials, and PubMed articles.</p>
+                    </div>
+                    
+                    <div class="p-4 bg-purple-50 rounded-lg hover-shadow">
+                        <div class="bg-purple-100 rounded-full w-12 h-12 flex items-center justify-center mb-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                            </svg>
+                        </div>
+                        <h4 class="text-lg font-medium mb-2">Analyze</h4>
+                        <p class="text-gray-600">Our tool aggregates data from multiple FDA sources, including Orange Book listings, DailyMed, and warning letters.</p>
+                    </div>
+                    
+                    <div class="p-4 bg-green-50 rounded-lg hover-shadow">
+                        <div class="bg-green-100 rounded-full w-12 h-12 flex items-center justify-center mb-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                        </div>
+                        <h4 class="text-lg font-medium mb-2">Visualize</h4>
+                        <p class="text-gray-600">View results in an easy-to-understand format with relevant details and links to original sources.</p>
+                    </div>
+                </div>
+                
+                <div class="mt-6 p-4 bg-gray-50 rounded-lg">
+                    <h4 class="text-lg font-medium mb-2">Data Sources</h4>
+                    <p class="text-gray-600 mb-4">This tool aggregates publicly available information from:</p>
+                    <ul class="grid grid-cols-1 md:grid-cols-2 gap-2 text-gray-600">
+                        <li class="flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-500 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            FDA.gov - Official FDA website
+                        </li>
+                        <li class="flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-500 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            ClinicalTrials.gov - Clinical trial registry
+                        </li>
+                        <li class="flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-500 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            Orange Book - Approved drug products
+                        </li>
+                        <li class="flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-500 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            DailyMed - Prescription drug information
+                        </li>
+                        <li class="flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-500 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            PubMed - Biomedical literature database
+                        </li>
+                        <li class="flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-500 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            FDA Warning Letters
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+
+<!-- Improved Blog Section -->
+<section id="blog" class="relative py-24 overflow-hidden bg-gradient-to-b from-white to-gray-50">
+    <style>
+/* Gradient text effect */
+.text-gradient {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Pattern background */
+.bg-pattern {
+    background-image: 
+        repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(255,255,255,.05) 35px, rgba(255,255,255,.05) 70px);
+}
+
+/* Line clamp utility */
+.line-clamp-3 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+}
+
+/* Custom animations */
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-20px); }
+}
+
+.animate-float {
+    animation: float 6s ease-in-out infinite;
+}
+
+/* Primary colors */
+.bg-primary-600 { background-color: #667eea; }
+.bg-accent-600 { background-color: #764ba2; }
+.bg-purple-600 { background-color: #9333ea; }
+.text-primary-600 { color: #667eea; }
+.hover\:text-primary-600:hover { color: #667eea; }
+.hover\:bg-primary-700:hover { background-color: #5a67d8; }
+</style>
+    <!-- Background patterns -->
+    <div class="absolute inset-0 opacity-5">
+        <div class="absolute top-0 left-0 w-96 h-96 bg-primary-500 rounded-full filter blur-3xl"></div>
+        <div class="absolute bottom-0 right-0 w-96 h-96 bg-accent-500 rounded-full filter blur-3xl"></div>
+    </div>
+    
+    <div class="relative container mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Section Header -->
+        <div class="text-center max-w-3xl mx-auto mb-16">
+            <h2 class="text-4xl md:text-5xl font-extrabold mb-6">
+                <span class="block text-gray-900">Latest Insights in</span>
+                <span class="text-gradient">Healthcare Innovation</span>
+            </h2>
+            <p class="text-xl text-gray-600 leading-relaxed">
+                Explore cutting-edge developments in medical AI, regulatory updates, and transformative technologies shaping the future of healthcare
+            </p>
+        </div>
+
+        <!-- Featured Blog Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+            <!-- Blog Card 1 -->
+            <article class="group relative bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden">
+                <a href="blog/ai-diagnostics.html" class="block">
+                    <!-- Image Container -->
+                    <div class="relative h-48 overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=400&h=200&fit=crop" 
+                             alt="AI Diagnostics in Healthcare" 
+                             class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+                        <span class="absolute top-4 left-4 px-3 py-1 bg-primary-600 text-white text-xs font-semibold rounded-full">
+                            AI & Diagnostics
+                        </span>
+                    </div>
+                    
+                    <!-- Content -->
+                    <div class="p-6">
+                        <div class="flex items-center text-sm text-gray-500 mb-3">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                            </svg>
+                            <time datetime="2025-05-20">May 20, 2025</time>
+                            <span class="mx-2">•</span>
+                            <span>5 min read</span>
+                        </div>
+                        
+                        <h3 class="text-xl font-bold text-gray-900 mb-3 group-hover:text-primary-600 transition-colors">
+                            AI Revolutionizes Medical Diagnostics: From Theory to Clinical Practice
+                        </h3>
+                        
+                        <p class="text-gray-600 mb-4 line-clamp-3">
+                            Discover how artificial intelligence is transforming diagnostic accuracy across radiology, pathology, and genomics, enabling earlier disease detection and personalized treatment strategies.
+                        </p>
+                        
+                        <div class="flex items-center text-primary-600 font-semibold">
+                            <span>Read Full Article</span>
+                            <svg class="w-5 h-5 ml-2 group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </a>
+            </article>
+
+            <!-- Blog Card 2 -->
+            <article class="group relative bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden">
+                <a href="blog/fda-regulatory-landscape.html" class="block">
+                    <!-- Image Container -->
+                    <div class="relative h-48 overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=400&h=200&fit=crop" 
+                             alt="FDA Regulatory Framework" 
+                             class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+                        <span class="absolute top-4 left-4 px-3 py-1 bg-accent-600 text-white text-xs font-semibold rounded-full">
+                            Regulatory Update
+                        </span>
+                    </div>
+                    
+                    <!-- Content -->
+                    <div class="p-6">
+                        <div class="flex items-center text-sm text-gray-500 mb-3">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                            </svg>
+                            <time datetime="2025-05-18">May 18, 2025</time>
+                            <span class="mx-2">•</span>
+                            <span>7 min read</span>
+                        </div>
+                        
+                        <h3 class="text-xl font-bold text-gray-900 mb-3 group-hover:text-primary-600 transition-colors">
+                            Navigating FDA's Evolving AI/ML Medical Device Framework in 2025
+                        </h3>
+                        
+                        <p class="text-gray-600 mb-4 line-clamp-3">
+                            An in-depth analysis of the current regulatory landscape for AI-powered medical devices, including recent policy changes and what MedTech companies need to know for successful approvals.
+                        </p>
+                        
+                        <div class="flex items-center text-primary-600 font-semibold">
+                            <span>Read Full Article</span>
+                            <svg class="w-5 h-5 ml-2 group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </a>
+            </article>
+
+            <!-- Blog Card 3 -->
+            <article class="group relative bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden">
+                <a href="blog/predictive-analytics.html" class="block">
+                    <!-- Image Container -->
+                    <div class="relative h-48 overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?w=400&h=200&fit=crop" 
+                             alt="Hospital Analytics Dashboard" 
+                             class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+                        <span class="absolute top-4 left-4 px-3 py-1 bg-purple-600 text-white text-xs font-semibold rounded-full">
+                            Data Analytics
+                        </span>
+                    </div>
+                    
+                    <!-- Content -->
+                    <div class="p-6">
+                        <div class="flex items-center text-sm text-gray-500 mb-3">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                            </svg>
+                            <time datetime="2025-05-15">May 15, 2025</time>
+                            <span class="mx-2">•</span>
+                            <span>6 min read</span>
+                        </div>
+                        
+                        <h3 class="text-xl font-bold text-gray-900 mb-3 group-hover:text-primary-600 transition-colors">
+                            Predictive Analytics: Transforming Hospital Operations and Patient Care
+                        </h3>
+                        
+                        <p class="text-gray-600 mb-4 line-clamp-3">
+                            Learn how leading healthcare institutions leverage predictive models to optimize resource allocation, reduce readmissions, and improve patient outcomes through data-driven insights.
+                        </p>
+                        
+                        <div class="flex items-center text-primary-600 font-semibold">
+                            <span>Read Full Article</span>
+                            <svg class="w-5 h-5 ml-2 group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </a>
+            </article>
+        </div>
+
+        <!-- Newsletter CTA -->
+        <div class="mt-16 bg-gradient-to-r from-primary-600 to-accent-600 rounded-3xl p-8 md:p-12 text-white relative overflow-hidden">
+            <div class="absolute inset-0 bg-pattern opacity-10"></div>
+            <div class="relative z-10 max-w-3xl mx-auto text-center">
+                <h3 class="text-3xl font-bold mb-4">Stay Ahead of Healthcare Innovation</h3>
+                <p class="text-lg mb-8 opacity-90">Get weekly insights on AI in healthcare, regulatory updates, and market intelligence delivered to your inbox</p>
+                <form class="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
+                    <input type="email" 
+                           placeholder="Enter your email" 
+                           class="flex-1 px-6 py-3 rounded-xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-4 focus:ring-white/30">
+                    <button type="submit" 
+                            class="px-8 py-3 bg-white text-primary-600 rounded-xl font-semibold hover:bg-gray-100 transition-colors">
+                        Subscribe
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+
+    <!-- Demo Request Section -->
+    <section id="demo" class="py-24 bg-white">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="glass-card rounded-xl overflow-hidden shadow-xl">
+                <div class="flex flex-col md:flex-row">
+                
+                    <!-- Left: Demo Content -->
+                    <!-- <div class="md:w-1/2 relative">
+                        <div class="absolute inset-0 gradient-bg"></div>
+                        <div class="relative h-full flex items-center justify-center p-8">
+                            <div class="text-center md:text-left">
+                                <h2 class="text-3xl font-bold text-white mb-4">See How SyneticX Works for MedTech Leaders</h2>
+                                <p class="text-white/90 mb-6">Let’s discuss your tracking needs, no matter how challenging they may seem. During this call, we’ll take the time to fully understand the specific data you want to track, your preferred layout, and the features that matter most to you. We’ll use this conversation as a foundation to create a free, tailored MVP—a custom dashboard designed to track exactly the data you need, just the way you envision it.</p>
+                                
+                                
+                                
+                                
+                                <img src="./image/image.png" alt="SyneticX Demo Preview for MedTech Companies" class="rounded-lg shadow-lg mx-auto md:mx-0">
+                            </div>
+                        </div>
+                    </div> -->
+                    <div class="md:w-1/2 relative">
+                        <div class="absolute inset-0 gradient-bg"></div>
+                        <div class="relative h-full flex items-center justify-center p-8">
+                            <div class="text-center md:text-left">
+                                <h2 class="text-3xl font-bold text-white mb-4">See How SyneticX Works for MedTech Leaders</h2>
+                                <div class="bg-white/10 pb-1 pl-4 pr-4 pt-4 rounded-lg backdrop-blur-sm mb-6">
+                                    <p class="text-white/90 mb-6">Let’s discuss your tracking needs, no matter how challenging they may seem. During this call, we’ll take the time to fully understand the specific data you want to track, your preferred layout, and the features that matter most to you. We’ll use this conversation as a foundation to create a free, tailored MVP—a custom dashboard designed to track exactly the data you need, just the way you envision it.</p>
+                                </div>
+                                <!-- <p class="text-white/90 mb-6">Join other Series B medical device companies saving 85+ hours weekly on market intelligence. Our platform is specifically designed for CCOs and CSOs in the $10M-$100M revenue range.</p> -->
+
+                                <!-- Demo Preview 
+                                <div class="bg-white/10 p-4 rounded-lg backdrop-blur-sm mb-6">
+                                    <h3 class="text-white text-lg font-semibold mb-3">In Your Personalized Demo:</h3>
+                                    <ul class="space-y-2 text-white">
+                                        <li class="flex items-start">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-accent-300 mr-2 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                            </svg>
+                                            <span>Let’s discuss your tracking needs, no matter how challenging they may seem.</span>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-accent-300 mr-2 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                            </svg>
+                                            <span>During this call, we’ll take the time to fully understand the specific data you want to track,  </span>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-accent-300 mr-2 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                            </svg>
+                                            <span>your preferred layout, and the features that matter most to you.</span>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-accent-300 mr-2 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                            </svg>
+                                            <span>We’ll use this conversation as a foundation to create a free , tailored MVP—a custom dashboard designed to track exactly the data you need, just the way you envision it.</span>
+                                        </li>
+                                    </ul>
+                                </div> -->
+                                
+                                <img src="./image/starkey.png" alt="SyneticX Demo Preview for MedTech Companies" class="rounded-lg shadow-lg mx-auto md:mx-0">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Right: Form -->
+                    <div class="md:w-1/2 p-8">
+                        <h3 class="text-2xl font-bold mb-6">Book Your Personalized Demo</h3>
+                        <form class="space-y-4" id="demo-booking-form">
+                            <!-- Hidden UTM fields for tracking -->
+                            <input type="hidden" id="utm_source" name="utm_source">
+                            <input type="hidden" id="utm_medium" name="utm_medium">
+                            <input type="hidden" id="utm_campaign" name="utm_campaign">
+                            <input type="hidden" id="utm_content" name="utm_content">
+                            <input type="hidden" id="utm_term" name="utm_term">
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label for="firstName" class="block text-sm font-medium text-gray-700 mb-1">First Name*</label>
+                                    <input type="text" id="firstName" name="firstName" required class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                                </div>
+                                <div>
+                                    <label for="lastName" class="block text-sm font-medium text-gray-700 mb-1">Last Name*</label>
+                                    <input type="text" id="lastName" name="lastName" required class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                                </div>
+                            </div>
+                            <div>
+                                <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email*</label>
+                                <input type="email" id="email" name="email" required class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                            </div>
+                            <div>
+                                <label for="website" class="block text-sm font-medium text-gray-700 mb-1">Website*</label>
+                                <input type="text" id="website" name="website" required class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                            </div>
+                            
+                            
+                            <div>
+                                <label for="companySize" class="block text-sm font-medium text-gray-700 mb-1">Company Annual Revenue</label>
+                                <select id="companySize" name="companySize" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                                    <option value="">Select revenue range</option>
+                                    <option value="under10M">Under $10M</option>
+                                    <option value="10M-50M">$10M - $50M</option>
+                                    <option value="50M-100M">$50M - $100M</option>
+                                    <option value="over100M">Over $100M</option>
+                                </select>
+                            </div>
+                            <div class="flex items-start">
+                                <input id="privacy" name="privacy" type="checkbox" required class="h-4 w-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500 mt-1">
+                                <label for="privacy" class="ml-2 block text-sm text-gray-700">
+                                    I agree to the <a href="#" class="text-primary-600 hover:text-primary-700">Privacy Policy</a> and <a href="#" class="text-primary-600 hover:text-primary-700">Terms of Service</a>
+                                </label>
+                            </div>
+                            <div>
+                                <button type="submit" id="demo-submit-btn" class="btn-3d w-full py-3 px-6 text-lg font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 shadow-lg shadow-primary-500/30 transition duration-150 ease-in-out">
+                                    Schedule Your Demo
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+        <!-- Demo Request Section 
+        <section id="demo" class="py-24 bg-white">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="glass-card rounded-xl overflow-hidden shadow-xl">
+                    <div class="flex flex-col md:flex-row">
+                    
+                   
+                        <div class="md:w-1/2 relative">
+                            <div class="absolute inset-0 gradient-bg"></div>
+                            <div class="relative h-full flex items-center justify-center p-8">
+                                <div class="text-center md:text-left">
+                                    <h2 class="text-3xl font-bold text-white mb-4">See How SyneticX Works for MedTech Leaders</h2>
+                                    <p class="text-white/90 mb-6">Join other Series B medical device companies saving 85+ hours weekly on market intelligence. Our platform is specifically designed for CCOs and CSOs in the $10M-$100M revenue range.</p>
+                                    
+                                    <div class="bg-white/10 p-4 rounded-lg backdrop-blur-sm mb-6">
+                                        <h3 class="text-white text-lg font-semibold mb-3">In Your Personalized Demo:</h3>
+                                        <ul class="space-y-2 text-white">
+                                            <li class="flex items-start">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-accent-300 mr-2 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                                </svg>
+                                                <span>Custom dashboard overview tailored for your specific market segment</span>
+                                            </li>
+                                            <li class="flex items-start">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-accent-300 mr-2 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                                </svg>
+                                                <span>Regulatory compliance tracking features</span>
+                                            </li>
+                                            <li class="flex items-start">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-accent-300 mr-2 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                                </svg>
+                                                <span>Competitor analysis capabilities</span>
+                                            </li>
+                                            <li class="flex items-start">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-accent-300 mr-2 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                                </svg>
+                                                <span>Implementation roadmap and time-to-value estimate</span>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    
+                                    <img src="./image/image.png" alt="SyneticX Demo Preview for MedTech Companies" class="rounded-lg shadow-lg mx-auto md:mx-0">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="md:w-1/2 p-8">
+                            <h3 class="text-2xl font-bold mb-6">Book Your Personalized Demo</h3>
+                            <form class="space-y-4" id="demo-booking-form">
+                                <input type="hidden" id="utm_source" name="utm_source">
+                                <input type="hidden" id="utm_medium" name="utm_medium">
+                                <input type="hidden" id="utm_campaign" name="utm_campaign">
+                                <input type="hidden" id="utm_content" name="utm_content">
+                                <input type="hidden" id="utm_term" name="utm_term">
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label for="firstName" class="block text-sm font-medium text-gray-700 mb-1">First Name*</label>
+                                        <input type="text" id="firstName" name="firstName" required class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                                    </div>
+                                    <div>
+                                        <label for="lastName" class="block text-sm font-medium text-gray-700 mb-1">Last Name*</label>
+                                        <input type="text" id="lastName" name="lastName" required class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Work Email*</label>
+                                    <input type="email" id="email" name="email" required class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                                </div>
+                                <div>
+                                    <label for="company" class="block text-sm font-medium text-gray-700 mb-1">Company*</label>
+                                    <input type="text" id="company" name="company" required class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                                </div>
+                                <div>
+                                    <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">Phone Number*</label>
+                                    <input type="tel" id="phone" name="phone" required class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                                </div>
+                                <div>
+                                    <label for="jobTitle" class="block text-sm font-medium text-gray-700 mb-1">Job Title*</label>
+                                    <input type="text" id="jobTitle" name="jobTitle" required class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                                </div>
+                                <div>
+                                    <label for="industry" class="block text-sm font-medium text-gray-700 mb-1">Industry Vertical*</label>
+                                    <select id="industry" name="industry" required class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                                        <option value="">Select your industry</option>
+                                        <option value="neuromodulation">Neuromodulation</option>
+                                        <option value="medicaldevice">Medical Devices</option>
+                                        <option value="biotech">Biotech & Pharmaceuticals</option>
+                                        <option value="hearingaid">Hearing Aid</option>
+                                        <option value="insurancePBM">Insurance & PBM</option>
+                                        <option value="digitalhealth">Digital Health</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="companySize" class="block text-sm font-medium text-gray-700 mb-1">Company Annual Revenue</label>
+                                    <select id="companySize" name="companySize" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                                        <option value="">Select revenue range</option>
+                                        <option value="under10M">Under $10M</option>
+                                        <option value="10M-50M">$10M - $50M</option>
+                                        <option value="50M-100M">$50M - $100M</option>
+                                        <option value="over100M">Over $100M</option>
+                                    </select>
+                                </div>
+                                <div class="flex items-start">
+                                    <input id="privacy" name="privacy" type="checkbox" required class="h-4 w-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500 mt-1">
+                                    <label for="privacy" class="ml-2 block text-sm text-gray-700">
+                                        I agree to the <a href="#" class="text-primary-600 hover:text-primary-700">Privacy Policy</a> and <a href="#" class="text-primary-600 hover:text-primary-700">Terms of Service</a>
+                                    </label>
+                                </div>
+                                <div>
+                                    <button type="submit" id="demo-submit-btn" class="btn-3d w-full py-3 px-6 text-lg font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 shadow-lg shadow-primary-500/30 transition duration-150 ease-in-out">
+                                        Schedule Your Demo
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section> -->
+
+    <!-- Contact Section -->
+    <section id="contact" class="hidden py-16 bg-gradient-to-br from-blue-50 to-indigo-50">
+        <div class="container mx-auto px-4">
+            <div class="max-w-4xl mx-auto">
+                <div class="text-center mb-12">
+                    <span class="inline-block text-primary-600 font-semibold text-sm uppercase tracking-wider mb-1">Contact</span>
+                    <h2 class="text-3xl font-bold text-gray-900 mb-4">Get in Touch</h2>
+                    <p class="text-xl text-gray-600">Let's discuss how we can help you gain valuable insights into your market.</p>
+                </div>
+                
+                <div class="bg-white rounded-xl shadow-md p-8">
+                    <form id="contact-form">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                            <div>
+                                <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Full Name*</label>
+                                <input type="text" id="name" name="name" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                            <div>
+                                <label for="company" class="block text-sm font-medium text-gray-700 mb-1">Company*</label>
+                                <input type="text" id="company" name="company" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                            <div>
+                                <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email Address*</label>
+                                <input type="email" id="email" name="email" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                            <div>
+                                <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                                <input type="tel" id="phone" name="phone" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                        </div>
+                        
+                        <div class="mb-6">
+                            <label for="message" class="block text-sm font-medium text-gray-700 mb-1">How can we help you?*</label>
+                            <textarea id="message" name="message" rows="4" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
+                        </div>
+                        
+                        <div class="text-center">
+                            <button type="submit" id="contact-submit-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-8 rounded-lg transition-colors inline-flex items-center justify-center">
+                                <span>Send Message</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                </svg>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="relative py-20 overflow-hidden">
+        <div class="absolute inset-0 gradient-bg"></div>
+        <div class="absolute inset-0 bg-pattern opacity-20"></div>
+        
+        <div class="relative container mx-auto px-4 sm:px-6 lg:px-8 text-center z-10">
+            <h2 class="text-4xl font-bold mb-6 text-white">Transform Your Market Intelligence Strategy</h2>
+            <p class="text-xl text-white/80 mb-8 max-w-3xl mx-auto">Leverage our AI-powered platform to make smarter, data-driven decisions for competitive advantage.</p>
+            
+            <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-6">
+                <a href="#demo" class="btn-3d px-8 py-4 bg-white text-primary-700 rounded-xl font-semibold text-lg shadow-xl hover:bg-gray-100 transition duration-300">
+                    Request Demo
+                </a>
+                <a href="#contact" class="btn-3d px-8 py-4 text-white bg-primary-600 rounded-xl font-semibold text-lg shadow-xl shadow-primary-500/30 hover:bg-primary-700 transition duration-300">
+                    Contact Us Today
+                </a>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Footer -->
+    <footer class="bg-white py-8">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-center items-center">
+                <div class="flex items-center space-x-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="url(#footer-logo-gradient)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <defs>
+                            <linearGradient id="footer-logo-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#3B82F6" />
+                                <stop offset="100%" stop-color="#4F46E5" />
+                            </linearGradient>
+                        </defs>
+                        <path d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                    <span class="text-base font-medium bg-gradient-to-r from-blue-500 to-indigo-600 bg-clip-text text-transparent">SyneticX</span>
+                </div>
+            </div>
+            <div class="text-center mt-4">
+                <p class="text-sm text-gray-500">&copy; 2025 SyneticX. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Back to Top Button -->
+    <button id="backToTop" class="fixed bottom-6 right-6 bg-primary-600 text-white rounded-full p-3 shadow-lg hover:bg-primary-700 focus:outline-none z-50 transition duration-300 opacity-0 pointer-events-none">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+        </svg>
+    </button>
+
+    <!-- JavaScript files -->
+    <script>
+        // UTM Parameter Tracking & Form Handling
+        document.addEventListener('DOMContentLoaded', function() {
+            // UTM Parameter Handling
+            function getParameterByName(name, url = window.location.href) {
+                name = name.replace(/[\[\]]/g, '\\$&');
+                const regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+                    results = regex.exec(url);
+                if (!results) return '';
+                if (!results[2]) return '';
+                return decodeURIComponent(results[2].replace(/\+/g, ' '));
+            }
+
+            // Set UTM fields in the form
+            function setUtmFields() {
+                const utmParams = [
+                    'utm_source', 
+                    'utm_medium', 
+                    'utm_campaign', 
+                    'utm_content', 
+                    'utm_term'
+                ];
+                
+                // Get and set each UTM parameter
+                utmParams.forEach(param => {
+                    const value = getParameterByName(param);
+                    if (value) {
+                        // Set values to hidden form fields
+                        const field = document.getElementById(param);
+                        if (field) {
+                            field.value = value;
+                        }
+                        
+                        // Store in session storage for persistence across pages
+                        sessionStorage.setItem(param, value);
+                    } else if (sessionStorage.getItem(param)) {
+                        // If not in URL but in session storage, use stored value
+                        const field = document.getElementById(param);
+                        if (field) {
+                            field.value = sessionStorage.getItem(param);
+                        }
+                    }
+                });
+            }
+            
+            // Set UTM fields on load
+            setUtmFields();
+            
+            // Form submission handling
+            const demoForm = document.getElementById('demo-booking-form');
+            if (demoForm) {
+                demoForm.addEventListener('submit', function(event) {
+                    event.preventDefault();
+                    
+                    // Show loading state
+                    const submitButton = document.getElementById('demo-submit-btn');
+                    const originalButtonText = submitButton.innerHTML;
+                    submitButton.innerHTML = `
+                        <svg class="animate-spin h-5 w-5 mr-2 inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Processing...
+                    `;
+                    submitButton.disabled = true;
+                    
+                    // Collect form data
+                    const formData = new FormData(demoForm);
+                    const formObject = {};
+                    formData.forEach((value, key) => {
+                        formObject[key] = value;
+                    });
+                    
+                    // You would typically send this to your backend
+                    // For demonstration, we'll simulate a successful submission
+                    setTimeout(() => {
+                        // Reset button
+                        submitButton.innerHTML = originalButtonText;
+                        submitButton.disabled = false;
+                        
+                        // Show success message
+                        showNotification('Thank you! Your demo has been scheduled. Our team will contact you shortly to confirm the details.', 'success');
+                        
+                        // Reset form
+                        demoForm.reset();
+                    }, 2000);
+                });
+            }
+            
+            // Contact form handling
+            const contactForm = document.getElementById('contact-form');
+            if (contactForm) {
+                contactForm.addEventListener('submit', function(event) {
+                    event.preventDefault();
+                    
+                    // Show loading state
+                    const submitButton = document.getElementById('contact-submit-btn');
+                    const originalButtonText = submitButton.innerHTML;
+                    submitButton.innerHTML = `
+                        <svg class="animate-spin h-5 w-5 mr-2 inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Sending...
+                    `;
+                    submitButton.disabled = true;
+                    
+                    // Collect form data
+                    const formData = new FormData(contactForm);
+                    const formObject = {};
+                    formData.forEach((value, key) => {
+                        formObject[key] = value;
+                    });
+                    
+                    // Simulate submission
+                    setTimeout(() => {
+                        // Reset button
+                        submitButton.innerHTML = originalButtonText;
+                        submitButton.disabled = false;
+                        
+                        // Show success message
+                        showNotification('Thank you for reaching out! We\'ll get back to you as soon as possible.', 'success');
+                        
+                        // Reset form
+                        contactForm.reset();
+                    }, 2000);
+                });
+            }
+            
+            // CTA click tracking
+            const trackCtaClick = (element, ctaName) => {
+                if (element) {
+                    element.addEventListener('click', function() {
+                        // Implement your analytics tracking here
+                        console.log(`CTA clicked: ${ctaName}`);
+                        
+                        // Example: Google Analytics event
+                        if (typeof gtag === 'function') {
+                            gtag('event', 'click', {
+                                'event_category': 'CTA',
+                                'event_label': ctaName
+                            });
+                        }
+                    });
+                }
+            };
+            
+            // Track main CTAs
+            trackCtaClick(document.getElementById('demo-cta-main'), 'Hero Demo Button');
+            trackCtaClick(document.getElementById('tool-cta'), 'Hero FDA Tool Button');
+            trackCtaClick(document.getElementById('demo-submit-btn'), 'Demo Form Submit');
+            trackCtaClick(document.getElementById('contact-submit-btn'), 'Contact Form Submit');
+            trackCtaClick(document.getElementById('header-cta'), 'Header Demo Button');
+            
+            // Function to show notifications
+            function showNotification(message, type) {
+                // Create notification element
+                const notification = document.createElement('div');
+                notification.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 ${
+                type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
+                } transition-opacity duration-300`;
+                notification.innerHTML = message;
+                
+                // Add to DOM
+                document.body.appendChild(notification);
+                
+                // Remove after 5 seconds
+                setTimeout(() => {
+                    notification.classList.add('opacity-0');
+                    setTimeout(() => {
+                        document.body.removeChild(notification);
+                    }, 300);
+                }, 5000);
+            }
+            
+            // Timeline slider functionality
+            const slider = document.getElementById('timelineSlider');
+            const filledTrack = document.getElementById('filledTrack');
+            const thumbValue = document.getElementById('thumbValue');
+            const yearValue = document.getElementById('yearValue');
+            const sliderThumb = document.getElementById('sliderThumb');
+            const startYear = document.getElementById('startYear');
+            const currentYear = document.getElementById('currentYear');
+            const yearMarkers = document.getElementById('yearMarkers');
+            
+            if (slider && filledTrack && thumbValue && yearValue && sliderThumb && startYear && currentYear && yearMarkers) {
+                // Initialize values
+                const thisYear = 2025; // Current year (fixed for this example)
+                currentYear.textContent = thisYear;
+                updateYearDisplay(slider.value);
+                
+                // Generate year markers
+                generateYearMarkers();
+                
+                // Update on slider change
+                slider.addEventListener('input', function() {
+                    updateSlider(this.value);
+                    updateYearDisplay(this.value);
+                });
+                
+                function updateSlider(value) {
+                    // Calculate percentage for positioning
+                    const percent = ((value - slider.min) / (slider.max - slider.min)) * 100;
+                    
+                    // Update filled track
+                    filledTrack.style.width = percent + '%';
+                    
+                    // Update thumb position and value
+                    sliderThumb.style.left = percent + '%';
+                    thumbValue.textContent = value;
+                    yearValue.textContent = value;
+                }
+                
+                function updateYearDisplay(yearsBack) {
+                    // Calculate and display the starting year
+                    const calculatedYear = thisYear - parseInt(yearsBack);
+                    startYear.textContent = calculatedYear;
+                }
+                
+                function generateYearMarkers() {
+                    yearMarkers.innerHTML = '';
+                    
+                    for (let i = parseInt(slider.min); i <= parseInt(slider.max); i += 2) {
+                        if (i % 2 === 0 || i === parseInt(slider.min) || i === parseInt(slider.max)) {
+                            const marker = document.createElement('div');
+                            marker.className = 'text-xs text-gray-500';
+                            marker.textContent = thisYear - i;
+                            yearMarkers.appendChild(marker);
+                        }
+                    }
+                }
+                
+                // Initialize slider position
+                updateSlider(slider.value);
+            }
+            
+            // FDA Tool Search Functionality
+            const searchButton = document.getElementById('searchButton');
+            const drugSearch = document.getElementById('drugSearch');
+            const conditionSearch = document.getElementById('conditionSearch');
+            
+            if (searchButton && drugSearch && conditionSearch) {
+                // Handle search button click
+                searchButton.addEventListener('click', function() {
+                    handleSearch();
+                });
+                
+                // Handle enter key on input fields
+                [drugSearch, conditionSearch].forEach(input => {
+                    input.addEventListener('keypress', function(e) {
+                        if (e.key === 'Enter') {
+                            handleSearch();
+                        }
+                    });
+                });
+                
+                function handleSearch() {
+                    const drug = drugSearch.value.trim();
+                    const condition = conditionSearch.value.trim();
+                    const yearsBack = slider.value;
+                    
+                    // Redirect to inteltool.html with parameters
+                    const finalUrl = './inteltool.html';
+                    window.location.href = finalUrl;
+                }
+            }
+            
+            // Counter animation
+            const counters = document.querySelectorAll('.counter-value');
+            const speed = 200;
+            
+            counters.forEach(counter => {
+                const animate = () => {
+                    const value = +counter.getAttribute('data-target');
+                    const data = +counter.innerText;
+                    const time = value / speed;
+                    
+                    if (data < value) {
+                        counter.innerText = Math.ceil(data + time);
+                        setTimeout(animate, 1);
+                    } else {
+                        counter.innerText = value;
+                    }
+                }
+                
+                animate();
+            });
+            
+            // Back to top button
+            const backToTopButton = document.getElementById('backToTop');
+            
+            window.addEventListener('scroll', () => {
+                if (window.pageYOffset > 300) {
+                    backToTopButton.classList.add('opacity-100');
+                    backToTopButton.classList.remove('opacity-0');
+                    backToTopButton.classList.add('pointer-events-auto');
+                    backToTopButton.classList.remove('pointer-events-none');
+                } else {
+                    backToTopButton.classList.remove('opacity-100');
+                    backToTopButton.classList.add('opacity-0');
+                    backToTopButton.classList.remove('pointer-events-auto');
+                    backToTopButton.classList.add('pointer-events-none');
+                }
+            });
+            
+            backToTopButton.addEventListener('click', () => {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // demo-form.js - Add this file to your project and include it in your demo page
+
+document.addEventListener('DOMContentLoaded', function() {
+  // Get form elements
+  const demoForm = document.getElementById('demo-booking-form');
+  const submitBtn = document.getElementById('demo-submit-btn');
+  
+  if (!demoForm) return;
+  
+  // Capture UTM parameters on page load
+  captureUtmParams();
+  
+  // Check for LinkedIn lead data and prefill form
+  prefillFormWithLinkedInData('demo-booking-form');
+  
+  // Handle form submission
+  demoForm.addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    // Validate form
+    if (!validateDemoForm()) {
+      return;
+    }
+    
+    // Show loading state
+    submitBtn.disabled = true;
+    submitBtn.innerText = 'Submitting...';
+    submitBtn.classList.add('opacity-70');
+    
+    // Gather form data
+    const formData = {
+      firstName: document.getElementById('firstName').value.trim(),
+      lastName: document.getElementById('lastName').value.trim(),
+      email: document.getElementById('email').value.trim(),
+      company: document.getElementById('website').value.trim(),
+      companyRevenueRange: getRevenueRange(),
+      agreeToTerms: document.getElementById('privacy').checked,
+      // Include UTM parameters
+      utm_source: document.getElementById('utm_source').value,
+      utm_medium: document.getElementById('utm_medium').value,
+      utm_campaign: document.getElementById('utm_campaign').value,
+      utm_content: document.getElementById('utm_content').value,
+      utm_term: document.getElementById('utm_term').value
+    };
+    
+    // Submit data
+    fetch('/api/demo', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(formData)
+    })
+    .then(response => response.json())
+    .then(data => {
+      submitBtn.disabled = false;
+      submitBtn.innerText = 'Schedule Your Demo';
+      submitBtn.classList.remove('opacity-70');
+      
+      if (data.success) {
+        // Show success message
+        showSuccessMessage();
+        // Reset form
+        demoForm.reset();
+        // Track conversion
+        trackConversion();
+      } else {
+        // Show error
+        showErrorMessage(data.error || 'Something went wrong. Please try again.');
+      }
+    })
+    .catch(error => {
+      console.error('Error submitting demo request:', error);
+      submitBtn.disabled = false;
+      submitBtn.innerText = 'Schedule Your Demo';
+      submitBtn.classList.remove('opacity-70');
+      showErrorMessage('An error occurred. Please try again later.');
+    });
+  });
+  
+  // Form validation function
+  function validateDemoForm() {
+    let isValid = true;
+    
+    // Validate first name
+    const firstName = document.getElementById('firstName');
+    if (!firstName.value.trim()) {
+      markInvalid(firstName);
+      isValid = false;
+    } else {
+      markValid(firstName);
+    }
+    
+    // Validate last name
+    const lastName = document.getElementById('lastName');
+    if (!lastName.value.trim()) {
+      markInvalid(lastName);
+      isValid = false;
+    } else {
+      markValid(lastName);
+    }
+    
+    // Validate email
+    const email = document.getElementById('email');
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email.value.trim() || !emailRegex.test(email.value.trim())) {
+      markInvalid(email);
+      isValid = false;
+    } else {
+      markValid(email);
+    }
+    
+    // Validate privacy checkbox
+    const privacy = document.getElementById('privacy');
+    if (!privacy.checked) {
+      isValid = false;
+      alert('Please agree to the Privacy Policy and Terms of Service.');
+    }
+    
+    return isValid;
+  }
+  
+  // Helper function for field validation - mark invalid
+  function markInvalid(field) {
+    field.classList.add('border-red-500', 'bg-red-50');
+    field.classList.remove('border-gray-300');
+  }
+  
+  // Helper function for field validation - mark valid
+  function markValid(field) {
+    field.classList.remove('border-red-500', 'bg-red-50');
+    field.classList.add('border-gray-300');
+  }
+  
+  // Get revenue range
+  function getRevenueRange() {
+    const select = document.getElementById('companySize');
+    const value = select.value;
+    
+    // Map the values to the format expected by the API
+    const rangeMappings = {
+      'under10M': 'Under $10M',
+      '10M-50M': '$10M - $50M',
+      '50M-100M': '$50M - $100M',
+      'over100M': 'Over $100M'
+    };
+    
+    return rangeMappings[value] || null;
+  }
+  
+  // Show success message
+  function showSuccessMessage() {
+    // Create success message element
+    const successElement = document.createElement('div');
+    successElement.className = 'bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-6';
+    successElement.innerHTML = `
+      <strong class="font-bold">Success!</strong>
+      <span class="block sm:inline"> Your demo request has been submitted. We'll be in touch soon to schedule your personalized demo.</span>
+    `;
+    
+    // Insert before form
+    demoForm.parentNode.insertBefore(successElement, demoForm);
+    
+    // Scroll to success message
+    successElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    
+    // Remove after delay
+    setTimeout(() => {
+      successElement.remove();
+    }, 10000);
+  }
+  
+  // Show error message
+  function showErrorMessage(message) {
+    // Create error message element
+    const errorElement = document.createElement('div');
+    errorElement.className = 'bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-6';
+    errorElement.innerHTML = `
+      <strong class="font-bold">Error!</strong>
+      <span class="block sm:inline"> ${message}</span>
+    `;
+    
+    // Insert before form
+    demoForm.parentNode.insertBefore(errorElement, demoForm);
+    
+    // Scroll to error message
+    errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    
+    // Remove after delay
+    setTimeout(() => {
+      errorElement.remove();
+    }, 5000);
+  }
+  
+  // Track conversion
+  function trackConversion() {
+    // Google Analytics event
+    if (typeof gtag === 'function') {
+      gtag('event', 'generate_lead', {
+        'event_category': 'demo',
+        'event_label': 'Demo Request'
+      });
+    }
+    
+    // Facebook pixel
+    if (typeof fbq === 'function') {
+      fbq('track', 'Lead');
+    }
+    
+    // LinkedIn Insight Tag
+    if (typeof window._linkedin_data_partner_ids !== 'undefined') {
+      window.lintrk('track', { conversion_id: 'demo_request' });
+    }
+  }
+  
+  // Capture UTM parameters from URL and store in hidden form fields
+  function captureUtmParams() {
+    const params = new URLSearchParams(window.location.search);
+    const utmParams = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'];
+    
+    utmParams.forEach(param => {
+      if (params.has(param)) {
+        const field = document.getElementById(param);
+        if (field) {
+          field.value = params.get(param);
+        }
+      }
+    });
+  }
+});
+
+/**
+ * Captures LinkedIn lead parameters from URL and submits to your backend
+ * This function is from the LinkedIn lead capture code
+ */
+function prefillFormWithLinkedInData(formId) {
+  // Check if we have LinkedIn data stored
+  const storedData = sessionStorage.getItem('linkedInLeadData');
+  if (!storedData) return;
+  
+  try {
+    const data = JSON.parse(storedData);
+    const form = document.getElementById(formId);
+    if (!form) return;
+    
+    // Map LinkedIn fields to your form fields
+    const fieldMappings = {
+      'firstName': ['firstName', 'first_name', 'fname'],
+      'lastName': ['lastName', 'last_name', 'lname'],
+      'email': ['email', 'emailAddress', 'business_email'],
+      'company': ['company', 'companyName', 'organization'],
+      'phone': ['phone', 'phoneNumber', 'business_phone'],
+      'jobTitle': ['jobTitle', 'title', 'position']
+    };
+    
+    // Pre-fill form fields if they exist
+    Object.keys(fieldMappings).forEach(formField => {
+      const input = form.querySelector(`[name="${formField}"]`);
+      if (!input) return;
+      
+      // Try each possible LinkedIn field name until we find a match
+      for (const linkedInField of fieldMappings[formField]) {
+        if (data[linkedInField]) {
+          input.value = data[linkedInField];
+          break;
+        }
+      }
+    });
+    
+    // Also pre-fill UTM fields if the form has them
+    const utmFields = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'];
+    utmFields.forEach(field => {
+      const input = form.querySelector(`[name="${field}"]`);
+      if (input && data[field]) {
+        input.value = data[field];
+      }
+    });
+  } catch (e) {
+    console.error('Error pre-filling form with LinkedIn data:', e);
+  }
+}
+    </script>
+    <script src="./user-tracker.js"></script>
+</body>
+</html>

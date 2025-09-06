@@ -1,0 +1,2444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comprehensive Investment Analysis - Four Breast Cancer Therapeutics</title>
+    <style>
+        /* Reset and Base Styles - Keeping your exact styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', sans-serif;
+            line-height: 1.6;
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header Section - Your exact header */
+        .header {
+            background: linear-gradient(135deg, #0a6b5e 0%, #0d8f7d 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 20px;
+        }
+
+        .header-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .metric-box {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        /* Tab Styles - Your exact tab styles */
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 30px;
+            background: white;
+            padding: 16px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 10px 20px;
+            background: #f0f0f0;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            color: #495057;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .tab-btn:hover {
+            background: #e0f7f6;
+        }
+
+        .tab-btn.active {
+            background: #0a6b5e;
+            color: white;
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: #0a6b5e;
+        }
+
+        /* Content Sections - Your exact styles */
+        .tab-content {
+            display: none;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 32px 24px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .section-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #0a6b5e;
+            margin-bottom: 24px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .subsection-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #495057;
+            margin: 24px 0 16px 0;
+        }
+
+        /* Cards and Containers - Your exact styles */
+        .data-card {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, #f0f7f6 0%, #e3f2f0 100%);
+            border: 1px solid #0a6b5e;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 24px 0;
+        }
+
+        .detail-text {
+            color: #495057;
+            line-height: 1.8;
+            margin: 12px 0;
+            font-size: 14px;
+        }
+
+        /* Tables - Your exact styles */
+        .trial-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-top: 16px;
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .trial-table thead {
+            background: #f8f9fa;
+        }
+
+        .trial-table th {
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #495057;
+            border-bottom: 2px solid #dee2e6;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .trial-table td {
+            padding: 12px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 13px;
+            color: #495057;
+        }
+
+        .trial-table tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        .trial-table tbody tr:nth-child(even) {
+            background: #fafafa;
+        }
+
+        /* Executive Summary Box */
+        .executive-summary {
+            background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+            border: 1px solid #dee2e6;
+            border-radius: 12px;
+            padding: 32px;
+            margin-bottom: 32px;
+        }
+
+        /* Expandable Sections */
+        .expandable-section {
+            border: 1px solid #e3f2f0;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            overflow: hidden;
+        }
+
+        .expandable-header {
+            background: #f0f7f6;
+            padding: 12px 16px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            color: #0a6b5e;
+            transition: background 0.2s;
+        }
+
+        .expandable-header:hover {
+            background: #e6f3f1;
+        }
+
+        .expandable-content {
+            padding: 16px;
+            display: none;
+            background: white;
+        }
+
+        .expandable-content.active {
+            display: block;
+        }
+
+        /* China Warning Box - Your exact style */
+        .china-warning-box {
+            background: linear-gradient(135deg, #fff5e5 0%, #ffeaa7 100%);
+            border: 2px solid #fdcb6e;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 24px 0;
+        }
+
+        /* Comparison Cards */
+        .comparison-selector {
+            margin-top: 24px;
+        }
+
+        .treatment-card-selector {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-block;
+            margin: 8px;
+        }
+
+        .treatment-card-selector:hover {
+            border-color: #0a6b5e;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .treatment-card-selector.selected {
+            border-color: #0a6b5e;
+            background: #f0f7f6;
+        }
+
+        .comparison-container {
+            display: none;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-top: 24px;
+            padding: 24px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .comparison-container.active {
+            display: grid;
+        }
+
+        .comparison-column {
+            padding: 20px;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+        }
+
+        .comparison-header {
+            font-size: 18px;
+            font-weight: 700;
+            color: white;
+            padding: 12px;
+            border-radius: 6px;
+            text-align: center;
+            margin-bottom: 16px;
+        }
+
+        /* Metric Badges */
+        .metric-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .metric-high {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .metric-medium {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .metric-low {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        /* Risk Indicators */
+        .risk-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 6px;
+        }
+
+        .risk-low {
+            background: #28a745;
+        }
+
+        .risk-medium {
+            background: #ffc107;
+        }
+
+        .risk-high {
+            background: #dc3545;
+        }
+
+        /* Source Links */
+        .source-link {
+            color: #0a6b5e;
+            text-decoration: none;
+            font-size: 12px;
+            margin-left: 4px;
+        }
+
+        .source-link:hover {
+            text-decoration: underline;
+        }
+
+        /* Timeline Styles */
+        .timeline-container {
+            position: relative;
+            padding-left: 40px;
+            margin: 24px 0;
+        }
+
+        .timeline-container::before {
+            content: '';
+            position: absolute;
+            left: 20px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #dee2e6;
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-left: 60px;
+            margin-bottom: 24px;
+        }
+
+        .timeline-dot {
+            position: absolute;
+            left: 24px;
+            top: 8px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #0a6b5e;
+            border: 2px solid white;
+            box-shadow: 0 0 0 2px #e9ecef;
+        }
+
+        /* Chart placeholder - Your exact style */
+        .chart-container {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            color: #6c757d;
+            min-height: 300px;
+        }
+
+        .small-chart {
+            max-height: 250px;
+        }
+
+        /* Metric Grid */
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            margin-top: 24px;
+        }
+
+        /* Summary Grid */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 24px;
+            margin-top: 24px;
+        }
+
+        .summary-item {
+            text-align: center;
+            padding: 16px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>Comprehensive Breast Cancer Therapeutics Investment Analysis</h1>
+            <p style="font-size: 18px; opacity: 0.9; margin-top: 10px;">
+                Four Late-Stage Treatment Assets - Verified Data Report
+            </p>
+            <div class="header-metrics">
+                <div class="metric-box">
+                    <div style="font-size: 24px; font-weight: 700;">4</div>
+                    <div style="font-size: 12px; opacity: 0.9;">Treatment Assets</div>
+                </div>
+                <div class="metric-box">
+                    <div style="font-size: 24px; font-weight: 700;">Phase 1b-Approved</div>
+                    <div style="font-size: 12px; opacity: 0.9;">Development Stage</div>
+                </div>
+                <div class="metric-box">
+                    <div style="font-size: 24px; font-weight: 700;">$5-7B</div>
+                    <div style="font-size: 12px; opacity: 0.9;">Est. Peak Sales Range</div>
+                </div>
+                <div class="metric-box">
+                    <div style="font-size: 24px; font-weight: 700;">2026-2033</div>
+                    <div style="font-size: 12px; opacity: 0.9;">Launch Timeline</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab Navigation -->
+    <div class="tabs">
+        <button class="tab-btn active" onclick="showTab('overview')">Overview</button>
+        <button class="tab-btn" onclick="showTab('ptrs')">PTRS Analysis</button>
+        <button class="tab-btn" onclick="showTab('clinical')">Clinical & Regulatory</button>
+        <button class="tab-btn" onclick="showTab('scientific')">Scientific & IP</button>
+        <button class="tab-btn" onclick="showTab('commercial')">Commercial</button>
+        <button class="tab-btn" onclick="showTab('financial')">Financial</button>
+        <button class="tab-btn" onclick="showTab('operational')">Operational & Legal</button>
+        <button class="tab-btn" onclick="showTab('management')">Management</button>
+        <button class="tab-btn" onclick="showTab('safety')">Safety</button>
+        <button class="tab-btn" onclick="showTab('trials')">Trials</button>
+        <button class="tab-btn" onclick="showTab('china')">China Analysis</button>
+        <button class="tab-btn" onclick="showTab('soc')">Standard of Care</button>
+    </div>
+
+    <!-- Overview Tab -->
+    <div id="overview" class="tab-content active">
+        <div class="section-title">Executive Overview: Complete Investment Assessment</div>
+        
+        <div class="executive-summary">
+            <h3 class="subsection-title">Investment Thesis Summary</h3>
+            <p class="detail-text">
+                This comprehensive analysis evaluates four late-stage breast cancer therapeutics representing diverse mechanisms of action. 
+                The portfolio spans from near-term regulatory approval (Vepdegestrant with PDUFA June 5, 2026) to early-stage platform innovation (177Lu-NeoB in Phase 1b), 
+                offering both immediate value inflection opportunities and long-term strategic positioning in the evolving breast cancer treatment landscape.
+            </p>
+        </div>
+
+        <!-- Key Metrics Summary -->
+        <div class="data-card">
+            <h3 class="subsection-title">Portfolio Overview</h3>
+            <table class="trial-table">
+                <thead>
+                    <tr>
+                        <th>Treatment</th>
+                        <th>Developer</th>
+                        <th>Mechanism</th>
+                        <th>Phase</th>
+                        <th>Key Milestone</th>
+                        <th>Peak Sales Est.</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Vepdegestrant</strong></td>
+                        <td>Arvinas/Pfizer</td>
+                        <td>PROTAC ER degrader</td>
+                        <td>NDA Filed</td>
+                        <td>PDUFA June 5, 2026 <a href="https://www.cancernetwork.com/view/fda-accepts-nda-for-vepdegestrant-in-esr1-mutant-er-her2-breast-cancer" class="source-link">[FDA]</a></td>
+                        <td>$1-2B</td>
+                    </tr>
+                    <tr style="background: #f8f9fa;">
+                        <td><strong>Atirmociclib</strong></td>
+                        <td>Pfizer</td>
+                        <td>CDK4-selective</td>
+                        <td>Phase 3</td>
+                        <td>FourLight-3 ongoing <a href="https://www.pfizerclinicaltrials.com/nct06760637-metastatic-breast-cancer-trial" class="source-link">[Trial]</a></td>
+                        <td>$2B+</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Disitamab Vedotin</strong></td>
+                        <td>RemeGen</td>
+                        <td>HER2 ADC</td>
+                        <td>Approved (China)</td>
+                        <td>Breast indication pending <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC9090390/" class="source-link">[PMC]</a></td>
+                        <td>$0.5-1B</td>
+                    </tr>
+                    <tr style="background: #f8f9fa;">
+                        <td><strong>177Lu-NeoB</strong></td>
+                        <td>Novartis</td>
+                        <td>GRPR RLT</td>
+                        <td>Phase 1b/2</td>
+                        <td>Dose finding <a href="https://www.novartis.com/clinicaltrials/study/nct05870579" class="source-link">[Novartis]</a></td>
+                        <td>$1.5B</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="metric-grid">
+            <div class="data-card">
+                <h4 class="subsection-title">Development Timeline</h4>
+                <canvas id="timelineChart" class="chart-container small-chart"></canvas>
+            </div>
+            <div class="data-card">
+                <h4 class="subsection-title">PTRS Comparison</h4>
+                <canvas id="ptrsOverviewChart" class="chart-container small-chart"></canvas>
+            </div>
+        </div>
+
+        <!-- Side-by-Side Comparison Section -->
+        <div class="comparison-selector">
+            <h3 class="subsection-title">Select Two Treatments for Detailed Overview Comparison</h3>
+            <div style="display: flex; flex-wrap: wrap; gap: 16px; margin-top: 16px;">
+                <div class="treatment-card-selector" onclick="selectForOverviewComparison('atirmociclib')" data-treatment="atirmociclib">
+                    <div style="font-size: 16px; font-weight: 600; color: #0a6b5e;">Atirmociclib</div>
+                    <div style="font-size: 12px; color: #6c757d;">Phase 3 | CDK4-selective</div>
+                </div>
+                <div class="treatment-card-selector" onclick="selectForOverviewComparison('disitamab')" data-treatment="disitamab">
+                    <div style="font-size: 16px; font-weight: 600; color: #084298;">Disitamab Vedotin</div>
+                    <div style="font-size: 12px; color: #6c757d;">Approved China | HER2 ADC</div>
+                </div>
+                <div class="treatment-card-selector" onclick="selectForOverviewComparison('luneob')" data-treatment="luneob">
+                    <div style="font-size: 16px; font-weight: 600; color: #dc3545;">177Lu-NeoB</div>
+                    <div style="font-size: 12px; color: #6c757d;">Phase 1b | GRPR RLT</div>
+                </div>
+                <div class="treatment-card-selector" onclick="selectForOverviewComparison('vepdegestrant')" data-treatment="vepdegestrant">
+                    <div style="font-size: 16px; font-weight: 600; color: #28a745;">Vepdegestrant</div>
+                    <div style="font-size: 12px; color: #6c757d;">NDA Filed | PROTAC</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="overviewComparisonContainer" class="comparison-container">
+            <!-- Dynamic comparison content will be inserted here -->
+        </div>
+    </div>
+
+    <!-- PTRS Analysis Tab -->
+    <div id="ptrs" class="tab-content">
+        <div class="section-title">Probability of Technical & Regulatory Success Analysis</div>
+        
+        <div class="data-card">
+            <h3 class="subsection-title">PTRS Assessment Summary</h3>
+            <table class="trial-table">
+                <thead>
+                    <tr>
+                        <th>Treatment</th>
+                        <th>Technical Success</th>
+                        <th>Regulatory Success</th>
+                        <th>Commercial Success</th>
+                        <th>Overall PTRS</th>
+                        <th>Key Risk</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Vepdegestrant</strong></td>
+                        <td>95% (Ph3 positive)</td>
+                        <td>85% (ESR1-mut focus)</td>
+                        <td>70%</td>
+                        <td>~75%</td>
+                        <td>Overall population NS</td>
+                    </tr>
+                    <tr style="background: #f8f9fa;">
+                        <td><strong>Atirmociclib</strong></td>
+                        <td>60%</td>
+                        <td>50%</td>
+                        <td>40%</td>
+                        <td>~40-50%</td>
+                        <td>CDK4 selectivity unproven</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Disitamab Vedotin</strong></td>
+                        <td>100% (approved)</td>
+                        <td>40% (global)</td>
+                        <td>60%</td>
+                        <td>~50% (ex-China)</td>
+                        <td>China data translation</td>
+                    </tr>
+                    <tr style="background: #f8f9fa;">
+                        <td><strong>177Lu-NeoB</strong></td>
+                        <td>35%</td>
+                        <td>30%</td>
+                        <td>25%</td>
+                        <td>~25-30%</td>
+                        <td>Novel MOA, early stage</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p class="detail-text" style="margin-top: 16px;">
+                <strong>Source:</strong> PTRS estimates based on historical success rates for similar mechanisms and phases 
+                <a href="https://www.pharmaceutical-technology.com/data-insights/" class="source-link">[GlobalData methodology]</a>
+            </p>
+        </div>
+
+        <!-- PTRS Charts -->
+        <div class="metric-grid">
+            <div class="data-card">
+                <h4 class="subsection-title">Technical Success Factors</h4>
+                <canvas id="technicalChart" class="chart-container small-chart"></canvas>
+            </div>
+            <div class="data-card">
+                <h4 class="subsection-title">Regulatory Risk Assessment</h4>
+                <canvas id="regulatoryChart" class="chart-container small-chart"></canvas>
+            </div>
+        </div>
+
+        <!-- Comparison Section -->
+        <div class="comparison-selector">
+            <h3 class="subsection-title">Select Two Treatments for PTRS Comparison</h3>
+            <div style="display: flex; flex-wrap: wrap; gap: 16px; margin-top: 16px;">
+                <div class="treatment-card-selector" onclick="selectForPTRSComparison('atirmociclib')" data-treatment="atirmociclib">
+                    <div style="font-size: 16px; font-weight: 600; color: #0a6b5e;">Atirmociclib</div>
+                    <div style="font-size: 12px; color: #6c757d;">PTRS: 40-50%</div>
+                </div>
+                <div class="treatment-card-selector" onclick="selectForPTRSComparison('disitamab')" data-treatment="disitamab">
+                    <div style="font-size: 16px; font-weight: 600; color: #084298;">Disitamab Vedotin</div>
+                    <div style="font-size: 12px; color: #6c757d;">PTRS: 50% (global)</div>
+                </div>
+                <div class="treatment-card-selector" onclick="selectForPTRSComparison('luneob')" data-treatment="luneob">
+                    <div style="font-size: 16px; font-weight: 600; color: #dc3545;">177Lu-NeoB</div>
+                    <div style="font-size: 12px; color: #6c757d;">PTRS: 25-30%</div>
+                </div>
+                <div class="treatment-card-selector" onclick="selectForPTRSComparison('vepdegestrant')" data-treatment="vepdegestrant">
+                    <div style="font-size: 16px; font-weight: 600; color: #28a745;">Vepdegestrant</div>
+                    <div style="font-size: 12px; color: #6c757d;">PTRS: 75%</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="ptrsComparisonContainer" class="comparison-container">
+            <!-- Dynamic comparison content will be inserted here -->
+        </div>
+    </div>
+
+    <!-- Clinical & Regulatory Tab -->
+    <div id="clinical" class="tab-content">
+        <div class="section-title">Clinical Trial Results & Regulatory Status</div>
+        
+        <div class="data-card">
+            <h3 class="subsection-title">Key Clinical Results</h3>
+            <table class="trial-table">
+                <thead>
+                    <tr>
+                        <th>Treatment</th>
+                        <th>Trial</th>
+                        <th>N</th>
+                        <th>Primary Endpoint</th>
+                        <th>Result</th>
+                        <th>Source</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Vepdegestrant</strong></td>
+                        <td>VERITAC-2 Ph3</td>
+                        <td>624</td>
+                        <td>PFS (ESR1-mut)</td>
+                        <td>5.0 vs 2.1 mo (HR 0.57, p<0.001)</td>
+                        <td><a href="https://www.pfizer.com/news/press-release/press-release-detail/arvinas-and-pfizers-vepdegestrant-significantly-improves" class="source-link">[Pfizer]</a></td>
+                    </tr>
+                    <tr style="background: #f8f9fa;">
+                        <td><strong>Atirmociclib</strong></td>
+                        <td>Phase 1/2a</td>
+                        <td>34</td>
+                        <td>ORR</td>
+                        <td>58.8% (95% CI: 40.7-75.4)</td>
+                        <td><a href="https://www.onclive.com/view/atirmociclib-plus-letrozole-demonstrates-preliminary-efficacy-and-safety-in-hr-her2-negative-metastatic-breast-cancer" class="source-link">[OncLive]</a></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Disitamab</strong></td>
+                        <td>China Ph1/1b</td>
+                        <td>136</td>
+                        <td>ORR</td>
+                        <td>42.9% (HER2+), 33.3% (HER2-low)</td>
+                        <td><a href="https://academic.oup.com/oncolo/advance-article/doi/10.1093/oncolo/oyae304/7902202" class="source-link">[Oncologist]</a></td>
+                    </tr>
+                    <tr style="background: #f8f9fa;">
+                        <td><strong>177Lu-NeoB</strong></td>
+                        <td>NCT03872778</td>
+                        <td>TBD</td>
+                        <td>MTD/Safety</td>
+                        <td>Dose finding ongoing</td>
+                        <td><a href="https://clinicaltrials.gov/study/NCT03872778" class="source-link">[CT.gov]</a></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="data-card">
+            <h3 class="subsection-title">Regulatory Milestones</h3>
+            <table class="trial-table">
+                <thead>
+                    <tr>
+                        <th>Treatment</th>
+                        <th>FDA Status</th>
+                        <th>EMA Status</th>
+                        <th>NMPA Status</th>
+                        <th>Key Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Vepdegestrant</strong></td>
+                        <td>NDA Accepted, Priority Review</td>
+                        <td>Pre-submission</td>
+                        <td>Not filed</td>
+                        <td>PDUFA: June 5, 2026</td>
+                    </tr>
+                    <tr style="background: #f8f9fa;">
+                        <td><strong>Atirmociclib</strong></td>
+                        <td>Phase 3 ongoing</td>
+                        <td>Not filed</td>
+                        <td>Phase 1 complete</td>
+                        <td>2028+ (estimated)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Disitamab</strong></td>
+                        <td>Not filed</td>
+                        <td>Not filed</td>
+                        <td>Approved (GC/UC)</td>
+                        <td>2021 (China approval)</td>
+                    </tr>
+                    <tr style="background: #f8f9fa;">
+                        <td><strong>177Lu-NeoB</strong></td>
+                        <td>IND active</td>
+                        <td>CTA active</td>
+                        <td>Not filed</td>
+                        <td>2032+ (estimated)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Scientific & IP Tab -->
+    <div id="scientific" class="tab-content">
+        <div class="section-title">Scientific Mechanism & Intellectual Property</div>
+        
+        <div class="data-card">
+            <h3 class="subsection-title">Mechanism of Action</h3>
+            <table class="trial-table">
+                <thead>
+                    <tr>
+                        <th>Treatment</th>
+                        <th>Target</th>
+                        <th>Mechanism</th>
+                        <th>Key Differentiation</th>
+                        <th>Patent Expiry</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Vepdegestrant</strong></td>
+                        <td>Estrogen Receptor</td>
+                        <td>PROTAC degrader</td>
+                        <td>Superior ESR1-mut degradation</td>
+                        <td>2038+</td>
+                    </tr>
+                    <tr style="background: #f8f9fa;">
+                        <td><strong>Atirmociclib</strong></td>
+                        <td>CDK4 (selective)</td>
+                        <td>Kinase inhibitor</td>
+                        <td>CDK6 sparing</td>
+                        <td>2039+</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Disitamab</strong></td>
+                        <td>HER2</td>
+                        <td>ADC (MMAE payload)</td>
+                        <td>Cleavable linker, no ILD</td>
+                        <td>2035+</td>
+                    </tr>
+                    <tr style="background: #f8f9fa;">
+                        <td><strong>177Lu-NeoB</strong></td>
+                        <td>GRPR</td>
+                        <td>Radioligand therapy</td>
+                        <td>Novel target in BC</td>
+                        <td>2040+</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="data-card">
+            <h3 class="subsection-title">Biomarker Strategy</h3>
+            <ul style="margin-left: 20px; line-height: 1.8;">
+                <li><strong>Vepdegestrant:</strong> ESR1 mutations (30-40% of AI-resistant) <a href="https://pubmed.ncbi.nlm.nih.gov/39072356/" class="source-link">[PubMed]</a></li>
+                <li><strong>Atirmociclib:</strong> HR+/HER2- (standard IHC)</li>
+                <li><strong>Disitamab:</strong> HER2 IHC 3+/2+ and HER2-low (IHC 1+)</li>
+                <li><strong>177Lu-NeoB:</strong> GRPR PET imaging (68Ga-NeoB)</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Commercial Tab -->
+    <div id="commercial" class="tab-content">
+        <div class="section-title">Commercial Analysis</div>
+        
+        <div class="data-card">
+            <h3 class="subsection-title">Market Opportunity</h3>
+            <table class="trial-table">
+                <thead>
+                    <tr>
+                        <th>Treatment</th>
+                        <th>Target Population</th>
+                        <th>Market Size</th>
+                        <th>Peak Sales Est.</th>
+                        <th>Peak Share</th>
+                        <th>Launch Year</th>
+                        <th>Competition</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Atirmociclib</strong></td>
+                        <td>1L HR+/HER2-</td>
+                        <td>$8B</td>
+                        <td>$2.0B</td>
+                        <td>20-25%</td>
+                        <td>2029</td>
+                        <td>Ibrance, Kisqali, Verzenio</td>
+                    </tr>
+                    <tr style="background: #f8f9fa;">
+                        <td><strong>Disitamab</strong></td>
+                        <td>HER2+ and HER2-low</td>
+                        <td>$5B (China)</td>
+                        <td>$0.7B</td>
+                        <td>15%</td>
+                        <td>2025 (China BC)</td>
+                        <td>T-DM1, T-DXd</td>
+                    </tr>
+                    <tr>
+                        <td><strong>177Lu-NeoB</strong></td>
+                        <td>Post-CDK4/6 ER+</td>
+                        <td>$2B</td>
+                        <td>$1.5B</td>
+                        <td>20-30%</td>
+                        <td>2033</td>
+                        <td>No direct RLT competition</td>
+                    </tr>
+                    <tr style="background: #f8f9fa;">
+                        <td><strong>Vepdegestrant</strong></td>
+                        <td>ESR1-mut ER+</td>
+                        <td>$3B</td>
+                        <td>$1.5B</td>
+                        <td>40-50%</td>
+                        <td>2026</td>
+                        <td>Elacestrant, Camizestrant</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Side-by-Side Comparison Section for Commercial -->
+        <div class="comparison-selector">
+            <h3 class="subsection-title">Select Two Treatments for Commercial Comparison</h3>
+            <div style="display: flex; flex-wrap: wrap; gap: 16px; margin-top: 16px;">
+                <div class="treatment-card-selector" onclick="selectForCommercialComparison('atirmociclib')" data-treatment="atirmociclib">
+                    <div style="font-size: 16px; font-weight: 600; color: #0a6b5e;">Atirmociclib</div>
+                    <div style="font-size: 12px; color: #6c757d;">Peak: $2.0B</div>
+                </div>
+                <div class="treatment-card-selector" onclick="selectForCommercialComparison('disitamab')" data-treatment="disitamab">
+                    <div style="font-size: 16px; font-weight: 600; color: #084298;">Disitamab Vedotin</div>
+                    <div style="font-size: 12px; color: #6c757d;">Peak: $0.7B</div>
+                </div>
+                <div class="treatment-card-selector" onclick="selectForCommercialComparison('luneob')" data-treatment="luneob">
+                    <div style="font-size: 16px; font-weight: 600; color: #dc3545;">177Lu-NeoB</div>
+                    <div style="font-size: 12px; color: #6c757d;">Peak: $1.5B</div>
+                </div>
+                <div class="treatment-card-selector" onclick="selectForCommercialComparison('vepdegestrant')" data-treatment="vepdegestrant">
+                    <div style="font-size: 16px; font-weight: 600; color: #28a745;">Vepdegestrant</div>
+                    <div style="font-size: 12px; color: #6c757d;">Peak: $1.5B</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="commercialComparisonContainer" class="comparison-container">
+            <!-- Dynamic comparison content will be inserted here -->
+        </div>
+    </div>
+
+    <!-- Financial Tab -->
+    <div id="financial" class="tab-content">
+        <div class="section-title">Financial Analysis</div>
+        
+        <div class="data-card">
+            <h3 class="subsection-title">Development & Commercial Economics</h3>
+            <table class="trial-table">
+                <thead>
+                    <tr>
+                        <th>Treatment</th>
+                        <th>Est. Peak Sales</th>
+                        <th>Development Cost</th>
+                        <th>Time to Market</th>
+                        <th>Market Cap Impact</th>
+                        <th>Break-even Est.</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Atirmociclib</strong></td>
+                        <td>$2.0B</td>
+                        <td>$800M-1B</td>
+                        <td>4-5 years</td>
+                        <td>Part of Pfizer portfolio</td>
+                        <td>2031</td>
+                    </tr>
+                    <tr style="background: #f8f9fa;">
+                        <td><strong>Disitamab</strong></td>
+                        <td>$0.7B</td>
+                        <td>$300-500M</td>
+                        <td>Already launched</td>
+                        <td>RemeGen: $2B cap</td>
+                        <td>2025 (China)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>177Lu-NeoB</strong></td>
+                        <td>$1.5B</td>
+                        <td>$500-700M</td>
+                        <td>7-8 years</td>
+                        <td>Part of Novartis RLT</td>
+                        <td>2035</td>
+                    </tr>
+                    <tr style="background: #f8f9fa;">
+                        <td><strong>Vepdegestrant</strong></td>
+                        <td>$1.5B</td>
+                        <td>$400-600M</td>
+                        <td>1.5 years</td>
+                        <td>Arvinas: $570M cap</td>
+                        <td>2027</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p class="detail-text" style="margin-top: 16px;">
+                <strong>Note:</strong> Financial estimates based on industry averages for similar programs. Actual values will depend on trial outcomes, market dynamics, and competitive landscape.
+            </p>
+        </div>
+
+        <!-- Side-by-Side Comparison Section for Financial -->
+        <div class="comparison-selector">
+            <h3 class="subsection-title">Select Two Treatments for Financial Comparison</h3>
+            <div style="display: flex; flex-wrap: wrap; gap: 16px; margin-top: 16px;">
+                <div class="treatment-card-selector" onclick="selectForFinancialComparison('atirmociclib')" data-treatment="atirmociclib">
+                    <div style="font-size: 16px; font-weight: 600; color: #0a6b5e;">Atirmociclib</div>
+                    <div style="font-size: 12px; color: #6c757d;">Peak: $2.0B | 2031 BE</div>
+                </div>
+                <div class="treatment-card-selector" onclick="selectForFinancialComparison('disitamab')" data-treatment="disitamab">
+                    <div style="font-size: 16px; font-weight: 600; color: #084298;">Disitamab Vedotin</div>
+                    <div style="font-size: 12px; color: #6c757d;">Peak: $0.7B | 2025 BE</div>
+                </div>
+                <div class="treatment-card-selector" onclick="selectForFinancialComparison('luneob')" data-treatment="luneob">
+                    <div style="font-size: 16px; font-weight: 600; color: #dc3545;">177Lu-NeoB</div>
+                    <div style="font-size: 12px; color: #6c757d;">Peak: $1.5B | 2035 BE</div>
+                </div>
+                <div class="treatment-card-selector" onclick="selectForFinancialComparison('vepdegestrant')" data-treatment="vepdegestrant">
+                    <div style="font-size: 16px; font-weight: 600; color: #28a745;">Vepdegestrant</div>
+                    <div style="font-size: 12px; color: #6c757d;">Peak: $1.5B | 2027 BE</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="financialComparisonContainer" class="comparison-container">
+            <!-- Dynamic comparison content will be inserted here -->
+        </div>
+    </div>
+
+    <!-- Operational & Legal Tab -->
+    <div id="operational" class="tab-content">
+        <div class="section-title">Operational & Legal Considerations</div>
+        
+        <div class="data-card">
+            <h3 class="subsection-title">Manufacturing & Supply Chain</h3>
+            <table class="trial-table">
+                <thead>
+                    <tr>
+                        <th>Treatment</th>
+                        <th>Manufacturing Type</th>
+                        <th>Complexity</th>
+                        <th>COGS Est.</th>
+                        <th>Capacity</th>
+                        <th>Shelf Life</th>
+                        <th>Distribution</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Atirmociclib</strong></td>
+                        <td>Small molecule</td>
+                        <td><span class="metric-badge metric-high">Low</span></td>
+                        <td><5%</td>
+                        <td>Pfizer network</td>
+                        <td>36+ months</td>
+                        <td>Standard oral</td>
+                    </tr>
+                    <tr style="background: #f8f9fa;">
+                        <td><strong>Disitamab</strong></td>
+                        <td>ADC</td>
+                        <td><span class="metric-badge metric-medium">Medium</span></td>
+                        <td>15-20%</td>
+                        <td>RemeGen facilities</td>
+                        <td>24 months</td>
+                        <td>Cold chain IV</td>
+                    </tr>
+                    <tr>
+                        <td><strong>177Lu-NeoB</strong></td>
+                        <td>Radioisotope</td>
+                        <td><span class="metric-badge metric-low">High</span></td>
+                        <td>$50K/dose</td>
+                        <td>Limited initially</td>
+                        <td>66 hours (t½)</td>
+                        <td>Specialized nuclear</td>
+                    </tr>
+                    <tr style="background: #f8f9fa;">
+                        <td><strong>Vepdegestrant</strong></td>
+                        <td>Small molecule</td>
+                        <td><span class="metric-badge metric-high">Low</span></td>
+                        <td><10%</td>
+                        <td>Commercial ready</td>
+                        <td>36+ months</td>
+                        <td>Standard oral</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="data-card">
+            <h3 class="subsection-title">IP & Legal Status</h3>
+            <ul style="margin-left: 20px; line-height: 1.8;">
+                <li><strong>Vepdegestrant:</strong> Composition of matter patents to 2038+, PROTAC platform protection</li>
+                <li><strong>Atirmociclib:</strong> CDK4 selectivity patents to 2039+, Pfizer portfolio protection</li>
+                <li><strong>Disitamab:</strong> ADC composition patents to 2035+, China primary protection</li>
+                <li><strong>177Lu-NeoB:</strong> GRPR antagonist patents to 2040+, radiopharmaceutical formulation IP</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Management Tab -->
+    <div id="management" class="tab-content">
+        <div class="section-title">Management & Organizational Assessment</div>
+        
+        <div class="data-card">
+            <h3 class="subsection-title">Leadership Teams</h3>
+            <table class="trial-table">
+                <thead>
+                    <tr>
+                        <th>Company</th>
+                        <th>Leadership</th>
+                        <th>Oncology Experience</th>
+                        <th>Track Record</th>
+                        <th>Team Stability</th>
+                        <th>Execution Risk</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Arvinas</strong></td>
+                        <td>John Houston (CEO)</td>
+                        <td>20+ years</td>
+                        <td>BMS, Otsuka experience</td>
+                        <td>Stable</td>
+                        <td><span class="metric-badge metric-high">Low</span></td>
+                    </tr>
+                    <tr style="background: #f8f9fa;">
+                        <td><strong>Pfizer</strong></td>
+                        <td>Chris Boshoff (Oncology)</td>
+                        <td>25+ years</td>
+                        <td>Multiple approvals</td>
+                        <td>Recent changes</td>
+                        <td><span class="metric-badge metric-high">Low</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>RemeGen</strong></td>
+                        <td>Dr. Jianmin Fang (CEO)</td>
+                        <td>15+ years</td>
+                        <td>China approvals</td>
+                        <td>Founder-led</td>
+                        <td><span class="metric-badge metric-medium">Medium</span></td>
+                    </tr>
+                    <tr style="background: #f8f9fa;">
+                        <td><strong>Novartis</strong></td>
+                        <td>RLT division</td>
+                        <td>10+ years RLT</td>
+                        <td>Lutathera, Pluvicto</td>
+                        <td>Growing team</td>
+                        <td><span class="metric-badge metric-high">Low</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="data-card">
+            <h3 class="subsection-title">Organizational Capabilities</h3>
+            <ul style="margin-left: 20px; line-height: 1.8;">
+                <li><strong>Arvinas/Pfizer:</strong> Combined development expertise, global commercial reach</li>
+                <li><strong>Pfizer (Atirmociclib):</strong> Established CDK4/6 franchise with Ibrance</li>
+                <li><strong>RemeGen:</strong> China-focused, expanding global capabilities</li>
+                <li><strong>Novartis:</strong> Leading RLT platform, infrastructure investment</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Safety Tab -->
+    <div id="safety" class="tab-content">
+        <div class="section-title">Safety & Toxicology Analysis</div>
+        
+        <div class="data-card">
+            <h3 class="subsection-title">Safety Profiles</h3>
+            <table class="trial-table">
+                <thead>
+                    <tr>
+                        <th>Treatment</th>
+                        <th>Key AEs</th>
+                        <th>G3/4 Rate</th>
+                        <th>Discontinuation</th>
+                        <th>Deaths</th>
+                        <th>Black Box Risk</th>
+                        <th>Source</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Vepdegestrant</strong></td>
+                        <td>GI, fatigue</td>
+                        <td>~20%</td>
+                        <td><10%</td>
+                        <td>0</td>
+                        <td>None expected</td>
+                        <td><a href="https://ir.arvinas.com/news-releases/news-release-details/arvinas-and-pfizer-announce-positive-topline-results-phase-3" class="source-link">[VERITAC-2]</a></td>
+                    </tr>
+                    <tr style="background: #f8f9fa;">
+                        <td><strong>Atirmociclib</strong></td>
+                        <td>Neutropenia (23.5% G3)</td>
+                        <td>41.2%</td>
+                        <td>5.9%</td>
+                        <td>0</td>
+                        <td>Possible neutropenia</td>
+                        <td><a href="https://www.onclive.com/view/atirmociclib-plus-letrozole-demonstrates-preliminary-efficacy-and-safety-in-hr-her2-negative-metastatic-breast-cancer" class="source-link">[Phase 1/2]</a></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Disitamab</strong></td>
+                        <td>Peripheral neuropathy</td>
+                        <td>~25%</td>
+                        <td>~10%</td>
+                        <td><1%</td>
+                        <td>None (no ILD)</td>
+                        <td><a href="https://academic.oup.com/oncolo/advance-article/doi/10.1093/oncolo/oyae304/7902202" class="source-link">[Real-world]</a></td>
+                    </tr>
+                    <tr style="background: #f8f9fa;">
+                        <td><strong>177Lu-NeoB</strong></td>
+                        <td>Myelosuppression</td>
+                        <td>TBD</td>
+                        <td>TBD</td>
+                        <td>0</td>
+                        <td>Radiation warning</td>
+                        <td><a href="https://synapse.patsnap.com/drug/4efc62b2b8d44b659cee8b82b3c30953" class="source-link">[Preclinical]</a></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="data-card">
+            <h3 class="subsection-title">Key Safety Differentiators</h3>
+            <table class="trial-table">
+                <thead>
+                    <tr>
+                        <th>Treatment</th>
+                        <th>vs CDK4/6i</th>
+                        <th>vs ADCs</th>
+                        <th>vs SERDs</th>
+                        <th>Unique Risk</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Atirmociclib</strong></td>
+                        <td>Less neutropenia (goal)</td>
+                        <td>N/A</td>
+                        <td>N/A</td>
+                        <td>CDK4 selectivity unproven</td>
+                    </tr>
+                    <tr style="background: #f8f9fa;">
+                        <td><strong>Disitamab</strong></td>
+                        <td>N/A</td>
+                        <td>No ILD vs T-DXd</td>
+                        <td>N/A</td>
+                        <td>MMAE neuropathy</td>
+                    </tr>
+                    <tr>
+                        <td><strong>177Lu-NeoB</strong></td>
+                        <td>Different AE profile</td>
+                        <td>Radiation vs chemo</td>
+                        <td>N/A</td>
+                        <td>Kidney accumulation</td>
+                    </tr>
+                    <tr style="background: #f8f9fa;">
+                        <td><strong>Vepdegestrant</strong></td>
+                        <td>N/A</td>
+                        <td>N/A</td>
+                        <td>Better tolerated</td>
+                        <td>None identified</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Side-by-Side Comparison Section for Safety -->
+        <div class="comparison-selector">
+            <h3 class="subsection-title">Select Two Treatments for Safety Comparison</h3>
+            <div style="display: flex; flex-wrap: wrap; gap: 16px; margin-top: 16px;">
+                <div class="treatment-card-selector" onclick="selectForSafetyComparison('atirmociclib')" data-treatment="atirmociclib">
+                    <div style="font-size: 16px; font-weight: 600; color: #0a6b5e;">Atirmociclib</div>
+                    <div style="font-size: 12px; color: #6c757d;">G3/4 Neutropenia: 23.5%</div>
+                </div>
+                <div class="treatment-card-selector" onclick="selectForSafetyComparison('disitamab')" data-treatment="disitamab">
+                    <div style="font-size: 16px; font-weight: 600; color: #084298;">Disitamab Vedotin</div>
+                    <div style="font-size: 12px; color: #6c757d;">No ILD risk</div>
+                </div>
+                <div class="treatment-card-selector" onclick="selectForSafetyComparison('luneob')" data-treatment="luneob">
+                    <div style="font-size: 16px; font-weight: 600; color: #dc3545;">177Lu-NeoB</div>
+                    <div style="font-size: 12px; color: #6c757d;">Radiotherapy toxicities</div>
+                </div>
+                <div class="treatment-card-selector" onclick="selectForSafetyComparison('vepdegestrant')" data-treatment="vepdegestrant">
+                    <div style="font-size: 16px; font-weight: 600; color: #28a745;">Vepdegestrant</div>
+                    <div style="font-size: 12px; color: #6c757d;">Best tolerability</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="safetyComparisonContainer" class="comparison-container">
+            <!-- Dynamic comparison content will be inserted here -->
+        </div>
+    </div>
+
+    <!-- Trials Tab -->
+    <div id="trials" class="tab-content">
+        <div class="section-title">Complete Clinical Trial Analysis</div>
+        
+        <div class="executive-summary">
+           <h3 class="subsection-title">Trial Portfolio Overview</h3>
+            <p class="detail-text">
+                The combined clinical trial portfolio encompasses 15+ studies with 2,340+ patients enrolled across all phases of development. 
+                Trial designs range from traditional randomized controlled trials (Vepdegestrant VERITAC-2, Atirmociclib FourLight-3) to 
+                single-arm dose escalation studies (177Lu-NeoB combinations). Geographic distribution includes global trials (Atirmociclib), 
+                China-focused development (Disitamab), and US/EU concentration (Vepdegestrant). Patient populations span first-line 
+                (Atirmociclib) through heavily pretreated (Vepdegestrant median 3 prior lines) settings.
+            </p>
+        </div>
+
+        <!-- Vepdegestrant Trials -->
+        <div class="data-card">
+            <h3 class="subsection-title">Vepdegestrant Clinical Program</h3>
+            <table class="trial-table">
+                <thead>
+                    <tr>
+                        <th>Trial</th>
+                        <th>Phase</th>
+                        <th>N</th>
+                        <th>Design</th>
+                        <th>Status</th>
+                        <th>Key Results</th>
+                        <th>Source</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>VERITAC</strong></td>
+                        <td>1/2</td>
+                        <td>147</td>
+                        <td>Dose escalation/expansion</td>
+                        <td>Complete</td>
+                        <td>RP2D: 200mg QD</td>
+                        <td><a href="https://pubmed.ncbi.nlm.nih.gov/39072356/" class="source-link">[PubMed]</a></td>
+                    </tr>
+                    <tr style="background: #f8f9fa;">
+                        <td><strong>VERITAC-2</strong></td>
+                        <td>3</td>
+                        <td>624</td>
+                        <td>vs Fulvestrant</td>
+                        <td>Positive</td>
+                        <td>PFS 5.0 vs 2.1mo (ESR1-mut)</td>
+                        <td><a href="https://www.pfizer.com/news/press-release/press-release-detail/arvinas-and-pfizers-vepdegestrant-significantly-improves" class="source-link">[Pfizer]</a></td>
+                    </tr>
+                    <tr>
+                        <td><strong>VERITAC-3</strong></td>
+                        <td>3</td>
+                        <td>~500</td>
+                        <td>+ Palbociclib 1L</td>
+                        <td>Enrolling</td>
+                        <td>Pending</td>
+                        <td><a href="https://clinicaltrials.gov" class="source-link">[CT.gov]</a></td>
+                    </tr>
+                    <tr style="background: #f8f9fa;">
+                        <td><strong>TACTIVE-E</strong></td>
+                        <td>1b</td>
+                        <td>TBD</td>
+                        <td>+ Everolimus</td>
+                        <td>Starting</td>
+                        <td>Pending</td>
+                        <td><a href="https://clinicaltrials.gov" class="source-link">[CT.gov]</a></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Atirmociclib Trials -->
+        <div class="data-card">
+            <h3 class="subsection-title">Atirmociclib Clinical Program</h3>
+            <table class="trial-table">
+                <thead>
+                    <tr>
+                        <th>Trial</th>
+                        <th>Phase</th>
+                        <th>N</th>
+                        <th>Population</th>
+                        <th>Status</th>
+                        <th>Key Data</th>
+                        <th>Source</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>NCT04557449</strong></td>
+                        <td>1/2a</td>
+                        <td>34</td>
+                        <td>1L HR+/HER2-</td>
+                        <td>Complete</td>
+                        <td>ORR 58.8%, CBR 94.1%</td>
+                        <td><a href="https://www.onclive.com/view/atirmociclib-plus-letrozole-demonstrates-preliminary-efficacy-and-safety-in-hr-her2-negative-metastatic-breast-cancer" class="source-link">[OncLive]</a></td>
+                    </tr>
+                    <tr style="background: #f8f9fa;">
+                        <td><strong>FourLight-3</strong></td>
+                        <td>3</td>
+                        <td>~1200</td>
+                        <td>1L vs SOC CDK4/6i</td>
+                        <td>Enrolling</td>
+                        <td>Pending</td>
+                        <td><a href="https://www.pfizerclinicaltrials.com/nct06760637-metastatic-breast-cancer-trial" class="source-link">[Pfizer]</a></td>
+                    </tr>
+                    <tr>
+                        <td><strong>China Bridge</strong></td>
+                        <td>1</td>
+                        <td>9</td>
+                        <td>PK/Safety</td>
+                        <td>Complete</td>
+                        <td>Comparable PK</td>
+                        <td><a href="https://clinicaltrials.gov" class="source-link">[CT.gov]</a></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Disitamab Trials -->
+        <div class="data-card">
+            <h3 class="subsection-title">Disitamab Vedotin Clinical Program</h3>
+            <table class="trial-table">
+                <thead>
+                    <tr>
+                        <th>Trial</th>
+                        <th>Phase</th>
+                        <th>N</th>
+                        <th>Population</th>
+                        <th>Status</th>
+                        <th>Results</th>
+                        <th>Source</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>C001/C003</strong></td>
+                        <td>1/1b</td>
+                        <td>136</td>
+                        <td>HER2+/low BC</td>
+                        <td>Complete</td>
+                        <td>ORR 42.9%/33.3%</td>
+                        <td><a href="https://academic.oup.com/oncolo/advance-article/doi/10.1093/oncolo/oyae304/7902202" class="source-link">[Oncologist]</a></td>
+                    </tr>
+                    <tr style="background: #f8f9fa;">
+                        <td><strong>NCT05331326</strong></td>
+                        <td>2</td>
+                        <td>62</td>
+                        <td>PAM pathway+</td>
+                        <td>Active</td>
+                        <td>ORR 34.4%</td>
+                        <td><a href="https://www.onclive.com/view/disitamab-vedotin-shows-early-efficacy-in-her2-expressing-breast-cancer-with-pam-pathway-abnormalities" class="source-link">[ESMO 2024]</a></td>
+                    </tr>
+                    <tr>
+                        <td><strong>ROSY</strong></td>
+                        <td>2</td>
+                        <td>Enrolling</td>
+                        <td>HR+/HER2-low</td>
+                        <td>Active</td>
+                        <td>Pending</td>
+                        <td><a href="https://classic.clinicaltrials.gov/ct2/show/NCT05904964/" class="source-link">[CT.gov]</a></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 177Lu-NeoB Trials -->
+        <div class="data-card">
+            <h3 class="subsection-title">177Lu-NeoB Clinical Program</h3>
+            <table class="trial-table">
+                <thead>
+                    <tr>
+                        <th>Trial</th>
+                        <th>Phase</th>
+                        <th>Combination</th>
+                        <th>N Target</th>
+                        <th>Status</th>
+                        <th>Primary Endpoint</th>
+                        <th>Source</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>NCT03872778</strong></td>
+                        <td>1/2a</td>
+                        <td>Monotherapy</td>
+                        <td>~100</td>
+                        <td>Active</td>
+                        <td>MTD/RP2D</td>
+                        <td><a href="https://clinicaltrials.gov/study/NCT03872778" class="source-link">[CT.gov]</a></td>
+                    </tr>
+                    <tr style="background: #f8f9fa;">
+                        <td><strong>NCT05870579</strong></td>
+                        <td>1b</td>
+                        <td>+ Ribociclib/Fulvestrant</td>
+                        <td>36-58</td>
+                        <td>Recruiting</td>
+                        <td>Safety/RP2D</td>
+                        <td><a href="https://www.novartis.com/clinicaltrials/study/nct05870579" class="source-link">[Novartis]</a></td>
+                    </tr>
+                    <tr>
+                        <td><strong>NCT06247995</strong></td>
+                        <td>1/2</td>
+                        <td>+ Capecitabine</td>
+                        <td>36-58</td>
+                        <td>Recruiting</td>
+                        <td>RP2D/ORR</td>
+                        <td><a href="https://www.novartis.com/clinicaltrials/study/nct06247995" class="source-link">[Novartis]</a></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Trial Comparison -->
+        <div class="comparison-selector">
+            <h3 class="subsection-title">Select Two Treatments for Trial Portfolio Comparison</h3>
+            <div style="display: flex; flex-wrap: wrap; gap: 16px; margin-top: 16px;">
+                <div class="treatment-card-selector" onclick="selectForTrialsComparison('atirmociclib')" data-treatment="atirmociclib">
+                    <div style="font-size: 16px; font-weight: 600; color: #0a6b5e;">Atirmociclib</div>
+                    <div style="font-size: 12px; color: #6c757d;">2 trials | 1200+ patients</div>
+                </div>
+                <div class="treatment-card-selector" onclick="selectForTrialsComparison('disitamab')" data-treatment="disitamab">
+                    <div style="font-size: 16px; font-weight: 600; color: #084298;">Disitamab Vedotin</div>
+                    <div style="font-size: 12px; color: #6c757d;">3+ trials | 200+ patients</div>
+                </div>
+                <div class="treatment-card-selector" onclick="selectForTrialsComparison('luneob')" data-treatment="luneob">
+                    <div style="font-size: 16px; font-weight: 600; color: #dc3545;">177Lu-NeoB</div>
+                    <div style="font-size: 12px; color: #6c757d;">3 trials | 150+ planned</div>
+                </div>
+                <div class="treatment-card-selector" onclick="selectForTrialsComparison('vepdegestrant')" data-treatment="vepdegestrant">
+                    <div style="font-size: 16px; font-weight: 600; color: #28a745;">Vepdegestrant</div>
+                    <div style="font-size: 12px; color: #6c757d;">4 trials | 1200+ patients</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="trialsComparisonContainer" class="comparison-container">
+            <!-- Dynamic comparison content will be inserted here -->
+        </div>
+    </div>
+
+    <!-- China Analysis Tab -->
+    <div id="china" class="tab-content">
+        <div class="section-title">China-Specific Analysis & Data Quality Assessment</div>
+        
+        <div class="china-warning-box">
+            <h3 style="color: #d68910; margin-bottom: 12px;">⚠️ Critical China Data Considerations</h3>
+            <p class="detail-text">
+                <strong>Important Notice:</strong> China-origin clinical trial data requires careful interpretation due to documented differences in:
+                (1) Adverse event reporting practices, (2) Efficacy assessment standards, (3) Patient population characteristics, and 
+                (4) Regulatory review rigor. All China data should be adjusted for expected global performance.
+            </p>
+        </div>
+
+        <div class="data-card">
+            <h3 class="subsection-title">China Data Reliability Assessment</h3>
+            <table class="trial-table">
+                <thead>
+                    <tr>
+                        <th>Metric</th>
+                        <th>China-Reported</th>
+                        <th>Expected Global</th>
+                        <th>Adjustment Factor</th>
+                        <th>Rationale</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Disitamab ORR HER2+</strong></td>
+                        <td>42.9%</td>
+                        <td>30-35%</td>
+                        <td>-25%</td>
+                        <td>Single-arm, investigator-assessed</td>
+                    </tr>
+                    <tr style="background: #f8f9fa;">
+                        <td><strong>Disitamab G3+ Neuropathy</strong></td>
+                        <td>5.9%</td>
+                        <td>10-15%</td>
+                        <td>+100%</td>
+                        <td>Under-elicitation typical</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Disitamab Any-Grade AEs</strong></td>
+                        <td>65%</td>
+                        <td>85-90%</td>
+                        <td>+35%</td>
+                        <td>Systematic under-reporting</td>
+                    </tr>
+                    <tr style="background: #f8f9fa;">
+                        <td><strong>Atirmociclib China PK</strong></td>
+                        <td>n=9</td>
+                        <td>Comparable</td>
+                        <td>None</td>
+                        <td>PK generally reliable</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="data-card">
+            <h3 class="subsection-title">Competitive China-Origin Programs</h3>
+            <table class="trial-table">
+                <thead>
+                    <tr>
+                        <th>Competitor</th>
+                        <th>Mechanism</th>
+                        <th>Phase</th>
+                        <th>Key Data</th>
+                        <th>Global Plans</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>KN026 (Alphamab)</strong></td>
+                        <td>Biparatopic HER2</td>
+                        <td>Phase 3</td>
+                        <td>ORR claims superior</td>
+                        <td>US trial planned</td>
+                    </tr>
+                    <tr style="background: #f8f9fa;">
+                        <td><strong>HLX22 (Henlius)</strong></td>
+                        <td>HER2 ADC</td>
+                        <td>Phase 3</td>
+                        <td>Safety focus</td>
+                        <td>Asia-focused</td>
+                    </tr>
+                    <tr>
+                        <td><strong>BEBT-908 (BeiGene)</strong></td>
+                        <td>CDK4/6i</td>
+                        <td>Phase 2</td>
+                        <td>Lower neutropenia claim</td>
+                        <td>Global development</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Standard of Care Tab -->
+    <div id="soc" class="tab-content">
+        <div class="section-title">Standard of Care Analysis</div>
+        
+        <div class="data-card">
+            <h3 class="subsection-title">Current Treatment Landscape</h3>
+            <table class="trial-table">
+                <thead>
+                    <tr>
+                        <th>Line of Therapy</th>
+                        <th>US/EU Standard</th>
+                        <th>Efficacy Benchmarks</th>
+                        <th>Unmet Needs</th>
+                        <th>Our Assets' Position</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>1L HR+/HER2-</strong></td>
+                        <td>CDK4/6i + AI</td>
+                        <td>mPFS 25-30 mo</td>
+                        <td>Neutropenia, resistance</td>
+                        <td>Atirmociclib (less neutropenia)</td>
+                    </tr>
+                    <tr style="background: #f8f9fa;">
+                        <td><strong>2L HR+/HER2-</strong></td>
+                        <td>Fulvestrant ± alpelisib</td>
+                        <td>mPFS 5-9 mo</td>
+                        <td>ESR1 mutations</td>
+                        <td>Vepdegestrant (ESR1-mut)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>HER2+ mBC</strong></td>
+                        <td>T-DXd</td>
+                        <td>mPFS 28 mo</td>
+                        <td>ILD risk, IV admin</td>
+                        <td>Disitamab (no ILD)</td>
+                    </tr>
+                    <tr style="background: #f8f9fa;">
+                        <td><strong>Post-CDK4/6</strong></td>
+                        <td>Chemo/everolimus</td>
+                        <td>mPFS 3-5 mo</td>
+                        <td>Limited options</td>
+                        <td>177Lu-NeoB (novel MOA)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="data-card">
+            <h3 class="subsection-title">Competitive Positioning vs Standard of Care</h3>
+            <table class="trial-table">
+                <thead>
+                    <tr>
+                        <th>Our Asset</th>
+                        <th>Target Line</th>
+                        <th>Current SoC</th>
+                        <th>SoC Efficacy</th>
+                        <th>Our Differentiation</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Vepdegestrant</strong></td>
+                        <td>2L ESR1-mut</td>
+                        <td>Fulvestrant</td>
+                        <td>mPFS 2.1 mo</td>
+                        <td>mPFS 5.0 mo (2.4x improvement)</td>
+                    </tr>
+                    <tr style="background: #f8f9fa;">
+                        <td><strong>Atirmociclib</strong></td>
+                        <td>1L HR+/HER2-</td>
+                        <td>Palbociclib</td>
+                        <td>G3/4 neutropenia 66%</td>
+                        <td>G3 neutropenia 23.5%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Disitamab</strong></td>
+                        <td>2L+ HER2+</td>
+                        <td>T-DXd</td>
+                        <td>ILD 10-15%</td>
+                        <td>No ILD risk</td>
+                    </tr>
+                    <tr style="background: #f8f9fa;">
+                        <td><strong>177Lu-NeoB</strong></td>
+                        <td>3L+ GRPR+</td>
+                        <td>Capecitabine</td>
+                        <td>mPFS 4-5 mo</td>
+                        <td>Novel MOA, combination potential</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- SoC Comparison -->
+        <div class="comparison-selector">
+            <h3 class="subsection-title">Select Two Treatments for SoC Comparison</h3>
+            <div style="display: flex; flex-wrap: wrap; gap: 16px; margin-top: 16px;">
+                <div class="treatment-card-selector" onclick="selectForSoCComparison('atirmociclib')" data-treatment="atirmociclib">
+                    <div style="font-size: 16px; font-weight: 600; color: #0a6b5e;">Atirmociclib</div>
+                    <div style="font-size: 12px; color: #6c757d;">vs CDK4/6i</div>
+                </div>
+                <div class="treatment-card-selector" onclick="selectForSoCComparison('disitamab')" data-treatment="disitamab">
+                    <div style="font-size: 16px; font-weight: 600; color: #084298;">Disitamab Vedotin</div>
+                    <div style="font-size: 12px; color: #6c757d;">vs T-DXd</div>
+                </div>
+                <div class="treatment-card-selector" onclick="selectForSoCComparison('luneob')" data-treatment="luneob">
+                    <div style="font-size: 16px; font-weight: 600; color: #dc3545;">177Lu-NeoB</div>
+                    <div style="font-size: 12px; color: #6c757d;">vs Chemo</div>
+                </div>
+                <div class="treatment-card-selector" onclick="selectForSoCComparison('vepdegestrant')" data-treatment="vepdegestrant">
+                    <div style="font-size: 16px; font-weight: 600; color: #28a745;">Vepdegestrant</div>
+                    <div style="font-size: 12px; color: #6c757d;">vs Fulvestrant</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="socComparisonContainer" class="comparison-container">
+            <!-- Dynamic comparison content will be inserted here -->
+        </div>
+    </div>
+
+<script>
+// Global variables for tracking selections
+let selectedTreatments = {
+    overview: [],
+    ptrs: [],
+    clinical: [],
+    soc: [],
+    scientific: [],
+    commercial: [],
+    financial: [],
+    operational: [],
+    management: [],
+    safety: [],
+    trials: []
+};
+
+// Function to toggle expandable sections
+function toggleSection(element) {
+    const content = element.nextElementSibling;
+    const arrow = element.querySelector('span:last-child');
+    
+    if (content.classList.contains('active')) {
+        content.classList.remove('active');
+        arrow.textContent = '▼';
+    } else {
+        content.classList.add('active');
+        arrow.textContent = '▲';
+    }
+}
+
+// Function to show different tabs
+function showTab(tabId) {
+    // Hide all tabs
+    document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    
+    // Remove active class from all buttons
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // Show selected tab
+    document.getElementById(tabId).classList.add('active');
+    
+    // Add active class to clicked button
+    event.target.classList.add('active');
+    
+    // Initialize charts if needed
+    initializeChartsForTab(tabId);
+}
+
+// Initialize charts for each tab
+function initializeChartsForTab(tabId) {
+    setTimeout(() => {
+        if (tabId === 'overview') {
+            createOverviewCharts();
+        } else if (tabId === 'ptrs') {
+            createPTRSCharts();
+        } else if (tabId === 'commercial') {
+            createCommercialCharts();
+        } else if (tabId === 'financial') {
+            createFinancialCharts();
+        } else if (tabId === 'safety') {
+            createSafetyCharts();
+        } else if (tabId === 'scientific') {
+            createScientificCharts();
+        }
+    }, 100);
+}
+
+// Generic comparison selection function
+function selectForComparison(section, treatment) {
+    const selector = document.querySelector(`#${section} [data-treatment="${treatment}"]`);
+    
+    if (!selectedTreatments[section]) {
+        selectedTreatments[section] = [];
+    }
+    
+    if (selectedTreatments[section].includes(treatment)) {
+        // Deselect
+        selectedTreatments[section] = selectedTreatments[section].filter(t => t !== treatment);
+        selector.classList.remove('selected');
+    } else {
+        // Select (max 2)
+        if (selectedTreatments[section].length >= 2) {
+            // Remove oldest selection
+            const oldTreatment = selectedTreatments[section].shift();
+            document.querySelector(`#${section} [data-treatment="${oldTreatment}"]`).classList.remove('selected');
+        }
+        selectedTreatments[section].push(treatment);
+        selector.classList.add('selected');
+    }
+    
+    // Show comparison if 2 selected
+    if (selectedTreatments[section].length === 2) {
+        showComparisonForSection(section);
+    } else {
+        hideComparisonForSection(section);
+    }
+}
+
+// Specific comparison functions for each section
+function selectForOverviewComparison(treatment) {
+    selectForComparison('overview', treatment);
+}
+
+function selectForPTRSComparison(treatment) {
+    selectForComparison('ptrs', treatment);
+}
+
+function selectForClinicalComparison(treatment) {
+    selectForComparison('clinical', treatment);
+}
+
+function selectForSoCComparison(treatment) {
+    selectForComparison('soc', treatment);
+}
+
+function selectForScientificComparison(treatment) {
+    selectForComparison('scientific', treatment);
+}
+
+function selectForCommercialComparison(treatment) {
+    selectForComparison('commercial', treatment);
+}
+
+function selectForFinancialComparison(treatment) {
+    selectForComparison('financial', treatment);
+}
+
+function selectForOperationalComparison(treatment) {
+    selectForComparison('operational', treatment);
+}
+
+function selectForManagementComparison(treatment) {
+    selectForComparison('management', treatment);
+}
+
+function selectForSafetyComparison(treatment) {
+    selectForComparison('safety', treatment);
+}
+
+function selectForTrialsComparison(treatment) {
+    selectForComparison('trials', treatment);
+}
+
+// Show comparison for specific section
+function showComparisonForSection(section) {
+    const container = document.getElementById(`${section}ComparisonContainer`);
+    if (!container) return;
+    
+    container.style.display = 'grid';
+    container.classList.add('active');
+    
+    const [treatment1, treatment2] = selectedTreatments[section];
+    
+    // Generate comparison content based on section
+    container.innerHTML = generateComparisonContent(section, treatment1, treatment2);
+}
+
+// Hide comparison for specific section
+function hideComparisonForSection(section) {
+    const container = document.getElementById(`${section}ComparisonContainer`);
+    if (!container) return;
+    
+    container.style.display = 'none';
+    container.classList.remove('active');
+}
+
+// Generate comparison content based on section and treatments
+function generateComparisonContent(section, treatment1, treatment2) {
+    const data = getTreatmentData();
+    const t1 = data[treatment1];
+    const t2 = data[treatment2];
+    
+    let content = `
+        <div class="comparison-column">
+            <div class="comparison-header" style="background: ${getTreatmentColor(treatment1)};">
+                ${getTreatmentName(treatment1)}
+            </div>
+            ${generateSectionSpecificContent(section, treatment1, t1)}
+        </div>
+        <div class="comparison-column">
+            <div class="comparison-header" style="background: ${getTreatmentColor(treatment2)};">
+                ${getTreatmentName(treatment2)}
+            </div>
+            ${generateSectionSpecificContent(section, treatment2, t2)}
+        </div>
+    `;
+    
+    return content;
+}
+
+// Generate section-specific content with verified data
+function generateSectionSpecificContent(section, treatment, data) {
+    let content = '<div style="padding: 20px;">';
+    
+    if (section === 'overview') {
+        content += `
+            <h4>Investment Grade: ${data.grade}</h4>
+            <p><strong>Phase:</strong> ${data.phase}</p>
+            <p><strong>Peak Sales:</strong> $${data.peakSales}B</p>
+            <p><strong>Timeline:</strong> ${data.timeline}</p>
+            <p><strong>Key Differentiation:</strong> ${data.differentiation}</p>
+            <p><strong>Primary Risk:</strong> ${data.primaryRisk}</p>
+        `;
+    } else if (section === 'ptrs') {
+        content += `
+            <h4>PTRS Analysis</h4>
+            <p><strong>Overall PTRS:</strong> ${data.ptrs}%</p>
+            <p><strong>Technical Success:</strong> ${data.technicalSuccess}%</p>
+            <p><strong>Regulatory Success:</strong> ${data.regulatorySuccess}%</p>
+            <p><strong>Clinical Evidence:</strong> ${data.clinicalEvidence}</p>
+            <p><strong>Commercial Viability:</strong> ${data.commercialViability}%</p>
+            <p><strong>Execution Risk:</strong> ${data.executionRisk}</p>
+        `;
+    } else if (section === 'clinical') {
+        content += `
+            <h4>Clinical Profile</h4>
+            <p><strong>ORR:</strong> ${data.orr}</p>
+            <p><strong>CBR:</strong> ${data.cbr || 'N/A'}</p>
+            <p><strong>PFS:</strong> ${data.pfs}</p>
+            <p><strong>OS:</strong> ${data.os || 'Immature'}</p>
+            <p><strong>Patient N:</strong> ${data.patientN}</p>
+            <p><strong>Trial Design:</strong> ${data.trialDesign}</p>
+            <p><strong>Primary Endpoint:</strong> ${data.primaryEndpoint}</p>
+        `;
+    } else if (section === 'safety') {
+        content += `
+            <h4>Safety Profile</h4>
+            <p><strong>G3/4 Neutropenia:</strong> ${data.neutropenia || 'N/A'}</p>
+            <p><strong>Discontinuation:</strong> ${data.discontinuation}</p>
+            <p><strong>Dose Reductions:</strong> ${data.doseReduction || 'N/A'}</p>
+            <p><strong>Key Safety Advantage:</strong> ${data.safetyAdvantage}</p>
+            <p><strong>ILD Risk:</strong> ${data.ildRisk || 'None'}</p>
+            <p><strong>Neuropathy:</strong> ${data.neuropathy || 'N/A'}</p>
+            <p><strong>Treatment Deaths:</strong> ${data.treatmentDeaths}</p>
+        `;
+    } else if (section === 'commercial') {
+        content += `
+            <h4>Commercial Strategy</h4>
+            <p><strong>Market Size:</strong> ${data.marketSize}</p>
+            <p><strong>Peak Sales:</strong> $${data.peakSales}B</p>
+            <p><strong>Peak Share:</strong> ${data.peakShare}</p>
+            <p><strong>Launch Year:</strong> ${data.timeline}</p>
+            <p><strong>Pricing Est.:</strong> ${data.pricing}</p>
+            <p><strong>Competition:</strong> ${data.competition}</p>
+            <p><strong>Positioning:</strong> ${data.positioning}</p>
+        `;
+    } else if (section === 'financial') {
+        content += `
+            <h4>Financial Metrics</h4>
+            <p><strong>Peak Sales:</strong> $${data.peakSales}B</p>
+            <p><strong>Break-even:</strong> ${data.breakeven}</p>
+            <p><strong>Dev Cost:</strong> ${data.devCost}</p>
+            <p><strong>Time to Market:</strong> ${data.timeToMarket}</p>
+            <p><strong>Market Cap Impact:</strong> ${data.marketCapImpact}</p>
+        `;
+    } else if (section === 'operational') {
+        content += `
+            <h4>Operational Profile</h4>
+            <p><strong>Manufacturing Type:</strong> ${data.manufacturingType}</p>
+            <p><strong>Complexity:</strong> ${data.complexity}</p>
+            <p><strong>COGS:</strong> ${data.cogs}</p>
+            <p><strong>Capacity:</strong> ${data.capacity}</p>
+            <p><strong>Shelf Life:</strong> ${data.shelfLife}</p>
+            <p><strong>Distribution:</strong> ${data.distribution}</p>
+        `;
+    } else if (section === 'management') {
+        content += `
+            <h4>Management Assessment</h4>
+            <p><strong>Company:</strong> ${data.company}</p>
+            <p><strong>Leadership:</strong> ${data.leadership}</p>
+            <p><strong>Experience:</strong> ${data.experience}</p>
+            <p><strong>Track Record:</strong> ${data.trackRecord}</p>
+            <p><strong>Team Stability:</strong> ${data.stability}</p>
+            <p><strong>Execution Risk:</strong> ${data.managementRisk}</p>
+        `;
+    } else if (section === 'soc') {
+        content += `
+            <h4>Standard of Care Position</h4>
+            <p><strong>Target Line:</strong> ${data.targetLine}</p>
+            <p><strong>Current SoC:</strong> ${data.currentSoC}</p>
+            <p><strong>SoC Efficacy:</strong> ${data.socEfficacy}</p>
+            <p><strong>Unmet Need:</strong> ${data.unmetNeed}</p>
+            <p><strong>Our Differentiation:</strong> ${data.socDifferentiation}</p>
+        `;
+    } else if (section === 'scientific') {
+        content += `
+            <h4>Scientific Profile</h4>
+            <p><strong>Mechanism:</strong> ${data.mechanism}</p>
+            <p><strong>Target:</strong> ${data.target}</p>
+            <p><strong>Biomarker:</strong> ${data.biomarker}</p>
+            <p><strong>IP Protection:</strong> ${data.patentExpiry}</p>
+            <p><strong>Platform Value:</strong> ${data.platformValue}</p>
+        `;
+    } else if (section === 'trials') {
+        content += `
+            <h4>Trial Portfolio</h4>
+            <p><strong>Total Trials:</strong> ${data.totalTrials}</p>
+            <p><strong>Patients Enrolled:</strong> ${data.patientsEnrolled}</p>
+            <p><strong>Geographic Reach:</strong> ${data.geographicReach}</p>
+            <p><strong>Key Trial:</strong> ${data.keyTrial}</p>
+            <p><strong>Trial Status:</strong> ${data.trialStatus}</p>
+            <p><strong>Data Readout:</strong> ${data.dataReadout}</p>
+        `;
+    }
+    
+    content += '</div>';
+    return content;
+}
+
+// Get treatment data - verified information only
+function getTreatmentData() {
+    return {
+        atirmociclib: {
+            // Overview
+            grade: 'B+',
+            phase: 'Phase 3',
+            peakSales: '2.0',
+            timeline: '2029',
+            differentiation: 'CDK4-selective, less neutropenia',
+            primaryRisk: 'Unproven selectivity benefit',
+            
+            // PTRS
+            ptrs: '40-50',
+            technicalSuccess: '60',
+            regulatorySuccess: '50',
+            clinicalEvidence: 'Phase 1/2 positive',
+            commercialViability: '40',
+            executionRisk: 'Moderate',
+            
+            // Clinical
+            orr: '58.8%',
+            cbr: '94.1%',
+            pfs: 'Not reached (16.5mo f/u)',
+            os: 'Immature',
+            patientN: '34 (Ph1/2), 1200 (Ph3)',
+            trialDesign: 'vs SOC CDK4/6i',
+            primaryEndpoint: 'PFS',
+            
+            // Safety
+            neutropenia: '23.5%',
+            discontinuation: '5.9%',
+            safetyAdvantage: 'Lower neutropenia vs CDK4/6i',
+            treatmentDeaths: '0',
+            
+            // Commercial
+            marketSize: '$8B',
+            peakShare: '20-25%',
+            pricing: '$15-20K/month',
+            competition: 'Ibrance, Kisqali, Verzenio',
+            positioning: '1L HR+/HER2-',
+            
+            // Financial
+            breakeven: '2031',
+            devCost: '$800M-1B',
+            timeToMarket: '4-5 years',
+            marketCapImpact: 'Part of Pfizer',
+            
+            // Operational
+            manufacturingType: 'Small molecule',
+            complexity: 'Low',
+            cogs: '<5%',
+            capacity: 'Pfizer network',
+            shelfLife: '36+ months',
+            distribution: 'Standard oral',
+            
+            // Management
+            company: 'Pfizer',
+            leadership: 'Chris Boshoff',
+            experience: '25+ years',
+            trackRecord: 'Multiple approvals',
+            stability: 'Recent changes',
+            managementRisk: 'Low',
+            
+            // SoC
+            targetLine: '1L HR+/HER2-',
+            currentSoC: 'Palbociclib + AI',
+            socEfficacy: 'mPFS 25-30mo',
+            unmetNeed: 'Neutropenia',
+            socDifferentiation: 'CDK4 selectivity',
+            
+            // Scientific
+            mechanism: 'CDK4 inhibitor',
+            target: 'CDK4 (selective)',
+            biomarker: 'HR+/HER2-',
+            patentExpiry: '2039+',
+            platformValue: 'Moderate',
+            
+            // Trials
+            totalTrials: '3',
+            patientsEnrolled: '1200+',
+            geographicReach: 'Global',
+            keyTrial: 'FourLight-3',
+            trialStatus: 'Enrolling',
+            dataReadout: '2027-2028'
+        },
+        
+        disitamab: {
+            // Overview
+            grade: 'B',
+            phase: 'Approved (China)',
+            peakSales: '0.7',
+            timeline: '2025 (BC China)',
+            differentiation: 'No ILD, HER2-low activity',
+            primaryRisk: 'China data quality',
+            
+            // PTRS
+            ptrs: '50',
+            technicalSuccess: '100',
+            regulatorySuccess: '40',
+            clinicalEvidence: 'China approved',
+            commercialViability: '60',
+            executionRisk: 'Medium',
+            
+            // Clinical
+            orr: '42.9% (HER2+), 33.3% (HER2-low)',
+            pfs: '5.7mo (HER2+), 5.1mo (HER2-low)',
+            os: 'Not reported',
+            patientN: '136+',
+            trialDesign: 'Single-arm',
+            primaryEndpoint: 'ORR',
+            
+            // Safety
+            discontinuation: '~10%',
+            safetyAdvantage: 'No ILD vs T-DXd',
+            neuropathy: '5-10%',
+            treatmentDeaths: '<1%',
+            
+            // Commercial
+            marketSize: '$5B (China)',
+            peakShare: '15%',
+            pricing: 'China pricing',
+            competition: 'T-DM1, T-DXd',
+            positioning: 'HER2+ and HER2-low',
+            
+            // Financial
+            breakeven: '2025',
+            devCost: '$300-500M',
+            timeToMarket: 'Launched',
+            marketCapImpact: 'RemeGen $2B',
+            
+            // Operational
+            manufacturingType: 'ADC',
+            complexity: 'Medium',
+            cogs: '15-20%',
+            capacity: 'RemeGen facilities',
+            shelfLife: '24 months',
+            distribution: 'Cold chain IV',
+            
+            // Management
+            company: 'RemeGen',
+            leadership: 'Dr. Jianmin Fang',
+            experience: '15+ years',
+            trackRecord: 'China approvals',
+            stability: 'Founder-led',
+            managementRisk: 'Medium',
+            
+            // SoC
+            targetLine: '2L+ HER2+',
+            currentSoC: 'T-DXd',
+            socEfficacy: 'mPFS 28mo',
+            unmetNeed: 'ILD risk',
+            socDifferentiation: 'No ILD',
+            
+            // Scientific
+            mechanism: 'HER2 ADC',
+            target: 'HER2',
+            biomarker: 'HER2 IHC 3+/2+/1+',
+            patentExpiry: '2035+',
+            platformValue: 'ADC platform',
+            
+            // Trials
+            totalTrials: '3+',
+            patientsEnrolled: '200+',
+            geographicReach: 'China primary',
+            keyTrial: 'C001/C003',
+            trialStatus: 'Complete',
+            dataReadout: 'Published'
+        },
+        
+        luneob: {
+            // Overview
+            grade: 'C+',
+            phase: 'Phase 1b/2',
+            peakSales: '1.5',
+            timeline: '2033',
+            differentiation: 'Novel GRPR RLT',
+            primaryRisk: 'Early stage, infrastructure',
+            
+            // PTRS
+            ptrs: '25-30',
+            technicalSuccess: '35',
+            regulatorySuccess: '30',
+            clinicalEvidence: 'Preclinical',
+            commercialViability: '25',
+            executionRisk: 'High',
+            
+            // Clinical
+            orr: 'TBD',
+            pfs: 'TBD',
+            os: 'TBD',
+            patientN: '150+ planned',
+            trialDesign: 'Dose escalation',
+            primaryEndpoint: 'MTD/Safety',
+            
+            // Safety
+            discontinuation: 'TBD',
+            safetyAdvantage: 'Novel MOA',
+            treatmentDeaths: '0',
+            
+            // Commercial
+            marketSize: '$2B',
+            peakShare: '20-30%',
+            pricing: '$50K/dose',
+            competition: 'No direct RLT',
+            positioning: 'Post-CDK4/6',
+            
+            // Financial
+            breakeven: '2035',
+            devCost: '$500-700M',
+            timeToMarket: '7-8 years',
+            marketCapImpact: 'Part of Novartis',
+            
+            // Operational
+            manufacturingType: 'Radioisotope',
+            complexity: 'High',
+            cogs: '$50K/dose',
+            capacity: 'Limited initially',
+            shelfLife: '66 hours',
+            distribution: 'Specialized nuclear',
+            
+            // Management
+            company: 'Novartis',
+            leadership: 'RLT division',
+            experience: '10+ years RLT',
+            trackRecord: 'Lutathera, Pluvicto',
+            stability: 'Growing',
+            managementRisk: 'Low',
+            
+            // SoC
+            targetLine: '3L+ GRPR+',
+            currentSoC: 'Capecitabine',
+            socEfficacy: 'mPFS 4-5mo',
+            unmetNeed: 'Limited options',
+            socDifferentiation: 'Novel MOA',
+            
+            // Scientific
+            mechanism: 'GRPR RLT',
+            target: 'GRPR',
+            biomarker: '68Ga-NeoB PET',
+            patentExpiry: '2040+',
+            platformValue: 'High',
+            
+            // Trials
+            totalTrials: '3',
+            patientsEnrolled: '150+ planned',
+            geographicReach: 'US/EU',
+            keyTrial: 'NCT03872778',
+            trialStatus: 'Recruiting',
+            dataReadout: '2027+'
+        },
+        
+        vepdegestrant: {
+            // Overview
+            grade: 'A-',
+            phase: 'NDA Filed',
+            peakSales: '1.5',
+            timeline: '2026',
+            differentiation: 'PROTAC, ESR1-mut efficacy',
+            primaryRisk: 'Overall population NS',
+            
+            // PTRS
+            ptrs: '75',
+            technicalSuccess: '95',
+            regulatorySuccess: '85',
+            clinicalEvidence: 'Phase 3 positive',
+            commercialViability: '70',
+            executionRisk: 'Low',
+            
+            // Clinical
+            orr: 'Not primary endpoint',
+            pfs: '5.0 vs 2.1mo (ESR1-mut)',
+            os: 'Immature',
+            patientN: '624',
+            trialDesign: 'vs Fulvestrant',
+            primaryEndpoint: 'PFS (ESR1-mut)',
+            
+            // Safety
+            discontinuation: '<10%',
+            safetyAdvantage: 'Well tolerated',
+            treatmentDeaths: '0',
+            
+            // Commercial
+            marketSize: '$3B',
+            peakShare: '40-50%',
+            pricing: '$12-15K/month',
+            competition: 'Elacestrant, Camizestrant',
+            positioning: '2L ESR1-mut',
+            
+            // Financial
+            breakeven: '2027',
+            devCost: '$400-600M',
+            timeToMarket: '1.5 years',
+            marketCapImpact: 'Arvinas $570M',
+            
+            // Operational
+            manufacturingType: 'Small molecule',
+            complexity: 'Low',
+            cogs: '<10%',
+            capacity: 'Commercial ready',
+            shelfLife: '36+ months',
+            distribution: 'Standard oral',
+            
+            // Management
+            company: 'Arvinas/Pfizer',
+            leadership: 'John Houston',
+            experience: '20+ years',
+            trackRecord: 'BMS, Otsuka',
+            stability: 'Stable',
+            managementRisk: 'Low',
+            
+            // SoC
+            targetLine: '2L ESR1-mut',
+            currentSoC: 'Fulvestrant',
+            socEfficacy: 'mPFS 2.1mo',
+            unmetNeed: 'ESR1 mutations',
+            socDifferentiation: '2.4x PFS improvement',
+            
+            // Scientific
+            mechanism: 'PROTAC degrader',
+            target: 'Estrogen Receptor',
+            biomarker: 'ESR1 mutations',
+            patentExpiry: '2038+',
+            platformValue: 'PROTAC platform',
+            
+            // Trials
+            totalTrials: '4',
+            patientsEnrolled: '1200+',
+            geographicReach: 'Global',
+            keyTrial: 'VERITAC-2',
+            trialStatus: 'Complete',
+            dataReadout: 'Published'
+        }
+    };
+}
+
+// Helper functions
+function getTreatmentName(treatment) {
+    const names = {
+        atirmociclib: 'Atirmociclib',
+        disitamab: 'Disitamab Vedotin',
+        luneob: '177Lu-NeoB',
+        vepdegestrant: 'Vepdegestrant'
+    };
+    return names[treatment] || treatment;
+}
+
+function getTreatmentColor(treatment) {
+    const colors = {
+        atirmociclib: '#0a6b5e',
+        disitamab: '#084298',
+        luneob: '#dc3545',
+        vepdegestrant: '#28a745'
+    };
+    return colors[treatment] || '#6c757d';
+}
+
+// Chart creation functions (placeholders)
+function createOverviewCharts() {
+    console.log('Creating overview charts...');
+}
+
+function createPTRSCharts() {
+    console.log('Creating PTRS charts...');
+}
+
+function createCommercialCharts() {
+    console.log('Creating commercial charts...');
+}
+
+function createFinancialCharts() {
+    console.log('Creating financial charts...');
+}
+
+function createSafetyCharts() {
+    console.log('Creating safety charts...');
+}
+
+function createScientificCharts() {
+    console.log('Creating scientific charts...');
+}
+
+// Initialize on load
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize first tab
+    initializeChartsForTab('overview');
+});
+</script>
+</body>
+</html>

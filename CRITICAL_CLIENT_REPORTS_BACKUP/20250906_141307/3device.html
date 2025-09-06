@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>3D Molecule Viewer</title>
+  <script src="https://3dmol.org/build/3Dmol-min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      background-size: 600% 600%;
+      animation: gradientBG 20s ease infinite;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 50px;
+      color: white;
+    }
+
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 30px;
+      border-radius: 20px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      width: 90%;
+      max-width: 650px;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 20px;
+    }
+
+    input[type="text"] {
+      width: 60%;
+      padding: 10px 15px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+
+    button {
+      padding: 10px 20px;
+      background-color: #29ABE2;
+      color: white;
+      font-size: 1rem;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background-color: #007cc7;
+    }
+
+    #viewer {
+      width: 100%;
+      height: 500px;
+      margin-top: 25px;
+      border-radius: 15px;
+      overflow: hidden;
+      background: white;
+    }
+
+    .spinner {
+      display: none;
+      margin: 15px auto;
+      border: 6px solid #f3f3f3;
+      border-top: 6px solid #29ABE2;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .error {
+      color: #ff6b6b;
+      margin-top: 15px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>3D Molecule Viewer</h1>
+    <input type="text" id="compoundInput" placeholder="Enter compound name (e.g., caffeine)">
+    <br>
+    <button onclick="loadMolecule()">Render Molecule</button>
+    <div class="spinner" id="spinner"></div>
+    <div class="error" id="error"></div>
+    <div id="viewer"></div>
+  </div>
+
+  <script>
+    const viewer = $3Dmol.createViewer("viewer", { backgroundColor: "white" });
+
+    async function loadMolecule() {
+      const input = document.getElementById("compoundInput").value.trim();
+      const errorBox = document.getElementById("error");
+      const spinner = document.getElementById("spinner");
+      errorBox.textContent = "";
+      viewer.clear();
+      viewer.render();
+
+      if (!input) {
+        errorBox.textContent = "Please enter a compound name.";
+        return;
+      }
+
+      spinner.style.display = "block";
+
+      try {
+        // Step 1: Resolve compound name to CID
+        const cidResp = await fetch(`https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/${encodeURIComponent(input)}/cids/JSON`);
+        const cidData = await cidResp.json();
+        const cid = cidData.IdentifierList?.CID?.[0];
+
+        if (!cid) throw new Error("Compound not found on PubChem.");
+
+        // Step 2: Fetch 3D structure SDF
+        const sdfResp = await fetch(`https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/${cid}/SDF?record_type=3d`);
+        if (!sdfResp.ok) throw new Error("3D structure not available for this compound.");
+
+        const sdf = await sdfResp.text();
+
+        // Step 3: Render in 3Dmol.js
+        viewer.addModel(sdf, "sdf");
+        viewer.setStyle({}, { stick: {}, sphere: { scale: 0.3 } });
+        viewer.zoomTo();
+        viewer.render();
+
+      } catch (err) {
+        errorBox.textContent = err.message;
+      } finally {
+        spinner.style.display = "none";
+      }
+    }
+  </script>
+</body>
+</html>
