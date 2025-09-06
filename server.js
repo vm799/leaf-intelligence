@@ -12,6 +12,15 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// ================================
+// MULTI-AGENT SYSTEM API ROUTES
+// ================================
+const { router: agentRoutes } = require('./orchestrator/api-routes.js');
+app.use('/api/agents', agentRoutes);
+app.use('/api/intelligence', agentRoutes);
+app.use('/api/reports', agentRoutes);
+console.log('🤖 Multi-agent system API routes loaded');
+
 // Constants
 const FDA_DRUGSFDA_URL = 'https://api.fda.gov/drug/drugsfda.json';
 const FDA_LABEL_URL = 'https://api.fda.gov/drug/label.json';
