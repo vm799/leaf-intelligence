@@ -3,6 +3,9 @@
 
 const AgentOrchestrator = require('./orchestrator/AgentOrchestrator.js');
 const DataCollectionAgent = require('./agents/intelligence/DataCollectionAgent.js');
+const RiskAnalysisAgent = require('./agents/intelligence/RiskAnalysisAgent.js');
+const CompetitiveIntelligenceAgent = require('./agents/intelligence/CompetitiveIntelligenceAgent.js');
+const KnowledgeGraphAgent = require('./agents/intelligence/KnowledgeGraphAgent.js');
 const ClientReportService = require('./client-reports-service.js');
 
 class LeafIntelligenceMultiAgentSystem {
@@ -18,16 +21,26 @@ class LeafIntelligenceMultiAgentSystem {
     try {
       console.log('🚀 Starting multi-agent system initialization...');
       
-      // Initialize Data Collection Agent (Commander)
+      // Initialize Core Pharmaceutical Intelligence Agents - Stage 2A Complete
+      console.log('🤖 Initializing Agent DataCollectionAgent...');
       const dataCollectionAgent = new DataCollectionAgent();
       await this.orchestrator.registerAgent(dataCollectionAgent);
       
-      // TODO: Initialize other agents in Stage 2
-      // const regulatoryAgent = new RegulatoryIntelligenceAgent();
-      // const clinicalAgent = new ClinicalIntelligenceAgent();
-      // const legalAgent = new LegalIntelligenceAgent();
-      // const executiveAgent = new ExecutiveReportingAgent();
-      // const exportAgent = new ExportIntegrationAgent();
+      console.log('🤖 Initializing Agent RiskAnalysisAgent...');
+      const riskAnalysisAgent = new RiskAnalysisAgent();
+      await this.orchestrator.registerAgent(riskAnalysisAgent);
+      
+      console.log('🤖 Initializing Agent CompetitiveIntelligenceAgent...');
+      const competitiveIntelligenceAgent = new CompetitiveIntelligenceAgent();
+      await this.orchestrator.registerAgent(competitiveIntelligenceAgent);
+      
+      console.log('🤖 Initializing Agent KnowledgeGraphAgent...');
+      const knowledgeGraphAgent = new KnowledgeGraphAgent();
+      await this.orchestrator.registerAgent(knowledgeGraphAgent);
+      
+      // Additional agents for Stage 2B
+      // const regulatoryMonitoringAgent = new RegulatoryMonitoringAgent();
+      // const clinicalTrialsAgent = new ClinicalTrialsAgent();
       
       // Set up orchestrator event listeners
       this.setupOrchestratorListeners();
