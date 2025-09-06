@@ -206,24 +206,61 @@
             <!-- Available Agents -->
             <div class="bg-white rounded-2xl shadow-lg p-8">
                 <h3 class="text-xl font-bold mb-6">🤖 Agent Selection & Coordination</h3>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                     <template x-for="agent in availableAgents" :key="agent.name">
-                        <div class="agent-card p-4 border-2 rounded-lg"
-                             :class="agent.selected ? 'agent-active border-green-500' : 'border-gray-200 bg-gray-50'">
+                        <div class="agent-card p-4 border-2 rounded-lg relative overflow-hidden"
+                             :class="agent.selected ? 'agent-active border-green-500 bg-gradient-to-br from-green-50 to-blue-50' : 'border-gray-200 bg-gray-50'">
+                            
+                            <!-- Health indicator -->
+                            <div class="absolute top-2 right-2">
+                                <div class="w-3 h-3 rounded-full" 
+                                     :class="agent.healthScore > 90 ? 'bg-green-400 animate-pulse' : 'bg-yellow-400'"></div>
+                            </div>
+                            
                             <div class="flex items-center mb-3">
-                                <span class="text-2xl mr-3" x-text="agent.icon"></span>
-                                <div>
-                                    <div class="font-semibold" x-text="agent.name"></div>
-                                    <div class="text-sm text-gray-500" x-text="agent.specialization"></div>
+                                <div class="text-3xl mr-3 relative">
+                                    <span x-text="agent.icon"></span>
+                                    <div x-show="agent.selected" 
+                                         class="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
+                                        <div class="w-2 h-2 bg-white rounded-full animate-ping"></div>
+                                    </div>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="font-semibold text-gray-800" x-text="agent.name"></div>
+                                    <div class="text-xs text-gray-500" x-text="agent.specialization"></div>
+                                    <div class="text-xs text-blue-600 font-medium">
+                                        Health: <span x-text="agent.healthScore"></span>% | 
+                                        Requests: <span x-text="agent.processedRequests || 0"></span>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="text-xs">
-                                <div class="font-medium mb-1">Capabilities:</div>
-                                <div x-text="agent.capabilities.join(', ')" class="text-gray-600"></div>
+                            
+                            <div class="text-xs mb-3">
+                                <div class="font-medium mb-1 text-gray-700">Key Capabilities:</div>
+                                <div class="flex flex-wrap gap-1">
+                                    <template x-for="capability in (agent.capabilities || []).slice(0, 3)" :key="capability">
+                                        <span class="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs" 
+                                              x-text="capability.replace('_', ' ')"></span>
+                                    </template>
+                                    <span x-show="(agent.capabilities || []).length > 3" 
+                                          class="px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-xs">
+                                        +<span x-text="(agent.capabilities || []).length - 3"></span> more
+                                    </span>
+                                </div>
                             </div>
-                            <div x-show="agent.selected" class="mt-3 text-sm">
-                                <div class="text-green-700 font-medium">✅ Selected</div>
-                                <div class="text-green-600" x-text="agent.task"></div>
+                            
+                            <div x-show="agent.selected" class="mt-3">
+                                <div class="text-xs text-green-700 font-medium mb-1">Current Task:</div>
+                                <div class="text-xs text-gray-600 bg-white p-2 rounded border-l-2 border-green-400" 
+                                     x-text="agent.task"></div>
+                            </div>
+                            
+                            <!-- Progress indicator for active agents -->
+                            <div x-show="agent.selected && agent.task && agent.task.includes('Connecting')" 
+                                 class="mt-2">
+                                <div class="w-full bg-gray-200 rounded-full h-1">
+                                    <div class="bg-green-500 h-1 rounded-full animate-pulse" style="width: 75%"></div>
+                                </div>
                             </div>
                         </div>
                     </template>
@@ -293,15 +330,25 @@
                 <h3 class="text-xl font-bold mb-6">💡 New Insights Discovered</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <template x-for="insight in discoveredInsights" :key="insight.id">
-                        <div class="p-6 border-l-4 border-blue-500 bg-blue-50 rounded-lg">
+                        <div class="p-6 border-l-4 border-blue-500 bg-blue-50 rounded-lg hover:shadow-lg transition-all cursor-pointer"
+                             @click="insight.clickable ? showInsightDetails(insight) : null">
                             <div class="flex items-start justify-between mb-3">
                                 <h4 class="font-semibold text-blue-800" x-text="insight.title"></h4>
                                 <span class="px-2 py-1 bg-blue-200 text-blue-700 rounded text-xs" 
                                       x-text="insight.confidence + '% confidence'"></span>
                             </div>
                             <p class="text-blue-700 text-sm mb-3" x-text="insight.description"></p>
-                            <div class="text-xs text-blue-600">
-                                <strong>Sources connected:</strong> <span x-text="insight.sources.join(', ')"></span>
+                            <div class="flex items-center justify-between">
+                                <div class="text-xs text-blue-600">
+                                    <strong>Sources:</strong> 
+                                    <template x-for="source in insight.sources" :key="source">
+                                        <span class="inline-block px-2 py-1 bg-blue-200 text-blue-700 rounded ml-1 cursor-pointer hover:bg-blue-300"
+                                              @click.stop="highlightDataSource(source)" x-text="source"></span>
+                                    </template>
+                                </div>
+                                <div x-show="insight.clickable" class="text-xs text-blue-600">
+                                    💡 Click to explore
+                                </div>
                             </div>
                         </div>
                     </template>
@@ -758,6 +805,28 @@
                     this.dataSources = [];
                     this.discoveredInsights = [];
                     this.graphStats = { nodes: 0, relationships: 0 };
+                },
+                
+                // New functions for enhanced interactivity
+                showInsightDetails(insight) {
+                    alert(`🔍 INSIGHT DETAILS\n\nTitle: ${insight.title}\n\nDescription: ${insight.description}\n\nConfidence: ${insight.confidence}%\n\nSources Connected:\n${insight.sources.join('\n')}\n\n${insight.insights || 'Additional analysis available in full system'}`);
+                },
+                
+                highlightDataSource(sourceName) {
+                    // Find and highlight the data source
+                    const sourceIndex = this.dataSources.findIndex(source => source.name === sourceName);
+                    if (sourceIndex !== -1) {
+                        // Flash highlight effect
+                        const sourceCard = document.querySelectorAll('.border-green-200')[sourceIndex];
+                        if (sourceCard) {
+                            sourceCard.classList.add('ring-4', 'ring-blue-400', 'ring-opacity-75');
+                            setTimeout(() => {
+                                sourceCard.classList.remove('ring-4', 'ring-blue-400', 'ring-opacity-75');
+                            }, 2000);
+                        }
+                    }
+                    
+                    alert(`📊 DATA SOURCE: ${sourceName}\n\nRecords Found: ${this.dataSources.find(s => s.name === sourceName)?.recordsFound || 'N/A'}\n\nStatus: ${this.dataSources.find(s => s.name === sourceName)?.status || 'Unknown'}\n\nThis source contributes to the knowledge graph relationships you see.`);
                 }
             }
         }
