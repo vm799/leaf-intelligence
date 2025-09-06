@@ -57,25 +57,25 @@ class KnowledgeGraphAgent extends BaseAgent {
             let result;
             switch (request.type) {
                 case 'build_knowledge_graph':
-                    result = await this.buildKnowledgeGraph(request.parameters);
+                    result = await this.buildKnowledgeGraph(request.params || request.parameters);
                     break;
                 case 'discover_relationships':
-                    result = await this.discoverRelationships(request.parameters);
+                    result = await this.discoverRelationships(request.params || request.parameters);
                     break;
                 case 'analyze_entity_connections':
-                    result = await this.analyzeEntityConnections(request.parameters);
+                    result = await this.analyzeEntityConnections(request.params || request.parameters);
                     break;
                 case 'find_hidden_patterns':
-                    result = await this.findHiddenPatterns(request.parameters);
+                    result = await this.findHiddenPatterns(request.params || request.parameters);
                     break;
                 case 'generate_insights':
-                    result = await this.generateGraphInsights(request.parameters);
+                    result = await this.generateGraphInsights(request.params || request.parameters);
                     break;
                 case 'query_graph':
-                    result = await this.queryKnowledgeGraph(request.parameters);
+                    result = await this.queryKnowledgeGraph(request.params || request.parameters);
                     break;
                 default:
-                    result = await this.performGeneralGraphAnalysis(request.parameters);
+                    result = await this.performGeneralGraphAnalysis(request.params || request.parameters);
             }
             
             const processingTime = Date.now() - startTime;
@@ -110,7 +110,9 @@ class KnowledgeGraphAgent extends BaseAgent {
         }
     }
     
-    async buildKnowledgeGraph(parameters) {
+    async buildKnowledgeGraph(parameters = {}) {
+        console.log(`🔍 DEBUG: buildKnowledgeGraph received parameters:`, JSON.stringify(parameters));
+        
         const { dataSources, entityFocus, scopeParameters } = parameters;
         
         console.log(`🏗️ Building knowledge graph from ${dataSources?.length || 0} data sources`);

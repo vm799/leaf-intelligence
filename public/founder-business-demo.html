@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SyneticX - Business Intelligence Demo for Founders</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Alpine.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/alpinejs/3.10.5/cdn.min.js" defer></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .business-question {
+            background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+            border-left: 4px solid #3b82f6;
+        }
+        
+        .agent-working {
+            animation: pulse 2s infinite;
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+        
+        .relationship-line {
+            background: linear-gradient(90deg, #3b82f6, #06b6d4);
+            height: 2px;
+            animation: flow 3s infinite;
+        }
+        
+        @keyframes flow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+    </style>
+</head>
+
+<body class="bg-gradient-to-br from-slate-50 via-blue-50 to-cyan-50 font-sans" x-data="businessDemo()">
+    
+    <!-- Header -->
+    <header class="gradient-bg text-white py-12">
+        <div class="max-w-7xl mx-auto px-6 text-center">
+            <h1 class="text-5xl font-black mb-4">SyneticX Business Intelligence</h1>
+            <p class="text-xl opacity-90">See how AI agents answer real business questions in minutes, not days</p>
+        </div>
+    </header>
+
+    <!-- Business Question Input -->
+    <div class="max-w-7xl mx-auto px-6 py-8">
+        <div class="business-question p-8 rounded-2xl mb-8">
+            <h2 class="text-2xl font-bold text-blue-900 mb-6">💼 Ask Your Real Business Question</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <template x-for="question in businessQuestions" :key="question.id">
+                    <div class="p-4 bg-white rounded-lg border-2 border-transparent hover:border-blue-300 cursor-pointer transition-all"
+                         @click="selectQuestion(question)">
+                        <div class="font-semibold text-blue-800" x-text="question.scenario"></div>
+                        <div class="text-sm text-blue-600 mt-2" x-text="question.question"></div>
+                        <div class="text-xs text-slate-500 mt-2">
+                            <span class="font-medium">Business Impact:</span> <span x-text="question.impact"></span>
+                        </div>
+                    </div>
+                </template>
+            </div>
+            <div class="text-center">
+                <button @click="processBusinessQuestion()" 
+                        :disabled="!selectedQuestion"
+                        class="px-8 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-bold rounded-lg disabled:opacity-50 hover:from-blue-700 hover:to-cyan-700 transition-all">
+                    🚀 Get AI Intelligence Answer
+                </button>
+            </div>
+        </div>
+
+        <!-- Processing Visualization -->
+        <div x-show="isProcessing" class="mb-8" x-transition>
+            <div class="bg-white rounded-2xl p-8 shadow-lg">
+                <h3 class="text-2xl font-bold mb-6 text-center">🤖 AI Agents Working on Your Question</h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+                    <template x-for="agent in workingAgents" :key="agent.name">
+                        <div class="text-center p-4 rounded-lg"
+                             :class="agent.active ? 'agent-working text-white' : 'bg-gray-100 text-gray-600'">
+                            <div class="text-3xl mb-2" x-text="agent.icon"></div>
+                            <div class="font-bold text-sm" x-text="agent.name"></div>
+                            <div class="text-xs mt-1" x-text="agent.task"></div>
+                            <div x-show="agent.active" class="mt-2">
+                                <div class="text-xs">⚡ Processing...</div>
+                                <div class="w-full bg-white/20 rounded-full h-1 mt-1">
+                                    <div class="bg-white h-1 rounded-full animate-pulse" style="width: 75%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+
+                <!-- Real-time Agent Updates -->
+                <div class="bg-slate-900 text-green-400 p-4 rounded-lg font-mono text-sm max-h-40 overflow-y-auto">
+                    <template x-for="log in processingLogs" :key="log.id">
+                        <div class="mb-1">
+                            <span class="text-slate-400" x-text="log.timestamp"></span> 
+                            <span x-text="log.message"></span>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </div>
+
+        <!-- Business Intelligence Results -->
+        <div x-show="results" class="space-y-8" x-transition>
+            
+            <!-- Executive Summary -->
+            <div class="bg-gradient-to-r from-green-50 to-blue-50 rounded-2xl p-8 border-l-4 border-green-500">
+                <h3 class="text-2xl font-bold text-green-800 mb-4">📊 Executive Intelligence Summary</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="text-center">
+                        <div class="text-3xl font-black text-green-600" x-text="results?.timeSaved || '45 hours'"></div>
+                        <div class="text-sm text-green-800 font-medium">Time Saved vs Manual</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-3xl font-black text-blue-600" x-text="results?.dataSources || '4 sources'"></div>
+                        <div class="text-sm text-blue-800 font-medium">Data Sources Analyzed</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-3xl font-black text-purple-600" x-text="results?.insights || '12 insights'"></div>
+                        <div class="text-sm text-purple-800 font-medium">Business Insights Found</div>
+                    </div>
+                </div>
+                <div class="mt-6 p-4 bg-white rounded-lg">
+                    <div class="font-semibold text-slate-800 mb-2">🎯 Key Finding:</div>
+                    <div class="text-slate-700" x-text="results?.keyFinding || 'Loading...'"></div>
+                </div>
+            </div>
+
+            <!-- Agent Discoveries -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <template x-for="discovery in agentDiscoveries" :key="discovery.agent">
+                    <div class="bg-white rounded-2xl p-6 shadow-lg border-l-4"
+                         :class="discovery.priority === 'High' ? 'border-red-500' : discovery.priority === 'Medium' ? 'border-yellow-500' : 'border-green-500'">
+                        <div class="flex items-center mb-4">
+                            <span class="text-2xl mr-3" x-text="discovery.icon"></span>
+                            <div>
+                                <div class="font-bold text-slate-800" x-text="discovery.agent"></div>
+                                <div class="text-xs text-slate-500" x-text="discovery.specialization"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <div class="font-semibold text-slate-700 mb-2">🔍 What I Found:</div>
+                            <div class="text-slate-600 text-sm" x-text="discovery.finding"></div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <div class="font-semibold text-slate-700 mb-2">💡 Business Impact:</div>
+                            <div class="text-slate-600 text-sm" x-text="discovery.businessImpact"></div>
+                        </div>
+                        
+                        <div class="flex items-center justify-between">
+                            <span class="px-3 py-1 rounded-full text-xs font-medium"
+                                  :class="discovery.priority === 'High' ? 'bg-red-100 text-red-700' : 
+                                          discovery.priority === 'Medium' ? 'bg-yellow-100 text-yellow-700' : 
+                                          'bg-green-100 text-green-700'"
+                                  x-text="discovery.priority + ' Priority'"></span>
+                            <div class="text-xs text-slate-500" x-text="discovery.confidence + '% confidence'"></div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+
+            <!-- Knowledge Graph Relationships -->
+            <div class="bg-white rounded-2xl p-8 shadow-lg">
+                <h3 class="text-2xl font-bold mb-6">🕸️ Hidden Connections Discovered</h3>
+                <div class="mb-6">
+                    <div class="text-center text-sm text-slate-600 mb-4">
+                        Our AI found <span class="font-bold text-blue-600" x-text="knowledgeGraph.relationships"></span> hidden relationships 
+                        between <span class="font-bold text-green-600" x-text="knowledgeGraph.entities"></span> different data points
+                    </div>
+                    
+                    <!-- Visual Relationship Network -->
+                    <div class="relative h-64 bg-gradient-to-br from-blue-50 to-purple-50 rounded-lg p-4">
+                        <template x-for="relationship in knowledgeGraph.visualRelationships" :key="relationship.id">
+                            <div class="absolute bg-white rounded-lg p-3 shadow-md text-center"
+                                 :style="`left: ${relationship.x}%; top: ${relationship.y}%; transform: translate(-50%, -50%)`">
+                                <div class="text-lg" x-text="relationship.icon"></div>
+                                <div class="text-xs font-medium" x-text="relationship.label"></div>
+                            </div>
+                        </template>
+                        
+                        <!-- Connection Lines -->
+                        <svg class="absolute inset-0 w-full h-full pointer-events-none">
+                            <template x-for="connection in knowledgeGraph.connections" :key="connection.id">
+                                <line :x1="connection.x1 + '%'" :y1="connection.y1 + '%'" 
+                                      :x2="connection.x2 + '%'" :y2="connection.y2 + '%'"
+                                      stroke="#3b82f6" stroke-width="2" stroke-dasharray="5,5" opacity="0.6">
+                                    <animate attributeName="stroke-dashoffset" values="0;10" dur="2s" repeatCount="indefinite"/>
+                                </line>
+                            </template>
+                        </svg>
+                    </div>
+                </div>
+                
+                <!-- Relationship Insights -->
+                <div class="space-y-3">
+                    <template x-for="insight in knowledgeGraph.insights" :key="insight.id">
+                        <div class="flex items-start gap-4 p-4 bg-blue-50 rounded-lg">
+                            <div class="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+                            <div class="flex-1">
+                                <div class="font-medium text-blue-800" x-text="insight.title"></div>
+                                <div class="text-sm text-blue-600 mt-1" x-text="insight.description"></div>
+                                <div class="text-xs text-slate-500 mt-2">
+                                    Connected: <span x-text="insight.sources.join(' → ')"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+
+            <!-- Before vs After Comparison -->
+            <div class="bg-white rounded-2xl p-8 shadow-lg">
+                <h3 class="text-2xl font-bold mb-6 text-center">📈 Before vs After: Your Business Question</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    
+                    <!-- Before: Manual Process -->
+                    <div class="bg-red-50 p-6 rounded-lg border-l-4 border-red-500">
+                        <h4 class="text-xl font-bold text-red-800 mb-4">❌ BEFORE: Manual Process</h4>
+                        <div class="space-y-3">
+                            <div class="flex items-start gap-3">
+                                <span class="text-red-500 mt-1">⏱️</span>
+                                <div>
+                                    <div class="font-medium text-red-700">2-3 Days Research Time</div>
+                                    <div class="text-sm text-red-600">Multiple analysts searching different databases</div>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <span class="text-red-500 mt-1">🔍</span>
+                                <div>
+                                    <div class="font-medium text-red-700">Limited Data Sources</div>
+                                    <div class="text-sm text-red-600">Only 1-2 sources checked manually</div>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <span class="text-red-500 mt-1">🧩</span>
+                                <div>
+                                    <div class="font-medium text-red-700">No Connection Discovery</div>
+                                    <div class="text-sm text-red-600">Hidden relationships missed</div>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <span class="text-red-500 mt-1">💰</span>
+                                <div>
+                                    <div class="font-medium text-red-700">High Cost</div>
+                                    <div class="text-sm text-red-600">$5,000-$8,000 in analyst time</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- After: AI Agent Process -->
+                    <div class="bg-green-50 p-6 rounded-lg border-l-4 border-green-500">
+                        <h4 class="text-xl font-bold text-green-800 mb-4">✅ AFTER: AI Agent Intelligence</h4>
+                        <div class="space-y-3">
+                            <div class="flex items-start gap-3">
+                                <span class="text-green-500 mt-1">⚡</span>
+                                <div>
+                                    <div class="font-medium text-green-700">15 Minutes Complete Analysis</div>
+                                    <div class="text-sm text-green-600">4 AI agents working simultaneously</div>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <span class="text-green-500 mt-1">🔗</span>
+                                <div>
+                                    <div class="font-medium text-green-700">4+ Data Sources Integrated</div>
+                                    <div class="text-sm text-green-600">FDA, PubMed, Patents, Clinical Trials</div>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <span class="text-green-500 mt-1">🕸️</span>
+                                <div>
+                                    <div class="font-medium text-green-700">Hidden Relationships Found</div>
+                                    <div class="text-sm text-green-600">AI discovers non-obvious connections</div>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <span class="text-green-500 mt-1">💎</span>
+                                <div>
+                                    <div class="font-medium text-green-700">97% Cost Reduction</div>
+                                    <div class="text-sm text-green-600">$200 vs $7,000 traditional cost</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- ROI Calculation -->
+                <div class="mt-8 p-6 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg text-center">
+                    <div class="text-3xl font-black mb-2">$2.3M Annual Savings</div>
+                    <div class="text-blue-100">Based on 50 intelligence requests per month</div>
+                    <div class="text-sm text-blue-200 mt-2">Plus: Faster decisions, reduced risk, competitive advantage</div>
+                </div>
+            </div>
+
+            <!-- Action Button -->
+            <div class="text-center">
+                <button @click="resetDemo()"
+                        class="px-8 py-3 bg-gradient-to-r from-gray-600 to-gray-700 text-white font-medium rounded-lg hover:from-gray-700 hover:to-gray-800 transition-all">
+                    🔄 Try Another Business Question
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function businessDemo() {
+            return {
+                selectedQuestion: null,
+                isProcessing: false,
+                results: null,
+                
+                businessQuestions: [
+                    {
+                        id: 1,
+                        scenario: "Competitive Threat Assessment",
+                        question: "Is our CDK4/6 inhibitor at risk from new market entrants or patent expirations?",
+                        impact: "$2.3B revenue protection"
+                    },
+                    {
+                        id: 2,
+                        scenario: "Regulatory Risk Monitoring",
+                        question: "What compliance risks should we be monitoring for our manufacturing sites?",
+                        impact: "Prevent $50M+ regulatory penalties"
+                    },
+                    {
+                        id: 3,
+                        scenario: "M&A Due Diligence",
+                        question: "What are the hidden regulatory risks in acquiring biotech company XYZ?",
+                        impact: "$500M acquisition decision"
+                    },
+                    {
+                        id: 4,
+                        scenario: "Market Opportunity Analysis",
+                        question: "Where are the biggest unmet medical needs in our therapeutic areas?",
+                        impact: "$1.5B new market opportunity"
+                    }
+                ],
+                
+                workingAgents: [
+                    { name: 'Data Collection', icon: '🔍', task: 'Gathering FDA, PubMed data', active: false },
+                    { name: 'Risk Analysis', icon: '⚠️', task: 'Analyzing compliance patterns', active: false },
+                    { name: 'Competitive Intel', icon: '🏆', task: 'Mapping market landscape', active: false },
+                    { name: 'Knowledge Graph', icon: '🕸️', task: 'Finding hidden connections', active: false }
+                ],
+                
+                processingLogs: [],
+                agentDiscoveries: [],
+                knowledgeGraph: {
+                    relationships: 0,
+                    entities: 0,
+                    visualRelationships: [],
+                    connections: [],
+                    insights: []
+                },
+                
+                selectQuestion(question) {
+                    this.selectedQuestion = question;
+                },
+                
+                async processBusinessQuestion() {
+                    if (!this.selectedQuestion) return;
+                    
+                    this.isProcessing = true;
+                    this.results = null;
+                    this.processingLogs = [];
+                    this.agentDiscoveries = [];
+                    
+                    // Simulate real agent processing
+                    await this.simulateAgentWork();
+                    
+                    this.isProcessing = false;
+                    this.showResults();
+                },
+                
+                async simulateAgentWork() {
+                    const scenarios = {
+                        1: { // Competitive Threat
+                            discoveries: [
+                                {
+                                    agent: 'Data Collection Agent',
+                                    icon: '🔍',
+                                    specialization: 'FDA & Clinical Data',
+                                    finding: 'Found 3 new CDK4/6 inhibitors in Phase III trials, 2 with breakthrough therapy designation',
+                                    businessImpact: '$400M potential market share loss if competitors launch first',
+                                    priority: 'High',
+                                    confidence: 94
+                                },
+                                {
+                                    agent: 'Competitive Intelligence',
+                                    icon: '🏆',
+                                    specialization: 'Patent & Market Analysis',
+                                    finding: 'Key patent covering our lead compound expires in 18 months, creating generic competition window',
+                                    businessImpact: 'Need lifecycle management strategy to protect $2.3B revenue stream',
+                                    priority: 'High',
+                                    confidence: 96
+                                },
+                                {
+                                    agent: 'Risk Analysis Agent',
+                                    icon: '⚠️',
+                                    specialization: 'Regulatory Intelligence',
+                                    finding: 'Competitor received FDA warning letter for manufacturing issues, delaying their launch by 6-12 months',
+                                    businessImpact: 'Window of opportunity to accelerate our market entry timeline',
+                                    priority: 'Medium',
+                                    confidence: 89
+                                },
+                                {
+                                    agent: 'Knowledge Graph Agent',
+                                    icon: '🕸️',
+                                    specialization: 'Relationship Discovery',
+                                    finding: 'Cross-analysis reveals connection between competitor clinical trial failures and specific patient biomarkers',
+                                    businessImpact: 'Our precision medicine approach could capture 40% more market share',
+                                    priority: 'High',
+                                    confidence: 91
+                                }
+                            ],
+                            keyFinding: 'Patent cliff in 18 months creates $2.3B revenue risk, but competitor delays provide 6-month market advantage window',
+                            knowledgeGraph: {
+                                relationships: 47,
+                                entities: 23,
+                                insights: [
+                                    {
+                                        id: 1,
+                                        title: 'Patent-Clinical Trial Connection',
+                                        description: 'Patent expiration timing correlates with competitor trial completion dates',
+                                        sources: ['USPTO Database', 'ClinicalTrials.gov']
+                                    },
+                                    {
+                                        id: 2,
+                                        title: 'Regulatory-Manufacturing Link',
+                                        description: 'FDA warning letters predict 6-12 month launch delays for competitors',
+                                        sources: ['FDA Warning Letters', 'Manufacturing Records']
+                                    },
+                                    {
+                                        id: 3,
+                                        title: 'Biomarker-Market Share Pattern',
+                                        description: 'Patient stratification strategies correlate with 40% higher market capture',
+                                        sources: ['Clinical Data', 'Market Research']
+                                    }
+                                ]
+                            }
+                        }
+                    };
+                    
+                    const scenario = scenarios[this.selectedQuestion.id] || scenarios[1];
+                    
+                    // Simulate agent processing
+                    for (let i = 0; i < this.workingAgents.length; i++) {
+                        const agent = this.workingAgents[i];
+                        agent.active = true;
+                        
+                        this.addLog(`${agent.icon} ${agent.name} started processing...`);
+                        await this.delay(1500);
+                        
+                        this.addLog(`${agent.icon} ${agent.name} completed analysis`);
+                        agent.active = false;
+                        
+                        if (scenario.discoveries[i]) {
+                            this.agentDiscoveries.push(scenario.discoveries[i]);
+                        }
+                        
+                        await this.delay(800);
+                    }
+                    
+                    // Knowledge Graph processing
+                    this.addLog('🕸️ Building knowledge graph from agent discoveries...');
+                    await this.delay(2000);
+                    
+                    this.knowledgeGraph = {
+                        relationships: scenario.knowledgeGraph.relationships,
+                        entities: scenario.knowledgeGraph.entities,
+                        visualRelationships: [
+                            { id: 1, x: 20, y: 30, icon: '💊', label: 'Our Drug' },
+                            { id: 2, x: 80, y: 30, icon: '🏭', label: 'Competitor' },
+                            { id: 3, x: 20, y: 70, icon: '📋', label: 'Patent' },
+                            { id: 4, x: 80, y: 70, icon: '🔬', label: 'Clinical Trial' },
+                            { id: 5, x: 50, y: 50, icon: '⚠️', label: 'FDA Warning' }
+                        ],
+                        connections: [
+                            { id: 1, x1: 20, y1: 30, x2: 80, y2: 30 }, // Drug to Competitor
+                            { id: 2, x1: 20, y1: 30, x2: 20, y2: 70 }, // Drug to Patent
+                            { id: 3, x1: 80, y1: 30, x2: 80, y2: 70 }, // Competitor to Trial
+                            { id: 4, x1: 80, y1: 30, x2: 50, y2: 50 }, // Competitor to Warning
+                        ],
+                        insights: scenario.knowledgeGraph.insights
+                    };
+                    
+                    this.addLog('✅ Knowledge graph construction complete');
+                    
+                    this.results = {
+                        timeSaved: '45 hours',
+                        dataSources: '4 sources',
+                        insights: '12 insights',
+                        keyFinding: scenario.keyFinding
+                    };
+                },
+                
+                showResults() {
+                    // Results are already set during processing
+                },
+                
+                resetDemo() {
+                    this.selectedQuestion = null;
+                    this.isProcessing = false;
+                    this.results = null;
+                    this.processingLogs = [];
+                    this.agentDiscoveries = [];
+                    this.workingAgents.forEach(agent => agent.active = false);
+                    this.knowledgeGraph = {
+                        relationships: 0,
+                        entities: 0,
+                        visualRelationships: [],
+                        connections: [],
+                        insights: []
+                    };
+                },
+                
+                addLog(message) {
+                    this.processingLogs.push({
+                        id: Date.now(),
+                        timestamp: new Date().toLocaleTimeString(),
+                        message: message
+                    });
+                },
+                
+                delay(ms) {
+                    return new Promise(resolve => setTimeout(resolve, ms));
+                }
+            }
+        }
+    </script>
+</body>
+</html>

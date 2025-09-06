@@ -121,9 +121,36 @@ class LeafIntelligenceMultiAgentSystem {
    */
   determineRequiredCapabilities(requestType, parameters) {
     const capabilityMap = {
+      // DataCollectionAgent capabilities
       'collect_drug_data': ['fda_data_collection', 'data_quality_validation'],
       'regulatory_analysis': ['regulatory_monitoring', 'fda_data_collection'],
       'clinical_trials_search': ['clinical_trials_data', 'data_quality_validation'],
+      'monitor_data_sources': ['fda_data_collection'],
+      
+      // RiskAnalysisAgent capabilities
+      'assess_company_risk': ['compliance_monitoring', 'risk_scoring'],
+      'analyze_warning_letters': ['warning_letter_analysis', 'risk_scoring'],
+      'monitor_compliance': ['compliance_monitoring', 'regulatory_pattern_detection'],
+      'predict_regulatory_risk': ['risk_scoring', 'regulatory_pattern_detection'],
+      'generate_risk_report': ['compliance_monitoring', 'risk_mitigation_recommendations'],
+      
+      // CompetitiveIntelligenceAgent capabilities  
+      'analyze_competitive_landscape': ['competitive_landscape_mapping', 'market_opportunity_identification'],
+      'patent_cliff_analysis': ['patent_analysis', 'patent_cliff_analysis'],
+      'assess_market_opportunity': ['market_opportunity_identification', 'competitive_landscape_mapping'],
+      'track_competitor_pipeline': ['competitor_pipeline_tracking', 'market_share_analysis'],
+      'analyze_patent_landscape': ['patent_analysis', 'licensing_opportunity_assessment'],
+      'generate_competitive_report': ['competitive_landscape_mapping', 'patent_analysis'],
+      
+      // KnowledgeGraphAgent capabilities
+      'build_knowledge_graph': ['graph_construction', 'entity_linking'],
+      'discover_relationships': ['relationship_mapping', 'semantic_analysis'],
+      'analyze_entity_connections': ['relationship_mapping', 'graph_analytics'],
+      'find_hidden_patterns': ['pattern_recognition', 'knowledge_discovery'],
+      'generate_insights': ['knowledge_discovery', 'graph_analytics'],
+      'query_graph': ['graph_construction', 'semantic_analysis'],
+      
+      // Legacy/General capabilities
       'competitive_intelligence': ['fda_data_collection', 'ema_data_collection'],
       'executive_briefing': ['executive_reporting', 'strategic_insights'],
       'export_data': ['data_export', 'format_conversion']
