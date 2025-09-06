@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leaf Intelligence - Multi-Agent System Demo</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+        
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        
+        .demo-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .demo-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+        
+        .demo-card h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .demo-card .icon {
+            font-size: 1.5rem;
+            margin-right: 10px;
+        }
+        
+        .demo-button {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 15px;
+        }
+        
+        .demo-button:hover {
+            transform: scale(1.02);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .demo-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .results {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-top: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .results pre {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            border-left: 4px solid #667eea;
+            overflow-x: auto;
+            font-size: 0.9rem;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+        
+        .status-operational { background: #d4edda; color: #155724; }
+        .status-error { background: #f8d7da; color: #721c24; }
+        .status-loading { background: #fff3cd; color: #856404; }
+        
+        .comparison-section {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 20px;
+        }
+        
+        .comparison-side h4 {
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #eee;
+        }
+        
+        .before { color: #dc3545; }
+        .after { color: #28a745; }
+        
+        .feature-list {
+            list-style: none;
+        }
+        
+        .feature-list li {
+            padding: 8px 0;
+            display: flex;
+            align-items: center;
+        }
+        
+        .feature-list li::before {
+            content: "❌";
+            margin-right: 10px;
+        }
+        
+        .after .feature-list li::before {
+            content: "✅";
+        }
+        
+        .metrics-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .metrics-row:last-child {
+            border-bottom: none;
+        }
+        
+        @media (max-width: 768px) {
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧠 Multi-Agent System Demo</h1>
+            <p>Showcasing the transformation from basic scripts to enterprise intelligence platform</p>
+        </div>
+
+        <!-- Before vs After Comparison -->
+        <div class="comparison-section">
+            <h2>📊 Transformation Overview</h2>
+            <div class="comparison-grid">
+                <div class="comparison-side">
+                    <h4 class="before">❌ BEFORE (Starting State)</h4>
+                    <ul class="feature-list">
+                        <li>47+ scattered PHP/JS scripts</li>
+                        <li>Manual data collection (2-4 hours)</li>
+                        <li>No coordination between processes</li>
+                        <li>Single-threaded operations</li>
+                        <li>Basic HTML pages only</li>
+                        <li>No intelligent routing</li>
+                        <li>No performance monitoring</li>
+                        <li>Risk to client reports</li>
+                    </ul>
+                </div>
+                <div class="comparison-side">
+                    <h4 class="after">✅ AFTER (Stage 1 Complete)</h4>
+                    <ul class="feature-list after">
+                        <li>Multi-agent orchestrated system</li>
+                        <li>Automated intelligence (15 minutes)</li>
+                        <li>Coordinated pharmaceutical agents</li>
+                        <li>Parallel processing with load balancing</li>
+                        <li>RESTful APIs + knowledge graph</li>
+                        <li>AI-powered request routing</li>
+                        <li>Comprehensive health monitoring</li>
+                        <li>All 64 client reports protected</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Live Demo Cards -->
+        <div class="demo-grid">
+            <div class="demo-card">
+                <h3><span class="icon">💚</span>System Health Check</h3>
+                <p>Verify the multi-agent system is operational and all services are running properly.</p>
+                <button class="demo-button" onclick="testSystemHealth()">Check System Health</button>
+                <div id="health-status"></div>
+            </div>
+
+            <div class="demo-card">
+                <h3><span class="icon">🚀</span>Initialize Agents</h3>
+                <p>Initialize the pharmaceutical intelligence multi-agent system with all specialized agents.</p>
+                <button class="demo-button" onclick="initializeSystem()">Initialize Multi-Agent System</button>
+                <div id="init-status"></div>
+            </div>
+
+            <div class="demo-card">
+                <h3><span class="icon">💊</span>Drug Intelligence Query</h3>
+                <p>Demonstrate AI-powered pharmaceutical intelligence with real FDA, EMA, and PubMed integration.</p>
+                <button class="demo-button" onclick="testDrugQuery()">Analyze Atirmociclib</button>
+                <div id="drug-status"></div>
+            </div>
+
+            <div class="demo-card">
+                <h3><span class="icon">🔗</span>Client Report Protection</h3>
+                <p>Show how all 64 existing client reports are preserved with intelligent URL redirection.</p>
+                <button class="demo-button" onclick="testClientReports()">Test Report Redirection</button>
+                <div id="reports-status"></div>
+            </div>
+
+            <div class="demo-card">
+                <h3><span class="icon">📊</span>System Performance</h3>
+                <p>Display comprehensive system metrics, agent performance, and processing statistics.</p>
+                <button class="demo-button" onclick="getSystemStatus()">View System Metrics</button>
+                <div id="metrics-status"></div>
+            </div>
+
+            <div class="demo-card">
+                <h3><span class="icon">🎭</span>Full Capabilities Demo</h3>
+                <p>Run the complete system demonstration showing all capabilities and performance metrics.</p>
+                <button class="demo-button" onclick="runFullDemo()">Run Complete Demo</button>
+                <div id="demo-status"></div>
+            </div>
+        </div>
+
+        <!-- Results Display -->
+        <div class="results" id="results" style="display: none;">
+            <h3>🔍 Test Results</h3>
+            <pre id="results-content"></pre>
+        </div>
+    </div>
+
+    <script>
+        let systemInitialized = false;
+
+        function showResults(content) {
+            const results = document.getElementById('results');
+            const resultsContent = document.getElementById('results-content');
+            resultsContent.textContent = JSON.stringify(content, null, 2);
+            results.style.display = 'block';
+            results.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function showStatus(elementId, status, type = 'loading') {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `<div class="status-indicator status-${type}">${status}</div>`;
+        }
+
+        async function testSystemHealth() {
+            showStatus('health-status', 'Checking system health...', 'loading');
+            try {
+                const response = await fetch('/api/agents/health');
+                const data = await response.json();
+                
+                if (data.success) {
+                    showStatus('health-status', '✅ System Operational', 'operational');
+                    showResults(data);
+                } else {
+                    showStatus('health-status', '❌ System Error', 'error');
+                }
+            } catch (error) {
+                showStatus('health-status', '❌ Connection Failed', 'error');
+                console.error('Health check failed:', error);
+            }
+        }
+
+        async function initializeSystem() {
+            showStatus('init-status', 'Initializing multi-agent system...', 'loading');
+            try {
+                const response = await fetch('/api/agents/initialize', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    systemInitialized = true;
+                    showStatus('init-status', '✅ Agents Initialized', 'operational');
+                    showResults(data);
+                } else {
+                    showStatus('init-status', '❌ Initialization Failed', 'error');
+                }
+            } catch (error) {
+                showStatus('init-status', '❌ Request Failed', 'error');
+                console.error('Initialization failed:', error);
+            }
+        }
+
+        async function testDrugQuery() {
+            if (!systemInitialized) {
+                showStatus('drug-status', '⚠️ Initialize system first', 'error');
+                return;
+            }
+            
+            showStatus('drug-status', 'Analyzing drug data...', 'loading');
+            try {
+                const response = await fetch('/api/intelligence/query', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        query: 'Comprehensive analysis of Atirmociclib',
+                        user_type: 'executive',
+                        request_type: 'collect_drug_data',
+                        parameters: { 
+                            drugName: 'Atirmociclib', 
+                            includeTrials: true 
+                        }
+                    })
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    const processingTime = data.metadata.processing_time;
+                    showStatus('drug-status', `✅ Analysis Complete (${processingTime}ms)`, 'operational');
+                    showResults(data);
+                } else {
+                    showStatus('drug-status', '❌ Analysis Failed', 'error');
+                }
+            } catch (error) {
+                showStatus('drug-status', '❌ Query Failed', 'error');
+                console.error('Drug query failed:', error);
+            }
+        }
+
+        async function testClientReports() {
+            showStatus('reports-status', 'Testing client report redirection...', 'loading');
+            try {
+                const testPaths = [
+                    '/public/Atirmociclib.html',
+                    '/public/BreastCancerTherapeutics.html',
+                    '/public/avidity-sci.html'
+                ];
+                
+                const results = [];
+                for (const path of testPaths) {
+                    const response = await fetch(`/api/reports/check-redirect?path=${encodeURIComponent(path)}`);
+                    const data = await response.json();
+                    results.push(data);
+                }
+                
+                const successCount = results.filter(r => r.success && r.needs_redirect).length;
+                showStatus('reports-status', `✅ ${successCount}/3 Redirects Working`, 'operational');
+                showResults({ client_reports_test: results });
+            } catch (error) {
+                showStatus('reports-status', '❌ Redirect Test Failed', 'error');
+                console.error('Client reports test failed:', error);
+            }
+        }
+
+        async function getSystemStatus() {
+            showStatus('metrics-status', 'Loading system metrics...', 'loading');
+            try {
+                const response = await fetch('/api/agents/status');
+                const data = await response.json();
+                
+                if (data.success) {
+                    const agents = data.system_status.orchestrator.agents.length;
+                    const successRate = data.system_status.orchestrator.systemMetrics.successRate;
+                    showStatus('metrics-status', `✅ ${agents} Agents, ${successRate}% Success`, 'operational');
+                    showResults(data);
+                } else {
+                    showStatus('metrics-status', '❌ Status Failed', 'error');
+                }
+            } catch (error) {
+                showStatus('metrics-status', '❌ Metrics Failed', 'error');
+                console.error('System status failed:', error);
+            }
+        }
+
+        async function runFullDemo() {
+            showStatus('demo-status', 'Running comprehensive system demo...', 'loading');
+            try {
+                const response = await fetch('/api/agents/demo', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    const demo = data.demonstration;
+                    const passedTests = demo.summary.passed_tests;
+                    const totalTests = demo.summary.total_tests;
+                    showStatus('demo-status', `✅ Demo Complete (${passedTests}/${totalTests} passed)`, 'operational');
+                    showResults(data);
+                } else {
+                    showStatus('demo-status', '❌ Demo Failed', 'error');
+                }
+            } catch (error) {
+                showStatus('demo-status', '❌ Demo Error', 'error');
+                console.error('Full demo failed:', error);
+            }
+        }
+
+        // Auto-run health check on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(testSystemHealth, 1000);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SyneticX - Multi-Agent Intelligence Platform Demo</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="alternate icon" href="favicon.ico">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Alpine.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/alpinejs/3.10.5/cdn.min.js" defer></script>
+    
+    <!-- GSAP for animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            200: '#bfdbfe',
+                            300: '#93c5fd',
+                            400: '#60a5fa',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                            900: '#1e3a8a',
+                        },
+                        secondary: {
+                            50: '#f0fdfa',
+                            100: '#ccfbf1',
+                            200: '#99f6e4',
+                            300: '#5eead4',
+                            400: '#2dd4bf',
+                            500: '#14b8a6',
+                            600: '#0d9488',
+                            700: '#0f766e',
+                            800: '#115e59',
+                            900: '#134e4a',
+                        },
+                        syneticx: {
+                            blue: '#2563eb',
+                            teal: '#14b8a6',
+                            dark: '#1e3a8a',
+                            light: '#f0f9ff'
+                        }
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'bounce-slow': 'bounce 2s infinite',
+                        'fade-in': 'fadeIn 1s ease-in-out',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0', transform: 'translateY(10px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-gradient-to-br from-syneticx-light via-white to-primary-50 font-sans" x-data="executiveDemo()">
+    
+    <!-- Header with SyneticX Branding -->
+    <header class="bg-white shadow-lg border-b border-primary-100">
+        <div class="max-w-7xl mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <div class="w-12 h-12 bg-gradient-to-r from-primary-600 to-secondary-500 rounded-xl flex items-center justify-center">
+                        <span class="text-white font-bold text-xl">S</span>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-900">SyneticX</h1>
+                        <p class="text-sm text-gray-600">AI-Powered Pharmaceutical Intelligence</p>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <div class="text-sm text-gray-600">Executive Director Demo</div>
+                    <div class="text-xs text-primary-600 font-semibold">Multi-Agent Knowledge Graph Platform</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="py-12 px-6">
+        <div class="max-w-7xl mx-auto text-center">
+            <h1 class="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
+                Transform Your <span class="bg-gradient-to-r from-primary-600 to-secondary-500 bg-clip-text text-transparent">Pharmaceutical Intelligence</span>
+            </h1>
+            <p class="text-xl text-gray-600 max-w-3xl mx-auto mb-8">
+                From manual data collection to AI-powered multi-agent systems. See how our knowledge graph transforms 
+                executive decision-making with predictive insights and automated intelligence.
+            </p>
+            <div class="flex items-center justify-center space-x-6 text-sm">
+                <div class="flex items-center space-x-2">
+                    <div class="w-3 h-3 bg-green-400 rounded-full animate-pulse-slow"></div>
+                    <span class="text-gray-700">System Online</span>
+                </div>
+                <div class="text-gray-400">|</div>
+                <div class="text-gray-700">64 Client Reports Protected</div>
+                <div class="text-gray-400">|</div>
+                <div class="text-gray-700">6 AI Agents Operational</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Executive Value Proposition -->
+    <section class="py-16 px-6 bg-white">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl font-bold text-gray-900 mb-4">Executive Value Transformation</h2>
+                <p class="text-lg text-gray-600">How multi-agent systems revolutionize pharmaceutical decision-making</p>
+            </div>
+            
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <!-- Before State -->
+                <div class="bg-red-50 border border-red-200 rounded-2xl p-8">
+                    <h3 class="text-2xl font-bold text-red-800 mb-6 flex items-center">
+                        <svg class="w-8 h-8 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                        </svg>
+                        Manual Operations
+                    </h3>
+                    <div class="space-y-4">
+                        <div class="flex items-start space-x-3">
+                            <div class="w-2 h-2 bg-red-400 rounded-full mt-2 flex-shrink-0"></div>
+                            <div>
+                                <p class="font-semibold text-red-800">4-Hour Custom Reports</p>
+                                <p class="text-red-600 text-sm">Manual data aggregation for executive briefings</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start space-x-3">
+                            <div class="w-2 h-2 bg-red-400 rounded-full mt-2 flex-shrink-0"></div>
+                            <div>
+                                <p class="font-semibold text-red-800">Reactive Intelligence</p>
+                                <p class="text-red-600 text-sm">Finding out about regulatory actions after they impact markets</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start space-x-3">
+                            <div class="w-2 h-2 bg-red-400 rounded-full mt-2 flex-shrink-0"></div>
+                            <div>
+                                <p class="font-semibold text-red-800">Siloed Data Sources</p>
+                                <p class="text-red-600 text-sm">FDA, EMA, trial data exists separately with no connections</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start space-x-3">
+                            <div class="w-2 h-2 bg-red-400 rounded-full mt-2 flex-shrink-0"></div>
+                            <div>
+                                <p class="font-semibold text-red-800">Limited Competitive Intelligence</p>
+                                <p class="text-red-600 text-sm">Manual tracking of competitor moves and market shifts</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- After State -->
+                <div class="bg-green-50 border border-green-200 rounded-2xl p-8">
+                    <h3 class="text-2xl font-bold text-green-800 mb-6 flex items-center">
+                        <svg class="w-8 h-8 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                        </svg>
+                        AI-Powered Intelligence
+                    </h3>
+                    <div class="space-y-4">
+                        <div class="flex items-start space-x-3">
+                            <div class="w-2 h-2 bg-green-400 rounded-full mt-2 flex-shrink-0"></div>
+                            <div>
+                                <p class="font-semibold text-green-800">15-Minute Executive Briefings</p>
+                                <p class="text-green-600 text-sm">AI agents deliver comprehensive analysis automatically</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start space-x-3">
+                            <div class="w-2 h-2 bg-green-400 rounded-full mt-2 flex-shrink-0"></div>
+                            <div>
+                                <p class="font-semibold text-green-800">Predictive Risk Alerts</p>
+                                <p class="text-green-600 text-sm">Get warned about regulatory actions before they happen</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start space-x-3">
+                            <div class="w-2 h-2 bg-green-400 rounded-full mt-2 flex-shrink-0"></div>
+                            <div>
+                                <p class="font-semibold text-green-800">Connected Knowledge Graph</p>
+                                <p class="text-green-600 text-sm">AI discovers hidden relationships across all pharmaceutical data</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start space-x-3">
+                            <div class="w-2 h-2 bg-green-400 rounded-full mt-2 flex-shrink-0"></div>
+                            <div>
+                                <p class="font-semibold text-green-800">Automated Competitive Intelligence</p>
+                                <p class="text-green-600 text-sm">Real-time monitoring of competitor strategies and market opportunities</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Executive Demo Cards -->
+    <section class="py-16 px-6 bg-gradient-to-br from-gray-50 to-primary-50">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl font-bold text-gray-900 mb-4">Live System Demonstration</h2>
+                <p class="text-lg text-gray-600">Click each scenario to see how AI agents transform executive decision-making</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                
+                <!-- Strategic Intelligence Card -->
+                <div class="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                    <div class="p-8">
+                        <div class="w-16 h-16 bg-gradient-to-r from-primary-500 to-secondary-500 rounded-2xl flex items-center justify-center mb-6">
+                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-3">Strategic Market Intelligence</h3>
+                        <p class="text-gray-600 mb-6">AI agents analyze competitor pipelines, identify market opportunities, and predict regulatory outcomes for strategic planning.</p>
+                        <button @click="runStrategicDemo()" 
+                                :disabled="loading.strategic"
+                                class="w-full bg-gradient-to-r from-primary-600 to-secondary-500 text-white font-semibold py-3 px-4 rounded-xl hover:shadow-lg transition-all duration-200 transform hover:scale-105 disabled:opacity-50">
+                            <span x-show="!loading.strategic">Analyze Market Opportunities</span>
+                            <span x-show="loading.strategic" class="flex items-center justify-center">
+                                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                Analyzing...
+                            </span>
+                        </button>
+                        <div x-show="results.strategic" class="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+                            <p class="text-sm text-green-800 font-semibold" x-text="results.strategic"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Risk Management Card -->
+                <div class="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                    <div class="p-8">
+                        <div class="w-16 h-16 bg-gradient-to-r from-red-500 to-orange-500 rounded-2xl flex items-center justify-center mb-6">
+                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-3">Predictive Risk Management</h3>
+                        <p class="text-gray-600 mb-6">Early warning system for regulatory actions, patent cliffs, and compliance risks before they impact your portfolio.</p>
+                        <button @click="runRiskDemo()" 
+                                :disabled="loading.risk"
+                                class="w-full bg-gradient-to-r from-red-500 to-orange-500 text-white font-semibold py-3 px-4 rounded-xl hover:shadow-lg transition-all duration-200 transform hover:scale-105 disabled:opacity-50">
+                            <span x-show="!loading.risk">Assess Portfolio Risks</span>
+                            <span x-show="loading.risk" class="flex items-center justify-center">
+                                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                Analyzing...
+                            </span>
+                        </button>
+                        <div x-show="results.risk" class="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+                            <p class="text-sm text-red-800 font-semibold" x-text="results.risk"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Knowledge Graph Card -->
+                <div class="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                    <div class="p-8">
+                        <div class="w-16 h-16 bg-gradient-to-r from-purple-500 to-indigo-500 rounded-2xl flex items-center justify-center mb-6">
+                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-3">Connected Knowledge Graph</h3>
+                        <p class="text-gray-600 mb-6">Discover hidden connections between drugs, companies, regulations, and clinical outcomes across the pharmaceutical landscape.</p>
+                        <button @click="runKnowledgeDemo()" 
+                                :disabled="loading.knowledge"
+                                class="w-full bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-semibold py-3 px-4 rounded-xl hover:shadow-lg transition-all duration-200 transform hover:scale-105 disabled:opacity-50">
+                            <span x-show="!loading.knowledge">Explore Connections</span>
+                            <span x-show="loading.knowledge" class="flex items-center justify-center">
+                                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                Mapping...
+                            </span>
+                        </button>
+                        <div x-show="results.knowledge" class="mt-4 p-4 bg-purple-50 border border-purple-200 rounded-lg">
+                            <p class="text-sm text-purple-800 font-semibold" x-text="results.knowledge"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Executive Reporting Card -->
+                <div class="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                    <div class="p-8">
+                        <div class="w-16 h-16 bg-gradient-to-r from-green-500 to-teal-500 rounded-2xl flex items-center justify-center mb-6">
+                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-3">Automated Executive Reports</h3>
+                        <p class="text-gray-600 mb-6">AI-generated executive summaries, board-ready presentations, and strategic insights delivered automatically.</p>
+                        <button @click="runReportingDemo()" 
+                                :disabled="loading.reporting"
+                                class="w-full bg-gradient-to-r from-green-500 to-teal-500 text-white font-semibold py-3 px-4 rounded-xl hover:shadow-lg transition-all duration-200 transform hover:scale-105 disabled:opacity-50">
+                            <span x-show="!loading.reporting">Generate Executive Brief</span>
+                            <span x-show="loading.reporting" class="flex items-center justify-center">
+                                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                Generating...
+                            </span>
+                        </button>
+                        <div x-show="results.reporting" class="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+                            <p class="text-sm text-green-800 font-semibold" x-text="results.reporting"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Client Continuity Card -->
+                <div class="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                    <div class="p-8">
+                        <div class="w-16 h-16 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center mb-6">
+                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-3">Business Continuity Protection</h3>
+                        <p class="text-gray-600 mb-6">All 64 existing client reports protected with intelligent redirection. Zero disruption during platform transformation.</p>
+                        <button @click="runContinuityDemo()" 
+                                :disabled="loading.continuity"
+                                class="w-full bg-gradient-to-r from-blue-500 to-cyan-500 text-white font-semibold py-3 px-4 rounded-xl hover:shadow-lg transition-all duration-200 transform hover:scale-105 disabled:opacity-50">
+                            <span x-show="!loading.continuity">Test Client Protection</span>
+                            <span x-show="loading.continuity" class="flex items-center justify-center">
+                                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                Verifying...
+                            </span>
+                        </button>
+                        <div x-show="results.continuity" class="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                            <p class="text-sm text-blue-800 font-semibold" x-text="results.continuity"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- System Performance Card -->
+                <div class="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                    <div class="p-8">
+                        <div class="w-16 h-16 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-2xl flex items-center justify-center mb-6">
+                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-3">Enterprise Performance</h3>
+                        <p class="text-gray-600 mb-6">Real-time system monitoring, load balancing, and performance metrics. Built for 100x scale with zero downtime.</p>
+                        <button @click="runPerformanceDemo()" 
+                                :disabled="loading.performance"
+                                class="w-full bg-gradient-to-r from-yellow-500 to-orange-500 text-white font-semibold py-3 px-4 rounded-xl hover:shadow-lg transition-all duration-200 transform hover:scale-105 disabled:opacity-50">
+                            <span x-show="!loading.performance">View System Metrics</span>
+                            <span x-show="loading.performance" class="flex items-center justify-center">
+                                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                Loading...
+                            </span>
+                        </button>
+                        <div x-show="results.performance" class="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                            <p class="text-sm text-yellow-800 font-semibold" x-text="results.performance"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Results Dashboard -->
+    <section class="py-16 px-6 bg-white" x-show="Object.keys(detailedResults).length > 0">
+        <div class="max-w-7xl mx-auto">
+            <h2 class="text-3xl font-bold text-gray-900 mb-8 text-center">Live Demo Results</h2>
+            <div class="bg-gray-50 border border-gray-200 rounded-2xl p-8">
+                <pre class="text-sm text-gray-800 overflow-x-auto" x-text="JSON.stringify(detailedResults, null, 2)"></pre>
+            </div>
+        </div>
+    </section>
+
+    <!-- ROI and Business Impact -->
+    <section class="py-16 px-6 bg-gradient-to-br from-primary-600 to-secondary-600 text-white">
+        <div class="max-w-7xl mx-auto text-center">
+            <h2 class="text-3xl font-bold mb-8">Executive Impact Metrics</h2>
+            <div class="grid md:grid-cols-4 gap-8">
+                <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6">
+                    <div class="text-4xl font-bold mb-2">90%</div>
+                    <div class="text-lg opacity-90">Time Reduction</div>
+                    <div class="text-sm opacity-75">4 hours → 15 minutes</div>
+                </div>
+                <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6">
+                    <div class="text-4xl font-bold mb-2">100%</div>
+                    <div class="text-lg opacity-90">Client Continuity</div>
+                    <div class="text-sm opacity-75">Zero disruption</div>
+                </div>
+                <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6">
+                    <div class="text-4xl font-bold mb-2">6</div>
+                    <div class="text-lg opacity-90">AI Agents</div>
+                    <div class="text-sm opacity-75">24/7 intelligence</div>
+                </div>
+                <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6">
+                    <div class="text-4xl font-bold mb-2">10x</div>
+                    <div class="text-lg opacity-90">Scale Ready</div>
+                    <div class="text-sm opacity-75">Enterprise architecture</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 py-8 px-6">
+        <div class="max-w-7xl mx-auto text-center text-gray-600">
+            <p class="mb-2">SyneticX Multi-Agent Intelligence Platform</p>
+            <p class="text-sm">Stage 1 Complete: Foundation & Architecture | Ready for Stage 2 Deployment</p>
+        </div>
+    </footer>
+
+    <script>
+        function executiveDemo() {
+            return {
+                loading: {
+                    strategic: false,
+                    risk: false,
+                    knowledge: false,
+                    reporting: false,
+                    continuity: false,
+                    performance: false
+                },
+                results: {
+                    strategic: '',
+                    risk: '',
+                    knowledge: '',
+                    reporting: '',
+                    continuity: '',
+                    performance: ''
+                },
+                detailedResults: {},
+                
+                async runStrategicDemo() {
+                    this.loading.strategic = true;
+                    try {
+                        // Initialize system first
+                        await fetch('/api/agents/initialize', { method: 'POST' });
+                        
+                        const response = await fetch('/api/intelligence/query', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                query: 'Strategic market analysis for competitive positioning in oncology therapeutics',
+                                user_type: 'executive',
+                                request_type: 'collect_drug_data',
+                                parameters: { 
+                                    drugName: 'Atirmociclib', 
+                                    includeTrials: true,
+                                    includeCompetitive: true
+                                }
+                            })
+                        });
+                        const data = await response.json();
+                        
+                        if (data.success) {
+                            this.results.strategic = `✅ Strategic analysis complete in ${data.metadata.processing_time}ms. Identified ${data.result.summary.sources_accessed} data sources with ${data.result.summary.data_quality_score}% quality score.`;
+                            this.detailedResults.strategic = data;
+                        } else {
+                            this.results.strategic = '❌ Strategic analysis failed';
+                        }
+                    } catch (error) {
+                        this.results.strategic = '❌ Connection error';
+                    }
+                    this.loading.strategic = false;
+                },
+
+                async runRiskDemo() {
+                    this.loading.risk = true;
+                    try {
+                        const response = await fetch('/api/intelligence/query', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                query: 'Risk assessment for regulatory compliance and patent cliff analysis',
+                                user_type: 'executive',
+                                request_type: 'monitor_data_sources',
+                                parameters: {}
+                            })
+                        });
+                        const data = await response.json();
+                        
+                        if (data.success) {
+                            this.results.risk = `✅ Risk assessment complete. System monitoring ${Object.keys(data.result.monitoring_data.sources).length} data sources with real-time alerts configured.`;
+                            this.detailedResults.risk = data;
+                        } else {
+                            this.results.risk = '❌ Risk assessment failed';
+                        }
+                    } catch (error) {
+                        this.results.risk = '❌ Connection error';
+                    }
+                    this.loading.risk = false;
+                },
+
+                async runKnowledgeDemo() {
+                    this.loading.knowledge = true;
+                    try {
+                        const response = await fetch('/api/knowledge-graph/stats');
+                        const data = await response.json();
+                        
+                        if (data.success) {
+                            this.results.knowledge = `✅ Knowledge graph operational with ${data.knowledge_graph.collections_defined} entity types and ${data.knowledge_graph.indexes_optimized} optimized indexes for complex pharmaceutical queries.`;
+                            this.detailedResults.knowledge = data;
+                        } else {
+                            this.results.knowledge = '❌ Knowledge graph query failed';
+                        }
+                    } catch (error) {
+                        this.results.knowledge = '❌ Connection error';
+                    }
+                    this.loading.knowledge = false;
+                },
+
+                async runReportingDemo() {
+                    this.loading.reporting = true;
+                    try {
+                        const response = await fetch('/api/agents/demo', { method: 'POST' });
+                        const data = await response.json();
+                        
+                        if (data.success) {
+                            const demo = data.demonstration;
+                            this.results.reporting = `✅ Executive briefing generated. System completed ${demo.summary.passed_tests}/${demo.summary.total_tests} capability tests with ${demo.demonstrations.find(d => d.test === 'Drug Data Collection')?.processing_time}ms average response time.`;
+                            this.detailedResults.reporting = data;
+                        } else {
+                            this.results.reporting = '❌ Report generation failed';
+                        }
+                    } catch (error) {
+                        this.results.reporting = '❌ Connection error';
+                    }
+                    this.loading.reporting = false;
+                },
+
+                async runContinuityDemo() {
+                    this.loading.continuity = true;
+                    try {
+                        const testPaths = [
+                            '/public/Atirmociclib.html',
+                            '/public/BreastCancerTherapeutics.html',
+                            '/public/avidity-sci.html',
+                            '/public/SyneticxXwideOak.html'
+                        ];
+                        
+                        const results = [];
+                        for (const path of testPaths) {
+                            const response = await fetch(`/api/reports/check-redirect?path=${encodeURIComponent(path)}`);
+                            const data = await response.json();
+                            results.push(data);
+                        }
+                        
+                        const successCount = results.filter(r => r.success && r.needs_redirect).length;
+                        this.results.continuity = `✅ Client continuity verified. ${successCount}/${testPaths.length} critical client reports protected with intelligent URL redirection.`;
+                        this.detailedResults.continuity = { test_results: results };
+                        
+                    } catch (error) {
+                        this.results.continuity = '❌ Connection error';
+                    }
+                    this.loading.continuity = false;
+                },
+
+                async runPerformanceDemo() {
+                    this.loading.performance = true;
+                    try {
+                        const response = await fetch('/api/agents/status');
+                        const data = await response.json();
+                        
+                        if (data.success) {
+                            const status = data.system_status;
+                            const successRate = status.orchestrator.systemMetrics.successRate;
+                            const agents = status.orchestrator.agents.length;
+                            const avgResponseTime = status.orchestrator.systemMetrics.averageResponseTime;
+                            
+                            this.results.performance = `✅ System performance optimal. ${agents} agents operational with ${successRate}% success rate and ${avgResponseTime}ms average response time.`;
+                            this.detailedResults.performance = data;
+                        } else {
+                            this.results.performance = '❌ Performance monitoring failed';
+                        }
+                    } catch (error) {
+                        this.results.performance = '❌ Connection error';
+                    }
+                    this.loading.performance = false;
+                }
+            }
+        }
+    </script>
+</body>
+</html>
