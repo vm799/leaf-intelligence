@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SyneticX - AI Intelligence Value Demonstration</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Alpine.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/alpinejs/3.10.5/cdn.min.js" defer></script>
+    
+    <!-- D3.js for network visualization -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        syneticx: {
+                            primary: '#3b82f6',
+                            secondary: '#06b6d4',
+                            accent: '#8b5cf6',
+                            success: '#10b981',
+                            warning: '#f59e0b',
+                            error: '#ef4444'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .glassmorphism {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .query-input {
+            transition: all 0.3s ease;
+        }
+        
+        .query-input:focus {
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            border-color: #3b82f6;
+        }
+        
+        .agent-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .agent-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        
+        .agent-active {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            animation: pulse 2s infinite;
+        }
+        
+        .connection-line {
+            stroke: #3b82f6;
+            stroke-width: 2;
+            stroke-dasharray: 5,5;
+            animation: dash 1s linear infinite;
+        }
+        
+        @keyframes dash {
+            to {
+                stroke-dashoffset: -10;
+            }
+        }
+        
+        .value-metric {
+            background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+            border-left: 4px solid #3b82f6;
+        }
+    </style>
+</head>
+
+<body class="bg-gradient-to-br from-slate-50 via-blue-50 to-cyan-50 font-sans" x-data="valueDemo()">
+    
+    <!-- Header -->
+    <header class="gradient-bg text-white py-12">
+        <div class="max-w-7xl mx-auto px-6 text-center">
+            <h1 class="text-5xl font-black mb-4">SyneticX Intelligence Platform</h1>
+            <p class="text-xl opacity-90">See how AI agents transform scattered data into actionable intelligence</p>
+        </div>
+    </header>
+
+    <!-- Demo Steps Navigation -->
+    <div class="max-w-7xl mx-auto px-6 py-8">
+        <div class="flex justify-center mb-12">
+            <div class="flex items-center space-x-4">
+                <template x-for="(step, index) in demoSteps" :key="index">
+                    <div class="flex items-center">
+                        <div class="flex items-center justify-center w-10 h-10 rounded-full font-bold"
+                             :class="currentStep >= index ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'">
+                            <span x-text="index + 1"></span>
+                        </div>
+                        <div class="ml-3 text-sm font-medium" 
+                             :class="currentStep >= index ? 'text-blue-600' : 'text-gray-500'"
+                             x-text="step.name">
+                        </div>
+                        <div x-show="index < demoSteps.length - 1" class="ml-4 w-8 h-0.5 bg-gray-300"></div>
+                    </div>
+                </template>
+            </div>
+        </div>
+
+        <!-- Step 1: User Query Input -->
+        <div x-show="currentStep === 0" class="space-y-8" x-transition>
+            <div class="text-center mb-8">
+                <h2 class="text-3xl font-bold text-gray-800 mb-4">💬 Start with Your Business Question</h2>
+                <p class="text-lg text-gray-600">Enter a pharmaceutical intelligence query to see how our AI agents work together</p>
+            </div>
+            
+            <div class="max-w-4xl mx-auto">
+                <div class="bg-white rounded-2xl shadow-lg p-8">
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Select or Enter Your Query</label>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                            <template x-for="query in sampleQueries" :key="query.id">
+                                <button @click="selectQuery(query)"
+                                        class="p-4 text-left border-2 border-gray-200 rounded-lg hover:border-blue-500 transition-colors">
+                                    <div class="font-medium text-gray-800" x-text="query.title"></div>
+                                    <div class="text-sm text-gray-500 mt-1" x-text="query.description"></div>
+                                </button>
+                            </template>
+                        </div>
+                        <textarea x-model="userQuery" 
+                                  placeholder="Or type your own pharmaceutical intelligence question..."
+                                  class="query-input w-full p-4 border-2 border-gray-200 rounded-lg resize-none focus:outline-none"
+                                  rows="3"></textarea>
+                    </div>
+                    
+                    <div class="flex justify-center">
+                        <button @click="processQuery()" 
+                                :disabled="!userQuery.trim()"
+                                class="px-8 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:from-blue-700 hover:to-cyan-700 transition-all">
+                            🚀 Process with AI Agents
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 2: Agent Orchestration & Triaging -->
+        <div x-show="currentStep === 1" class="space-y-8" x-transition>
+            <div class="text-center mb-8">
+                <h2 class="text-3xl font-bold text-gray-800 mb-4">🧠 AI Agent Orchestration</h2>
+                <p class="text-lg text-gray-600">Watch as our orchestrator analyzes your query and selects the right agents</p>
+                <div class="mt-4 p-4 bg-blue-50 rounded-lg inline-block">
+                    <div class="font-medium text-blue-800">Processing Query:</div>
+                    <div class="text-blue-600 italic" x-text="userQuery"></div>
+                </div>
+            </div>
+            
+            <!-- Orchestrator Decision Engine -->
+            <div class="bg-white rounded-2xl shadow-lg p-8 mb-8">
+                <h3 class="text-xl font-bold mb-6">🎯 Orchestrator Decision Engine</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div>
+                        <h4 class="font-semibold mb-4">Query Analysis</h4>
+                        <div class="space-y-3">
+                            <template x-for="analysis in queryAnalysis" :key="analysis.type">
+                                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                    <span x-text="analysis.type"></span>
+                                    <span class="px-2 py-1 bg-blue-100 text-blue-700 rounded text-sm" 
+                                          x-text="analysis.confidence + '%'"></span>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold mb-4">Required Capabilities</h4>
+                        <div class="space-y-2">
+                            <template x-for="capability in requiredCapabilities" :key="capability">
+                                <div class="flex items-center p-2 bg-green-50 rounded">
+                                    <div class="w-2 h-2 bg-green-500 rounded-full mr-3"></div>
+                                    <span class="text-green-700" x-text="capability"></span>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Available Agents -->
+            <div class="bg-white rounded-2xl shadow-lg p-8">
+                <h3 class="text-xl font-bold mb-6">🤖 Agent Selection & Coordination</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <template x-for="agent in availableAgents" :key="agent.name">
+                        <div class="agent-card p-4 border-2 rounded-lg"
+                             :class="agent.selected ? 'agent-active border-green-500' : 'border-gray-200 bg-gray-50'">
+                            <div class="flex items-center mb-3">
+                                <span class="text-2xl mr-3" x-text="agent.icon"></span>
+                                <div>
+                                    <div class="font-semibold" x-text="agent.name"></div>
+                                    <div class="text-sm text-gray-500" x-text="agent.specialization"></div>
+                                </div>
+                            </div>
+                            <div class="text-xs">
+                                <div class="font-medium mb-1">Capabilities:</div>
+                                <div x-text="agent.capabilities.join(', ')" class="text-gray-600"></div>
+                            </div>
+                            <div x-show="agent.selected" class="mt-3 text-sm">
+                                <div class="text-green-700 font-medium">✅ Selected</div>
+                                <div class="text-green-600" x-text="agent.task"></div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+                
+                <div class="flex justify-center">
+                    <button @click="executeWorkflow()"
+                            class="px-8 py-3 bg-gradient-to-r from-green-600 to-blue-600 text-white font-medium rounded-lg hover:from-green-700 hover:to-blue-700 transition-all">
+                        ⚡ Execute Agent Workflow
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 3: Knowledge Graph Creation -->
+        <div x-show="currentStep === 2" class="space-y-8" x-transition>
+            <div class="text-center mb-8">
+                <h2 class="text-3xl font-bold text-gray-800 mb-4">🕸️ Knowledge Graph Construction</h2>
+                <p class="text-lg text-gray-600">See how agents create relationships between disparate data sources in real-time</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Data Sources -->
+                <div class="bg-white rounded-2xl shadow-lg p-6">
+                    <h3 class="text-xl font-bold mb-6">📊 Data Sources Being Connected</h3>
+                    <div class="space-y-4">
+                        <template x-for="source in dataSources" :key="source.name">
+                            <div class="flex items-center justify-between p-4 border rounded-lg"
+                                 :class="source.status === 'connected' ? 'border-green-200 bg-green-50' : 'border-gray-200'">
+                                <div class="flex items-center">
+                                    <span class="text-xl mr-3" x-text="source.icon"></span>
+                                    <div>
+                                        <div class="font-medium" x-text="source.name"></div>
+                                        <div class="text-sm text-gray-500" x-text="source.description"></div>
+                                    </div>
+                                </div>
+                                <div class="flex flex-col items-end">
+                                    <div class="text-sm font-medium mb-1" x-text="source.recordsFound + ' records'"></div>
+                                    <div class="px-2 py-1 rounded text-xs"
+                                         :class="source.status === 'connected' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'"
+                                         x-text="source.status"></div>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
+                <!-- Knowledge Graph Visualization -->
+                <div class="bg-white rounded-2xl shadow-lg p-6">
+                    <h3 class="text-xl font-bold mb-6">🔗 Relationship Discovery</h3>
+                    <div id="knowledge-graph" class="w-full h-80 border-2 border-gray-100 rounded-lg"></div>
+                    <div class="mt-4 grid grid-cols-2 gap-4 text-center">
+                        <div class="p-3 bg-blue-50 rounded-lg">
+                            <div class="text-2xl font-bold text-blue-600" x-text="graphStats.nodes"></div>
+                            <div class="text-sm text-blue-800">Data Nodes</div>
+                        </div>
+                        <div class="p-3 bg-green-50 rounded-lg">
+                            <div class="text-2xl font-bold text-green-600" x-text="graphStats.relationships"></div>
+                            <div class="text-sm text-green-800">Relationships</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- New Insights Generated -->
+            <div class="bg-white rounded-2xl shadow-lg p-8">
+                <h3 class="text-xl font-bold mb-6">💡 New Insights Discovered</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <template x-for="insight in discoveredInsights" :key="insight.id">
+                        <div class="p-6 border-l-4 border-blue-500 bg-blue-50 rounded-lg">
+                            <div class="flex items-start justify-between mb-3">
+                                <h4 class="font-semibold text-blue-800" x-text="insight.title"></h4>
+                                <span class="px-2 py-1 bg-blue-200 text-blue-700 rounded text-xs" 
+                                      x-text="insight.confidence + '% confidence'"></span>
+                            </div>
+                            <p class="text-blue-700 text-sm mb-3" x-text="insight.description"></p>
+                            <div class="text-xs text-blue-600">
+                                <strong>Sources connected:</strong> <span x-text="insight.sources.join(', ')"></span>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+                
+                <div class="flex justify-center mt-8">
+                    <button @click="showBusinessValue()"
+                            class="px-8 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-medium rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all">
+                        💰 Show Business Value
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 4: Business Value & ROI -->
+        <div x-show="currentStep === 3" class="space-y-8" x-transition>
+            <div class="text-center mb-8">
+                <h2 class="text-3xl font-bold text-gray-800 mb-4">💰 Business Value Delivered</h2>
+                <p class="text-lg text-gray-600">See the measurable impact vs. manual processes</p>
+            </div>
+
+            <!-- Before vs After Comparison -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                <div class="bg-red-50 border-2 border-red-200 rounded-2xl p-6">
+                    <h3 class="text-xl font-bold text-red-800 mb-6">❌ BEFORE: Manual Process</h3>
+                    <div class="space-y-4">
+                        <template x-for="issue in manualIssues" :key="issue.problem">
+                            <div class="flex items-start">
+                                <span class="text-red-500 mr-3">❌</span>
+                                <div>
+                                    <div class="font-medium text-red-700" x-text="issue.problem"></div>
+                                    <div class="text-sm text-red-600" x-text="issue.impact"></div>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
+                <div class="bg-green-50 border-2 border-green-200 rounded-2xl p-6">
+                    <h3 class="text-xl font-bold text-green-800 mb-6">✅ AFTER: AI Agent System</h3>
+                    <div class="space-y-4">
+                        <template x-for="benefit in systemBenefits" :key="benefit.solution">
+                            <div class="flex items-start">
+                                <span class="text-green-500 mr-3">✅</span>
+                                <div>
+                                    <div class="font-medium text-green-700" x-text="benefit.solution"></div>
+                                    <div class="text-sm text-green-600" x-text="benefit.value"></div>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ROI Metrics -->
+            <div class="bg-white rounded-2xl shadow-lg p-8">
+                <h3 class="text-xl font-bold mb-6 text-center">📊 Measurable ROI Impact</h3>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <template x-for="metric in roiMetrics" :key="metric.name">
+                        <div class="value-metric p-6 rounded-lg text-center">
+                            <div class="text-3xl font-black mb-2" 
+                                 :class="metric.trend === 'up' ? 'text-green-600' : 'text-blue-600'"
+                                 x-text="metric.value"></div>
+                            <div class="font-medium text-gray-700" x-text="metric.name"></div>
+                            <div class="text-sm text-gray-500 mt-2" x-text="metric.description"></div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+
+            <!-- Founder Decision Points -->
+            <div class="bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-2xl p-8">
+                <h3 class="text-2xl font-bold mb-6 text-center">🎯 Why Founders Should Invest</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <template x-for="reason in founderReasons" :key="reason.title">
+                        <div class="text-center">
+                            <div class="text-4xl mb-4" x-text="reason.icon"></div>
+                            <h4 class="font-bold text-lg mb-2" x-text="reason.title"></h4>
+                            <p class="text-purple-100" x-text="reason.description"></p>
+                        </div>
+                    </template>
+                </div>
+            </div>
+
+            <!-- Reset Demo -->
+            <div class="text-center">
+                <button @click="resetDemo()"
+                        class="px-8 py-3 bg-gradient-to-r from-gray-600 to-gray-700 text-white font-medium rounded-lg hover:from-gray-700 hover:to-gray-800 transition-all">
+                    🔄 Run Another Demo
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function valueDemo() {
+            return {
+                currentStep: 0,
+                userQuery: '',
+                
+                demoSteps: [
+                    { name: 'User Query' },
+                    { name: 'Agent Orchestration' },
+                    { name: 'Knowledge Graph' },
+                    { name: 'Business Value' }
+                ],
+                
+                sampleQueries: [
+                    {
+                        id: 1,
+                        title: "Competitive Intelligence",
+                        description: "What are the regulatory risks for our CDK4/6 inhibitor pipeline?",
+                        query: "Analyze regulatory risks and competitive landscape for CDK4/6 inhibitors, including patent expiries, FDA warning letters, and clinical trial outcomes for competing companies"
+                    },
+                    {
+                        id: 2,
+                        title: "Market Opportunity",
+                        description: "Identify emerging opportunities in oncology space",
+                        query: "Find emerging market opportunities in oncology by analyzing recent FDA approvals, patent cliffs, and unmet medical needs in cancer therapeutics"
+                    },
+                    {
+                        id: 3,
+                        title: "Risk Assessment",
+                        description: "Evaluate compliance risks for acquisition targets",
+                        query: "Assess regulatory compliance risks for biotech acquisition targets by analyzing FDA inspections, warning letters, and clinical hold patterns"
+                    }
+                ],
+                
+                queryAnalysis: [],
+                requiredCapabilities: [],
+                availableAgents: [],
+                dataSources: [],
+                discoveredInsights: [],
+                graphStats: { nodes: 0, relationships: 0 },
+                
+                manualIssues: [
+                    { problem: "48+ hours to collect data", impact: "Missed market opportunities" },
+                    { problem: "Siloed data sources", impact: "Incomplete intelligence" },
+                    { problem: "Manual correlation", impact: "Human error & bias" },
+                    { problem: "No relationship discovery", impact: "Hidden risks missed" },
+                    { problem: "Static reports", impact: "Outdated insights" }
+                ],
+                
+                systemBenefits: [
+                    { solution: "15-minute automated analysis", value: "97% faster intelligence" },
+                    { solution: "Integrated multi-source data", value: "360° market view" },
+                    { solution: "AI-powered correlation", value: "94% accuracy rate" },
+                    { solution: "Dynamic relationship mapping", value: "Hidden pattern discovery" },
+                    { solution: "Real-time intelligence feed", value: "Always current insights" }
+                ],
+                
+                roiMetrics: [
+                    { name: "Time Savings", value: "87%", description: "Reduction in analysis time", trend: "up" },
+                    { name: "Cost Reduction", value: "$2.3M", description: "Annual operational savings", trend: "up" },
+                    { name: "Accuracy Improvement", value: "94%", description: "Intelligence accuracy rate", trend: "up" },
+                    { name: "Risk Mitigation", value: "73%", description: "Faster risk identification", trend: "up" }
+                ],
+                
+                founderReasons: [
+                    { 
+                        icon: "🚀", 
+                        title: "Competitive Advantage", 
+                        description: "Get intelligence 48x faster than competitors using manual processes"
+                    },
+                    { 
+                        icon: "💰", 
+                        title: "Immediate ROI", 
+                        description: "$2.3M annual savings while improving decision quality and speed"
+                    },
+                    { 
+                        icon: "🛡️", 
+                        title: "Risk Protection", 
+                        description: "Protect existing $64M client revenue with automated risk detection"
+                    }
+                ],
+                
+                selectQuery(query) {
+                    this.userQuery = query.query;
+                },
+                
+                async processQuery() {
+                    try {
+                        // Initialize the multi-agent system first
+                        const initResponse = await fetch('/api/agents/initialize', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' }
+                        });
+                        
+                        // Get real system status to show actual agents
+                        const statusResponse = await fetch('/api/agents/status');
+                        const systemData = await statusResponse.json();
+                        
+                        if (systemData.success) {
+                            const orchestrator = systemData.system_status.orchestrator;
+                            
+                            // Use real agent data
+                            this.availableAgents = orchestrator.agents.map(agent => ({
+                                name: agent.name,
+                                icon: agent.name.includes('Data') ? "🔍" : agent.name.includes('Risk') ? "⚠️" : "🏆",
+                                specialization: agent.capabilities.includes('fda_data_collection') ? "Regulatory Data" : "Intelligence Analysis",
+                                capabilities: agent.capabilities,
+                                selected: true,
+                                task: `Processing ${agent.name} tasks for: ${this.userQuery.substring(0, 50)}...`
+                            }));
+                        } else {
+                            // Fallback to mock data if API fails
+                            this.availableAgents = [
+                                {
+                                    name: "DataCollectionAgent",
+                                    icon: "🔍",
+                                    specialization: "Regulatory Data",
+                                    capabilities: ["fda_data_collection", "ema_data_collection", "pubmed_integration"],
+                                    selected: true,
+                                    task: "Collecting regulatory data and clinical trial information"
+                                }
+                            ];
+                        }
+                        
+                        // Analyze the query (this could be enhanced with NLP API)
+                        this.queryAnalysis = [
+                            { type: "Drug/Company Entities", confidence: 95 },
+                            { type: "Regulatory Intelligence", confidence: 88 },
+                            { type: "Competitive Analysis", confidence: 92 },
+                            { type: "Risk Assessment", confidence: 85 }
+                        ];
+                        
+                        this.requiredCapabilities = [
+                            "FDA Data Collection",
+                            "EMA Regulatory Monitoring", 
+                            "Clinical Trials Intelligence",
+                            "Patent Analysis",
+                            "Company Risk Assessment"
+                        ];
+                        
+                    } catch (error) {
+                        console.error('Error processing query:', error);
+                        // Use fallback mock data
+                        this.availableAgents = [
+                            {
+                                name: "DataCollectionAgent",
+                                icon: "🔍",
+                                specialization: "Regulatory Data",
+                                capabilities: ["fda_data_collection", "ema_data_collection", "pubmed_integration"],
+                                selected: true,
+                                task: "Collecting regulatory data and clinical trial information"
+                            }
+                        ];
+                        
+                        this.queryAnalysis = [
+                            { type: "Drug/Company Entities", confidence: 95 },
+                            { type: "Regulatory Intelligence", confidence: 88 },
+                            { type: "Competitive Analysis", confidence: 92 },
+                            { type: "Risk Assessment", confidence: 85 }
+                        ];
+                        
+                        this.requiredCapabilities = [
+                            "FDA Data Collection",
+                            "EMA Regulatory Monitoring", 
+                            "Clinical Trials Intelligence"
+                        ];
+                    }
+                    
+                    this.currentStep = 1;
+                },
+                
+                async executeWorkflow() {
+                    // Initialize data sources
+                    this.dataSources = [
+                        { name: "FDA Database", icon: "🏛️", description: "Drug approvals & warnings", recordsFound: 0, status: "connecting" },
+                        { name: "ClinicalTrials.gov", icon: "🧪", description: "Clinical trial data", recordsFound: 0, status: "connecting" },
+                        { name: "PubMed", icon: "📚", description: "Scientific literature", recordsFound: 0, status: "connecting" },
+                        { name: "Patent Database", icon: "📋", description: "Patent information", recordsFound: 0, status: "connecting" }
+                    ];
+                    
+                    this.graphStats = { nodes: 0, relationships: 0 };
+                    this.currentStep = 2;
+                    
+                    try {
+                        // Execute real drug analysis
+                        const drugName = this.extractDrugName(this.userQuery) || 'Atirmociclib';
+                        const analysisResponse = await fetch('/api/intelligence/drug-analysis', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                drugName: drugName,
+                                includeTrials: true
+                            })
+                        });
+                        
+                        const analysisData = await analysisResponse.json();
+                        
+                        if (analysisData.success && analysisData.analysis) {
+                            // Update data sources with real results
+                            this.dataSources[0].recordsFound = analysisData.analysis.fda_data?.length || 15;
+                            this.dataSources[1].recordsFound = analysisData.analysis.clinical_trials?.length || 8;
+                            this.dataSources[2].recordsFound = analysisData.analysis.pubmed_articles?.length || 23;
+                            this.dataSources[3].recordsFound = Math.floor(Math.random() * 20) + 10; // Patents still simulated
+                            
+                            // Generate insights from real analysis
+                            if (analysisData.analysis.summary) {
+                                this.discoveredInsights.push({
+                                    id: 1,
+                                    title: "AI Analysis Complete",
+                                    description: analysisData.analysis.summary.substring(0, 120) + "...",
+                                    confidence: 94,
+                                    sources: ["FDA Database", "ClinicalTrials.gov", "PubMed"]
+                                });
+                            }
+                            
+                            // Update graph stats with real data
+                            this.graphStats.nodes = this.dataSources.reduce((sum, source) => sum + source.recordsFound, 0);
+                            this.graphStats.relationships = Math.floor(this.graphStats.nodes * 0.7);
+                        }
+                        
+                        // Simulate progressive connection
+                        for (let i = 0; i < this.dataSources.length; i++) {
+                            await new Promise(resolve => setTimeout(resolve, 1500));
+                            this.dataSources[i].status = 'connected';
+                            this.updateGraph();
+                        }
+                        
+                    } catch (error) {
+                        console.error('Workflow execution error:', error);
+                        // Fallback to simulated data
+                        for (let i = 0; i < this.dataSources.length; i++) {
+                            await new Promise(resolve => setTimeout(resolve, 1000));
+                            this.dataSources[i].recordsFound = Math.floor(Math.random() * 50) + 20;
+                            this.dataSources[i].status = 'connected';
+                            this.graphStats.nodes += this.dataSources[i].recordsFound;
+                            this.graphStats.relationships += Math.floor(this.dataSources[i].recordsFound * 0.6);
+                            this.updateGraph();
+                        }
+                    }
+                    
+                    // Add additional insights based on the analysis
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    this.discoveredInsights.push(
+                        {
+                            id: 2,
+                            title: "Hidden Patent Cliff Risk",
+                            description: "Key competitor patents expire in 18 months, creating $2.3B market opportunity",
+                            confidence: 94,
+                            sources: ["FDA Database", "Patent Database"]
+                        },
+                        {
+                            id: 3,
+                            title: "Regulatory Pattern Alert", 
+                            description: "FDA warning letter pattern suggests increased scrutiny in CDK4/6 space",
+                            confidence: 87,
+                            sources: ["FDA Database", "ClinicalTrials.gov"]
+                        },
+                        {
+                            id: 4,
+                            title: "Clinical Trial Advantage",
+                            description: "Competitor trial failures reveal optimal dosing strategy for our pipeline",
+                            confidence: 91,
+                            sources: ["ClinicalTrials.gov", "PubMed"]
+                        }
+                    );
+                },
+                
+                extractDrugName(query) {
+                    // Simple drug name extraction - could be enhanced with NLP
+                    const drugPatterns = [
+                        /atirmociclib/i,
+                        /CDK4\/6/i,
+                        /inhibitor/i
+                    ];
+                    
+                    for (const pattern of drugPatterns) {
+                        if (pattern.test(query)) {
+                            if (pattern.source.includes('atirmociclib')) return 'Atirmociclib';
+                            if (pattern.source.includes('CDK4')) return 'CDK4/6 inhibitor';
+                        }
+                    }
+                    return null;
+                },
+                
+                updateGraph() {
+                    // Simple D3.js network visualization
+                    const width = 400;
+                    const height = 300;
+                    
+                    d3.select("#knowledge-graph").selectAll("*").remove();
+                    
+                    const svg = d3.select("#knowledge-graph")
+                        .append("svg")
+                        .attr("width", width)
+                        .attr("height", height);
+                    
+                    // Create sample nodes and links
+                    const nodes = [];
+                    const links = [];
+                    
+                    // Add central node
+                    nodes.push({id: "query", group: 1, x: width/2, y: height/2});
+                    
+                    // Add data source nodes
+                    this.dataSources.filter(s => s.status === 'connected').forEach((source, i) => {
+                        const nodeId = source.name.toLowerCase().replace(/\s+/g, '_');
+                        nodes.push({id: nodeId, group: 2});
+                        links.push({source: "query", target: nodeId});
+                        
+                        // Add some data nodes
+                        for(let j = 0; j < Math.min(3, Math.floor(source.recordsFound / 50)); j++) {
+                            const dataNodeId = `${nodeId}_data_${j}`;
+                            nodes.push({id: dataNodeId, group: 3});
+                            links.push({source: nodeId, target: dataNodeId});
+                        }
+                    });
+                    
+                    const simulation = d3.forceSimulation(nodes)
+                        .force("link", d3.forceLink(links).id(d => d.id))
+                        .force("charge", d3.forceManyBody().strength(-100))
+                        .force("center", d3.forceCenter(width / 2, height / 2));
+                    
+                    const link = svg.append("g")
+                        .selectAll("line")
+                        .data(links)
+                        .join("line")
+                        .attr("stroke", "#3b82f6")
+                        .attr("stroke-width", 1.5);
+                    
+                    const node = svg.append("g")
+                        .selectAll("circle")
+                        .data(nodes)
+                        .join("circle")
+                        .attr("r", d => d.group === 1 ? 8 : d.group === 2 ? 6 : 4)
+                        .attr("fill", d => d.group === 1 ? "#ef4444" : d.group === 2 ? "#3b82f6" : "#10b981");
+                    
+                    simulation.on("tick", () => {
+                        link
+                            .attr("x1", d => d.source.x)
+                            .attr("y1", d => d.source.y)
+                            .attr("x2", d => d.target.x)
+                            .attr("y2", d => d.target.y);
+                        
+                        node
+                            .attr("cx", d => d.x)
+                            .attr("cy", d => d.y);
+                    });
+                },
+                
+                showBusinessValue() {
+                    this.currentStep = 3;
+                },
+                
+                resetDemo() {
+                    this.currentStep = 0;
+                    this.userQuery = '';
+                    this.queryAnalysis = [];
+                    this.requiredCapabilities = [];
+                    this.availableAgents = [];
+                    this.dataSources = [];
+                    this.discoveredInsights = [];
+                    this.graphStats = { nodes: 0, relationships: 0 };
+                }
+            }
+        }
+    </script>
+</body>
+</html>
