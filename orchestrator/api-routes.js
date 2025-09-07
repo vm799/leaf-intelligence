@@ -62,7 +62,7 @@ router.get('/status', ensureInitialized, (req, res) => {
     res.json({
       success: true,
       system_status: systemStatus,
-      api_version: '1.0.0-stage1',
+      api_version: '2.0.0-stage2b',
       timestamp: new Date().toISOString()
     });
     
@@ -87,7 +87,9 @@ router.get('/health', (req, res) => {
     services: {
       multi_agent_system: multiAgentSystem ? 'initialized' : 'not_initialized',
       client_reports: clientReportService ? 'active' : 'not_active',
-      knowledge_graph: knowledgeGraph ? 'available' : 'not_available'
+      knowledge_graph: knowledgeGraph ? 'available' : 'not_available',
+      webhook_system: multiAgentSystem?.webhookManager ? 'active' : 'not_active',
+      export_system: multiAgentSystem?.reportExporter ? 'active' : 'not_active'
     }
   };
   
@@ -346,6 +348,168 @@ router.post('/search', async (req, res) => {
     res.status(500).json({
       success: false,
       error: 'Knowledge graph search failed',
+      details: error.message
+    });
+  }
+});
+
+// ================================
+// STAGE 2B - WEBHOOK ENDPOINTS
+// ================================
+
+/**
+ * POST /api/webhooks/register
+ * Register a new webhook endpoint
+ */
+router.post('/webhooks/register', ensureInitialized, async (req, res) => {
+  try {
+    const { webhook_id, url, events, secret } = req.body;
+    
+    if (!webhook_id || !url) {
+      return res.status(400).json({
+        success: false,
+        error: 'webhook_id and url are required'
+      });
+    }
+
+    const webhookResult = multiAgentSystem.webhookManager.registerWebhook(webhook_id, {
+      url,
+      events: events || ['fda_warning', 'regulatory_change'],
+      secret
+    });
+
+    res.json({
+      success: true,
+      webhook_registered: webhookResult,
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error) {
+    console.error('❌ Webhook registration failed:', error.message);
+    res.status(500).json({
+      success: false,
+      error: 'Webhook registration failed',
+      details: error.message
+    });
+  }
+});
+
+/**
+ * POST /api/webhooks/alert
+ * Process incoming webhook alert
+ */
+router.post('/webhooks/alert', ensureInitialized, async (req, res) => {
+  try {
+    const alertData = req.body;
+    
+    const result = await multiAgentSystem.processWebhookAlert(alertData);
+    
+    res.json({
+      success: result.success,
+      alert_processed: result.alert_processed,
+      timestamp: result.timestamp
+    });
+
+  } catch (error) {
+    console.error('❌ Webhook alert processing failed:', error.message);
+    res.status(500).json({
+      success: false,
+      error: 'Webhook alert processing failed',
+      details: error.message
+    });
+  }
+});
+
+// ================================
+// STAGE 2B - EXPORT ENDPOINTS  
+// ================================
+
+/**
+ * POST /api/export/pdf
+ * Export pharmaceutical intelligence data to PDF
+ */
+router.post('/export/pdf', ensureInitialized, async (req, res) => {
+  try {
+    const { data, options = {} } = req.body;
+    
+    if (!data) {
+      return res.status(400).json({
+        success: false,
+        error: 'Data parameter is required for PDF export'
+      });
+    }
+
+    const result = await multiAgentSystem.exportToPDF(data, options);
+    
+    res.json({
+      success: result.success,
+      export_details: result,
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error) {
+    console.error('❌ PDF export failed:', error.message);
+    res.status(500).json({
+      success: false,
+      error: 'PDF export failed',
+      details: error.message
+    });
+  }
+});
+
+/**
+ * POST /api/export/excel
+ * Export pharmaceutical intelligence data to Excel
+ */
+router.post('/export/excel', ensureInitialized, async (req, res) => {
+  try {
+    const { data, options = {} } = req.body;
+    
+    if (!data) {
+      return res.status(400).json({
+        success: false,
+        error: 'Data parameter is required for Excel export'
+      });
+    }
+
+    const result = await multiAgentSystem.exportToExcel(data, options);
+    
+    res.json({
+      success: result.success,
+      export_details: result,
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error) {
+    console.error('❌ Excel export failed:', error.message);
+    res.status(500).json({
+      success: false,
+      error: 'Excel export failed',
+      details: error.message
+    });
+  }
+});
+
+/**
+ * GET /api/stage2b/capabilities
+ * Get Stage 2B feature capabilities summary
+ */
+router.get('/stage2b/capabilities', ensureInitialized, (req, res) => {
+  try {
+    const capabilities = multiAgentSystem.getStage2BCapabilities();
+    
+    res.json({
+      success: true,
+      stage: '2B',
+      capabilities: capabilities,
+      timestamp: new Date().toISOString()
+    });
+    
+  } catch (error) {
+    console.error('❌ Stage 2B capabilities query failed:', error.message);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to get Stage 2B capabilities',
       details: error.message
     });
   }

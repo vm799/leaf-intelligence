@@ -6,15 +6,22 @@ const DataCollectionAgent = require('./agents/intelligence/DataCollectionAgent.j
 const RiskAnalysisAgent = require('./agents/intelligence/RiskAnalysisAgent.js');
 const CompetitiveIntelligenceAgent = require('./agents/intelligence/CompetitiveIntelligenceAgent.js');
 const KnowledgeGraphAgent = require('./agents/intelligence/KnowledgeGraphAgent.js');
+const RegulatoryMonitoringAgent = require('./agents/intelligence/RegulatoryMonitoringAgent.js');
+const ClinicalTrialsAgent = require('./agents/intelligence/ClinicalTrialsAgent.js');
 const ClientReportService = require('./client-reports-service.js');
+const WebhookManager = require('./alerts/WebhookManager.js');
+const ReportExporter = require('./exports/ReportExporter.js');
 
 class LeafIntelligenceMultiAgentSystem {
   constructor() {
     this.orchestrator = new AgentOrchestrator();
     this.clientReportService = new ClientReportService();
+    this.webhookManager = new WebhookManager();
+    this.reportExporter = new ReportExporter();
     this.isInitialized = false;
+    this.stage = '2B'; // Updated to Stage 2B
     
-    console.log('🧠 Leaf Intelligence Multi-Agent System initializing...');
+    console.log('🧠 Leaf Intelligence Multi-Agent System (Stage 2B) initializing...');
   }
 
   async initialize() {
@@ -38,19 +45,30 @@ class LeafIntelligenceMultiAgentSystem {
       const knowledgeGraphAgent = new KnowledgeGraphAgent();
       await this.orchestrator.registerAgent(knowledgeGraphAgent);
       
-      // Additional agents for Stage 2B
-      // const regulatoryMonitoringAgent = new RegulatoryMonitoringAgent();
-      // const clinicalTrialsAgent = new ClinicalTrialsAgent();
+      // Stage 2B New Agents - Real-time Alert System
+      console.log('🤖 Initializing Agent RegulatoryMonitoringAgent...');
+      const regulatoryMonitoringAgent = new RegulatoryMonitoringAgent();
+      await this.orchestrator.registerAgent(regulatoryMonitoringAgent);
+      
+      console.log('🤖 Initializing Agent ClinicalTrialsAgent...');
+      const clinicalTrialsAgent = new ClinicalTrialsAgent();
+      await this.orchestrator.registerAgent(clinicalTrialsAgent);
+      
+      // Initialize webhook system for real-time alerts
+      console.log('📡 Initializing Webhook Alert System...');
+      this.setupWebhookIntegration();
       
       // Set up orchestrator event listeners
       this.setupOrchestratorListeners();
       
       this.isInitialized = true;
-      console.log('✅ Multi-agent system fully operational');
+      console.log('✅ Multi-agent system fully operational (Stage 2B - 6-Agent System with Real-time Alerts)');
       
       return {
         success: true,
-        message: 'Multi-agent system initialized successfully',
+        message: 'Stage 2B Multi-agent system initialized with real-time alert capabilities',
+        stage: this.stage,
+        new_features: ['Real-time FDA alerts', 'PDF/Excel export', 'Regulatory monitoring', 'Clinical trial predictions'],
         agents: this.orchestrator.getSystemStatus().agents.map(a => ({
           name: a.name,
           capabilities: a.capabilities,
@@ -150,6 +168,30 @@ class LeafIntelligenceMultiAgentSystem {
       'generate_insights': ['knowledge_discovery', 'graph_analytics'],
       'query_graph': ['graph_construction', 'semantic_analysis'],
       
+      // RegulatoryMonitoringAgent capabilities (Stage 2B)
+      'continuous_compliance_monitoring': ['continuous_compliance_monitoring', 'regulatory_change_detection'],
+      'regulatory_change_detection': ['regulatory_change_detection', 'enforcement_action_tracking'],
+      'enforcement_action_tracking': ['enforcement_action_tracking', 'compliance_deadline_management'],
+      'guidance_document_monitoring': ['guidance_document_monitoring', 'regulatory_intelligence_aggregation'],
+      'inspection_schedule_tracking': ['inspection_schedule_tracking', 'compliance_deadline_management'],
+      'compliance_deadline_management': ['compliance_deadline_management', 'continuous_compliance_monitoring'],
+      'regulatory_intelligence_aggregation': ['regulatory_intelligence_aggregation', 'regulatory_change_detection'],
+      
+      // ClinicalTrialsAgent capabilities (Stage 2B)
+      'trial_outcome_prediction': ['trial_outcome_prediction', 'trial_risk_assessment'],
+      'clinical_pipeline_analysis': ['clinical_pipeline_analysis', 'competitive_trial_monitoring'],
+      'competitive_trial_monitoring': ['competitive_trial_monitoring', 'clinical_pipeline_analysis'],
+      'enrollment_timeline_optimization': ['enrollment_timeline_optimization', 'trial_risk_assessment'],
+      'regulatory_milestone_tracking': ['regulatory_milestone_tracking', 'compliance_deadline_management'],
+      'trial_risk_assessment': ['trial_risk_assessment', 'endpoint_analysis'],
+      'endpoint_analysis': ['endpoint_analysis', 'trial_outcome_prediction'],
+      'investigator_network_analysis': ['investigator_network_analysis', 'enrollment_timeline_optimization'],
+      
+      // Stage 2B Export Capabilities
+      'export_pdf_report': ['data_export', 'format_conversion'],
+      'export_excel_report': ['data_export', 'format_conversion'],
+      'generate_executive_report': ['executive_reporting', 'strategic_insights'],
+      
       // Legacy/General capabilities
       'competitive_intelligence': ['fda_data_collection', 'ema_data_collection'],
       'executive_briefing': ['executive_reporting', 'strategic_insights'],
@@ -166,7 +208,7 @@ class LeafIntelligenceMultiAgentSystem {
     return {
       system: {
         initialized: this.isInitialized,
-        version: '1.0.0-stage1',
+        version: '2.0.0-stage2b',
         timestamp: new Date()
       },
       orchestrator: this.orchestrator.getSystemStatus(),
@@ -174,6 +216,12 @@ class LeafIntelligenceMultiAgentSystem {
         total_preserved: 64,
         redirect_service_active: true,
         backup_available: true
+      },
+      stage_2b_features: {
+        webhook_alerts: this.webhookManager ? this.webhookManager.getStatus() : 'not_initialized',
+        export_capabilities: ['PDF', 'Excel', 'Executive Reports'],
+        new_agents: ['RegulatoryMonitoringAgent', 'ClinicalTrialsAgent'],
+        real_time_monitoring: true
       }
     };
   }
@@ -264,6 +312,43 @@ class LeafIntelligenceMultiAgentSystem {
         redirect_path: reportResult.redirect ? reportResult.new_path : null
       });
 
+      // Test 4: Stage 2B Webhook Alert Processing
+      console.log('\n🚨 Testing webhook alert processing...');
+      const alertResult = await this.processWebhookAlert({
+        type: 'fda_warning',
+        title: 'Test FDA Warning Alert',
+        severity: 'high',
+        company: 'Test Pharmaceutical',
+        alert_id: 'test_alert_001'
+      });
+      
+      demonstrations.push({
+        test: 'Webhook Alert Processing',
+        success: alertResult.success,
+        alert_processed: alertResult.alert_processed
+      });
+
+      // Test 5: Stage 2B Export Capabilities
+      console.log('\n📋 Testing export capabilities...');
+      try {
+        const exportResult = await this.exportToPDF({
+          summary: { totalFindings: 15, riskScore: 65, competitorsAnalyzed: 8 },
+          findings: ['Test finding 1', 'Test finding 2']
+        }, { template: 'executive_summary' });
+        
+        demonstrations.push({
+          test: 'PDF Export Generation',
+          success: exportResult.success,
+          filename: exportResult.filename
+        });
+      } catch (error) {
+        demonstrations.push({
+          test: 'PDF Export Generation',
+          success: false,
+          error: 'PDF export requires additional dependencies (puppeteer)'
+        });
+      }
+
       console.log('\n✅ System demonstration completed successfully!');
       
       return {
@@ -273,8 +358,12 @@ class LeafIntelligenceMultiAgentSystem {
         summary: {
           total_tests: demonstrations.length,
           passed_tests: demonstrations.filter(d => d.success).length,
-          system_operational: this.isInitialized
-        }
+          system_operational: this.isInitialized,
+          stage_2b_features_tested: demonstrations.filter(d => 
+            d.test.includes('Webhook') || d.test.includes('Export')
+          ).length
+        },
+        stage_2b_capabilities: this.getStage2BCapabilities()
       };
 
     } catch (error) {
@@ -288,17 +377,177 @@ class LeafIntelligenceMultiAgentSystem {
   }
 
   /**
+   * Setup webhook integration for real-time alerts (Stage 2B)
+   */
+  setupWebhookIntegration() {
+    // Register default webhook for system alerts
+    this.webhookManager.registerWebhook('system_alerts', {
+      url: 'http://localhost:3000/api/webhooks/system',
+      events: ['fda_warning', 'regulatory_change', 'competitive_alert', 'trial_milestone'],
+      secret: 'leaf_intelligence_webhook_secret'
+    });
+
+    // Create default alert rules
+    this.webhookManager.createAlertRule('high_priority_alerts', {
+      type: 'fda_warning',
+      conditions: { severity: 'high' },
+      webhooks: ['system_alerts'],
+      priority: 'high'
+    });
+
+    // Start monitoring with 30-minute intervals
+    this.webhookManager.startMonitoring(30);
+    
+    console.log('✅ Webhook alert system configured and monitoring started');
+  }
+
+  /**
+   * Export intelligence data to PDF report (Stage 2B)
+   */
+  async exportToPDF(data, options = {}) {
+    try {
+      console.log('📋 Generating PDF pharmaceutical intelligence report...');
+      
+      const result = await this.reportExporter.exportToPDF(data, {
+        template: options.template || 'executive_summary',
+        company: options.company,
+        title: options.title || 'Pharmaceutical Intelligence Report'
+      });
+
+      return {
+        success: true,
+        export_type: 'PDF',
+        filename: result.filename,
+        size: result.size,
+        generated_at: result.generated_at,
+        download_ready: true
+      };
+
+    } catch (error) {
+      console.error('❌ PDF export failed:', error.message);
+      throw new Error(`PDF export failed: ${error.message}`);
+    }
+  }
+
+  /**
+   * Export intelligence data to Excel report (Stage 2B)
+   */
+  async exportToExcel(data, options = {}) {
+    try {
+      console.log('📈 Generating Excel pharmaceutical intelligence report...');
+      
+      const result = await this.reportExporter.exportToExcel(data, {
+        template: options.template || 'detailed_analysis',
+        company: options.company,
+        includeCharts: options.includeCharts !== false
+      });
+
+      return {
+        success: true,
+        export_type: 'Excel',
+        filename: result.filename,
+        size: result.size,
+        sheets: result.sheets,
+        generated_at: result.generated_at,
+        download_ready: true
+      };
+
+    } catch (error) {
+      console.error('❌ Excel export failed:', error.message);
+      throw new Error(`Excel export failed: ${error.message}`);
+    }
+  }
+
+  /**
+   * Process webhook alert (Stage 2B)
+   */
+  async processWebhookAlert(alertData) {
+    try {
+      console.log(`🚨 Processing webhook alert: ${alertData.type}`);
+      
+      // Process the alert through the webhook manager
+      await this.webhookManager.processAlert(alertData);
+      
+      // Log alert for system monitoring
+      this.orchestrator.emit('webhook_alert_processed', {
+        alert_type: alertData.type,
+        severity: alertData.severity,
+        processed_at: new Date()
+      });
+
+      return {
+        success: true,
+        alert_processed: true,
+        alert_id: alertData.alert_id || 'generated',
+        timestamp: new Date()
+      };
+
+    } catch (error) {
+      console.error('❌ Webhook alert processing failed:', error.message);
+      throw error;
+    }
+  }
+
+  /**
+   * Get Stage 2B capabilities summary
+   */
+  getStage2BCapabilities() {
+    return {
+      real_time_alerts: {
+        webhook_system: this.webhookManager.getStatus(),
+        monitored_sources: ['FDA', 'EMA', 'ClinicalTrials.gov'],
+        alert_types: ['fda_warning', 'regulatory_change', 'competitive_alert', 'trial_milestone']
+      },
+      export_capabilities: {
+        formats: ['PDF', 'Excel'],
+        templates: ['executive_summary', 'regulatory_analysis', 'competitive_intelligence'],
+        automated_generation: true
+      },
+      new_agents: {
+        regulatory_monitoring: {
+          capabilities: 7,
+          specialization: 'Continuous regulatory compliance and enforcement tracking'
+        },
+        clinical_trials: {
+          capabilities: 8,
+          specialization: 'Trial outcome prediction and pipeline analysis'
+        }
+      },
+      total_agents: 6,
+      total_capabilities: 37, // Updated count with Stage 2B agents
+      upgrade_benefits: [
+        'Real-time pharmaceutical intelligence alerts',
+        'Professional PDF and Excel report generation',
+        'Predictive clinical trial outcome analysis',
+        'Continuous regulatory compliance monitoring',
+        'Enhanced competitive intelligence automation'
+      ]
+    };
+  }
+
+  /**
    * Graceful shutdown of the entire system
    */
   async shutdown() {
-    console.log('🔄 Shutting down multi-agent system...');
+    console.log('🔄 Shutting down multi-agent system (Stage 2B)...');
     
+    // Stop webhook monitoring
+    if (this.webhookManager) {
+      this.webhookManager.stopMonitoring();
+    }
+    
+    // Cleanup report exporter resources
+    if (this.reportExporter) {
+      await this.reportExporter.cleanup();
+    }
+    
+    // Shutdown orchestrator
     if (this.orchestrator) {
       await this.orchestrator.shutdown();
     }
     
     this.isInitialized = false;
-    console.log('✅ Multi-agent system shut down successfully');
+    console.log('✅ Stage 2B Multi-agent system shut down successfully');
   }
 }
 
